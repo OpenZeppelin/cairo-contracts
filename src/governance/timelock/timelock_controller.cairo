@@ -536,19 +536,21 @@ pub mod TimelockControllerComponent {
         /// - `min_delay`: initial minimum delay in seconds for operations.
         /// - `proposers`: accounts to be granted proposer and canceller roles.
         /// - `executors`: accounts to be granted executor role.
-        /// - `admin`: optional account to be granted admin role; disable with zero address.
+        /// - `admin`: account to be granted admin role.
         ///
-        /// WARNING: The optional admin can aid with initial configuration of roles after deployment
-        /// without being subject to delay, but this role should be subsequently renounced in favor
-        /// of administration through timelocked proposals.
+        /// WARNING: An initial admin is required in this implementation in order to grant
+        /// the timelock contract itself with the `DEFAULT_ADMIN_ROLE`. The contract's address cannot
+        /// be set during construction (without precomputing the address).
+        /// Further, the admin may also aid with the initial configuration of other roles after
+        /// deployment without being subject to delay, but this role should be subsequently
+        /// renounced in favor of administration through timelocked proposals.
         ///
         /// Emits two `RoleGranted` events for each account in `proposers` with `PROPOSER_ROLE`
         /// admin `CANCELLER_ROLE` roles.
         ///
         /// Emits a `RoleGranted` event for each account in `executors` with `EXECUTOR_ROLE` role.
         ///
-        /// May emit a `RoleGranted` event for `admin` with `DEFAULT_ADMIN_ROLE` role (if `admin` is
-        /// not zero).
+        /// Emits a `RoleGranted` event for `admin` with `DEFAULT_ADMIN_ROLE`.
         ///
         /// Emits `MinDelayChanged` event.
         fn initializer(
@@ -558,15 +560,10 @@ pub mod TimelockControllerComponent {
             executors: Span<ContractAddress>,
             admin: ContractAddress
         ) {
-            // Register access control ID and self as default admin
+            // Register access control ID and admin as initial default admin
             let mut access_component = get_dep_component_mut!(ref self, AccessControl);
             access_component.initializer();
-            access_component._grant_role(DEFAULT_ADMIN_ROLE, starknet::get_contract_address());
-
-            // Optional admin
-            if admin != Zero::zero() {
-                access_component._grant_role(DEFAULT_ADMIN_ROLE, admin)
-            };
+            access_component._grant_role(DEFAULT_ADMIN_ROLE, admin);
 
             // Register proposers and cancellers
             for proposer in proposers {

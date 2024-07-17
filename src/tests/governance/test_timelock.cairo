@@ -135,9 +135,9 @@ fn deploy_timelock() -> TimelockABIDispatcher {
 
     let address = utils::deploy(TimelockControllerMock::TEST_CLASS_HASH, calldata);
     // Events dropped:
-    // - 5 RoleGranted: self, proposer, canceller, executor, admin
-    // - MinDelayChanged
-    utils::drop_events(address, 6);
+    // - 4 RoleGranted: proposer, canceller, executor, admin
+    // - 1 MinDelayChanged
+    utils::drop_events(address, 5);
     TimelockABIDispatcher { contract_address: address }
 }
 

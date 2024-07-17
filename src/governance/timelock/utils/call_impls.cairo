@@ -30,8 +30,8 @@ pub(crate) impl HashCallsImpl<S, +HashStateTrait<S>, +Drop<S>> of Hash<Span<Call
 pub(crate) impl CallPartialEq of PartialEq<Call> {
     #[inline(always)]
     fn eq(lhs: @Call, rhs: @Call) -> bool {
-        let Call {to: l_to, selector: l_selector, calldata: l_calldata } = lhs;
-        let Call {to: r_to, selector: r_selector, calldata: r_calldata } = rhs;
+        let Call { to: l_to, selector: l_selector, calldata: l_calldata } = lhs;
+        let Call { to: r_to, selector: r_selector, calldata: r_calldata } = rhs;
         l_to == r_to && l_selector == r_selector && l_calldata == r_calldata
     }
     #[inline(always)]

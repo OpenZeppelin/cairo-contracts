@@ -13,7 +13,7 @@ mod mocks;
 mod security;
 #[cfg(test)]
 mod token;
-// #[cfg(test)]
-// mod upgrades;
+#[cfg(test)]
+mod upgrades;
 
 pub mod utils;

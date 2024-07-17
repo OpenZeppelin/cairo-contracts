@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 /// #ERC2981 Component
-/// 
+///
 /// The ERC2981 compononet provides an implementation of the IERC2981 interface.
 #[starknet::component]
 pub mod ERC2981Component {
@@ -13,6 +13,7 @@ pub mod ERC2981Component {
     use openzeppelin::token::common::erc2981::interface::{IERC2981, IERC2981_ID};
 
     use starknet::ContractAddress;
+    use starknet::storage::Map;
 
     #[derive(Serde, Drop, PartialEq, starknet::Store)]
     struct RoyaltyInfo {
@@ -23,7 +24,7 @@ pub mod ERC2981Component {
     #[storage]
     struct Storage {
         default_royalty_info: RoyaltyInfo,
-        token_royalty_info: LegacyMap<u256, RoyaltyInfo>,
+        token_royalty_info: Map<u256, RoyaltyInfo>,
     }
 
     //
@@ -81,8 +82,8 @@ pub mod ERC2981Component {
         }
 
 
-        /// The denominator with which to interpret the fee set in {_set_token_royalty} and {_set_default_royalty} as a
-        /// fraction of the sale price. 
+        /// The denominator with which to interpret the fee set in {_set_token_royalty} and
+        /// {_set_default_royalty} as a fraction of the sale price.
         /// Defaults to 10000 so fees are expressed in basis points
         fn _fee_denominator(self: @ComponentState<TContractState>) -> u256 {
             10000

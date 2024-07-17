@@ -1,10 +1,5 @@
-use core::byte_array::ByteArrayTrait;
 use core::integer::BoundedInt;
 use core::num::traits::Zero;
-use core::result::ResultTrait;
-use core::serde::Serde;
-use core::to_byte_array::FormatAsByteArray;
-use openzeppelin::presets::ERC20Upgradeable;
 use openzeppelin::presets::interfaces::erc20::{
     ERC20UpgradeableABISafeDispatcher, ERC20UpgradeableABISafeDispatcherTrait
 };
@@ -12,7 +7,6 @@ use openzeppelin::presets::interfaces::{
     ERC20UpgradeableABIDispatcher, ERC20UpgradeableABIDispatcherTrait
 };
 use openzeppelin::tests::access::common::OwnableSpyHelpers;
-use openzeppelin::tests::mocks::erc20_mocks::SnakeERC20Mock;
 use openzeppelin::tests::token::erc20::common::ERC20SpyHelpers;
 use openzeppelin::tests::upgrades::common::UpgradableSpyHelpers;
 use openzeppelin::tests::utils::common::IntoBase16String;
@@ -20,17 +14,15 @@ use openzeppelin::tests::utils::constants::{
     ZERO, OWNER, SPENDER, RECIPIENT, OTHER, NAME, SYMBOL, DECIMALS, SUPPLY, VALUE, CLASS_HASH_ZERO
 };
 use openzeppelin::tests::utils::events::EventSpyExt;
-use openzeppelin::tests::utils::{declare_class, declare_and_deploy, panic_data_to_byte_array};
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::interface::{IERC20CamelDispatcher, IERC20CamelDispatcherTrait};
 use openzeppelin::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use openzeppelin::utils::serde::SerializedAppend;
 use snforge_std::{spy_events, EventSpy, ContractClass, start_cheat_caller_address};
-use starknet::SyscallResultTrait;
 use starknet::{ContractAddress, ClassHash};
 
 fn V2_CLASS_HASH() -> ClassHash {
-    declare_class("SnakeERC20Mock").class_hash
+    utils::declare_class("SnakeERC20Mock").class_hash
 }
 
 //
@@ -497,7 +489,7 @@ fn test_v2_missing_camel_selector() {
         selector.into_base_16_string(),
         v1.contract_address.into_base_16_string()
     );
-    assert_eq!(panic_data_to_byte_array(panic_data), expected_panic_message);
+    assert_eq!(utils::panic_data_to_byte_array(panic_data), expected_panic_message);
 }
 
 #[test]

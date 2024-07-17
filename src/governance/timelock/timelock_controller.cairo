@@ -16,7 +16,7 @@
 pub mod TimelockControllerComponent {
     use core::hash::{HashStateTrait, HashStateExTrait};
     use core::num::traits::Zero;
-    use core::poseidon::PoseidonTrait;
+    use core::pedersen::PedersenTrait;
     use openzeppelin::access::accesscontrol::AccessControlComponent::InternalTrait as AccessControlInternalTrait;
     use openzeppelin::access::accesscontrol::AccessControlComponent::{
         AccessControlImpl, AccessControlCamelImpl
@@ -176,7 +176,7 @@ pub mod TimelockControllerComponent {
         fn hash_operation(
             self: @ComponentState<TContractState>, call: Call, predecessor: felt252, salt: felt252
         ) -> felt252 {
-            PoseidonTrait::new()
+            PedersenTrait::new(0)
                 .update_with(call)
                 .update_with(predecessor)
                 .update_with(salt)
@@ -190,7 +190,7 @@ pub mod TimelockControllerComponent {
             predecessor: felt252,
             salt: felt252
         ) -> felt252 {
-            PoseidonTrait::new()
+            PedersenTrait::new(0)
                 .update_with(calls)
                 .update_with(predecessor)
                 .update_with(salt)

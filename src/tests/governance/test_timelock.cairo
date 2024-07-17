@@ -1,6 +1,6 @@
 use core::hash::{HashStateTrait, HashStateExTrait};
 use core::num::traits::Zero;
-use core::poseidon::PoseidonTrait;
+use core::pedersen::PedersenTrait;
 use openzeppelin::access::accesscontrol::AccessControlComponent::{
     AccessControlImpl, InternalImpl as AccessControlInternalImpl
 };
@@ -183,7 +183,7 @@ fn test_hash_operation() {
     let hashed_operation = timelock.hash_operation(call, predecessor, salt);
 
     // Manually set hash elements
-    let mut expected_hash = PoseidonTrait::new()
+    let mut expected_hash = PedersenTrait::new(0)
         .update_with(target.contract_address) // call::to
         .update_with(selector!("set_number")) // call::selector
         .update_with(1) // call::calldata.len
@@ -213,7 +213,7 @@ fn test_hash_operation_batch() {
     let hashed_operation = timelock.hash_operation_batch(calls, predecessor, salt);
 
     // Manually set hash elements
-    let mut expected_hash = PoseidonTrait::new()
+    let mut expected_hash = PedersenTrait::new(0)
         .update_with(3) // total number of Calls
         .update_with(target.contract_address) // call::to
         .update_with(selector!("set_number")) // call::selector

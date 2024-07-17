@@ -9,6 +9,7 @@ use starknet::secp256_trait::Secp256Trait;
 pub(crate) const DECIMALS: u8 = 18_u8;
 pub(crate) const SUPPLY: u256 = 2000;
 pub(crate) const VALUE: u256 = 300;
+pub(crate) const FELT_VALUE: felt252 = 'FELT_VALUE';
 pub(crate) const ROLE: felt252 = 'ROLE';
 pub(crate) const OTHER_ROLE: felt252 = 'OTHER_ROLE';
 pub(crate) const TOKEN_ID: u256 = 21;

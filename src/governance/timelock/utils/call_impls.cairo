@@ -30,18 +30,12 @@ pub(crate) impl HashCallsImpl<S, +HashStateTrait<S>, +Drop<S>> of Hash<Span<Call
 pub(crate) impl CallPartialEq of PartialEq<Call> {
     #[inline(always)]
     fn eq(lhs: @Call, rhs: @Call) -> bool {
-        let mut lhs_arr = array![];
-        Serde::serialize(lhs, ref lhs_arr);
-        let mut rhs_arr = array![];
-        Serde::serialize(lhs, ref rhs_arr);
-        lhs_arr == rhs_arr
+        let Call {to: l_to, selector: l_selector, calldata: l_calldata } = lhs;
+        let Call {to: r_to, selector: r_selector, calldata: r_calldata } = rhs;
+        l_to == r_to && l_selector == r_selector && l_calldata == r_calldata
     }
     #[inline(always)]
     fn ne(lhs: @Call, rhs: @Call) -> bool {
-        let mut lhs_arr = array![];
-        Serde::serialize(lhs, ref lhs_arr);
-        let mut rhs_arr = array![];
-        Serde::serialize(lhs, ref rhs_arr);
-        !(lhs_arr == rhs_arr)
+        !(lhs == rhs)
     }
 }

@@ -1102,21 +1102,24 @@ fn test_update_delay_scheduled() {
 //
 
 #[test]
-fn test_initializer_single_role_and_no_admin() {
+fn test_initializer_single_role() {
     let mut state = COMPONENT_STATE();
     let contract_state = CONTRACT_STATE();
     let min_delay = MIN_DELAY;
 
     let proposers = array![PROPOSER()].span();
     let executors = array![EXECUTOR()].span();
-    let admin_zero = ZERO();
+    let admin = ADMIN();
 
-    state.initializer(min_delay, proposers, executors, admin_zero);
-    assert!(contract_state.has_role(DEFAULT_ADMIN_ROLE, admin_zero));
+    state.initializer(min_delay, proposers, executors, admin);
+    assert!(contract_state.has_role(PROPOSER_ROLE, PROPOSER()));
+    assert!(contract_state.has_role(CANCELLER_ROLE, PROPOSER()));
+    assert!(contract_state.has_role(EXECUTOR_ROLE, EXECUTOR()));
+    assert!(contract_state.has_role(DEFAULT_ADMIN_ROLE, admin));
 }
 
 #[test]
-fn test_initializer_multiple_roles_and_admin() {
+fn test_initializer_multiple_roles() {
     let mut state = COMPONENT_STATE();
     let contract_state = CONTRACT_STATE();
     let min_delay = MIN_DELAY;
@@ -1174,19 +1177,19 @@ fn test_initializer_min_delay() {
 
     let proposers = array![PROPOSER()].span();
     let executors = array![EXECUTOR()].span();
-    let admin_zero = ZERO();
+    let admin = ADMIN();
 
-    state.initializer(min_delay, proposers, executors, admin_zero);
+    state.initializer(min_delay, proposers, executors, admin);
 
     // Check minimum delay is set
     let delay = state.get_min_delay();
     assert_eq!(delay, MIN_DELAY);
 
     // The initializer emits 4 `RoleGranted` events prior to `MinDelayChanged`:
-    // - Self administration
     // - 1 proposer
     // - 1 canceller
     // - 1 executor
+    // - 1 admin
     utils::drop_events(ZERO(), 4);
     assert_only_event_delay_change(ZERO(), 0, MIN_DELAY);
 }

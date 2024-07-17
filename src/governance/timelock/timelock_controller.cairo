@@ -539,8 +539,8 @@ pub mod TimelockControllerComponent {
         /// - `admin`: account to be granted admin role.
         ///
         /// WARNING: An initial admin is required in this implementation in order to grant
-        /// the timelock contract itself with the `DEFAULT_ADMIN_ROLE`. The contract's address cannot
-        /// be set during construction (without precomputing the address).
+        /// the timelock contract itself with the `DEFAULT_ADMIN_ROLE`. The contract's address
+        /// cannot be set during construction (without precomputing the address).
         /// Further, the admin may also aid with the initial configuration of other roles after
         /// deployment without being subject to delay, but this role should be subsequently
         /// renounced in favor of administration through timelocked proposals.

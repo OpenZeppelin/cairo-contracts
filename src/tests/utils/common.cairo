@@ -1,45 +1,36 @@
-use core::starknet::SyscallResultTrait;
-use snforge_std::{declare, get_class_hash, ContractClass, ContractClassTrait};
-use snforge_std::{start_cheat_caller_address, stop_cheat_caller_address};
-use starknet::ContractAddress;
+use core::to_byte_array::FormatAsByteArray;
 
-pub fn deploy(contract_class: ContractClass, calldata: Array<felt252>) -> ContractAddress {
-    match contract_class.deploy(@calldata) {
-        Result::Ok((contract_address, _)) => contract_address,
-        Result::Err(panic_data) => panic!("Failed to deploy, error: ${:?}", panic_data)
+/// Converts panic data into a string (ByteArray).
+///
+/// panic_data is expected to be a valid serialized byte array with an extra
+/// felt252 at the beginning, which is the BYTE_ARRAY_MAGIC.
+pub fn panic_data_to_byte_array(panic_data: Array<felt252>) -> ByteArray {
+    let mut panic_data = panic_data.span();
+
+    // Remove BYTE_ARRAY_MAGIC from the panic data.
+    panic_data.pop_front().unwrap();
+
+    match Serde::<ByteArray>::deserialize(ref panic_data) {
+        Option::Some(string) => string,
+        Option::None => panic!("Failed to deserialize panic data."),
     }
 }
 
-pub fn deploy_at(
-    contract_class: ContractClass, contract_address: ContractAddress, calldata: Array<felt252>
-) {
-    match contract_class.deploy_at(@calldata, contract_address) {
-        Result::Ok(_) => (),
-        Result::Err(panic_data) => panic!("Failed to deploy, error: ${:?}", panic_data)
+/// Converts a felt252 to a base 16 string padded to 66 characters including the `0x` prefix.
+pub fn to_base_16_string(value: felt252) -> ByteArray {
+    let mut string = value.format_as_byte_array(16);
+    let mut padding = 64 - string.len();
+
+    while padding > 0 {
+        string = "0" + string;
+        padding -= 1;
     };
+    format!("0x{}", string)
 }
 
-/// Deploys a contract from the class hash of another contract which is already deployed.
-pub fn deploy_another_at(
-    existing: ContractAddress, target_address: ContractAddress, calldata: Array<felt252>
-) {
-    let class_hash = get_class_hash(existing);
-    let contract_class = ContractClassTrait::new(class_hash);
-    deploy_at(contract_class, target_address, calldata)
-}
-
-pub fn declare_class(contract_name: ByteArray) -> ContractClass {
-    declare(contract_name).unwrap_syscall()
-}
-
-pub fn declare_and_deploy(contract_name: ByteArray, calldata: Array<felt252>) -> ContractAddress {
-    let contract_class = declare(contract_name).unwrap_syscall();
-    deploy(contract_class, calldata)
-}
-
-pub fn declare_and_deploy_at(
-    contract_name: ByteArray, target_address: ContractAddress, calldata: Array<felt252>
-) {
-    let contract_class = declare(contract_name).unwrap_syscall();
-    deploy_at(contract_class, target_address, calldata)
+#[generate_trait]
+pub impl IntoBase16String<T, +Into<T, felt252>> of IntoBase16StringTrait<T> {
+    fn into_base_16_string(self: T) -> ByteArray {
+        to_base_16_string(self.into())
+    }
 }

@@ -1102,17 +1102,20 @@ fn test_update_delay_scheduled() {
 //
 
 #[test]
-fn test_initializer_single_role_and_no_admin() {
+fn test_initializer_single_role_and_admin() {
     let mut state = COMPONENT_STATE();
     let contract_state = CONTRACT_STATE();
     let min_delay = MIN_DELAY;
 
     let proposers = array![PROPOSER()].span();
     let executors = array![EXECUTOR()].span();
-    let admin_zero = ZERO();
+    let admin = ADMIN();
 
-    state.initializer(min_delay, proposers, executors, admin_zero);
-    assert!(contract_state.has_role(DEFAULT_ADMIN_ROLE, admin_zero));
+    state.initializer(min_delay, proposers, executors, admin);
+    assert!(contract_state.has_role(PROPOSER_ROLE, *proposers.at(0)));
+    assert!(contract_state.has_role(CANCELLER_ROLE, *proposers.at(0)));
+    assert!(contract_state.has_role(EXECUTOR_ROLE, *executors.at(0)));
+    assert!(contract_state.has_role(DEFAULT_ADMIN_ROLE, admin));
 }
 
 #[test]
@@ -1145,6 +1148,25 @@ fn test_initializer_multiple_roles_and_admin() {
         assert!(contract_state.has_role(EXECUTOR_ROLE, *executors.at(index)));
         index += 1;
     };
+}
+
+#[test]
+fn test_initializer_no_admin() {
+    let mut state = COMPONENT_STATE();
+    let contract_state = CONTRACT_STATE();
+    let min_delay = MIN_DELAY;
+
+    let proposers = array![PROPOSER()].span();
+    let executors = array![EXECUTOR()].span();
+    let admin_zero = ZERO();
+
+    // The initializer grants the timelock contract address the `DEFAULT_ADMIN_ROLE`
+    // therefore, we need to set the address since it's not deployed in this context
+    testing::set_contract_address(contract_address_const::<'TIMELOCK_ADDRESS'>());
+    state.initializer(min_delay, proposers, executors, admin_zero);
+
+    let admin_does_not_have_role = !contract_state.has_role(DEFAULT_ADMIN_ROLE, admin_zero);
+    assert!(admin_does_not_have_role);
 }
 
 #[test]

@@ -483,13 +483,9 @@ fn test_v2_missing_camel_selector() {
     };
     let mut panic_data = safe_dispatcher.totalSupply().unwrap_err();
 
-    let selector = selector!("totalSupply");
-    let expected_panic_message = format!(
-        "Entry point selector {} not found in contract {}",
-        selector.into_base_16_string(),
-        v1.contract_address.into_base_16_string()
-    );
-    assert_eq!(utils::panic_data_to_byte_array(panic_data), expected_panic_message);
+    utils::assert_entrypoint_not_found_error(
+        panic_data, selector!("totalSupply"), v1.contract_address
+    )
 }
 
 #[test]

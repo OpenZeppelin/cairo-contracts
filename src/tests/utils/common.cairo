@@ -7,7 +7,7 @@ use core::to_byte_array::FormatAsByteArray;
 pub fn panic_data_to_byte_array(panic_data: Array<felt252>) -> ByteArray {
     let mut panic_data = panic_data.span();
 
-    // Remove BYTE_ARRAY_MAGIC form the panic data.
+    // Remove BYTE_ARRAY_MAGIC from the panic data.
     panic_data.pop_front().unwrap();
 
     match Serde::<ByteArray>::deserialize(ref panic_data) {

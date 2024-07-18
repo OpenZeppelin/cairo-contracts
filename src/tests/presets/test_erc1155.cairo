@@ -1,6 +1,5 @@
 use core::num::traits::Zero;
 use openzeppelin::introspection;
-use openzeppelin::presets::ERC1155Upgradeable;
 use openzeppelin::presets::interfaces::{
     ERC1155UpgradeableABIDispatcher, ERC1155UpgradeableABIDispatcherTrait
 };
@@ -11,7 +10,6 @@ use openzeppelin::tests::token::erc1155::common::{
 };
 use openzeppelin::tests::token::erc1155::common::{get_ids_and_values, get_ids_and_split_values};
 use openzeppelin::tests::upgrades::common::UpgradableSpyHelpers;
-use openzeppelin::tests::utils::common::IntoBase16String;
 use openzeppelin::tests::utils::constants::{
     EMPTY_DATA, ZERO, OWNER, RECIPIENT, CLASS_HASH_ZERO, OPERATOR, OTHER, TOKEN_ID, TOKEN_ID_2,
     TOKEN_VALUE, TOKEN_VALUE_2

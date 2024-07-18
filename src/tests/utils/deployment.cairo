@@ -1,4 +1,5 @@
 use core::starknet::SyscallResultTrait;
+use openzeppelin::tests::utils::panic_data_to_byte_array;
 use snforge_std::{declare, get_class_hash, ContractClass, ContractClassTrait};
 use snforge_std::{start_cheat_caller_address, stop_cheat_caller_address};
 use starknet::ContractAddress;
@@ -6,7 +7,7 @@ use starknet::ContractAddress;
 pub fn deploy(contract_class: ContractClass, calldata: Array<felt252>) -> ContractAddress {
     match contract_class.deploy(@calldata) {
         Result::Ok((contract_address, _)) => contract_address,
-        Result::Err(panic_data) => panic!("Failed to deploy, error: ${:?}", panic_data)
+        Result::Err(panic_data) => panic!("{}", panic_data_to_byte_array(panic_data))
     }
 }
 
@@ -15,7 +16,7 @@ pub fn deploy_at(
 ) {
     match contract_class.deploy_at(@calldata, contract_address) {
         Result::Ok(_) => (),
-        Result::Err(panic_data) => panic!("Failed to deploy, error: ${:?}", panic_data)
+        Result::Err(panic_data) => panic!("{}", panic_data_to_byte_array(panic_data))
     };
 }
 

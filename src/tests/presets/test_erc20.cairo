@@ -18,8 +18,8 @@ use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::interface::{IERC20CamelDispatcher, IERC20CamelDispatcherTrait};
 use openzeppelin::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use openzeppelin::utils::serde::SerializedAppend;
-use snforge_std::{spy_events, EventSpy, ContractClass, start_cheat_caller_address};
-use starknet::{ContractAddress, ClassHash};
+use snforge_std::{spy_events, EventSpy, start_cheat_caller_address};
+use starknet::ClassHash;
 
 fn V2_CLASS_HASH() -> ClassHash {
     utils::declare_class("SnakeERC20Mock").class_hash

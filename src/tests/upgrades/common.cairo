@@ -5,7 +5,7 @@ use snforge_std::{EventSpy, EventSpyAssertionsTrait};
 use starknet::{ContractAddress, ClassHash};
 
 #[generate_trait]
-pub(crate) impl UpgradableSpyHelpersImpl of UpgradableSpyHelpers {
+pub(crate) impl UpgradeableSpyHelpersImpl of UpgradeableSpyHelpers {
     fn assert_event_upgraded(ref self: EventSpy, contract: ContractAddress, class_hash: ClassHash) {
         let expected = UpgradeableComponent::Event::Upgraded(Upgraded { class_hash });
         self.assert_emitted_single(contract, expected);

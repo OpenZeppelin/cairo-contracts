@@ -1,18 +1,22 @@
+use core::hash::{HashStateTrait, HashStateExTrait};
+use core::poseidon::PoseidonTrait;
 use core::poseidon::poseidon_hash_span;
 use core::starknet::secp256_trait::Secp256PointTrait;
 use openzeppelin::account::EthAccountComponent::{OwnerAdded, OwnerRemoved};
 use openzeppelin::account::EthAccountComponent;
 use openzeppelin::account::interface::EthPublicKey;
 use openzeppelin::account::utils::signature::EthSignature;
-use openzeppelin::tests::mocks::erc20_mocks::DualCaseERC20Mock;
 use openzeppelin::tests::utils::constants::{NAME, SYMBOL};
+use openzeppelin::tests::utils::events::EventSpyExt;
+use openzeppelin::tests::utils::signing::{Secp256k1KeyPair, Secp256k1KeyPairExt};
 use openzeppelin::tests::utils;
-use openzeppelin::token::erc20::interface::{IERC20DispatcherTrait, IERC20Dispatcher};
+use openzeppelin::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use openzeppelin::utils::serde::SerializedAppend;
-use starknet::ContractAddress;
-use starknet::SyscallResultTrait;
+use snforge_std::EventSpy;
+use snforge_std::signature::secp256k1_curve::Secp256k1CurveSignerImpl;
 use starknet::secp256_trait::Secp256Trait;
 use starknet::secp256k1::Secp256k1Point;
+use starknet::{ContractAddress, SyscallResultTrait};
 
 #[derive(Drop)]
 pub(crate) struct SignedTransactionData {
@@ -44,17 +48,29 @@ pub(crate) fn NEW_ETH_PUBKEY() -> EthPublicKey {
         .unwrap()
 }
 
+pub(crate) fn get_accept_ownership_signature(
+    account_address: ContractAddress, current_owner: EthPublicKey, new_key_pair: Secp256k1KeyPair
+) -> Span<felt252> {
+    let msg_hash: u256 = PoseidonTrait::new()
+        .update_with('StarkNet Message')
+        .update_with('accept_ownership')
+        .update_with(account_address)
+        .update_with(current_owner.get_coordinates().unwrap_syscall())
+        .finalize()
+        .into();
+
+    new_key_pair.serialized_sign(msg_hash).span()
+}
+
 pub(crate) fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> IERC20Dispatcher {
-    let name = NAME();
-    let symbol = SYMBOL();
     let mut calldata = array![];
 
-    calldata.append_serde(name);
-    calldata.append_serde(symbol);
+    calldata.append_serde(NAME());
+    calldata.append_serde(SYMBOL());
     calldata.append_serde(initial_supply);
     calldata.append_serde(recipient);
 
-    let address = utils::deploy(DualCaseERC20Mock::TEST_CLASS_HASH, calldata);
+    let address = utils::declare_and_deploy("DualCaseERC20Mock", calldata);
     IERC20Dispatcher { contract_address: address }
 }
 
@@ -70,35 +86,32 @@ pub(crate) fn get_points() -> (Secp256k1Point, Secp256k1Point) {
     (point_1, point_2)
 }
 
-pub(crate) fn assert_event_owner_added(contract: ContractAddress, public_key: EthPublicKey) {
-    let event = utils::pop_log::<EthAccountComponent::Event>(contract).unwrap();
-    let new_owner_guid = get_guid_from_public_key(public_key);
-    let expected = EthAccountComponent::Event::OwnerAdded(OwnerAdded { new_owner_guid });
-    assert!(event == expected);
+#[generate_trait]
+pub(crate) impl EthAccountSpyHelpersImpl of EthAccountSpyHelpers {
+    fn assert_event_owner_removed(
+        ref self: EventSpy, contract: ContractAddress, public_key: EthPublicKey
+    ) {
+        let removed_owner_guid = get_guid_from_public_key(public_key);
+        let expected = EthAccountComponent::Event::OwnerRemoved(
+            OwnerRemoved { removed_owner_guid }
+        );
+        self.assert_emitted_single(contract, expected);
+    }
 
-    // Check indexed keys
-    let mut indexed_keys = array![];
-    indexed_keys.append_serde(selector!("OwnerAdded"));
-    indexed_keys.append_serde(new_owner_guid);
-    utils::assert_indexed_keys(event, indexed_keys.span());
-}
+    fn assert_event_owner_added(
+        ref self: EventSpy, contract: ContractAddress, public_key: EthPublicKey
+    ) {
+        let new_owner_guid = get_guid_from_public_key(public_key);
+        let expected = EthAccountComponent::Event::OwnerAdded(OwnerAdded { new_owner_guid });
+        self.assert_emitted_single(contract, expected);
+    }
 
-pub(crate) fn assert_only_event_owner_added(contract: ContractAddress, public_key: EthPublicKey) {
-    assert_event_owner_added(contract, public_key);
-    utils::assert_no_events_left(contract);
-}
-
-pub(crate) fn assert_event_owner_removed(contract: ContractAddress, public_key: EthPublicKey) {
-    let event = utils::pop_log::<EthAccountComponent::Event>(contract).unwrap();
-    let removed_owner_guid = get_guid_from_public_key(public_key);
-    let expected = EthAccountComponent::Event::OwnerRemoved(OwnerRemoved { removed_owner_guid });
-    assert!(event == expected);
-
-    // Check indexed keys
-    let mut indexed_keys = array![];
-    indexed_keys.append_serde(selector!("OwnerRemoved"));
-    indexed_keys.append_serde(removed_owner_guid);
-    utils::assert_indexed_keys(event, indexed_keys.span());
+    fn assert_only_event_owner_added(
+        ref self: EventSpy, contract: ContractAddress, public_key: EthPublicKey
+    ) {
+        self.assert_event_owner_added(contract, public_key);
+        self.assert_no_events_left_from(contract);
+    }
 }
 
 fn get_guid_from_public_key(public_key: EthPublicKey) -> felt252 {

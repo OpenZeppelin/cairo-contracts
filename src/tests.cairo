@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod access;
-// #[cfg(test)]
-// mod account;
+#[cfg(test)]
+mod account;
 // #[cfg(test)]
 // mod cryptography;
 #[cfg(test)]

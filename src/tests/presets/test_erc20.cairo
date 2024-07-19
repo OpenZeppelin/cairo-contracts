@@ -8,14 +8,13 @@ use openzeppelin::presets::interfaces::{
 };
 use openzeppelin::tests::access::common::OwnableSpyHelpers;
 use openzeppelin::tests::token::erc20::common::ERC20SpyHelpers;
-use openzeppelin::tests::upgrades::common::UpgradableSpyHelpers;
+use openzeppelin::tests::upgrades::common::UpgradeableSpyHelpers;
 use openzeppelin::tests::utils::common::IntoBase16String;
 use openzeppelin::tests::utils::constants::{
     ZERO, OWNER, SPENDER, RECIPIENT, OTHER, NAME, SYMBOL, DECIMALS, SUPPLY, VALUE, CLASS_HASH_ZERO
 };
 use openzeppelin::tests::utils::events::EventSpyExt;
 use openzeppelin::tests::utils;
-use openzeppelin::token::erc20::interface::{IERC20CamelDispatcher, IERC20CamelDispatcherTrait};
 use openzeppelin::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use openzeppelin::utils::serde::SerializedAppend;
 use snforge_std::{spy_events, EventSpy, start_cheat_caller_address};

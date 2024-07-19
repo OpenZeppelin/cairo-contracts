@@ -6,7 +6,7 @@ use openzeppelin::tests::utils::{declare_class, deploy};
 use openzeppelin::upgrades::UpgradeableComponent;
 use snforge_std::{spy_events, ContractClass};
 
-use super::common::UpgradableSpyHelpers;
+use super::common::UpgradeableSpyHelpers;
 
 //
 // Setup

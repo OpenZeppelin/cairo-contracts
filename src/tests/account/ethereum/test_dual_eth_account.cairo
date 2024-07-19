@@ -6,7 +6,7 @@ use openzeppelin::account::utils::secp256k1::{
 use openzeppelin::account::utils::signature::EthSignature;
 use openzeppelin::introspection::interface::ISRC5_ID;
 use openzeppelin::tests::utils::constants::secp256k1::KEY_PAIR;
-use openzeppelin::tests::utils::constants::{ETH_PUBKEY, NEW_ETH_PUBKEY};
+use openzeppelin::tests::utils::constants::{ETH_PUBKEY, NEW_ETH_PUBKEY, TRANSACTION_HASH};
 use openzeppelin::tests::utils::signing::Secp256k1KeyPairExt;
 use openzeppelin::tests::utils;
 use openzeppelin::utils::serde::SerializedAppend;
@@ -114,16 +114,14 @@ fn test_dual_is_valid_signature() {
     let (snake_dispatcher, target) = setup_snake();
     let contract_address = snake_dispatcher.contract_address;
 
-    let hash = 'TRANSACTION_HASH';
-
     start_cheat_caller_address(contract_address, contract_address);
     let key_pair = KEY_PAIR();
     let signature = get_accept_ownership_signature(contract_address, ETH_PUBKEY(), key_pair);
 
     target.set_public_key(key_pair.public_key, signature);
-    let serialized_signature = key_pair.serialized_sign(hash.into());
+    let serialized_signature = key_pair.serialized_sign(TRANSACTION_HASH.into());
 
-    let is_valid = snake_dispatcher.is_valid_signature(hash, serialized_signature);
+    let is_valid = snake_dispatcher.is_valid_signature(TRANSACTION_HASH, serialized_signature);
     assert_eq!(is_valid, starknet::VALIDATED);
 }
 
@@ -216,7 +214,6 @@ fn test_dual_getPublicKey_exists_and_panics() {
 fn test_dual_isValidSignature() {
     let (camel_dispatcher, target) = setup_camel();
     let contract_address = camel_dispatcher.contract_address;
-    let hash = 'TRANSACTION_HASH';
 
     start_cheat_caller_address(contract_address, contract_address);
 
@@ -224,9 +221,9 @@ fn test_dual_isValidSignature() {
     let signature = get_accept_ownership_signature(contract_address, ETH_PUBKEY(), key_pair);
 
     target.setPublicKey(key_pair.public_key, signature);
-    let serialized_signature = key_pair.serialized_sign(hash.into());
+    let serialized_signature = key_pair.serialized_sign(TRANSACTION_HASH.into());
 
-    let is_valid = camel_dispatcher.is_valid_signature(hash, serialized_signature);
+    let is_valid = camel_dispatcher.is_valid_signature(TRANSACTION_HASH, serialized_signature);
     assert_eq!(is_valid, starknet::VALIDATED);
 }
 

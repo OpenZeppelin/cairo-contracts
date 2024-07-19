@@ -6,6 +6,7 @@ use openzeppelin::account::EthAccountComponent::{OwnerAdded, OwnerRemoved};
 use openzeppelin::account::EthAccountComponent;
 use openzeppelin::account::interface::EthPublicKey;
 use openzeppelin::account::utils::signature::EthSignature;
+use openzeppelin::tests::utils::constants::TRANSACTION_HASH;
 use openzeppelin::tests::utils::constants::{NAME, SYMBOL};
 use openzeppelin::tests::utils::events::EventSpyExt;
 use openzeppelin::tests::utils::signing::{Secp256k1KeyPair, Secp256k1KeyPairExt};
@@ -14,38 +15,25 @@ use openzeppelin::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTr
 use openzeppelin::utils::serde::SerializedAppend;
 use snforge_std::EventSpy;
 use snforge_std::signature::secp256k1_curve::Secp256k1CurveSignerImpl;
-use starknet::secp256_trait::Secp256Trait;
-use starknet::secp256k1::Secp256k1Point;
 use starknet::{ContractAddress, SyscallResultTrait};
 
 #[derive(Drop)]
 pub(crate) struct SignedTransactionData {
     pub(crate) private_key: u256,
     pub(crate) public_key: EthPublicKey,
-    pub(crate) transaction_hash: felt252,
+    pub(crate) tx_hash: felt252,
     pub(crate) signature: EthSignature
 }
 
-/// This signature was computed using ethers.js.
-pub(crate) fn SIGNED_TX_DATA() -> SignedTransactionData {
+pub(crate) fn SIGNED_TX_DATA(key_pair: Secp256k1KeyPair) -> SignedTransactionData {
+    let tx_hash = TRANSACTION_HASH;
+    let (r, s) = key_pair.sign(tx_hash.into()).unwrap();
     SignedTransactionData {
-        private_key: 0x45397ee6ca34cb49060f1c303c6cb7ee2d6123e617601ef3e31ccf7bf5bef1f9,
-        public_key: NEW_ETH_PUBKEY(),
-        transaction_hash: 0x008f882c63d0396d216d57529fe29ad5e70b6cd51b47bd2458b0a4ccb2ba0957,
-        signature: EthSignature {
-            r: 0x82bb3efc0554ec181405468f273b0dbf935cca47182b22da78967d0770f7dcc3,
-            s: 0x6719fef30c11c74add873e4da0e1234deb69eae6a6bd4daa44b816dc199f3e86,
-        }
+        private_key: key_pair.secret_key,
+        public_key: key_pair.public_key,
+        tx_hash,
+        signature: EthSignature { r, s }
     }
-}
-
-pub(crate) fn NEW_ETH_PUBKEY() -> EthPublicKey {
-    Secp256Trait::secp256_ec_new_syscall(
-        0x829307f82a1883c2414503ba85fc85037f22c6fc6f80910801f6b01a4131da1e,
-        0x2a23f7bddf3715d11767b1247eccc68c89e11b926e2615268db6ad1af8d8da96
-    )
-        .unwrap()
-        .unwrap()
 }
 
 pub(crate) fn get_accept_ownership_signature(
@@ -74,17 +62,6 @@ pub(crate) fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> 
     IERC20Dispatcher { contract_address: address }
 }
 
-pub(crate) fn get_points() -> (Secp256k1Point, Secp256k1Point) {
-    let curve_size = Secp256Trait::<Secp256k1Point>::get_curve_size();
-    let point_1 = Secp256Trait::secp256_ec_get_point_from_x_syscall(curve_size, true)
-        .unwrap_syscall()
-        .unwrap();
-    let point_2 = Secp256Trait::secp256_ec_get_point_from_x_syscall(curve_size, false)
-        .unwrap_syscall()
-        .unwrap();
-
-    (point_1, point_2)
-}
 
 #[generate_trait]
 pub(crate) impl EthAccountSpyHelpersImpl of EthAccountSpyHelpers {

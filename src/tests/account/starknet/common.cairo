@@ -12,7 +12,7 @@ use starknet::ContractAddress;
 pub(crate) struct SignedTransactionData {
     pub(crate) private_key: felt252,
     pub(crate) public_key: felt252,
-    pub(crate) transaction_hash: felt252,
+    pub(crate) tx_hash: felt252,
     pub(crate) r: felt252,
     pub(crate) s: felt252
 }
@@ -21,7 +21,7 @@ pub(crate) fn SIGNED_TX_DATA() -> SignedTransactionData {
     SignedTransactionData {
         private_key: 1234,
         public_key: NEW_PUBKEY,
-        transaction_hash: 0x601d3d2e265c10ff645e1554c435e72ce6721f0ba5fc96f0c650bfc6231191a,
+        tx_hash: 0x601d3d2e265c10ff645e1554c435e72ce6721f0ba5fc96f0c650bfc6231191a,
         r: 0x6bc22689efcaeacb9459577138aff9f0af5b77ee7894cdc8efabaf760f6cf6e,
         s: 0x295989881583b9325436851934334faa9d639a2094cd1e2f8691c8a71cd4cdf
     }

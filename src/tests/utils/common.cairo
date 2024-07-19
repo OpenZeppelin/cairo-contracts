@@ -1,4 +1,5 @@
 use core::to_byte_array::FormatAsByteArray;
+use starknet::ContractAddress;
 
 /// Converts panic data into a string (ByteArray).
 ///
@@ -33,4 +34,17 @@ pub impl IntoBase16String<T, +Into<T, felt252>> of IntoBase16StringTrait<T> {
     fn into_base_16_string(self: T) -> ByteArray {
         to_base_16_string(self.into())
     }
+}
+
+/// Asserts that the panic data is an "Entrypoint not found" error, following the starknet foundry
+/// emitted error format.
+pub fn assert_entrypoint_not_found_error(
+    panic_data: Array<felt252>, selector: felt252, contract_address: ContractAddress
+) {
+    let expected_panic_message = format!(
+        "Entry point selector {} not found in contract {}",
+        selector.into_base_16_string(),
+        contract_address.into_base_16_string()
+    );
+    assert!(panic_data_to_byte_array(panic_data) == expected_panic_message);
 }

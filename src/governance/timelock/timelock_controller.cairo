@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.14.0 (governance/timelock/timelock_controller.cairo)
+// OpenZeppelin Contracts for Cairo v0.15.0-rc.0 (governance/timelock/timelock_controller.cairo)
 
 /// # TimelockController Component
 ///
-/// Component that acts as a timelocked controller. When set as the owner of an `Ownable` smart contract,
-/// it enforces a timelock on all `only_owner` maintenance operations. This gives time for users
-/// of the controlled contract to exit before a potentially dangerous maintenance operation is applied.
+/// Component that acts as a timelocked controller. When set as the owner of an `Ownable` smart
+/// contract, it enforces a timelock on all `only_owner` maintenance operations. This gives time for
+/// users of the controlled contract to exit before a potentially dangerous maintenance operation is
+/// applied.
 ///
 /// By default, this component is self administered, meaning administration tasks have to go through
 /// the timelock process. The proposer role is in charge of proposing operations. A common use case
@@ -15,7 +16,7 @@
 pub mod TimelockControllerComponent {
     use core::hash::{HashStateTrait, HashStateExTrait};
     use core::num::traits::Zero;
-    use core::poseidon::PoseidonTrait;
+    use core::pedersen::PedersenTrait;
     use openzeppelin::access::accesscontrol::AccessControlComponent::InternalTrait as AccessControlInternalTrait;
     use openzeppelin::access::accesscontrol::AccessControlComponent::{
         AccessControlImpl, AccessControlCamelImpl
@@ -23,12 +24,16 @@ pub mod TimelockControllerComponent {
     use openzeppelin::access::accesscontrol::AccessControlComponent;
     use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
     use openzeppelin::governance::timelock::interface::{ITimelock, TimelockABI};
-    use openzeppelin::governance::timelock::utils::OperationState;
-    use openzeppelin::governance::timelock::utils::call_impls::{HashCallImpl, HashCallsImpl, Call};
+    use openzeppelin::governance::timelock::utils::call_impls::{
+        HashCallImpl, HashCallsImpl, CallPartialEq
+    };
     use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
     use openzeppelin::introspection::src5::SRC5Component;
     use starknet::ContractAddress;
     use starknet::SyscallResultTrait;
+    use starknet::account::Call;
+    use starknet::storage::Map;
+    use super::OperationState;
 
     // Constants
     pub const PROPOSER_ROLE: felt252 = selector!("PROPOSER_ROLE");
@@ -38,7 +43,7 @@ pub mod TimelockControllerComponent {
 
     #[storage]
     struct Storage {
-        TimelockController_timestamps: LegacyMap<felt252, u64>,
+        TimelockController_timestamps: Map<felt252, u64>,
         TimelockController_min_delay: u64
     }
 
@@ -117,24 +122,24 @@ pub mod TimelockControllerComponent {
         /// Returns whether `id` corresponds to a registered operation.
         /// This includes the OperationStates: Waiting, Ready, and Done.
         fn is_operation(self: @ComponentState<TContractState>, id: felt252) -> bool {
-            Timelock::get_operation_state(self, id) != OperationState::Unset
+            Self::get_operation_state(self, id) != OperationState::Unset
         }
 
         /// Returns whether the `id` OperationState is pending or not.
         /// Note that a pending operation may be either Waiting or Ready.
         fn is_operation_pending(self: @ComponentState<TContractState>, id: felt252) -> bool {
-            let state = Timelock::get_operation_state(self, id);
+            let state = Self::get_operation_state(self, id);
             state == OperationState::Waiting || state == OperationState::Ready
         }
 
         /// Returns whether the `id` OperationState is Ready or not.
         fn is_operation_ready(self: @ComponentState<TContractState>, id: felt252) -> bool {
-            Timelock::get_operation_state(self, id) == OperationState::Ready
+            Self::get_operation_state(self, id) == OperationState::Ready
         }
 
         /// Returns whether the `id` OperationState is Done or not.
         fn is_operation_done(self: @ComponentState<TContractState>, id: felt252) -> bool {
-            Timelock::get_operation_state(self, id) == OperationState::Done
+            Self::get_operation_state(self, id) == OperationState::Done
         }
 
         /// Returns the timestamp at which `id` becomes Ready.
@@ -149,7 +154,7 @@ pub mod TimelockControllerComponent {
         fn get_operation_state(
             self: @ComponentState<TContractState>, id: felt252
         ) -> OperationState {
-            let timestamp = Timelock::get_timestamp(self, id);
+            let timestamp = Self::get_timestamp(self, id);
             if (timestamp == 0) {
                 return OperationState::Unset;
             } else if (timestamp == DONE_TIMESTAMP) {
@@ -171,8 +176,8 @@ pub mod TimelockControllerComponent {
         fn hash_operation(
             self: @ComponentState<TContractState>, call: Call, predecessor: felt252, salt: felt252
         ) -> felt252 {
-            PoseidonTrait::new()
-                .update_with(@call)
+            PedersenTrait::new(0)
+                .update_with(call)
                 .update_with(predecessor)
                 .update_with(salt)
                 .finalize()
@@ -185,8 +190,8 @@ pub mod TimelockControllerComponent {
             predecessor: felt252,
             salt: felt252
         ) -> felt252 {
-            PoseidonTrait::new()
-                .update_with(@calls)
+            PedersenTrait::new(0)
+                .update_with(calls)
                 .update_with(predecessor)
                 .update_with(salt)
                 .finalize()
@@ -209,7 +214,7 @@ pub mod TimelockControllerComponent {
         ) {
             self.assert_only_role(PROPOSER_ROLE);
 
-            let id = Timelock::hash_operation(@self, call, predecessor, salt);
+            let id = Self::hash_operation(@self, call, predecessor, salt);
             self._schedule(id, delay);
             self.emit(CallScheduled { id, index: 0, call, predecessor, delay });
 
@@ -235,17 +240,12 @@ pub mod TimelockControllerComponent {
         ) {
             self.assert_only_role(PROPOSER_ROLE);
 
-            let id = Timelock::hash_operation_batch(@self, calls, predecessor, salt);
+            let id = Self::hash_operation_batch(@self, calls, predecessor, salt);
             self._schedule(id, delay);
 
             let mut index = 0;
-            loop {
-                if index == calls.len() {
-                    break;
-                }
-
-                let call = *calls.at(index);
-                self.emit(CallScheduled { id, index: index.into(), call, predecessor, delay });
+            for call in calls {
+                self.emit(CallScheduled { id, index, call: *call, predecessor, delay });
                 index += 1;
             };
 
@@ -264,7 +264,7 @@ pub mod TimelockControllerComponent {
         /// Emits a `CallCancelled` event.
         fn cancel(ref self: ComponentState<TContractState>, id: felt252) {
             self.assert_only_role(CANCELLER_ROLE);
-            assert(Timelock::is_operation_pending(@self, id), Errors::EXPECTED_PENDING_OPERATION);
+            assert(Self::is_operation_pending(@self, id), Errors::EXPECTED_PENDING_OPERATION);
 
             self.TimelockController_timestamps.write(id, 0);
             self.emit(CallCancelled { id });
@@ -291,7 +291,7 @@ pub mod TimelockControllerComponent {
         ) {
             self.assert_only_role_or_open_role(EXECUTOR_ROLE);
 
-            let id = Timelock::hash_operation(@self, call, predecessor, salt);
+            let id = Self::hash_operation(@self, call, predecessor, salt);
             self._before_call(id, predecessor);
             self._execute(call);
             self.emit(CallExecuted { id, index: 0, call });
@@ -319,18 +319,13 @@ pub mod TimelockControllerComponent {
         ) {
             self.assert_only_role_or_open_role(EXECUTOR_ROLE);
 
-            let id = Timelock::hash_operation_batch(@self, calls, predecessor, salt);
+            let id = Self::hash_operation_batch(@self, calls, predecessor, salt);
             self._before_call(id, predecessor);
 
             let mut index = 0;
-            loop {
-                if index == calls.len() {
-                    break;
-                }
-
-                let call = *calls.at(index);
-                self._execute(call);
-                self.emit(CallExecuted { id, index: index.into(), call });
+            for call in calls {
+                self._execute(*call);
+                self.emit(CallExecuted { id, index, call: *call });
                 index += 1;
             };
 
@@ -500,34 +495,29 @@ pub mod TimelockControllerComponent {
         fn hasRole(
             self: @ComponentState<TContractState>, role: felt252, account: ContractAddress
         ) -> bool {
-            let access_control = get_dep_component!(self, AccessControl);
-            access_control.hasRole(role, account)
+            Self::has_role(self, role, account)
         }
 
         fn getRoleAdmin(self: @ComponentState<TContractState>, role: felt252) -> felt252 {
-            let access_control = get_dep_component!(self, AccessControl);
-            access_control.getRoleAdmin(role)
+            Self::getRoleAdmin(self, role)
         }
 
         fn grantRole(
             ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
         ) {
-            let mut access_control = get_dep_component_mut!(ref self, AccessControl);
-            access_control.grantRole(role, account);
+            Self::grant_role(ref self, role, account);
         }
 
         fn revokeRole(
             ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
         ) {
-            let mut access_control = get_dep_component_mut!(ref self, AccessControl);
-            access_control.revokeRole(role, account);
+            Self::revoke_role(ref self, role, account);
         }
 
         fn renounceRole(
             ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
         ) {
-            let mut access_control = get_dep_component_mut!(ref self, AccessControl);
-            access_control.renounceRole(role, account);
+            Self::renounce_role(ref self, role, account);
         }
     }
 
@@ -549,11 +539,11 @@ pub mod TimelockControllerComponent {
         /// - `admin`: optional account to be granted admin role; disable with zero address.
         ///
         /// WARNING: The optional admin can aid with initial configuration of roles after deployment
-        /// without being subject to delay, but this role should be subsequently renounced in favor of
-        /// administration through timelocked proposals.
+        /// without being subject to delay, but this role should be subsequently renounced in favor
+        /// of administration through timelocked proposals.
         ///
-        /// Emits two `RoleGranted` events for each account in `proposers` with `PROPOSER_ROLE` admin
-        /// `CANCELLER_ROLE` roles.
+        /// Emits two `RoleGranted` events for each account in `proposers` with `PROPOSER_ROLE`
+        /// admin `CANCELLER_ROLE` roles.
         ///
         /// Emits a `RoleGranted` event for each account in `executors` with `EXECUTOR_ROLE` role.
         ///
@@ -579,27 +569,19 @@ pub mod TimelockControllerComponent {
             };
 
             // Register proposers and cancellers
-            let mut i = 0;
-            while i < proposers
-                .len() {
-                    let proposer = proposers.at(i);
-                    access_component._grant_role(PROPOSER_ROLE, *proposer);
-                    access_component._grant_role(CANCELLER_ROLE, *proposer);
-                    i += 1;
-                };
+            for proposer in proposers {
+                access_component._grant_role(PROPOSER_ROLE, *proposer);
+                access_component._grant_role(CANCELLER_ROLE, *proposer);
+            };
 
             // Register executors
-            let mut i = 0;
-            while i < executors
-                .len() {
-                    let executor = executors.at(i);
-                    access_component._grant_role(EXECUTOR_ROLE, *executor);
-                    i += 1;
-                };
+            for executor in executors {
+                access_component._grant_role(EXECUTOR_ROLE, *executor);
+            };
 
             // Set minimum delay
             self.TimelockController_min_delay.write(min_delay);
-            self.emit(MinDelayChanged { old_duration: 0, new_duration: min_delay })
+            self.emit(MinDelayChanged { old_duration: 0, new_duration: min_delay });
         }
 
         /// Validates that the caller has the given `role`.
@@ -652,7 +634,8 @@ pub mod TimelockControllerComponent {
             self.TimelockController_timestamps.write(id, DONE_TIMESTAMP);
         }
 
-        /// Private function that schedules an operation that is to become valid after a given `delay`.
+        /// Private function that schedules an operation that is to become valid after a given
+        /// `delay`.
         fn _schedule(ref self: ComponentState<TContractState>, id: felt252, delay: u64) {
             assert(!Timelock::is_operation(@self, id), Errors::EXPECTED_UNSET_OPERATION);
             assert(Timelock::get_min_delay(@self) <= delay, Errors::INSUFFICIENT_DELAY);
@@ -665,4 +648,12 @@ pub mod TimelockControllerComponent {
             starknet::syscalls::call_contract_syscall(to, selector, calldata).unwrap_syscall();
         }
     }
+}
+
+#[derive(Drop, Serde, PartialEq, Debug)]
+pub enum OperationState {
+    Unset,
+    Waiting,
+    Ready,
+    Done
 }

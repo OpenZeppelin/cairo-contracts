@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.14.0 (presets/universal_deployer.cairo)
+// OpenZeppelin Contracts for Cairo v0.15.0-rc.0 (presets/universal_deployer.cairo)
 
 /// # UniversalDeployerContract Preset
 ///
@@ -45,8 +45,7 @@ pub(crate) mod UniversalDeployer {
             let deployer: ContractAddress = get_caller_address();
             let mut _salt: felt252 = salt;
             if !from_zero {
-                let mut hash_state = PoseidonTrait::new();
-                _salt = hash_state.update_with(deployer).update_with(salt).finalize();
+                _salt = PoseidonTrait::new().update_with(deployer).update_with(salt).finalize()
             }
 
             let (address, _) = starknet::syscalls::deploy_syscall(

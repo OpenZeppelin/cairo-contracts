@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.14.0 (token/erc20/interface.cairo)
+// OpenZeppelin Contracts for Cairo v0.15.0-rc.0 (token/erc20/interface.cairo)
 
 use openzeppelin::utils::structs::checkpoint::Checkpoint;
 use starknet::ContractAddress;
@@ -100,10 +100,6 @@ pub trait ERC20VotesABI<TState> {
         expiry: u64,
         signature: Array<felt252>
     );
-
-    // Checkpoints
-    fn num_checkpoints(self: @TState, account: ContractAddress) -> u32;
-    fn checkpoints(self: @TState, account: ContractAddress, pos: u32) -> Checkpoint;
 
     // IERC20CamelOnly
     fn totalSupply(self: @TState) -> u256;

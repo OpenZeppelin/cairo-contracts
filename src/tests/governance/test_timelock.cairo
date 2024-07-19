@@ -1,12 +1,13 @@
 use core::hash::{HashStateTrait, HashStateExTrait};
 use core::num::traits::Zero;
-use core::poseidon::PoseidonTrait;
+use core::pedersen::PedersenTrait;
 use openzeppelin::access::accesscontrol::AccessControlComponent::{
     AccessControlImpl, InternalImpl as AccessControlInternalImpl
 };
 use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
 use openzeppelin::access::accesscontrol::interface::IACCESSCONTROL_ID;
 use openzeppelin::access::accesscontrol::interface::IAccessControl;
+use openzeppelin::governance::timelock::OperationState;
 use openzeppelin::governance::timelock::TimelockControllerComponent::{
     CallScheduled, CallExecuted, CallSalt, CallCancelled, MinDelayChanged
 };
@@ -17,7 +18,6 @@ use openzeppelin::governance::timelock::TimelockControllerComponent;
 use openzeppelin::governance::timelock::interface::{
     TimelockABIDispatcher, TimelockABIDispatcherTrait
 };
-use openzeppelin::governance::timelock::utils::{Call, OperationState};
 use openzeppelin::governance::timelock::{PROPOSER_ROLE, EXECUTOR_ROLE, CANCELLER_ROLE};
 use openzeppelin::introspection::interface::ISRC5_ID;
 use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
@@ -34,8 +34,8 @@ use openzeppelin::tests::utils;
 use openzeppelin::utils::selectors;
 use openzeppelin::utils::serde::SerializedAppend;
 use starknet::ContractAddress;
+use starknet::account::Call;
 use starknet::contract_address_const;
-use starknet::storage::{StorageMemberAccessTrait, StorageMapMemberAccessTrait};
 use starknet::testing;
 
 type ComponentState =
@@ -183,7 +183,7 @@ fn test_hash_operation() {
     let hashed_operation = timelock.hash_operation(call, predecessor, salt);
 
     // Manually set hash elements
-    let mut expected_hash = PoseidonTrait::new()
+    let mut expected_hash = PedersenTrait::new(0)
         .update_with(target.contract_address) // call::to
         .update_with(selector!("set_number")) // call::selector
         .update_with(1) // call::calldata.len
@@ -213,7 +213,7 @@ fn test_hash_operation_batch() {
     let hashed_operation = timelock.hash_operation_batch(calls, predecessor, salt);
 
     // Manually set hash elements
-    let mut expected_hash = PoseidonTrait::new()
+    let mut expected_hash = PedersenTrait::new(0)
         .update_with(3) // total number of Calls
         .update_with(target.contract_address) // call::to
         .update_with(selector!("set_number")) // call::selector
@@ -1102,17 +1102,20 @@ fn test_update_delay_scheduled() {
 //
 
 #[test]
-fn test_initializer_single_role_and_no_admin() {
+fn test_initializer_single_role_and_admin() {
     let mut state = COMPONENT_STATE();
     let contract_state = CONTRACT_STATE();
     let min_delay = MIN_DELAY;
 
     let proposers = array![PROPOSER()].span();
     let executors = array![EXECUTOR()].span();
-    let admin_zero = ZERO();
+    let admin = ADMIN();
 
-    state.initializer(min_delay, proposers, executors, admin_zero);
-    assert!(contract_state.has_role(DEFAULT_ADMIN_ROLE, admin_zero));
+    state.initializer(min_delay, proposers, executors, admin);
+    assert!(contract_state.has_role(PROPOSER_ROLE, *proposers.at(0)));
+    assert!(contract_state.has_role(CANCELLER_ROLE, *proposers.at(0)));
+    assert!(contract_state.has_role(EXECUTOR_ROLE, *executors.at(0)));
+    assert!(contract_state.has_role(DEFAULT_ADMIN_ROLE, admin));
 }
 
 #[test]
@@ -1145,6 +1148,25 @@ fn test_initializer_multiple_roles_and_admin() {
         assert!(contract_state.has_role(EXECUTOR_ROLE, *executors.at(index)));
         index += 1;
     };
+}
+
+#[test]
+fn test_initializer_no_admin() {
+    let mut state = COMPONENT_STATE();
+    let contract_state = CONTRACT_STATE();
+    let min_delay = MIN_DELAY;
+
+    let proposers = array![PROPOSER()].span();
+    let executors = array![EXECUTOR()].span();
+    let admin_zero = ZERO();
+
+    // The initializer grants the timelock contract address the `DEFAULT_ADMIN_ROLE`
+    // therefore, we need to set the address since it's not deployed in this context
+    testing::set_contract_address(contract_address_const::<'TIMELOCK_ADDRESS'>());
+    state.initializer(min_delay, proposers, executors, admin_zero);
+
+    let admin_does_not_have_role = !contract_state.has_role(DEFAULT_ADMIN_ROLE, admin_zero);
+    assert!(admin_does_not_have_role);
 }
 
 #[test]

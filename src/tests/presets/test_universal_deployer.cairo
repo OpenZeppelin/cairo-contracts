@@ -1,21 +1,16 @@
 use openzeppelin::presets::universal_deployer::UniversalDeployer::ContractDeployed;
 use openzeppelin::presets::universal_deployer::UniversalDeployer;
-use openzeppelin::tests::mocks::erc20_mocks::DualCaseERC20Mock;
 use openzeppelin::tests::utils::constants::{NAME, SYMBOL, SUPPLY, SALT, CALLER, RECIPIENT};
+use openzeppelin::tests::utils::events::EventSpyExt;
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use openzeppelin::utils::deployments::{DeployerInfo, calculate_contract_address_from_udc};
 use openzeppelin::utils::interfaces::{
     IUniversalDeployerDispatcher, IUniversalDeployerDispatcherTrait
 };
-use openzeppelin::tests::token::erc20::common::ERC20SpyHelpers;
 use openzeppelin::utils::serde::SerializedAppend;
-use starknet::ClassHash;
-use starknet::ContractAddress;
-use openzeppelin::tests::utils::events::EventSpyExt;
-use starknet::testing;
-use snforge_std::{EventSpy, spy_events, declare, test_address, start_cheat_caller_address, ContractClass};
-use openzeppelin::tests::utils::deployment::{declare_class};
+use snforge_std::{EventSpy, spy_events, declare, start_cheat_caller_address};
+use starknet::{ClassHash, ContractAddress};
 
 
 fn ERC20_CALLDATA() -> Span<felt252> {
@@ -40,7 +35,7 @@ fn test_deploy_from_zero() {
     let caller = CALLER();
 
     // Deploy args
-    let erc20_class_hash = declare_class("DualCaseERC20Mock").class_hash;
+    let erc20_class_hash = utils::declare_class("DualCaseERC20Mock").class_hash;
     let salt = SALT;
     let from_zero = true;
     let erc20_calldata = ERC20_CALLDATA();
@@ -56,15 +51,16 @@ fn test_deploy_from_zero() {
     assert_eq!(expected_addr, deployed_addr);
 
     // Check event
-    spy.assert_event_contract_deployed(
-        udc.contract_address,
-        deployed_addr,
-        caller,
-        from_zero,
-        erc20_class_hash,
-        erc20_calldata,
-        salt
-    );
+    spy
+        .assert_event_contract_deployed(
+            udc.contract_address,
+            deployed_addr,
+            caller,
+            from_zero,
+            erc20_class_hash,
+            erc20_calldata,
+            salt
+        );
 
     // Check deployment
     let erc20 = IERC20Dispatcher { contract_address: deployed_addr };
@@ -78,7 +74,7 @@ fn test_deploy_not_from_zero() {
     let caller = CALLER();
 
     // Deploy args
-    let erc20_class_hash = declare_class("DualCaseERC20Mock").class_hash;
+    let erc20_class_hash = utils::declare_class("DualCaseERC20Mock").class_hash;
     let salt = SALT;
     let from_zero = false;
     let erc20_calldata = ERC20_CALLDATA();
@@ -97,15 +93,16 @@ fn test_deploy_not_from_zero() {
     assert_eq!(expected_addr, deployed_addr);
 
     // Check event
-    spy.assert_event_contract_deployed(
-        udc.contract_address,
-        deployed_addr,
-        caller,
-        from_zero,
-        erc20_class_hash,
-        erc20_calldata,
-        salt
-    );
+    spy
+        .assert_event_contract_deployed(
+            udc.contract_address,
+            deployed_addr,
+            caller,
+            from_zero,
+            erc20_class_hash,
+            erc20_calldata,
+            salt
+        );
 
     // Check deployment
     let erc20 = IERC20Dispatcher { contract_address: deployed_addr };
@@ -129,7 +126,9 @@ pub(crate) impl UniversalDeployerHelpersImpl of UniversalDeployerSpyHelpers {
         calldata: Span<felt252>,
         salt: felt252
     ) {
-        let expected = UniversalDeployer::Event::ContractDeployed(ContractDeployed { address, deployer, from_zero, class_hash, calldata, salt });
+        let expected = UniversalDeployer::Event::ContractDeployed(
+            ContractDeployed { address, deployer, from_zero, class_hash, calldata, salt }
+        );
         self.assert_emitted_single(contract, expected);
     }
 }

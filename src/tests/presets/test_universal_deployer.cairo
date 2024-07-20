@@ -115,7 +115,7 @@ fn test_deploy_not_from_zero() {
 //
 
 #[generate_trait]
-pub(crate) impl UniversalDeployerHelpersImpl of UniversalDeployerSpyHelpers {
+impl UniversalDeployerHelpersImpl of UniversalDeployerSpyHelpers {
     fn assert_event_contract_deployed(
         ref self: EventSpy,
         contract: ContractAddress,

@@ -840,7 +840,7 @@ Registers the `IERC721Receiver` interface ID as supported through introspection.
 use openzeppelin::token::extensions::ERC721EnumerableComponent;
 ```
 
-Extension of ERC721 as defined in the EIP that adds enumerability of all the token ids in the contract as well as all thoken ids owned by each account.
+Extension of ERC721 as defined in the EIP that adds enumerability of all the token ids in the contract as well as all token ids owned by each account.
 
 NOTE: Implementing xref:#ERC721Component[ERC721Component] is a requirement for this component to be implemented.
 

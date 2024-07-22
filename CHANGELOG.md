@@ -8,6 +8,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+- TimelockController component (#996)
+- HashCall implementation (#996)
+
 ### Changed
 
 - Bump scarb to v2.7.0-rc.1 (#1025)

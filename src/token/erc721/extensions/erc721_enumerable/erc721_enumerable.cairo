@@ -4,7 +4,16 @@
 
 /// # ERC721Enumerable Component
 ///
+/// Extension of ERC721 as defined in the EIP that adds enumerability of all the token ids in the contract
+/// as well as all token ids owned by each account.
+/// This extension allows contracts to publish their entire list of NFTs and make them discoverable.
 ///
+/// NOTE: Implementing ERC721Component is a requirement for this component to be implemented.
+///
+/// WARNING: To properly track token ids, this extension requires that
+/// the ERC721EnumerableComponent::before_update function is called after
+/// every transfer, mint, or burn operation.
+/// For this, the ERC721HooksTrait::before_update hook must be used.
 #[starknet::component]
 pub mod ERC721EnumerableComponent {
     use core::num::traits::Zero;

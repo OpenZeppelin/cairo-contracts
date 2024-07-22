@@ -128,7 +128,7 @@ fn test_token_by_index_greater_than_supply() {
 }
 
 #[test]
-fn test_token_by_indexburn_last_token() {
+fn test_token_by_index_burn_last_token() {
     let (_, _) = setup();
     let mut contract_state = CONTRACT_STATE();
     let last_token = TOKEN_3;
@@ -140,7 +140,7 @@ fn test_token_by_indexburn_last_token() {
 }
 
 #[test]
-fn test_token_by_indexburn_first_token() {
+fn test_token_by_index_burn_first_token() {
     let (_, _) = setup();
     let mut contract_state = CONTRACT_STATE();
     let first_token = TOKEN_1;
@@ -154,7 +154,7 @@ fn test_token_by_indexburn_first_token() {
 }
 
 #[test]
-fn test_token_by_indexburn_andmint_all() {
+fn test_token_by_index_burn_and_mint_all() {
     let (state, _) = setup();
     let mut contract_state = CONTRACT_STATE();
 
@@ -261,7 +261,7 @@ fn test_token_of_owner_by_index_when_all_tokens_transferred() {
 //
 
 #[test]
-fn test__update_whenmint() {
+fn test__update_when_mint() {
     let (mut state, _) = setup();
     let initial_supply = state.total_supply();
     let new_token = 'TOKEN_4';
@@ -282,7 +282,7 @@ fn test__update_whenmint() {
 }
 
 #[test]
-fn test__update_when_last_tokenburned() {
+fn test__update_when_last_token_burned() {
     let (mut state, tokens_list) = setup();
     let initial_supply = state.total_supply();
     let last_token_toburn = *tokens_list.at(initial_supply.try_into().unwrap() - 1);
@@ -303,7 +303,7 @@ fn test__update_when_last_tokenburned() {
 }
 
 #[test]
-fn test__update_when_first_tokenburned() {
+fn test__update_when_first_token_burned() {
     let (mut state, tokens_list) = setup();
     let initial_supply = state.total_supply();
     let first_token_toburn = *tokens_list.at(0);

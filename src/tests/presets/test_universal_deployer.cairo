@@ -13,6 +13,10 @@ use snforge_std::{EventSpy, spy_events, declare, start_cheat_caller_address};
 use starknet::{ClassHash, ContractAddress};
 
 
+fn ERC20_CLASS_HASH() -> ClassHash {
+    utils::declare_class("DualCaseERC20Mock").class_hash
+}
+
 fn ERC20_CALLDATA() -> Span<felt252> {
     let mut calldata = array![];
     calldata.append_serde(NAME());
@@ -35,7 +39,7 @@ fn test_deploy_from_zero() {
     let caller = CALLER();
 
     // Deploy args
-    let erc20_class_hash = utils::declare_class("DualCaseERC20Mock").class_hash;
+    let erc20_class_hash = ERC20_CLASS_HASH();
     let salt = SALT;
     let from_zero = true;
     let erc20_calldata = ERC20_CALLDATA();
@@ -75,7 +79,7 @@ fn test_deploy_not_from_zero() {
     let caller = CALLER();
 
     // Deploy args
-    let erc20_class_hash = utils::declare_class("DualCaseERC20Mock").class_hash;
+    let erc20_class_hash = ERC20_CLASS_HASH();
     let salt = SALT;
     let from_zero = false;
     let erc20_calldata = ERC20_CALLDATA();

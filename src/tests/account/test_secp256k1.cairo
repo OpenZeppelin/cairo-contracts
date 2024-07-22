@@ -124,7 +124,7 @@ fn test_partial_eq() {
 // Helpers
 //
 
-pub(crate) fn get_points() -> (Secp256k1Point, Secp256k1Point) {
+fn get_points() -> (Secp256k1Point, Secp256k1Point) {
     let curve_size = Secp256Trait::<Secp256k1Point>::get_curve_size();
     let point_1 = Secp256Trait::secp256_ec_get_point_from_x_syscall(curve_size, true)
         .unwrap_syscall()

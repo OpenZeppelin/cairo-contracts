@@ -9,7 +9,7 @@ use openzeppelin::tests::token::erc1155::common::{
     setup_account, setup_receiver, setup_camel_receiver, deploy_another_account_at, setup_src5
 };
 use openzeppelin::tests::token::erc1155::common::{get_ids_and_values, get_ids_and_split_values};
-use openzeppelin::tests::upgrades::common::UpgradableSpyHelpers;
+use openzeppelin::tests::upgrades::common::UpgradeableSpyHelpers;
 use openzeppelin::tests::utils::constants::{
     EMPTY_DATA, ZERO, OWNER, RECIPIENT, CLASS_HASH_ZERO, OPERATOR, OTHER, TOKEN_ID, TOKEN_ID_2,
     TOKEN_VALUE, TOKEN_VALUE_2

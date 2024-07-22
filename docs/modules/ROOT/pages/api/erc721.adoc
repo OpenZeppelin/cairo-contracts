@@ -742,13 +742,12 @@ use openzeppelin::token::extensions::ERC721EnumerableComponent;
 ```
 
 Extension of ERC721 as defined in the EIP that adds enumerability of all the token ids in the contract as well as all token ids owned by each account.
+This extension allows contracts to publish their entire list of NFTs and make them discoverable.
 
 NOTE: Implementing xref:#ERC721Component[ERC721Component] is a requirement for this component to be implemented.
 
 WARNING: To properly track token ids, this extension requires that the xref:#ERC721EnumerableComponent-before_update[ERC721EnumerableComponent::before_update] function is called after every transfer, mint, or burn operation.
 For this, the xref:ERC721Component-before_update[ERC721HooksTrait::before_update] hook must be used.
-
-This extension allows contracts to publish their entire list of NFTs and make them discoverable.
 
 [.contract-index#ERC721EnumerableComponent-Embeddable-Impls]
 .Embeddable Implementations

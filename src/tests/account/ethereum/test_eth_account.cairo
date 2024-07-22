@@ -23,7 +23,7 @@ use snforge_std::{
     cheat_signature_global, cheat_transaction_version_global, cheat_transaction_hash_global,
     start_cheat_caller_address
 };
-use snforge_std::{spy_events, declare, test_address};
+use snforge_std::{spy_events, test_address};
 use starknet::ContractAddress;
 use starknet::account::Call;
 
@@ -31,15 +31,6 @@ use super::common::EthAccountSpyHelpers;
 use super::common::{
     deploy_erc20, SIGNED_TX_DATA, SignedTransactionData, get_accept_ownership_signature
 };
-
-
-//
-// Constants
-//
-
-fn CLASS_HASH() -> felt252 {
-    utils::declare_class("DualCaseEthAccountMock").class_hash.try_into().unwrap()
-}
 
 //
 // Setup
@@ -63,7 +54,6 @@ fn setup() -> ComponentState {
 
 fn setup_dispatcher(data: Option<@SignedTransactionData>) -> (EthAccountABIDispatcher, felt252) {
     let mut calldata = array![];
-    let contract_class = declare("DualCaseEthAccountMock").unwrap_syscall();
     if let Option::Some(data) = data {
         let mut serialized_signature = array![];
         data.signature.serialize(ref serialized_signature);
@@ -76,6 +66,7 @@ fn setup_dispatcher(data: Option<@SignedTransactionData>) -> (EthAccountABIDispa
         calldata.append_serde(ETH_PUBKEY());
     };
 
+    let contract_class = utils::declare_class("DualCaseEthAccountMock");
     let address = utils::deploy(contract_class, calldata);
     let dispatcher = EthAccountABIDispatcher { contract_address: address };
 

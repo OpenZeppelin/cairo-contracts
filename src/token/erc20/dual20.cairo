@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.14.0 (token/erc20/dual20.cairo)
+// OpenZeppelin Contracts for Cairo v0.15.0-rc.0 (token/erc20/dual20.cairo)
 
 use openzeppelin::utils::UnwrapAndCast;
 use openzeppelin::utils::selectors;
@@ -48,7 +48,7 @@ impl DualCaseERC20Impl of DualCaseERC20Trait {
     }
 
     fn total_supply(self: @DualCaseERC20) -> u256 {
-        let mut args = array![];
+        let args = array![];
         try_selector_with_fallback(
             *self.contract_address, selectors::total_supply, selectors::totalSupply, args.span()
         )

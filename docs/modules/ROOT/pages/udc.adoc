@@ -56,7 +56,7 @@ fn deploy() -> ContractAddress {
     >();
     let salt = 1234567879;
     let from_zero = false;
-    let mut calldata = array![];
+    let calldata = array![];
 
     // The UDC returns the deployed contract address
     dispatcher.deploy_contract(class_hash, salt, from_zero, calldata.span())

@@ -1,5 +1,4 @@
 use core::num::traits::Zero;
-use core::starknet::storage::StorageMemberAccessTrait;
 use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin::introspection;
 use openzeppelin::tests::mocks::erc1155_mocks::DualCaseERC1155Mock;

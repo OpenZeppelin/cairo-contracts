@@ -1,34 +1,50 @@
-use snforge_std::{declare, ContractClass, ContractClassTrait};
+use core::to_byte_array::FormatAsByteArray;
 use starknet::ContractAddress;
 
-pub fn deploy(contract_class: ContractClass, calldata: Array<felt252>) -> ContractAddress {
-    match contract_class.deploy(@calldata) {
-        Result::Ok((contract_address, _)) => contract_address,
-        Result::Err(panic_data) => panic!("Failed to deploy, error: ${:?}", panic_data)
+/// Converts panic data into a string (ByteArray).
+///
+/// panic_data is expected to be a valid serialized byte array with an extra
+/// felt252 at the beginning, which is the BYTE_ARRAY_MAGIC.
+pub fn panic_data_to_byte_array(panic_data: Array<felt252>) -> ByteArray {
+    let mut panic_data = panic_data.span();
+
+    // Remove BYTE_ARRAY_MAGIC from the panic data.
+    panic_data.pop_front().unwrap();
+
+    match Serde::<ByteArray>::deserialize(ref panic_data) {
+        Option::Some(string) => string,
+        Option::None => panic!("Failed to deserialize panic data."),
     }
 }
 
-pub fn deploy_at(
-    contract_class: ContractClass, contract_address: ContractAddress, calldata: Array<felt252>
-) {
-    match contract_class.deploy_at(@calldata, contract_address) {
-        Result::Ok(_) => (),
-        Result::Err(panic_data) => panic!("Failed to deploy, error: ${:?}", panic_data)
+/// Converts a felt252 to a base 16 string padded to 66 characters including the `0x` prefix.
+pub fn to_base_16_string(value: felt252) -> ByteArray {
+    let mut string = value.format_as_byte_array(16);
+    let mut padding = 64 - string.len();
+
+    while padding > 0 {
+        string = "0" + string;
+        padding -= 1;
     };
+    format!("0x{}", string)
 }
 
-pub fn declare_class(contract_name: ByteArray) -> ContractClass {
-    declare(contract_name).unwrap()
+#[generate_trait]
+pub impl IntoBase16String<T, +Into<T, felt252>> of IntoBase16StringTrait<T> {
+    fn into_base_16_string(self: T) -> ByteArray {
+        to_base_16_string(self.into())
+    }
 }
 
-pub fn declare_and_deploy(contract_name: ByteArray, calldata: Array<felt252>) -> ContractAddress {
-    let contract_class = declare(contract_name).unwrap();
-    deploy(contract_class, calldata)
-}
-
-pub fn declare_and_deploy_at(
-    contract_name: ByteArray, target_address: ContractAddress, calldata: Array<felt252>
+/// Asserts that the panic data is an "Entrypoint not found" error, following the starknet foundry
+/// emitted error format.
+pub fn assert_entrypoint_not_found_error(
+    panic_data: Array<felt252>, selector: felt252, contract_address: ContractAddress
 ) {
-    let contract_class = declare(contract_name).expect('Failed to declare contract');
-    deploy_at(contract_class, target_address, calldata)
+    let expected_panic_message = format!(
+        "Entry point selector {} not found in contract {}",
+        selector.into_base_16_string(),
+        contract_address.into_base_16_string()
+    );
+    assert!(panic_data_to_byte_array(panic_data) == expected_panic_message);
 }

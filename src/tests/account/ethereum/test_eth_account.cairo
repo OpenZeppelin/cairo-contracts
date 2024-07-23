@@ -1,4 +1,3 @@
-use core::starknet::SyscallResultTrait;
 use openzeppelin::account::EthAccountComponent::{InternalTrait, SRC6CamelOnlyImpl};
 use openzeppelin::account::EthAccountComponent::{PublicKeyCamelImpl, PublicKeyImpl};
 use openzeppelin::account::EthAccountComponent;

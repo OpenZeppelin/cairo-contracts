@@ -70,7 +70,7 @@ fn test_dual_set_public_key() {
 }
 
 #[test]
-#[ignore] // REASON: inconsistent ENTRYPOINT_NOT_FOUND panic message
+#[ignore] // REASON: should_panic attribute not fit for complex panic messages.
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_set_public_key() {
     let dispatcher = setup_non_account();
@@ -92,7 +92,7 @@ fn test_dual_get_public_key() {
 }
 
 #[test]
-#[ignore] // REASON: inconsistent ENTRYPOINT_NOT_FOUND panic message
+#[ignore] // REASON: should_panic attribute not fit for complex panic messages.
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_get_public_key() {
     let dispatcher = setup_non_account();
@@ -121,7 +121,7 @@ fn test_dual_is_valid_signature() {
 }
 
 #[test]
-#[ignore] // REASON: inconsistent ENTRYPOINT_NOT_FOUND panic message
+#[ignore] // REASON: should_panic attribute not fit for complex panic messages.
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_is_valid_signature() {
     let hash = 0x0;
@@ -149,7 +149,7 @@ fn test_dual_supports_interface() {
 }
 
 #[test]
-#[ignore] // REASON: inconsistent ENTRYPOINT_NOT_FOUND panic message
+#[ignore] // REASON: should_panic attribute not fit for complex panic messages.
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_supports_interface() {
     let dispatcher = setup_non_account();
@@ -168,7 +168,7 @@ fn test_dual_supports_interface_exists_and_panics() {
 //
 
 #[test]
-#[ignore] // REASON: lack of error handling causes try_selector_with_fallback to fail
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test_dual_setPublicKey() {
     let (camel_dispatcher, target) = setup_camel();
     let signature = get_accept_ownership_signature(
@@ -183,7 +183,7 @@ fn test_dual_setPublicKey() {
 }
 
 #[test]
-#[ignore] // REASON: lack of error handling causes try_selector_with_fallback to fail
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 #[should_panic(expected: ("Some error",))]
 fn test_dual_setPublicKey_exists_and_panics() {
     let (_, camel_dispatcher) = setup_account_panic();
@@ -191,7 +191,7 @@ fn test_dual_setPublicKey_exists_and_panics() {
 }
 
 #[test]
-#[ignore] // REASON: lack of error handling causes try_selector_with_fallback to fail
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test_dual_getPublicKey() {
     let (camel_dispatcher, _) = setup_camel();
     let public_key = camel_dispatcher.get_public_key();
@@ -199,7 +199,7 @@ fn test_dual_getPublicKey() {
 }
 
 #[test]
-#[ignore] // REASON: lack of error handling causes try_selector_with_fallback to fail
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 #[should_panic(expected: ("Some error",))]
 fn test_dual_getPublicKey_exists_and_panics() {
     let (_, camel_dispatcher) = setup_account_panic();
@@ -207,7 +207,7 @@ fn test_dual_getPublicKey_exists_and_panics() {
 }
 
 #[test]
-#[ignore] // REASON: lack of error handling causes try_selector_with_fallback to fail
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test_dual_isValidSignature() {
     let (camel_dispatcher, target) = setup_camel();
 
@@ -225,7 +225,7 @@ fn test_dual_isValidSignature() {
 }
 
 #[test]
-#[ignore] // REASON: lack of error handling causes try_selector_with_fallback to fail
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 #[should_panic(expected: ("Some error",))]
 fn test_dual_isValidSignature_exists_and_panics() {
     let hash = 0x0;

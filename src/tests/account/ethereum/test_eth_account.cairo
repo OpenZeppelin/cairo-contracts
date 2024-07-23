@@ -237,8 +237,8 @@ fn test_execute_with_version(version: Option<felt252>) {
     calls.append(call);
 
     // Handle version for test
-    if version.is_some() {
-        cheat_transaction_version_global(version.unwrap());
+    if let Option::Some(version) = version {
+        cheat_transaction_version_global(version);
     }
 
     // Execute
@@ -450,10 +450,11 @@ fn test_public_key_setter_and_getter_camel() {
 fn test_public_key_setter_different_account_camel() {
     let mut state = COMPONENT_STATE();
     let key_pair = KEY_PAIR();
+    let contract_address = test_address();
 
-    start_cheat_caller_address(test_address(), CALLER());
+    start_cheat_caller_address(contract_address, CALLER());
 
-    let signature = get_accept_ownership_signature(test_address(), ETH_PUBKEY(), key_pair);
+    let signature = get_accept_ownership_signature(contract_address, ETH_PUBKEY(), key_pair);
     state.setPublicKey(key_pair.public_key, signature);
 }
 

@@ -37,7 +37,7 @@ use starknet::contract_address_const;
 use starknet::secp256_trait::Secp256Trait;
 use starknet::secp256k1::Secp256k1Point;
 
-fn V2_CLASS_HASH() -> ClassHash {
+fn declare_v2_class_hash() -> ClassHash {
     utils::declare_class("SnakeEthAccountMock").class_hash
 }
 
@@ -343,8 +343,8 @@ fn test_execute_with_version(version: Option<felt252>) {
     let mut calls = array![];
     calls.append(call);
 
-    if version.is_some() {
-        cheat_transaction_version_global(version.unwrap());
+    if let Option::Some(version) = version {
+        cheat_transaction_version_global(version);
     }
 
     let ret = account.__execute__(calls);
@@ -478,7 +478,7 @@ fn test_upgrade_with_class_hash_zero() {
 #[test]
 fn test_upgraded_event() {
     let v1 = setup_dispatcher();
-    let v2_class_hash = V2_CLASS_HASH();
+    let v2_class_hash = declare_v2_class_hash();
     let mut spy = spy_events();
 
     start_cheat_caller_address(v1.contract_address, v1.contract_address);
@@ -491,7 +491,7 @@ fn test_upgraded_event() {
 #[feature("safe_dispatcher")]
 fn test_v2_missing_camel_selector() {
     let v1 = setup_dispatcher();
-    let v2_class_hash = V2_CLASS_HASH();
+    let v2_class_hash = declare_v2_class_hash();
 
     start_cheat_caller_address(v1.contract_address, v1.contract_address);
     v1.upgrade(v2_class_hash);
@@ -499,7 +499,7 @@ fn test_v2_missing_camel_selector() {
     let safe_dispatcher = EthAccountUpgradeableABISafeDispatcher {
         contract_address: v1.contract_address
     };
-    let mut panic_data = safe_dispatcher.getPublicKey().unwrap_err();
+    let panic_data = safe_dispatcher.getPublicKey().unwrap_err();
 
     utils::assert_entrypoint_not_found_error(
         panic_data, selector!("getPublicKey"), v1.contract_address
@@ -510,7 +510,7 @@ fn test_v2_missing_camel_selector() {
 fn test_state_persists_after_upgrade() {
     let v1 = setup_dispatcher();
     let key_pair = KEY_PAIR();
-    let v2_class_hash = V2_CLASS_HASH();
+    let v2_class_hash = declare_v2_class_hash();
 
     start_cheat_caller_address(v1.contract_address, v1.contract_address);
     let dispatcher = EthAccountUpgradeableABIDispatcher { contract_address: v1.contract_address };

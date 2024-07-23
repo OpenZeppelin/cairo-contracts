@@ -25,6 +25,7 @@ pub(crate) const SALT: felt252 = 'SALT';
 pub(crate) const SUCCESS: felt252 = 123123;
 pub(crate) const FAILURE: felt252 = 456456;
 pub(crate) const MIN_TRANSACTION_VERSION: felt252 = 1;
+pub(crate) const TRANSACTION_HASH: felt252 = 'TRANSACTION_HASH';
 // 2**128
 pub(crate) const QUERY_OFFSET: felt252 = 0x100000000000000000000000000000000;
 // QUERY_OFFSET + MIN_TRANSACTION_VERSION
@@ -115,3 +116,22 @@ pub(crate) fn DATA(success: bool) -> Span<felt252> {
 pub(crate) fn EMPTY_DATA() -> Span<felt252> {
     array![].span()
 }
+
+//
+// Signing keys
+//
+
+pub(crate) mod secp256k1 {
+    use openzeppelin::tests::utils::signing::{Secp256k1KeyPair, get_secp256k1_keys_from};
+
+    pub(crate) const PRIVATE_KEY: u256 = u256 { low: 'PRIVATE_LOW', high: 'PRIVATE_HIGH' };
+    pub(crate) fn KEY_PAIR() -> Secp256k1KeyPair {
+        get_secp256k1_keys_from(PRIVATE_KEY)
+    }
+
+    pub(crate) const PRIVATE_KEY_2: u256 = u256 { low: 'PRIVATE_LOW_2', high: 'PRIVATE_HIGH_2' };
+    pub(crate) fn KEY_PAIR_2() -> Secp256k1KeyPair {
+        get_secp256k1_keys_from(PRIVATE_KEY_2)
+    }
+}
+

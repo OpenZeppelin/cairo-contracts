@@ -134,4 +134,3 @@ pub(crate) mod secp256k1 {
         get_secp256k1_keys_from(PRIVATE_KEY_2)
     }
 }
-

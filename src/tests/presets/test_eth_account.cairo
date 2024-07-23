@@ -499,7 +499,7 @@ fn test_v2_missing_camel_selector() {
     let safe_dispatcher = EthAccountUpgradeableABISafeDispatcher {
         contract_address: v1.contract_address
     };
-    let mut panic_data = safe_dispatcher.getPublicKey().unwrap_err();
+    let panic_data = safe_dispatcher.getPublicKey().unwrap_err();
 
     utils::assert_entrypoint_not_found_error(
         panic_data, selector!("getPublicKey"), v1.contract_address

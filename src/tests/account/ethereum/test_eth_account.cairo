@@ -16,7 +16,7 @@ use openzeppelin::tests::utils::constants::{
     MIN_TRANSACTION_VERSION
 };
 use openzeppelin::tests::utils;
-use openzeppelin::token::erc20::interface::{IERC20DispatcherTrait};
+use openzeppelin::token::erc20::interface::IERC20DispatcherTrait;
 use openzeppelin::utils::selectors;
 use openzeppelin::utils::serde::SerializedAppend;
 use snforge_std::{

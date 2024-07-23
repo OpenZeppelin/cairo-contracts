@@ -81,7 +81,6 @@ pub(crate) impl AccountSpyHelpersImpl of AccountSpyHelpers {
         let new_owner_guid = get_guid_from_public_key(public_key);
         let expected = EthAccountComponent::Event::OwnerAdded(OwnerAdded { new_owner_guid });
         self.assert_emitted_single(contract, expected);
-    // TODO: Add check for indexed keys
     }
 
     fn assert_only_event_owner_added(
@@ -99,7 +98,6 @@ pub(crate) impl AccountSpyHelpersImpl of AccountSpyHelpers {
             OwnerRemoved { removed_owner_guid }
         );
         self.assert_emitted_single(contract, expected);
-    // TODO: Add check for indexed keys
     }
 }
 

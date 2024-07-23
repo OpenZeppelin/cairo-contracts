@@ -6,10 +6,9 @@ use openzeppelin::tests::mocks::account_mocks::{
     CamelAccountPanicMock, CamelAccountMock, SnakeAccountMock, SnakeAccountPanicMock
 };
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
-use openzeppelin::tests::utils::constants::ZERO;
 use openzeppelin::tests::utils::signing::stark::{KEY_PAIR, KEY_PAIR_2, PUBKEY, PUBKEY_2};
 use openzeppelin::tests::utils;
-use snforge_std::{EventSpy, declare, start_cheat_caller_address};
+use snforge_std::{declare, start_cheat_caller_address};
 
 use super::common::get_accept_ownership_signature;
 

@@ -63,7 +63,7 @@ fn test_dual_supports_interface() {
 }
 
 #[test]
-#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
+#[ignore] // REASON: should_panic attribute not fit for complex panic messages.
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_supports_interface() {
     let dispatcher = setup_non_accesscontrol();
@@ -85,7 +85,7 @@ fn test_dual_has_role() {
 }
 
 #[test]
-#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
+#[ignore] // REASON: should_panic attribute not fit for complex panic messages.
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_has_role() {
     let dispatcher = setup_non_accesscontrol();
@@ -107,7 +107,7 @@ fn test_dual_get_role_admin() {
 }
 
 #[test]
-#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
+#[ignore] // REASON: should_panic attribute not fit for complex panic messages.
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_get_role_admin() {
     let dispatcher = setup_non_accesscontrol();
@@ -132,7 +132,7 @@ fn test_dual_grant_role() {
 }
 
 #[test]
-#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
+#[ignore] // REASON: should_panic attribute not fit for complex panic messages.
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_grant_role() {
     let dispatcher = setup_non_accesscontrol();
@@ -157,7 +157,7 @@ fn test_dual_revoke_role() {
 }
 
 #[test]
-#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
+#[ignore] // REASON: should_panic attribute not fit for complex panic messages.
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_revoke_role() {
     let dispatcher = setup_non_accesscontrol();
@@ -182,7 +182,7 @@ fn test_dual_renounce_role() {
 }
 
 #[test]
-#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
+#[ignore] // REASON: should_panic attribute not fit for complex panic messages.
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_renounce_role() {
     let dispatcher = setup_non_accesscontrol();

@@ -1,5 +1,4 @@
-// pub(crate) mod common;
-
+pub(crate) mod common;
 mod test_accesscontrol;
 mod test_dual_accesscontrol;
 mod test_dual_ownable;

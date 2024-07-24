@@ -33,15 +33,15 @@ At this point, it can be executed.
 
 :execute: xref:api/governance.adoc#ITimelock-execute[execute]
 
-By calling {execute}, an executor triggers the operation's underlying transactions and moves it to the `Done` state. If the operation has a predecessor, it has to be in the `Done` state for this transition to succeed.
+By calling {execute}, an executor triggers the operation's underlying transactions and moves it to the `Done` state. If the operation has a predecessor, the predecessor's operation must be in the `Done` state for this transaction to succeed.
 
 ==== Cancel
 
 :cancel: xref:api/governance.adoc#ITimelock-cancel[cancel]
 
-The {cancel} function allows cancellers to cancel any `Waiting` operations.
+The {cancel} function allows cancellers to cancel any pending operations.
 This resets the operation to the `Unset` state.
-It is therefore possible for a proposer to re-schedule an operation that has been canceled.
+It is therefore possible for a proposer to re-schedule an operation that has been cancelled.
 In this case, the timer restarts when the operation is re-scheduled.
 
 === Roles
@@ -60,10 +60,11 @@ Therefore, the initial proposers may also cancel operations after they are sched
 This is a sensitive role that will be granted automatically to the timelock itself and optionally to a second account.
 The latter case may be required to ease a contract's initial configuration; however, this role should promptly be renounced.
 
-Furthermore, the timelock component supports the concept of open roles which allows anyone to call a role-specific function.
-To enable one of the roles to be open, grant the zero address with the target role.
+Furthermore, the timelock component supports the concept of open roles for the `EXECUTOR_ROLE`.
+This allows anyone to execute an operation once it's in the `Ready` OperationState.
+TO enable the `EXECUTOR_ROLE` to be open, grant the zero address with the `EXECUTOR_ROLE`.
 
-WARNING: Be very careful with enabling open roles as _anyone_ can perform the role-specific task.
+WARNING: Be very careful with enabling open roles as _anyone_ can call the function.
 
 === Minimum delay
 

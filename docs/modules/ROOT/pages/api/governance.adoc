@@ -67,15 +67,14 @@ This includes the OperationStates: `Waiting`, `Ready`, and `Done`.
 [[ITimelock-is_operation_pending]]
 ==== `[.contract-item-name]#++is_operation_pending++#++(id: felt252) → bool++` [.item-kind]#external#
 
-Returns whether the `id` OperationState is `Waiting` or not.
-Note that a `Waiting` operation may also be `Ready`.
+Returns whether the `id` OperationState is pending or not.
+Note that a pending operation may be either `Waiting` or `Ready`.
 
 [.contract-item]
 [[ITimelock-is_operation_ready]]
 ==== `[.contract-item-name]#++is_operation_ready++#++(id: felt252) → bool++` [.item-kind]#external#
 
 Returns whether the `id` OperationState is `Ready` or not.
-Note that a `Waiting` operation may also be `Ready`.
 
 [.contract-item]
 [[ITimelock-is_operation_done]]
@@ -128,7 +127,6 @@ Requirements:
 - the caller must have the `PROPOSER_ROLE` role.
 
 Emits {CallScheduled} event.
-
 If `salt` is not zero, emits {CallSalt} event.
 
 [.contract-item]
@@ -142,7 +140,6 @@ Requirements:
 - The caller must have the `PROPOSER_ROLE` role.
 
 Emits one {CallScheduled} event for each transaction in the batch.
-
 If `salt` is not zero, emits {CallSalt} event.
 
 [.contract-item]
@@ -204,7 +201,7 @@ Requirements:
 
 - The caller must be the timelock itself. This can only be achieved by scheduling
 and later executing an operation where the timelock is the target and the data
-is the ABI-encoded call to this function.
+is the serialized call to this function.
 
 Emits a {MinDelayChanged} event.
 
@@ -343,15 +340,14 @@ This includes the OperationStates: `Waiting`, `Ready`, and `Done`.
 [[TimelockControllerComponent-is_operation_pending]]
 ==== `[.contract-item-name]#++is_operation_pending++#++(self: @ContractState, id: felt252) → bool++` [.item-kind]#external#
 
-Returns whether the `id` OperationState is `Waiting` or not.
-Note that a `Waiting` operation may also be `Ready`.
+Returns whether the `id` OperationState is pending or not.
+Note that a pending operation may be either `Waiting` or `Ready`.
 
 [.contract-item]
 [[TimelockControllerComponent-is_operation_ready]]
 ==== `[.contract-item-name]#++is_operation_ready++#++(self: @ContractState, id: felt252) → bool++` [.item-kind]#external#
 
 Returns whether the `id` OperationState is `Ready` or not.
-Note that a `Waiting` operation may also be `Ready`.
 
 [.contract-item]
 [[TimelockControllerComponent-is_operation_done]]
@@ -404,7 +400,6 @@ Requirements:
 - the caller must have the `PROPOSER_ROLE` role.
 
 Emits {CallScheduled} event.
-
 If `salt` is not zero, emits {CallSalt} event.
 
 [.contract-item]
@@ -418,7 +413,6 @@ Requirements:
 - The caller must have the `PROPOSER_ROLE` role.
 
 Emits one {CallScheduled} event for each transaction in the batch.
-
 If `salt` is not zero, emits {CallSalt} event.
 
 [.contract-item]
@@ -480,7 +474,7 @@ Requirements:
 
 - The caller must be the timelock itself. This can only be achieved by scheduling
 and later executing an operation where the timelock is the target and the data
-is the ABI-encoded call to this function.
+is the serialized call to this function.
 
 Emits a {MinDelayChanged} event.
 
@@ -495,16 +489,16 @@ Initializes the contract by registering support for SRC5 and AccessControl.
 
 This function also configures the contract with the following parameters:
 
-    - `min_delay`: initial minimum delay in seconds for operations.
-    - `proposers`: accounts to be granted proposer and canceller roles.
-    - `executors`: accounts to be granted executor role.
-    - `admin`: optional account to be granted admin role; disable with zero address.
+- `min_delay`: initial minimum delay in seconds for operations.
+- `proposers`: accounts to be granted proposer and canceller roles.
+- `executors`: accounts to be granted executor role.
+- `admin`: optional account to be granted admin role; disable with zero address.
 
 WARNING: The optional admin can aid with initial configuration of roles after deployment
 without being subject to delay, but this role should be subsequently renounced in favor of
 administration through timelocked proposals.
 
-Emits two {RoleGranted} events for each account in `proposers` with `PROPOSER_ROLE` admin
+Emits two {RoleGranted} events for each account in `proposers` with `PROPOSER_ROLE` and
 `CANCELLER_ROLE` roles.
 
 Emits a {RoleGranted} event for each account in `executors` with `EXECUTOR_ROLE` role.
@@ -519,7 +513,7 @@ Emits {MinDelayChanged} event.
 ==== `[.contract-item-name]#++assert_only_role++#++(self: @ContractState, role: felt252)++` [.item-kind]#internal#
 
 Validates that the caller has the given `role`.
-Otherwise it reverts.
+Otherwise it panics.
 
 [.contract-item]
 [[TimelockControllerComponent-assert_only_role_or_open_role]]
@@ -532,7 +526,8 @@ If `role` is granted to the zero address, then this is considered an open role w
 [[TimelockControllerComponent-assert_only_self]]
 ==== `[.contract-item-name]#++assert_only_self++#++(self: @ContractState)++` [.item-kind]#internal#
 
-Validates that the caller is the timelock contract itself. Otherwise it reverts.
+Validates that the caller is the timelock contract itself.
+Otherwise it panics.
 
 [.contract-item]
 [[TimelockControllerComponent-_before_call]]
@@ -542,14 +537,15 @@ Private function that checks before execution of an operation's calls.
 
 Requirements:
 
-- `id` must be in the Ready OperationState.
-- `predecessor` must either be zero or be in the Done OperationState.
+- `id` must be in the `Ready` OperationState.
+- `predecessor` must either be zero or be in the `Done` OperationState.
 
 [.contract-item]
 [[TimelockControllerComponent-_after_call]]
 ==== `[.contract-item-name]#++_after_call++#++(self: @ContractState, id: felt252)++` [.item-kind]#internal#
 
-Private functions that checks after execution of an operation's calls.
+Private function that checks after execution of an operation's calls
+and sets the OperationState of `id` to `Done`.
 
 Requirements:
 

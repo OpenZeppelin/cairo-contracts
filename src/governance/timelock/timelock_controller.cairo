@@ -120,32 +120,32 @@ pub mod TimelockControllerComponent {
         +Drop<TContractState>
     > of ITimelock<ComponentState<TContractState>> {
         /// Returns whether `id` corresponds to a registered operation.
-        /// This includes the OperationStates: Waiting, Ready, and Done.
+        /// This includes the OperationStates: `Waiting`, `Ready`, and `Done`.
         fn is_operation(self: @ComponentState<TContractState>, id: felt252) -> bool {
             Self::get_operation_state(self, id) != OperationState::Unset
         }
 
         /// Returns whether the `id` OperationState is pending or not.
-        /// Note that a pending operation may be either Waiting or Ready.
+        /// Note that a pending operation may be either `Waiting` or `Ready`.
         fn is_operation_pending(self: @ComponentState<TContractState>, id: felt252) -> bool {
             let state = Self::get_operation_state(self, id);
             state == OperationState::Waiting || state == OperationState::Ready
         }
 
-        /// Returns whether the `id` OperationState is Ready or not.
+        /// Returns whether the `id` OperationState is `Ready` or not.
         fn is_operation_ready(self: @ComponentState<TContractState>, id: felt252) -> bool {
             Self::get_operation_state(self, id) == OperationState::Ready
         }
 
-        /// Returns whether the `id` OperationState is Done or not.
+        /// Returns whether the `id` OperationState is `Done` or not.
         fn is_operation_done(self: @ComponentState<TContractState>, id: felt252) -> bool {
             Self::get_operation_state(self, id) == OperationState::Done
         }
 
         /// Returns the timestamp at which `id` becomes Ready.
         ///
-        /// NOTE: `0` means the OperationState is Unset and `1` means the OperationState
-        /// is Done.
+        /// NOTE: `0` means the OperationState is `Unset` and `1` means the OperationState
+        /// is `Done`.
         fn get_timestamp(self: @ComponentState<TContractState>, id: felt252) -> u64 {
             self.TimelockController_timestamps.read(id)
         }
@@ -275,8 +275,8 @@ pub mod TimelockControllerComponent {
         /// Requirements:
         ///
         /// - Caller must have `EXECUTOR_ROLE`.
-        /// - `id` must be in Ready OperationState.
-        /// - `predecessor` must either be `0` or in Done OperationState.
+        /// - `id` must be in `Ready` OperationState.
+        /// - `predecessor` must either be `0` or in `Done` OperationState.
         ///
         /// NOTE: This function can reenter, but it doesn't pose a risk because `_after_call`
         /// checks that the proposal is pending, thus any modifications to the operation during
@@ -303,8 +303,8 @@ pub mod TimelockControllerComponent {
         /// Requirements:
         ///
         /// - Caller must have `EXECUTOR_ROLE`.
-        /// - `id` must be in Ready OperationState.
-        /// - `predecessor` must either be `0` or in Done OperationState.
+        /// - `id` must be in `Ready` OperationState.
+        /// - `predecessor` must either be `0` or in `Done` OperationState.
         ///
         /// NOTE: This function can reenter, but it doesn't pose a risk because `_after_call`
         /// checks that the proposal is pending, thus any modifications to the operation during
@@ -543,7 +543,7 @@ pub mod TimelockControllerComponent {
         /// of administration through timelocked proposals.
         ///
         /// Emits two `RoleGranted` events for each account in `proposers` with `PROPOSER_ROLE`
-        /// admin `CANCELLER_ROLE` roles.
+        /// and `CANCELLER_ROLE` roles.
         ///
         /// Emits a `RoleGranted` event for each account in `executors` with `EXECUTOR_ROLE` role.
         ///
@@ -585,7 +585,7 @@ pub mod TimelockControllerComponent {
         }
 
         /// Validates that the caller has the given `role`.
-        /// Otherwise it reverts.
+        /// Otherwise it panics.
         fn assert_only_role(self: @ComponentState<TContractState>, role: felt252) {
             let access_component = get_dep_component!(self, AccessControl);
             access_component.assert_only_role(role);
@@ -603,7 +603,7 @@ pub mod TimelockControllerComponent {
         }
 
         /// Validates that the caller is the timelock contract itself.
-        /// Otherwise it reverts.
+        /// Otherwise it panics.
         fn assert_only_self(self: @ComponentState<TContractState>) {
             let this = starknet::get_contract_address();
             let caller = starknet::get_caller_address();
@@ -614,8 +614,8 @@ pub mod TimelockControllerComponent {
         ///
         /// Requirements:
         ///
-        /// - `id` must be in the Ready OperationState.
-        /// - `predecessor` must either be zero or be in the Done OperationState.
+        /// - `id` must be in the `Ready` OperationState.
+        /// - `predecessor` must either be zero or be in the `Done` OperationState.
         fn _before_call(self: @ComponentState<TContractState>, id: felt252, predecessor: felt252) {
             assert(Timelock::is_operation_ready(self, id), Errors::EXPECTED_READY_OPERATION);
             assert(
@@ -624,11 +624,12 @@ pub mod TimelockControllerComponent {
             );
         }
 
-        /// Private functions that checks after execution of an operation's calls.
+        /// Private function that checks after execution of an operation's calls
+        /// and sets the OperationState of `id` to `Done`.
         ///
         /// Requirements:
         ///
-        /// - `id` must be in the Ready OperationState.
+        /// - `id` must be in the `Ready` OperationState.
         fn _after_call(ref self: ComponentState<TContractState>, id: felt252) {
             assert(Timelock::is_operation_ready(@self, id), Errors::EXPECTED_READY_OPERATION);
             self.TimelockController_timestamps.write(id, DONE_TIMESTAMP);

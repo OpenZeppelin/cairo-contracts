@@ -2,14 +2,14 @@ use core::hash::{HashStateTrait, HashStateExTrait};
 use core::poseidon::PoseidonTrait;
 use openzeppelin::account::AccountComponent::{OwnerAdded, OwnerRemoved};
 use openzeppelin::account::AccountComponent;
-use openzeppelin::tests::utils::constants::{NAME, SYMBOL};
+use openzeppelin::tests::utils::constants::{NAME, SYMBOL, TRANSACTION_HASH};
 use openzeppelin::tests::utils::events::EventSpyExt;
-use openzeppelin::tests::utils::signing::stark::StarkKeyPair;
+use openzeppelin::tests::utils::signing::StarkKeyPair;
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::interface::{IERC20DispatcherTrait, IERC20Dispatcher};
 use openzeppelin::utils::serde::SerializedAppend;
 use snforge_std::EventSpy;
-use snforge_std::signature::stark_curve::{StarkCurveSignerImpl, StarkCurveKeyPairImpl};
+use snforge_std::signature::stark_curve::StarkCurveSignerImpl;
 use starknet::ContractAddress;
 
 #[derive(Drop)]
@@ -18,11 +18,11 @@ pub(crate) struct SignedTransactionData {
     pub(crate) public_key: felt252,
     pub(crate) tx_hash: felt252,
     pub(crate) r: felt252,
-    pub(crate) s: felt252,
+    pub(crate) s: felt252
 }
 
 pub(crate) fn SIGNED_TX_DATA(key_pair: StarkKeyPair) -> SignedTransactionData {
-    let tx_hash = 'TRANSACTION_HASH';
+    let tx_hash = TRANSACTION_HASH;
     let (r, s) = key_pair.sign(tx_hash).unwrap();
     SignedTransactionData {
         private_key: key_pair.secret_key, public_key: key_pair.public_key, tx_hash, r, s

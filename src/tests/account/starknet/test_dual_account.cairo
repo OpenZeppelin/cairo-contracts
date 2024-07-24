@@ -123,7 +123,7 @@ fn test_dual_is_valid_signature() {
     );
 
     target.set_public_key(data.public_key, accept_signature);
-    
+
     let signature = array![data.r, data.s];
     let is_valid = snake_dispatcher.is_valid_signature(data.tx_hash, signature);
     assert_eq!(is_valid, starknet::VALIDATED);

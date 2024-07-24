@@ -7,10 +7,10 @@ use openzeppelin::account::interface::{AccountABIDispatcherTrait, AccountABIDisp
 use openzeppelin::account::interface::{ISRC6, ISRC6_ID};
 use openzeppelin::introspection::interface::{ISRC5, ISRC5_ID};
 use openzeppelin::tests::mocks::account_mocks::DualCaseAccountMock;
+use openzeppelin::tests::utils::constants::stark::{KEY_PAIR, KEY_PAIR_2};
 use openzeppelin::tests::utils::constants::{
     SALT, ZERO, OTHER, CALLER, QUERY_OFFSET, QUERY_VERSION, MIN_TRANSACTION_VERSION
 };
-use openzeppelin::tests::utils::constants::stark::{KEY_PAIR, KEY_PAIR_2};
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::interface::{IERC20DispatcherTrait, IERC20Dispatcher};
 use openzeppelin::utils::selectors;

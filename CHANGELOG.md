@@ -11,10 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - ERC721Enumerable component (#983)
+- TimelockController component (#996)
+- HashCall implementation (#996)
 
 ### Changed
 
 - Bump scarb to v2.7.0-rc.1 (#1025)
+- Bump scarb to v2.7.0-rc.2 (#1052)
 
 ## 0.15.0-rc.0 (2024-07-8)
 

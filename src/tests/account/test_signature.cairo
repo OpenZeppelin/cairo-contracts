@@ -12,28 +12,31 @@ use super::starknet::common::SIGNED_TX_DATA as stark_signature_data;
 
 #[test]
 fn test_is_valid_stark_signature_good_sig() {
-    let data = stark_signature_data(stark::KEY_PAIR());
+    let key_pair = stark::KEY_PAIR();
+    let data = stark_signature_data(key_pair);
     let good_signature = array![data.r, data.s].span();
 
-    let is_valid = is_valid_stark_signature(data.tx_hash, data.public_key, good_signature);
+    let is_valid = is_valid_stark_signature(data.tx_hash, key_pair.public_key, good_signature);
     assert!(is_valid);
 }
 
 #[test]
 fn test_is_valid_stark_signature_bad_sig() {
-    let data = stark_signature_data(stark::KEY_PAIR());
+    let key_pair = stark::KEY_PAIR();
+    let data = stark_signature_data(key_pair);
     let bad_signature = array!['BAD', 'SIGNATURE'].span();
 
-    let is_invalid = !is_valid_stark_signature(data.tx_hash, data.public_key, bad_signature);
+    let is_invalid = !is_valid_stark_signature(data.tx_hash, key_pair.public_key, bad_signature);
     assert!(is_invalid);
 }
 
 #[test]
 fn test_is_valid_stark_signature_invalid_len_sig() {
-    let data = stark_signature_data(stark::KEY_PAIR());
+    let key_pair = stark::KEY_PAIR();
+    let data = stark_signature_data(key_pair);
     let bad_signature = array!['BAD_SIGNATURE'].span();
 
-    let is_invalid = !is_valid_stark_signature(data.tx_hash, data.public_key, bad_signature);
+    let is_invalid = !is_valid_stark_signature(data.tx_hash, key_pair.public_key, bad_signature);
     assert!(is_invalid);
 }
 

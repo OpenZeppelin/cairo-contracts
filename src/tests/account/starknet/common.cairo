@@ -6,7 +6,7 @@ use openzeppelin::tests::utils::constants::{NAME, SYMBOL, TRANSACTION_HASH};
 use openzeppelin::tests::utils::events::EventSpyExt;
 use openzeppelin::tests::utils::signing::StarkKeyPair;
 use openzeppelin::tests::utils;
-use openzeppelin::token::erc20::interface::{IERC20DispatcherTrait, IERC20Dispatcher};
+use openzeppelin::token::erc20::interface::IERC20Dispatcher;
 use openzeppelin::utils::serde::SerializedAppend;
 use snforge_std::EventSpy;
 use snforge_std::signature::stark_curve::StarkCurveSignerImpl;
@@ -14,8 +14,6 @@ use starknet::ContractAddress;
 
 #[derive(Drop)]
 pub(crate) struct SignedTransactionData {
-    pub(crate) private_key: felt252,
-    pub(crate) public_key: felt252,
     pub(crate) tx_hash: felt252,
     pub(crate) r: felt252,
     pub(crate) s: felt252
@@ -24,14 +22,11 @@ pub(crate) struct SignedTransactionData {
 pub(crate) fn SIGNED_TX_DATA(key_pair: StarkKeyPair) -> SignedTransactionData {
     let tx_hash = TRANSACTION_HASH;
     let (r, s) = key_pair.sign(tx_hash).unwrap();
-    SignedTransactionData {
-        private_key: key_pair.secret_key, public_key: key_pair.public_key, tx_hash, r, s
-    }
+    SignedTransactionData { tx_hash, r, s }
 }
 
 pub(crate) fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> IERC20Dispatcher {
     let mut calldata = array![];
-
     calldata.append_serde(NAME());
     calldata.append_serde(SYMBOL());
     calldata.append_serde(initial_supply);

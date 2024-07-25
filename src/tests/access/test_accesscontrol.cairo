@@ -1,11 +1,10 @@
-use openzeppelin::access::accesscontrol::AccessControlComponent::InternalImpl;
-use openzeppelin::access::accesscontrol::AccessControlComponent::RoleAdminChanged;
-use openzeppelin::access::accesscontrol::AccessControlComponent::RoleGranted;
-use openzeppelin::access::accesscontrol::AccessControlComponent::RoleRevoked;
-use openzeppelin::access::accesscontrol::AccessControlComponent;
-use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
-use openzeppelin::access::accesscontrol::interface::IACCESSCONTROL_ID;
-use openzeppelin::access::accesscontrol::interface::{IAccessControl, IAccessControlCamel};
+use openzeppelin::access::accesscontrol::AccessControlComponent::{
+    InternalImpl, RoleAdminChanged, RoleGranted, RoleRevoked
+};
+use openzeppelin::access::accesscontrol::interface::{
+    IAccessControl, IAccessControlCamel, IACCESSCONTROL_ID
+};
+use openzeppelin::access::accesscontrol::{AccessControlComponent, DEFAULT_ADMIN_ROLE};
 use openzeppelin::introspection::interface::ISRC5;
 use openzeppelin::tests::mocks::accesscontrol_mocks::DualCaseAccessControlMock;
 use openzeppelin::tests::utils::constants::{

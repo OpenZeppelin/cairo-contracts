@@ -3,10 +3,6 @@ use openzeppelin::access::ownable::dual_ownable::{DualCaseOwnable, DualCaseOwnab
 use openzeppelin::access::ownable::interface::{
     IOwnableDispatcher, IOwnableCamelOnlyDispatcher, IOwnableDispatcherTrait
 };
-use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
-use openzeppelin::tests::mocks::ownable_mocks::{
-    CamelOwnableMock, CamelOwnablePanicMock, SnakeOwnableMock, SnakeOwnablePanicMock
-};
 use openzeppelin::tests::utils::constants::{OWNER, NEW_OWNER};
 use openzeppelin::tests::utils;
 use openzeppelin::utils::serde::SerializedAppend;

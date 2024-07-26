@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.14.0 (token/erc721/erc721.cairo)
+// OpenZeppelin Contracts for Cairo v0.15.0-rc.0 (token/erc721/erc721.cairo)
 
 use starknet::ContractAddress;
 
@@ -20,15 +20,16 @@ pub mod ERC721Component {
     use openzeppelin_token::erc721::interface;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
+    use starknet::storage::Map;
 
     #[storage]
     struct Storage {
         ERC721_name: ByteArray,
         ERC721_symbol: ByteArray,
-        ERC721_owners: LegacyMap<u256, ContractAddress>,
-        ERC721_balances: LegacyMap<ContractAddress, u256>,
-        ERC721_token_approvals: LegacyMap<u256, ContractAddress>,
-        ERC721_operator_approvals: LegacyMap<(ContractAddress, ContractAddress), bool>,
+        ERC721_owners: Map<u256, ContractAddress>,
+        ERC721_balances: Map<ContractAddress, u256>,
+        ERC721_token_approvals: Map<u256, ContractAddress>,
+        ERC721_operator_approvals: Map<(ContractAddress, ContractAddress), bool>,
         ERC721_base_uri: ByteArray
     }
 
@@ -132,11 +133,13 @@ pub mod ERC721Component {
             self._require_owned(token_id)
         }
 
-        /// Transfers ownership of `token_id` from `from` if `to` is either an account or `IERC721Receiver`.
+        /// Transfers ownership of `token_id` from `from` if `to` is either an account or
+        /// `IERC721Receiver`.
         ///
         /// `data` is additional data, it has no specified format and it is sent in call to `to`.
         ///
-        /// WARNING: This method makes an external call to the recipient contract, which can lead to reentrancy vulnerabilities.
+        /// WARNING: This method makes an external call to the recipient contract, which can lead to
+        /// reentrancy vulnerabilities.
         ///
         /// Requirements:
         ///
@@ -154,7 +157,7 @@ pub mod ERC721Component {
             token_id: u256,
             data: Span<felt252>
         ) {
-            ERC721::transfer_from(ref self, from, to, token_id);
+            Self::transfer_from(ref self, from, to, token_id);
             assert(
                 _check_on_erc721_received(from, to, token_id, data), Errors::SAFE_TRANSFER_FAILED
             );
@@ -162,7 +165,8 @@ pub mod ERC721Component {
 
         /// Transfers ownership of `token_id` from `from` to `to`.
         ///
-        /// WARNING: This method may lead to the loss of tokens if `to` is not aware of the ERC721 protocol.
+        /// WARNING: This method may lead to the loss of tokens if `to` is not aware of the ERC721
+        /// protocol.
         ///
         /// Requirements:
         ///
@@ -180,8 +184,9 @@ pub mod ERC721Component {
         ) {
             assert(!to.is_zero(), Errors::INVALID_RECEIVER);
 
-            // Setting an "auth" arguments enables the `_is_authorized` check which verifies that the token exists
-            // (from != 0). Therefore, it is not needed to verify that the return value is not 0 here.
+            // Setting an "auth" arguments enables the `_is_authorized` check which verifies that
+            // the token exists (from != 0). Therefore, it is not needed to verify that the return
+            // value is not 0 here.
             let previous_owner = self.update(to, token_id, get_caller_address());
 
             assert(from == previous_owner, Errors::INVALID_SENDER);
@@ -498,7 +503,8 @@ pub mod ERC721Component {
         ///
         /// Internal function without access restriction.
         ///
-        /// WARNING: This method may lead to the loss of tokens if `to` is not aware of the ERC721 protocol.
+        /// WARNING: This method may lead to the loss of tokens if `to` is not aware of the ERC721
+        /// protocol.
         ///
         /// Requirements:
         ///
@@ -524,7 +530,8 @@ pub mod ERC721Component {
         /// Mints `token_id` and transfers it to `to`.
         /// Internal function without access restriction.
         ///
-        /// WARNING: This method may lead to the loss of tokens if `to` is not aware of the ERC721 protocol.
+        /// WARNING: This method may lead to the loss of tokens if `to` is not aware of the ERC721
+        /// protocol.
         ///
         /// Requirements:
         ///
@@ -540,11 +547,13 @@ pub mod ERC721Component {
             assert(previous_owner.is_zero(), Errors::ALREADY_MINTED);
         }
 
-        /// Transfers ownership of `token_id` from `from` if `to` is either an account or `IERC721Receiver`.
+        /// Transfers ownership of `token_id` from `from` if `to` is either an account or
+        /// `IERC721Receiver`.
         ///
         /// `data` is additional data, it has no specified format and it is sent in call to `to`.
         ///
-        /// WARNING: This method makes an external call to the recipient contract, which can lead to reentrancy vulnerabilities.
+        /// WARNING: This method makes an external call to the recipient contract, which can lead to
+        /// reentrancy vulnerabilities.
         ///
         /// Requirements:
         ///
@@ -571,7 +580,8 @@ pub mod ERC721Component {
         ///
         /// `data` is additional data, it has no specified format and it is sent in call to `to`.
         ///
-        /// WARNING: This method makes an external call to the recipient contract, which can lead to reentrancy vulnerabilities.
+        /// WARNING: This method makes an external call to the recipient contract, which can lead to
+        /// reentrancy vulnerabilities.
         ///
         /// Requirements:
         ///
@@ -607,11 +617,13 @@ pub mod ERC721Component {
             assert(!previous_owner.is_zero(), Errors::INVALID_TOKEN_ID);
         }
 
-        /// Transfers `token_id` from its current owner to `to`, or alternatively mints (or burns) if the current owner
-        /// (or `to`) is the zero address. Returns the owner of the `token_id` before the update.
+        /// Transfers `token_id` from its current owner to `to`, or alternatively mints (or burns)
+        /// if the current owner (or `to`) is the zero address. Returns the owner of the `token_id`
+        /// before the update.
         ///
-        /// The `auth` argument is optional. If the value passed is non-zero, then this function will check that
-        /// `auth` is either the owner of the token, or approved to operate on the token (by the owner).
+        /// The `auth` argument is optional. If the value passed is non-zero, then this function
+        /// will check that `auth` is either the owner of the token, or approved to operate on the
+        /// token (by the owner).
         ///
         /// Emits a `Transfer` event.
         ///
@@ -670,8 +682,9 @@ pub mod ERC721Component {
 
         /// Approve `to` to operate on `token_id`
         ///
-        /// The `auth` argument is optional. If the value passed is non-zero, then this function will check that `auth` is
-        /// either the owner of the token, or approved to operate on all tokens held by this owner.
+        /// The `auth` argument is optional. If the value passed is non-zero, then this function
+        /// will check that `auth` is either the owner of the token, or approved to operate on all
+        /// tokens held by this owner.
         ///
         /// Emits an `Approval` event.
         fn _approve(
@@ -683,10 +696,11 @@ pub mod ERC721Component {
             self._approve_with_optional_event(to, token_id, auth, true);
         }
 
-        /// Variant of `_approve` with an optional flag to enable or disable the `Approval` event. The event is not
-        /// emitted in the context of transfers.
+        /// Variant of `_approve` with an optional flag to enable or disable the `Approval` event.
+        /// The event is not emitted in the context of transfers.
         ///
-        /// WARNING: If `auth` is zero and `emit_event` is false, this function will not check that the token exists.
+        /// WARNING: If `auth` is zero and `emit_event` is false, this function will not check that
+        /// the token exists.
         ///
         /// Requirements:
         ///
@@ -743,7 +757,8 @@ pub mod ERC721Component {
 
         /// Base URI for computing `token_uri`.
         ///
-        /// If set, the resulting URI for each token will be the concatenation of the base URI and the token ID.
+        /// If set, the resulting URI for each token will be the concatenation of the base URI and
+        /// the token ID.
         /// Returns an empty `ByteArray` if not set.
         fn _base_uri(self: @ComponentState<TContractState>) -> ByteArray {
             self.ERC721_base_uri.read()
@@ -752,8 +767,8 @@ pub mod ERC721Component {
         /// Returns whether `spender` is allowed to manage `owner`'s tokens, or `token_id` in
         /// particular (ignoring whether it is owned by `owner`).
         ///
-        /// WARNING: This function assumes that `owner` is the actual owner of `token_id` and does not verify this
-        /// assumption.
+        /// WARNING: This function assumes that `owner` is the actual owner of `token_id` and does
+        /// not verify this assumption.
         fn _is_authorized(
             self: @ComponentState<TContractState>,
             owner: ContractAddress,
@@ -768,7 +783,8 @@ pub mod ERC721Component {
                     || spender == ERC721::get_approved(self, token_id))
         }
 
-        /// Checks if `spender` can operate on `token_id`, assuming the provided `owner` is the actual owner.
+        /// Checks if `spender` can operate on `token_id`, assuming the provided `owner` is the
+        /// actual owner.
         ///
         /// Requirements:
         ///
@@ -776,8 +792,8 @@ pub mod ERC721Component {
         /// - `spender` cannot be the zero address.
         /// - `spender` must be the owner of `token_id` or be approved to operate on it.
         ///
-        /// WARNING: This function assumes that `owner` is the actual owner of `token_id` and does not verify this
-        /// assumption.
+        /// WARNING: This function assumes that `owner` is the actual owner of `token_id` and does
+        /// not verify this assumption.
         fn _check_authorized(
             self: @ComponentState<TContractState>,
             owner: ContractAddress,

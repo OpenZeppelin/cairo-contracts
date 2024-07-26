@@ -1,5 +1,4 @@
-use openzeppelin_account::interface::EthPublicKey;
-use openzeppelin_account::utils::secp256k1::Secp256k1PointSerde;
+use openzeppelin::account::interface::EthPublicKey;
 use starknet::account::Call;
 use starknet::{ContractAddress, ClassHash};
 

@@ -1,17 +1,18 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.14.0 (utils/cryptography/nonces.cairo)
+// OpenZeppelin Contracts for Cairo v0.15.0-rc.0 (utils/cryptography/nonces.cairo)
 
 #[starknet::component]
 pub mod NoncesComponent {
     use openzeppelin_utils::interfaces::INonces;
     use starknet::ContractAddress;
+    use starknet::storage::Map;
 
     #[storage]
     struct Storage {
-        Nonces_nonces: LegacyMap<ContractAddress, felt252>
+        Nonces_nonces: Map<ContractAddress, felt252>
     }
 
-    mod Errors {
+    pub mod Errors {
         pub const INVALID_NONCE: felt252 = 'Nonces: invalid nonce';
     }
 
@@ -31,8 +32,9 @@ pub mod NoncesComponent {
     > of InternalTrait<TContractState> {
         /// Consumes a nonce, returns the current value, and increments nonce.
         fn use_nonce(ref self: ComponentState<TContractState>, owner: ContractAddress) -> felt252 {
-            // For each account, the nonce has an initial value of 0, can only be incremented by one, and cannot be
-            // decremented or reset. This guarantees that the nonce never overflows.
+            // For each account, the nonce has an initial value of 0, can only be incremented by
+            // one, and cannot be decremented or reset. This guarantees that the nonce never
+            // overflows.
             let nonce = self.Nonces_nonces.read(owner);
             self.Nonces_nonces.write(owner, nonce + 1);
             nonce

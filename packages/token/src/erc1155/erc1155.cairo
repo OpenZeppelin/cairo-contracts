@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.14.0 (token/erc1155/erc1155.cairo)
+// OpenZeppelin Contracts for Cairo v0.15.0-rc.0 (token/erc1155/erc1155.cairo)
 
 use starknet::ContractAddress;
 
@@ -20,11 +20,12 @@ pub mod ERC1155Component {
     use openzeppelin_token::erc1155::interface;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
+    use starknet::storage::Map;
 
     #[storage]
     struct Storage {
-        ERC1155_balances: LegacyMap<(u256, ContractAddress), u256>,
-        ERC1155_operator_approvals: LegacyMap<(ContractAddress, ContractAddress), bool>,
+        ERC1155_balances: Map<(u256, ContractAddress), u256>,
+        ERC1155_operator_approvals: Map<(ContractAddress, ContractAddress), bool>,
         ERC1155_uri: ByteArray,
     }
 
@@ -74,10 +75,11 @@ pub mod ERC1155Component {
         pub approved: bool
     }
 
-    /// Emitted when the URI for token type `id` changes to `value`, if it is a non-programmatic URI.
+    /// Emitted when the URI for token type `id` changes to `value`, if it is a non-programmatic
+    /// URI.
     ///
-    /// If an `URI` event was emitted for `id`, the standard guarantees that `value` will equal the value
-    /// returned by `IERC1155MetadataURI::uri`.
+    /// If an `URI` event was emitted for `id`, the standard guarantees that `value` will equal the
+    /// value returned by `IERC1155MetadataURI::uri`.
     /// https://eips.ethereum.org/EIPS/eip-1155#metadata-extensions
     #[derive(Drop, PartialEq, starknet::Event)]
     pub struct URI {
@@ -157,19 +159,20 @@ pub mod ERC1155Component {
                     break;
                 }
                 batch_balances
-                    .append(ERC1155::balance_of(self, *accounts.at(index), *token_ids.at(index)));
+                    .append(Self::balance_of(self, *accounts.at(index), *token_ids.at(index)));
                 index += 1;
             };
 
             batch_balances.span()
         }
 
-        /// Transfers ownership of `value` amount of `token_id` from `from` if `to` is either an account or `IERC1155Receiver`.
+        /// Transfers ownership of `value` amount of `token_id` from `from` if `to` is either an
+        /// account or `IERC1155Receiver`.
         ///
         /// `data` is additional data, it has no specified format and it is passed to `to`.
         ///
-        /// WARNING: This function can potentially allow a reentrancy attack when transferring tokens
-        /// to an untrusted contract, when invoking `on_ERC1155_received` on the receiver.
+        /// WARNING: This function can potentially allow a reentrancy attack when transferring
+        /// tokens to an untrusted contract, when invoking `on_ERC1155_received` on the receiver.
         /// Ensure to follow the checks-effects-interactions pattern and consider employing
         /// reentrancy guards when interacting with untrusted contracts.
         ///
@@ -178,7 +181,8 @@ pub mod ERC1155Component {
         /// - Caller is either approved or the `token_id` owner.
         /// - `from` is not the zero address.
         /// - `to` is not the zero address.
-        /// - If `to` refers to a non-account contract, it must implement `IERC1155Receiver::on_ERC1155_received`
+        /// - If `to` refers to a non-account contract, it must implement
+        /// `IERC1155Receiver::on_ERC1155_received`
         ///   and return the required magic value.
         ///
         /// Emits a `TransferSingle` event.
@@ -192,13 +196,14 @@ pub mod ERC1155Component {
         ) {
             let token_ids = array![token_id].span();
             let values = array![value].span();
-            ERC1155::safe_batch_transfer_from(ref self, from, to, token_ids, values, data)
+            Self::safe_batch_transfer_from(ref self, from, to, token_ids, values, data)
         }
 
         /// Batched version of `safe_transfer_from`.
         ///
-        /// WARNING: This function can potentially allow a reentrancy attack when transferring tokens
-        /// to an untrusted contract, when invoking `on_ERC1155_batch_received` on the receiver.
+        /// WARNING: This function can potentially allow a reentrancy attack when transferring
+        /// tokens to an untrusted contract, when invoking `on_ERC1155_batch_received` on the
+        /// receiver.
         /// Ensure to follow the checks-effects-interactions pattern and consider employing
         /// reentrancy guards when interacting with untrusted contracts.
         ///
@@ -208,10 +213,12 @@ pub mod ERC1155Component {
         /// - `from` is not the zero address.
         /// - `to` is not the zero address.
         /// - `token_ids` and `values` must have the same length.
-        /// - If `to` refers to a non-account contract, it must implement `IERC1155Receiver::on_ERC1155_batch_received`
+        /// - If `to` refers to a non-account contract, it must implement
+        /// `IERC1155Receiver::on_ERC1155_batch_received`
         ///   and return the acceptance magic value.
         ///
-        /// Emits either a `TransferSingle` or a `TransferBatch` event, depending on the length of the array arguments.
+        /// Emits either a `TransferSingle` or a `TransferBatch` event, depending on the length of
+        /// the array arguments.
         fn safe_batch_transfer_from(
             ref self: ComponentState<TContractState>,
             from: starknet::ContractAddress,
@@ -225,7 +232,7 @@ pub mod ERC1155Component {
 
             let operator = get_caller_address();
             if from != operator {
-                assert(ERC1155::is_approved_for_all(@self, from, operator), Errors::UNAUTHORIZED);
+                assert(Self::is_approved_for_all(@self, from, operator), Errors::UNAUTHORIZED);
             }
 
             self.update_with_acceptance_check(from, to, token_ids, values, data);
@@ -482,7 +489,8 @@ pub mod ERC1155Component {
         /// Requirements:
         ///
         /// - `to` cannot be the zero address.
-        /// - If `to` refers to a smart contract, it must implement `IERC1155Receiver::on_ERC1155_received`
+        /// - If `to` refers to a smart contract, it must implement
+        /// `IERC1155Receiver::on_ERC1155_received`
         /// and return the acceptance magic value.
         ///
         /// Emits a `TransferSingle` event.
@@ -506,7 +514,8 @@ pub mod ERC1155Component {
         ///
         /// - `to` cannot be the zero address.
         /// - `token_ids` and `values` must have the same length.
-        /// - If `to` refers to a smart contract, it must implement `IERC1155Receiver::on_ERC1155_batch_received`
+        /// - If `to` refers to a smart contract, it must implement
+        /// `IERC1155Receiver::on_ERC1155_batch_received`
         /// and return the acceptance magic value.
         ///
         /// Emits a `TransferBatch` event.
@@ -570,7 +579,8 @@ pub mod ERC1155Component {
         /// - `to` is either an account contract or supports the `IERC1155Receiver` interface.
         /// - `token_ids` and `values` must have the same length.
         ///
-        /// Emits a `TransferSingle` event if the arrays contain one element, and `TransferBatch` otherwise.
+        /// Emits a `TransferSingle` event if the arrays contain one element, and `TransferBatch`
+        /// otherwise.
         fn update_with_acceptance_check(
             ref self: ComponentState<TContractState>,
             from: ContractAddress,
@@ -595,7 +605,8 @@ pub mod ERC1155Component {
         ///
         /// - `token_ids` and `values` must have the same length.
         ///
-        /// Emits a `TransferSingle` event if the arrays contain one element, and `TransferBatch` otherwise.
+        /// Emits a `TransferSingle` event if the arrays contain one element, and `TransferBatch`
+        /// otherwise.
         ///
         /// NOTE: This function can be extended using the `ERC1155HooksTrait`, to add
         /// functionality before and/or after the transfer, mint, or burn.

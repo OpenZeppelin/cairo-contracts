@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.14.0 (account/dual_eth_account.cairo)
+// OpenZeppelin Contracts for Cairo v0.15.0-rc.0 (account/dual_eth_account.cairo)
 
-use openzeppelin_account::interface::EthPublicKey;
-use openzeppelin_account::utils::secp256k1::Secp256k1PointSerde;
-use openzeppelin_utils::UnwrapAndCast;
-use openzeppelin_utils::selectors;
-use openzeppelin_utils::serde::SerializedAppend;
-use openzeppelin_utils::try_selector_with_fallback;
+use openzeppelin::account::interface::EthPublicKey;
+use openzeppelin::utils::UnwrapAndCast;
+use openzeppelin::utils::selectors;
+use openzeppelin::utils::serde::SerializedAppend;
+use openzeppelin::utils::try_selector_with_fallback;
 use starknet::ContractAddress;
 use starknet::SyscallResultTrait;
 use starknet::syscalls::call_contract_syscall;

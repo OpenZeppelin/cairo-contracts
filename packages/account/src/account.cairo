@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.14.0 (account/account.cairo)
+// OpenZeppelin Contracts for Cairo v0.15.0-rc.0 (account/account.cairo)
 
 /// # Account Component
 ///
@@ -327,8 +327,8 @@ pub mod AccountComponent {
 
         /// Validates that `new_owner` accepted the ownership of the contract.
         ///
-        /// WARNING: This function assumes that `current_owner` is the current owner of the contract, and
-        /// does not validate this assumption.
+        /// WARNING: This function assumes that `current_owner` is the current owner of the
+        /// contract, and does not validate this assumption.
         ///
         /// Requirements:
         ///

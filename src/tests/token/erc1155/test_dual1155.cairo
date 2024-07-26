@@ -74,10 +74,14 @@ fn setup_erc1155_panic() -> (DualCaseERC1155, DualCaseERC1155) {
 //
 
 #[test]
-fn test_dual_uri() {
+fn test_snake_target_uri() {
     let (snake_dispatcher, _, _) = setup_snake();
-    let (camel_dispatcher, _, _) = setup_camel();
     assert_eq!(snake_dispatcher.uri(TOKEN_ID), "URI");
+}
+
+#[test]
+fn test_camel_target_uri() {
+    let (camel_dispatcher, _, _) = setup_camel();
     assert_eq!(camel_dispatcher.uri(TOKEN_ID), "URI");
 }
 

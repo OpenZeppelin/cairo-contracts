@@ -8,7 +8,6 @@ use openzeppelin::tests::utils::constants::{ZERO, OWNER, OTHER, NEW_OWNER};
 use openzeppelin::tests::utils;
 use openzeppelin_utils::serde::SerializedAppend;
 use starknet::ContractAddress;
-use starknet::storage::StorageMemberAccessTrait;
 use starknet::testing;
 
 use super::common::assert_only_event_ownership_transferred;

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.14.0 (account/eth_account.cairo)
+// OpenZeppelin Contracts for Cairo v0.15.0-rc.0 (account/eth_account.cairo)
 
 /// # EthAccount Component
 ///
@@ -10,14 +10,14 @@ pub mod EthAccountComponent {
     use core::num::traits::Zero;
     use core::poseidon::{PoseidonTrait, poseidon_hash_span};
     use core::starknet::secp256_trait::Secp256PointTrait;
-    use openzeppelin_account::interface::EthPublicKey;
-    use openzeppelin_account::interface;
-    use openzeppelin_account::utils::secp256k1::{Secp256k1PointSerde, Secp256k1PointStorePacking};
-    use openzeppelin_account::utils::{MIN_TRANSACTION_VERSION, QUERY_VERSION, QUERY_OFFSET};
-    use openzeppelin_account::utils::{execute_calls, is_valid_eth_signature};
-    use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
-    use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
-    use openzeppelin_introspection::src5::SRC5Component;
+    use openzeppelin::account::interface::EthPublicKey;
+    use openzeppelin::account::interface;
+    use openzeppelin::account::utils::secp256k1::Secp256k1PointStorePacking;
+    use openzeppelin::account::utils::{MIN_TRANSACTION_VERSION, QUERY_VERSION, QUERY_OFFSET};
+    use openzeppelin::account::utils::{execute_calls, is_valid_eth_signature};
+    use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
+    use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
+    use openzeppelin::introspection::src5::SRC5Component;
     use starknet::SyscallResultTrait;
     use starknet::account::Call;
     use starknet::get_caller_address;
@@ -333,8 +333,8 @@ pub mod EthAccountComponent {
 
         /// Validates that `new_owner` accepted the ownership of the contract.
         ///
-        /// WARNING: This function assumes that `current_owner` is the current owner of the contract, and
-        /// does not validate this assumption.
+        /// WARNING: This function assumes that `current_owner` is the current owner of the
+        /// contract, and does not validate this assumption.
         ///
         /// Requirements:
         ///

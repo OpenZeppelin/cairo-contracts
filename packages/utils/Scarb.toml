@@ -1,13 +1,20 @@
 
 [package]
 name = "openzeppelin_utils"
-version =  "0.15.0-rc.0"
-description = ""
-homepage = ""
-edition = "2023_11"
+version.workspace = true
+edition.workspace = true
+cairo-version.workspace = true
+scarb-version.workspace = true
+authors.workspace = true
+description.workspace = true
+documentation.workspace = true
+readme.workspace = true
+repository.workspace = true
+license-file.workspace = true
+keywords.workspace = true
 
 [tool]
 fmt.workspace = true
 
 [dependencies]
-starknet = "2.7.0-rc.3"
+starknet.workspace = true

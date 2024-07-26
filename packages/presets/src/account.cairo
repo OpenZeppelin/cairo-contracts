@@ -6,7 +6,7 @@
 /// OpenZeppelin's upgradeable account which can change its public key and declare, deploy, or call
 /// contracts.
 #[starknet::contract(account)]
-pub(crate) mod AccountUpgradeable {
+pub mod AccountUpgradeable {
     use openzeppelin_account::AccountComponent;
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_upgrades::UpgradeableComponent;
@@ -48,7 +48,7 @@ pub(crate) mod AccountUpgradeable {
     }
 
     #[constructor]
-    pub(crate) fn constructor(ref self: ContractState, public_key: felt252) {
+    pub fn constructor(ref self: ContractState, public_key: felt252) {
         self.account.initializer(public_key);
     }
 

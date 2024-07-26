@@ -3,7 +3,7 @@
 :deploy_syscall: link:https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/system-calls-cairo1/#deploy[deploy_syscall]
 
 The following documentation provides reasoning and examples for functions and constants found in `openzeppelin_utils`
-and `openzeppelin::tests::utils`.
+and `use openzeppelin_utils::test_utils;`.
 
 CAUTION: Expect this module to evolve (as it has already done).
 
@@ -387,7 +387,7 @@ xref:/guides/snip12.adoc[SNIP12 and Typed Messages] guide.
 === `++utils++`
 
 ```cairo
-use openzeppelin::tests::utils;
+use openzeppelin_utils::test_utils;
 ```
 
 Module containing utilities for testing the library.
@@ -420,14 +420,14 @@ Usage example:
 
 ```cairo
 use openzeppelin_presets::AccountUpgradeable;
-use openzeppelin::tests::utils;
+use openzeppelin_utils::test_utils;
 use starknet::ContractAddress;
 
 const PUBKEY: felt252 = 'PUBKEY';
 
 fn deploy_test_contract() -> ContractAddress {
     let calldata = array![PUBKEY];
-    utils::deploy(AccountUpgradeable::TEST_CLASS_HASH, calldata)
+    test_utils::deploy(AccountUpgradeable::TEST_CLASS_HASH, calldata)
 }
 ```
 
@@ -459,7 +459,7 @@ Requirements:
 Usage example:
 
 ```cairo
-use openzeppelin::tests::utils;
+use openzeppelin_utils::test_utils;
 use openzeppelin_token::erc20::ERC20Component;
 use openzeppelin_token::erc20::ERC20Component::Transfer;
 use starknet::ContractAddress;
@@ -467,7 +467,7 @@ use starknet::ContractAddress;
 fn assert_emitted_event(
     target: ContractAddress, from: ContractAddress, to: ContractAddress, value: u256
 ) {
-    let event = utils::pop_log::<ERC20Component::Event>(target).unwrap();
+    let event = test_utils::pop_log::<ERC20Component::Event>(target).unwrap();
     let expected = ERC20Component::Event::Transfer(Transfer { from, to, value });
     assert!(event == expected);
 }

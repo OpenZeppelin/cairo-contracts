@@ -4,7 +4,7 @@
 use core::hash::{HashStateTrait, HashStateExTrait, Hash};
 use starknet::account::Call;
 
-pub(crate) impl HashCallImpl<S, +HashStateTrait<S>, +Drop<S>> of Hash<Call, S> {
+pub impl HashCallImpl<S, +HashStateTrait<S>, +Drop<S>> of Hash<Call, S> {
     fn update_state(mut state: S, value: Call) -> S {
         let Call { to, selector, calldata } = value;
         state = state.update_with(to).update_with(selector).update_with(calldata.len());
@@ -16,7 +16,7 @@ pub(crate) impl HashCallImpl<S, +HashStateTrait<S>, +Drop<S>> of Hash<Call, S> {
     }
 }
 
-pub(crate) impl HashCallsImpl<S, +HashStateTrait<S>, +Drop<S>> of Hash<Span<Call>, S> {
+pub impl HashCallsImpl<S, +HashStateTrait<S>, +Drop<S>> of Hash<Span<Call>, S> {
     fn update_state(mut state: S, value: Span<Call>) -> S {
         state = state.update_with(value.len());
         for call in value {
@@ -27,7 +27,7 @@ pub(crate) impl HashCallsImpl<S, +HashStateTrait<S>, +Drop<S>> of Hash<Span<Call
     }
 }
 
-pub(crate) impl CallPartialEq of PartialEq<Call> {
+pub impl CallPartialEq of PartialEq<Call> {
     #[inline(always)]
     fn eq(lhs: @Call, rhs: @Call) -> bool {
         let Call { to: l_to, selector: l_selector, calldata: l_calldata } = lhs;

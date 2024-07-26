@@ -1,5 +1,4 @@
 [workspace]
-name = "openzeppelin"
 members = [
     "packages/access",
     "packages/account",
@@ -11,6 +10,10 @@ members = [
     "packages/upgrades",
     "packages/utils",
 ]
+
+[package]
+name = "openzeppelin"
+version.workspace = true
 
 [workspace.package]
 version = "0.15.0-rc.0"
@@ -34,9 +37,22 @@ keywords = [
 
 [workspace.dependencies]
 starknet = "2.7.0-rc.3"
-
-[workspace.dev-dependencies]
 cairo_test = "2.7.0-rc.3"
+
+[dependencies]
+starknet.workspace = true
+openzeppelin_access = { path = "packages/access" }
+openzeppelin_account = { path = "packages/account" }
+openzeppelin_governance = { path = "packages/governance" }
+openzeppelin_introspection = { path = "packages/introspection" }
+openzeppelin_presets = { path = "packages/presets" }
+openzeppelin_security = { path = "packages/security" }
+openzeppelin_token = { path = "packages/token" }
+openzeppelin_upgrades = { path = "packages/upgrades" }
+openzeppelin_utils = { path = "packages/utils" }
+
+[dev-dependencies]
+cairo_test.workspace = true
 
 [lib]
 

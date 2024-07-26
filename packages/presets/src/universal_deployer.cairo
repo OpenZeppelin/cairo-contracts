@@ -5,7 +5,7 @@
 ///
 /// The Universal Deployer Contract is a standardized generic factory of Starknet contracts.
 #[starknet::contract]
-pub(crate) mod UniversalDeployer {
+pub mod UniversalDeployer {
     use core::hash::{HashStateTrait, HashStateExTrait};
     use core::poseidon::PoseidonTrait;
     use openzeppelin_utils::interfaces::IUniversalDeployer;

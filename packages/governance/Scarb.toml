@@ -20,3 +20,6 @@ starknet.workspace = true
 openzeppelin_access = { path = "../access" }
 openzeppelin_introspection = { path = "../introspection" }
 openzeppelin_utils = { path = "../utils" }
+
+[dev-dependencies]
+cairo_test.workspace = true

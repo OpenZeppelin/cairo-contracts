@@ -39,7 +39,7 @@ pub impl Secp256k1PointStorePacking of StorePacking<Secp256k1Point, (felt252, fe
     }
 }
 
-pub(crate) impl Secp256k1PointPartialEq of PartialEq<Secp256k1Point> {
+pub impl Secp256k1PointPartialEq of PartialEq<Secp256k1Point> {
     #[inline(always)]
     fn eq(lhs: @Secp256k1Point, rhs: @Secp256k1Point) -> bool {
         (*lhs).get_coordinates().unwrap_syscall() == (*rhs).get_coordinates().unwrap_syscall()
@@ -50,7 +50,7 @@ pub(crate) impl Secp256k1PointPartialEq of PartialEq<Secp256k1Point> {
     }
 }
 
-pub(crate) impl DebugSecp256k1Point of core::fmt::Debug<Secp256k1Point> {
+pub impl DebugSecp256k1Point of core::fmt::Debug<Secp256k1Point> {
     fn fmt(self: @Secp256k1Point, ref f: Formatter) -> Result<(), Error> {
         let (x, y) = (*self).get_coordinates().unwrap_syscall();
         write!(f, "({x:?},{y:?})")

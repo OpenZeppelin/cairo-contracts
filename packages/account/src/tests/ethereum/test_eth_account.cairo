@@ -1,39 +1,36 @@
-use openzeppelin_account::EthAccountComponent::{InternalTrait, SRC6CamelOnlyImpl};
-use openzeppelin_account::EthAccountComponent::{PublicKeyCamelImpl, PublicKeyImpl};
-use openzeppelin_account::EthAccountComponent;
-use openzeppelin_account::interface::EthPublicKey;
-use openzeppelin_account::interface::{EthAccountABIDispatcherTrait, EthAccountABIDispatcher};
-use openzeppelin_account::interface::{ISRC6, ISRC6_ID};
-use openzeppelin_account::tests::mocks::eth_account_mocks::DualCaseEthAccountMock;
-use openzeppelin_account::utils::secp256k1::{DebugSecp256k1Point, Secp256k1PointPartialEq};
-use openzeppelin_account::utils::signature::EthSignature;
-use openzeppelin_introspection::interface::{ISRC5, ISRC5_ID};
-use openzeppelin_token::erc20::interface::{IERC20DispatcherTrait, IERC20Dispatcher};
+use core::starknet::SyscallResultTrait;
+use openzeppelin::account::EthAccountComponent::{InternalTrait, SRC6CamelOnlyImpl};
+use openzeppelin::account::EthAccountComponent::{PublicKeyCamelImpl, PublicKeyImpl};
+use openzeppelin::account::EthAccountComponent;
+use openzeppelin::account::interface::{EthAccountABIDispatcherTrait, EthAccountABIDispatcher};
+use openzeppelin::account::interface::{ISRC6, ISRC6_ID};
+use openzeppelin::account::utils::secp256k1::{
+    DebugSecp256k1Point, Secp256k1PointPartialEq, Secp256k1PointSerde
+};
+use openzeppelin::account::utils::signature::EthSignature;
+use openzeppelin_access::interface::{ISRC5, ISRC5_ID};
+use openzeppelin::tests::mocks::eth_account_mocks::DualCaseEthAccountMock;
+use openzeppelin_utils::tests_utils::constants::secp256k1::KEY_PAIR;
+use openzeppelin_utils::tests_utils::constants::{
+    ETH_PUBKEY, NEW_ETH_PUBKEY, SALT, ZERO, OTHER, RECIPIENT, CALLER, QUERY_VERSION,
+    MIN_TRANSACTION_VERSION
+};
+use openzeppelin_utils::tests_utils as utils;
+use openzeppelin::token::erc20::interface::IERC20DispatcherTrait;
 use openzeppelin_utils::selectors;
 use openzeppelin_utils::serde::SerializedAppend;
-use openzeppelin_utils::test_utils::constants::{
-    ETH_PUBKEY, SALT, ZERO, OTHER, RECIPIENT, CALLER, QUERY_VERSION, MIN_TRANSACTION_VERSION
+use snforge_std::{
+    cheat_signature_global, cheat_transaction_version_global, cheat_transaction_hash_global,
+    start_cheat_caller_address
 };
-use openzeppelin_utils::test_utils;
+use snforge_std::{spy_events, test_address};
+use starknet::ContractAddress;
 use starknet::account::Call;
-use starknet::testing;
-use starknet::{contract_address_const, ContractAddress};
 
-use super::common::{assert_only_event_owner_added, assert_event_owner_removed};
-use super::common::{deploy_erc20, SIGNED_TX_DATA, NEW_ETH_PUBKEY, SignedTransactionData};
-
-
-//
-// Constants
-//
-
-fn CLASS_HASH() -> felt252 {
-    DualCaseEthAccountMock::TEST_CLASS_HASH
-}
-
-fn ACCOUNT_ADDRESS() -> ContractAddress {
-    contract_address_const::<0x111111>()
-}
+use super::common::EthAccountSpyHelpers;
+use super::common::{
+    deploy_erc20, SIGNED_TX_DATA, SignedTransactionData, get_accept_ownership_signature
+};
 
 //
 // Setup
@@ -52,28 +49,31 @@ fn COMPONENT_STATE() -> ComponentState {
 fn setup() -> ComponentState {
     let mut state = COMPONENT_STATE();
     state.initializer(ETH_PUBKEY());
-    test_utils::drop_event(ZERO());
     state
 }
 
-fn setup_dispatcher(data: Option<@SignedTransactionData>) -> EthAccountABIDispatcher {
-    testing::set_version(MIN_TRANSACTION_VERSION);
-
+fn setup_dispatcher(data: Option<@SignedTransactionData>) -> (EthAccountABIDispatcher, felt252) {
     let mut calldata = array![];
-    if data.is_some() {
-        let data = data.unwrap();
+    if let Option::Some(data) = data {
         let mut serialized_signature = array![];
         data.signature.serialize(ref serialized_signature);
 
-        testing::set_signature(serialized_signature.span());
-        testing::set_transaction_hash(*data.transaction_hash);
+        cheat_signature_global(serialized_signature.span());
+        cheat_transaction_hash_global(*data.tx_hash);
 
         calldata.append_serde(*data.public_key);
     } else {
         calldata.append_serde(ETH_PUBKEY());
-    }
-    let address = test_utils::deploy(CLASS_HASH(), calldata);
-    EthAccountABIDispatcher { contract_address: address }
+    };
+
+    let contract_class = utils::declare_class("DualCaseEthAccountMock");
+    let address = utils::deploy(contract_class, calldata);
+    let dispatcher = EthAccountABIDispatcher { contract_address: address };
+
+    cheat_transaction_version_global(MIN_TRANSACTION_VERSION);
+    start_cheat_caller_address(address, ZERO());
+
+    (dispatcher, contract_class.class_hash.into())
 }
 
 //
@@ -83,8 +83,8 @@ fn setup_dispatcher(data: Option<@SignedTransactionData>) -> EthAccountABIDispat
 #[test]
 fn test_is_valid_signature() {
     let mut state = COMPONENT_STATE();
-    let data = SIGNED_TX_DATA();
-    let hash = data.transaction_hash;
+    let data = SIGNED_TX_DATA(KEY_PAIR());
+    let hash = data.tx_hash;
     let mut bad_signature = data.signature;
 
     bad_signature.r += 1;
@@ -107,8 +107,8 @@ fn test_is_valid_signature() {
 #[test]
 fn test_isValidSignature() {
     let mut state = COMPONENT_STATE();
-    let data = SIGNED_TX_DATA();
-    let hash = data.transaction_hash;
+    let data = SIGNED_TX_DATA(KEY_PAIR());
+    let hash = data.tx_hash;
 
     let mut bad_signature = data.signature;
 
@@ -135,93 +135,93 @@ fn test_isValidSignature() {
 
 #[test]
 fn test_validate_deploy() {
-    let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
+    let (account, class_hash) = setup_dispatcher(Option::Some(@SIGNED_TX_DATA(KEY_PAIR())));
 
     // `__validate_deploy__` does not directly use the passed arguments. Their
     // values are already integrated in the tx hash. The passed arguments in this
     // testing context are decoupled from the signature and have no effect on the test.
-    let is_valid = account.__validate_deploy__(CLASS_HASH(), SALT, ETH_PUBKEY());
+    let is_valid = account.__validate_deploy__(class_hash, SALT, ETH_PUBKEY());
     assert_eq!(is_valid, starknet::VALIDATED);
 }
 
 #[test]
-#[should_panic(expected: ('EthAccount: invalid signature', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('EthAccount: invalid signature',))]
 fn test_validate_deploy_invalid_signature_data() {
-    let mut data = SIGNED_TX_DATA();
-    data.transaction_hash += 1;
-    let account = setup_dispatcher(Option::Some(@data));
+    let mut data = SIGNED_TX_DATA(KEY_PAIR());
+    data.tx_hash += 1;
+    let (account, class_hash) = setup_dispatcher(Option::Some(@data));
 
-    account.__validate_deploy__(CLASS_HASH(), SALT, ETH_PUBKEY());
+    account.__validate_deploy__(class_hash, SALT, ETH_PUBKEY());
 }
 
 #[test]
-#[should_panic(expected: ('Signature: Invalid format.', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('Signature: Invalid format.',))]
 fn test_validate_deploy_invalid_signature_length() {
-    let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
+    let (account, class_hash) = setup_dispatcher(Option::Some(@SIGNED_TX_DATA(KEY_PAIR())));
     let signature = array![0x1];
 
-    testing::set_signature(signature.span());
+    cheat_signature_global(signature.span());
 
-    account.__validate_deploy__(CLASS_HASH(), SALT, ETH_PUBKEY());
+    account.__validate_deploy__(class_hash, SALT, ETH_PUBKEY());
 }
 
 #[test]
-#[should_panic(expected: ('Signature: Invalid format.', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('Signature: Invalid format.',))]
 fn test_validate_deploy_empty_signature() {
-    let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
+    let (account, class_hash) = setup_dispatcher(Option::Some(@SIGNED_TX_DATA(KEY_PAIR())));
     let empty_sig = array![];
 
-    testing::set_signature(empty_sig.span());
-    account.__validate_deploy__(CLASS_HASH(), SALT, ETH_PUBKEY());
+    cheat_signature_global(empty_sig.span());
+    account.__validate_deploy__(class_hash, SALT, ETH_PUBKEY());
 }
 
 #[test]
 fn test_validate_declare() {
-    let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
+    let (account, class_hash) = setup_dispatcher(Option::Some(@SIGNED_TX_DATA(KEY_PAIR())));
 
     // `__validate_declare__` does not directly use the class_hash argument. Its
     // value is already integrated in the tx hash. The class_hash argument in this
     // testing context is decoupled from the signature and has no effect on the test.
-    let is_valid = account.__validate_declare__(CLASS_HASH());
+    let is_valid = account.__validate_declare__(class_hash);
     assert_eq!(is_valid, starknet::VALIDATED);
 }
 
 #[test]
-#[should_panic(expected: ('EthAccount: invalid signature', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('EthAccount: invalid signature',))]
 fn test_validate_declare_invalid_signature_data() {
-    let mut data = SIGNED_TX_DATA();
-    data.transaction_hash += 1;
-    let account = setup_dispatcher(Option::Some(@data));
+    let mut data = SIGNED_TX_DATA(KEY_PAIR());
+    data.tx_hash += 1;
+    let (account, class_hash) = setup_dispatcher(Option::Some(@data));
 
-    account.__validate_declare__(CLASS_HASH());
+    account.__validate_declare__(class_hash);
 }
 
 #[test]
-#[should_panic(expected: ('Signature: Invalid format.', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('Signature: Invalid format.',))]
 fn test_validate_declare_invalid_signature_length() {
-    let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
+    let (account, class_hash) = setup_dispatcher(Option::Some(@SIGNED_TX_DATA(KEY_PAIR())));
     let mut signature = array![];
 
     signature.append(0x1);
-    testing::set_signature(signature.span());
+    cheat_signature_global(signature.span());
 
-    account.__validate_declare__(CLASS_HASH());
+    account.__validate_declare__(class_hash);
 }
 
 #[test]
-#[should_panic(expected: ('Signature: Invalid format.', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('Signature: Invalid format.',))]
 fn test_validate_declare_empty_signature() {
-    let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
+    let (account, class_hash) = setup_dispatcher(Option::Some(@SIGNED_TX_DATA(KEY_PAIR())));
     let empty_sig = array![];
 
-    testing::set_signature(empty_sig.span());
+    cheat_signature_global(empty_sig.span());
 
-    account.__validate_declare__(CLASS_HASH());
+    account.__validate_declare__(class_hash);
 }
 
 fn test_execute_with_version(version: Option<felt252>) {
-    let data = SIGNED_TX_DATA();
-    let account = setup_dispatcher(Option::Some(@data));
+    let data = SIGNED_TX_DATA(KEY_PAIR());
+    let (account, _) = setup_dispatcher(Option::Some(@data));
     let erc20 = deploy_erc20(account.contract_address, 1000);
     let recipient = RECIPIENT();
 
@@ -237,8 +237,8 @@ fn test_execute_with_version(version: Option<felt252>) {
     calls.append(call);
 
     // Handle version for test
-    if version.is_some() {
-        testing::set_version(version.unwrap());
+    if let Option::Some(version) = version {
+        cheat_transaction_version_global(version);
     }
 
     // Execute
@@ -265,7 +265,7 @@ fn test_execute_query_version() {
 }
 
 #[test]
-#[should_panic(expected: ('EthAccount: invalid tx version', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('EthAccount: invalid tx version',))]
 fn test_execute_invalid_version() {
     test_execute_with_version(Option::Some(MIN_TRANSACTION_VERSION - 1));
 }
@@ -273,26 +273,26 @@ fn test_execute_invalid_version() {
 #[test]
 fn test_validate() {
     let calls = array![];
-    let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
+    let (account, _) = setup_dispatcher(Option::Some(@SIGNED_TX_DATA(KEY_PAIR())));
 
     let is_valid = account.__validate__(calls);
     assert_eq!(is_valid, starknet::VALIDATED);
 }
 
 #[test]
-#[should_panic(expected: ('EthAccount: invalid signature', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('EthAccount: invalid signature',))]
 fn test_validate_invalid() {
     let calls = array![];
-    let mut data = SIGNED_TX_DATA();
-    data.transaction_hash += 1;
-    let account = setup_dispatcher(Option::Some(@data));
+    let mut data = SIGNED_TX_DATA(KEY_PAIR());
+    data.tx_hash += 1;
+    let (account, _) = setup_dispatcher(Option::Some(@data));
 
     account.__validate__(calls);
 }
 
 #[test]
 fn test_multicall() {
-    let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
+    let (account, _) = setup_dispatcher(Option::Some(@SIGNED_TX_DATA(KEY_PAIR())));
     let erc20 = deploy_erc20(account.contract_address, 1000);
     let recipient1 = RECIPIENT();
     let recipient2 = OTHER();
@@ -337,7 +337,7 @@ fn test_multicall() {
 
 #[test]
 fn test_multicall_zero_calls() {
-    let account = setup_dispatcher(Option::Some(@SIGNED_TX_DATA()));
+    let (account, _) = setup_dispatcher(Option::Some(@SIGNED_TX_DATA(KEY_PAIR())));
     let mut calls = array![];
 
     let ret = account.__execute__(calls);
@@ -352,9 +352,7 @@ fn test_account_called_from_contract() {
     let state = setup();
     let calls = array![];
 
-    testing::set_contract_address(ACCOUNT_ADDRESS());
-    testing::set_caller_address(CALLER());
-
+    start_cheat_caller_address(test_address(), CALLER());
     state.__execute__(calls);
 }
 
@@ -374,9 +372,7 @@ fn test_cannot_get_without_initialize() {
 fn test_cannot_set_without_initialize() {
     let mut state = COMPONENT_STATE();
 
-    testing::set_contract_address(ACCOUNT_ADDRESS());
-    testing::set_caller_address(ACCOUNT_ADDRESS());
-
+    start_cheat_caller_address(test_address(), test_address());
     state.set_public_key(NEW_ETH_PUBKEY(), array![].span());
 }
 
@@ -384,36 +380,40 @@ fn test_cannot_set_without_initialize() {
 fn test_public_key_setter_and_getter() {
     let mut state = COMPONENT_STATE();
     let public_key = ETH_PUBKEY();
-    let new_public_key = NEW_ETH_PUBKEY();
+    let key_pair = KEY_PAIR();
+    let contract_address = test_address();
 
-    testing::set_contract_address(ACCOUNT_ADDRESS());
-    testing::set_caller_address(ACCOUNT_ADDRESS());
-
+    start_cheat_caller_address(contract_address, contract_address);
     state.initializer(public_key);
-    test_utils::drop_event(ACCOUNT_ADDRESS());
 
     // Check default
     let current = state.get_public_key();
     assert_eq!(current, public_key);
 
-    // Set key
-    state.set_public_key(new_public_key, get_accept_ownership_signature());
+    let mut spy = spy_events();
 
-    assert_event_owner_removed(ACCOUNT_ADDRESS(), current);
-    assert_only_event_owner_added(ACCOUNT_ADDRESS(), new_public_key);
+    // Set key
+    let signature = get_accept_ownership_signature(contract_address, ETH_PUBKEY(), key_pair);
+    state.set_public_key(key_pair.public_key, signature);
+
+    spy.assert_event_owner_removed(contract_address, current);
+    spy.assert_only_event_owner_added(contract_address, key_pair.public_key);
 
     let public_key = state.get_public_key();
-    assert_eq!(public_key, new_public_key);
+    assert_eq!(public_key, key_pair.public_key);
 }
 
 #[test]
 #[should_panic(expected: ('EthAccount: unauthorized',))]
 fn test_public_key_setter_different_account() {
     let mut state = COMPONENT_STATE();
-    testing::set_contract_address(ACCOUNT_ADDRESS());
-    testing::set_caller_address(CALLER());
+    let key_pair = KEY_PAIR();
+    let contract_address = test_address();
 
-    state.set_public_key(NEW_ETH_PUBKEY(), get_accept_ownership_signature());
+    start_cheat_caller_address(contract_address, CALLER());
+
+    let signature = get_accept_ownership_signature(contract_address, ETH_PUBKEY(), key_pair);
+    state.set_public_key(key_pair.public_key, signature);
 }
 
 //
@@ -424,34 +424,38 @@ fn test_public_key_setter_different_account() {
 fn test_public_key_setter_and_getter_camel() {
     let mut state = COMPONENT_STATE();
     let public_key = ETH_PUBKEY();
-    let new_public_key = NEW_ETH_PUBKEY();
+    let key_pair = KEY_PAIR();
+    let contract_address = test_address();
 
-    testing::set_contract_address(ACCOUNT_ADDRESS());
-    testing::set_caller_address(ACCOUNT_ADDRESS());
-
+    start_cheat_caller_address(contract_address, contract_address);
     state.initializer(public_key);
-    test_utils::drop_event(ACCOUNT_ADDRESS());
 
     let current = state.getPublicKey();
     assert_eq!(current, public_key);
 
-    state.setPublicKey(new_public_key, get_accept_ownership_signature());
+    let mut spy = spy_events();
 
-    assert_event_owner_removed(ACCOUNT_ADDRESS(), public_key);
-    assert_only_event_owner_added(ACCOUNT_ADDRESS(), new_public_key);
+    let signature = get_accept_ownership_signature(contract_address, ETH_PUBKEY(), key_pair);
+    state.setPublicKey(key_pair.public_key, signature);
+
+    spy.assert_event_owner_removed(contract_address, public_key);
+    spy.assert_only_event_owner_added(contract_address, key_pair.public_key);
 
     let public_key = state.getPublicKey();
-    assert_eq!(public_key, new_public_key);
+    assert_eq!(public_key, key_pair.public_key);
 }
 
 #[test]
 #[should_panic(expected: ('EthAccount: unauthorized',))]
 fn test_public_key_setter_different_account_camel() {
     let mut state = COMPONENT_STATE();
-    testing::set_contract_address(ACCOUNT_ADDRESS());
-    testing::set_caller_address(CALLER());
+    let key_pair = KEY_PAIR();
+    let contract_address = test_address();
 
-    state.setPublicKey(NEW_ETH_PUBKEY(), get_accept_ownership_signature());
+    start_cheat_caller_address(contract_address, CALLER());
+
+    let signature = get_accept_ownership_signature(contract_address, ETH_PUBKEY(), key_pair);
+    state.setPublicKey(key_pair.public_key, signature);
 }
 
 //
@@ -463,10 +467,11 @@ fn test_initializer() {
     let mut state = COMPONENT_STATE();
     let mock_state = CONTRACT_STATE();
     let public_key = ETH_PUBKEY();
+    let mut spy = spy_events();
 
     state.initializer(public_key);
 
-    assert_only_event_owner_added(ZERO(), public_key);
+    spy.assert_only_event_owner_added(test_address(), public_key);
 
     assert_eq!(state.get_public_key(), public_key);
 
@@ -481,8 +486,7 @@ fn test_initializer() {
 fn test_assert_only_self_true() {
     let mut state = COMPONENT_STATE();
 
-    testing::set_contract_address(ACCOUNT_ADDRESS());
-    testing::set_caller_address(ACCOUNT_ADDRESS());
+    start_cheat_caller_address(test_address(), test_address());
     state.assert_only_self();
 }
 
@@ -491,17 +495,19 @@ fn test_assert_only_self_true() {
 fn test_assert_only_self_false() {
     let mut state = COMPONENT_STATE();
 
-    testing::set_contract_address(ACCOUNT_ADDRESS());
-    testing::set_caller_address(OTHER());
+    start_cheat_caller_address(test_address(), OTHER());
     state.assert_only_self();
 }
 
 #[test]
 fn test_assert_valid_new_owner() {
     let mut state = setup();
+    let contract_address = test_address();
 
-    testing::set_contract_address(ACCOUNT_ADDRESS());
-    state.assert_valid_new_owner(ETH_PUBKEY(), NEW_ETH_PUBKEY(), get_accept_ownership_signature());
+    let key_pair = KEY_PAIR();
+    let signature = get_accept_ownership_signature(contract_address, ETH_PUBKEY(), key_pair);
+
+    state.assert_valid_new_owner(ETH_PUBKEY(), key_pair.public_key, signature);
 }
 
 #[test]
@@ -509,7 +515,7 @@ fn test_assert_valid_new_owner() {
 fn test_assert_valid_new_owner_invalid_signature() {
     let mut state = setup();
 
-    testing::set_contract_address(ACCOUNT_ADDRESS());
+    start_cheat_caller_address(test_address(), test_address());
     let mut bad_signature = array![];
     EthSignature {
         r: 0xe2c02fbaa03809019ce6501cb5e57fc4a1e96e09dd8becfde8508ceddb53330b,
@@ -522,8 +528,8 @@ fn test_assert_valid_new_owner_invalid_signature() {
 #[test]
 fn test__is_valid_signature() {
     let mut state = COMPONENT_STATE();
-    let data = SIGNED_TX_DATA();
-    let hash = data.transaction_hash;
+    let data = SIGNED_TX_DATA(KEY_PAIR());
+    let hash = data.tx_hash;
 
     let mut bad_signature = data.signature;
 
@@ -548,40 +554,12 @@ fn test__is_valid_signature() {
 fn test__set_public_key() {
     let mut state = COMPONENT_STATE();
     let public_key = ETH_PUBKEY();
+    let mut spy = spy_events();
+
     state._set_public_key(public_key);
 
-    assert_only_event_owner_added(ZERO(), public_key);
+    spy.assert_only_event_owner_added(test_address(), public_key);
 
     let public_key = state.get_public_key();
     assert_eq!(public_key, ETH_PUBKEY());
-}
-
-//
-// Helpers
-//
-
-fn get_accept_ownership_signature() -> Span<felt252> {
-    let mut output = array![];
-
-    // 0x5b23679494e4634c66808d93eeef8301f5fd806b095e5e98b45ee97432a0d8d =
-    // PoseidonTrait::new()
-    //             .update_with('StarkNet Message')
-    //             .update_with('accept_ownership')
-    //             .update_with(ACCOUNT_ADDRESS())
-    //             .update_with(ETH_PUBKEY().get_coordinates().unwrap_syscall())
-    //             .finalize();
-
-    // This signature was computed using ethers js sdk from the following values:
-    // - private_key: 0x45397ee6ca34cb49060f1c303c6cb7ee2d6123e617601ef3e31ccf7bf5bef1f9
-    // - public_key:
-    //      r: 0x829307f82a1883c2414503ba85fc85037f22c6fc6f80910801f6b01a4131da1e
-    //      s: 0x2a23f7bddf3715d11767b1247eccc68c89e11b926e2615268db6ad1af8d8da96
-    // - msg_hash: 0x5b23679494e4634c66808d93eeef8301f5fd806b095e5e98b45ee97432a0d8d
-    EthSignature {
-        r: 0x161de897c0232716792d7b580a577212a6573dbb60c0d0449fa673b95b22d942,
-        s: 0x7c7b279857889e20fb4c002fd2d1c112c9f30fa4c411f7cb32f55ab0af991a73,
-    }
-        .serialize(ref output);
-
-    output.span()
 }

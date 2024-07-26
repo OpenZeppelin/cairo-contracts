@@ -6,3 +6,4 @@ mod test_dual721;
 mod test_dual721_receiver;
 #[cfg(test)]
 mod test_erc721;
+mod test_erc721_receiver;

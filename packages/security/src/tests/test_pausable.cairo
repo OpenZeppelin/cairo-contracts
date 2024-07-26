@@ -1,12 +1,12 @@
-use openzeppelin_security::PausableComponent::{InternalImpl, PausableImpl};
-use openzeppelin_security::PausableComponent::{Paused, Unpaused};
-use openzeppelin_security::PausableComponent;
-use openzeppelin_security::tests::mocks::pausable_mocks::PausableMock;
-use openzeppelin_utils::test_utils::constants::{CALLER, ZERO};
-use openzeppelin_utils::test_utils;
+use openzeppelin::security::PausableComponent::{InternalImpl, PausableImpl};
+use openzeppelin::security::PausableComponent::{Paused, Unpaused};
+use openzeppelin::security::PausableComponent;
+use openzeppelin::tests::mocks::pausable_mocks::PausableMock;
+use openzeppelin_utils::tests_utils::constants::CALLER;
+use openzeppelin_utils::tests_utils::events::EventSpyExt;
+use snforge_std::EventSpy;
+use snforge_std::{spy_events, test_address, start_cheat_caller_address};
 use starknet::ContractAddress;
-use starknet::contract_address_const;
-use starknet::testing;
 
 type ComponentState = PausableComponent::ComponentState<PausableMock::ContractState>;
 
@@ -73,11 +73,13 @@ fn test_assert_not_paused_when_not_paused() {
 #[test]
 fn test_pause_when_unpaused() {
     let mut state = COMPONENT_STATE();
-    testing::set_caller_address(CALLER());
+    let contract_address = test_address();
 
+    let mut spy = spy_events();
+    start_cheat_caller_address(contract_address, CALLER());
     state.pause();
 
-    assert_event_paused(CALLER());
+    spy.assert_only_event_paused(contract_address, CALLER());
     assert!(state.is_paused());
 }
 
@@ -96,14 +98,15 @@ fn test_pause_when_paused() {
 #[test]
 fn test_unpause_when_paused() {
     let mut state = COMPONENT_STATE();
-    testing::set_caller_address(CALLER());
+    let contract_address = test_address();
 
+    let mut spy = spy_events();
+    start_cheat_caller_address(test_address(), CALLER());
     state.pause();
-    test_utils::drop_event(ZERO());
-
     state.unpause();
 
-    assert_event_unpaused(CALLER());
+    spy.assert_event_paused(contract_address, CALLER());
+    spy.assert_only_event_unpaused(contract_address, CALLER());
     assert!(!state.is_paused());
 }
 
@@ -119,16 +122,33 @@ fn test_unpause_when_unpaused() {
 // Helpers
 //
 
-fn assert_event_paused(account: ContractAddress) {
-    let event = test_utils::pop_log::<PausableComponent::Event>(ZERO()).unwrap();
-    let expected = PausableComponent::Event::Paused(Paused { account });
-    assert!(event == expected);
-    test_utils::assert_no_events_left(ZERO());
-}
+#[generate_trait]
+impl PausableSpyHelpersImpl of PausableSpyHelpers {
+    fn assert_event_paused(
+        ref self: EventSpy, contract: ContractAddress, account: ContractAddress
+    ) {
+        let expected = PausableComponent::Event::Paused(Paused { account });
+        self.assert_emitted_single(contract, expected);
+    }
 
-fn assert_event_unpaused(account: ContractAddress) {
-    let event = test_utils::pop_log::<PausableComponent::Event>(ZERO()).unwrap();
-    let expected = PausableComponent::Event::Unpaused(Unpaused { account });
-    assert!(event == expected);
-    test_utils::assert_no_events_left(ZERO());
+    fn assert_only_event_paused(
+        ref self: EventSpy, contract: ContractAddress, account: ContractAddress,
+    ) {
+        self.assert_event_paused(contract, account);
+        self.assert_no_events_left_from(contract);
+    }
+
+    fn assert_event_unpaused(
+        ref self: EventSpy, contract: ContractAddress, account: ContractAddress
+    ) {
+        let expected = PausableComponent::Event::Unpaused(Unpaused { account });
+        self.assert_emitted_single(contract, expected);
+    }
+
+    fn assert_only_event_unpaused(
+        ref self: EventSpy, contract: ContractAddress, account: ContractAddress,
+    ) {
+        self.assert_event_unpaused(contract, account);
+        self.assert_no_events_left_from(contract);
+    }
 }

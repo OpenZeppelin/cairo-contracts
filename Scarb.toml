@@ -38,6 +38,7 @@ keywords = [
 [workspace.dependencies]
 starknet = "2.7.0-rc.3"
 cairo_test = "2.7.0-rc.3"
+snforge_std = { git = "https://github.com/foundry-rs/starknet-foundry.git", tag = "v0.26.0" }
 
 [dependencies]
 starknet.workspace = true
@@ -52,7 +53,7 @@ openzeppelin_upgrades = { path = "packages/upgrades" }
 openzeppelin_utils = { path = "packages/utils" }
 
 [dev-dependencies]
-cairo_test.workspace = true
+snforge_std.workspace = true
 
 [lib]
 

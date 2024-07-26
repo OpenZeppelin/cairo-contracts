@@ -1,9 +1,9 @@
-use openzeppelin_security::ReentrancyGuardComponent::InternalImpl;
-use openzeppelin_security::ReentrancyGuardComponent;
-use openzeppelin_security::tests::mocks::reentrancy_mocks::{
-    Attacker, ReentrancyMock, IReentrancyMockDispatcher, IReentrancyMockDispatcherTrait
+use openzeppelin::security::ReentrancyGuardComponent::InternalImpl;
+use openzeppelin::security::ReentrancyGuardComponent;
+use openzeppelin::tests::mocks::reentrancy_mocks::{
+    ReentrancyMock, IReentrancyMockDispatcher, IReentrancyMockDispatcherTrait
 };
-use openzeppelin_utils::test_utils;
+use openzeppelin_utils::test_utils as utils;
 
 type ComponentState = ReentrancyGuardComponent::ComponentState<ReentrancyMock::ContractState>;
 
@@ -13,7 +13,7 @@ fn COMPONENT_STATE() -> ComponentState {
 
 fn deploy_mock() -> IReentrancyMockDispatcher {
     let calldata = array![];
-    let address = test_utils::deploy(ReentrancyMock::TEST_CLASS_HASH, calldata);
+    let address = utils::declare_and_deploy("ReentrancyMock", calldata);
     IReentrancyMockDispatcher { contract_address: address }
 }
 
@@ -63,35 +63,26 @@ fn test_reentrancy_guard_end() {
 //
 
 #[test]
-#[should_panic(
-    expected: (
-        'ReentrancyGuard: reentrant call',
-        'ENTRYPOINT_FAILED',
-        'ENTRYPOINT_FAILED',
-        'ENTRYPOINT_FAILED'
-    ),
-)]
+#[should_panic(expected: ('ReentrancyGuard: reentrant call',))]
 fn test_remote_callback() {
     let contract = deploy_mock();
 
     // Deploy attacker
     let calldata = array![];
-    let attacker_addr = test_utils::deploy(Attacker::TEST_CLASS_HASH, calldata);
+    let attacker_addr = utils::declare_and_deploy("Attacker", calldata);
 
     contract.count_and_call(attacker_addr);
 }
 
 #[test]
-#[should_panic(expected: ('ReentrancyGuard: reentrant call', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('ReentrancyGuard: reentrant call',))]
 fn test_local_recursion() {
     let contract = deploy_mock();
     contract.count_local_recursive(10);
 }
 
 #[test]
-#[should_panic(
-    expected: ('ReentrancyGuard: reentrant call', 'ENTRYPOINT_FAILED', 'ENTRYPOINT_FAILED')
-)]
+#[should_panic(expected: ('ReentrancyGuard: reentrant call',))]
 fn test_external_recursion() {
     let contract = deploy_mock();
     contract.count_external_recursive(10);

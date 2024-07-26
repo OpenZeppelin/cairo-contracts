@@ -2,12 +2,12 @@ use core::num::traits::Zero;
 use openzeppelin_access::ownable::OwnableComponent::InternalTrait;
 use openzeppelin_access::ownable::OwnableComponent;
 use openzeppelin_access::ownable::interface::{IOwnable, IOwnableCamelOnly};
-use openzeppelin_access::tests::mocks::ownable_mocks::DualCaseOwnableMock;
-use openzeppelin_utils::test_utils::constants::{ZERO, OTHER, OWNER};
-use openzeppelin_utils::test_utils;
-use starknet::testing;
+use openzeppelin::tests::mocks::ownable_mocks::DualCaseOwnableMock;
+use openzeppelin_utils::tests_utils::constants::{ZERO, OTHER, OWNER};
+use snforge_std::{spy_events, test_address, start_cheat_caller_address};
+use starknet::storage::StorageMemberAccessTrait;
 
-use super::common::assert_only_event_ownership_transferred;
+use super::common::OwnableSpyHelpers;
 
 //
 // Setup
@@ -22,7 +22,6 @@ fn COMPONENT_STATE() -> ComponentState {
 fn setup() -> ComponentState {
     let mut state = COMPONENT_STATE();
     state.initializer(OWNER());
-    test_utils::drop_event(ZERO());
     state
 }
 
@@ -33,13 +32,14 @@ fn setup() -> ComponentState {
 #[test]
 fn test_initializer_owner() {
     let mut state = COMPONENT_STATE();
+    let mut spy = spy_events();
 
     let current_owner = state.Ownable_owner.read();
     assert!(current_owner.is_zero());
 
     state.initializer(OWNER());
 
-    assert_only_event_ownership_transferred(ZERO(), ZERO(), OWNER());
+    spy.assert_only_event_ownership_transferred(test_address(), ZERO(), OWNER());
 
     let new_owner = state.Ownable_owner.read();
     assert_eq!(new_owner, OWNER());
@@ -52,7 +52,7 @@ fn test_initializer_owner() {
 #[test]
 fn test_assert_only_owner() {
     let state = setup();
-    testing::set_caller_address(OWNER());
+    start_cheat_caller_address(test_address(), OWNER());
     state.assert_only_owner();
 }
 
@@ -60,7 +60,7 @@ fn test_assert_only_owner() {
 #[should_panic(expected: ('Caller is not the owner',))]
 fn test_assert_only_owner_when_not_owner() {
     let state = setup();
-    testing::set_caller_address(OTHER());
+    start_cheat_caller_address(test_address(), OTHER());
     state.assert_only_owner();
 }
 
@@ -78,9 +78,10 @@ fn test_assert_only_owner_when_caller_zero() {
 #[test]
 fn test__transfer_ownership() {
     let mut state = setup();
+    let mut spy = spy_events();
     state._transfer_ownership(OTHER());
 
-    assert_only_event_ownership_transferred(ZERO(), OWNER(), OTHER());
+    spy.assert_only_event_ownership_transferred(test_address(), OWNER(), OTHER());
 
     let current_owner = state.Ownable_owner.read();
     assert_eq!(current_owner, OTHER());
@@ -93,10 +94,12 @@ fn test__transfer_ownership() {
 #[test]
 fn test_transfer_ownership() {
     let mut state = setup();
-    testing::set_caller_address(OWNER());
+    let mut spy = spy_events();
+    let contract_address = test_address();
+    start_cheat_caller_address(contract_address, OWNER());
     state.transfer_ownership(OTHER());
 
-    assert_only_event_ownership_transferred(ZERO(), OWNER(), OTHER());
+    spy.assert_only_event_ownership_transferred(contract_address, OWNER(), OTHER());
     assert_eq!(state.owner(), OTHER());
 }
 
@@ -104,7 +107,7 @@ fn test_transfer_ownership() {
 #[should_panic(expected: ('New owner is the zero address',))]
 fn test_transfer_ownership_to_zero() {
     let mut state = setup();
-    testing::set_caller_address(OWNER());
+    start_cheat_caller_address(test_address(), OWNER());
     state.transfer_ownership(ZERO());
 }
 
@@ -119,17 +122,19 @@ fn test_transfer_ownership_from_zero() {
 #[should_panic(expected: ('Caller is not the owner',))]
 fn test_transfer_ownership_from_nonowner() {
     let mut state = setup();
-    testing::set_caller_address(OTHER());
+    start_cheat_caller_address(test_address(), OTHER());
     state.transfer_ownership(OTHER());
 }
 
 #[test]
 fn test_transferOwnership() {
     let mut state = setup();
-    testing::set_caller_address(OWNER());
+    let mut spy = spy_events();
+    let contract_address = test_address();
+    start_cheat_caller_address(contract_address, OWNER());
     state.transferOwnership(OTHER());
 
-    assert_only_event_ownership_transferred(ZERO(), OWNER(), OTHER());
+    spy.assert_only_event_ownership_transferred(contract_address, OWNER(), OTHER());
     assert_eq!(state.owner(), OTHER());
 }
 
@@ -137,7 +142,7 @@ fn test_transferOwnership() {
 #[should_panic(expected: ('New owner is the zero address',))]
 fn test_transferOwnership_to_zero() {
     let mut state = setup();
-    testing::set_caller_address(OWNER());
+    start_cheat_caller_address(test_address(), OWNER());
     state.transferOwnership(ZERO());
 }
 
@@ -152,7 +157,7 @@ fn test_transferOwnership_from_zero() {
 #[should_panic(expected: ('Caller is not the owner',))]
 fn test_transferOwnership_from_nonowner() {
     let mut state = setup();
-    testing::set_caller_address(OTHER());
+    start_cheat_caller_address(test_address(), OTHER());
     state.transferOwnership(OTHER());
 }
 
@@ -163,10 +168,12 @@ fn test_transferOwnership_from_nonowner() {
 #[test]
 fn test_renounce_ownership() {
     let mut state = setup();
-    testing::set_caller_address(OWNER());
+    let mut spy = spy_events();
+    let contract_address = test_address();
+    start_cheat_caller_address(contract_address, OWNER());
     state.renounce_ownership();
 
-    assert_only_event_ownership_transferred(ZERO(), OWNER(), ZERO());
+    spy.assert_only_event_ownership_transferred(contract_address, OWNER(), ZERO());
     assert!(state.owner().is_zero());
 }
 
@@ -181,17 +188,19 @@ fn test_renounce_ownership_from_zero_address() {
 #[should_panic(expected: ('Caller is not the owner',))]
 fn test_renounce_ownership_from_nonowner() {
     let mut state = setup();
-    testing::set_caller_address(OTHER());
+    start_cheat_caller_address(test_address(), OTHER());
     state.renounce_ownership();
 }
 
 #[test]
 fn test_renounceOwnership() {
     let mut state = setup();
-    testing::set_caller_address(OWNER());
+    let mut spy = spy_events();
+    let contract_address = test_address();
+    start_cheat_caller_address(contract_address, OWNER());
     state.renounceOwnership();
 
-    assert_only_event_ownership_transferred(ZERO(), OWNER(), ZERO());
+    spy.assert_only_event_ownership_transferred(contract_address, OWNER(), ZERO());
     assert!(state.owner().is_zero());
 }
 
@@ -206,6 +215,6 @@ fn test_renounceOwnership_from_zero_address() {
 #[should_panic(expected: ('Caller is not the owner',))]
 fn test_renounceOwnership_from_nonowner() {
     let mut state = setup();
-    testing::set_caller_address(OTHER());
+    start_cheat_caller_address(test_address(), OTHER());
     state.renounceOwnership();
 }

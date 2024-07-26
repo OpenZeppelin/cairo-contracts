@@ -5,8 +5,6 @@ use starknet::SyscallResultTrait;
 use starknet::secp256_trait::{Secp256Trait, Secp256PointTrait};
 use starknet::secp256k1::Secp256k1Point;
 
-use super::ethereum::common::get_points;
-
 #[test]
 fn test_pack_big_secp256k1_points() {
     let (big_point_1, big_point_2) = get_points();
@@ -72,4 +70,20 @@ fn test_partial_eq() {
     assert_eq!(big_point_2, big_point_2);
     assert!(big_point_1 != big_point_2);
     assert!(big_point_2 != big_point_1);
+}
+
+//
+// Helpers
+//
+
+fn get_points() -> (Secp256k1Point, Secp256k1Point) {
+    let curve_size = Secp256Trait::<Secp256k1Point>::get_curve_size();
+    let point_1 = Secp256Trait::secp256_ec_get_point_from_x_syscall(curve_size, true)
+        .unwrap_syscall()
+        .unwrap();
+    let point_2 = Secp256Trait::secp256_ec_get_point_from_x_syscall(curve_size, false)
+        .unwrap_syscall()
+        .unwrap();
+
+    (point_1, point_2)
 }

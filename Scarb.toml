@@ -63,3 +63,6 @@ casm = false
 
 [workspace.tool.fmt]
 sort-module-level-items = true
+
+[tool]
+fmt.workspace = true

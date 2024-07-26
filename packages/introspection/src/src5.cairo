@@ -6,7 +6,8 @@
 /// The SRC5 component allows contracts to expose the interfaces they implement.
 #[starknet::component]
 pub mod SRC5Component {
-    use openzeppelin::introspection::interface;
+    use openzeppelin_introspection::interface;
+    use starknet::storage::Map;
 
     #[storage]
     struct Storage {

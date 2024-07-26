@@ -1,4 +1,4 @@
-// pub mod access;
+pub mod access;
 pub mod account;
 pub mod governance;
 pub mod introspection;

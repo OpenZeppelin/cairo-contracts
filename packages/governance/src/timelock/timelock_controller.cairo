@@ -17,18 +17,18 @@ pub mod TimelockControllerComponent {
     use core::hash::{HashStateTrait, HashStateExTrait};
     use core::num::traits::Zero;
     use core::pedersen::PedersenTrait;
-    use openzeppelin::access::accesscontrol::AccessControlComponent::InternalTrait as AccessControlInternalTrait;
-    use openzeppelin::access::accesscontrol::AccessControlComponent::{
+    use openzeppelin_access::accesscontrol::AccessControlComponent::InternalTrait as AccessControlInternalTrait;
+    use openzeppelin_access::accesscontrol::AccessControlComponent::{
         AccessControlImpl, AccessControlCamelImpl
     };
-    use openzeppelin::access::accesscontrol::AccessControlComponent;
-    use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
-    use openzeppelin::governance::timelock::interface::{ITimelock, TimelockABI};
-    use openzeppelin::governance::timelock::utils::call_impls::{
+    use openzeppelin_access::accesscontrol::AccessControlComponent;
+    use openzeppelin_access::accesscontrol::DEFAULT_ADMIN_ROLE;
+    use openzeppelin_governance::timelock::interface::{ITimelock, TimelockABI};
+    use openzeppelin_governance::timelock::utils::call_impls::{
         HashCallImpl, HashCallsImpl, CallPartialEq
     };
-    use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
-    use openzeppelin::introspection::src5::SRC5Component;
+    use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
+    use openzeppelin_introspection::src5::SRC5Component;
     use starknet::ContractAddress;
     use starknet::SyscallResultTrait;
     use starknet::account::Call;

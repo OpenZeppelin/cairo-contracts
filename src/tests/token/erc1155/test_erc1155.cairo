@@ -1,6 +1,6 @@
 use core::num::traits::Zero;
-use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
-use openzeppelin::introspection;
+use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
+use openzeppelin_introspection;
 use openzeppelin::tests::mocks::erc1155_mocks::DualCaseERC1155Mock;
 use openzeppelin::tests::utils::constants::{
     EMPTY_DATA, ZERO, OWNER, RECIPIENT, OPERATOR, OTHER, TOKEN_ID, TOKEN_ID_2, TOKEN_VALUE,

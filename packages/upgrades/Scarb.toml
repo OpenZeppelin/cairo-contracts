@@ -1,7 +1,7 @@
 
 [package]
 name = "openzeppelin_upgrades"
-version = "0.1.0"
+version =  "0.15.0-rc.0"
 description = ""
 homepage = ""
 edition = "2023_11"
@@ -10,4 +10,4 @@ edition = "2023_11"
 fmt.workspace = true
 
 [dependencies]
-starknet = "2.6.4"
+starknet = "2.7.0-rc.3"

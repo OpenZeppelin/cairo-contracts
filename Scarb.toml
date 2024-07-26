@@ -30,10 +30,10 @@ keywords = [
     "standards",
 ]
 
-[dependencies]
+[workspace.dependencies]
 starknet = "2.7.0-rc.3"
 
-[dev-dependencies]
+[workspace.dev-dependencies]
 cairo_test = "2.7.0-rc.3"
 
 [lib]

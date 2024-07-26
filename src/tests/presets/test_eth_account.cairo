@@ -1,8 +1,8 @@
 use core::num::traits::Zero;
-use openzeppelin::account::interface::ISRC6_ID;
-use openzeppelin::account::utils::secp256k1::{DebugSecp256k1Point, Secp256k1PointPartialEq};
-use openzeppelin::account::utils::signature::EthSignature;
-use openzeppelin::introspection::interface::ISRC5_ID;
+use openzeppelin_account::interface::ISRC6_ID;
+use openzeppelin_account::utils::secp256k1::{DebugSecp256k1Point, Secp256k1PointPartialEq};
+use openzeppelin_account::utils::signature::EthSignature;
+use openzeppelin_introspection::interface::ISRC5_ID;
 use openzeppelin::presets::EthAccountUpgradeable;
 use openzeppelin::presets::interfaces::{
     EthAccountUpgradeableABIDispatcher, EthAccountUpgradeableABIDispatcherTrait

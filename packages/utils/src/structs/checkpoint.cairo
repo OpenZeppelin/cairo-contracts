@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.15.0-rc.0 (utils/structs/checkpoint.cairo)
 
-use core::integer::u32_sqrt;
+use core::num::traits::Sqrt;
 use openzeppelin_utils::math;
 use starknet::storage_access::StorePacking;
 use super::storage_array::{StorageArray, StorageArrayTrait};
@@ -55,7 +55,7 @@ pub impl TraceImpl of TraceTrait {
         let mut high = len;
 
         if (len > 5) {
-            let mid = len - u32_sqrt(len).into();
+            let mid = len - len.sqrt().into();
             if (key < checkpoints.read_at(mid).key) {
                 high = mid;
             } else {

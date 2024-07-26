@@ -1,8 +1,8 @@
 #[starknet::contract]
 pub(crate) mod TimelockControllerMock {
-    use openzeppelin::access::accesscontrol::AccessControlComponent;
-    use openzeppelin::governance::timelock::TimelockControllerComponent;
-    use openzeppelin::introspection::src5::SRC5Component;
+    use openzeppelin_access::accesscontrol::AccessControlComponent;
+    use openzeppelin_governance::timelock::TimelockControllerComponent;
+    use openzeppelin_introspection::src5::SRC5Component;
     use starknet::ContractAddress;
 
     component!(path: AccessControlComponent, storage: access_control, event: AccessControlEvent);
@@ -88,7 +88,7 @@ pub(crate) trait ITimelockAttacker<TState> {
 
 #[starknet::contract]
 pub(crate) mod TimelockAttackerMock {
-    use openzeppelin::governance::timelock::interface::{
+    use openzeppelin_governance::timelock::interface::{
         ITimelockDispatcher, ITimelockDispatcherTrait
     };
     use starknet::ContractAddress;

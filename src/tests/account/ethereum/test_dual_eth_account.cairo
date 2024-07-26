@@ -1,8 +1,8 @@
-use openzeppelin::account::dual_eth_account::{DualCaseEthAccountABI, DualCaseEthAccount};
-use openzeppelin::account::interface::{EthAccountABIDispatcherTrait, EthAccountABIDispatcher};
-use openzeppelin::account::utils::secp256k1::{DebugSecp256k1Point, Secp256k1PointPartialEq};
-use openzeppelin::account::utils::signature::EthSignature;
-use openzeppelin::introspection::interface::ISRC5_ID;
+use openzeppelin_account::dual_eth_account::{DualCaseEthAccountABI, DualCaseEthAccount};
+use openzeppelin_account::interface::{EthAccountABIDispatcherTrait, EthAccountABIDispatcher};
+use openzeppelin_account::utils::secp256k1::{DebugSecp256k1Point, Secp256k1PointPartialEq};
+use openzeppelin_account::utils::signature::EthSignature;
+use openzeppelin_introspection::interface::ISRC5_ID;
 use openzeppelin::tests::mocks::eth_account_mocks::{
     CamelEthAccountPanicMock, CamelEthAccountMock, SnakeEthAccountMock, SnakeEthAccountPanicMock
 };

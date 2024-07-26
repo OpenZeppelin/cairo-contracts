@@ -1,4 +1,4 @@
-use openzeppelin::account::utils::secp256k1::{
+use openzeppelin_account::utils::secp256k1::{
     DebugSecp256k1Point, Secp256k1PointPartialEq, Secp256k1PointStorePacking as StorePacking
 };
 use starknet::SyscallResultTrait;

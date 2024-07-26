@@ -1,21 +1,21 @@
 use core::num::traits::Zero;
 use core::starknet::SyscallResultTrait;
-use openzeppelin::account::AccountComponent::{InternalTrait, SRC6CamelOnlyImpl};
-use openzeppelin::account::AccountComponent::{PublicKeyCamelImpl, PublicKeyImpl};
-use openzeppelin::account::AccountComponent;
-use openzeppelin::account::interface::{AccountABIDispatcherTrait, AccountABIDispatcher};
-use openzeppelin::account::interface::{ISRC6, ISRC6_ID};
-use openzeppelin_access::interface::{ISRC5, ISRC5_ID};
-use openzeppelin::tests::mocks::account_mocks::DualCaseAccountMock;
-use openzeppelin_utils::tests_utils::constants::stark::{KEY_PAIR, KEY_PAIR_2};
-use openzeppelin_utils::tests_utils::constants::{
-    SALT, ZERO, OTHER, CALLER, RECIPIENT, QUERY_OFFSET, QUERY_VERSION, MIN_TRANSACTION_VERSION
-};
-use openzeppelin_utils::tests_utils::signing::StarkKeyPair;
-use openzeppelin_utils::tests_utils as utils;
-use openzeppelin::token::erc20::interface::IERC20DispatcherTrait;
+use openzeppelin_account::AccountComponent::{InternalTrait, SRC6CamelOnlyImpl};
+use openzeppelin_account::AccountComponent::{PublicKeyCamelImpl, PublicKeyImpl};
+use openzeppelin_account::AccountComponent;
+use openzeppelin_account::interface::{AccountABIDispatcherTrait, AccountABIDispatcher};
+use openzeppelin_account::interface::{ISRC6, ISRC6_ID};
+use openzeppelin_account::tests::mocks::account_mocks::DualCaseAccountMock;
+use openzeppelin_introspection::interface::{ISRC5, ISRC5_ID};
+use openzeppelin_token::erc20::interface::IERC20DispatcherTrait;
 use openzeppelin_utils::selectors;
 use openzeppelin_utils::serde::SerializedAppend;
+use openzeppelin_utils::test_utils as utils;
+use openzeppelin_utils::test_utils::constants::stark::{KEY_PAIR, KEY_PAIR_2};
+use openzeppelin_utils::test_utils::constants::{
+    SALT, ZERO, OTHER, CALLER, RECIPIENT, QUERY_OFFSET, QUERY_VERSION, MIN_TRANSACTION_VERSION
+};
+use openzeppelin_utils::test_utils::signing::StarkKeyPair;
 use snforge_std::{
     cheat_signature_global, cheat_transaction_version_global, cheat_transaction_hash_global
 };

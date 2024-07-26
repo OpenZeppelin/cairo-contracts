@@ -1,24 +1,22 @@
 use core::starknet::SyscallResultTrait;
-use openzeppelin::account::EthAccountComponent::{InternalTrait, SRC6CamelOnlyImpl};
-use openzeppelin::account::EthAccountComponent::{PublicKeyCamelImpl, PublicKeyImpl};
-use openzeppelin::account::EthAccountComponent;
-use openzeppelin::account::interface::{EthAccountABIDispatcherTrait, EthAccountABIDispatcher};
-use openzeppelin::account::interface::{ISRC6, ISRC6_ID};
-use openzeppelin::account::utils::secp256k1::{
-    DebugSecp256k1Point, Secp256k1PointPartialEq, Secp256k1PointSerde
-};
-use openzeppelin::account::utils::signature::EthSignature;
-use openzeppelin_access::interface::{ISRC5, ISRC5_ID};
-use openzeppelin::tests::mocks::eth_account_mocks::DualCaseEthAccountMock;
-use openzeppelin_utils::tests_utils::constants::secp256k1::KEY_PAIR;
-use openzeppelin_utils::tests_utils::constants::{
+use openzeppelin_account::EthAccountComponent::{InternalTrait, SRC6CamelOnlyImpl};
+use openzeppelin_account::EthAccountComponent::{PublicKeyCamelImpl, PublicKeyImpl};
+use openzeppelin_account::EthAccountComponent;
+use openzeppelin_account::interface::{EthAccountABIDispatcherTrait, EthAccountABIDispatcher};
+use openzeppelin_account::interface::{ISRC6, ISRC6_ID};
+use openzeppelin_account::tests::mocks::eth_account_mocks::DualCaseEthAccountMock;
+use openzeppelin_account::utils::secp256k1::{DebugSecp256k1Point, Secp256k1PointPartialEq};
+use openzeppelin_account::utils::signature::EthSignature;
+use openzeppelin_introspection::interface::{ISRC5, ISRC5_ID};
+use openzeppelin_token::erc20::interface::IERC20DispatcherTrait;
+use openzeppelin_utils::selectors;
+use openzeppelin_utils::serde::SerializedAppend;
+use openzeppelin_utils::test_utils as utils;
+use openzeppelin_utils::test_utils::constants::secp256k1::KEY_PAIR;
+use openzeppelin_utils::test_utils::constants::{
     ETH_PUBKEY, NEW_ETH_PUBKEY, SALT, ZERO, OTHER, RECIPIENT, CALLER, QUERY_VERSION,
     MIN_TRANSACTION_VERSION
 };
-use openzeppelin_utils::tests_utils as utils;
-use openzeppelin::token::erc20::interface::IERC20DispatcherTrait;
-use openzeppelin_utils::selectors;
-use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{
     cheat_signature_global, cheat_transaction_version_global, cheat_transaction_hash_global,
     start_cheat_caller_address

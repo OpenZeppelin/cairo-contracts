@@ -23,4 +23,11 @@ openzeppelin_introspection = { path = "../introspection" }
 openzeppelin_governance = { path = "../governance" }
 
 [dev-dependencies]
-cairo_test.workspace = true
+snforge_std.workspace = true
+
+[lib]
+
+[[target.starknet-contract]]
+allowed-libfuncs-list.name = "experimental"
+sierra = true
+casm = false

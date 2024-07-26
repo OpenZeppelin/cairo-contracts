@@ -1,9 +1,9 @@
-use openzeppelin::security::PausableComponent::{InternalImpl, PausableImpl};
-use openzeppelin::security::PausableComponent::{Paused, Unpaused};
-use openzeppelin::security::PausableComponent;
-use openzeppelin::tests::mocks::pausable_mocks::PausableMock;
-use openzeppelin_utils::tests_utils::constants::CALLER;
-use openzeppelin_utils::tests_utils::events::EventSpyExt;
+use openzeppelin_security::PausableComponent::{InternalImpl, PausableImpl};
+use openzeppelin_security::PausableComponent::{Paused, Unpaused};
+use openzeppelin_security::PausableComponent;
+use openzeppelin_security::tests::mocks::pausable_mocks::PausableMock;
+use openzeppelin_utils::test_utils::constants::CALLER;
+use openzeppelin_utils::test_utils::events::EventSpyExt;
 use snforge_std::EventSpy;
 use snforge_std::{spy_events, test_address, start_cheat_caller_address};
 use starknet::ContractAddress;

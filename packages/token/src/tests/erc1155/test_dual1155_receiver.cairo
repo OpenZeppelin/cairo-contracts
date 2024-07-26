@@ -1,15 +1,15 @@
-use openzeppelin_utils::tests_utils::constants::{EMPTY_DATA, OPERATOR, OWNER, TOKEN_ID, TOKEN_VALUE};
-use openzeppelin_utils::tests_utils as utils;
-use openzeppelin::token::erc1155::dual1155_receiver::{
+use openzeppelin_token::erc1155::dual1155_receiver::{
     DualCaseERC1155Receiver, DualCaseERC1155ReceiverTrait
 };
-use openzeppelin::token::erc1155::interface::IERC1155_RECEIVER_ID;
-use openzeppelin::token::erc1155::interface::{
+use openzeppelin_token::erc1155::interface::IERC1155_RECEIVER_ID;
+use openzeppelin_token::erc1155::interface::{
     IERC1155ReceiverCamelDispatcher, IERC1155ReceiverCamelDispatcherTrait
 };
-use openzeppelin::token::erc1155::interface::{
+use openzeppelin_token::erc1155::interface::{
     IERC1155ReceiverDispatcher, IERC1155ReceiverDispatcherTrait
 };
+use openzeppelin_utils::test_utils as utils;
+use openzeppelin_utils::test_utils::constants::{EMPTY_DATA, OPERATOR, OWNER, TOKEN_ID, TOKEN_VALUE};
 
 //
 // Setup

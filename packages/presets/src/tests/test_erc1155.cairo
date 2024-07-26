@@ -1,27 +1,26 @@
 use core::num::traits::Zero;
-use openzeppelin_access;
-use openzeppelin::presets::interfaces::{
+use openzeppelin_access::tests::common::OwnableSpyHelpers;
+use openzeppelin_presets::interfaces::{
     ERC1155UpgradeableABIDispatcher, ERC1155UpgradeableABIDispatcherTrait
 };
-use openzeppelin::tests::access::common::OwnableSpyHelpers;
-use openzeppelin::tests::token::erc1155::common::ERC1155SpyHelpers;
-use openzeppelin::tests::token::erc1155::common::{
+use openzeppelin_token::erc1155::interface::{
+    IERC1155CamelSafeDispatcher, IERC1155CamelSafeDispatcherTrait
+};
+use openzeppelin_token::erc1155::interface::{IERC1155Dispatcher, IERC1155DispatcherTrait};
+use openzeppelin_token::erc1155;
+use openzeppelin_token::tests::erc1155::common::ERC1155SpyHelpers;
+use openzeppelin_token::tests::erc1155::common::{
     setup_account, setup_receiver, setup_camel_receiver, deploy_another_account_at, setup_src5
 };
-use openzeppelin::tests::token::erc1155::common::{get_ids_and_values, get_ids_and_split_values};
-use openzeppelin::tests::upgrades::common::UpgradeableSpyHelpers;
-use openzeppelin_utils::tests_utils::constants::{
+use openzeppelin_token::tests::erc1155::common::{get_ids_and_values, get_ids_and_split_values};
+use openzeppelin_upgrades::tests::common::UpgradeableSpyHelpers;
+use openzeppelin_utils::serde::SerializedAppend;
+use openzeppelin_utils::test_utils as utils;
+use openzeppelin_utils::test_utils::constants::{
     EMPTY_DATA, ZERO, OWNER, RECIPIENT, CLASS_HASH_ZERO, OPERATOR, OTHER, TOKEN_ID, TOKEN_ID_2,
     TOKEN_VALUE, TOKEN_VALUE_2
 };
-use openzeppelin_utils::tests_utils::events::EventSpyExt;
-use openzeppelin_utils::tests_utils as utils;
-use openzeppelin::token::erc1155::interface::{
-    IERC1155CamelSafeDispatcher, IERC1155CamelSafeDispatcherTrait
-};
-use openzeppelin::token::erc1155::interface::{IERC1155Dispatcher, IERC1155DispatcherTrait};
-use openzeppelin::token::erc1155;
-use openzeppelin_utils::serde::SerializedAppend;
+use openzeppelin_utils::test_utils::events::EventSpyExt;
 use snforge_std::{spy_events, EventSpy, start_cheat_caller_address};
 use starknet::{ContractAddress, ClassHash};
 

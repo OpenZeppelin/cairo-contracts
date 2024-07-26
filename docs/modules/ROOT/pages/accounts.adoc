@@ -204,7 +204,6 @@ Here’s an example of a basic contract:
 mod MyEthAccount {
     use openzeppelin_account::EthAccountComponent;
     use openzeppelin_account::interface::EthPublicKey;
-    use openzeppelin_account::utils::secp256k1::Secp256k1PointSerde;
     use openzeppelin_introspection::src5::SRC5Component;
     use starknet::ClassHash;
 
@@ -389,7 +388,6 @@ First, let's take the example account we created before and deploy it:
 mod MyEthAccount {
     use openzeppelin_account::EthAccountComponent;
     use openzeppelin_account::interface::EthPublicKey;
-    use openzeppelin_account::utils::secp256k1::Secp256k1PointSerde;
     use openzeppelin_introspection::src5::SRC5Component;
 
     component!(path: EthAccountComponent, storage: eth_account, event: EthAccountEvent);

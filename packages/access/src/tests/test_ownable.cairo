@@ -2,10 +2,9 @@ use core::num::traits::Zero;
 use openzeppelin_access::ownable::OwnableComponent::InternalTrait;
 use openzeppelin_access::ownable::OwnableComponent;
 use openzeppelin_access::ownable::interface::{IOwnable, IOwnableCamelOnly};
-use openzeppelin::tests::mocks::ownable_mocks::DualCaseOwnableMock;
-use openzeppelin_utils::tests_utils::constants::{ZERO, OTHER, OWNER};
+use openzeppelin_access::tests::mocks::ownable_mocks::DualCaseOwnableMock;
+use openzeppelin_utils::test_utils::constants::{ZERO, OTHER, OWNER};
 use snforge_std::{spy_events, test_address, start_cheat_caller_address};
-use starknet::storage::StorageMemberAccessTrait;
 
 use super::common::OwnableSpyHelpers;
 

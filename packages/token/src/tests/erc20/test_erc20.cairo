@@ -8,9 +8,6 @@ use openzeppelin_utils::serde::SerializedAppend;
 use openzeppelin_utils::test_utils::constants::{
     ZERO, OWNER, SPENDER, RECIPIENT, NAME, SYMBOL, DECIMALS, SUPPLY, VALUE
 };
-use openzeppelin::token::erc20::ERC20Component::{ERC20CamelOnlyImpl, ERC20Impl};
-use openzeppelin::token::erc20::ERC20Component::{ERC20MetadataImpl, InternalImpl};
-use openzeppelin::token::erc20::ERC20Component;
 use snforge_std::{spy_events, test_address, start_cheat_caller_address};
 use starknet::ContractAddress;
 

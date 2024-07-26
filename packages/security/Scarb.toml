@@ -20,5 +20,12 @@ fmt.workspace = true
 starknet.workspace = true
 
 [dev-dependencies]
-cairo_test.workspace = true
+snforge_std.workspace = true
 openzeppelin_utils = { path = "../utils" }
+
+[lib]
+
+[[target.starknet-contract]]
+allowed-libfuncs-list.name = "experimental"
+sierra = true
+casm = false

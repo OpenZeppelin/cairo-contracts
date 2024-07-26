@@ -1,35 +1,33 @@
-use openzeppelin_utils::tests_utils::constants::{
+use openzeppelin_token::erc1155::ERC1155Component::{TransferBatch, ApprovalForAll, TransferSingle};
+use openzeppelin_token::erc1155::ERC1155Component;
+use openzeppelin_utils::test_utils as utils;
+use openzeppelin_utils::test_utils::constants::{
     PUBKEY, TOKEN_ID, TOKEN_ID_2, TOKEN_VALUE, TOKEN_VALUE_2
 };
-use openzeppelin_utils::tests_utils::events::EventSpyExt;
-use openzeppelin_utils::tests_utils as utils;
-use openzeppelin::token::erc1155::ERC1155Component::{TransferBatch, ApprovalForAll, TransferSingle};
-use openzeppelin::token::erc1155::ERC1155Component;
+use openzeppelin_utils::test_utils::events::EventSpyExt;
 use snforge_std::EventSpy;
 use starknet::ContractAddress;
 
 
-pub(crate) fn setup_receiver() -> ContractAddress {
+pub fn setup_receiver() -> ContractAddress {
     utils::declare_and_deploy("SnakeERC1155ReceiverMock", array![])
 }
 
-pub(crate) fn setup_camel_receiver() -> ContractAddress {
+pub fn setup_camel_receiver() -> ContractAddress {
     utils::declare_and_deploy("CamelERC1155ReceiverMock", array![])
 }
 
-pub(crate) fn setup_account() -> ContractAddress {
+pub fn setup_account() -> ContractAddress {
     let calldata = array![PUBKEY];
     utils::declare_and_deploy("SnakeAccountMock", calldata)
 }
 
-pub(crate) fn deploy_another_account_at(
-    existing: ContractAddress, target_address: ContractAddress
-) {
+pub fn deploy_another_account_at(existing: ContractAddress, target_address: ContractAddress) {
     let calldata = array![PUBKEY];
     utils::deploy_another_at(existing, target_address, calldata);
 }
 
-pub(crate) fn setup_src5() -> ContractAddress {
+pub fn setup_src5() -> ContractAddress {
     utils::declare_and_deploy("SRC5Mock", array![])
 }
 
@@ -46,7 +44,7 @@ pub fn get_ids_and_split_values(split: u256) -> (Span<u256>, Span<u256>) {
 }
 
 #[generate_trait]
-pub(crate) impl ERC1155SpyHelpersImpl of ERC1155SpyHelpers {
+pub impl ERC1155SpyHelpersImpl of ERC1155SpyHelpers {
     fn assert_event_approval_for_all(
         ref self: EventSpy,
         contract: ContractAddress,

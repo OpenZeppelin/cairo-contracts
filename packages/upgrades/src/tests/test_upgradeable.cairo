@@ -1,9 +1,13 @@
-use openzeppelin::tests::mocks::upgrades_mocks::{IUpgradesV1Dispatcher, IUpgradesV1DispatcherTrait};
-use openzeppelin::tests::mocks::upgrades_mocks::{IUpgradesV2Dispatcher, IUpgradesV2DispatcherTrait};
-use openzeppelin_utils::tests_utils::constants::{CLASS_HASH_ZERO, ZERO, FELT_VALUE as VALUE};
-use openzeppelin_utils::tests_utils::events::EventSpyExt;
-use openzeppelin_utils::tests_utils::{declare_class, deploy};
-use openzeppelin::upgrades::UpgradeableComponent;
+use openzeppelin_upgrades::UpgradeableComponent;
+use openzeppelin_upgrades::tests::mocks::upgrades_mocks::{
+    IUpgradesV1Dispatcher, IUpgradesV1DispatcherTrait
+};
+use openzeppelin_upgrades::tests::mocks::upgrades_mocks::{
+    IUpgradesV2Dispatcher, IUpgradesV2DispatcherTrait
+};
+use openzeppelin_utils::test_utils::constants::{CLASS_HASH_ZERO, ZERO, FELT_VALUE as VALUE};
+use openzeppelin_utils::test_utils::events::EventSpyExt;
+use openzeppelin_utils::test_utils::{declare_class, deploy};
 use snforge_std::{spy_events, ContractClass};
 
 use super::common::UpgradeableSpyHelpers;

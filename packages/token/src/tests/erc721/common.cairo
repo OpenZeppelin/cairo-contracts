@@ -1,11 +1,11 @@
-use openzeppelin_utils::tests_utils::events::EventSpyExt;
-use openzeppelin::token::erc721::ERC721Component::{Approval, ApprovalForAll, Transfer};
-use openzeppelin::token::erc721::ERC721Component;
+use openzeppelin_token::erc721::ERC721Component::{Approval, ApprovalForAll, Transfer};
+use openzeppelin_token::erc721::ERC721Component;
+use openzeppelin_utils::test_utils::events::EventSpyExt;
 use snforge_std::EventSpy;
 use starknet::ContractAddress;
 
 #[generate_trait]
-pub(crate) impl ERC721SpyHelpersImpl of ERC721SpyHelpers {
+pub impl ERC721SpyHelpersImpl of ERC721SpyHelpers {
     fn assert_event_approval_for_all(
         ref self: EventSpy,
         contract: ContractAddress,

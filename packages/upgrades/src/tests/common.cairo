@@ -1,16 +1,20 @@
 use openzeppelin_upgrades::UpgradeableComponent::Upgraded;
 use openzeppelin_upgrades::UpgradeableComponent;
-use openzeppelin_utils::test_utils::constants::ZERO;
-use openzeppelin_utils::test_utils;
+use openzeppelin_utils::test_utils::events::EventSpyExt;
+use snforge_std::{EventSpy, EventSpyAssertionsTrait};
 use starknet::{ContractAddress, ClassHash};
 
-pub fn assert_event_upgraded(contract: ContractAddress, class_hash: ClassHash) {
-    let event = test_utils::pop_log::<UpgradeableComponent::Event>(contract).unwrap();
-    let expected = UpgradeableComponent::Event::Upgraded(Upgraded { class_hash });
-    assert!(event == expected);
-}
+#[generate_trait]
+pub impl UpgradeableSpyHelpersImpl of UpgradeableSpyHelpers {
+    fn assert_event_upgraded(ref self: EventSpy, contract: ContractAddress, class_hash: ClassHash) {
+        let expected = UpgradeableComponent::Event::Upgraded(Upgraded { class_hash });
+        self.assert_emitted_single(contract, expected);
+    }
 
-pub fn assert_only_event_upgraded(contract: ContractAddress, class_hash: ClassHash) {
-    assert_event_upgraded(contract, class_hash);
-    test_utils::assert_no_events_left(ZERO());
+    fn assert_only_event_upgraded(
+        ref self: EventSpy, contract: ContractAddress, class_hash: ClassHash
+    ) {
+        self.assert_event_upgraded(contract, class_hash);
+        self.assert_no_events_left_from(contract);
+    }
 }

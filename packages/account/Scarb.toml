@@ -19,7 +19,14 @@ fmt.workspace = true
 starknet.workspace = true
 openzeppelin_introspection = { path = "../introspection" }
 openzeppelin_utils = { path = "../utils" }
+openzeppelin_token = { path = "../token" }
 
 [dev-dependencies]
-cairo_test.workspace = true
-openzeppelin_token = { path = "../token" }
+snforge_std.workspace = true
+
+[lib]
+
+[[target.starknet-contract]]
+allowed-libfuncs-list.name = "experimental"
+sierra = true
+casm = false

@@ -1,20 +1,20 @@
 use core::integer::BoundedInt;
 use core::num::traits::Zero;
-use openzeppelin::tests::mocks::erc20_votes_mocks::DualCaseERC20VotesMock::SNIP12MetadataImpl;
-use openzeppelin::tests::mocks::erc20_votes_mocks::DualCaseERC20VotesMock;
-use openzeppelin_utils::tests_utils::constants::{SUPPLY, ZERO, OWNER, RECIPIENT};
-use openzeppelin_utils::tests_utils::events::EventSpyExt;
-use openzeppelin_utils::tests_utils as utils;
-use openzeppelin::token::erc20::ERC20Component::InternalImpl as ERC20Impl;
-use openzeppelin::token::erc20::extensions::ERC20VotesComponent::{
+use openzeppelin_token::erc20::ERC20Component::InternalImpl as ERC20Impl;
+use openzeppelin_token::erc20::extensions::ERC20VotesComponent::{
     DelegateChanged, DelegateVotesChanged
 };
-use openzeppelin::token::erc20::extensions::ERC20VotesComponent::{ERC20VotesImpl, InternalImpl};
-use openzeppelin::token::erc20::extensions::ERC20VotesComponent;
-use openzeppelin::token::erc20::extensions::erc20_votes::Delegation;
+use openzeppelin_token::erc20::extensions::ERC20VotesComponent::{ERC20VotesImpl, InternalImpl};
+use openzeppelin_token::erc20::extensions::ERC20VotesComponent;
+use openzeppelin_token::erc20::extensions::erc20_votes::Delegation;
+use openzeppelin_token::tests::mocks::erc20_votes_mocks::DualCaseERC20VotesMock::SNIP12MetadataImpl;
+use openzeppelin_token::tests::mocks::erc20_votes_mocks::DualCaseERC20VotesMock;
 use openzeppelin_utils::cryptography::snip12::OffchainMessageHash;
 use openzeppelin_utils::serde::SerializedAppend;
 use openzeppelin_utils::structs::checkpoint::{Checkpoint, TraceTrait};
+use openzeppelin_utils::test_utils as utils;
+use openzeppelin_utils::test_utils::constants::{SUPPLY, ZERO, OWNER, RECIPIENT};
+use openzeppelin_utils::test_utils::events::EventSpyExt;
 use snforge_std::signature::KeyPairTrait;
 use snforge_std::signature::stark_curve::{StarkCurveKeyPairImpl, StarkCurveSignerImpl};
 use snforge_std::{
@@ -24,7 +24,6 @@ use snforge_std::{
 use snforge_std::{EventSpy, EventSpyAssertionsTrait};
 use starknet::ContractAddress;
 use starknet::contract_address_const;
-use starknet::storage::{StorageMapMemberAccessTrait, StorageMemberAccessTrait};
 
 //
 // Setup

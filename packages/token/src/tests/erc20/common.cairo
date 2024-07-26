@@ -1,11 +1,11 @@
-use openzeppelin_utils::tests_utils::events::EventSpyExt;
-use openzeppelin::token::erc20::ERC20Component::{Approval, Transfer};
-use openzeppelin::token::erc20::ERC20Component;
+use openzeppelin_token::erc20::ERC20Component::{Approval, Transfer};
+use openzeppelin_token::erc20::ERC20Component;
+use openzeppelin_utils::test_utils::events::EventSpyExt;
 use snforge_std::EventSpy;
 use starknet::ContractAddress;
 
 #[generate_trait]
-pub(crate) impl ERC20SpyHelpersImpl of ERC20SpyHelpers {
+pub impl ERC20SpyHelpersImpl of ERC20SpyHelpers {
     fn assert_event_approval(
         ref self: EventSpy,
         contract: ContractAddress,

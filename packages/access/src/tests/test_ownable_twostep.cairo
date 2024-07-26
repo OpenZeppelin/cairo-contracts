@@ -2,13 +2,12 @@ use core::num::traits::Zero;
 use openzeppelin_access::ownable::OwnableComponent::{InternalTrait, OwnershipTransferStarted};
 use openzeppelin_access::ownable::OwnableComponent;
 use openzeppelin_access::ownable::interface::{IOwnableTwoStep, IOwnableTwoStepCamelOnly};
-use openzeppelin::tests::mocks::ownable_mocks::DualCaseTwoStepOwnableMock;
-use openzeppelin_utils::tests_utils::constants::{ZERO, OWNER, OTHER, NEW_OWNER};
-use openzeppelin_utils::tests_utils::events::EventSpyExt;
+use openzeppelin_access::tests::mocks::ownable_mocks::DualCaseTwoStepOwnableMock;
 use openzeppelin_utils::serde::SerializedAppend;
+use openzeppelin_utils::test_utils::constants::{ZERO, OWNER, OTHER, NEW_OWNER};
+use openzeppelin_utils::test_utils::events::EventSpyExt;
 use snforge_std::{EventSpy, spy_events, start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
-use starknet::storage::StorageMemberAccessTrait;
 
 use super::common::OwnableSpyHelpers;
 

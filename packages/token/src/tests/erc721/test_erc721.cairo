@@ -1,19 +1,18 @@
 use core::num::traits::Zero;
-use openzeppelin_access::src5::SRC5Component::SRC5Impl;
-use openzeppelin::tests::mocks::erc721_mocks::DualCaseERC721Mock;
-use openzeppelin_utils::tests_utils::constants::{
+use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
+use openzeppelin_token::erc721::ERC721Component::{ERC721Impl, ERC721CamelOnlyImpl};
+use openzeppelin_token::erc721::ERC721Component::{ERC721MetadataImpl, InternalImpl};
+use openzeppelin_token::erc721::ERC721Component;
+use openzeppelin_token::erc721;
+use openzeppelin_token::tests::mocks::erc721_mocks::DualCaseERC721Mock;
+use openzeppelin_utils::test_utils as utils;
+use openzeppelin_utils::test_utils::constants::{
     DATA, ZERO, OWNER, CALLER, RECIPIENT, SPENDER, OPERATOR, OTHER, NAME, SYMBOL, TOKEN_ID,
     TOKEN_ID_2, PUBKEY, BASE_URI, BASE_URI_2
 };
-use openzeppelin_utils::tests_utils::events::EventSpyExt;
-use openzeppelin_utils::tests_utils as utils;
-use openzeppelin::token::erc721::ERC721Component::{ERC721Impl, ERC721CamelOnlyImpl};
-use openzeppelin::token::erc721::ERC721Component::{ERC721MetadataImpl, InternalImpl};
-use openzeppelin::token::erc721::ERC721Component;
-use openzeppelin::token::erc721;
+use openzeppelin_utils::test_utils::events::EventSpyExt;
 use snforge_std::{spy_events, test_address, start_cheat_caller_address};
 use starknet::ContractAddress;
-use starknet::storage::StorageMapMemberAccessTrait;
 
 use super::common::ERC721SpyHelpers;
 
@@ -979,6 +978,7 @@ fn test_safeTransferFrom_approved_camel() {
     let receiver = setup_camel_receiver();
     let token_id = TOKEN_ID;
     let owner = OWNER();
+    let mut spy = spy_events();
 
     assert_state_before_transfer(owner, receiver, token_id);
 
@@ -1064,6 +1064,7 @@ fn test_safeTransferFrom_approved_for_all_camel() {
     let receiver = setup_camel_receiver();
     let token_id = TOKEN_ID;
     let owner = OWNER();
+    let mut spy = spy_events();
 
     assert_state_before_transfer(owner, receiver, token_id);
 

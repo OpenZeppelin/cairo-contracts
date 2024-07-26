@@ -1,14 +1,14 @@
-use openzeppelin_utils::tests_utils::constants::{
-    DATA, OWNER, RECIPIENT, SPENDER, OPERATOR, NAME, SYMBOL, BASE_URI, TOKEN_ID
-};
-use openzeppelin_utils::tests_utils as utils;
-use openzeppelin::token::erc721::dual721::{DualCaseERC721, DualCaseERC721Trait};
-use openzeppelin::token::erc721::interface::IERC721_ID;
-use openzeppelin::token::erc721::interface::{
+use openzeppelin_token::erc721::dual721::{DualCaseERC721, DualCaseERC721Trait};
+use openzeppelin_token::erc721::interface::IERC721_ID;
+use openzeppelin_token::erc721::interface::{
     IERC721CamelOnlyDispatcher, IERC721CamelOnlyDispatcherTrait
 };
-use openzeppelin::token::erc721::interface::{IERC721Dispatcher, IERC721DispatcherTrait};
+use openzeppelin_token::erc721::interface::{IERC721Dispatcher, IERC721DispatcherTrait};
 use openzeppelin_utils::serde::SerializedAppend;
+use openzeppelin_utils::test_utils as utils;
+use openzeppelin_utils::test_utils::constants::{
+    DATA, OWNER, RECIPIENT, SPENDER, OPERATOR, NAME, SYMBOL, BASE_URI, TOKEN_ID
+};
 use snforge_std::{test_address, start_cheat_caller_address};
 use starknet::ContractAddress;
 

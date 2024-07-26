@@ -1,30 +1,28 @@
 use core::num::traits::Zero;
-use openzeppelin::account::interface::ISRC6_ID;
-use openzeppelin::account::utils::secp256k1::{
-    DebugSecp256k1Point, Secp256k1PointSerde, Secp256k1PointPartialEq
-};
-use openzeppelin_access::interface::ISRC5_ID;
-use openzeppelin::presets::EthAccountUpgradeable;
-use openzeppelin::presets::interfaces::eth_account::{
-    EthAccountUpgradeableABISafeDispatcher, EthAccountUpgradeableABISafeDispatcherTrait
-};
-use openzeppelin::presets::interfaces::{
-    EthAccountUpgradeableABIDispatcher, EthAccountUpgradeableABIDispatcherTrait
-};
-use openzeppelin::tests::account::ethereum::common::EthAccountSpyHelpers;
-use openzeppelin::tests::account::ethereum::common::{
+use openzeppelin_account::interface::ISRC6_ID;
+use openzeppelin_account::tests::ethereum::common::EthAccountSpyHelpers;
+use openzeppelin_account::tests::ethereum::common::{
     deploy_erc20, SIGNED_TX_DATA, SignedTransactionData, get_accept_ownership_signature
 };
-use openzeppelin::tests::upgrades::common::UpgradeableSpyHelpers;
-use openzeppelin_utils::tests_utils::constants::secp256k1::KEY_PAIR;
-use openzeppelin_utils::tests_utils::constants::{
+use openzeppelin_account::utils::secp256k1::{DebugSecp256k1Point, Secp256k1PointPartialEq};
+use openzeppelin_introspection::interface::ISRC5_ID;
+use openzeppelin_presets::EthAccountUpgradeable;
+use openzeppelin_presets::interfaces::eth_account::{
+    EthAccountUpgradeableABISafeDispatcher, EthAccountUpgradeableABISafeDispatcherTrait
+};
+use openzeppelin_presets::interfaces::{
+    EthAccountUpgradeableABIDispatcher, EthAccountUpgradeableABIDispatcherTrait
+};
+use openzeppelin_token::erc20::interface::IERC20DispatcherTrait;
+use openzeppelin_upgrades::tests::common::UpgradeableSpyHelpers;
+use openzeppelin_utils::selectors;
+use openzeppelin_utils::serde::SerializedAppend;
+use openzeppelin_utils::test_utils as utils;
+use openzeppelin_utils::test_utils::constants::secp256k1::KEY_PAIR;
+use openzeppelin_utils::test_utils::constants::{
     CLASS_HASH_ZERO, ETH_PUBKEY, NEW_ETH_PUBKEY, SALT, ZERO, RECIPIENT, QUERY_VERSION,
     MIN_TRANSACTION_VERSION
 };
-use openzeppelin_utils::tests_utils as utils;
-use openzeppelin::token::erc20::interface::IERC20DispatcherTrait;
-use openzeppelin_utils::selectors;
-use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{
     cheat_signature_global, cheat_transaction_version_global, cheat_transaction_hash_global,
     start_cheat_caller_address

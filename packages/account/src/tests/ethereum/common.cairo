@@ -2,30 +2,30 @@ use core::hash::{HashStateTrait, HashStateExTrait};
 use core::poseidon::PoseidonTrait;
 use core::poseidon::poseidon_hash_span;
 use core::starknet::secp256_trait::Secp256PointTrait;
-use openzeppelin::account::EthAccountComponent::{OwnerAdded, OwnerRemoved};
-use openzeppelin::account::EthAccountComponent;
-use openzeppelin::account::interface::EthPublicKey;
-use openzeppelin::account::utils::signature::EthSignature;
-use openzeppelin_utils::tests_utils::constants::TRANSACTION_HASH;
-use openzeppelin_utils::tests_utils::constants::{NAME, SYMBOL};
-use openzeppelin_utils::tests_utils::events::EventSpyExt;
-use openzeppelin_utils::tests_utils::signing::{Secp256k1KeyPair, Secp256k1KeyPairExt};
-use openzeppelin_utils::tests_utils as utils;
-use openzeppelin::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+use openzeppelin_account::EthAccountComponent::{OwnerAdded, OwnerRemoved};
+use openzeppelin_account::EthAccountComponent;
+use openzeppelin_account::interface::EthPublicKey;
+use openzeppelin_account::utils::signature::EthSignature;
+use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use openzeppelin_utils::serde::SerializedAppend;
+use openzeppelin_utils::test_utils as utils;
+use openzeppelin_utils::test_utils::constants::TRANSACTION_HASH;
+use openzeppelin_utils::test_utils::constants::{NAME, SYMBOL};
+use openzeppelin_utils::test_utils::events::EventSpyExt;
+use openzeppelin_utils::test_utils::signing::{Secp256k1KeyPair, Secp256k1KeyPairExt};
 use snforge_std::EventSpy;
 use snforge_std::signature::secp256k1_curve::Secp256k1CurveSignerImpl;
 use starknet::{ContractAddress, SyscallResultTrait};
 
 #[derive(Drop)]
-pub(crate) struct SignedTransactionData {
-    pub(crate) private_key: u256,
-    pub(crate) public_key: EthPublicKey,
-    pub(crate) tx_hash: felt252,
-    pub(crate) signature: EthSignature
+pub struct SignedTransactionData {
+    pub private_key: u256,
+    pub public_key: EthPublicKey,
+    pub tx_hash: felt252,
+    pub signature: EthSignature
 }
 
-pub(crate) fn SIGNED_TX_DATA(key_pair: Secp256k1KeyPair) -> SignedTransactionData {
+pub fn SIGNED_TX_DATA(key_pair: Secp256k1KeyPair) -> SignedTransactionData {
     let tx_hash = TRANSACTION_HASH;
     let (r, s) = key_pair.sign(tx_hash.into()).unwrap();
     SignedTransactionData {
@@ -36,7 +36,7 @@ pub(crate) fn SIGNED_TX_DATA(key_pair: Secp256k1KeyPair) -> SignedTransactionDat
     }
 }
 
-pub(crate) fn get_accept_ownership_signature(
+pub fn get_accept_ownership_signature(
     account_address: ContractAddress, current_owner: EthPublicKey, new_key_pair: Secp256k1KeyPair
 ) -> Span<felt252> {
     let msg_hash: u256 = PoseidonTrait::new()
@@ -50,7 +50,7 @@ pub(crate) fn get_accept_ownership_signature(
     new_key_pair.serialized_sign(msg_hash).span()
 }
 
-pub(crate) fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> IERC20Dispatcher {
+pub fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> IERC20Dispatcher {
     let mut calldata = array![];
 
     calldata.append_serde(NAME());
@@ -64,7 +64,7 @@ pub(crate) fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> 
 
 
 #[generate_trait]
-pub(crate) impl EthAccountSpyHelpersImpl of EthAccountSpyHelpers {
+pub impl EthAccountSpyHelpersImpl of EthAccountSpyHelpers {
     fn assert_event_owner_removed(
         ref self: EventSpy, contract: ContractAddress, public_key: EthPublicKey
     ) {

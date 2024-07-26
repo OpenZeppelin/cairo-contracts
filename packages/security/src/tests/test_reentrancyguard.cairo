@@ -1,6 +1,6 @@
-use openzeppelin::security::ReentrancyGuardComponent::InternalImpl;
-use openzeppelin::security::ReentrancyGuardComponent;
-use openzeppelin::tests::mocks::reentrancy_mocks::{
+use openzeppelin_security::ReentrancyGuardComponent::InternalImpl;
+use openzeppelin_security::ReentrancyGuardComponent;
+use openzeppelin_security::tests::mocks::reentrancy_mocks::{
     ReentrancyMock, IReentrancyMockDispatcher, IReentrancyMockDispatcherTrait
 };
 use openzeppelin_utils::test_utils as utils;

@@ -1,22 +1,22 @@
 use core::integer::BoundedInt;
 use core::num::traits::Zero;
-use openzeppelin::presets::interfaces::erc20::{
+use openzeppelin_access::tests::common::OwnableSpyHelpers;
+use openzeppelin_presets::interfaces::erc20::{
     ERC20UpgradeableABISafeDispatcher, ERC20UpgradeableABISafeDispatcherTrait
 };
-use openzeppelin::presets::interfaces::{
+use openzeppelin_presets::interfaces::{
     ERC20UpgradeableABIDispatcher, ERC20UpgradeableABIDispatcherTrait
 };
-use openzeppelin::tests::access::common::OwnableSpyHelpers;
-use openzeppelin::tests::token::erc20::common::ERC20SpyHelpers;
-use openzeppelin::tests::upgrades::common::UpgradeableSpyHelpers;
-use openzeppelin_utils::tests_utils::common::IntoBase16String;
-use openzeppelin_utils::tests_utils::constants::{
+use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+use openzeppelin_token::tests::erc20::common::ERC20SpyHelpers;
+use openzeppelin_upgrades::tests::common::UpgradeableSpyHelpers;
+use openzeppelin_utils::serde::SerializedAppend;
+use openzeppelin_utils::test_utils as utils;
+use openzeppelin_utils::test_utils::common::IntoBase16String;
+use openzeppelin_utils::test_utils::constants::{
     ZERO, OWNER, SPENDER, RECIPIENT, OTHER, NAME, SYMBOL, DECIMALS, SUPPLY, VALUE, CLASS_HASH_ZERO
 };
-use openzeppelin_utils::tests_utils::events::EventSpyExt;
-use openzeppelin_utils::tests_utils as utils;
-use openzeppelin::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-use openzeppelin_utils::serde::SerializedAppend;
+use openzeppelin_utils::test_utils::events::EventSpyExt;
 use snforge_std::{spy_events, EventSpy, start_cheat_caller_address};
 use starknet::ClassHash;
 

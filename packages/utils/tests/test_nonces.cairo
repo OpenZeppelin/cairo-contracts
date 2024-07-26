@@ -1,8 +1,8 @@
 use crate::tests::mocks::nonces_mocks::NoncesMock;
-use openzeppelin_utils::test_utils::constants::OWNER;
 use openzeppelin_utils::cryptography::interface::INonces;
 use openzeppelin_utils::cryptography::nonces::NoncesComponent::InternalTrait;
 use openzeppelin_utils::cryptography::nonces::NoncesComponent;
+use openzeppelin_utils::test_utils::constants::OWNER;
 
 type ComponentState = NoncesComponent::ComponentState<NoncesMock::ContractState>;
 

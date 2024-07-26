@@ -17,8 +17,7 @@ pub const TOKEN_ID_2: u256 = 121;
 pub const TOKEN_VALUE: u256 = 42;
 pub const TOKEN_VALUE_2: u256 = 142;
 pub const PUBKEY: felt252 = 'PUBKEY';
-pub const NEW_PUBKEY: felt252 =
-    0x26da8d11938b76025862be14fdb8b28438827f73e75e86f7bfa38b196951fa7;
+pub const NEW_PUBKEY: felt252 = 0x26da8d11938b76025862be14fdb8b28438827f73e75e86f7bfa38b196951fa7;
 pub const DAPP_NAME: felt252 = 'DAPP_NAME';
 pub const DAPP_VERSION: felt252 = 'DAPP_VERSION';
 pub const SALT: felt252 = 'SALT';

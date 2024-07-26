@@ -1,7 +1,3 @@
-// SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.15.0-rc.0 (utils.cairo)
-
-pub mod test_utils;
 pub mod cryptography;
 pub mod deployments;
 pub mod interfaces;
@@ -9,6 +5,10 @@ pub mod math;
 pub mod selectors;
 pub mod serde;
 pub mod structs;
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts for Cairo v0.15.0-rc.0 (utils.cairo)
+
+pub mod test_utils;
 pub mod unwrap_and_cast;
 
 pub use cryptography::nonces;

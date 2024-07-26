@@ -28,6 +28,6 @@ jobs:
           *.md
           !PULL_REQUEST_TEMPLATE.md
     - name: Cairo lint
-      run: scarb fmt --check
+      run: scarb fmt --check --workspace
     - name: Cairo test
-      run: scarb test
+      run: scarb test --workspace

@@ -1,10 +1,10 @@
 use openzeppelin_account::dual_account::{DualCaseAccountABI, DualCaseAccount};
 use openzeppelin_account::interface::{AccountABIDispatcherTrait, AccountABIDispatcher};
-use openzeppelin_account::tests::starknet::common::SIGNED_TX_DATA;
 use openzeppelin_account::tests::mocks::account_mocks::{
     CamelAccountPanicMock, CamelAccountMock, SnakeAccountMock, SnakeAccountPanicMock
 };
 use openzeppelin_account::tests::mocks::non_implementing_mock::NonImplementingMock;
+use openzeppelin_account::tests::starknet::common::SIGNED_TX_DATA;
 use openzeppelin_introspection::interface::ISRC5_ID;
 use openzeppelin_utils::test_utils::constants::{PUBKEY, NEW_PUBKEY};
 use openzeppelin_utils::test_utils;

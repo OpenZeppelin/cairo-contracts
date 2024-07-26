@@ -1,35 +1,32 @@
+use core::hash::{HashStateTrait, HashStateExTrait};
+use core::poseidon::PoseidonTrait;
 use openzeppelin::account::AccountComponent::{OwnerAdded, OwnerRemoved};
 use openzeppelin::account::AccountComponent;
-use openzeppelin::tests::utils::constants::{NAME, SYMBOL, NEW_PUBKEY};
+use openzeppelin::tests::utils::constants::{NAME, SYMBOL, TRANSACTION_HASH};
 use openzeppelin::tests::utils::events::EventSpyExt;
+use openzeppelin::tests::utils::signing::StarkKeyPair;
 use openzeppelin::tests::utils;
-use openzeppelin::token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+use openzeppelin::token::erc20::interface::IERC20Dispatcher;
 use openzeppelin::utils::serde::SerializedAppend;
 use snforge_std::EventSpy;
+use snforge_std::signature::stark_curve::StarkCurveSignerImpl;
 use starknet::ContractAddress;
 
 #[derive(Drop)]
 pub(crate) struct SignedTransactionData {
-    pub(crate) private_key: felt252,
-    pub(crate) public_key: felt252,
     pub(crate) tx_hash: felt252,
     pub(crate) r: felt252,
     pub(crate) s: felt252
 }
 
-pub(crate) fn SIGNED_TX_DATA() -> SignedTransactionData {
-    SignedTransactionData {
-        private_key: 1234,
-        public_key: NEW_PUBKEY,
-        tx_hash: 0x601d3d2e265c10ff645e1554c435e72ce6721f0ba5fc96f0c650bfc6231191a,
-        r: 0x6bc22689efcaeacb9459577138aff9f0af5b77ee7894cdc8efabaf760f6cf6e,
-        s: 0x295989881583b9325436851934334faa9d639a2094cd1e2f8691c8a71cd4cdf
-    }
+pub(crate) fn SIGNED_TX_DATA(key_pair: StarkKeyPair) -> SignedTransactionData {
+    let tx_hash = TRANSACTION_HASH;
+    let (r, s) = key_pair.sign(tx_hash).unwrap();
+    SignedTransactionData { tx_hash, r, s }
 }
 
 pub(crate) fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> IERC20Dispatcher {
     let mut calldata = array![];
-
     calldata.append_serde(NAME());
     calldata.append_serde(SYMBOL());
     calldata.append_serde(initial_supply);
@@ -39,6 +36,18 @@ pub(crate) fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> 
     IERC20Dispatcher { contract_address: address }
 }
 
+pub(crate) fn get_accept_ownership_signature(
+    account_address: ContractAddress, current_public_key: felt252, new_key_pair: StarkKeyPair
+) -> Span<felt252> {
+    let msg_hash = PoseidonTrait::new()
+        .update_with('StarkNet Message')
+        .update_with('accept_ownership')
+        .update_with(account_address)
+        .update_with(current_public_key)
+        .finalize();
+    let (sig_r, sig_s) = new_key_pair.sign(msg_hash).unwrap();
+    array![sig_r, sig_s].span()
+}
 
 #[generate_trait]
 pub(crate) impl AccountSpyHelpersImpl of AccountSpyHelpers {

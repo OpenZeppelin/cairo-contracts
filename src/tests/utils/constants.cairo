@@ -124,13 +124,25 @@ pub(crate) fn EMPTY_DATA() -> Span<felt252> {
 pub(crate) mod secp256k1 {
     use openzeppelin::tests::utils::signing::{Secp256k1KeyPair, get_secp256k1_keys_from};
 
-    pub(crate) const PRIVATE_KEY: u256 = u256 { low: 'PRIVATE_LOW', high: 'PRIVATE_HIGH' };
     pub(crate) fn KEY_PAIR() -> Secp256k1KeyPair {
-        get_secp256k1_keys_from(PRIVATE_KEY)
+        let private_key = u256 { low: 'PRIVATE_LOW', high: 'PRIVATE_HIGH' };
+        get_secp256k1_keys_from(private_key)
     }
 
-    pub(crate) const PRIVATE_KEY_2: u256 = u256 { low: 'PRIVATE_LOW_2', high: 'PRIVATE_HIGH_2' };
     pub(crate) fn KEY_PAIR_2() -> Secp256k1KeyPair {
-        get_secp256k1_keys_from(PRIVATE_KEY_2)
+        let private_key = u256 { low: 'PRIVATE_LOW_2', high: 'PRIVATE_HIGH_2' };
+        get_secp256k1_keys_from(private_key)
+    }
+}
+
+pub(crate) mod stark {
+    use openzeppelin::tests::utils::signing::{StarkKeyPair, get_stark_keys_from};
+
+    pub(crate) fn KEY_PAIR() -> StarkKeyPair {
+        get_stark_keys_from('PRIVATE_KEY')
+    }
+
+    pub(crate) fn KEY_PAIR_2() -> StarkKeyPair {
+        get_stark_keys_from('PRIVATE_KEY_2')
     }
 }

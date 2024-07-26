@@ -1,38 +1,44 @@
 use core::num::traits::Zero;
 use openzeppelin::account::interface::ISRC6_ID;
-use openzeppelin::account::utils::secp256k1::{DebugSecp256k1Point, Secp256k1PointPartialEq};
-use openzeppelin::account::utils::signature::EthSignature;
+use openzeppelin::account::utils::secp256k1::{
+    DebugSecp256k1Point, Secp256k1PointPartialEq
+};
 use openzeppelin::introspection::interface::ISRC5_ID;
 use openzeppelin::presets::EthAccountUpgradeable;
+use openzeppelin::presets::interfaces::eth_account::{
+    EthAccountUpgradeableABISafeDispatcher, EthAccountUpgradeableABISafeDispatcherTrait
+};
 use openzeppelin::presets::interfaces::{
     EthAccountUpgradeableABIDispatcher, EthAccountUpgradeableABIDispatcherTrait
 };
+use openzeppelin::tests::account::ethereum::common::EthAccountSpyHelpers;
 use openzeppelin::tests::account::ethereum::common::{
-    assert_only_event_owner_added, assert_event_owner_removed
+    deploy_erc20, SIGNED_TX_DATA, SignedTransactionData, get_accept_ownership_signature
 };
-use openzeppelin::tests::account::ethereum::common::{
-    deploy_erc20, get_points, NEW_ETH_PUBKEY, SIGNED_TX_DATA, SignedTransactionData
-};
-use openzeppelin::tests::mocks::eth_account_mocks::SnakeEthAccountMock;
-use openzeppelin::tests::upgrades::common::assert_only_event_upgraded;
+use openzeppelin::tests::upgrades::common::UpgradeableSpyHelpers;
+use openzeppelin::tests::utils::constants::secp256k1::KEY_PAIR;
 use openzeppelin::tests::utils::constants::{
-    CLASS_HASH_ZERO, ETH_PUBKEY, SALT, ZERO, RECIPIENT, QUERY_VERSION, MIN_TRANSACTION_VERSION
+    CLASS_HASH_ZERO, ETH_PUBKEY, NEW_ETH_PUBKEY, SALT, ZERO, RECIPIENT, QUERY_VERSION,
+    MIN_TRANSACTION_VERSION
 };
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::interface::IERC20DispatcherTrait;
 use openzeppelin::utils::selectors;
 use openzeppelin::utils::serde::SerializedAppend;
+use snforge_std::{
+    cheat_signature_global, cheat_transaction_version_global, cheat_transaction_hash_global,
+    start_cheat_caller_address
+};
+use snforge_std::{spy_events, test_address};
+use starknet::ClassHash;
+use starknet::SyscallResultTrait;
 use starknet::account::Call;
 use starknet::contract_address_const;
-use starknet::testing;
-use starknet::{ContractAddress, ClassHash};
+use starknet::secp256_trait::Secp256Trait;
+use starknet::secp256k1::Secp256k1Point;
 
-fn CLASS_HASH() -> felt252 {
-    EthAccountUpgradeable::TEST_CLASS_HASH
-}
-
-fn V2_CLASS_HASH() -> ClassHash {
-    SnakeEthAccountMock::TEST_CLASS_HASH.try_into().unwrap()
+fn declare_v2_class_hash() -> ClassHash {
+    utils::declare_class("SnakeEthAccountMock").class_hash
 }
 
 //
@@ -43,32 +49,33 @@ fn setup_dispatcher() -> EthAccountUpgradeableABIDispatcher {
     let mut calldata = array![];
     calldata.append_serde(ETH_PUBKEY());
 
-    let target = utils::deploy(CLASS_HASH(), calldata);
-    utils::drop_event(target);
-
+    let target = utils::declare_and_deploy("EthAccountUpgradeable", calldata);
     EthAccountUpgradeableABIDispatcher { contract_address: target }
 }
 
 fn setup_dispatcher_with_data(
     data: Option<@SignedTransactionData>
-) -> EthAccountUpgradeableABIDispatcher {
-    testing::set_version(MIN_TRANSACTION_VERSION);
-
+) -> (EthAccountUpgradeableABIDispatcher, felt252) {
     let mut calldata = array![];
-    if data.is_some() {
-        let data = data.unwrap();
+    if let Option::Some(data) = data {
         let mut serialized_signature = array![];
         data.signature.serialize(ref serialized_signature);
 
-        testing::set_signature(serialized_signature.span());
-        testing::set_transaction_hash(*data.transaction_hash);
+        cheat_signature_global(serialized_signature.span());
+        cheat_transaction_hash_global(*data.tx_hash);
 
         calldata.append_serde(*data.public_key);
     } else {
         calldata.append_serde(ETH_PUBKEY());
     }
-    let address = utils::deploy(CLASS_HASH(), calldata);
-    EthAccountUpgradeableABIDispatcher { contract_address: address }
+    let contract_class = utils::declare_class("EthAccountUpgradeable");
+    let address = utils::deploy(contract_class, calldata);
+    let dispatcher = EthAccountUpgradeableABIDispatcher { contract_address: address };
+
+    cheat_transaction_version_global(MIN_TRANSACTION_VERSION);
+    start_cheat_caller_address(address, ZERO());
+
+    (dispatcher, contract_class.class_hash.into())
 }
 
 //
@@ -78,19 +85,18 @@ fn setup_dispatcher_with_data(
 #[test]
 fn test_constructor() {
     let mut state = EthAccountUpgradeable::contract_state_for_testing();
+    let mut spy = spy_events();
 
     EthAccountUpgradeable::constructor(ref state, ETH_PUBKEY());
 
-    assert_only_event_owner_added(ZERO(), ETH_PUBKEY());
+    spy.assert_only_event_owner_added(test_address(), ETH_PUBKEY());
 
     let public_key = EthAccountUpgradeable::EthAccountMixinImpl::get_public_key(@state);
     assert_eq!(public_key, ETH_PUBKEY());
-
     let supports_isrc5 = EthAccountUpgradeable::EthAccountMixinImpl::supports_interface(
         @state, ISRC5_ID
     );
     assert!(supports_isrc5);
-
     let supports_isrc6 = EthAccountUpgradeable::EthAccountMixinImpl::supports_interface(
         @state, ISRC6_ID
     );
@@ -104,40 +110,46 @@ fn test_constructor() {
 #[test]
 fn test_public_key_setter_and_getter() {
     let dispatcher = setup_dispatcher();
-    let new_public_key = NEW_ETH_PUBKEY();
+    let key_pair = KEY_PAIR();
+    let contract_address = dispatcher.contract_address;
+    let mut spy = spy_events();
 
-    testing::set_contract_address(dispatcher.contract_address);
+    start_cheat_caller_address(contract_address, contract_address);
 
-    dispatcher.set_public_key(new_public_key, get_accept_ownership_signature());
-    assert_eq!(dispatcher.get_public_key(), new_public_key);
+    let signature = get_accept_ownership_signature(contract_address, ETH_PUBKEY(), key_pair);
+    dispatcher.set_public_key(key_pair.public_key, signature);
+    assert_eq!(dispatcher.get_public_key(), key_pair.public_key);
 
-    assert_event_owner_removed(dispatcher.contract_address, ETH_PUBKEY());
-    assert_only_event_owner_added(dispatcher.contract_address, new_public_key);
+    spy.assert_event_owner_removed(contract_address, ETH_PUBKEY());
+    spy.assert_only_event_owner_added(contract_address, key_pair.public_key);
 }
 
 #[test]
 fn test_public_key_setter_and_getter_camel() {
     let dispatcher = setup_dispatcher();
-    let new_public_key = NEW_ETH_PUBKEY();
+    let key_pair = KEY_PAIR();
+    let contract_address = dispatcher.contract_address;
+    let mut spy = spy_events();
 
-    testing::set_contract_address(dispatcher.contract_address);
+    start_cheat_caller_address(contract_address, contract_address);
 
-    dispatcher.setPublicKey(new_public_key, get_accept_ownership_signature());
-    assert_eq!(dispatcher.getPublicKey(), new_public_key);
+    let signature = get_accept_ownership_signature(contract_address, ETH_PUBKEY(), key_pair);
+    dispatcher.setPublicKey(key_pair.public_key, signature);
+    assert_eq!(dispatcher.getPublicKey(), key_pair.public_key);
 
-    assert_event_owner_removed(dispatcher.contract_address, ETH_PUBKEY());
-    assert_only_event_owner_added(dispatcher.contract_address, new_public_key);
+    spy.assert_event_owner_removed(contract_address, ETH_PUBKEY());
+    spy.assert_only_event_owner_added(contract_address, key_pair.public_key);
 }
 
 #[test]
-#[should_panic(expected: ('EthAccount: unauthorized', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('EthAccount: unauthorized',))]
 fn test_set_public_key_different_account() {
     let dispatcher = setup_dispatcher();
     dispatcher.set_public_key(NEW_ETH_PUBKEY(), array![].span());
 }
 
 #[test]
-#[should_panic(expected: ('EthAccount: unauthorized', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('EthAccount: unauthorized',))]
 fn test_setPublicKey_different_account() {
     let dispatcher = setup_dispatcher();
     dispatcher.setPublicKey(NEW_ETH_PUBKEY(), array![].span());
@@ -149,14 +161,18 @@ fn test_setPublicKey_different_account() {
 
 fn is_valid_sig_dispatcher() -> (EthAccountUpgradeableABIDispatcher, felt252, Array<felt252>) {
     let dispatcher = setup_dispatcher();
+    let key_pair = KEY_PAIR();
+    let contract_address = dispatcher.contract_address;
+    let data = SIGNED_TX_DATA(key_pair);
+    let hash = data.tx_hash;
 
-    let data = SIGNED_TX_DATA();
-    let hash = data.transaction_hash;
     let mut serialized_signature = array![];
     data.signature.serialize(ref serialized_signature);
 
-    testing::set_contract_address(dispatcher.contract_address);
-    dispatcher.set_public_key(data.public_key, get_accept_ownership_signature());
+    start_cheat_caller_address(contract_address, contract_address);
+
+    let signature = get_accept_ownership_signature(contract_address, ETH_PUBKEY(), key_pair);
+    dispatcher.set_public_key(data.public_key, signature);
 
     (dispatcher, hash, serialized_signature)
 }
@@ -215,92 +231,104 @@ fn test_supports_interface() {
 
 #[test]
 fn test_validate_deploy() {
-    let account = setup_dispatcher_with_data(Option::Some(@SIGNED_TX_DATA()));
+    let (account, class_hash) = setup_dispatcher_with_data(
+        Option::Some(@SIGNED_TX_DATA(KEY_PAIR()))
+    );
 
     // `__validate_deploy__` does not directly use the passed arguments. Their
     // values are already integrated in the tx hash. The passed arguments in this
     // testing context are decoupled from the signature and have no effect on the test.
-    let is_valid = account.__validate_deploy__(CLASS_HASH(), SALT, ETH_PUBKEY());
+    let is_valid = account.__validate_deploy__(class_hash, SALT, ETH_PUBKEY());
     assert_eq!(is_valid, starknet::VALIDATED);
 }
 
 #[test]
-#[should_panic(expected: ('EthAccount: invalid signature', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('EthAccount: invalid signature',))]
 fn test_validate_deploy_invalid_signature_data() {
-    let mut data = SIGNED_TX_DATA();
-    data.transaction_hash += 1;
-    let account = setup_dispatcher_with_data(Option::Some(@data));
+    let mut data = SIGNED_TX_DATA(KEY_PAIR());
+    data.tx_hash += 1;
+    let (account, class_hash) = setup_dispatcher_with_data(Option::Some(@data));
 
-    account.__validate_deploy__(CLASS_HASH(), SALT, ETH_PUBKEY());
+    account.__validate_deploy__(class_hash, SALT, ETH_PUBKEY());
 }
 
 #[test]
-#[should_panic(expected: ('Signature: Invalid format.', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('Signature: Invalid format.',))]
 fn test_validate_deploy_invalid_signature_length() {
-    let account = setup_dispatcher_with_data(Option::Some(@SIGNED_TX_DATA()));
+    let (account, class_hash) = setup_dispatcher_with_data(
+        Option::Some(@SIGNED_TX_DATA(KEY_PAIR()))
+    );
     let mut signature = array![0x1];
 
-    testing::set_signature(signature.span());
+    cheat_signature_global(signature.span());
 
-    account.__validate_deploy__(CLASS_HASH(), SALT, ETH_PUBKEY());
+    account.__validate_deploy__(class_hash, SALT, ETH_PUBKEY());
 }
 
 #[test]
-#[should_panic(expected: ('Signature: Invalid format.', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('Signature: Invalid format.',))]
 fn test_validate_deploy_empty_signature() {
-    let account = setup_dispatcher_with_data(Option::Some(@SIGNED_TX_DATA()));
+    let (account, class_hash) = setup_dispatcher_with_data(
+        Option::Some(@SIGNED_TX_DATA(KEY_PAIR()))
+    );
     let empty_sig = array![];
 
-    testing::set_signature(empty_sig.span());
-    account.__validate_deploy__(CLASS_HASH(), SALT, ETH_PUBKEY());
+    cheat_signature_global(empty_sig.span());
+    account.__validate_deploy__(class_hash, SALT, ETH_PUBKEY());
 }
 
 #[test]
 fn test_validate_declare() {
-    let account = setup_dispatcher_with_data(Option::Some(@SIGNED_TX_DATA()));
+    let (account, class_hash) = setup_dispatcher_with_data(
+        Option::Some(@SIGNED_TX_DATA(KEY_PAIR()))
+    );
 
     // `__validate_declare__` does not directly use the class_hash argument. Its
     // value is already integrated in the tx hash. The class_hash argument in this
     // testing context is decoupled from the signature and has no effect on the test.
-    let is_valid = account.__validate_declare__(CLASS_HASH());
+    let is_valid = account.__validate_declare__(class_hash);
     assert_eq!(is_valid, starknet::VALIDATED,);
 }
 
 #[test]
-#[should_panic(expected: ('EthAccount: invalid signature', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('EthAccount: invalid signature',))]
 fn test_validate_declare_invalid_signature_data() {
-    let mut data = SIGNED_TX_DATA();
-    data.transaction_hash += 1;
-    let account = setup_dispatcher_with_data(Option::Some(@data));
+    let mut data = SIGNED_TX_DATA(KEY_PAIR());
+    data.tx_hash += 1;
+    let (account, class_hash) = setup_dispatcher_with_data(Option::Some(@data));
 
-    account.__validate_declare__(CLASS_HASH());
+    account.__validate_declare__(class_hash);
 }
 
 #[test]
-#[should_panic(expected: ('Signature: Invalid format.', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('Signature: Invalid format.',))]
 fn test_validate_declare_invalid_signature_length() {
-    let account = setup_dispatcher_with_data(Option::Some(@SIGNED_TX_DATA()));
+    let (account, class_hash) = setup_dispatcher_with_data(
+        Option::Some(@SIGNED_TX_DATA(KEY_PAIR()))
+    );
     let mut signature = array![0x1];
 
-    testing::set_signature(signature.span());
+    cheat_signature_global(signature.span());
 
-    account.__validate_declare__(CLASS_HASH());
+    account.__validate_declare__(class_hash);
 }
 
 #[test]
-#[should_panic(expected: ('Signature: Invalid format.', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('Signature: Invalid format.',))]
 fn test_validate_declare_empty_signature() {
-    let account = setup_dispatcher_with_data(Option::Some(@SIGNED_TX_DATA()));
+    let (account, class_hash) = setup_dispatcher_with_data(
+        Option::Some(@SIGNED_TX_DATA(KEY_PAIR()))
+    );
     let empty_sig = array![];
 
-    testing::set_signature(empty_sig.span());
+    cheat_signature_global(empty_sig.span());
 
-    account.__validate_declare__(CLASS_HASH());
+    account.__validate_declare__(class_hash);
 }
 
 fn test_execute_with_version(version: Option<felt252>) {
-    let data = SIGNED_TX_DATA();
-    let account = setup_dispatcher_with_data(Option::Some(@data));
+    let data = SIGNED_TX_DATA(KEY_PAIR());
+    let (account, _) = setup_dispatcher_with_data(Option::Some(@data));
     let erc20 = deploy_erc20(account.contract_address, 1000);
 
     let amount: u256 = 200;
@@ -315,8 +343,8 @@ fn test_execute_with_version(version: Option<felt252>) {
     let mut calls = array![];
     calls.append(call);
 
-    if version.is_some() {
-        testing::set_version(version.unwrap());
+    if let Option::Some(version) = version {
+        cheat_transaction_version_global(version);
     }
 
     let ret = account.__execute__(calls);
@@ -340,7 +368,7 @@ fn test_execute_query_version() {
 }
 
 #[test]
-#[should_panic(expected: ('EthAccount: invalid tx version', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('EthAccount: invalid tx version',))]
 fn test_execute_invalid_version() {
     test_execute_with_version(Option::Some(MIN_TRANSACTION_VERSION - 1));
 }
@@ -348,26 +376,26 @@ fn test_execute_invalid_version() {
 #[test]
 fn test_validate() {
     let calls = array![];
-    let account = setup_dispatcher_with_data(Option::Some(@SIGNED_TX_DATA()));
+    let (account, _) = setup_dispatcher_with_data(Option::Some(@SIGNED_TX_DATA(KEY_PAIR())));
 
     let is_valid = account.__validate__(calls);
     assert_eq!(is_valid, starknet::VALIDATED);
 }
 
 #[test]
-#[should_panic(expected: ('EthAccount: invalid signature', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('EthAccount: invalid signature',))]
 fn test_validate_invalid() {
     let calls = array![];
-    let mut data = SIGNED_TX_DATA();
-    data.transaction_hash += 1;
-    let account = setup_dispatcher_with_data(Option::Some(@data));
+    let mut data = SIGNED_TX_DATA(KEY_PAIR());
+    data.tx_hash += 1;
+    let (account, _) = setup_dispatcher_with_data(Option::Some(@data));
 
     account.__validate__(calls);
 }
 
 #[test]
 fn test_multicall() {
-    let account = setup_dispatcher_with_data(Option::Some(@SIGNED_TX_DATA()));
+    let (account, _) = setup_dispatcher_with_data(Option::Some(@SIGNED_TX_DATA(KEY_PAIR())));
     let erc20 = deploy_erc20(account.contract_address, 1000);
     let recipient1 = contract_address_const::<0x123>();
     let recipient2 = contract_address_const::<0x456>();
@@ -407,7 +435,7 @@ fn test_multicall() {
 
 #[test]
 fn test_multicall_zero_calls() {
-    let account = setup_dispatcher_with_data(Option::Some(@SIGNED_TX_DATA()));
+    let (account, _) = setup_dispatcher_with_data(Option::Some(@SIGNED_TX_DATA(KEY_PAIR())));
     let mut calls = array![];
 
     let ret = account.__execute__(calls);
@@ -416,14 +444,13 @@ fn test_multicall_zero_calls() {
 }
 
 #[test]
-#[should_panic(expected: ('EthAccount: invalid caller', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('EthAccount: invalid caller',))]
 fn test_account_called_from_contract() {
     let account = setup_dispatcher();
     let calls = array![];
     let caller = contract_address_const::<0x123>();
 
-    testing::set_contract_address(account.contract_address);
-    testing::set_caller_address(caller);
+    start_cheat_caller_address(account.contract_address, caller);
 
     account.__execute__(calls);
 }
@@ -433,57 +460,66 @@ fn test_account_called_from_contract() {
 //
 
 #[test]
-#[should_panic(expected: ('EthAccount: unauthorized', 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ('EthAccount: unauthorized',))]
 fn test_upgrade_access_control() {
     let v1 = setup_dispatcher();
     v1.upgrade(CLASS_HASH_ZERO());
 }
 
 #[test]
-#[should_panic(expected: ('Class hash cannot be zero', 'ENTRYPOINT_FAILED',))]
+#[should_panic(expected: ('Class hash cannot be zero',))]
 fn test_upgrade_with_class_hash_zero() {
     let v1 = setup_dispatcher();
 
-    set_contract_and_caller(v1.contract_address);
+    start_cheat_caller_address(v1.contract_address, v1.contract_address);
     v1.upgrade(CLASS_HASH_ZERO());
 }
 
 #[test]
 fn test_upgraded_event() {
     let v1 = setup_dispatcher();
-    let v2_class_hash = V2_CLASS_HASH();
+    let v2_class_hash = declare_v2_class_hash();
+    let mut spy = spy_events();
 
-    set_contract_and_caller(v1.contract_address);
+    start_cheat_caller_address(v1.contract_address, v1.contract_address);
     v1.upgrade(v2_class_hash);
 
-    assert_only_event_upgraded(v1.contract_address, v2_class_hash);
+    spy.assert_only_event_upgraded(v1.contract_address, v2_class_hash);
 }
 
 #[test]
-#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
+#[feature("safe_dispatcher")]
 fn test_v2_missing_camel_selector() {
     let v1 = setup_dispatcher();
-    let v2_class_hash = V2_CLASS_HASH();
+    let v2_class_hash = declare_v2_class_hash();
 
-    set_contract_and_caller(v1.contract_address);
+    start_cheat_caller_address(v1.contract_address, v1.contract_address);
     v1.upgrade(v2_class_hash);
 
-    let dispatcher = EthAccountUpgradeableABIDispatcher { contract_address: v1.contract_address };
-    dispatcher.getPublicKey();
+    let safe_dispatcher = EthAccountUpgradeableABISafeDispatcher {
+        contract_address: v1.contract_address
+    };
+    let panic_data = safe_dispatcher.getPublicKey().unwrap_err();
+
+    utils::assert_entrypoint_not_found_error(
+        panic_data, selector!("getPublicKey"), v1.contract_address
+    )
 }
 
 #[test]
 fn test_state_persists_after_upgrade() {
     let v1 = setup_dispatcher();
-    let v2_class_hash = V2_CLASS_HASH();
+    let key_pair = KEY_PAIR();
+    let v2_class_hash = declare_v2_class_hash();
 
-    set_contract_and_caller(v1.contract_address);
+    start_cheat_caller_address(v1.contract_address, v1.contract_address);
     let dispatcher = EthAccountUpgradeableABIDispatcher { contract_address: v1.contract_address };
 
-    dispatcher.set_public_key(NEW_ETH_PUBKEY(), get_accept_ownership_signature());
+    let signature = get_accept_ownership_signature(v1.contract_address, ETH_PUBKEY(), KEY_PAIR());
+    dispatcher.set_public_key(key_pair.public_key, signature);
 
     let camel_public_key = dispatcher.getPublicKey();
-    assert_eq!(camel_public_key, NEW_ETH_PUBKEY());
+    assert_eq!(camel_public_key, key_pair.public_key);
 
     v1.upgrade(v2_class_hash);
     let snake_public_key = dispatcher.get_public_key();
@@ -495,33 +531,14 @@ fn test_state_persists_after_upgrade() {
 // Helpers
 //
 
-fn set_contract_and_caller(address: ContractAddress) {
-    testing::set_contract_address(address);
-    testing::set_caller_address(address);
-}
+fn get_points() -> (Secp256k1Point, Secp256k1Point) {
+    let curve_size = Secp256Trait::<Secp256k1Point>::get_curve_size();
+    let point_1 = Secp256Trait::secp256_ec_get_point_from_x_syscall(curve_size, true)
+        .unwrap_syscall()
+        .unwrap();
+    let point_2 = Secp256Trait::secp256_ec_get_point_from_x_syscall(curve_size, false)
+        .unwrap_syscall()
+        .unwrap();
 
-fn get_accept_ownership_signature() -> Span<felt252> {
-    let mut output = array![];
-
-    // 0x077ab2f889d044a0a23f30c86151d7b5c6d2adc91fb603b16bb32fd35d3ac07d =
-    // PoseidonTrait::new()
-    //             .update_with('StarkNet Message')
-    //             .update_with('accept_ownership')
-    //             .update_with(dispatcher.contract_address)
-    //             .update_with(ETH_PUBKEY().get_coordinates().unwrap_syscall())
-    //             .finalize();
-
-    // This signature was computed using ethers js sdk from the following values:
-    // - private_key: 0x45397ee6ca34cb49060f1c303c6cb7ee2d6123e617601ef3e31ccf7bf5bef1f9
-    // - public_key:
-    //      r: 0x829307f82a1883c2414503ba85fc85037f22c6fc6f80910801f6b01a4131da1e
-    //      s: 0x2a23f7bddf3715d11767b1247eccc68c89e11b926e2615268db6ad1af8d8da96
-    // - msg_hash: 0x077ab2f889d044a0a23f30c86151d7b5c6d2adc91fb603b16bb32fd35d3ac07d
-    EthSignature {
-        r: 0x518caf844e08000c67ef7f9f56105ae52b9f7532baac1561bbfb4a8fb691ba80,
-        s: 0x559ce65943263032ff0b5906466cd67fd15f7965c8befc162a276abcd63f7c2c,
-    }
-        .serialize(ref output);
-
-    output.span()
+    (point_1, point_2)
 }

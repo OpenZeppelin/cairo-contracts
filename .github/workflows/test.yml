@@ -22,7 +22,7 @@ jobs:
       with:
         scarb-version: ${{ env.SCARB_VERSION }}
     - name: Markdown lint
-      uses: DavidAnson/markdownlint-cli2-action@5b7c9f74fec47e6b15667b2cc23c63dff11e449e # v9
+      uses: DavidAnson/markdownlint-cli2-action@b4c9feab76d8025d1e83c653fa3990936df0e6c8 # v16
       with:
         globs: |
           *.md

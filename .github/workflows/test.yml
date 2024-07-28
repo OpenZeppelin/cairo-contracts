@@ -13,11 +13,11 @@ jobs:
     name: Lint and test
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Extract scarb version
       run: |
         SCARB_VERSION=$(grep 'scarb-version = ' Scarb.toml | sed 's/scarb-version = "\(.*\)"/\1/')
-        echo "SCARB_VERSION=$SCARB_VERSION" >> $GITHUB_ENV
+        echo "SCARB_VERSION=$SCARB_VERSION" >> "$GITHUB_ENV"
     - uses: software-mansion/setup-scarb@v1
       with:
         scarb-version: ${{ env.SCARB_VERSION }}

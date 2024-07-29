@@ -15,6 +15,8 @@ pub mod ERC2981Component {
     use starknet::ContractAddress;
     use starknet::storage::Map;
 
+    const default_fee_denominator: u256 = 10_000;
+
     #[derive(Serde, Drop, PartialEq, starknet::Store)]
     struct RoyaltyInfo {
         pub receiver: ContractAddress,
@@ -42,15 +44,14 @@ pub mod ERC2981Component {
         fn royalty_info(
             self: @ComponentState<TContractState>, token_id: u256, sale_price: u256
         ) -> (ContractAddress, u256) {
-            let royalty_info: RoyaltyInfo = self.token_royalty_info.read(token_id);
-            let mut royalty_receiver = royalty_info.receiver;
-            let mut royalty_fraction = royalty_info.royalty_fraction;
+            let royalty_info = self.token_royalty_info.read(token_id);
 
-            if royalty_receiver.is_zero() {
-                let default_royalty_info: RoyaltyInfo = self.default_royalty_info.read();
-                royalty_receiver = default_royalty_info.receiver;
-                royalty_fraction = default_royalty_info.royalty_fraction;
-            }
+            let (royalty_receiver, royalty_fraction) = if royalty_info.receiver.is_zero() {
+                let default_info = self.default_royalty_info.read();
+                (default_info.receiver, default_info.royalty_fraction)
+            } else {
+                (royalty_info.receiver, royalty_info.royalty_fraction)
+            };
 
             let royalty_amount: u256 = (sale_price * royalty_fraction) / self._fee_denominator();
 
@@ -86,14 +87,14 @@ pub mod ERC2981Component {
         /// {_set_default_royalty} as a fraction of the sale price.
         /// Defaults to 10000 so fees are expressed in basis points
         fn _fee_denominator(self: @ComponentState<TContractState>) -> u256 {
-            10000
+            default_fee_denominator
         }
 
         /// Returns the royalty information that all ids in this contract will default to.
         fn _default_royalty(
             self: @ComponentState<TContractState>
         ) -> (ContractAddress, u256, u256) {
-            let royalty_info: RoyaltyInfo = self.default_royalty_info.read();
+            let royalty_info = self.default_royalty_info.read();
             (royalty_info.receiver, royalty_info.royalty_fraction, self._fee_denominator())
         }
 
@@ -110,7 +111,7 @@ pub mod ERC2981Component {
         ) {
             let denominator = self._fee_denominator();
             assert!(fee_numerator <= denominator, "Invalid default royalty");
-            assert!(!receiver.is_zero(), "Invalid default royalty receiver");
+            assert!(receiver.is_non_zero(), "Invalid default royalty receiver");
             self
                 .default_royalty_info
                 .write(RoyaltyInfo { receiver, royalty_fraction: fee_numerator })
@@ -142,15 +143,15 @@ pub mod ERC2981Component {
         fn _token_royalty(
             self: @ComponentState<TContractState>, token_id: u256
         ) -> (ContractAddress, u256, u256) {
-            let royalty_info: RoyaltyInfo = self.token_royalty_info.read(token_id);
-            let mut receiver = royalty_info.receiver;
-            let mut royalty_fraction = royalty_info.royalty_fraction;
+            let royalty_info = self.token_royalty_info.read(token_id);
 
-            if receiver.is_zero() {
-                let default_royalty_info: RoyaltyInfo = self.default_royalty_info.read();
-                receiver = default_royalty_info.receiver;
-                royalty_fraction = default_royalty_info.royalty_fraction;
+            let (receiver, royalty_fraction) = if royalty_info.receiver.is_zero() {
+                let default_info = self.default_royalty_info.read();
+                (default_info.receiver, default_info.royalty_fraction)
+            } else {
+                (royalty_info.receiver, royalty_info.royalty_fraction)
             };
+
             (receiver, royalty_fraction, self._fee_denominator())
         }
 

@@ -7,6 +7,14 @@ pub(crate) mod ERC2981Mock {
     component!(path: ERC2981Component, storage: erc2981, event: ERC2981Event);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
+    #[abi(embed_v0)]
+    impl ERC2981Impl = ERC2981Component::ERC2981Impl<ContractState>;
+    impl ERC2981InternalImpl = ERC2981Component::InternalImpl<ContractState>;
+
+    // SRC5
+    #[abi(embed_v0)]
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
+
     #[storage]
     struct Storage {
         #[substorage(v0)]
@@ -23,15 +31,6 @@ pub(crate) mod ERC2981Mock {
         #[flat]
         SRC5Event: SRC5Component::Event
     }
-
-
-    #[abi(embed_v0)]
-    impl ERC2981Impl = ERC2981Component::ERC2981Impl<ContractState>;
-    impl ERC2981InternalImpl = ERC2981Component::InternalImpl<ContractState>;
-
-    // SRC5
-    #[abi(embed_v0)]
-    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[constructor]
     fn constructor(

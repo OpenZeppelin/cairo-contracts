@@ -8,10 +8,10 @@ use openzeppelin::presets::interfaces::account::{
 use openzeppelin::presets::interfaces::{
     AccountUpgradeableABIDispatcher, AccountUpgradeableABIDispatcherTrait
 };
-use openzeppelin::tests::account::starknet::common::{AccountSpyHelpers, SignedTransactionData};
 use openzeppelin::tests::account::starknet::common::{
     get_accept_ownership_signature, deploy_erc20, SIGNED_TX_DATA,
 };
+use openzeppelin::tests::account::starknet::common::{AccountSpyHelpers, SignedTransactionData};
 use openzeppelin::tests::upgrades::common::UpgradeableSpyHelpers;
 use openzeppelin::tests::utils::constants::stark::{KEY_PAIR, KEY_PAIR_2};
 use openzeppelin::tests::utils::constants::{

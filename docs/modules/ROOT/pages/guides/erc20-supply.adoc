@@ -15,7 +15,7 @@ We can achieve this by setting the token supply in the constructor which will ex
 ----
 #[starknet::contract]
 mod MyToken {
-    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
+    use openzeppelin::token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
@@ -69,7 +69,7 @@ Let's make a few changes to the almighty `MyToken` contract and create a minting
 ----
 #[starknet::contract]
 mod MyToken {
-    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
+    use openzeppelin::token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);

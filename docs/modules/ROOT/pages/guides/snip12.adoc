@@ -26,7 +26,7 @@ Note that some declarations are omitted for brevity. The full example will be av
 ----
 #[starknet::contract]
 mod CustomERC20 {
-    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
+    use openzeppelin::token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
@@ -117,12 +117,12 @@ NOTE: In practice it's better to compute the type hash off-chain and hardcode it
 
 === 3. Implement the `StructHash` trait for the struct.
 
-You can import the trait from: `openzeppelin_utils::snip12::StructHash`. And this implementation
+You can import the trait from: `openzeppelin::utils::snip12::StructHash`. And this implementation
 is nothing more than the encoding of the message as defined in the {snip}.
 
 [,cairo]
 ----
-use openzeppelin_utils::snip12::StructHash;
+use openzeppelin::utils::snip12::StructHash;
 
 use core::hash::HashStateExTrait;
 use hash::{HashStateTrait, Hash};
@@ -155,7 +155,7 @@ because the `chain_id` is obtained on-chain, and the `revision` is hardcoded to 
 
 [,cairo]
 ----
-use openzeppelin_utils::snip12::SNIP12Metadata;
+use openzeppelin::utils::snip12::SNIP12Metadata;
 
 impl SNIP12MetadataImpl of SNIP12Metadata {
     fn name() -> felt252 { 'DAPP_NAME' }
@@ -169,7 +169,7 @@ the trait is not bounded to the ContractState, like this:
 
 [,cairo]
 ----
-use openzeppelin_utils::snip12::SNIP12Metadata;
+use openzeppelin::utils::snip12::SNIP12Metadata;
 
 impl SNIP12MetadataImpl of SNIP12Metadata {
     fn name() -> felt252 {
@@ -190,7 +190,7 @@ using the `get_message_hash` function. The implementation is already available a
 
 [,cairo]
 ----
-use openzeppelin_utils::snip12::{SNIP12Metadata, StructHash, OffchainMessageHashImpl};
+use openzeppelin::utils::snip12::{SNIP12Metadata, StructHash, OffchainMessageHashImpl};
 
 use core::hash::HashStateExTrait;
 use hash::{HashStateTrait, Hash};
@@ -251,7 +251,7 @@ and the {nonces}[`NoncesComponent`] to handle nonces to prevent replay attacks.
 
 [,cairo]
 ----
-use openzeppelin_utils::snip12::{SNIP12Metadata, StructHash, OffchainMessageHashImpl};
+use openzeppelin::utils::snip12::{SNIP12Metadata, StructHash, OffchainMessageHashImpl};
 
 use core::hash::HashStateExTrait;
 use hash::{HashStateTrait, Hash};
@@ -278,9 +278,9 @@ impl StructHashImpl of StructHash<Message> {
 
 #[starknet::contract]
 mod CustomERC20 {
-    use openzeppelin_account::dual_account::{DualCaseAccount, DualCaseAccountABI};
-    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
-    use openzeppelin_utils::cryptography::nonces::NoncesComponent;
+    use openzeppelin::account::dual_account::{DualCaseAccount, DualCaseAccountABI};
+    use openzeppelin::token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
+    use openzeppelin::utils::cryptography::nonces::NoncesComponent;
     use starknet::ContractAddress;
 
     use super::{Message, OffchainMessageHashImpl, SNIP12Metadata};

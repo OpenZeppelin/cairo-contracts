@@ -12,7 +12,7 @@ Reference of interfaces and utilities related to Governance.
 
 [.hljs-theme-dark]
 ```cairo
-use openzeppelin_governance::utils::interfaces::IVotes;
+use openzeppelin::governance::utils::interfaces::IVotes;
 ```
 
 Common interface for Votes-enabled contracts. For an implementation example see

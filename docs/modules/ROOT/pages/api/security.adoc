@@ -11,7 +11,7 @@ Reference of components, interfaces and utilities found in the library's `securi
 === `++InitializableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.15.0-rc.0/src/security/initializable.cairo[{github-icon},role=heading-link]
 
 ```cairo
-use openzeppelin_security::InitializableComponent;
+use openzeppelin::security::InitializableComponent;
 ```
 
 Component enabling one-time initialization for contracts.
@@ -64,7 +64,7 @@ Requirements:
 :Unpaused: xref:PausableComponent-Unpaused[Unpaused]
 
 ```cairo
-use openzeppelin_security::PausableComponent;
+use openzeppelin::security::PausableComponent;
 ```
 
 Component to implement an emergency stop mechanism.
@@ -166,7 +166,7 @@ Emitted when the contract is unpaused by `account`.
 === `++ReentrancyGuardComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.15.0-rc.0/src/security/reentrancyguard.cairo[{github-icon},role=heading-link]
 
 ```cairo
-use openzeppelin_security::ReentrancyGuardComponent;
+use openzeppelin::security::ReentrancyGuardComponent;
 ```
 
 Component to help prevent reentrant calls.

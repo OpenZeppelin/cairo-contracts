@@ -76,10 +76,10 @@ Copy the target preset contract from the {presets_dir} and paste it in the new p
 
 #[starknet::contract]
 mod ERC20Upgradeable {
-    use openzeppelin_access::ownable::OwnableComponent;
-    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
-    use openzeppelin_upgrades::UpgradeableComponent;
-    use openzeppelin_upgrades::interface::IUpgradeable;
+    use openzeppelin::access::ownable::OwnableComponent;
+    use openzeppelin::token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
+    use openzeppelin::upgrades::UpgradeableComponent;
+    use openzeppelin::upgrades::interface::IUpgradeable;
     use starknet::{ContractAddress, ClassHash};
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);

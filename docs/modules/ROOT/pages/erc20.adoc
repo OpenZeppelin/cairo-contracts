@@ -23,7 +23,7 @@ Here's what that looks like:
 ----
 #[starknet::contract]
 mod MyToken {
-    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
+    use openzeppelin::token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
@@ -170,7 +170,7 @@ TIP: Note that we are not using the MixinImpl in this case, since we need to cus
 ----
 #[starknet::contract]
 mod MyToken {
-    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
+    use openzeppelin::token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);

@@ -14,7 +14,7 @@ Reference of interfaces and utilities related to upgradeability.
 :Upgraded: xref:UpgradeableComponent-Upgraded[Upgraded]
 
 ```cairo
-use openzeppelin_upgrades::interface::IUpgradeable;
+use openzeppelin::upgrades::interface::IUpgradeable;
 ```
 
 Interface of an upgradeable contract.
@@ -41,7 +41,7 @@ NOTE: This function is usually protected by an xref:access.adoc[Access Control] 
 === `++UpgradeableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.15.0-rc.0/src/upgrades/upgradeable.cairo[{github-icon},role=heading-link]
 
 ```cairo
-use openzeppelin_upgrades::upgradeable::UpgradeableComponent;
+use openzeppelin::upgrades::upgradeable::UpgradeableComponent;
 ```
 
 Upgradeable component.

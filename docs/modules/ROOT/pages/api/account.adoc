@@ -15,7 +15,7 @@ include::../utils/_common.adoc[]
 === `++ISRC6++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.15.0-rc.0/src/account/interface.cairo[{github-icon},role=heading-link]
 
 ```cairo
-use openzeppelin_account::interface::ISRC6;
+use openzeppelin::account::interface::ISRC6;
 ```
 
 Interface of the SRC6 Standard Account as defined in the {snip6}.
@@ -72,7 +72,7 @@ Returns the short string `'VALID'` if valid, otherwise it reverts.
 :starknet-curve: https://docs.starknet.io/documentation/architecture_and_concepts/Cryptography/stark-curve/[Starknet curve]
 
 ```cairo
-use openzeppelin_account::AccountComponent;
+use openzeppelin::account::AccountComponent;
 ```
 Account component implementing xref:ISRC6[`ISRC6`] for signatures over the {starknet-curve}.
 
@@ -322,7 +322,7 @@ Emitted when a `public_key` is removed.
 :secp256k1-curve: https://en.bitcoin.it/wiki/Secp256k1[Secp256k1 curve]
 
 ```cairo
-use openzeppelin_account::eth_account::EthAccountComponent;
+use openzeppelin::account::eth_account::EthAccountComponent;
 ```
 Account component implementing xref:ISRC6[`ISRC6`] for signatures over the {secp256k1-curve}.
 
@@ -573,7 +573,7 @@ Emitted when a `public_key` is removed.
 === `++AccountUpgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.15.0-rc.0/src/presets/account.cairo[{github-icon},role=heading-link]
 
 ```cairo
-use openzeppelin_presets::AccountUpgradeable;
+use openzeppelin::presets::AccountUpgradeable;
 ```
 
 Upgradeable account contract leveraging xref:#AccountComponent[AccountComponent].
@@ -634,7 +634,7 @@ Requirements:
 === `++EthAccountUpgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.15.0-rc.0/src/presets/eth_account.cairo[{github-icon},role=heading-link]
 
 ```cairo
-use openzeppelin_presets::EthAccountUpgradeable;
+use openzeppelin::presets::EthAccountUpgradeable;
 ```
 
 Upgradeable account contract leveraging xref:#EthAccountComponent[EthAccountComponent].

@@ -1,4 +1,5 @@
-use openzeppelin::introspection::interface::{ISRC5Dispatcher, ISRC5DispatcherTrait};
+// use openzeppelin::introspection::interface::{ISRC5Dispatcher, ISRC5DispatcherTrait};
+use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
 
 use openzeppelin::tests::mocks::erc2981_mocks::ERC2981Mock;
 use openzeppelin::tests::utils::constants::{OTHER, OWNER, ZERO};
@@ -11,6 +12,10 @@ use starknet::{ContractAddress, contract_address_const};
 
 
 type ComponentState = ERC2981Component::ComponentState<ERC2981Mock::ContractState>;
+
+fn CONTRACT_STATE() -> ERC2981Mock::ContractState {
+    ERC2981Mock::contract_state_for_testing()
+}
 
 fn COMPONENT_STATE() -> ComponentState {
     ERC2981Component::component_state_for_testing()
@@ -155,4 +160,13 @@ fn test_default_royalty_with_invalid_fee_numerator() {
     let mut state = setup();
 
     state._set_default_royalty(DEFAULT_RECEIVER(), state._fee_denominator() + 1);
+}
+
+#[test]
+fn test_check_ierc2981_interface_is_registered() {
+    let _state = setup();
+    let mock_state = CONTRACT_STATE();
+
+    let supports_ierc2981 = mock_state.supports_interface(IERC2981_ID);
+    assert!(supports_ierc2981);
 }

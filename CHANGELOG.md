@@ -12,6 +12,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - TimelockController component (#996)
 - HashCall implementation (#996)
+- Separated package for each submodule (#1065)
+  - `openzeppelin_access`
+  - `openzeppelin_account`
+  - `openzeppelin_governance`
+  - `openzeppelin_introspection`
+  - `openzeppelin_presets`
+  - `openzeppelin_security`
+  - `openzeppelin_token`
+  - `openzeppelin_upgrades`
+  - `openzeppelin_utils`
 
 ### Changed
 

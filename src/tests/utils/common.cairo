@@ -36,8 +36,8 @@ pub impl IntoBase16String<T, +Into<T, felt252>> of IntoBase16StringTrait<T> {
     }
 }
 
-/// Asserts that the panic data is an "Entrypoint not found" error, following the starknet foundry
-/// emitted error format.
+/// Asserts that the syscall result of a call failed with an "Entrypoint not found" error, 
+/// following the starknet foundry emitted error format.
 pub fn assert_entrypoint_not_found_error<T, +Drop<T>>(
     result: SyscallResult<T>, selector: felt252, contract_address: ContractAddress
 ) {

@@ -540,7 +540,6 @@ fn test_v2_missing_camel_selector() {
 
     let v2_class_hash = declare_v2_class();
     start_cheat_caller_address(account_address, account_address);
-    // set_contract_and_caller(v1.contract_address);
     v1_dispatcher.upgrade(v2_class_hash);
 
     let safe_dispatcher = AccountUpgradeableABISafeDispatcher { contract_address: account_address };

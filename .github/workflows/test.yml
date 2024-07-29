@@ -35,4 +35,4 @@ jobs:
     - name: Cairo lint
       run: scarb fmt --check --workspace
     - name: Cairo test
-      run: snforge test
+      run: snforge test --workspace

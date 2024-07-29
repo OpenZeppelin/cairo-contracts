@@ -3,7 +3,6 @@ pub mod interface;
 pub mod pausable;
 pub mod reentrancyguard;
 
-#[cfg(test)]
 mod tests;
 
 pub use initializable::InitializableComponent;

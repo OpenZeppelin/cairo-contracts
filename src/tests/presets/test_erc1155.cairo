@@ -868,11 +868,9 @@ fn test_v2_missing_camel_selector() {
     v1.upgrade(v2_class_hash);
 
     let safe_dispatcher = IERC1155CamelSafeDispatcher { contract_address: v1.contract_address };
-    let panic_data = safe_dispatcher.balanceOf(owner, TOKEN_ID).unwrap_err();
+    let result = safe_dispatcher.balanceOf(owner, TOKEN_ID);
 
-    utils::assert_entrypoint_not_found_error(
-        panic_data, selector!("balanceOf"), v1.contract_address
-    )
+    utils::assert_entrypoint_not_found_error(result, selector!("balanceOf"), v1.contract_address)
 }
 
 #[test]

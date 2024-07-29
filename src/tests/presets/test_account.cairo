@@ -180,7 +180,7 @@ fn test_is_valid_signature_bad_sig() {
     let (dispatcher, tx_hash, _) = is_valid_sig_dispatcher();
     let bad_signature = array!['BAD', 'SIG'];
 
-    let is_valid = dispatcher.is_valid_signature(tx_hash, bad_signature.clone());
+    let is_valid = dispatcher.is_valid_signature(tx_hash, bad_signature);
     assert!(is_valid.is_zero(), "Should reject invalid signature");
 }
 

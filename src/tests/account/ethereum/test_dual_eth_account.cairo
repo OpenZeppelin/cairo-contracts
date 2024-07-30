@@ -5,9 +5,9 @@ use openzeppelin::account::utils::secp256k1::{
 };
 use openzeppelin::account::utils::signature::EthSignature;
 use openzeppelin::introspection::interface::ISRC5_ID;
-use openzeppelin::tests::utils::constants::secp256k1::KEY_PAIR;
-use openzeppelin::tests::utils::constants::{ETH_PUBKEY, NEW_ETH_PUBKEY, TRANSACTION_HASH};
-use openzeppelin::tests::utils::signing::Secp256k1KeyPairExt;
+use openzeppelin::tests::utils::constants::secp256k1::{KEY_PAIR, KEY_PAIR_2};
+use openzeppelin::tests::utils::constants::{TRANSACTION_HASH};
+use openzeppelin::tests::utils::signing::{Secp256k1KeyPair, Secp256k1KeyPairExt};
 use openzeppelin::tests::utils;
 use openzeppelin::utils::serde::SerializedAppend;
 use snforge_std::start_cheat_caller_address;
@@ -18,32 +18,26 @@ use super::common::get_accept_ownership_signature;
 // Setup
 //
 
-fn setup_snake() -> (DualCaseEthAccount, EthAccountABIDispatcher) {
+fn setup_snake(key_pair: Secp256k1KeyPair) -> (DualCaseEthAccount, EthAccountABIDispatcher) {
     let mut calldata = array![];
-    calldata.append_serde(ETH_PUBKEY());
+    calldata.append_serde(key_pair.public_key);
 
-    let target = utils::declare_and_deploy("SnakeEthAccountMock", calldata);
-    (
-        DualCaseEthAccount { contract_address: target },
-        EthAccountABIDispatcher { contract_address: target }
-    )
+    let contract_address = utils::declare_and_deploy("SnakeEthAccountMock", calldata);
+    (DualCaseEthAccount { contract_address }, EthAccountABIDispatcher { contract_address })
 }
 
-fn setup_camel() -> (DualCaseEthAccount, EthAccountABIDispatcher) {
+fn setup_camel(key_pair: Secp256k1KeyPair) -> (DualCaseEthAccount, EthAccountABIDispatcher) {
     let mut calldata = array![];
-    calldata.append_serde(ETH_PUBKEY());
+    calldata.append_serde(key_pair.public_key);
 
-    let target = utils::declare_and_deploy("CamelEthAccountMock", calldata);
-    (
-        DualCaseEthAccount { contract_address: target },
-        EthAccountABIDispatcher { contract_address: target }
-    )
+    let contract_address = utils::declare_and_deploy("CamelEthAccountMock", calldata);
+    (DualCaseEthAccount { contract_address }, EthAccountABIDispatcher { contract_address })
 }
 
 fn setup_non_account() -> DualCaseEthAccount {
     let calldata = array![];
-    let target = utils::declare_and_deploy("NonImplementingMock", calldata);
-    DualCaseEthAccount { contract_address: target }
+    let contract_address = utils::declare_and_deploy("NonImplementingMock", calldata);
+    DualCaseEthAccount { contract_address }
 }
 
 fn setup_account_panic() -> (DualCaseEthAccount, DualCaseEthAccount) {
@@ -61,13 +55,14 @@ fn setup_account_panic() -> (DualCaseEthAccount, DualCaseEthAccount) {
 
 #[test]
 fn test_dual_set_public_key() {
-    let (snake_dispatcher, target) = setup_snake();
+    let key_pair = KEY_PAIR();
+    let (snake_dispatcher, target) = setup_snake(key_pair);
     let contract_address = snake_dispatcher.contract_address;
 
     start_cheat_caller_address(contract_address, contract_address);
 
     let key_pair = KEY_PAIR();
-    let signature = get_accept_ownership_signature(contract_address, ETH_PUBKEY(), key_pair);
+    let signature = get_accept_ownership_signature(contract_address, key_pair.public_key, key_pair);
 
     snake_dispatcher.set_public_key(key_pair.public_key, signature);
     assert_eq!(target.get_public_key(), key_pair.public_key);
@@ -78,20 +73,21 @@ fn test_dual_set_public_key() {
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_set_public_key() {
     let dispatcher = setup_non_account();
-    dispatcher.set_public_key(NEW_ETH_PUBKEY(), array![].span());
+    dispatcher.set_public_key(KEY_PAIR().public_key, array![].span());
 }
 
 #[test]
 #[should_panic(expected: ("Some error",))]
 fn test_dual_set_public_key_exists_and_panics() {
     let (dispatcher, _) = setup_account_panic();
-    dispatcher.set_public_key(NEW_ETH_PUBKEY(), array![].span());
+    dispatcher.set_public_key(KEY_PAIR().public_key, array![].span());
 }
 
 #[test]
 fn test_dual_get_public_key() {
-    let (snake_dispatcher, _) = setup_snake();
-    assert_eq!(snake_dispatcher.get_public_key(), ETH_PUBKEY());
+    let key_pair = KEY_PAIR();
+    let (snake_dispatcher, _) = setup_snake(key_pair);
+    assert_eq!(snake_dispatcher.get_public_key(), key_pair.public_key);
 }
 
 #[test]
@@ -111,15 +107,18 @@ fn test_dual_get_public_key_exists_and_panics() {
 
 #[test]
 fn test_dual_is_valid_signature() {
-    let (snake_dispatcher, target) = setup_snake();
+    let key_pair = KEY_PAIR();
+    let (snake_dispatcher, target) = setup_snake(key_pair);
     let contract_address = snake_dispatcher.contract_address;
 
     start_cheat_caller_address(contract_address, contract_address);
-    let key_pair = KEY_PAIR();
-    let signature = get_accept_ownership_signature(contract_address, ETH_PUBKEY(), key_pair);
+    let new_key_pair = KEY_PAIR_2();
+    let signature = get_accept_ownership_signature(
+        contract_address, key_pair.public_key, new_key_pair
+    );
 
-    target.set_public_key(key_pair.public_key, signature);
-    let serialized_signature = key_pair.serialized_sign(TRANSACTION_HASH.into());
+    target.set_public_key(new_key_pair.public_key, signature);
+    let serialized_signature = new_key_pair.serialized_sign(TRANSACTION_HASH.into());
 
     let is_valid = snake_dispatcher.is_valid_signature(TRANSACTION_HASH, serialized_signature);
     assert_eq!(is_valid, starknet::VALIDATED);
@@ -148,7 +147,7 @@ fn test_dual_is_valid_signature_exists_and_panics() {
 
 #[test]
 fn test_dual_supports_interface() {
-    let (snake_dispatcher, _) = setup_snake();
+    let (snake_dispatcher, _) = setup_snake(KEY_PAIR());
     assert!(snake_dispatcher.supports_interface(ISRC5_ID), "Should implement ISRC5");
 }
 
@@ -174,13 +173,16 @@ fn test_dual_supports_interface_exists_and_panics() {
 #[test]
 #[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test_dual_setPublicKey() {
-    let (camel_dispatcher, target) = setup_camel();
+    let key_pair = KEY_PAIR();
+    let (camel_dispatcher, target) = setup_camel(key_pair);
     let contract_address = camel_dispatcher.contract_address;
 
     start_cheat_caller_address(contract_address, contract_address);
 
-    let key_pair = KEY_PAIR();
-    let signature = get_accept_ownership_signature(contract_address, ETH_PUBKEY(), key_pair);
+    let new_key_pair = KEY_PAIR_2();
+    let signature = get_accept_ownership_signature(
+        contract_address, key_pair.public_key, new_key_pair
+    );
 
     camel_dispatcher.set_public_key(key_pair.public_key, signature);
     assert_eq!(target.getPublicKey(), key_pair.public_key);
@@ -191,14 +193,15 @@ fn test_dual_setPublicKey() {
 #[should_panic(expected: ("Some error",))]
 fn test_dual_setPublicKey_exists_and_panics() {
     let (_, dispatcher) = setup_account_panic();
-    dispatcher.set_public_key(NEW_ETH_PUBKEY(), array![].span());
+    dispatcher.set_public_key(KEY_PAIR().public_key, array![].span());
 }
 
 #[test]
 #[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test_dual_getPublicKey() {
-    let (camel_dispatcher, _) = setup_camel();
-    assert_eq!(camel_dispatcher.get_public_key(), ETH_PUBKEY());
+    let key_pair = KEY_PAIR();
+    let (camel_dispatcher, _) = setup_camel(key_pair);
+    assert_eq!(camel_dispatcher.get_public_key(), key_pair.public_key);
 }
 
 #[test]
@@ -212,16 +215,19 @@ fn test_dual_getPublicKey_exists_and_panics() {
 #[test]
 #[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test_dual_isValidSignature() {
-    let (camel_dispatcher, target) = setup_camel();
+    let key_pair = KEY_PAIR();
+    let (camel_dispatcher, target) = setup_camel(key_pair);
     let contract_address = camel_dispatcher.contract_address;
 
     start_cheat_caller_address(contract_address, contract_address);
 
-    let key_pair = KEY_PAIR();
-    let signature = get_accept_ownership_signature(contract_address, ETH_PUBKEY(), key_pair);
+    let new_key_pair = KEY_PAIR();
+    let signature = get_accept_ownership_signature(
+        contract_address, key_pair.public_key, new_key_pair
+    );
 
-    target.setPublicKey(key_pair.public_key, signature);
-    let serialized_signature = key_pair.serialized_sign(TRANSACTION_HASH.into());
+    target.setPublicKey(new_key_pair.public_key, signature);
+    let serialized_signature = new_key_pair.serialized_sign(TRANSACTION_HASH.into());
 
     let is_valid = camel_dispatcher.is_valid_signature(TRANSACTION_HASH, serialized_signature);
     assert_eq!(is_valid, starknet::VALIDATED);

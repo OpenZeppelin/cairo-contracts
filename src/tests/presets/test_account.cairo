@@ -434,9 +434,8 @@ fn test_multicall() {
     let erc20 = deploy_erc20(account.contract_address, 1000);
     let recipient1 = RECIPIENT();
     let recipient2 = OTHER();
-    let mut calls = array![];
 
-    // Craft call1
+    // Craft 1st call
     let mut calldata1 = array![];
     let amount1: u256 = 300;
     calldata1.append_serde(recipient1);
@@ -445,7 +444,7 @@ fn test_multicall() {
         to: erc20.contract_address, selector: selectors::transfer, calldata: calldata1.span()
     };
 
-    // Craft call2
+    // Craft 2nd call
     let mut calldata2 = array![];
     let amount2: u256 = 500;
     calldata2.append_serde(recipient2);
@@ -455,8 +454,7 @@ fn test_multicall() {
     };
 
     // Bundle calls and execute
-    calls.append(call1);
-    calls.append(call2);
+    let calls = array![call1, call2];
     let ret = account.__execute__(calls);
 
     // Assert that the transfers were successful

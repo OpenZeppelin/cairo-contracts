@@ -17,8 +17,6 @@ pub(crate) const TOKEN_ID_2: u256 = 121;
 pub(crate) const TOKEN_VALUE: u256 = 42;
 pub(crate) const TOKEN_VALUE_2: u256 = 142;
 pub(crate) const PUBKEY: felt252 = 'PUBKEY';
-pub(crate) const NEW_PUBKEY: felt252 =
-    0x26da8d11938b76025862be14fdb8b28438827f73e75e86f7bfa38b196951fa7;
 pub(crate) const DAPP_NAME: felt252 = 'DAPP_NAME';
 pub(crate) const DAPP_VERSION: felt252 = 'DAPP_VERSION';
 pub(crate) const SALT: felt252 = 'SALT';
@@ -45,14 +43,6 @@ pub(crate) fn BASE_URI() -> ByteArray {
 
 pub(crate) fn BASE_URI_2() -> ByteArray {
     "https://api.example.com/v2/"
-}
-
-pub(crate) fn ETH_PUBKEY() -> EthPublicKey {
-    Secp256Trait::secp256_ec_get_point_from_x_syscall(3, false).unwrap_syscall().unwrap()
-}
-
-pub(crate) fn NEW_ETH_PUBKEY() -> EthPublicKey {
-    Secp256Trait::secp256_ec_get_point_from_x_syscall(4, false).unwrap_syscall().unwrap()
 }
 
 pub(crate) fn ADMIN() -> ContractAddress {

@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.14.0 (presets/account.cairo)
+// OpenZeppelin Contracts for Cairo v0.15.0-rc.0 (presets/account.cairo)
 
 /// # Account Preset
 ///
-/// OpenZeppelin's upgradeable account which can change its public key and declare, deploy, or call contracts.
+/// OpenZeppelin's upgradeable account which can change its public key and declare, deploy, or call
+/// contracts.
 #[starknet::contract(account)]
 pub(crate) mod AccountUpgradeable {
     use openzeppelin::account::AccountComponent;

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.14.0 (access/ownable/dual_ownable.cairo)
+// OpenZeppelin Contracts for Cairo v0.15.0-rc.0 (access/ownable/dual_ownable.cairo)
 
 use openzeppelin::utils::UnwrapAndCast;
 use openzeppelin::utils::selectors;
@@ -42,7 +42,7 @@ impl DualCaseOwnableImpl of DualCaseOwnableTrait {
     }
 
     fn renounce_ownership(self: @DualCaseOwnable) {
-        let mut args = array![];
+        let args = array![];
 
         try_selector_with_fallback(
             *self.contract_address,

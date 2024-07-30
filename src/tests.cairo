@@ -5,6 +5,8 @@ mod account;
 #[cfg(test)]
 mod cryptography;
 #[cfg(test)]
+mod governance;
+#[cfg(test)]
 mod introspection;
 mod mocks;
 #[cfg(test)]

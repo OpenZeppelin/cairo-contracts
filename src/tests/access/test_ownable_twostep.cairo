@@ -8,7 +8,6 @@ use openzeppelin::tests::utils::events::EventSpyExt;
 use openzeppelin::utils::serde::SerializedAppend;
 use snforge_std::{EventSpy, spy_events, start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
-use starknet::storage::StorageMemberAccessTrait;
 
 use super::common::OwnableSpyHelpers;
 

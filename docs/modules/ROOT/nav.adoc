@@ -8,7 +8,6 @@
 ** xref:interfaces.adoc[Interfaces and Dispatchers]
 ** xref:guides/deployment.adoc[Counterfactual Deployments]
 ** xref:guides/snip12.adoc[SNIP12 and Typed Messages]
-// ** xref:udc.adoc[Universal Deployer Contract]
 
 * Modules
 
@@ -17,6 +16,8 @@
 
 ** xref:accounts.adoc[Accounts]
 *** xref:/api/account.adoc[API Reference]
+
+** xref:/api/governance.adoc[Governance]
 
 ** xref:introspection.adoc[Introspection]
 *** xref:/guides/src5-migration.adoc[Migrating ERC165 to SRC5]
@@ -34,10 +35,13 @@
 *** xref:erc1155.adoc[ERC1155]
 **** xref:/api/erc1155.adoc[API Reference]
 
+** xref:udc.adoc[Universal Deployer Contract]
+*** xref:/api/udc.adoc[API Reference]
+
 ** xref:upgrades.adoc[Upgrades]
 *** xref:/api/upgrades.adoc[API Reference]
 
-** xref:utilities.adoc[Utilities]
+** xref:/api/utilities.adoc[Utilities]
 
 * xref:backwards-compatibility.adoc[Backwards Compatibility]
 * xref:contracts::index.adoc[Contracts for Solidity]

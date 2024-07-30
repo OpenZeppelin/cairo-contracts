@@ -1,5 +1,5 @@
 #[starknet::contract]
-mod DualCaseAccessControlMock {
+pub(crate) mod DualCaseAccessControlMock {
     use openzeppelin::access::accesscontrol::AccessControlComponent;
     use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
     use openzeppelin::introspection::src5::SRC5Component;
@@ -39,7 +39,7 @@ mod DualCaseAccessControlMock {
 }
 
 #[starknet::contract]
-mod SnakeAccessControlMock {
+pub(crate) mod SnakeAccessControlMock {
     use openzeppelin::access::accesscontrol::AccessControlComponent;
     use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
     use openzeppelin::introspection::src5::SRC5Component;
@@ -83,7 +83,7 @@ mod SnakeAccessControlMock {
 }
 
 #[starknet::contract]
-mod CamelAccessControlMock {
+pub(crate) mod CamelAccessControlMock {
     use openzeppelin::access::accesscontrol::AccessControlComponent;
     use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
     use openzeppelin::introspection::src5::SRC5Component;
@@ -134,7 +134,7 @@ mod CamelAccessControlMock {
 // false for bool
 
 #[starknet::contract]
-mod SnakeAccessControlPanicMock {
+pub(crate) mod SnakeAccessControlPanicMock {
     use starknet::ContractAddress;
 
     #[storage]
@@ -179,7 +179,7 @@ mod SnakeAccessControlPanicMock {
 }
 
 #[starknet::contract]
-mod CamelAccessControlPanicMock {
+pub(crate) mod CamelAccessControlPanicMock {
     use starknet::ContractAddress;
 
     #[storage]

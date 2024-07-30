@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.11.0 (token/erc1155/interface.cairo)
+// OpenZeppelin Contracts for Cairo v0.15.0-rc.0 (token/erc1155/interface.cairo)
 
 use starknet::ContractAddress;
 
-const IERC1155_ID: felt252 = 0x6114a8f75559e1b39fcba08ce02961a1aa082d9256a158dd3e64964e4b1b52;
-const IERC1155_METADATA_URI_ID: felt252 =
+pub const IERC1155_ID: felt252 = 0x6114a8f75559e1b39fcba08ce02961a1aa082d9256a158dd3e64964e4b1b52;
+pub const IERC1155_METADATA_URI_ID: felt252 =
     0xcabe2400d5fe509e1735ba9bad205ba5f3ca6e062da406f72f113feb889ef7;
-const IERC1155_RECEIVER_ID: felt252 =
+pub const IERC1155_RECEIVER_ID: felt252 =
     0x15e8665b5af20040c3af1670509df02eb916375cdf7d8cbaf7bd553a257515e;
 
 #[starknet::interface]
-trait IERC1155<TState> {
+pub trait IERC1155<TState> {
     fn balance_of(self: @TState, account: ContractAddress, token_id: u256) -> u256;
     fn balance_of_batch(
         self: @TState, accounts: Span<ContractAddress>, token_ids: Span<u256>
@@ -38,12 +38,12 @@ trait IERC1155<TState> {
 }
 
 #[starknet::interface]
-trait IERC1155MetadataURI<TState> {
+pub trait IERC1155MetadataURI<TState> {
     fn uri(self: @TState, token_id: u256) -> ByteArray;
 }
 
 #[starknet::interface]
-trait IERC1155Camel<TState> {
+pub trait IERC1155Camel<TState> {
     fn balanceOf(self: @TState, account: ContractAddress, tokenId: u256) -> u256;
     fn balanceOfBatch(
         self: @TState, accounts: Span<ContractAddress>, tokenIds: Span<u256>
@@ -73,7 +73,7 @@ trait IERC1155Camel<TState> {
 //
 
 #[starknet::interface]
-trait ERC1155ABI<TState> {
+pub trait ERC1155ABI<TState> {
     // IERC1155
     fn balance_of(self: @TState, account: ContractAddress, token_id: u256) -> u256;
     fn balance_of_batch(
@@ -136,7 +136,7 @@ trait ERC1155ABI<TState> {
 //
 
 #[starknet::interface]
-trait IERC1155Receiver<TState> {
+pub trait IERC1155Receiver<TState> {
     fn on_erc1155_received(
         self: @TState,
         operator: ContractAddress,
@@ -156,7 +156,7 @@ trait IERC1155Receiver<TState> {
 }
 
 #[starknet::interface]
-trait IERC1155ReceiverCamel<TState> {
+pub trait IERC1155ReceiverCamel<TState> {
     fn onERC1155Received(
         self: @TState,
         operator: ContractAddress,
@@ -176,7 +176,7 @@ trait IERC1155ReceiverCamel<TState> {
 }
 
 #[starknet::interface]
-trait ERC1155ReceiverABI<TState> {
+pub trait ERC1155ReceiverABI<TState> {
     // IERC1155Receiver
     fn on_erc1155_received(
         self: @TState,

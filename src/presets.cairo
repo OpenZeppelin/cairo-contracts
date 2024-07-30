@@ -1,13 +1,14 @@
-mod account;
-mod erc1155;
-mod erc20;
-mod erc721;
-mod eth_account;
-mod universal_deployer;
+pub(crate) mod account;
+pub(crate) mod erc1155;
+pub(crate) mod erc20;
+pub(crate) mod erc721;
+pub(crate) mod eth_account;
+pub mod interfaces;
+pub(crate) mod universal_deployer;
 
-use account::Account;
-use erc1155::ERC1155;
-use erc20::ERC20;
-use erc721::ERC721;
-use eth_account::EthAccountUpgradeable;
-use universal_deployer::UniversalDeployer;
+pub(crate) use account::AccountUpgradeable;
+pub(crate) use erc1155::ERC1155Upgradeable;
+pub(crate) use erc20::ERC20Upgradeable;
+pub(crate) use erc721::ERC721Upgradeable;
+pub(crate) use eth_account::EthAccountUpgradeable;
+pub(crate) use universal_deployer::UniversalDeployer;

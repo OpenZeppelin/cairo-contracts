@@ -1,2 +1,2 @@
-mod checkpoint;
-mod storage_array;
+pub mod checkpoint;
+pub mod storage_array;

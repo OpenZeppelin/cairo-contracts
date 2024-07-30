@@ -5,7 +5,7 @@
 = Contracts for Cairo
 
 *A library for secure smart contract development* written in Cairo for {starknet}. This library consists of a set of xref:components.adoc[reusable components] to build custom smart contracts, as well as
-ready-to-deploy xref:presets.adoc[presets]. You can also find other xref:utilities.adoc[utilities] including xref:interfaces.adoc[interfaces and dispatchers].
+ready-to-deploy xref:presets.adoc[presets]. You can also find other xref:/api/utilities.adoc[utilities] including xref:interfaces.adoc[interfaces and dispatchers].
 
 WARNING: This repo contains highly experimental code. Expect rapid iteration. *Use at your own risk.*
 
@@ -20,9 +20,9 @@ before proceeding, and run the following command to check that the installation 
 ----
 $ scarb --version
 
-scarb 2.6.3 (e6f921dfd 2024-03-13)
-cairo: 2.6.3 (https://crates.io/crates/cairo-lang-compiler/2.6.3)
-sierra: 1.5.0
+scarb 2.7.0-rc.4 (88bf93564 2024-07-19)
+cairo: 2.7.0-rc.3 (https://crates.io/crates/cairo-lang-compiler/2.7.0-rc.3)
+sierra: 1.6.0
 ----
 
 === Set up your project
@@ -57,7 +57,7 @@ Install the library by declaring it as a dependency in the project's `Scarb.toml
 [,text]
 ----
 [dependencies]
-openzeppelin = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.11.0" }
+openzeppelin = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.15.0-rc.0" }
 ----
 
 WARNING: Make sure the tag matches the target release.
@@ -67,11 +67,11 @@ WARNING: Make sure the tag matches the target release.
 This is how it looks to build an ERC20 contract using the xref:erc20.adoc[ERC20 component].
 Copy the code into `src/lib.cairo`.
 
-[,javascript]
+[,cairo]
 ----
 #[starknet::contract]
 mod MyERC20Token {
-    use openzeppelin::token::erc20::ERC20Component;
+    use openzeppelin::token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
@@ -103,7 +103,7 @@ mod MyERC20Token {
         recipient: ContractAddress
     ) {
         self.erc20.initializer(name, symbol);
-        self.erc20._mint(recipient, fixed_supply);
+        self.erc20.mint(recipient, fixed_supply);
     }
 }
 ----

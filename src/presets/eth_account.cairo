@@ -1,15 +1,14 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.11.0 (presets/eth_account.cairo)
+// OpenZeppelin Contracts for Cairo v0.15.0-rc.0 (presets/eth_account.cairo)
 
 /// # EthAccount Preset
 ///
-/// OpenZeppelin's account which can change its public key and declare,
+/// OpenZeppelin's upgradeable account which can change its public key and declare,
 /// deploy, or call contracts, using Ethereum signing keys.
 #[starknet::contract(account)]
-mod EthAccountUpgradeable {
+pub(crate) mod EthAccountUpgradeable {
     use openzeppelin::account::EthAccountComponent;
     use openzeppelin::account::interface::EthPublicKey;
-    use openzeppelin::account::utils::secp256k1::Secp256k1PointSerde;
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::upgrades::UpgradeableComponent;
     use openzeppelin::upgrades::interface::IUpgradeable;
@@ -21,7 +20,7 @@ mod EthAccountUpgradeable {
 
     // EthAccount Mixin
     #[abi(embed_v0)]
-    impl EthAccountMixinImpl =
+    pub(crate) impl EthAccountMixinImpl =
         EthAccountComponent::EthAccountMixinImpl<ContractState>;
     impl EthAccountInternalImpl = EthAccountComponent::InternalImpl<ContractState>;
 
@@ -50,7 +49,7 @@ mod EthAccountUpgradeable {
     }
 
     #[constructor]
-    fn constructor(ref self: ContractState, public_key: EthPublicKey) {
+    pub(crate) fn constructor(ref self: ContractState, public_key: EthPublicKey) {
         self.eth_account.initializer(public_key);
     }
 
@@ -58,7 +57,7 @@ mod EthAccountUpgradeable {
     impl UpgradeableImpl of IUpgradeable<ContractState> {
         fn upgrade(ref self: ContractState, new_class_hash: ClassHash) {
             self.eth_account.assert_only_self();
-            self.upgradeable._upgrade(new_class_hash);
+            self.upgradeable.upgrade(new_class_hash);
         }
     }
 }

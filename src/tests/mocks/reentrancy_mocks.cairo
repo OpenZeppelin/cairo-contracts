@@ -6,7 +6,7 @@ trait IReentrancyGuarded<TState> {
 }
 
 #[starknet::interface]
-trait IReentrancyMock<TState> {
+pub(crate) trait IReentrancyMock<TState> {
     fn count(ref self: TState);
     fn current_count(self: @TState) -> felt252;
     fn callback(ref self: TState);
@@ -16,7 +16,7 @@ trait IReentrancyMock<TState> {
 }
 
 #[starknet::contract]
-mod ReentrancyMock {
+pub(crate) mod ReentrancyMock {
     use openzeppelin::security::reentrancyguard::ReentrancyGuardComponent;
     use starknet::ContractAddress;
     use starknet::get_contract_address;
@@ -106,7 +106,7 @@ trait IAttacker<TState> {
 }
 
 #[starknet::contract]
-mod Attacker {
+pub(crate) mod Attacker {
     use starknet::ContractAddress;
     use starknet::get_caller_address;
     use super::IReentrancyMockDispatcher;

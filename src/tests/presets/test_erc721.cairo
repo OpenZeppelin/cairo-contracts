@@ -1,25 +1,37 @@
-use openzeppelin::account::AccountComponent;
+use core::num::traits::Zero;
 use openzeppelin::introspection::interface::ISRC5_ID;
-use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
-use openzeppelin::presets::ERC721::InternalImpl;
-use openzeppelin::presets::ERC721;
+use openzeppelin::presets::ERC721Upgradeable::InternalImpl;
+use openzeppelin::presets::ERC721Upgradeable;
+use openzeppelin::presets::interfaces::{
+    ERC721UpgradeableABIDispatcher, ERC721UpgradeableABIDispatcherTrait
+};
+use openzeppelin::tests::access::common::assert_event_ownership_transferred;
 use openzeppelin::tests::mocks::account_mocks::{DualCaseAccountMock, CamelAccountMock};
+use openzeppelin::tests::mocks::erc721_mocks::SnakeERC721Mock;
 use openzeppelin::tests::mocks::erc721_receiver_mocks::{
     CamelERC721ReceiverMock, SnakeERC721ReceiverMock
 };
 use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
+use openzeppelin::tests::token::erc721::common::{
+    assert_event_transfer, assert_only_event_transfer, assert_event_approval,
+    assert_event_approval_for_all
+};
+use openzeppelin::tests::upgrades::common::assert_only_event_upgraded;
 use openzeppelin::tests::utils::constants::{
-    ZERO, DATA, OWNER, SPENDER, RECIPIENT, OTHER, OPERATOR, PUBKEY, NAME, SYMBOL, BASE_URI
+    ZERO, DATA, OWNER, SPENDER, RECIPIENT, OTHER, OPERATOR, CLASS_HASH_ZERO, PUBKEY, NAME, SYMBOL,
+    BASE_URI
 };
 use openzeppelin::tests::utils;
-use openzeppelin::token::erc721::ERC721Component::{Approval, ApprovalForAll, Transfer};
+use openzeppelin::token::erc721::ERC721Component::ERC721Impl;
 use openzeppelin::token::erc721::ERC721Component;
-use openzeppelin::token::erc721::interface::ERC721ABI;
-use openzeppelin::token::erc721::interface::{ERC721ABIDispatcher, ERC721ABIDispatcherTrait};
+use openzeppelin::token::erc721::interface::{
+    IERC721CamelOnlyDispatcher, IERC721CamelOnlyDispatcherTrait
+};
+use openzeppelin::token::erc721::interface::{IERC721Dispatcher, IERC721DispatcherTrait};
 use openzeppelin::token::erc721::interface::{IERC721_ID, IERC721_METADATA_ID};
 use openzeppelin::utils::serde::SerializedAppend;
-use starknet::ContractAddress;
 use starknet::testing;
+use starknet::{ContractAddress, ClassHash};
 
 
 // Token IDs
@@ -30,11 +42,15 @@ const NONEXISTENT: u256 = 9898;
 
 const TOKENS_LEN: u256 = 3;
 
+fn V2_CLASS_HASH() -> ClassHash {
+    SnakeERC721Mock::TEST_CLASS_HASH.try_into().unwrap()
+}
+
 //
 // Setup
 //
 
-fn setup_dispatcher_with_event() -> ERC721ABIDispatcher {
+fn setup_dispatcher_with_event() -> ERC721UpgradeableABIDispatcher {
     let mut calldata = array![];
     let mut token_ids = array![TOKEN_1, TOKEN_2, TOKEN_3];
 
@@ -46,14 +62,16 @@ fn setup_dispatcher_with_event() -> ERC721ABIDispatcher {
     calldata.append_serde(BASE_URI());
     calldata.append_serde(OWNER());
     calldata.append_serde(token_ids);
+    calldata.append_serde(OWNER());
 
-    let address = utils::deploy(ERC721::TEST_CLASS_HASH, calldata);
-    ERC721ABIDispatcher { contract_address: address }
+    let address = utils::deploy(ERC721Upgradeable::TEST_CLASS_HASH, calldata);
+    ERC721UpgradeableABIDispatcher { contract_address: address }
 }
 
-fn setup_dispatcher() -> ERC721ABIDispatcher {
+fn setup_dispatcher() -> ERC721UpgradeableABIDispatcher {
     let dispatcher = setup_dispatcher_with_event();
-    utils::drop_events(dispatcher.contract_address, TOKENS_LEN.try_into().unwrap());
+    // `OwnershipTransferred` + `Transfer`s
+    utils::drop_events(dispatcher.contract_address, TOKENS_LEN.try_into().unwrap() + 1);
     dispatcher
 }
 
@@ -76,15 +94,15 @@ fn setup_camel_account() -> ContractAddress {
 }
 
 //
-// _mint_assets
+// mint_assets
 //
 
 #[test]
-fn test__mint_assets() {
-    let mut state = ERC721::contract_state_for_testing();
+fn test_mint_assets() {
+    let mut state = ERC721Upgradeable::contract_state_for_testing();
     let mut token_ids = array![TOKEN_1, TOKEN_2, TOKEN_3].span();
 
-    state._mint_assets(OWNER(), token_ids);
+    state.mint_assets(OWNER(), token_ids);
     assert_eq!(state.erc721.balance_of(OWNER()), TOKENS_LEN);
 
     loop {
@@ -134,6 +152,7 @@ fn test_constructor_events() {
     let dispatcher = setup_dispatcher_with_event();
     let mut tokens = array![TOKEN_1, TOKEN_2, TOKEN_3];
 
+    assert_event_ownership_transferred(dispatcher.contract_address, ZERO(), OWNER());
     loop {
         let token = tokens.pop_front().unwrap();
         if tokens.len() == 0 {
@@ -252,14 +271,6 @@ fn test_approve_from_unauthorized() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC721: approval to owner', 'ENTRYPOINT_FAILED'))]
-fn test_approve_to_owner() {
-    let dispatcher = setup_dispatcher();
-
-    dispatcher.approve(OWNER(), TOKEN_1);
-}
-
-#[test]
 #[should_panic(expected: ('ERC721: invalid token ID', 'ENTRYPOINT_FAILED'))]
 fn test_approve_nonexistent() {
     let dispatcher = setup_dispatcher();
@@ -288,20 +299,6 @@ fn test_set_approval_for_all() {
 
     let is_not_approved_for_all = !dispatcher.is_approved_for_all(OWNER(), OPERATOR());
     assert!(is_not_approved_for_all);
-}
-
-#[test]
-#[should_panic(expected: ('ERC721: self approval', 'ENTRYPOINT_FAILED'))]
-fn test_set_approval_for_all_owner_equal_operator_true() {
-    let dispatcher = setup_dispatcher();
-    dispatcher.set_approval_for_all(OWNER(), true);
-}
-
-#[test]
-#[should_panic(expected: ('ERC721: self approval', 'ENTRYPOINT_FAILED'))]
-fn test_set_approval_for_all_owner_equal_operator_false() {
-    let dispatcher = setup_dispatcher();
-    dispatcher.set_approval_for_all(OWNER(), false);
 }
 
 //
@@ -951,11 +948,204 @@ fn test_safeTransferFrom_unauthorized() {
 }
 
 //
+// transfer_ownership & transferOwnership
+//
+
+#[test]
+fn test_transfer_ownership() {
+    let mut dispatcher = setup_dispatcher();
+    testing::set_contract_address(OWNER());
+    dispatcher.transfer_ownership(OTHER());
+
+    assert_event_ownership_transferred(dispatcher.contract_address, OWNER(), OTHER());
+    assert_eq!(dispatcher.owner(), OTHER());
+}
+
+#[test]
+#[should_panic(expected: ('New owner is the zero address', 'ENTRYPOINT_FAILED'))]
+fn test_transfer_ownership_to_zero() {
+    let mut dispatcher = setup_dispatcher();
+    testing::set_contract_address(OWNER());
+    dispatcher.transfer_ownership(ZERO());
+}
+
+#[test]
+#[should_panic(expected: ('Caller is the zero address', 'ENTRYPOINT_FAILED'))]
+fn test_transfer_ownership_from_zero() {
+    let mut dispatcher = setup_dispatcher();
+    testing::set_contract_address(ZERO());
+    dispatcher.transfer_ownership(OTHER());
+}
+
+#[test]
+#[should_panic(expected: ('Caller is not the owner', 'ENTRYPOINT_FAILED'))]
+fn test_transfer_ownership_from_nonowner() {
+    let mut dispatcher = setup_dispatcher();
+    testing::set_contract_address(OTHER());
+    dispatcher.transfer_ownership(OTHER());
+}
+
+#[test]
+fn test_transferOwnership() {
+    let mut dispatcher = setup_dispatcher();
+    testing::set_contract_address(OWNER());
+    dispatcher.transferOwnership(OTHER());
+
+    assert_event_ownership_transferred(dispatcher.contract_address, OWNER(), OTHER());
+    assert_eq!(dispatcher.owner(), OTHER());
+}
+
+#[test]
+#[should_panic(expected: ('New owner is the zero address', 'ENTRYPOINT_FAILED'))]
+fn test_transferOwnership_to_zero() {
+    let mut dispatcher = setup_dispatcher();
+    testing::set_contract_address(OWNER());
+    dispatcher.transferOwnership(ZERO());
+}
+
+#[test]
+#[should_panic(expected: ('Caller is the zero address', 'ENTRYPOINT_FAILED'))]
+fn test_transferOwnership_from_zero() {
+    let mut dispatcher = setup_dispatcher();
+    testing::set_contract_address(ZERO());
+    dispatcher.transferOwnership(OTHER());
+}
+
+#[test]
+#[should_panic(expected: ('Caller is not the owner', 'ENTRYPOINT_FAILED'))]
+fn test_transferOwnership_from_nonowner() {
+    let mut dispatcher = setup_dispatcher();
+    testing::set_contract_address(OTHER());
+    dispatcher.transferOwnership(OTHER());
+}
+
+//
+// renounce_ownership & renounceOwnership
+//
+
+#[test]
+fn test_renounce_ownership() {
+    let mut dispatcher = setup_dispatcher();
+    testing::set_contract_address(OWNER());
+    dispatcher.renounce_ownership();
+
+    assert_event_ownership_transferred(dispatcher.contract_address, OWNER(), ZERO());
+    assert!(dispatcher.owner().is_zero());
+}
+
+#[test]
+#[should_panic(expected: ('Caller is the zero address', 'ENTRYPOINT_FAILED'))]
+fn test_renounce_ownership_from_zero_address() {
+    let mut dispatcher = setup_dispatcher();
+    testing::set_contract_address(ZERO());
+    dispatcher.renounce_ownership();
+}
+
+#[test]
+#[should_panic(expected: ('Caller is not the owner', 'ENTRYPOINT_FAILED'))]
+fn test_renounce_ownership_from_nonowner() {
+    let mut dispatcher = setup_dispatcher();
+    testing::set_contract_address(OTHER());
+    dispatcher.renounce_ownership();
+}
+
+#[test]
+fn test_renounceOwnership() {
+    let mut dispatcher = setup_dispatcher();
+    testing::set_contract_address(OWNER());
+    dispatcher.renounceOwnership();
+
+    assert_event_ownership_transferred(dispatcher.contract_address, OWNER(), ZERO());
+    assert!(dispatcher.owner().is_zero());
+}
+
+#[test]
+#[should_panic(expected: ('Caller is the zero address', 'ENTRYPOINT_FAILED'))]
+fn test_renounceOwnership_from_zero_address() {
+    let mut dispatcher = setup_dispatcher();
+    testing::set_contract_address(ZERO());
+    dispatcher.renounceOwnership();
+}
+
+#[test]
+#[should_panic(expected: ('Caller is not the owner', 'ENTRYPOINT_FAILED'))]
+fn test_renounceOwnership_from_nonowner() {
+    let mut dispatcher = setup_dispatcher();
+    testing::set_contract_address(OTHER());
+    dispatcher.renounceOwnership();
+}
+
+//
+// upgrade
+//
+
+#[test]
+#[should_panic(expected: ('Caller is not the owner', 'ENTRYPOINT_FAILED',))]
+fn test_upgrade_unauthorized() {
+    let v1 = setup_dispatcher();
+    testing::set_contract_address(OTHER());
+    v1.upgrade(CLASS_HASH_ZERO());
+}
+
+#[test]
+#[should_panic(expected: ('Class hash cannot be zero', 'ENTRYPOINT_FAILED',))]
+fn test_upgrade_with_class_hash_zero() {
+    let v1 = setup_dispatcher();
+
+    testing::set_contract_address(OWNER());
+    v1.upgrade(CLASS_HASH_ZERO());
+}
+
+#[test]
+fn test_upgraded_event() {
+    let v1 = setup_dispatcher();
+    let v2_class_hash = V2_CLASS_HASH();
+
+    testing::set_contract_address(OWNER());
+    v1.upgrade(v2_class_hash);
+
+    assert_only_event_upgraded(v1.contract_address, v2_class_hash);
+}
+
+#[test]
+#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
+fn test_v2_missing_camel_selector() {
+    let v1 = setup_dispatcher();
+    let v2_class_hash = V2_CLASS_HASH();
+
+    testing::set_contract_address(OWNER());
+    v1.upgrade(v2_class_hash);
+
+    let dispatcher = IERC721CamelOnlyDispatcher { contract_address: v1.contract_address };
+    dispatcher.ownerOf(TOKEN_1);
+}
+
+#[test]
+fn test_state_persists_after_upgrade() {
+    let v1 = setup_dispatcher();
+    let v2_class_hash = V2_CLASS_HASH();
+
+    testing::set_contract_address(OWNER());
+    v1.transferFrom(OWNER(), RECIPIENT(), TOKEN_1);
+
+    // Check RECIPIENT balance v1
+    let camel_balance = v1.balanceOf(RECIPIENT());
+    assert_eq!(camel_balance, 1);
+
+    v1.upgrade(v2_class_hash);
+
+    // Check RECIPIENT balance v2
+    let v2 = IERC721Dispatcher { contract_address: v1.contract_address };
+    let snake_balance = v2.balance_of(RECIPIENT());
+    assert_eq!(snake_balance, camel_balance);
+}
+
+//
 // Helpers
 //
 
 fn assert_state_before_transfer(
-    dispatcher: ERC721ABIDispatcher,
+    dispatcher: ERC721UpgradeableABIDispatcher,
     owner: ContractAddress,
     recipient: ContractAddress,
     token_id: u256
@@ -966,7 +1156,7 @@ fn assert_state_before_transfer(
 }
 
 fn assert_state_after_transfer(
-    dispatcher: ERC721ABIDispatcher,
+    dispatcher: ERC721UpgradeableABIDispatcher,
     owner: ContractAddress,
     recipient: ContractAddress,
     token_id: u256
@@ -981,66 +1171,11 @@ fn assert_state_after_transfer(
 }
 
 fn assert_state_transfer_to_self(
-    dispatcher: ERC721ABIDispatcher, target: ContractAddress, token_id: u256, token_balance: u256
+    dispatcher: ERC721UpgradeableABIDispatcher,
+    target: ContractAddress,
+    token_id: u256,
+    token_balance: u256
 ) {
     assert_eq!(dispatcher.owner_of(token_id), target);
     assert_eq!(dispatcher.balance_of(target), token_balance);
-}
-
-fn assert_event_approval_for_all(
-    contract: ContractAddress, owner: ContractAddress, operator: ContractAddress, approved: bool
-) {
-    let event = utils::pop_log::<ERC721Component::Event>(contract).unwrap();
-    let expected = ERC721Component::Event::ApprovalForAll(
-        ApprovalForAll { owner, operator, approved, }
-    );
-    assert!(event == expected);
-    utils::assert_no_events_left(contract);
-
-    // Check indexed keys
-    let mut indexed_keys = array![];
-    indexed_keys.append_serde(selector!("ApprovalForAll"));
-    indexed_keys.append_serde(owner);
-    indexed_keys.append_serde(operator);
-    utils::assert_indexed_keys(event, indexed_keys.span());
-}
-
-fn assert_event_approval(
-    contract: ContractAddress, owner: ContractAddress, approved: ContractAddress, token_id: u256
-) {
-    let event = utils::pop_log::<ERC721Component::Event>(contract).unwrap();
-    let expected = ERC721Component::Event::Approval(Approval { owner, approved, token_id });
-    assert!(event == expected);
-    utils::assert_no_events_left(contract);
-
-    // Check indexed keys
-    let mut indexed_keys = array![];
-    indexed_keys.append_serde(selector!("Approval"));
-    indexed_keys.append_serde(owner);
-    indexed_keys.append_serde(approved);
-    indexed_keys.append_serde(token_id);
-    utils::assert_indexed_keys(event, indexed_keys.span());
-}
-
-fn assert_event_transfer(
-    contract: ContractAddress, from: ContractAddress, to: ContractAddress, token_id: u256
-) {
-    let event = utils::pop_log::<ERC721Component::Event>(contract).unwrap();
-    let expected = ERC721Component::Event::Transfer(Transfer { from, to, token_id });
-    assert!(event == expected);
-
-    // Check indexed keys
-    let mut indexed_keys = array![];
-    indexed_keys.append_serde(selector!("Transfer"));
-    indexed_keys.append_serde(from);
-    indexed_keys.append_serde(to);
-    indexed_keys.append_serde(token_id);
-    utils::assert_indexed_keys(event, indexed_keys.span());
-}
-
-fn assert_only_event_transfer(
-    contract: ContractAddress, from: ContractAddress, to: ContractAddress, value: u256
-) {
-    assert_event_transfer(contract, from, to, value);
-    utils::assert_no_events_left(contract);
 }

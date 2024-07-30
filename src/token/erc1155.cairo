@@ -1,8 +1,9 @@
-mod dual1155;
-mod dual1155_receiver;
-mod erc1155;
-mod erc1155_receiver;
-mod interface;
+pub mod dual1155;
+pub mod dual1155_receiver;
+pub mod erc1155;
+pub mod erc1155_receiver;
+pub mod interface;
 
-use erc1155::ERC1155Component;
-use erc1155_receiver::ERC1155ReceiverComponent;
+pub use erc1155::ERC1155Component;
+pub use erc1155::ERC1155HooksEmptyImpl;
+pub use erc1155_receiver::ERC1155ReceiverComponent;

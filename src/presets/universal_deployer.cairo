@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.11.0 (presets/universal_deployer.cairo)
+// OpenZeppelin Contracts for Cairo v0.15.0-rc.0 (presets/universal_deployer.cairo)
 
 /// # UniversalDeployerContract Preset
 ///
 /// The Universal Deployer Contract is a standardized generic factory of Starknet contracts.
 #[starknet::contract]
-mod UniversalDeployer {
-    use hash::{HashStateTrait, HashStateExTrait};
-    use openzeppelin::utils::universal_deployer::interface;
-    use poseidon::PoseidonTrait;
+pub(crate) mod UniversalDeployer {
+    use core::hash::{HashStateTrait, HashStateExTrait};
+    use core::poseidon::PoseidonTrait;
+    use openzeppelin::utils::interfaces::IUniversalDeployer;
     use starknet::ClassHash;
     use starknet::ContractAddress;
     use starknet::SyscallResultTrait;
@@ -19,22 +19,22 @@ mod UniversalDeployer {
 
     #[event]
     #[derive(Drop, PartialEq, starknet::Event)]
-    enum Event {
+    pub(crate) enum Event {
         ContractDeployed: ContractDeployed
     }
 
     #[derive(Drop, PartialEq, starknet::Event)]
-    struct ContractDeployed {
-        address: ContractAddress,
-        deployer: ContractAddress,
-        from_zero: bool,
-        class_hash: ClassHash,
-        calldata: Span<felt252>,
-        salt: felt252,
+    pub(crate) struct ContractDeployed {
+        pub(crate) address: ContractAddress,
+        pub(crate) deployer: ContractAddress,
+        pub(crate) from_zero: bool,
+        pub(crate) class_hash: ClassHash,
+        pub(crate) calldata: Span<felt252>,
+        pub(crate) salt: felt252,
     }
 
     #[abi(embed_v0)]
-    impl UniversalDeployerImpl of interface::IUniversalDeployer<ContractState> {
+    impl UniversalDeployerImpl of IUniversalDeployer<ContractState> {
         fn deploy_contract(
             ref self: ContractState,
             class_hash: ClassHash,
@@ -45,11 +45,12 @@ mod UniversalDeployer {
             let deployer: ContractAddress = get_caller_address();
             let mut _salt: felt252 = salt;
             if !from_zero {
-                let mut hash_state = PoseidonTrait::new();
-                _salt = hash_state.update_with(deployer).update_with(salt).finalize();
+                _salt = PoseidonTrait::new().update_with(deployer).update_with(salt).finalize()
             }
 
-            let (address, _) = starknet::deploy_syscall(class_hash, _salt, calldata, from_zero)
+            let (address, _) = starknet::syscalls::deploy_syscall(
+                class_hash, _salt, calldata, from_zero
+            )
                 .unwrap_syscall();
 
             self

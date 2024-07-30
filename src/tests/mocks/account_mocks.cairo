@@ -1,5 +1,5 @@
 #[starknet::contract(account)]
-mod DualCaseAccountMock {
+pub(crate) mod DualCaseAccountMock {
     use openzeppelin::account::AccountComponent;
     use openzeppelin::introspection::src5::SRC5Component;
 
@@ -45,7 +45,7 @@ mod DualCaseAccountMock {
 }
 
 #[starknet::contract(account)]
-mod SnakeAccountMock {
+pub(crate) mod SnakeAccountMock {
     use openzeppelin::account::AccountComponent;
     use openzeppelin::introspection::src5::SRC5Component;
 
@@ -87,7 +87,7 @@ mod SnakeAccountMock {
 }
 
 #[starknet::contract(account)]
-mod CamelAccountMock {
+pub(crate) mod CamelAccountMock {
     use openzeppelin::account::AccountComponent;
     use openzeppelin::introspection::src5::SRC5Component;
     use starknet::account::Call;
@@ -151,7 +151,7 @@ mod CamelAccountMock {
 // false for bool
 
 #[starknet::contract]
-mod SnakeAccountPanicMock {
+pub(crate) mod SnakeAccountPanicMock {
     #[storage]
     struct Storage {}
 
@@ -159,7 +159,9 @@ mod SnakeAccountPanicMock {
     #[generate_trait]
     impl ExternalImpl of ExternalTrait {
         #[external(v0)]
-        fn set_public_key(ref self: ContractState, new_public_key: felt252) {
+        fn set_public_key(
+            ref self: ContractState, new_public_key: felt252, signature: Span<felt252>
+        ) {
             panic!("Some error");
         }
 
@@ -186,7 +188,7 @@ mod SnakeAccountPanicMock {
 }
 
 #[starknet::contract]
-mod CamelAccountPanicMock {
+pub(crate) mod CamelAccountPanicMock {
     #[storage]
     struct Storage {}
 
@@ -194,7 +196,7 @@ mod CamelAccountPanicMock {
     #[generate_trait]
     impl ExternalImpl of ExternalTrait {
         #[external(v0)]
-        fn setPublicKey(ref self: ContractState, newPublicKey: felt252) {
+        fn setPublicKey(ref self: ContractState, newPublicKey: felt252, signature: Span<felt252>) {
             panic!("Some error");
         }
 

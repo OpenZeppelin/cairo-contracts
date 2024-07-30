@@ -1,29 +1,25 @@
-use core::serde::Serde;
-use core::traits::TryInto;
-use openzeppelin::account::EthAccountComponent::{OwnerAdded, OwnerRemoved};
+use core::num::traits::Zero;
 use openzeppelin::account::interface::ISRC6_ID;
-use openzeppelin::account::interface::{EthAccountABIDispatcherTrait, EthAccountABIDispatcher};
-use openzeppelin::account::utils::secp256k1::{
-    DebugSecp256k1Point, Secp256k1PointSerde, Secp256k1PointPartialEq
-};
+use openzeppelin::account::utils::secp256k1::{DebugSecp256k1Point, Secp256k1PointPartialEq};
+use openzeppelin::account::utils::signature::EthSignature;
 use openzeppelin::introspection::interface::ISRC5_ID;
 use openzeppelin::presets::EthAccountUpgradeable;
-use openzeppelin::tests::account::test_eth_account::{
+use openzeppelin::presets::interfaces::{
+    EthAccountUpgradeableABIDispatcher, EthAccountUpgradeableABIDispatcherTrait
+};
+use openzeppelin::tests::account::ethereum::common::{
     assert_only_event_owner_added, assert_event_owner_removed
 };
-use openzeppelin::tests::account::test_eth_account::{
-    deploy_erc20, SIGNED_TX_DATA, SignedTransactionData
+use openzeppelin::tests::account::ethereum::common::{
+    deploy_erc20, get_points, NEW_ETH_PUBKEY, SIGNED_TX_DATA, SignedTransactionData
 };
-use openzeppelin::tests::account::test_secp256k1::get_points;
 use openzeppelin::tests::mocks::eth_account_mocks::SnakeEthAccountMock;
-use openzeppelin::tests::upgrades::test_upgradeable::assert_only_event_upgraded;
+use openzeppelin::tests::upgrades::common::assert_only_event_upgraded;
 use openzeppelin::tests::utils::constants::{
-    CLASS_HASH_ZERO, ETH_PUBKEY, NEW_ETH_PUBKEY, SALT, ZERO, RECIPIENT, QUERY_VERSION,
-    MIN_TRANSACTION_VERSION
+    CLASS_HASH_ZERO, ETH_PUBKEY, SALT, ZERO, RECIPIENT, QUERY_VERSION, MIN_TRANSACTION_VERSION
 };
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::interface::IERC20DispatcherTrait;
-use openzeppelin::upgrades::interface::{IUpgradeableDispatcherTrait, IUpgradeableDispatcher};
 use openzeppelin::utils::selectors;
 use openzeppelin::utils::serde::SerializedAppend;
 use starknet::account::Call;
@@ -43,17 +39,19 @@ fn V2_CLASS_HASH() -> ClassHash {
 // Setup
 //
 
-fn setup_dispatcher() -> EthAccountABIDispatcher {
+fn setup_dispatcher() -> EthAccountUpgradeableABIDispatcher {
     let mut calldata = array![];
     calldata.append_serde(ETH_PUBKEY());
 
     let target = utils::deploy(CLASS_HASH(), calldata);
     utils::drop_event(target);
 
-    EthAccountABIDispatcher { contract_address: target }
+    EthAccountUpgradeableABIDispatcher { contract_address: target }
 }
 
-fn setup_dispatcher_with_data(data: Option<@SignedTransactionData>) -> EthAccountABIDispatcher {
+fn setup_dispatcher_with_data(
+    data: Option<@SignedTransactionData>
+) -> EthAccountUpgradeableABIDispatcher {
     testing::set_version(MIN_TRANSACTION_VERSION);
 
     let mut calldata = array![];
@@ -70,17 +68,7 @@ fn setup_dispatcher_with_data(data: Option<@SignedTransactionData>) -> EthAccoun
         calldata.append_serde(ETH_PUBKEY());
     }
     let address = utils::deploy(CLASS_HASH(), calldata);
-    EthAccountABIDispatcher { contract_address: address }
-}
-
-fn setup_upgradeable() -> IUpgradeableDispatcher {
-    let mut calldata = array![];
-    calldata.append_serde(ETH_PUBKEY());
-
-    let target = utils::deploy(CLASS_HASH(), calldata);
-    utils::drop_event(target);
-
-    IUpgradeableDispatcher { contract_address: target }
+    EthAccountUpgradeableABIDispatcher { contract_address: address }
 }
 
 //
@@ -120,7 +108,7 @@ fn test_public_key_setter_and_getter() {
 
     testing::set_contract_address(dispatcher.contract_address);
 
-    dispatcher.set_public_key(new_public_key);
+    dispatcher.set_public_key(new_public_key, get_accept_ownership_signature());
     assert_eq!(dispatcher.get_public_key(), new_public_key);
 
     assert_event_owner_removed(dispatcher.contract_address, ETH_PUBKEY());
@@ -134,7 +122,7 @@ fn test_public_key_setter_and_getter_camel() {
 
     testing::set_contract_address(dispatcher.contract_address);
 
-    dispatcher.setPublicKey(new_public_key);
+    dispatcher.setPublicKey(new_public_key, get_accept_ownership_signature());
     assert_eq!(dispatcher.getPublicKey(), new_public_key);
 
     assert_event_owner_removed(dispatcher.contract_address, ETH_PUBKEY());
@@ -145,21 +133,21 @@ fn test_public_key_setter_and_getter_camel() {
 #[should_panic(expected: ('EthAccount: unauthorized', 'ENTRYPOINT_FAILED'))]
 fn test_set_public_key_different_account() {
     let dispatcher = setup_dispatcher();
-    dispatcher.set_public_key(NEW_ETH_PUBKEY());
+    dispatcher.set_public_key(NEW_ETH_PUBKEY(), array![].span());
 }
 
 #[test]
 #[should_panic(expected: ('EthAccount: unauthorized', 'ENTRYPOINT_FAILED'))]
 fn test_setPublicKey_different_account() {
     let dispatcher = setup_dispatcher();
-    dispatcher.setPublicKey(NEW_ETH_PUBKEY());
+    dispatcher.setPublicKey(NEW_ETH_PUBKEY(), array![].span());
 }
 
 //
 // is_valid_signature & isValidSignature
 //
 
-fn is_valid_sig_dispatcher() -> (EthAccountABIDispatcher, felt252, Array<felt252>) {
+fn is_valid_sig_dispatcher() -> (EthAccountUpgradeableABIDispatcher, felt252, Array<felt252>) {
     let dispatcher = setup_dispatcher();
 
     let data = SIGNED_TX_DATA();
@@ -168,7 +156,7 @@ fn is_valid_sig_dispatcher() -> (EthAccountABIDispatcher, felt252, Array<felt252
     data.signature.serialize(ref serialized_signature);
 
     testing::set_contract_address(dispatcher.contract_address);
-    dispatcher.set_public_key(data.public_key);
+    dispatcher.set_public_key(data.public_key, get_accept_ownership_signature());
 
     (dispatcher, hash, serialized_signature)
 }
@@ -440,7 +428,6 @@ fn test_account_called_from_contract() {
     account.__execute__(calls);
 }
 
-
 //
 // upgrade
 //
@@ -448,14 +435,14 @@ fn test_account_called_from_contract() {
 #[test]
 #[should_panic(expected: ('EthAccount: unauthorized', 'ENTRYPOINT_FAILED',))]
 fn test_upgrade_access_control() {
-    let v1 = setup_upgradeable();
+    let v1 = setup_dispatcher();
     v1.upgrade(CLASS_HASH_ZERO());
 }
 
 #[test]
 #[should_panic(expected: ('Class hash cannot be zero', 'ENTRYPOINT_FAILED',))]
 fn test_upgrade_with_class_hash_zero() {
-    let v1 = setup_upgradeable();
+    let v1 = setup_dispatcher();
 
     set_contract_and_caller(v1.contract_address);
     v1.upgrade(CLASS_HASH_ZERO());
@@ -463,42 +450,40 @@ fn test_upgrade_with_class_hash_zero() {
 
 #[test]
 fn test_upgraded_event() {
-    let v1 = setup_upgradeable();
+    let v1 = setup_dispatcher();
     let v2_class_hash = V2_CLASS_HASH();
 
     set_contract_and_caller(v1.contract_address);
     v1.upgrade(v2_class_hash);
 
-    assert_only_event_upgraded(v2_class_hash, v1.contract_address);
+    assert_only_event_upgraded(v1.contract_address, v2_class_hash);
 }
 
 #[test]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_v2_missing_camel_selector() {
-    let v1 = setup_upgradeable();
+    let v1 = setup_dispatcher();
     let v2_class_hash = V2_CLASS_HASH();
 
     set_contract_and_caller(v1.contract_address);
     v1.upgrade(v2_class_hash);
 
-    let dispatcher = EthAccountABIDispatcher { contract_address: v1.contract_address };
+    let dispatcher = EthAccountUpgradeableABIDispatcher { contract_address: v1.contract_address };
     dispatcher.getPublicKey();
 }
 
 #[test]
 fn test_state_persists_after_upgrade() {
-    let v1 = setup_upgradeable();
+    let v1 = setup_dispatcher();
     let v2_class_hash = V2_CLASS_HASH();
 
     set_contract_and_caller(v1.contract_address);
-    let dispatcher = EthAccountABIDispatcher { contract_address: v1.contract_address };
+    let dispatcher = EthAccountUpgradeableABIDispatcher { contract_address: v1.contract_address };
 
-    let (point, _) = get_points();
-
-    dispatcher.set_public_key(point);
+    dispatcher.set_public_key(NEW_ETH_PUBKEY(), get_accept_ownership_signature());
 
     let camel_public_key = dispatcher.getPublicKey();
-    assert_eq!(camel_public_key, point);
+    assert_eq!(camel_public_key, NEW_ETH_PUBKEY());
 
     v1.upgrade(v2_class_hash);
     let snake_public_key = dispatcher.get_public_key();
@@ -513,4 +498,30 @@ fn test_state_persists_after_upgrade() {
 fn set_contract_and_caller(address: ContractAddress) {
     testing::set_contract_address(address);
     testing::set_caller_address(address);
+}
+
+fn get_accept_ownership_signature() -> Span<felt252> {
+    let mut output = array![];
+
+    // 0x077ab2f889d044a0a23f30c86151d7b5c6d2adc91fb603b16bb32fd35d3ac07d =
+    // PoseidonTrait::new()
+    //             .update_with('StarkNet Message')
+    //             .update_with('accept_ownership')
+    //             .update_with(dispatcher.contract_address)
+    //             .update_with(ETH_PUBKEY().get_coordinates().unwrap_syscall())
+    //             .finalize();
+
+    // This signature was computed using ethers js sdk from the following values:
+    // - private_key: 0x45397ee6ca34cb49060f1c303c6cb7ee2d6123e617601ef3e31ccf7bf5bef1f9
+    // - public_key:
+    //      r: 0x829307f82a1883c2414503ba85fc85037f22c6fc6f80910801f6b01a4131da1e
+    //      s: 0x2a23f7bddf3715d11767b1247eccc68c89e11b926e2615268db6ad1af8d8da96
+    // - msg_hash: 0x077ab2f889d044a0a23f30c86151d7b5c6d2adc91fb603b16bb32fd35d3ac07d
+    EthSignature {
+        r: 0x518caf844e08000c67ef7f9f56105ae52b9f7532baac1561bbfb4a8fb691ba80,
+        s: 0x559ce65943263032ff0b5906466cd67fd15f7965c8befc162a276abcd63f7c2c,
+    }
+        .serialize(ref output);
+
+    output.span()
 }

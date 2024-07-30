@@ -1,5 +1,5 @@
 #[starknet::contract]
-mod DualCaseERC20Mock {
+pub(crate) mod DualCaseERC20Mock {
     use openzeppelin::token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
 
@@ -35,12 +35,12 @@ mod DualCaseERC20Mock {
         recipient: ContractAddress
     ) {
         self.erc20.initializer(name, symbol);
-        self.erc20._mint(recipient, initial_supply);
+        self.erc20.mint(recipient, initial_supply);
     }
 }
 
 #[starknet::contract]
-mod SnakeERC20Mock {
+pub(crate) mod SnakeERC20Mock {
     use openzeppelin::token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
 
@@ -74,12 +74,12 @@ mod SnakeERC20Mock {
         recipient: ContractAddress
     ) {
         self.erc20.initializer(name, symbol);
-        self.erc20._mint(recipient, initial_supply);
+        self.erc20.mint(recipient, initial_supply);
     }
 }
 
 #[starknet::contract]
-mod CamelERC20Mock {
+pub(crate) mod CamelERC20Mock {
     use openzeppelin::token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
 
@@ -117,7 +117,7 @@ mod CamelERC20Mock {
         recipient: ContractAddress
     ) {
         self.erc20.initializer(name, symbol);
-        self.erc20._mint(recipient, initial_supply);
+        self.erc20.mint(recipient, initial_supply);
     }
 
     #[abi(per_item)]
@@ -149,7 +149,7 @@ mod CamelERC20Mock {
 /// zero for ContractAddress
 /// false for bool
 #[starknet::contract]
-mod SnakeERC20Panic {
+pub(crate) mod SnakeERC20Panic {
     use starknet::ContractAddress;
 
     #[storage]
@@ -219,7 +219,7 @@ mod SnakeERC20Panic {
 }
 
 #[starknet::contract]
-mod CamelERC20Panic {
+pub(crate) mod CamelERC20Panic {
     use starknet::ContractAddress;
 
     #[storage]

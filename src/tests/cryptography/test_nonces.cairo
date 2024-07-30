@@ -1,3 +1,4 @@
+use core::num::traits::Zero;
 use openzeppelin::tests::mocks::nonces_mocks::NoncesMock;
 use openzeppelin::tests::utils::constants::OWNER;
 use openzeppelin::utils::cryptography::interface::INonces;

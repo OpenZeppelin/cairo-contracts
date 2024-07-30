@@ -1,7 +1,7 @@
 #[starknet::contract]
-mod DualCaseERC721Mock {
+pub(crate) mod DualCaseERC721Mock {
     use openzeppelin::introspection::src5::SRC5Component;
-    use openzeppelin::token::erc721::ERC721Component;
+    use openzeppelin::token::erc721::{ERC721Component, ERC721HooksEmptyImpl};
     use starknet::ContractAddress;
 
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);
@@ -50,14 +50,14 @@ mod DualCaseERC721Mock {
         token_id: u256
     ) {
         self.erc721.initializer(name, symbol, base_uri);
-        self.erc721._mint(recipient, token_id);
+        self.erc721.mint(recipient, token_id);
     }
 }
 
 #[starknet::contract]
-mod SnakeERC721Mock {
+pub(crate) mod SnakeERC721Mock {
     use openzeppelin::introspection::src5::SRC5Component;
-    use openzeppelin::token::erc721::ERC721Component;
+    use openzeppelin::token::erc721::{ERC721Component, ERC721HooksEmptyImpl};
     use starknet::ContractAddress;
 
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);
@@ -101,15 +101,15 @@ mod SnakeERC721Mock {
         token_id: u256
     ) {
         self.erc721.initializer(name, symbol, base_uri);
-        self.erc721._mint(recipient, token_id);
+        self.erc721.mint(recipient, token_id);
     }
 }
 
 #[starknet::contract]
-mod CamelERC721Mock {
+pub(crate) mod CamelERC721Mock {
     use openzeppelin::introspection::src5::SRC5Component;
     use openzeppelin::token::erc721::ERC721Component::{ERC721Impl, ERC721MetadataImpl};
-    use openzeppelin::token::erc721::ERC721Component;
+    use openzeppelin::token::erc721::{ERC721Component, ERC721HooksEmptyImpl};
     use starknet::ContractAddress;
 
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);
@@ -154,7 +154,7 @@ mod CamelERC721Mock {
         token_id: u256
     ) {
         self.erc721.initializer(name, symbol, base_uri);
-        self.erc721._mint(recipient, token_id);
+        self.erc721.mint(recipient, token_id);
     }
 
     /// The following external methods are included because they are case-agnostic
@@ -186,9 +186,9 @@ mod CamelERC721Mock {
 /// zero for ContractAddress
 /// u256 { 3, 3 } for u256
 #[starknet::contract]
-mod SnakeERC721PanicMock {
+pub(crate) mod SnakeERC721PanicMock {
+    use core::num::traits::Zero;
     use starknet::ContractAddress;
-    use zeroable::Zeroable;
 
     #[storage]
     struct Storage {}
@@ -234,13 +234,13 @@ mod SnakeERC721PanicMock {
         #[external(v0)]
         fn owner_of(self: @ContractState, token_id: u256) -> ContractAddress {
             panic!("Some error");
-            Zeroable::zero()
+            Zero::zero()
         }
 
         #[external(v0)]
         fn get_approved(self: @ContractState, token_id: u256) -> ContractAddress {
             panic!("Some error");
-            Zeroable::zero()
+            Zero::zero()
         }
 
         #[external(v0)]
@@ -279,9 +279,9 @@ mod SnakeERC721PanicMock {
 }
 
 #[starknet::contract]
-mod CamelERC721PanicMock {
+pub(crate) mod CamelERC721PanicMock {
+    use core::num::traits::Zero;
     use starknet::ContractAddress;
-    use zeroable::Zeroable;
 
     #[storage]
     struct Storage {}
@@ -304,13 +304,13 @@ mod CamelERC721PanicMock {
         #[external(v0)]
         fn ownerOf(self: @ContractState, tokenId: u256) -> ContractAddress {
             panic!("Some error");
-            Zeroable::zero()
+            Zero::zero()
         }
 
         #[external(v0)]
         fn getApproved(self: @ContractState, tokenId: u256) -> ContractAddress {
             panic!("Some error");
-            Zeroable::zero()
+            Zero::zero()
         }
 
         #[external(v0)]

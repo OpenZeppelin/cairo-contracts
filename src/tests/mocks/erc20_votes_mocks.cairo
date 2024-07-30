@@ -1,5 +1,5 @@
 #[starknet::contract]
-mod DualCaseERC20VotesMock {
+pub(crate) mod DualCaseERC20VotesMock {
     use openzeppelin::token::erc20::ERC20Component;
     use openzeppelin::token::erc20::extensions::ERC20VotesComponent::InternalTrait as ERC20VotesInternalTrait;
     use openzeppelin::token::erc20::extensions::ERC20VotesComponent;
@@ -47,7 +47,7 @@ mod DualCaseERC20VotesMock {
     }
 
     /// Required for hash computation.
-    impl SNIP12MetadataImpl of SNIP12Metadata {
+    pub(crate) impl SNIP12MetadataImpl of SNIP12Metadata {
         fn name() -> felt252 {
             'DAPP_NAME'
         }
@@ -96,6 +96,6 @@ mod DualCaseERC20VotesMock {
         recipient: ContractAddress
     ) {
         self.erc20.initializer(name, symbol);
-        self.erc20._mint(recipient, fixed_supply);
+        self.erc20.mint(recipient, fixed_supply);
     }
 }

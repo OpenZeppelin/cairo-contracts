@@ -1,14 +1,13 @@
+use core::num::traits::Zero;
 use openzeppelin::access::ownable::OwnableComponent::InternalTrait;
-use openzeppelin::access::ownable::OwnableComponent::OwnershipTransferred;
 use openzeppelin::access::ownable::OwnableComponent;
 use openzeppelin::access::ownable::interface::{IOwnable, IOwnableCamelOnly};
 use openzeppelin::tests::mocks::ownable_mocks::DualCaseOwnableMock;
 use openzeppelin::tests::utils::constants::{ZERO, OTHER, OWNER};
 use openzeppelin::tests::utils;
-use openzeppelin::utils::serde::SerializedAppend;
-use starknet::ContractAddress;
-use starknet::storage::StorageMemberAccessTrait;
 use starknet::testing;
+
+use super::common::assert_only_event_ownership_transferred;
 
 //
 // Setup
@@ -40,7 +39,7 @@ fn test_initializer_owner() {
 
     state.initializer(OWNER());
 
-    assert_event_ownership_transferred(ZERO(), OWNER());
+    assert_only_event_ownership_transferred(ZERO(), ZERO(), OWNER());
 
     let new_owner = state.Ownable_owner.read();
     assert_eq!(new_owner, OWNER());
@@ -81,7 +80,7 @@ fn test__transfer_ownership() {
     let mut state = setup();
     state._transfer_ownership(OTHER());
 
-    assert_event_ownership_transferred(OWNER(), OTHER());
+    assert_only_event_ownership_transferred(ZERO(), OWNER(), OTHER());
 
     let current_owner = state.Ownable_owner.read();
     assert_eq!(current_owner, OTHER());
@@ -97,7 +96,7 @@ fn test_transfer_ownership() {
     testing::set_caller_address(OWNER());
     state.transfer_ownership(OTHER());
 
-    assert_event_ownership_transferred(OWNER(), OTHER());
+    assert_only_event_ownership_transferred(ZERO(), OWNER(), OTHER());
     assert_eq!(state.owner(), OTHER());
 }
 
@@ -130,7 +129,7 @@ fn test_transferOwnership() {
     testing::set_caller_address(OWNER());
     state.transferOwnership(OTHER());
 
-    assert_event_ownership_transferred(OWNER(), OTHER());
+    assert_only_event_ownership_transferred(ZERO(), OWNER(), OTHER());
     assert_eq!(state.owner(), OTHER());
 }
 
@@ -167,7 +166,7 @@ fn test_renounce_ownership() {
     testing::set_caller_address(OWNER());
     state.renounce_ownership();
 
-    assert_event_ownership_transferred(OWNER(), ZERO());
+    assert_only_event_ownership_transferred(ZERO(), OWNER(), ZERO());
     assert!(state.owner().is_zero());
 }
 
@@ -192,7 +191,7 @@ fn test_renounceOwnership() {
     testing::set_caller_address(OWNER());
     state.renounceOwnership();
 
-    assert_event_ownership_transferred(OWNER(), ZERO());
+    assert_only_event_ownership_transferred(ZERO(), OWNER(), ZERO());
     assert!(state.owner().is_zero());
 }
 
@@ -209,23 +208,4 @@ fn test_renounceOwnership_from_nonowner() {
     let mut state = setup();
     testing::set_caller_address(OTHER());
     state.renounceOwnership();
-}
-
-//
-// Helpers
-//
-
-fn assert_event_ownership_transferred(previous_owner: ContractAddress, new_owner: ContractAddress) {
-    let event = utils::pop_log::<OwnableComponent::Event>(ZERO()).unwrap();
-    let expected = OwnableComponent::Event::OwnershipTransferred(
-        OwnershipTransferred { previous_owner, new_owner }
-    );
-    assert!(event == expected);
-    utils::assert_no_events_left(ZERO());
-
-    let mut indexed_keys = array![];
-    indexed_keys.append_serde(selector!("OwnershipTransferred"));
-    indexed_keys.append_serde(previous_owner);
-    indexed_keys.append_serde(new_owner);
-    utils::assert_indexed_keys(event, indexed_keys.span());
 }

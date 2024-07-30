@@ -6,6 +6,63 @@
 The ERC721 token standard is a specification for {token-types}, or more colloquially: NFTs.
 `token::erc721::ERC721Component` provides an approximation of {eip721} in Cairo for Starknet.
 
+== Usage
+
+:mint-api: xref:api/erc721.adoc#ERC721-mint[mint]
+
+Using Contracts for Cairo, constructing an ERC721 contract requires integrating both `ERC721Component` and `SRC5Component`.
+The contract should also set up the constructor to initialize the token's name, symbol, and interface support.
+Here's an example of a basic contract:
+
+[,cairo]
+----
+#[starknet::contract]
+mod MyNFT {
+    use openzeppelin::introspection::src5::SRC5Component;
+    use openzeppelin::token::erc721::{ERC721Component, ERC721HooksEmptyImpl};
+    use starknet::ContractAddress;
+
+    component!(path: ERC721Component, storage: erc721, event: ERC721Event);
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
+
+    // ERC721 Mixin
+    #[abi(embed_v0)]
+    impl ERC721MixinImpl = ERC721Component::ERC721MixinImpl<ContractState>;
+    impl ERC721InternalImpl = ERC721Component::InternalImpl<ContractState>;
+
+    #[storage]
+    struct Storage {
+        #[substorage(v0)]
+        erc721: ERC721Component::Storage,
+        #[substorage(v0)]
+        src5: SRC5Component::Storage
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        ERC721Event: ERC721Component::Event,
+        #[flat]
+        SRC5Event: SRC5Component::Event
+    }
+
+    #[constructor]
+    fn constructor(
+        ref self: ContractState,
+        recipient: ContractAddress
+    ) {
+        let name = "MyNFT";
+        let symbol = "NFT";
+        let base_uri = "https://api.example.com/v1/";
+        let token_id = 1;
+
+        self.erc721.initializer(name, symbol, base_uri);
+        self.erc721.mint(recipient, token_id);
+    }
+}
+----
+
 == Interface
 
 :compatibility: xref:/erc721.adoc#erc721_compatibility[ERC721 Compatibility]
@@ -19,9 +76,10 @@ The interface includes the {ierc721-interface} standard interface and the option
 
 To support older token deployments, as mentioned in {dual-interfaces}, the component also includes implementations of the interface written in camelCase.
 
-[,javascript]
+[,cairo]
 ----
-trait ERC721ABI {
+#[starknet::interface]
+pub trait ERC721ABI {
     // IERC721
     fn balance_of(account: ContractAddress) -> u256;
     fn owner_of(token_id: u256) -> ContractAddress;
@@ -61,7 +119,7 @@ trait ERC721ABI {
 }
 ----
 
-=== ERC721 compatibility
+== ERC721 compatibility
 
 :erc165-storage: https://docs.openzeppelin.com/contracts/4.x/api/utils#ERC165Storage[ERC165Storage]
 :src5-api: xref:introspection.adoc#src5[SRC5]
@@ -82,64 +140,7 @@ If `data` is not used, simply pass an empty array.
 The design for `SRC5` is similar to OpenZeppelin's {erc165-storage}.
 * `IERC721Receiver` compliant contracts return a hardcoded interface ID according to Starknet selectors (as opposed to selector calculation in Solidity).
 
-== Usage
-
-:mint-api: xref:api/erc721.adoc#ERC721-_mint[_mint]
-
-Using Contracts for Cairo, constructing an ERC721 contract requires integrating both `ERC721Component` and `SRC5Component`.
-The contract should also set up the constructor to initialize the token's name, symbol, and interface support.
-Here's an example of a basic contract:
-
-[,javascript]
-----
-#[starknet::contract]
-mod MyNFT {
-    use openzeppelin::introspection::src5::SRC5Component;
-    use openzeppelin::token::erc721::ERC721Component;
-    use starknet::ContractAddress;
-
-    component!(path: ERC721Component, storage: erc721, event: ERC721Event);
-    component!(path: SRC5Component, storage: src5, event: SRC5Event);
-
-    // ERC721 Mixin
-    #[abi(embed_v0)]
-    impl ERC721MixinImpl = ERC721Component::ERC721MixinImpl<ContractState>;
-    impl ERC721InternalImpl = ERC721Component::InternalImpl<ContractState>;
-
-    #[storage]
-    struct Storage {
-        #[substorage(v0)]
-        erc721: ERC721Component::Storage,
-        #[substorage(v0)]
-        src5: SRC5Component::Storage
-    }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        #[flat]
-        ERC721Event: ERC721Component::Event,
-        #[flat]
-        SRC5Event: SRC5Component::Event
-    }
-
-    #[constructor]
-    fn constructor(
-        ref self: ContractState,
-        recipient: ContractAddress
-    ) {
-        let name = "MyNFT";
-        let symbol = "NFT";
-        let base_uri = "https://api.example.com/v1/";
-        let token_id = 1;
-
-        self.erc721.initializer(name, symbol, base_uri);
-        self.erc721._mint(recipient, token_id);
-    }
-}
-----
-
-=== Token transfers
+== Token transfers
 
 :transfer_from-api: xref:api/erc721.adoc#IERC721-transfer_from[transfer_from]
 :safe_transfer_from-api: xref:api/erc721.adoc#IERC721-safe_transfer_from[safe_transfer_from]
@@ -150,24 +151,25 @@ The `safe_transfer_from` method mitigates this risk by querying the recipient co
 
 WARNING: Usage of `safe_transfer_from` prevents loss, though the caller must understand this adds an external call which potentially creates a reentrancy vulnerability.
 
-=== Receiving tokens
+== Receiving tokens
 
 :src5: xref:introspection.adoc#src5[SRC5]
 :on_erc721_received-api: xref:api/erc721.adoc#IERC721Receiver-on_erc721_received[on_erc721_received]
 :computing-interface-id: xref:introspection.adoc#computing_the_interface_id[Computing the interface ID]
 :safe_transfer_from-api: xref:api/erc721.adoc#IERC721-safe_transfer_from[safe_transfer_from]
-:safe_mint-api: xref:api/erc721.adoc#ERC721-_safe_mint[_safe_mint]
+:safe_mint-api: xref:api/erc721.adoc#ERC721-safe_mint[safe_mint]
 
 In order to be sure a non-account contract can safely accept ERC721 tokens, said contract must implement the `IERC721Receiver` interface.
 The recipient contract must also implement the {src5} interface which, as described earlier, supports interface introspection.
 
-==== IERC721Receiver
+=== IERC721Receiver
 
 :receiver-id: xref:/api/erc721.adoc#IERC721Receiver[IERC721Receiver interface ID]
 
-[,javascript]
+[,cairo]
 ----
-trait IERC721Receiver {
+#[starknet::interface]
+pub trait IERC721Receiver {
     fn on_erc721_received(
         operator: ContractAddress,
         from: ContractAddress,
@@ -183,13 +185,13 @@ Otherwise, the transaction will fail.
 
 TIP: For information on how to calculate interface IDs, see {computing-interface-id}.
 
-==== Creating a token receiver contract
+=== Creating a token receiver contract
 
 The Contracts for Cairo `IERC721ReceiverImpl` already returns the correct interface ID for safe token transfers.
 To integrate the `IERC721Receiver` interface into a contract, simply include the ABI embed directive to the implementation and add the `initializer` in the contract's constructor.
 Here's an example of a simple token receiver contract:
 
-[,javascript]
+[,cairo]
 ----
 #[starknet::contract]
 mod MyTokenReceiver {
@@ -229,7 +231,7 @@ mod MyTokenReceiver {
 }
 ----
 
-=== Storing ERC721 URIs
+== Storing ERC721 URIs
 
 :solidity-impl: https://github.com/OpenZeppelin/openzeppelin-contracts/blob/932fddf69a699a9a80fd2396fd1a2ab91cdda123/contracts/token/ERC721/ERC721.sol#L85-L93[Solidity implementation]
 :token-uri: xref:/api/erc721.adoc#IERC721Metadata-token_uri[token_uri]

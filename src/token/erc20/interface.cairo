@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.11.0 (token/erc20/interface.cairo)
+// OpenZeppelin Contracts for Cairo v0.15.0-rc.0 (token/erc20/interface.cairo)
 
 use openzeppelin::utils::structs::checkpoint::Checkpoint;
 use starknet::ContractAddress;
 
 #[starknet::interface]
-trait IERC20<TState> {
+pub trait IERC20<TState> {
     fn total_supply(self: @TState) -> u256;
     fn balance_of(self: @TState, account: ContractAddress) -> u256;
     fn allowance(self: @TState, owner: ContractAddress, spender: ContractAddress) -> u256;
@@ -17,14 +17,14 @@ trait IERC20<TState> {
 }
 
 #[starknet::interface]
-trait IERC20Metadata<TState> {
+pub trait IERC20Metadata<TState> {
     fn name(self: @TState) -> ByteArray;
     fn symbol(self: @TState) -> ByteArray;
     fn decimals(self: @TState) -> u8;
 }
 
 #[starknet::interface]
-trait IERC20Camel<TState> {
+pub trait IERC20Camel<TState> {
     fn totalSupply(self: @TState) -> u256;
     fn balanceOf(self: @TState, account: ContractAddress) -> u256;
     fn allowance(self: @TState, owner: ContractAddress, spender: ContractAddress) -> u256;
@@ -36,7 +36,7 @@ trait IERC20Camel<TState> {
 }
 
 #[starknet::interface]
-trait IERC20CamelOnly<TState> {
+pub trait IERC20CamelOnly<TState> {
     fn totalSupply(self: @TState) -> u256;
     fn balanceOf(self: @TState, account: ContractAddress) -> u256;
     fn transferFrom(
@@ -45,7 +45,7 @@ trait IERC20CamelOnly<TState> {
 }
 
 #[starknet::interface]
-trait ERC20ABI<TState> {
+pub trait ERC20ABI<TState> {
     // IERC20
     fn total_supply(self: @TState) -> u256;
     fn balance_of(self: @TState, account: ContractAddress) -> u256;
@@ -70,7 +70,7 @@ trait ERC20ABI<TState> {
 }
 
 #[starknet::interface]
-trait ERC20VotesABI<TState> {
+pub trait ERC20VotesABI<TState> {
     // IERC20
     fn total_supply(self: @TState) -> u256;
     fn balance_of(self: @TState, account: ContractAddress) -> u256;
@@ -100,10 +100,6 @@ trait ERC20VotesABI<TState> {
         expiry: u64,
         signature: Array<felt252>
     );
-
-    // Checkpoints
-    fn num_checkpoints(self: @TState, account: ContractAddress) -> u32;
-    fn checkpoints(self: @TState, account: ContractAddress, pos: u32) -> Checkpoint;
 
     // IERC20CamelOnly
     fn totalSupply(self: @TState) -> u256;

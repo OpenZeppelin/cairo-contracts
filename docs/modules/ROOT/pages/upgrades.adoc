@@ -1,7 +1,7 @@
 :contract_classes: https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/contract-classes/[Contract Classes]
 :class_hash: https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/class-hash/[class hash]
 :replace_class_syscall: https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/system-calls-cairo1/#replace_class[replace_class]
-:upgradeable: https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.11.0/src/upgrades/upgradeable.cairo[Upgradeable]
+:upgradeable: https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.15.0-rc.0/src/upgrades/upgradeable.cairo[Upgradeable]
 :ownable: xref:access.adoc#ownership_and_ownable[Ownable]
 :i_upgradeable: xref:api/upgrades.adoc#IUpgradeable[IUpgradeable]
 :library_calls: https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/system-calls-cairo1/#library_call[library calls]
@@ -25,10 +25,10 @@ To better comprehend how upgradeability works in Starknet, it's important to und
 The `{replace_class_syscall}` syscall allows a contract to update its source code by replacing its class hash once deployed.
 
 
-[,javascript]
+[,cairo]
 ----
 /// Upgrades the contract source code to the new contract class.
-fn _upgrade(new_class_hash: ClassHash) {
+fn upgrade(new_class_hash: ClassHash) {
     assert(!new_class_hash.is_zero(), 'Class hash cannot be zero');
     starknet::replace_class_syscall(new_class_hash).unwrap_syscall();
 }
@@ -47,7 +47,7 @@ avoid unauthorized upgrades. The {ownable} module is used in this example.
 
 NOTE: We will be using the following module to implement the {i_upgradeable} interface described in the API Reference section.
 
-[,javascript]
+[,cairo]
 ----
 #[starknet::contract]
 mod UpgradeableContract {
@@ -90,14 +90,14 @@ mod UpgradeableContract {
         self.ownable.initializer(owner);
     }
 
-    #[external(v0)]
+    #[abi(embed_v0)]
     impl UpgradeableImpl of IUpgradeable<ContractState> {
         fn upgrade(ref self: ContractState, new_class_hash: ClassHash) {
             // This function can only be called by the owner
             self.ownable.assert_only_owner();
 
             // Replace the class hash upgrading the contract
-            self.upgradeable._upgrade(new_class_hash);
+            self.upgradeable.upgrade(new_class_hash);
         }
     }
 }

@@ -1,11 +1,9 @@
-use core::hash::HashStateExTrait;
-use hash::{HashStateTrait, Hash};
+use core::hash::{Hash, HashStateTrait, HashStateExTrait};
+use core::poseidon::{PoseidonTrait, poseidon_hash_span};
 use openzeppelin::tests::utils::constants::{OWNER, RECIPIENT};
 use openzeppelin::utils::cryptography::snip12::{
     STARKNET_DOMAIN_TYPE_HASH, StarknetDomain, StructHash, OffchainMessageHashImpl, SNIP12Metadata
 };
-use poseidon::PoseidonTrait;
-use poseidon::poseidon_hash_span;
 use starknet::ContractAddress;
 
 const MESSAGE_TYPE_HASH: felt252 =

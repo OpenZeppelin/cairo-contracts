@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.11.0 (token/erc721/erc721_receiver.cairo)
+// OpenZeppelin Contracts for Cairo v0.15.0-rc.0 (token/erc721/erc721_receiver.cairo)
 
 /// # ERC721Receiver Component
 ///
@@ -7,7 +7,7 @@
 /// interface. Integrating this component allows contracts to support ERC721
 /// safe transfers.
 #[starknet::component]
-mod ERC721ReceiverComponent {
+pub mod ERC721ReceiverComponent {
     use openzeppelin::introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
     use openzeppelin::introspection::src5::SRC5Component;
@@ -18,10 +18,6 @@ mod ERC721ReceiverComponent {
 
     #[storage]
     struct Storage {}
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {}
 
     #[embeddable_as(ERC721ReceiverImpl)]
     impl ERC721Receiver<
@@ -64,7 +60,7 @@ mod ERC721ReceiverComponent {
     }
 
     #[generate_trait]
-    impl InternalImpl<
+    pub impl InternalImpl<
         TContractState,
         +HasComponent<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,

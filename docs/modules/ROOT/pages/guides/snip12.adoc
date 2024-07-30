@@ -22,11 +22,11 @@ WARNING: This is an educational example, and it is not intended to be used in pr
 Let's start with a basic ERC20 contract leveraging the {erc20-component}, and let's add the new function.
 Note that some declarations are omitted for brevity. The full example will be available at the end of the guide.
 
-[,javascript]
+[,cairo]
 ----
 #[starknet::contract]
 mod CustomERC20 {
-    use openzeppelin::token::erc20::ERC20Component;
+    use openzeppelin::token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
@@ -44,7 +44,7 @@ mod CustomERC20 {
         recipient: ContractAddress
     ) {
         self.erc20.initializer("MyToken", "MTK");
-        self.erc20._mint(recipient, initial_supply);
+        self.erc20.mint(recipient, initial_supply);
     }
 
     #[external(v0)]
@@ -83,7 +83,7 @@ To generate the hash of the message, we need to follow these steps:
 
 In this particular example, the message struct looks like this:
 
-[,javascript]
+[,cairo]
 ----
 struct Message {
     recipient: ContractAddress,
@@ -99,7 +99,7 @@ This is the `starknet_keccak(encode_type(message))` as defined in the {snip}.
 
 In this case it can be computed as follows:
 
-[,javascript]
+[,cairo]
 ----
 let message_type_hash = selector!(
     "\"Message\"(\"recipient\":\"ContractAddress\",\"amount\":\"u256\",\"nonce\":\"felt\",\"expiry\":\"u64\")\"u256\"(\"low\":\"felt\",\"high\":\"felt\")"
@@ -108,7 +108,7 @@ let message_type_hash = selector!(
 
 which is the same as:
 
-[,javascript]
+[,cairo]
 ----
 let message_type_hash = 0x120ae1bdaf7c1e48349da94bb8dad27351ca115d6605ce345aee02d68d99ec1;
 ----
@@ -120,7 +120,7 @@ NOTE: In practice it's better to compute the type hash off-chain and hardcode it
 You can import the trait from: `openzeppelin::utils::snip12::StructHash`. And this implementation
 is nothing more than the encoding of the message as defined in the {snip}.
 
-[,javascript]
+[,cairo]
 ----
 use openzeppelin::utils::snip12::StructHash;
 
@@ -153,7 +153,7 @@ impl StructHashImpl of StructHash<Message> {
 This implementation determines the values of the domain separator. Only the `name` and `version` fields are required
 because the `chain_id` is obtained on-chain, and the `revision` is hardcoded to `1`.
 
-[,javascript]
+[,cairo]
 ----
 use openzeppelin::utils::snip12::SNIP12Metadata;
 
@@ -163,18 +163,32 @@ impl SNIP12MetadataImpl of SNIP12Metadata {
 }
 ----
 
-NOTE: These params could be set in the contract constructor, but then two storage reads would be executed every time
-a message hash needs to be generated, and this is unnecessary overhead. When Starknet implements immutable storage
-set in constructor, that approach will be more efficient.
+In the above example, no storage reads are required which avoids unnecessary extra gas costs, but in
+some cases we may need to read from storage to get the domain separator values. This can be accomplished even when
+the trait is not bounded to the ContractState, like this:
 
-[,javascript]
+[,cairo]
+----
+use openzeppelin::utils::snip12::SNIP12Metadata;
+
+impl SNIP12MetadataImpl of SNIP12Metadata {
+    fn name() -> felt252 {
+        let state = unsafe_new_contract_state();
+
+        // Some logic to get the name from storage
+        state.erc20.name().at(0).unwrap().into()
+    }
+
+    fn version() -> felt252 { 'v1' }
+}
+----
 
 === 5. Generate the hash.
 
 The final step is to use the `OffchainMessageHashImpl` implementation to generate the hash of the message
 using the `get_message_hash` function. The implementation is already available as a utility.
 
-[,javascript]
+[,cairo]
 ----
 use openzeppelin::utils::snip12::{SNIP12Metadata, StructHash, OffchainMessageHashImpl};
 
@@ -228,14 +242,14 @@ TIP: The expected parameter for the `get_message_hash` function is the address o
 == Full Implementation
 
 :dualcase_dispatchers: xref:/interfaces#dualcase_dispatchers
-:nonces: xref:/utilities#NoncesComponent
+:nonces: xref:/api/utilities#NoncesComponent
 
 Finally, the full implementation of the `CustomERC20` contract looks like this:
 
 NOTE: We are using the {dualcase_dispatchers}[`DualCaseAccount`] to verify the signature,
 and the {nonces}[`NoncesComponent`] to handle nonces to prevent replay attacks.
 
-[,javascript]
+[,cairo]
 ----
 use openzeppelin::utils::snip12::{SNIP12Metadata, StructHash, OffchainMessageHashImpl};
 
@@ -265,7 +279,7 @@ impl StructHashImpl of StructHash<Message> {
 #[starknet::contract]
 mod CustomERC20 {
     use openzeppelin::account::dual_account::{DualCaseAccount, DualCaseAccountABI};
-    use openzeppelin::token::erc20::ERC20Component;
+    use openzeppelin::token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     use openzeppelin::utils::cryptography::nonces::NoncesComponent;
     use starknet::ContractAddress;
 
@@ -302,7 +316,7 @@ mod CustomERC20 {
     #[constructor]
     fn constructor(ref self: ContractState, initial_supply: u256, recipient: ContractAddress) {
         self.erc20.initializer("MyToken", "MTK");
-        self.erc20._mint(recipient, initial_supply);
+        self.erc20.mint(recipient, initial_supply);
     }
 
     /// Required for hash computation.

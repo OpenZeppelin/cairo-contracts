@@ -10,23 +10,27 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: Extract current versions
       run: |
         CURRENT_VERSION=$(grep '^version = ' Scarb.toml | sed 's/version = "\(.*\)"/\1/')
-        SCARB_VERSION=$(grep 'cairo-version = ' Scarb.toml | sed 's/cairo-version = "\(.*\)"/\1/')
-        echo "CURRENT_VERSION=$CURRENT_VERSION" >> $GITHUB_ENV
-        echo "SCARB_VERSION=$SCARB_VERSION" >> $GITHUB_ENV
+        SCARB_VERSION=$(grep 'scarb-version = ' Scarb.toml | sed 's/scarb-version = "\(.*\)"/\1/')
+        CAIRO_VERSION=$(grep 'cairo-version = ' Scarb.toml | sed 's/cairo-version = "\(.*\)"/\1/')
+        {
+          echo "CURRENT_VERSION=$CURRENT_VERSION"
+          echo "SCARB_VERSION=$SCARB_VERSION"
+          echo "CAIRO_VERSION=$CAIRO_VERSION"
+        } >> "$GITHUB_ENV"
 
     - name: Extract new version number
-      run: echo "NEW_VERSION=${GITHUB_REF#refs/heads/release-v}" >> $GITHUB_ENV
+      run: echo "NEW_VERSION=${GITHUB_REF#refs/heads/release-v}" >> "$GITHUB_ENV"
 
     - name: Replace version in files
       run: |
         echo "Current version: $CURRENT_VERSION"
         echo "New version: $NEW_VERSION"
-        ESCAPED_CURRENT_VERSION=$(echo $CURRENT_VERSION | sed 's/\./\\./g')
+        ESCAPED_CURRENT_VERSION="${CURRENT_VERSION//\./\\.}"
         find . -type f -not -path '*/\.*' -not -path './CHANGELOG.md' -not -path './docs/package-lock.json' \
           -not -path './RELEASING.md' -exec sed -i "s/$ESCAPED_CURRENT_VERSION/$NEW_VERSION/g" {} +
 
@@ -43,7 +47,7 @@ jobs:
 
     - name: Update presets page
       run: |
-        class_hash get --json | sed -e '1,4d' | python3 scripts/get_hashes_page.py $SCARB_VERSION \
+        class_hash get --json | sed -e '1,4d' | python3 scripts/get_hashes_page.py "$CAIRO_VERSION" \
           > ./docs/modules/ROOT/pages/utils/_class_hashes.adoc
 
     - name: Auto-commit changes

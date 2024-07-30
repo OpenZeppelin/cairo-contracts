@@ -1,0 +1,73 @@
+:github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
+
+= Governance
+
+Reference of interfaces and utilities related to Governance.
+
+== Utils
+
+[.contract]
+[[IVotes]]
+=== `++IVotes++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.15.0-rc.0/src/governance/utils/interfaces/votes.cairo[{github-icon},role=heading-link]
+
+[.hljs-theme-dark]
+```cairo
+use openzeppelin::governance::utils::interfaces::IVotes;
+```
+
+Common interface for Votes-enabled contracts. For an implementation example see
+xref:/api/erc20.adoc#ERC20VotesComponent[ERC20VotesComponent].
+
+[.contract-index]
+.Functions
+--
+* xref:#IVotes-get_votes[`++get_votes(account)++`]
+* xref:#IVotes-get_past_votes[`++get_past_votes(account, timepoint)++`]
+* xref:#IVotes-get_past_total_supply[`++get_past_total_supply(timepoint)++`]
+* xref:#IVotes-delegates[`++delegates(account)++`]
+* xref:#IVotes-delegate[`++delegate(delegatee)++`]
+* xref:#IVotes-delegate_by_sig[`++delegate_by_sig(delegator, delegatee, nonce, expiry, signature)++`]
+--
+
+[#IVotes-Functions]
+==== Functions
+
+[.contract-item]
+[[IVotes-get_votes]]
+==== `[.contract-item-name]#++get_votes++#++(account: ContractAddress) → u256++` [.item-kind]#external#
+
+Returns the current amount of votes that `account` has.
+
+[.contract-item]
+[[IVotes-get_past_votes]]
+==== `[.contract-item-name]#++get_past_votes++#++(account: ContractAddress, timepoint: u64) → u256++` [.item-kind]#external#
+
+Returns the amount of votes that `account` had at a specific moment in the past.
+
+[.contract-item]
+[[IVotes-get_past_total_supply]]
+==== `[.contract-item-name]#++get_past_total_supply++#++(timepoint: u64) → u256++` [.item-kind]#external#
+
+Returns the total supply of votes available at a specific moment in the past.
+
+NOTE: This value is the sum of all available votes, which is not necessarily the sum of all delegated votes.
+Votes that have not been delegated are still part of total supply, even though they would not participate in a
+vote.
+
+[.contract-item]
+[[IVotes-delegates]]
+==== `[.contract-item-name]#++delegates++#++(account: ContractAddress) → ContractAddress++` [.item-kind]#external#
+
+Returns the delegate that `account` has chosen.
+
+[.contract-item]
+[[IVotes-delegate]]
+==== `[.contract-item-name]#++delegate++#++(delegatee: ContractAddress)++` [.item-kind]#external#
+
+Delegates votes from the sender to `delegatee`.
+
+[.contract-item]
+[[IVotes-delegate_by_sig]]
+==== `[.contract-item-name]#++delegate_by_sig++#++(delegator: ContractAddress, delegatee: ContractAddress, nonce: felt252, expiry: u64, signature: Array<felt252>)++` [.item-kind]#external#
+
+Delegates votes from `delegator` to `delegatee`.

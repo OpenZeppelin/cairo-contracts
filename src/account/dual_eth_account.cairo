@@ -1,23 +1,24 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.11.0 (account/dual_eth_account.cairo)
+// OpenZeppelin Contracts for Cairo v0.15.0-rc.0 (account/dual_eth_account.cairo)
 
 use openzeppelin::account::interface::EthPublicKey;
-use openzeppelin::account::utils::secp256k1::Secp256k1PointSerde;
 use openzeppelin::utils::UnwrapAndCast;
 use openzeppelin::utils::selectors;
 use openzeppelin::utils::serde::SerializedAppend;
 use openzeppelin::utils::try_selector_with_fallback;
 use starknet::ContractAddress;
 use starknet::SyscallResultTrait;
-use starknet::call_contract_syscall;
+use starknet::syscalls::call_contract_syscall;
 
 #[derive(Copy, Drop)]
-struct DualCaseEthAccount {
-    contract_address: ContractAddress
+pub struct DualCaseEthAccount {
+    pub contract_address: ContractAddress
 }
 
-trait DualCaseEthAccountABI {
-    fn set_public_key(self: @DualCaseEthAccount, new_public_key: EthPublicKey);
+pub trait DualCaseEthAccountABI {
+    fn set_public_key(
+        self: @DualCaseEthAccount, new_public_key: EthPublicKey, signature: Span<felt252>
+    );
     fn get_public_key(self: @DualCaseEthAccount) -> EthPublicKey;
     fn is_valid_signature(
         self: @DualCaseEthAccount, hash: felt252, signature: Array<felt252>
@@ -26,9 +27,12 @@ trait DualCaseEthAccountABI {
 }
 
 impl DualCaseEthAccountImpl of DualCaseEthAccountABI {
-    fn set_public_key(self: @DualCaseEthAccount, new_public_key: EthPublicKey) {
+    fn set_public_key(
+        self: @DualCaseEthAccount, new_public_key: EthPublicKey, signature: Span<felt252>
+    ) {
         let mut args = array![];
-        new_public_key.serialize(ref args);
+        args.append_serde(new_public_key);
+        args.append_serde(signature);
 
         try_selector_with_fallback(
             *self.contract_address, selectors::set_public_key, selectors::setPublicKey, args.span()

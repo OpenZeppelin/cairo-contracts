@@ -1,4 +1,4 @@
-mod interface;
-mod merkle;
-mod nonces;
-mod snip12;
+pub mod interface;
+pub mod merkle;
+pub mod nonces;
+pub mod snip12;

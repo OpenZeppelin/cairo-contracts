@@ -1,43 +1,54 @@
+use core::num::traits::Zero;
 use openzeppelin::account::AccountComponent::{OwnerAdded, OwnerRemoved};
 use openzeppelin::account::interface::ISRC6_ID;
-use openzeppelin::account::interface::{AccountABIDispatcherTrait, AccountABIDispatcher};
 use openzeppelin::introspection::interface::ISRC5_ID;
-use openzeppelin::presets::Account;
-use openzeppelin::tests::account::test_account::{
+use openzeppelin::presets::AccountUpgradeable;
+use openzeppelin::presets::interfaces::{
+    AccountUpgradeableABIDispatcher, AccountUpgradeableABIDispatcherTrait
+};
+use openzeppelin::tests::account::starknet::common::{
     assert_only_event_owner_added, assert_event_owner_removed
 };
-use openzeppelin::tests::account::test_account::{
+use openzeppelin::tests::account::starknet::common::{
     deploy_erc20, SIGNED_TX_DATA, SignedTransactionData
 };
+use openzeppelin::tests::mocks::account_mocks::SnakeAccountMock;
+use openzeppelin::tests::upgrades::common::assert_only_event_upgraded;
 use openzeppelin::tests::utils::constants::{
     PUBKEY, NEW_PUBKEY, SALT, ZERO, CALLER, RECIPIENT, OTHER, QUERY_OFFSET, QUERY_VERSION,
-    MIN_TRANSACTION_VERSION
+    MIN_TRANSACTION_VERSION, CLASS_HASH_ZERO
 };
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::interface::{IERC20DispatcherTrait, IERC20Dispatcher};
 use openzeppelin::utils::selectors;
 use openzeppelin::utils::serde::SerializedAppend;
-use starknet::ContractAddress;
 use starknet::account::Call;
 use starknet::testing;
+use starknet::{ContractAddress, ClassHash};
 
 fn CLASS_HASH() -> felt252 {
-    Account::TEST_CLASS_HASH
+    AccountUpgradeable::TEST_CLASS_HASH
+}
+
+fn V2_CLASS_HASH() -> ClassHash {
+    SnakeAccountMock::TEST_CLASS_HASH.try_into().unwrap()
 }
 
 //
 // Setup
 //
 
-fn setup_dispatcher() -> AccountABIDispatcher {
+fn setup_dispatcher() -> AccountUpgradeableABIDispatcher {
     let calldata = array![PUBKEY];
     let target = utils::deploy(CLASS_HASH(), calldata);
     utils::drop_event(target);
 
-    AccountABIDispatcher { contract_address: target }
+    AccountUpgradeableABIDispatcher { contract_address: target }
 }
 
-fn setup_dispatcher_with_data(data: Option<@SignedTransactionData>) -> AccountABIDispatcher {
+fn setup_dispatcher_with_data(
+    data: Option<@SignedTransactionData>
+) -> AccountUpgradeableABIDispatcher {
     testing::set_version(MIN_TRANSACTION_VERSION);
 
     let mut calldata = array![];
@@ -51,7 +62,7 @@ fn setup_dispatcher_with_data(data: Option<@SignedTransactionData>) -> AccountAB
         calldata.append(PUBKEY);
     }
     let address = utils::deploy(CLASS_HASH(), calldata);
-    AccountABIDispatcher { contract_address: address }
+    AccountUpgradeableABIDispatcher { contract_address: address }
 }
 
 //
@@ -60,18 +71,18 @@ fn setup_dispatcher_with_data(data: Option<@SignedTransactionData>) -> AccountAB
 
 #[test]
 fn test_constructor() {
-    let mut state = Account::contract_state_for_testing();
-    Account::constructor(ref state, PUBKEY);
+    let mut state = AccountUpgradeable::contract_state_for_testing();
+    AccountUpgradeable::constructor(ref state, PUBKEY);
 
     assert_only_event_owner_added(ZERO(), PUBKEY);
 
-    let public_key = Account::AccountMixinImpl::get_public_key(@state);
+    let public_key = AccountUpgradeable::AccountMixinImpl::get_public_key(@state);
     assert_eq!(public_key, PUBKEY);
 
-    let supports_isrc5 = Account::AccountMixinImpl::supports_interface(@state, ISRC5_ID);
+    let supports_isrc5 = AccountUpgradeable::AccountMixinImpl::supports_interface(@state, ISRC5_ID);
     assert!(supports_isrc5);
 
-    let supports_isrc6 = Account::AccountMixinImpl::supports_interface(@state, ISRC6_ID);
+    let supports_isrc6 = AccountUpgradeable::AccountMixinImpl::supports_interface(@state, ISRC6_ID);
     assert!(supports_isrc6);
 }
 
@@ -85,7 +96,7 @@ fn test_public_key_setter_and_getter() {
 
     testing::set_contract_address(dispatcher.contract_address);
 
-    dispatcher.set_public_key(NEW_PUBKEY);
+    dispatcher.set_public_key(NEW_PUBKEY, get_accept_ownership_signature());
     let public_key = dispatcher.get_public_key();
     assert_eq!(public_key, NEW_PUBKEY);
 
@@ -99,7 +110,7 @@ fn test_public_key_setter_and_getter_camel() {
 
     testing::set_contract_address(dispatcher.contract_address);
 
-    dispatcher.setPublicKey(NEW_PUBKEY);
+    dispatcher.setPublicKey(NEW_PUBKEY, get_accept_ownership_signature());
     let public_key = dispatcher.getPublicKey();
     assert_eq!(public_key, NEW_PUBKEY);
 
@@ -111,21 +122,21 @@ fn test_public_key_setter_and_getter_camel() {
 #[should_panic(expected: ('Account: unauthorized', 'ENTRYPOINT_FAILED'))]
 fn test_set_public_key_different_account() {
     let dispatcher = setup_dispatcher();
-    dispatcher.set_public_key(NEW_PUBKEY);
+    dispatcher.set_public_key(NEW_PUBKEY, get_accept_ownership_signature());
 }
 
 #[test]
 #[should_panic(expected: ('Account: unauthorized', 'ENTRYPOINT_FAILED'))]
 fn test_setPublicKey_different_account() {
     let dispatcher = setup_dispatcher();
-    dispatcher.setPublicKey(NEW_PUBKEY);
+    dispatcher.setPublicKey(NEW_PUBKEY, get_accept_ownership_signature());
 }
 
 //
 // is_valid_signature & isValidSignature
 //
 
-fn is_valid_sig_dispatcher() -> (AccountABIDispatcher, felt252, Array<felt252>) {
+fn is_valid_sig_dispatcher() -> (AccountUpgradeableABIDispatcher, felt252, Array<felt252>) {
     let dispatcher = setup_dispatcher();
 
     let data = SIGNED_TX_DATA();
@@ -133,7 +144,7 @@ fn is_valid_sig_dispatcher() -> (AccountABIDispatcher, felt252, Array<felt252>) 
     let mut signature = array![data.r, data.s];
 
     testing::set_contract_address(dispatcher.contract_address);
-    dispatcher.set_public_key(data.public_key);
+    dispatcher.set_public_key(data.public_key, get_accept_ownership_signature());
 
     (dispatcher, hash, signature)
 }
@@ -432,4 +443,96 @@ fn test_account_called_from_contract() {
     testing::set_caller_address(CALLER());
 
     account.__execute__(calls);
+}
+
+//
+// upgrade
+//
+
+#[test]
+#[should_panic(expected: ('Account: unauthorized', 'ENTRYPOINT_FAILED',))]
+fn test_upgrade_access_control() {
+    let v1 = setup_dispatcher();
+    v1.upgrade(CLASS_HASH_ZERO());
+}
+
+#[test]
+#[should_panic(expected: ('Class hash cannot be zero', 'ENTRYPOINT_FAILED',))]
+fn test_upgrade_with_class_hash_zero() {
+    let v1 = setup_dispatcher();
+
+    set_contract_and_caller(v1.contract_address);
+    v1.upgrade(CLASS_HASH_ZERO());
+}
+
+#[test]
+fn test_upgraded_event() {
+    let v1 = setup_dispatcher();
+    let v2_class_hash = V2_CLASS_HASH();
+
+    set_contract_and_caller(v1.contract_address);
+    v1.upgrade(v2_class_hash);
+
+    assert_only_event_upgraded(v1.contract_address, v2_class_hash);
+}
+
+#[test]
+#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
+fn test_v2_missing_camel_selector() {
+    let v1 = setup_dispatcher();
+    let v2_class_hash = V2_CLASS_HASH();
+
+    set_contract_and_caller(v1.contract_address);
+    v1.upgrade(v2_class_hash);
+
+    let dispatcher = AccountUpgradeableABIDispatcher { contract_address: v1.contract_address };
+    dispatcher.getPublicKey();
+}
+
+#[test]
+fn test_state_persists_after_upgrade() {
+    let v1 = setup_dispatcher();
+    let v2_class_hash = V2_CLASS_HASH();
+
+    set_contract_and_caller(v1.contract_address);
+    let dispatcher = AccountUpgradeableABIDispatcher { contract_address: v1.contract_address };
+
+    dispatcher.set_public_key(NEW_PUBKEY, get_accept_ownership_signature());
+
+    let camel_public_key = dispatcher.getPublicKey();
+    assert_eq!(camel_public_key, NEW_PUBKEY);
+
+    v1.upgrade(v2_class_hash);
+    let snake_public_key = dispatcher.get_public_key();
+
+    assert_eq!(snake_public_key, camel_public_key);
+}
+
+//
+// Helpers
+//
+
+fn set_contract_and_caller(address: ContractAddress) {
+    testing::set_contract_address(address);
+    testing::set_caller_address(address);
+}
+
+fn get_accept_ownership_signature() -> Span<felt252> {
+    // 0xecfdac5cd0e60434b672a97ba94520b9acfe629d123a883005e45afa25ccea =
+    // PoseidonTrait::new()
+    //             .update_with('StarkNet Message')
+    //             .update_with('accept_ownership')
+    //             .update_with(dispatcher.contract_address)
+    //             .update_with(PUBKEY)
+    //             .finalize();
+
+    // This signature was computed using starknet js sdk from the following values:
+    // - private_key: '1234'
+    // - public_key: 0x26da8d11938b76025862be14fdb8b28438827f73e75e86f7bfa38b196951fa7
+    // - msg_hash: 0xecfdac5cd0e60434b672a97ba94520b9acfe629d123a883005e45afa25ccea
+    array![
+        0x379fcc17e39513c19b5d97143e919ec3a5d9f59d4ae80fef83e037bc9275240,
+        0x7719ade3541834755ed48a4373a19872c4032937344d832e2743df677b0a43
+    ]
+        .span()
 }

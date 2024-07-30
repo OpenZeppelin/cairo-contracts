@@ -5,7 +5,7 @@
 use starknet::ClassHash;
 
 #[starknet::interface]
-trait IUpgradesV1<TState> {
+pub(crate) trait IUpgradesV1<TState> {
     fn upgrade(ref self: TState, new_class_hash: ClassHash);
     fn set_value(ref self: TState, val: felt252);
     fn get_value(self: @TState) -> felt252;
@@ -13,7 +13,7 @@ trait IUpgradesV1<TState> {
 }
 
 #[starknet::contract]
-mod UpgradesV1 {
+pub(crate) mod UpgradesV1 {
     use openzeppelin::upgrades::UpgradeableComponent;
     use starknet::ClassHash;
 
@@ -38,7 +38,7 @@ mod UpgradesV1 {
     #[abi(embed_v0)]
     impl UpgradesV1Impl of super::IUpgradesV1<ContractState> {
         fn upgrade(ref self: ContractState, new_class_hash: ClassHash) {
-            self.upgradeable._upgrade(new_class_hash);
+            self.upgradeable.upgrade(new_class_hash);
         }
 
         fn set_value(ref self: ContractState, val: felt252) {
@@ -54,7 +54,7 @@ mod UpgradesV1 {
 }
 
 #[starknet::interface]
-trait IUpgradesV2<TState> {
+pub(crate) trait IUpgradesV2<TState> {
     fn upgrade(ref self: TState, new_class_hash: ClassHash);
     fn set_value(ref self: TState, val: felt252);
     fn set_value2(ref self: TState, val: felt252);
@@ -63,7 +63,7 @@ trait IUpgradesV2<TState> {
 }
 
 #[starknet::contract]
-mod UpgradesV2 {
+pub(crate) mod UpgradesV2 {
     use openzeppelin::upgrades::UpgradeableComponent;
     use starknet::ClassHash;
 
@@ -89,7 +89,7 @@ mod UpgradesV2 {
     #[abi(embed_v0)]
     impl UpgradesV2Impl of super::IUpgradesV2<ContractState> {
         fn upgrade(ref self: ContractState, new_class_hash: ClassHash) {
-            self.upgradeable._upgrade(new_class_hash);
+            self.upgradeable.upgrade(new_class_hash);
         }
 
         fn set_value(ref self: ContractState, val: felt252) {

@@ -34,5 +34,8 @@ jobs:
           !PULL_REQUEST_TEMPLATE.md
     - name: Cairo lint
       run: scarb fmt --check
+    - name: Temporary USC manually install
+      run: |
+        curl -L https://raw.githubusercontent.com/software-mansion/universal-sierra-compiler/master/scripts/install.sh | sh -s -- v2.2.0-rc.1
     - name: Cairo test
       run: snforge test

@@ -1,5 +1,5 @@
 use core::to_byte_array::FormatAsByteArray;
-use starknet::ContractAddress;
+use starknet::{ContractAddress, SyscallResult};
 
 /// Converts panic data into a string (ByteArray).
 ///
@@ -9,7 +9,7 @@ pub fn panic_data_to_byte_array(panic_data: Array<felt252>) -> ByteArray {
     let mut panic_data = panic_data.span();
 
     // Remove BYTE_ARRAY_MAGIC from the panic data.
-    panic_data.pop_front().unwrap();
+    panic_data.pop_front().expect('Empty panic data provided');
 
     match Serde::<ByteArray>::deserialize(ref panic_data) {
         Option::Some(string) => string,
@@ -36,15 +36,23 @@ pub impl IntoBase16String<T, +Into<T, felt252>> of IntoBase16StringTrait<T> {
     }
 }
 
-/// Asserts that the panic data is an "Entrypoint not found" error, following the starknet foundry
-/// emitted error format.
-pub fn assert_entrypoint_not_found_error(
-    panic_data: Array<felt252>, selector: felt252, contract_address: ContractAddress
+/// Asserts that the syscall result of a call failed with an "Entrypoint not found" error,
+/// following the starknet foundry emitted error format.
+pub fn assert_entrypoint_not_found_error<T, +Drop<T>>(
+    result: SyscallResult<T>, selector: felt252, contract_address: ContractAddress
 ) {
-    let expected_panic_message = format!(
-        "Entry point selector {} not found in contract {}",
-        selector.into_base_16_string(),
-        contract_address.into_base_16_string()
-    );
-    assert!(panic_data_to_byte_array(panic_data) == expected_panic_message);
+    if let Result::Err(panic_data) = result {
+        let expected_panic_message = format!(
+            "Entry point selector {} not found in contract {}",
+            selector.into_base_16_string(),
+            contract_address.into_base_16_string()
+        );
+        let actual_panic_message = panic_data_to_byte_array(panic_data);
+        assert!(
+            actual_panic_message == expected_panic_message,
+            "Got unexpected panic message: ${actual_panic_message}"
+        );
+    } else {
+        panic!("${selector} call was expected to fail, but succeeded");
+    }
 }

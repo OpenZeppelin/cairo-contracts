@@ -11,23 +11,23 @@ jobs:
     name: Lint and test
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Extract scarb version
       run: |
         SCARB_VERSION=$(grep 'scarb-version = ' Scarb.toml | sed 's/scarb-version = "\(.*\)"/\1/')
-        echo "SCARB_VERSION=$SCARB_VERSION" >> $GITHUB_ENV
+        echo "SCARB_VERSION=$SCARB_VERSION" >> "$GITHUB_ENV"
     - uses: software-mansion/setup-scarb@v1
       with:
         scarb-version: ${{ env.SCARB_VERSION }}
     - name: Extract foundry version
       run: |
         FOUNDRY_VERSION=$(grep 'snforge_std = ' Scarb.toml | sed 's/snforge_std = .\+ tag = "v\(.*\)".*/\1/')
-        echo "FOUNDRY_VERSION=$FOUNDRY_VERSION" >> $GITHUB_ENV
+        echo "FOUNDRY_VERSION=$FOUNDRY_VERSION" >> "$GITHUB_ENV"
     - uses: foundry-rs/setup-snfoundry@v3
       with:
         starknet-foundry-version: ${{ env.FOUNDRY_VERSION }}
     - name: Markdown lint
-      uses: DavidAnson/markdownlint-cli2-action@5b7c9f74fec47e6b15667b2cc23c63dff11e449e # v9
+      uses: DavidAnson/markdownlint-cli2-action@b4c9feab76d8025d1e83c653fa3990936df0e6c8 # v16
       with:
         globs: |
           *.md

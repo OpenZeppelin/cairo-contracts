@@ -24,7 +24,6 @@ use snforge_std::{
 use snforge_std::{EventSpy, EventSpyAssertionsTrait};
 use starknet::ContractAddress;
 use starknet::contract_address_const;
-use starknet::storage::{StorageMapMemberAccessTrait, StorageMemberAccessTrait};
 
 //
 // Setup
@@ -304,7 +303,7 @@ fn test_delegate_by_sig_invalid_signature() {
 
 #[test]
 fn test_num_checkpoints() {
-    let state = setup();
+    let state = @setup();
     let mut trace = state.ERC20Votes_delegate_checkpoints.read(OWNER());
 
     trace.push('ts1', 0x111);
@@ -322,7 +321,7 @@ fn test_num_checkpoints() {
 
 #[test]
 fn test_checkpoints() {
-    let state = setup();
+    let state = @setup();
     let mut trace = state.ERC20Votes_delegate_checkpoints.read(OWNER());
 
     trace.push('ts1', 0x111);

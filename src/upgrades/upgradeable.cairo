@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.14.0 (upgrades/upgradeable.cairo)
+// OpenZeppelin Contracts for Cairo v0.15.0-rc.0 (upgrades/upgradeable.cairo)
 
 /// # Upgradeable Component
 ///
@@ -25,7 +25,7 @@ pub mod UpgradeableComponent {
         pub class_hash: ClassHash
     }
 
-    mod Errors {
+    pub mod Errors {
         pub const INVALID_CLASS: felt252 = 'Class hash cannot be zero';
     }
 

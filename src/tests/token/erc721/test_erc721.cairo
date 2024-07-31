@@ -14,7 +14,6 @@ use openzeppelin::token::erc721::ERC721Component;
 use openzeppelin::token::erc721;
 use snforge_std::{spy_events, test_address, start_cheat_caller_address};
 use starknet::ContractAddress;
-use starknet::storage::StorageMapMemberAccessTrait;
 
 use super::common::ERC721SpyHelpers;
 

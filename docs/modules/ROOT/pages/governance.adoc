@@ -62,7 +62,7 @@ The latter case may be required to ease a contract's initial configuration; howe
 
 Furthermore, the timelock component supports the concept of open roles for the `EXECUTOR_ROLE`.
 This allows anyone to execute an operation once it's in the `Ready` OperationState.
-TO enable the `EXECUTOR_ROLE` to be open, grant the zero address with the `EXECUTOR_ROLE`.
+To enable the `EXECUTOR_ROLE` to be open, grant the zero address with the `EXECUTOR_ROLE`.
 
 WARNING: Be very careful with enabling open roles as _anyone_ can call the function.
 

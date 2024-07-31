@@ -26,7 +26,7 @@ use openzeppelin::governance::timelock::interface::ITimelock;
 [.contract-index]
 .Functions
 --
-* xref:#ITimelock-is_operation[`++is_operation(id) -> bool++`]
+* xref:#ITimelock-is_operation[`++is_operation(id)++`]
 * xref:#ITimelock-is_operation_pending[`++is_operation_pending(id) -> bool++`]
 * xref:#ITimelock-is_operation_ready[`++is_operation_ready(id) -> bool++`]
 * xref:#ITimelock-is_operation_done[`++is_operation_done(id) -> bool++`]

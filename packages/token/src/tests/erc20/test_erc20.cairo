@@ -1,4 +1,4 @@
-use core::integer::BoundedInt;
+use core::num::traits::Bounded;
 use openzeppelin_token::erc20::ERC20Component::{Approval, Transfer};
 use openzeppelin_token::erc20::ERC20Component::{ERC20CamelOnlyImpl, ERC20Impl};
 use openzeppelin_token::erc20::ERC20Component::{ERC20MetadataImpl, InternalImpl};
@@ -264,13 +264,13 @@ fn test_transfer_from() {
 fn test_transfer_from_doesnt_consume_infinite_allowance() {
     let mut state = setup();
     start_cheat_caller_address(test_address(), OWNER());
-    state.approve(SPENDER(), BoundedInt::max());
+    state.approve(SPENDER(), Bounded::MAX);
 
     start_cheat_caller_address(test_address(), SPENDER());
     state.transfer_from(OWNER(), RECIPIENT(), VALUE);
 
     let allowance = state.allowance(OWNER(), SPENDER());
-    assert_eq!(allowance, BoundedInt::max());
+    assert_eq!(allowance, Bounded::MAX);
 }
 
 #[test]
@@ -331,13 +331,13 @@ fn test_transferFrom() {
 fn test_transferFrom_doesnt_consume_infinite_allowance() {
     let mut state = setup();
     start_cheat_caller_address(test_address(), OWNER());
-    state.approve(SPENDER(), BoundedInt::max());
+    state.approve(SPENDER(), Bounded::MAX);
 
     start_cheat_caller_address(test_address(), SPENDER());
     state.transferFrom(OWNER(), RECIPIENT(), VALUE);
 
     let allowance = state.allowance(OWNER(), SPENDER());
-    assert_eq!(allowance, BoundedInt::max());
+    assert_eq!(allowance, Bounded::MAX);
 }
 
 #[test]
@@ -393,13 +393,13 @@ fn test__spend_allowance_not_unlimited() {
 #[test]
 fn test__spend_allowance_unlimited() {
     let mut state = setup();
-    state._approve(OWNER(), SPENDER(), BoundedInt::max());
+    state._approve(OWNER(), SPENDER(), Bounded::MAX);
 
-    let max_minus_one: u256 = BoundedInt::max() - 1;
+    let max_minus_one: u256 = Bounded::MAX - 1;
     state._spend_allowance(OWNER(), SPENDER(), max_minus_one);
 
     let allowance = state.allowance(OWNER(), SPENDER());
-    assert_eq!(allowance, BoundedInt::max());
+    assert_eq!(allowance, Bounded::MAX);
 }
 
 //

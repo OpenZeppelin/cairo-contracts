@@ -198,7 +198,7 @@ impl CheckpointStorePacking of StorePacking<Checkpoint, (felt252, felt252)> {
 
 #[cfg(test)]
 mod test {
-    use core::integer::BoundedInt;
+    use core::num::traits::Bounded;
     use super::Checkpoint;
     use super::CheckpointStorePacking;
     use super::_2_POW_184;
@@ -208,15 +208,15 @@ mod test {
 
     #[test]
     fn test_pack_big_key_and_value() {
-        let key = BoundedInt::max();
-        let value = BoundedInt::max();
+        let key = Bounded::MAX;
+        let value = Bounded::MAX;
         let checkpoint = Checkpoint { key, value };
 
         let (key_and_low, high) = CheckpointStorePacking::pack(checkpoint);
 
         let expected_key: u256 = (key_and_low.into() / _2_POW_184.into()) & KEY_MASK;
         let expected_low: u256 = key_and_low.into() & LOW_MASK;
-        let expected_high: felt252 = BoundedInt::<u128>::max().into();
+        let expected_high: felt252 = Bounded::<u128>::MAX.into();
 
         assert_eq!(key.into(), expected_key);
         assert_eq!(value.low.into(), expected_low);
@@ -225,14 +225,13 @@ mod test {
 
     #[test]
     fn test_unpack_big_key_and_value() {
-        let key_and_low = BoundedInt::<u64>::max().into() * _2_POW_184
-            + BoundedInt::<u128>::max().into();
-        let high = BoundedInt::<u128>::max().into();
+        let key_and_low = Bounded::<u64>::MAX.into() * _2_POW_184 + Bounded::<u128>::MAX.into();
+        let high = Bounded::<u128>::MAX.into();
 
         let checkpoint = CheckpointStorePacking::unpack((key_and_low, high));
 
-        let expected_key: u64 = BoundedInt::max();
-        let expected_value: u256 = BoundedInt::max();
+        let expected_key: u64 = Bounded::MAX;
+        let expected_value: u256 = Bounded::MAX;
 
         assert_eq!(checkpoint.key, expected_key);
         assert_eq!(checkpoint.value, expected_value);

@@ -1,4 +1,4 @@
-use core::integer::BoundedInt;
+use core::num::traits::Bounded;
 use core::num::traits::Zero;
 use openzeppelin_token::erc20::ERC20Component::InternalImpl as ERC20Impl;
 use openzeppelin_token::erc20::extensions::ERC20VotesComponent::{
@@ -101,9 +101,9 @@ fn test_get_past_votes() {
     trace.push('ts3', 0x333);
 
     // Big numbers (high different from 0x0)
-    let big1: u256 = BoundedInt::<u128>::max().into() + 0x444;
-    let big2: u256 = BoundedInt::<u128>::max().into() + 0x666;
-    let big3: u256 = BoundedInt::<u128>::max().into() + 0x888;
+    let big1: u256 = Bounded::<u128>::MAX.into() + 0x444;
+    let big2: u256 = Bounded::<u128>::MAX.into() + 0x666;
+    let big3: u256 = Bounded::<u128>::MAX.into() + 0x888;
     trace.push('ts4', big1);
     trace.push('ts6', big2);
     trace.push('ts8', big3);
@@ -135,9 +135,9 @@ fn test_get_past_total_supply() {
     trace.push('ts3', 0x333);
 
     // Big numbers (high different from 0x0)
-    let big1: u256 = BoundedInt::<u128>::max().into() + 0x444;
-    let big2: u256 = BoundedInt::<u128>::max().into() + 0x666;
-    let big3: u256 = BoundedInt::<u128>::max().into() + 0x888;
+    let big1: u256 = Bounded::<u128>::MAX.into() + 0x444;
+    let big2: u256 = Bounded::<u128>::MAX.into() + 0x666;
+    let big3: u256 = Bounded::<u128>::MAX.into() + 0x888;
     trace.push('ts4', big1);
     trace.push('ts6', big2);
     trace.push('ts8', big3);

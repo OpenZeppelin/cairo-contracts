@@ -28,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bump scarb to v2.7.0-rc.1 (#1025)
 - Bump scarb to v2.7.0-rc.2 (#1052)
 - Bump scarb to v2.7.0-rc.4 (#1064)
+- Bump scarb to v2.7.0 (#1065)
 
 ## 0.15.0-rc.0 (2024-07-8)
 

@@ -14,7 +14,7 @@ use starknet::ContractAddress;
 /// for examples.
 #[starknet::component]
 pub mod ERC20Component {
-    use core::integer::BoundedInt;
+    use core::num::traits::Bounded;
     use core::num::traits::Zero;
     use openzeppelin_token::erc20::interface;
     use starknet::ContractAddress;
@@ -427,7 +427,7 @@ pub mod ERC20Component {
             amount: u256
         ) {
             let current_allowance = self.ERC20_allowances.read((owner, spender));
-            if current_allowance != BoundedInt::max() {
+            if current_allowance != Bounded::MAX {
                 assert(current_allowance >= amount, Errors::INSUFFICIENT_ALLOWANCE);
                 self._approve(owner, spender, current_allowance - amount);
             }

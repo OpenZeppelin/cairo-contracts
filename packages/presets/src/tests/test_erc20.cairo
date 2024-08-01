@@ -1,4 +1,4 @@
-use core::integer::BoundedInt;
+use core::num::traits::Bounded;
 use core::num::traits::Zero;
 use openzeppelin_access::tests::common::OwnableSpyHelpers;
 use openzeppelin_presets::interfaces::erc20::{
@@ -206,13 +206,13 @@ fn test_transfer_from_doesnt_consume_infinite_allowance() {
     let (_, mut dispatcher) = setup_dispatcher();
 
     start_cheat_caller_address(dispatcher.contract_address, OWNER());
-    dispatcher.approve(SPENDER(), BoundedInt::max());
+    dispatcher.approve(SPENDER(), Bounded::MAX);
 
     start_cheat_caller_address(dispatcher.contract_address, SPENDER());
     dispatcher.transfer_from(OWNER(), RECIPIENT(), VALUE);
 
     let allowance = dispatcher.allowance(OWNER(), SPENDER());
-    assert_eq!(allowance, BoundedInt::max(), "Should not decrease");
+    assert_eq!(allowance, Bounded::MAX, "Should not decrease");
 }
 
 #[test]
@@ -269,13 +269,13 @@ fn test_transferFrom() {
 fn test_transferFrom_doesnt_consume_infinite_allowance() {
     let (_, mut dispatcher) = setup_dispatcher();
     start_cheat_caller_address(dispatcher.contract_address, OWNER());
-    dispatcher.approve(SPENDER(), BoundedInt::max());
+    dispatcher.approve(SPENDER(), Bounded::MAX);
 
     start_cheat_caller_address(dispatcher.contract_address, SPENDER());
     dispatcher.transferFrom(OWNER(), RECIPIENT(), VALUE);
 
     let allowance = dispatcher.allowance(OWNER(), SPENDER());
-    assert_eq!(allowance, BoundedInt::max(), "Should not decrease");
+    assert_eq!(allowance, Bounded::MAX, "Should not decrease");
 }
 
 #[test]

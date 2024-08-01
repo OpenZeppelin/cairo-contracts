@@ -308,7 +308,7 @@ fn test_multicall() {
         to: erc20.contract_address, selector: selectors::transfer, calldata: calldata2.span()
     };
 
-    // Bundle calls and exeute
+    // Bundle calls and execute
     let calls = array![call1, call2];
     let ret = account.__execute__(calls);
 

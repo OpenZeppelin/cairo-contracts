@@ -1,4 +1,4 @@
-use openzeppelin_governance::timelock::utils::call_impls::CallPartialEq;
+use openzeppelin::governance::timelock::utils::call_impls::CallPartialEq;
 use starknet::account::Call;
 use starknet::contract_address_const;
 

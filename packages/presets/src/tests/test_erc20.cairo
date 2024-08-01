@@ -480,11 +480,9 @@ fn test_v2_missing_camel_selector() {
     let safe_dispatcher = ERC20UpgradeableABISafeDispatcher {
         contract_address: v1.contract_address
     };
-    let mut panic_data = safe_dispatcher.totalSupply().unwrap_err();
+    let result = safe_dispatcher.totalSupply();
 
-    utils::assert_entrypoint_not_found_error(
-        panic_data, selector!("totalSupply"), v1.contract_address
-    )
+    utils::assert_entrypoint_not_found_error(result, selector!("totalSupply"), v1.contract_address)
 }
 
 #[test]

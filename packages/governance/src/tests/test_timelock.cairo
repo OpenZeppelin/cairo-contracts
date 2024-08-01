@@ -1,38 +1,38 @@
 use core::hash::{HashStateTrait, HashStateExTrait};
 use core::num::traits::Zero;
 use core::pedersen::PedersenTrait;
-use openzeppelin::access::accesscontrol::AccessControlComponent::{
+use openzeppelin_access::accesscontrol::AccessControlComponent::{
     AccessControlImpl, InternalImpl as AccessControlInternalImpl
 };
-use openzeppelin::access::accesscontrol::DEFAULT_ADMIN_ROLE;
-use openzeppelin::access::accesscontrol::interface::IACCESSCONTROL_ID;
-use openzeppelin::access::accesscontrol::interface::IAccessControl;
-use openzeppelin::governance::timelock::OperationState;
-use openzeppelin::governance::timelock::TimelockControllerComponent::{
+use openzeppelin_access::accesscontrol::DEFAULT_ADMIN_ROLE;
+use openzeppelin_access::accesscontrol::interface::IACCESSCONTROL_ID;
+use openzeppelin_access::accesscontrol::interface::IAccessControl;
+use openzeppelin_governance::timelock::OperationState;
+use openzeppelin_governance::timelock::TimelockControllerComponent::{
     CallScheduled, CallExecuted, CallSalt, CallCancelled, MinDelayChanged
 };
-use openzeppelin::governance::timelock::TimelockControllerComponent::{
+use openzeppelin_governance::timelock::TimelockControllerComponent::{
     TimelockImpl, InternalImpl as TimelockInternalImpl
 };
-use openzeppelin::governance::timelock::TimelockControllerComponent;
-use openzeppelin::governance::timelock::interface::{
+use openzeppelin_governance::timelock::TimelockControllerComponent;
+use openzeppelin_governance::timelock::interface::{
     TimelockABIDispatcher, TimelockABIDispatcherTrait
 };
-use openzeppelin::governance::timelock::{PROPOSER_ROLE, EXECUTOR_ROLE, CANCELLER_ROLE};
-use openzeppelin::introspection::interface::ISRC5_ID;
-use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
-use openzeppelin::tests::mocks::timelock_mocks::MockContract;
-use openzeppelin::tests::mocks::timelock_mocks::{
+use openzeppelin_governance::timelock::{PROPOSER_ROLE, EXECUTOR_ROLE, CANCELLER_ROLE};
+use openzeppelin_introspection::interface::ISRC5_ID;
+use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
+use openzeppelin_governance::tests::mocks::timelock_mocks::MockContract;
+use openzeppelin_governance::tests::mocks::timelock_mocks::{
     IMockContractDispatcher, IMockContractDispatcherTrait
 };
-use openzeppelin::tests::mocks::timelock_mocks::{
+use openzeppelin_governance::tests::mocks::timelock_mocks::{
     ITimelockAttackerDispatcher, ITimelockAttackerDispatcherTrait
 };
-use openzeppelin::tests::mocks::timelock_mocks::{TimelockControllerMock, TimelockAttackerMock};
-use openzeppelin::tests::utils::constants::{ADMIN, ZERO, OTHER, SALT, FELT_VALUE as VALUE};
-use openzeppelin::tests::utils::events::EventSpyExt;
-use openzeppelin::tests::utils;
-use openzeppelin::utils::serde::SerializedAppend;
+use openzeppelin_governance::tests::mocks::timelock_mocks::{TimelockControllerMock, TimelockAttackerMock};
+use openzeppelin_utils::test_utils::constants::{ADMIN, ZERO, OTHER, SALT, FELT_VALUE as VALUE};
+use openzeppelin_utils::test_utils::events::EventSpyExt;
+use openzeppelin_utils::test_utils as utils;
+use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::EventSpy;
 use snforge_std::{
     spy_events, test_address, start_cheat_caller_address, cheat_caller_address,

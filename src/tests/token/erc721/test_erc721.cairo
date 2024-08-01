@@ -1,33 +1,21 @@
 use core::num::traits::Zero;
-use openzeppelin::account::AccountComponent;
 use openzeppelin::introspection::src5::SRC5Component::SRC5Impl;
-use openzeppelin::introspection::src5;
 use openzeppelin::introspection;
-use openzeppelin::tests::mocks::account_mocks::{DualCaseAccountMock, CamelAccountMock};
 use openzeppelin::tests::mocks::erc721_mocks::DualCaseERC721Mock;
-use openzeppelin::tests::mocks::erc721_receiver_mocks::{
-    CamelERC721ReceiverMock, SnakeERC721ReceiverMock
-};
-use openzeppelin::tests::mocks::non_implementing_mock::NonImplementingMock;
 use openzeppelin::tests::utils::constants::{
     DATA, ZERO, OWNER, CALLER, RECIPIENT, SPENDER, OPERATOR, OTHER, NAME, SYMBOL, TOKEN_ID,
     TOKEN_ID_2, PUBKEY, BASE_URI, BASE_URI_2
 };
+use openzeppelin::tests::utils::events::EventSpyExt;
 use openzeppelin::tests::utils;
-use openzeppelin::token::erc721::ERC721Component::{
-    ERC721CamelOnlyImpl, ERC721MetadataCamelOnlyImpl
-};
-use openzeppelin::token::erc721::ERC721Component::{ERC721Impl, ERC721MetadataImpl, InternalImpl};
+use openzeppelin::token::erc721::ERC721Component::{ERC721Impl, ERC721CamelOnlyImpl};
+use openzeppelin::token::erc721::ERC721Component::{ERC721MetadataImpl, InternalImpl};
 use openzeppelin::token::erc721::ERC721Component;
-use openzeppelin::token::erc721::interface::IERC721;
 use openzeppelin::token::erc721;
+use snforge_std::{spy_events, test_address, start_cheat_caller_address};
 use starknet::ContractAddress;
-use starknet::contract_address_const;
-use starknet::testing;
 
-use super::common::{
-    assert_only_event_approval, assert_only_event_approval_for_all, assert_only_event_transfer,
-};
+use super::common::ERC721SpyHelpers;
 
 //
 // Setup
@@ -46,26 +34,25 @@ fn setup() -> ComponentState {
     let mut state = COMPONENT_STATE();
     state.initializer(NAME(), SYMBOL(), BASE_URI());
     state.mint(OWNER(), TOKEN_ID);
-    utils::drop_event(ZERO());
     state
 }
 
 fn setup_receiver() -> ContractAddress {
-    utils::deploy(SnakeERC721ReceiverMock::TEST_CLASS_HASH, array![])
+    utils::declare_and_deploy("SnakeERC721ReceiverMock", array![])
 }
 
 fn setup_camel_receiver() -> ContractAddress {
-    utils::deploy(CamelERC721ReceiverMock::TEST_CLASS_HASH, array![])
+    utils::declare_and_deploy("CamelERC721ReceiverMock", array![])
 }
 
 fn setup_account() -> ContractAddress {
-    let mut calldata = array![PUBKEY];
-    utils::deploy(DualCaseAccountMock::TEST_CLASS_HASH, calldata)
+    let calldata = array![PUBKEY];
+    utils::declare_and_deploy("DualCaseAccountMock", calldata)
 }
 
 fn setup_camel_account() -> ContractAddress {
-    let mut calldata = array![PUBKEY];
-    utils::deploy(CamelAccountMock::TEST_CLASS_HASH, calldata)
+    let calldata = array![PUBKEY];
+    utils::declare_and_deploy("CamelAccountMock", calldata)
 }
 
 //
@@ -176,10 +163,13 @@ fn test_get_approved_nonexistent() {
 #[test]
 fn test_approve_from_owner() {
     let mut state = setup();
+    let contract_address = test_address();
+    let mut spy = spy_events();
 
-    testing::set_caller_address(OWNER());
+    start_cheat_caller_address(contract_address, OWNER());
     state.approve(SPENDER(), TOKEN_ID);
-    assert_only_event_approval(ZERO(), OWNER(), SPENDER(), TOKEN_ID);
+
+    spy.assert_only_event_approval(contract_address, OWNER(), SPENDER(), TOKEN_ID);
 
     let approved = state.get_approved(TOKEN_ID);
     assert_eq!(approved, SPENDER());
@@ -188,14 +178,16 @@ fn test_approve_from_owner() {
 #[test]
 fn test_approve_from_operator() {
     let mut state = setup();
+    let contract_address = test_address();
 
-    testing::set_caller_address(OWNER());
+    start_cheat_caller_address(contract_address, OWNER());
     state.set_approval_for_all(OPERATOR(), true);
-    utils::drop_event(ZERO());
 
-    testing::set_caller_address(OPERATOR());
+    let mut spy = spy_events();
+
+    start_cheat_caller_address(contract_address, OPERATOR());
     state.approve(SPENDER(), TOKEN_ID);
-    assert_only_event_approval(ZERO(), OWNER(), SPENDER(), TOKEN_ID);
+    spy.assert_only_event_approval(contract_address, OWNER(), SPENDER(), TOKEN_ID);
 
     let approved = state.get_approved(TOKEN_ID);
     assert_eq!(approved, SPENDER());
@@ -206,7 +198,7 @@ fn test_approve_from_operator() {
 fn test_approve_from_unauthorized() {
     let mut state = setup();
 
-    testing::set_caller_address(OTHER());
+    start_cheat_caller_address(test_address(), OTHER());
     state.approve(SPENDER(), TOKEN_ID);
 }
 
@@ -220,8 +212,11 @@ fn test_approve_nonexistent() {
 #[test]
 fn test__approve() {
     let mut state = setup();
+    let contract_address = test_address();
+    let mut spy = spy_events();
+
     state._approve(SPENDER(), TOKEN_ID, ZERO());
-    assert_only_event_approval(ZERO(), OWNER(), SPENDER(), TOKEN_ID);
+    spy.assert_only_event_approval(contract_address, OWNER(), SPENDER(), TOKEN_ID);
 
     let approved = state.get_approved(TOKEN_ID);
     assert_eq!(approved, SPENDER());
@@ -237,8 +232,11 @@ fn test__approve_nonexistent() {
 #[test]
 fn test__approve_auth_is_owner() {
     let mut state = setup();
+    let contract_address = test_address();
+    let mut spy = spy_events();
+
     state._approve(SPENDER(), TOKEN_ID, OWNER());
-    assert_only_event_approval(ZERO(), OWNER(), SPENDER(), TOKEN_ID);
+    spy.assert_only_event_approval(contract_address, OWNER(), SPENDER(), TOKEN_ID);
 
     let approved = state.get_approved(TOKEN_ID);
     assert_eq!(approved, SPENDER());
@@ -247,13 +245,16 @@ fn test__approve_auth_is_owner() {
 #[test]
 fn test__approve_auth_is_approved_for_all() {
     let mut state = setup();
+    let contract_address = test_address();
     let auth = CALLER();
-    testing::set_caller_address(OWNER());
+
+    start_cheat_caller_address(contract_address, OWNER());
     state.set_approval_for_all(auth, true);
-    utils::drop_event(ZERO());
+
+    let mut spy = spy_events();
 
     state._approve(SPENDER(), TOKEN_ID, auth);
-    assert_only_event_approval(ZERO(), OWNER(), SPENDER(), TOKEN_ID);
+    spy.assert_only_event_approval(contract_address, OWNER(), SPENDER(), TOKEN_ID);
 
     let approved = state.get_approved(TOKEN_ID);
     assert_eq!(approved, SPENDER());
@@ -273,19 +274,21 @@ fn test__approve_auth_not_authorized() {
 #[test]
 fn test_set_approval_for_all() {
     let mut state = COMPONENT_STATE();
-    testing::set_caller_address(OWNER());
+    let contract_address = test_address();
+    let mut spy = spy_events();
 
+    start_cheat_caller_address(contract_address, OWNER());
     let not_approved_for_all = !state.is_approved_for_all(OWNER(), OPERATOR());
     assert!(not_approved_for_all);
 
     state.set_approval_for_all(OPERATOR(), true);
-    assert_only_event_approval_for_all(ZERO(), OWNER(), OPERATOR(), true);
+    spy.assert_only_event_approval_for_all(contract_address, OWNER(), OPERATOR(), true);
 
     let is_approved_for_all = state.is_approved_for_all(OWNER(), OPERATOR());
     assert!(is_approved_for_all);
 
     state.set_approval_for_all(OPERATOR(), false);
-    assert_only_event_approval_for_all(ZERO(), OWNER(), OPERATOR(), false);
+    spy.assert_only_event_approval_for_all(contract_address, OWNER(), OPERATOR(), false);
 
     let not_approved_for_all = !state.is_approved_for_all(OWNER(), OPERATOR());
     assert!(not_approved_for_all);
@@ -301,18 +304,20 @@ fn test_set_approval_for_all_invalid_operator() {
 #[test]
 fn test__set_approval_for_all() {
     let mut state = COMPONENT_STATE();
+    let contract_address = test_address();
+    let mut spy = spy_events();
 
     let not_approved_for_all = !state.is_approved_for_all(OWNER(), OPERATOR());
     assert!(not_approved_for_all);
 
     state._set_approval_for_all(OWNER(), OPERATOR(), true);
-    assert_only_event_approval_for_all(ZERO(), OWNER(), OPERATOR(), true);
+    spy.assert_only_event_approval_for_all(contract_address, OWNER(), OPERATOR(), true);
 
     let is_approved_for_all = state.is_approved_for_all(OWNER(), OPERATOR());
     assert!(is_approved_for_all);
 
     state._set_approval_for_all(OWNER(), OPERATOR(), false);
-    assert_only_event_approval_for_all(ZERO(), OWNER(), OPERATOR(), false);
+    spy.assert_only_event_approval_for_all(contract_address, OWNER(), OPERATOR(), false);
 
     let not_approved_for_all = !state.is_approved_for_all(OWNER(), OPERATOR());
     assert!(not_approved_for_all);
@@ -332,21 +337,24 @@ fn test__set_approval_for_all_invalid_operator() {
 #[test]
 fn test_transfer_from_owner() {
     let mut state = setup();
+    let contract_address = test_address();
     let token_id = TOKEN_ID;
     let owner = OWNER();
     let recipient = RECIPIENT();
+
     // set approval to check reset
     state._approve(OTHER(), token_id, ZERO());
-    utils::drop_event(ZERO());
 
     assert_state_before_transfer(owner, recipient, token_id);
 
     let approved = state.get_approved(token_id);
     assert_eq!(approved, OTHER());
 
-    testing::set_caller_address(owner);
+    let mut spy = spy_events();
+
+    start_cheat_caller_address(contract_address, owner);
     state.transfer_from(owner, recipient, token_id);
-    assert_only_event_transfer(ZERO(), owner, recipient, token_id);
+    spy.assert_only_event_transfer(contract_address, owner, recipient, token_id);
 
     assert_state_after_transfer(owner, recipient, token_id);
 }
@@ -354,21 +362,24 @@ fn test_transfer_from_owner() {
 #[test]
 fn test_transferFrom_owner() {
     let mut state = setup();
+    let contract_address = test_address();
     let token_id = TOKEN_ID;
     let owner = OWNER();
     let recipient = RECIPIENT();
+
     // set approval to check reset
     state._approve(OTHER(), token_id, ZERO());
-    utils::drop_event(ZERO());
 
     assert_state_before_transfer(owner, recipient, token_id);
 
     let approved = state.get_approved(token_id);
     assert_eq!(approved, OTHER());
 
-    testing::set_caller_address(owner);
+    let mut spy = spy_events();
+
+    start_cheat_caller_address(contract_address, owner);
     state.transferFrom(owner, recipient, token_id);
-    assert_only_event_transfer(ZERO(), owner, recipient, token_id);
+    spy.assert_only_event_transfer(contract_address, owner, recipient, token_id);
 
     assert_state_after_transfer(owner, recipient, token_id);
 }
@@ -377,7 +388,7 @@ fn test_transferFrom_owner() {
 #[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test_transfer_from_nonexistent() {
     let mut state = COMPONENT_STATE();
-    testing::set_caller_address(OWNER());
+    start_cheat_caller_address(test_address(), OWNER());
     state.transfer_from(ZERO(), RECIPIENT(), TOKEN_ID);
 }
 
@@ -385,7 +396,7 @@ fn test_transfer_from_nonexistent() {
 #[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test_transferFrom_nonexistent() {
     let mut state = COMPONENT_STATE();
-    testing::set_caller_address(OWNER());
+    start_cheat_caller_address(test_address(), OWNER());
     state.transferFrom(ZERO(), RECIPIENT(), TOKEN_ID);
 }
 
@@ -393,7 +404,7 @@ fn test_transferFrom_nonexistent() {
 #[should_panic(expected: ('ERC721: invalid receiver',))]
 fn test_transfer_from_to_zero() {
     let mut state = setup();
-    testing::set_caller_address(OWNER());
+    start_cheat_caller_address(test_address(), OWNER());
     state.transfer_from(OWNER(), ZERO(), TOKEN_ID);
 }
 
@@ -402,20 +413,22 @@ fn test_transfer_from_to_zero() {
 fn test_transferFrom_to_zero() {
     let mut state = setup();
 
-    testing::set_caller_address(OWNER());
+    start_cheat_caller_address(test_address(), OWNER());
     state.transferFrom(OWNER(), ZERO(), TOKEN_ID);
 }
 
 #[test]
 fn test_transfer_from_to_owner() {
     let mut state = setup();
+    let contract_address = test_address();
+    let mut spy = spy_events();
 
     assert_eq!(state.owner_of(TOKEN_ID), OWNER());
     assert_eq!(state.balance_of(OWNER()), 1);
 
-    testing::set_caller_address(OWNER());
+    start_cheat_caller_address(contract_address, OWNER());
     state.transfer_from(OWNER(), OWNER(), TOKEN_ID);
-    assert_only_event_transfer(ZERO(), OWNER(), OWNER(), TOKEN_ID);
+    spy.assert_only_event_transfer(contract_address, OWNER(), OWNER(), TOKEN_ID);
 
     assert_eq!(state.owner_of(TOKEN_ID), OWNER());
     assert_eq!(state.balance_of(OWNER()), 1);
@@ -424,13 +437,15 @@ fn test_transfer_from_to_owner() {
 #[test]
 fn test_transferFrom_to_owner() {
     let mut state = setup();
+    let contract_address = test_address();
+    let mut spy = spy_events();
 
     assert_eq!(state.owner_of(TOKEN_ID), OWNER());
     assert_eq!(state.balance_of(OWNER()), 1);
 
-    testing::set_caller_address(OWNER());
+    start_cheat_caller_address(contract_address, OWNER());
     state.transferFrom(OWNER(), OWNER(), TOKEN_ID);
-    assert_only_event_transfer(ZERO(), OWNER(), OWNER(), TOKEN_ID);
+    spy.assert_only_event_transfer(contract_address, OWNER(), OWNER(), TOKEN_ID);
 
     assert_eq!(state.owner_of(TOKEN_ID), OWNER());
     assert_eq!(state.balance_of(OWNER()), 1);
@@ -439,18 +454,21 @@ fn test_transferFrom_to_owner() {
 #[test]
 fn test_transfer_from_approved() {
     let mut state = setup();
+    let contract_address = test_address();
     let token_id = TOKEN_ID;
     let owner = OWNER();
     let recipient = RECIPIENT();
+
     assert_state_before_transfer(owner, recipient, token_id);
 
-    testing::set_caller_address(owner);
+    start_cheat_caller_address(contract_address, owner);
     state.approve(OPERATOR(), token_id);
-    utils::drop_event(ZERO());
 
-    testing::set_caller_address(OPERATOR());
+    let mut spy = spy_events();
+
+    start_cheat_caller_address(contract_address, OPERATOR());
     state.transfer_from(owner, recipient, token_id);
-    assert_only_event_transfer(ZERO(), owner, recipient, token_id);
+    spy.assert_only_event_transfer(contract_address, owner, recipient, token_id);
 
     assert_state_after_transfer(owner, recipient, token_id);
 }
@@ -458,18 +476,21 @@ fn test_transfer_from_approved() {
 #[test]
 fn test_transferFrom_approved() {
     let mut state = setup();
+    let contract_address = test_address();
     let token_id = TOKEN_ID;
     let owner = OWNER();
     let recipient = RECIPIENT();
+
     assert_state_before_transfer(owner, recipient, token_id);
 
-    testing::set_caller_address(owner);
+    start_cheat_caller_address(contract_address, owner);
     state.approve(OPERATOR(), token_id);
-    utils::drop_event(ZERO());
 
-    testing::set_caller_address(OPERATOR());
+    let mut spy = spy_events();
+
+    start_cheat_caller_address(contract_address, OPERATOR());
     state.transferFrom(owner, recipient, token_id);
-    assert_only_event_transfer(ZERO(), owner, recipient, token_id);
+    spy.assert_only_event_transfer(contract_address, owner, recipient, token_id);
 
     assert_state_after_transfer(owner, recipient, token_id);
 }
@@ -477,19 +498,21 @@ fn test_transferFrom_approved() {
 #[test]
 fn test_transfer_from_approved_for_all() {
     let mut state = setup();
+    let contract_address = test_address();
     let token_id = TOKEN_ID;
     let owner = OWNER();
     let recipient = RECIPIENT();
 
     assert_state_before_transfer(owner, recipient, token_id);
 
-    testing::set_caller_address(owner);
+    start_cheat_caller_address(contract_address, owner);
     state.set_approval_for_all(OPERATOR(), true);
-    utils::drop_event(ZERO());
 
-    testing::set_caller_address(OPERATOR());
+    let mut spy = spy_events();
+
+    start_cheat_caller_address(contract_address, OPERATOR());
     state.transfer_from(owner, recipient, token_id);
-    assert_only_event_transfer(ZERO(), owner, recipient, token_id);
+    spy.assert_only_event_transfer(contract_address, owner, recipient, token_id);
 
     assert_state_after_transfer(owner, recipient, token_id);
 }
@@ -497,19 +520,21 @@ fn test_transfer_from_approved_for_all() {
 #[test]
 fn test_transferFrom_approved_for_all() {
     let mut state = setup();
+    let contract_address = test_address();
     let token_id = TOKEN_ID;
     let owner = OWNER();
     let recipient = RECIPIENT();
 
     assert_state_before_transfer(owner, recipient, token_id);
 
-    testing::set_caller_address(owner);
+    start_cheat_caller_address(contract_address, owner);
     state.set_approval_for_all(OPERATOR(), true);
-    utils::drop_event(ZERO());
 
-    testing::set_caller_address(OPERATOR());
+    let mut spy = spy_events();
+
+    start_cheat_caller_address(contract_address, OPERATOR());
     state.transferFrom(owner, recipient, token_id);
-    assert_only_event_transfer(ZERO(), owner, recipient, token_id);
+    spy.assert_only_event_transfer(contract_address, owner, recipient, token_id);
 
     assert_state_after_transfer(owner, recipient, token_id);
 }
@@ -518,7 +543,7 @@ fn test_transferFrom_approved_for_all() {
 #[should_panic(expected: ('ERC721: unauthorized caller',))]
 fn test_transfer_from_unauthorized() {
     let mut state = setup();
-    testing::set_caller_address(OTHER());
+    start_cheat_caller_address(test_address(), OTHER());
     state.transfer_from(OWNER(), RECIPIENT(), TOKEN_ID);
 }
 
@@ -526,7 +551,7 @@ fn test_transfer_from_unauthorized() {
 #[should_panic(expected: ('ERC721: unauthorized caller',))]
 fn test_transferFrom_unauthorized() {
     let mut state = setup();
-    testing::set_caller_address(OTHER());
+    start_cheat_caller_address(test_address(), OTHER());
     state.transferFrom(OWNER(), RECIPIENT(), TOKEN_ID);
 }
 
@@ -537,15 +562,17 @@ fn test_transferFrom_unauthorized() {
 #[test]
 fn test_safe_transfer_from_to_account() {
     let mut state = setup();
+    let contract_address = test_address();
     let account = setup_account();
+    let mut spy = spy_events();
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
     assert_state_before_transfer(owner, account, token_id);
 
-    testing::set_caller_address(owner);
+    start_cheat_caller_address(contract_address, owner);
     state.safe_transfer_from(owner, account, token_id, DATA(true));
-    assert_only_event_transfer(ZERO(), owner, account, token_id);
+    spy.assert_only_event_transfer(contract_address, owner, account, token_id);
 
     assert_state_after_transfer(owner, account, token_id);
 }
@@ -553,15 +580,17 @@ fn test_safe_transfer_from_to_account() {
 #[test]
 fn test_safeTransferFrom_to_account() {
     let mut state = setup();
+    let contract_address = test_address();
     let account = setup_account();
+    let mut spy = spy_events();
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
     assert_state_before_transfer(owner, account, token_id);
 
-    testing::set_caller_address(owner);
+    start_cheat_caller_address(contract_address, owner);
     state.safeTransferFrom(owner, account, token_id, DATA(true));
-    assert_only_event_transfer(ZERO(), owner, account, token_id);
+    spy.assert_only_event_transfer(contract_address, owner, account, token_id);
 
     assert_state_after_transfer(owner, account, token_id);
 }
@@ -569,15 +598,17 @@ fn test_safeTransferFrom_to_account() {
 #[test]
 fn test_safe_transfer_from_to_account_camel() {
     let mut state = setup();
+    let contract_address = test_address();
     let account = setup_camel_account();
+    let mut spy = spy_events();
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
     assert_state_before_transfer(owner, account, token_id);
 
-    testing::set_caller_address(owner);
+    start_cheat_caller_address(contract_address, owner);
     state.safe_transfer_from(owner, account, token_id, DATA(true));
-    assert_only_event_transfer(ZERO(), owner, account, token_id);
+    spy.assert_only_event_transfer(contract_address, owner, account, token_id);
 
     assert_state_after_transfer(owner, account, token_id);
 }
@@ -585,15 +616,17 @@ fn test_safe_transfer_from_to_account_camel() {
 #[test]
 fn test_safeTransferFrom_to_account_camel() {
     let mut state = setup();
+    let contract_address = test_address();
     let account = setup_camel_account();
+    let mut spy = spy_events();
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
     assert_state_before_transfer(owner, account, token_id);
 
-    testing::set_caller_address(owner);
+    start_cheat_caller_address(contract_address, owner);
     state.safeTransferFrom(owner, account, token_id, DATA(true));
-    assert_only_event_transfer(ZERO(), owner, account, token_id);
+    spy.assert_only_event_transfer(contract_address, owner, account, token_id);
 
     assert_state_after_transfer(owner, account, token_id);
 }
@@ -602,14 +635,16 @@ fn test_safeTransferFrom_to_account_camel() {
 fn test_safe_transfer_from_to_receiver() {
     let mut state = setup();
     let receiver = setup_receiver();
+    let contract_address = test_address();
+    let mut spy = spy_events();
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
     assert_state_before_transfer(owner, receiver, token_id);
 
-    testing::set_caller_address(owner);
+    start_cheat_caller_address(contract_address, owner);
     state.safe_transfer_from(owner, receiver, token_id, DATA(true));
-    assert_only_event_transfer(ZERO(), owner, receiver, token_id);
+    spy.assert_only_event_transfer(contract_address, owner, receiver, token_id);
 
     assert_state_after_transfer(owner, receiver, token_id);
 }
@@ -618,46 +653,54 @@ fn test_safe_transfer_from_to_receiver() {
 fn test_safeTransferFrom_to_receiver() {
     let mut state = setup();
     let receiver = setup_receiver();
+    let contract_address = test_address();
+    let mut spy = spy_events();
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
     assert_state_before_transfer(owner, receiver, token_id);
 
-    testing::set_caller_address(owner);
+    start_cheat_caller_address(contract_address, owner);
     state.safeTransferFrom(owner, receiver, token_id, DATA(true));
-    assert_only_event_transfer(ZERO(), owner, receiver, token_id);
+    spy.assert_only_event_transfer(contract_address, owner, receiver, token_id);
 
     assert_state_after_transfer(owner, receiver, token_id);
 }
 
 #[test]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test_safe_transfer_from_to_receiver_camel() {
     let mut state = setup();
     let receiver = setup_camel_receiver();
+    let contract_address = test_address();
+    let mut spy = spy_events();
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
     assert_state_before_transfer(owner, receiver, token_id);
 
-    testing::set_caller_address(owner);
+    start_cheat_caller_address(contract_address, owner);
     state.safe_transfer_from(owner, receiver, token_id, DATA(true));
-    assert_only_event_transfer(ZERO(), owner, receiver, token_id);
+    spy.assert_only_event_transfer(contract_address, owner, receiver, token_id);
 
     assert_state_after_transfer(owner, receiver, token_id);
 }
 
 #[test]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test_safeTransferFrom_to_receiver_camel() {
     let mut state = setup();
     let receiver = setup_camel_receiver();
+    let mut spy = spy_events();
+    let contract_address = test_address();
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
     assert_state_before_transfer(owner, receiver, token_id);
 
-    testing::set_caller_address(owner);
+    start_cheat_caller_address(contract_address, owner);
     state.safeTransferFrom(owner, receiver, token_id, DATA(true));
-    assert_only_event_transfer(ZERO(), owner, receiver, token_id);
+    spy.assert_only_event_transfer(contract_address, owner, receiver, token_id);
 
     assert_state_after_transfer(owner, receiver, token_id);
 }
@@ -670,7 +713,7 @@ fn test_safe_transfer_from_to_receiver_failure() {
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
-    testing::set_caller_address(owner);
+    start_cheat_caller_address(test_address(), owner);
     state.safe_transfer_from(owner, receiver, token_id, DATA(false));
 }
 
@@ -682,11 +725,12 @@ fn test_safeTransferFrom_to_receiver_failure() {
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
-    testing::set_caller_address(owner);
+    start_cheat_caller_address(test_address(), owner);
     state.safeTransferFrom(owner, receiver, token_id, DATA(false));
 }
 
 #[test]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 #[should_panic(expected: ('ERC721: safe transfer failed',))]
 fn test_safe_transfer_from_to_receiver_failure_camel() {
     let mut state = setup();
@@ -694,11 +738,12 @@ fn test_safe_transfer_from_to_receiver_failure_camel() {
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
-    testing::set_caller_address(owner);
+    start_cheat_caller_address(test_address(), owner);
     state.safe_transfer_from(owner, receiver, token_id, DATA(false));
 }
 
 #[test]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 #[should_panic(expected: ('ERC721: safe transfer failed',))]
 fn test_safeTransferFrom_to_receiver_failure_camel() {
     let mut state = setup();
@@ -706,31 +751,33 @@ fn test_safeTransferFrom_to_receiver_failure_camel() {
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
-    testing::set_caller_address(owner);
+    start_cheat_caller_address(test_address(), owner);
     state.safeTransferFrom(owner, receiver, token_id, DATA(false));
 }
 
 #[test]
+#[ignore] // REASON: should_panic attribute not fit for complex panic messages.
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_safe_transfer_from_to_non_receiver() {
     let mut state = setup();
-    let recipient = utils::deploy(NonImplementingMock::TEST_CLASS_HASH, array![]);
+    let recipient = utils::declare_and_deploy("NonImplementingMock", array![]);
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
-    testing::set_caller_address(owner);
+    start_cheat_caller_address(test_address(), owner);
     state.safe_transfer_from(owner, recipient, token_id, DATA(true));
 }
 
 #[test]
+#[ignore] // REASON: should_panic attribute not fit for complex panic messages.
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_safeTransferFrom_to_non_receiver() {
     let mut state = setup();
-    let recipient = utils::deploy(NonImplementingMock::TEST_CLASS_HASH, array![]);
+    let recipient = utils::declare_and_deploy("NonImplementingMock", array![]);
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
-    testing::set_caller_address(owner);
+    start_cheat_caller_address(test_address(), owner);
     state.safeTransferFrom(owner, recipient, token_id, DATA(true));
 }
 
@@ -738,7 +785,7 @@ fn test_safeTransferFrom_to_non_receiver() {
 #[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test_safe_transfer_from_nonexistent() {
     let mut state = COMPONENT_STATE();
-    testing::set_caller_address(OWNER());
+    start_cheat_caller_address(test_address(), OWNER());
     state.safe_transfer_from(ZERO(), RECIPIENT(), TOKEN_ID, DATA(true));
 }
 
@@ -746,7 +793,7 @@ fn test_safe_transfer_from_nonexistent() {
 #[should_panic(expected: ('ERC721: invalid token ID',))]
 fn test_safeTransferFrom_nonexistent() {
     let mut state = COMPONENT_STATE();
-    testing::set_caller_address(OWNER());
+    start_cheat_caller_address(test_address(), OWNER());
     state.safeTransferFrom(ZERO(), RECIPIENT(), TOKEN_ID, DATA(true));
 }
 
@@ -754,7 +801,7 @@ fn test_safeTransferFrom_nonexistent() {
 #[should_panic(expected: ('ERC721: invalid receiver',))]
 fn test_safe_transfer_from_to_zero() {
     let mut state = setup();
-    testing::set_caller_address(OWNER());
+    start_cheat_caller_address(test_address(), OWNER());
     state.safe_transfer_from(OWNER(), ZERO(), TOKEN_ID, DATA(true));
 }
 
@@ -762,25 +809,28 @@ fn test_safe_transfer_from_to_zero() {
 #[should_panic(expected: ('ERC721: invalid receiver',))]
 fn test_safeTransferFrom_to_zero() {
     let mut state = setup();
-    testing::set_caller_address(OWNER());
+    start_cheat_caller_address(test_address(), OWNER());
     state.safeTransferFrom(OWNER(), ZERO(), TOKEN_ID, DATA(true));
 }
 
 #[test]
 fn test_safe_transfer_from_to_owner() {
     let mut state = COMPONENT_STATE();
+    let contract_address = test_address();
     let token_id = TOKEN_ID;
     let owner = setup_receiver();
+
     state.initializer(NAME(), SYMBOL(), BASE_URI());
     state.mint(owner, token_id);
-    utils::drop_event(ZERO());
 
     assert_eq!(state.owner_of(token_id), owner);
     assert_eq!(state.balance_of(owner), 1);
 
-    testing::set_caller_address(owner);
+    let mut spy = spy_events();
+
+    start_cheat_caller_address(contract_address, owner);
     state.safe_transfer_from(owner, owner, token_id, DATA(true));
-    assert_only_event_transfer(ZERO(), owner, owner, token_id);
+    spy.assert_only_event_transfer(contract_address, owner, owner, token_id);
 
     assert_eq!(state.owner_of(token_id), owner);
     assert_eq!(state.balance_of(owner), 1);
@@ -789,58 +839,69 @@ fn test_safe_transfer_from_to_owner() {
 #[test]
 fn test_safeTransferFrom_to_owner() {
     let mut state = COMPONENT_STATE();
+    let contract_address = test_address();
     let token_id = TOKEN_ID;
     let owner = setup_receiver();
+
     state.initializer(NAME(), SYMBOL(), BASE_URI());
     state.mint(owner, token_id);
-    utils::drop_event(ZERO());
 
     assert_eq!(state.owner_of(token_id), owner);
     assert_eq!(state.balance_of(owner), 1);
 
-    testing::set_caller_address(owner);
+    let mut spy = spy_events();
+
+    start_cheat_caller_address(contract_address, owner);
     state.safeTransferFrom(owner, owner, token_id, DATA(true));
-    assert_only_event_transfer(ZERO(), owner, owner, token_id);
+    spy.assert_only_event_transfer(contract_address, owner, owner, token_id);
 
     assert_eq!(state.owner_of(token_id), owner);
     assert_eq!(state.balance_of(owner), 1);
 }
 
 #[test]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test_safe_transfer_from_to_owner_camel() {
     let mut state = COMPONENT_STATE();
     let token_id = TOKEN_ID;
     let owner = setup_camel_receiver();
+    let contract_address = test_address();
+
     state.initializer(NAME(), SYMBOL(), BASE_URI());
     state.mint(owner, token_id);
-    utils::drop_event(ZERO());
+
+    let mut spy = spy_events();
 
     assert_eq!(state.owner_of(token_id), owner);
     assert_eq!(state.balance_of(owner), 1);
 
-    testing::set_caller_address(owner);
+    start_cheat_caller_address(contract_address, owner);
     state.safe_transfer_from(owner, owner, token_id, DATA(true));
-    assert_only_event_transfer(ZERO(), owner, owner, token_id);
+    spy.assert_only_event_transfer(contract_address, owner, owner, token_id);
 
     assert_eq!(state.owner_of(token_id), owner);
     assert_eq!(state.balance_of(owner), 1);
 }
 
 #[test]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test_safeTransferFrom_to_owner_camel() {
     let mut state = COMPONENT_STATE();
+    let contract_address = test_address();
     let token_id = TOKEN_ID;
     let owner = setup_camel_receiver();
+
     state.initializer(NAME(), SYMBOL(), BASE_URI());
     state.mint(owner, token_id);
-    utils::drop_event(ZERO());
 
     assert_eq!(state.owner_of(token_id), owner);
     assert_eq!(state.balance_of(owner), 1);
 
-    testing::set_caller_address(owner);
+    let mut spy = spy_events();
+
+    start_cheat_caller_address(contract_address, owner);
     state.safeTransferFrom(owner, owner, token_id, DATA(true));
-    assert_only_event_transfer(ZERO(), owner, owner, token_id);
+    spy.assert_only_event_transfer(contract_address, owner, owner, token_id);
 
     assert_eq!(state.owner_of(token_id), owner);
     assert_eq!(state.balance_of(owner), 1);
@@ -849,19 +910,21 @@ fn test_safeTransferFrom_to_owner_camel() {
 #[test]
 fn test_safe_transfer_from_approved() {
     let mut state = setup();
+    let contract_address = test_address();
     let receiver = setup_receiver();
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
     assert_state_before_transfer(owner, receiver, token_id);
 
-    testing::set_caller_address(owner);
+    start_cheat_caller_address(contract_address, owner);
     state.approve(OPERATOR(), token_id);
-    utils::drop_event(ZERO());
 
-    testing::set_caller_address(OPERATOR());
+    let mut spy = spy_events();
+
+    start_cheat_caller_address(contract_address, OPERATOR());
     state.safe_transfer_from(owner, receiver, token_id, DATA(true));
-    assert_only_event_transfer(ZERO(), owner, receiver, token_id);
+    spy.assert_only_event_transfer(contract_address, owner, receiver, token_id);
 
     assert_state_after_transfer(owner, receiver, token_id);
 }
@@ -869,59 +932,67 @@ fn test_safe_transfer_from_approved() {
 #[test]
 fn test_safeTransferFrom_approved() {
     let mut state = setup();
+    let contract_address = test_address();
     let receiver = setup_receiver();
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
     assert_state_before_transfer(owner, receiver, token_id);
 
-    testing::set_caller_address(owner);
+    start_cheat_caller_address(contract_address, owner);
     state.approve(OPERATOR(), token_id);
-    utils::drop_event(ZERO());
 
-    testing::set_caller_address(OPERATOR());
+    let mut spy = spy_events();
+
+    start_cheat_caller_address(contract_address, OPERATOR());
     state.safeTransferFrom(owner, receiver, token_id, DATA(true));
-    assert_only_event_transfer(ZERO(), owner, receiver, token_id);
+    spy.assert_only_event_transfer(contract_address, owner, receiver, token_id);
 
     assert_state_after_transfer(owner, receiver, token_id);
 }
 
 #[test]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test_safe_transfer_from_approved_camel() {
     let mut state = setup();
+    let contract_address = test_address();
     let receiver = setup_camel_receiver();
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
     assert_state_before_transfer(owner, receiver, token_id);
 
-    testing::set_caller_address(owner);
+    start_cheat_caller_address(contract_address, owner);
     state.approve(OPERATOR(), token_id);
-    utils::drop_event(ZERO());
 
-    testing::set_caller_address(OPERATOR());
+    let mut spy = spy_events();
+
+    start_cheat_caller_address(contract_address, OPERATOR());
     state.safe_transfer_from(owner, receiver, token_id, DATA(true));
-    assert_only_event_transfer(ZERO(), owner, receiver, token_id);
+    spy.assert_only_event_transfer(contract_address, owner, receiver, token_id);
 
     assert_state_after_transfer(owner, receiver, token_id);
 }
 
 #[test]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test_safeTransferFrom_approved_camel() {
     let mut state = setup();
+    let contract_address = test_address();
     let receiver = setup_camel_receiver();
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
     assert_state_before_transfer(owner, receiver, token_id);
 
-    testing::set_caller_address(owner);
+    start_cheat_caller_address(contract_address, owner);
     state.approve(OPERATOR(), token_id);
-    utils::drop_event(ZERO());
 
-    testing::set_caller_address(OPERATOR());
+    let mut spy = spy_events();
+
+    start_cheat_caller_address(contract_address, OPERATOR());
     state.safeTransferFrom(owner, receiver, token_id, DATA(true));
-    assert_only_event_transfer(ZERO(), owner, receiver, token_id);
+    spy.assert_only_event_transfer(contract_address, owner, receiver, token_id);
 
     assert_state_after_transfer(owner, receiver, token_id);
 }
@@ -929,19 +1000,21 @@ fn test_safeTransferFrom_approved_camel() {
 #[test]
 fn test_safe_transfer_from_approved_for_all() {
     let mut state = setup();
+    let contract_address = test_address();
     let receiver = setup_receiver();
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
     assert_state_before_transfer(owner, receiver, token_id);
 
-    testing::set_caller_address(owner);
+    start_cheat_caller_address(contract_address, owner);
     state.set_approval_for_all(OPERATOR(), true);
-    utils::drop_event(ZERO());
 
-    testing::set_caller_address(OPERATOR());
+    let mut spy = spy_events();
+
+    start_cheat_caller_address(contract_address, OPERATOR());
     state.safe_transfer_from(owner, receiver, token_id, DATA(true));
-    assert_only_event_transfer(ZERO(), owner, receiver, token_id);
+    spy.assert_only_event_transfer(contract_address, owner, receiver, token_id);
 
     assert_state_after_transfer(owner, receiver, token_id);
 }
@@ -949,59 +1022,66 @@ fn test_safe_transfer_from_approved_for_all() {
 #[test]
 fn test_safeTransferFrom_approved_for_all() {
     let mut state = setup();
+    let contract_address = test_address();
     let receiver = setup_receiver();
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
     assert_state_before_transfer(owner, receiver, token_id);
 
-    testing::set_caller_address(owner);
+    start_cheat_caller_address(contract_address, owner);
     state.set_approval_for_all(OPERATOR(), true);
-    utils::drop_event(ZERO());
 
-    testing::set_caller_address(OPERATOR());
+    let mut spy = spy_events();
+
+    start_cheat_caller_address(contract_address, OPERATOR());
     state.safeTransferFrom(owner, receiver, token_id, DATA(true));
-    assert_only_event_transfer(ZERO(), owner, receiver, token_id);
+    spy.assert_only_event_transfer(contract_address, owner, receiver, token_id);
 
     assert_state_after_transfer(owner, receiver, token_id);
 }
 
 #[test]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test_safe_transfer_from_approved_for_all_camel() {
     let mut state = setup();
+    let contract_address = test_address();
+    let mut spy = spy_events();
     let receiver = setup_camel_receiver();
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
     assert_state_before_transfer(owner, receiver, token_id);
 
-    testing::set_caller_address(owner);
+    start_cheat_caller_address(contract_address, owner);
     state.set_approval_for_all(OPERATOR(), true);
-    utils::drop_event(ZERO());
 
-    testing::set_caller_address(OPERATOR());
+    start_cheat_caller_address(contract_address, OPERATOR());
     state.safe_transfer_from(owner, receiver, token_id, DATA(true));
-    assert_only_event_transfer(ZERO(), owner, receiver, token_id);
+    spy.assert_only_event_transfer(contract_address, owner, receiver, token_id);
 
     assert_state_after_transfer(owner, receiver, token_id);
 }
 
 #[test]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test_safeTransferFrom_approved_for_all_camel() {
     let mut state = setup();
+    let contract_address = test_address();
     let receiver = setup_camel_receiver();
     let token_id = TOKEN_ID;
     let owner = OWNER();
 
     assert_state_before_transfer(owner, receiver, token_id);
 
-    testing::set_caller_address(owner);
+    start_cheat_caller_address(contract_address, owner);
     state.set_approval_for_all(OPERATOR(), true);
-    utils::drop_event(ZERO());
 
-    testing::set_caller_address(OPERATOR());
+    let mut spy = spy_events();
+
+    start_cheat_caller_address(contract_address, OPERATOR());
     state.safeTransferFrom(owner, receiver, token_id, DATA(true));
-    assert_only_event_transfer(ZERO(), owner, receiver, token_id);
+    spy.assert_only_event_transfer(contract_address, owner, receiver, token_id);
 
     assert_state_after_transfer(owner, receiver, token_id);
 }
@@ -1010,7 +1090,7 @@ fn test_safeTransferFrom_approved_for_all_camel() {
 #[should_panic(expected: ('ERC721: unauthorized caller',))]
 fn test_safe_transfer_from_unauthorized() {
     let mut state = setup();
-    testing::set_caller_address(OTHER());
+    start_cheat_caller_address(test_address(), OTHER());
     state.safe_transfer_from(OWNER(), RECIPIENT(), TOKEN_ID, DATA(true));
 }
 
@@ -1018,7 +1098,7 @@ fn test_safe_transfer_from_unauthorized() {
 #[should_panic(expected: ('ERC721: unauthorized caller',))]
 fn test_safeTransferFrom_unauthorized() {
     let mut state = setup();
-    testing::set_caller_address(OTHER());
+    start_cheat_caller_address(test_address(), OTHER());
     state.safeTransferFrom(OWNER(), RECIPIENT(), TOKEN_ID, DATA(true));
 }
 
@@ -1029,6 +1109,8 @@ fn test_safeTransferFrom_unauthorized() {
 #[test]
 fn test__transfer() {
     let mut state = setup();
+    let contract_address = test_address();
+    let mut spy = spy_events();
     let token_id = TOKEN_ID;
     let owner = OWNER();
     let recipient = RECIPIENT();
@@ -1036,7 +1118,7 @@ fn test__transfer() {
     assert_state_before_transfer(owner, recipient, token_id);
 
     state.transfer(owner, recipient, token_id);
-    assert_only_event_transfer(ZERO(), owner, recipient, token_id);
+    spy.assert_only_event_transfer(contract_address, owner, recipient, token_id);
 
     assert_state_after_transfer(owner, recipient, token_id);
 }
@@ -1069,12 +1151,14 @@ fn test__transfer_from_invalid_owner() {
 #[test]
 fn test_mint() {
     let mut state = COMPONENT_STATE();
+    let contract_address = test_address();
+    let mut spy = spy_events();
     let recipient = RECIPIENT();
     let token_id = TOKEN_ID;
 
     assert_state_before_mint(recipient);
     state.mint(recipient, TOKEN_ID);
-    assert_only_event_transfer(ZERO(), ZERO(), recipient, token_id);
+    spy.assert_only_event_transfer(contract_address, ZERO(), recipient, token_id);
 
     assert_state_after_mint(recipient, token_id);
 }
@@ -1100,25 +1184,30 @@ fn test_mint_already_exist() {
 #[test]
 fn test__safe_mint_to_receiver() {
     let mut state = COMPONENT_STATE();
+    let contract_address = test_address();
+    let mut spy = spy_events();
     let recipient = setup_receiver();
     let token_id = TOKEN_ID;
 
     assert_state_before_mint(recipient);
     state.safe_mint(recipient, token_id, DATA(true));
-    assert_only_event_transfer(ZERO(), ZERO(), recipient, token_id);
+    spy.assert_only_event_transfer(contract_address, ZERO(), recipient, token_id);
 
     assert_state_after_mint(recipient, token_id);
 }
 
 #[test]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test__safe_mint_to_receiver_camel() {
     let mut state = COMPONENT_STATE();
+    let contract_address = test_address();
+    let mut spy = spy_events();
     let recipient = setup_camel_receiver();
     let token_id = TOKEN_ID;
 
     assert_state_before_mint(recipient);
     state.safe_mint(recipient, token_id, DATA(true));
-    assert_only_event_transfer(ZERO(), ZERO(), recipient, token_id);
+    spy.assert_only_event_transfer(contract_address, ZERO(), recipient, token_id);
 
     assert_state_after_mint(recipient, token_id);
 }
@@ -1126,12 +1215,14 @@ fn test__safe_mint_to_receiver_camel() {
 #[test]
 fn test__safe_mint_to_account() {
     let mut state = COMPONENT_STATE();
+    let contract_address = test_address();
     let account = setup_account();
+    let mut spy = spy_events();
     let token_id = TOKEN_ID;
 
     assert_state_before_mint(account);
     state.safe_mint(account, token_id, DATA(true));
-    assert_only_event_transfer(ZERO(), ZERO(), account, token_id);
+    spy.assert_only_event_transfer(contract_address, ZERO(), account, token_id);
 
     assert_state_after_mint(account, token_id);
 }
@@ -1139,21 +1230,24 @@ fn test__safe_mint_to_account() {
 #[test]
 fn test__safe_mint_to_account_camel() {
     let mut state = COMPONENT_STATE();
+    let contract_address = test_address();
     let account = setup_camel_account();
+    let mut spy = spy_events();
     let token_id = TOKEN_ID;
 
     assert_state_before_mint(account);
     state.safe_mint(account, token_id, DATA(true));
-    assert_only_event_transfer(ZERO(), ZERO(), account, token_id);
+    spy.assert_only_event_transfer(contract_address, ZERO(), account, token_id);
 
     assert_state_after_mint(account, token_id);
 }
 
 #[test]
+#[ignore] // REASON: should_panic attribute not fit for complex panic messages.
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test__safe_mint_to_non_receiver() {
     let mut state = COMPONENT_STATE();
-    let recipient = utils::deploy(NonImplementingMock::TEST_CLASS_HASH, array![]);
+    let recipient = utils::declare_and_deploy("NonImplementingMock", array![]);
     let token_id = TOKEN_ID;
 
     assert_state_before_mint(recipient);
@@ -1174,6 +1268,7 @@ fn test__safe_mint_to_receiver_failure() {
 }
 
 #[test]
+#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 #[should_panic(expected: ('ERC721: safe mint failed',))]
 fn test__safe_mint_to_receiver_failure_camel() {
     let mut state = COMPONENT_STATE();
@@ -1206,16 +1301,18 @@ fn test__safe_mint_already_exist() {
 #[test]
 fn test_burn() {
     let mut state = setup();
+    let contract_address = test_address();
 
     state._approve(OTHER(), TOKEN_ID, ZERO());
-    utils::drop_event(ZERO());
 
     assert_eq!(state.owner_of(TOKEN_ID), OWNER());
     assert_eq!(state.balance_of(OWNER()), 1);
     assert_eq!(state.get_approved(TOKEN_ID), OTHER());
 
+    let mut spy = spy_events();
+
     state.burn(TOKEN_ID);
-    assert_only_event_transfer(ZERO(), OWNER(), ZERO(), TOKEN_ID);
+    spy.assert_only_event_transfer(contract_address, OWNER(), ZERO(), TOKEN_ID);
 
     assert_eq!(state.ERC721_owners.read(TOKEN_ID), ZERO());
     assert_eq!(state.balance_of(OWNER()), 0);
@@ -1318,8 +1415,11 @@ fn test__exists() {
 #[test]
 fn test__approve_with_optional_event_emitting() {
     let mut state = setup();
+    let contract_address = test_address();
+    let mut spy = spy_events();
+
     state._approve_with_optional_event(SPENDER(), TOKEN_ID, ZERO(), true);
-    assert_only_event_approval(ZERO(), OWNER(), SPENDER(), TOKEN_ID);
+    spy.assert_only_event_approval(contract_address, OWNER(), SPENDER(), TOKEN_ID);
 
     let approved = state.get_approved(TOKEN_ID);
     assert_eq!(approved, SPENDER());
@@ -1328,8 +1428,10 @@ fn test__approve_with_optional_event_emitting() {
 #[test]
 fn test__approve_with_optional_event_not_emitting() {
     let mut state = setup();
+    let mut spy = spy_events();
+
     state._approve_with_optional_event(SPENDER(), TOKEN_ID, ZERO(), false);
-    utils::assert_no_events_left(ZERO());
+    spy.assert_no_events_left_from(test_address());
 
     let approved = state.get_approved(TOKEN_ID);
     assert_eq!(approved, SPENDER());
@@ -1345,8 +1447,10 @@ fn test__approve_with_optional_event_nonexistent_emitting() {
 #[test]
 fn test__approve_with_optional_event_nonexistent_not_emitting() {
     let mut state = setup();
+    let mut spy = spy_events();
+
     state._approve_with_optional_event(SPENDER(), TOKEN_ID, ZERO(), false);
-    utils::assert_no_events_left(ZERO());
+    spy.assert_no_events_left_from(test_address());
 
     let approved = state.get_approved(TOKEN_ID);
     assert_eq!(approved, SPENDER());
@@ -1355,8 +1459,10 @@ fn test__approve_with_optional_event_nonexistent_not_emitting() {
 #[test]
 fn test__approve_with_optional_event_auth_is_owner() {
     let mut state = setup();
+    let mut spy = spy_events();
+
     state._approve_with_optional_event(SPENDER(), TOKEN_ID, OWNER(), false);
-    utils::assert_no_events_left(ZERO());
+    spy.assert_no_events_left_from(test_address());
 
     let approved = state.get_approved(TOKEN_ID);
     assert_eq!(approved, SPENDER());
@@ -1366,12 +1472,15 @@ fn test__approve_with_optional_event_auth_is_owner() {
 fn test__approve_with_optional_event_auth_is_approved_for_all() {
     let mut state = setup();
     let auth = CALLER();
-    testing::set_caller_address(OWNER());
+    let contract_address = test_address();
+
+    start_cheat_caller_address(contract_address, OWNER());
     state.set_approval_for_all(auth, true);
-    utils::drop_event(ZERO());
+
+    let mut spy = spy_events();
 
     state._approve_with_optional_event(SPENDER(), TOKEN_ID, auth, false);
-    utils::assert_no_events_left(ZERO());
+    spy.assert_no_events_left_from(contract_address);
 
     let approved = state.get_approved(TOKEN_ID);
     assert_eq!(approved, SPENDER());
@@ -1395,9 +1504,8 @@ fn test__is_authorized_owner() {
 fn test__is_authorized_approved_for_all() {
     let mut state = setup();
 
-    testing::set_caller_address(OWNER());
+    start_cheat_caller_address(test_address(), OWNER());
     state.set_approval_for_all(SPENDER(), true);
-    utils::drop_event(ZERO());
 
     let authorized = state._is_authorized(OWNER(), SPENDER(), TOKEN_ID);
     assert!(authorized);
@@ -1407,9 +1515,8 @@ fn test__is_authorized_approved_for_all() {
 fn test__is_authorized_approved() {
     let mut state = setup();
 
-    testing::set_caller_address(OWNER());
+    start_cheat_caller_address(test_address(), OWNER());
     state.approve(SPENDER(), TOKEN_ID);
-    utils::drop_event(ZERO());
 
     let authorized = state._is_authorized(OWNER(), SPENDER(), TOKEN_ID);
     assert!(authorized);
@@ -1439,9 +1546,8 @@ fn test__check_authorized_owner() {
 fn test__check_authorized_approved_for_all() {
     let mut state = setup();
 
-    testing::set_caller_address(OWNER());
+    start_cheat_caller_address(test_address(), OWNER());
     state.set_approval_for_all(SPENDER(), true);
-    utils::drop_event(ZERO());
 
     state._check_authorized(OWNER(), SPENDER(), TOKEN_ID);
 }
@@ -1450,9 +1556,8 @@ fn test__check_authorized_approved_for_all() {
 fn test__check_authorized_approved() {
     let mut state = setup();
 
-    testing::set_caller_address(OWNER());
+    start_cheat_caller_address(test_address(), OWNER());
     state.approve(SPENDER(), TOKEN_ID);
-    utils::drop_event(ZERO());
 
     state._check_authorized(OWNER(), SPENDER(), TOKEN_ID);
 }
@@ -1481,9 +1586,11 @@ fn test__check_authorized_zero_address() {
 #[test]
 fn test_update_mint() {
     let mut state = setup();
+    let contract_address = test_address();
+    let mut spy = spy_events();
 
     state.update(RECIPIENT(), TOKEN_ID_2, ZERO());
-    assert_only_event_transfer(ZERO(), ZERO(), RECIPIENT(), TOKEN_ID_2);
+    spy.assert_only_event_transfer(contract_address, ZERO(), RECIPIENT(), TOKEN_ID_2);
 
     let owner = state.owner_of(TOKEN_ID_2);
     assert_eq!(owner, RECIPIENT());
@@ -1495,9 +1602,11 @@ fn test_update_mint() {
 #[test]
 fn test_update_burn() {
     let mut state = setup();
+    let contract_address = test_address();
+    let mut spy = spy_events();
 
     state.update(ZERO(), TOKEN_ID, ZERO());
-    assert_only_event_transfer(ZERO(), OWNER(), ZERO(), TOKEN_ID);
+    spy.assert_only_event_transfer(contract_address, OWNER(), ZERO(), TOKEN_ID);
 
     let owner = state._owner_of(TOKEN_ID);
     assert_eq!(owner, ZERO());
@@ -1509,41 +1618,52 @@ fn test_update_burn() {
 #[test]
 fn test_update_transfer() {
     let mut state = setup();
+    let contract_address = test_address();
+    let mut spy = spy_events();
 
     state.update(RECIPIENT(), TOKEN_ID, ZERO());
-    assert_only_event_transfer(ZERO(), OWNER(), RECIPIENT(), TOKEN_ID);
+    spy.assert_only_event_transfer(contract_address, OWNER(), RECIPIENT(), TOKEN_ID);
     assert_state_after_transfer(OWNER(), RECIPIENT(), TOKEN_ID);
 }
 
 #[test]
 fn test_update_auth_owner() {
     let mut state = setup();
+    let contract_address = test_address();
+    let mut spy = spy_events();
+
     state.update(RECIPIENT(), TOKEN_ID, OWNER());
-    assert_only_event_transfer(ZERO(), OWNER(), RECIPIENT(), TOKEN_ID);
+    spy.assert_only_event_transfer(contract_address, OWNER(), RECIPIENT(), TOKEN_ID);
     assert_state_after_transfer(OWNER(), RECIPIENT(), TOKEN_ID);
 }
 
 #[test]
 fn test_update_auth_approved_for_all() {
     let mut state = setup();
-    testing::set_caller_address(OWNER());
+    let contract_address = test_address();
+
+    start_cheat_caller_address(contract_address, OWNER());
     state.set_approval_for_all(OPERATOR(), true);
-    utils::drop_event(ZERO());
+
+    let mut spy = spy_events();
 
     state.update(RECIPIENT(), TOKEN_ID, OPERATOR());
-    assert_only_event_transfer(ZERO(), OWNER(), RECIPIENT(), TOKEN_ID);
+    spy.assert_only_event_transfer(contract_address, OWNER(), RECIPIENT(), TOKEN_ID);
     assert_state_after_transfer(OWNER(), RECIPIENT(), TOKEN_ID);
 }
 
 #[test]
 fn test_update_auth_approved() {
     let mut state = setup();
-    testing::set_caller_address(OWNER());
+    let contract_address = test_address();
+
+    start_cheat_caller_address(contract_address, OWNER());
     state.approve(OPERATOR(), TOKEN_ID);
-    utils::drop_event(ZERO());
+
+    let mut spy = spy_events();
 
     state.update(RECIPIENT(), TOKEN_ID, OPERATOR());
-    assert_only_event_transfer(ZERO(), OWNER(), RECIPIENT(), TOKEN_ID);
+    spy.assert_only_event_transfer(contract_address, OWNER(), RECIPIENT(), TOKEN_ID);
     assert_state_after_transfer(OWNER(), RECIPIENT(), TOKEN_ID);
 }
 

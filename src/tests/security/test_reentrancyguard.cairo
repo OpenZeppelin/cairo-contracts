@@ -1,7 +1,7 @@
 use openzeppelin::security::ReentrancyGuardComponent::InternalImpl;
 use openzeppelin::security::ReentrancyGuardComponent;
 use openzeppelin::tests::mocks::reentrancy_mocks::{
-    Attacker, ReentrancyMock, IReentrancyMockDispatcher, IReentrancyMockDispatcherTrait
+    ReentrancyMock, IReentrancyMockDispatcher, IReentrancyMockDispatcherTrait
 };
 use openzeppelin::tests::utils;
 
@@ -13,7 +13,7 @@ fn COMPONENT_STATE() -> ComponentState {
 
 fn deploy_mock() -> IReentrancyMockDispatcher {
     let calldata = array![];
-    let address = utils::deploy(ReentrancyMock::TEST_CLASS_HASH, calldata);
+    let address = utils::declare_and_deploy("ReentrancyMock", calldata);
     IReentrancyMockDispatcher { contract_address: address }
 }
 
@@ -63,35 +63,26 @@ fn test_reentrancy_guard_end() {
 //
 
 #[test]
-#[should_panic(
-    expected: (
-        'ReentrancyGuard: reentrant call',
-        'ENTRYPOINT_FAILED',
-        'ENTRYPOINT_FAILED',
-        'ENTRYPOINT_FAILED'
-    ),
-)]
+#[should_panic(expected: ('ReentrancyGuard: reentrant call',))]
 fn test_remote_callback() {
     let contract = deploy_mock();
 
     // Deploy attacker
     let calldata = array![];
-    let attacker_addr = utils::deploy(Attacker::TEST_CLASS_HASH, calldata);
+    let attacker_addr = utils::declare_and_deploy("Attacker", calldata);
 
     contract.count_and_call(attacker_addr);
 }
 
 #[test]
-#[should_panic(expected: ('ReentrancyGuard: reentrant call', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: ('ReentrancyGuard: reentrant call',))]
 fn test_local_recursion() {
     let contract = deploy_mock();
     contract.count_local_recursive(10);
 }
 
 #[test]
-#[should_panic(
-    expected: ('ReentrancyGuard: reentrant call', 'ENTRYPOINT_FAILED', 'ENTRYPOINT_FAILED')
-)]
+#[should_panic(expected: ('ReentrancyGuard: reentrant call',))]
 fn test_external_recursion() {
     let contract = deploy_mock();
     contract.count_external_recursive(10);

@@ -8,7 +8,6 @@ mod cryptography;
 mod governance;
 #[cfg(test)]
 mod introspection;
-#[cfg(test)]
 mod mocks;
 #[cfg(test)]
 mod presets;

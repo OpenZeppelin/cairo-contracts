@@ -2,8 +2,6 @@ name: Lint and test
 
 on:
   pull_request:
-    branches:
-    - main
   push:
     branches:
     - main
@@ -21,6 +19,13 @@ jobs:
     - uses: software-mansion/setup-scarb@v1
       with:
         scarb-version: ${{ env.SCARB_VERSION }}
+    - name: Extract foundry version
+      run: |
+        FOUNDRY_VERSION=$(grep 'snforge_std = ' Scarb.toml | sed 's/snforge_std = .\+ tag = "v\(.*\)".*/\1/')
+        echo "FOUNDRY_VERSION=$FOUNDRY_VERSION" >> "$GITHUB_ENV"
+    - uses: foundry-rs/setup-snfoundry@v3
+      with:
+        starknet-foundry-version: ${{ env.FOUNDRY_VERSION }}
     - name: Markdown lint
       uses: DavidAnson/markdownlint-cli2-action@b4c9feab76d8025d1e83c653fa3990936df0e6c8 # v16
       with:
@@ -29,5 +34,8 @@ jobs:
           !PULL_REQUEST_TEMPLATE.md
     - name: Cairo lint
       run: scarb fmt --check
+    - name: Temporary USC manually install
+      run: |
+        curl -L https://raw.githubusercontent.com/software-mansion/universal-sierra-compiler/master/scripts/install.sh | sh -s -- v2.2.0-rc.1
     - name: Cairo test
-      run: scarb test
+      run: snforge test

@@ -1,9 +1,9 @@
 use core::integer::BoundedInt;
 use core::num::traits::Zero;
-use openzeppelin::tests::mocks::account_mocks::DualCaseAccountMock;
 use openzeppelin::tests::mocks::erc20_votes_mocks::DualCaseERC20VotesMock::SNIP12MetadataImpl;
 use openzeppelin::tests::mocks::erc20_votes_mocks::DualCaseERC20VotesMock;
-use openzeppelin::tests::utils::constants::{SUPPLY, ZERO, OWNER, PUBKEY, RECIPIENT};
+use openzeppelin::tests::utils::constants::{SUPPLY, ZERO, OWNER, RECIPIENT};
+use openzeppelin::tests::utils::events::EventSpyExt;
 use openzeppelin::tests::utils;
 use openzeppelin::token::erc20::ERC20Component::InternalImpl as ERC20Impl;
 use openzeppelin::token::erc20::extensions::ERC20VotesComponent::{
@@ -14,12 +14,16 @@ use openzeppelin::token::erc20::extensions::ERC20VotesComponent;
 use openzeppelin::token::erc20::extensions::erc20_votes::Delegation;
 use openzeppelin::utils::cryptography::snip12::OffchainMessageHash;
 use openzeppelin::utils::serde::SerializedAppend;
-use openzeppelin::utils::structs::checkpoint::{Checkpoint, Trace, TraceTrait};
+use openzeppelin::utils::structs::checkpoint::{Checkpoint, TraceTrait};
+use snforge_std::signature::KeyPairTrait;
+use snforge_std::signature::stark_curve::{StarkCurveKeyPairImpl, StarkCurveSignerImpl};
+use snforge_std::{
+    cheat_block_timestamp_global, start_cheat_caller_address, spy_events, cheat_chain_id_global,
+    test_address
+};
+use snforge_std::{EventSpy, EventSpyAssertionsTrait};
 use starknet::ContractAddress;
 use starknet::contract_address_const;
-use starknet::testing;
-
-use super::common::{assert_event_approval, assert_only_event_approval, assert_only_event_transfer};
 
 //
 // Setup
@@ -40,13 +44,12 @@ fn setup() -> ComponentState {
 
     mock_state.erc20.mint(OWNER(), SUPPLY);
     state.transfer_voting_units(ZERO(), OWNER(), SUPPLY);
-    utils::drop_event(ZERO());
     state
 }
 
-fn setup_account() -> ContractAddress {
-    let mut calldata = array![0x26da8d11938b76025862be14fdb8b28438827f73e75e86f7bfa38b196951fa7];
-    utils::deploy(DualCaseAccountMock::TEST_CLASS_HASH, calldata)
+fn setup_account(public_key: felt252) -> ContractAddress {
+    let mut calldata = array![public_key];
+    utils::declare_and_deploy("DualCaseAccountMock", calldata)
 }
 
 // Checkpoints unordered insertion
@@ -57,7 +60,7 @@ fn test__delegate_checkpoints_unordered_insertion() {
     let mut state = setup();
     let mut trace = state.ERC20Votes_delegate_checkpoints.read(OWNER());
 
-    testing::set_block_timestamp('ts10');
+    cheat_block_timestamp_global('ts10');
     trace.push('ts2', 0x222);
     trace.push('ts1', 0x111);
 }
@@ -68,7 +71,7 @@ fn test__total_checkpoints_unordered_insertion() {
     let mut state = setup();
     let mut trace = state.ERC20Votes_total_checkpoints.read();
 
-    testing::set_block_timestamp('ts10');
+    cheat_block_timestamp_global('ts10');
     trace.push('ts2', 0x222);
     trace.push('ts1', 0x111);
 }
@@ -80,8 +83,7 @@ fn test__total_checkpoints_unordered_insertion() {
 #[test]
 fn test_get_votes() {
     let mut state = setup();
-
-    testing::set_caller_address(OWNER());
+    start_cheat_caller_address(test_address(), OWNER());
     state.delegate(OWNER());
 
     assert_eq!(state.get_votes(OWNER()), SUPPLY);
@@ -93,7 +95,7 @@ fn test_get_past_votes() {
     let mut trace = state.ERC20Votes_delegate_checkpoints.read(OWNER());
 
     // Future timestamp.
-    testing::set_block_timestamp('ts10');
+    cheat_block_timestamp_global('ts10');
     trace.push('ts1', 0x111);
     trace.push('ts2', 0x222);
     trace.push('ts3', 0x333);
@@ -117,7 +119,7 @@ fn test_get_past_votes_future_lookup() {
     let state = setup();
 
     // Past timestamp.
-    testing::set_block_timestamp('ts1');
+    cheat_block_timestamp_global('ts1');
     state.get_past_votes(OWNER(), 'ts2');
 }
 
@@ -127,7 +129,7 @@ fn test_get_past_total_supply() {
     let mut trace = state.ERC20Votes_total_checkpoints.read();
 
     // Future timestamp.
-    testing::set_block_timestamp('ts10');
+    cheat_block_timestamp_global('ts10');
     trace.push('ts1', 0x111);
     trace.push('ts2', 0x222);
     trace.push('ts3', 0x333);
@@ -151,7 +153,7 @@ fn test_get_past_total_supply_future_lookup() {
     let state = setup();
 
     // Past timestamp.
-    testing::set_block_timestamp('ts1');
+    cheat_block_timestamp_global('ts1');
     state.get_past_total_supply('ts2');
 }
 
@@ -162,41 +164,44 @@ fn test_get_past_total_supply_future_lookup() {
 #[test]
 fn test_delegate() {
     let mut state = setup();
-    testing::set_caller_address(OWNER());
+    let contract_address = test_address();
+    let mut spy = spy_events();
+
+    start_cheat_caller_address(contract_address, OWNER());
 
     // Delegate from zero
     state.delegate(OWNER());
 
-    assert_event_delegate_changed(ZERO(), OWNER(), ZERO(), OWNER());
-    assert_only_event_delegate_votes_changed(ZERO(), OWNER(), 0, SUPPLY);
+    spy.assert_event_delegate_changed(contract_address, OWNER(), ZERO(), OWNER());
+    spy.assert_only_event_delegate_votes_changed(contract_address, OWNER(), 0, SUPPLY);
     assert_eq!(state.get_votes(OWNER()), SUPPLY);
 
     // Delegate from non-zero to non-zero
     state.delegate(RECIPIENT());
 
-    assert_event_delegate_changed(ZERO(), OWNER(), OWNER(), RECIPIENT());
-    assert_event_delegate_votes_changed(ZERO(), OWNER(), SUPPLY, 0);
-    assert_only_event_delegate_votes_changed(ZERO(), RECIPIENT(), 0, SUPPLY);
+    spy.assert_event_delegate_changed(contract_address, OWNER(), OWNER(), RECIPIENT());
+    spy.assert_event_delegate_votes_changed(contract_address, OWNER(), SUPPLY, 0);
+    spy.assert_only_event_delegate_votes_changed(contract_address, RECIPIENT(), 0, SUPPLY);
     assert!(state.get_votes(OWNER()).is_zero());
     assert_eq!(state.get_votes(RECIPIENT()), SUPPLY);
 
     // Delegate to zero
     state.delegate(ZERO());
 
-    assert_event_delegate_changed(ZERO(), OWNER(), RECIPIENT(), ZERO());
-    assert_event_delegate_votes_changed(ZERO(), RECIPIENT(), SUPPLY, 0);
+    spy.assert_event_delegate_changed(contract_address, OWNER(), RECIPIENT(), ZERO());
+    spy.assert_event_delegate_votes_changed(contract_address, RECIPIENT(), SUPPLY, 0);
     assert!(state.get_votes(RECIPIENT()).is_zero());
 
     // Delegate from zero to zero
     state.delegate(ZERO());
 
-    assert_only_event_delegate_changed(ZERO(), OWNER(), ZERO(), ZERO());
+    spy.assert_only_event_delegate_changed(contract_address, OWNER(), ZERO(), ZERO());
 }
 
 #[test]
 fn test_delegates() {
     let mut state = setup();
-    testing::set_caller_address(OWNER());
+    start_cheat_caller_address(test_address(), OWNER());
 
     state.delegate(OWNER());
     assert_eq!(state.delegates(OWNER()), OWNER());
@@ -209,12 +214,12 @@ fn test_delegates() {
 
 #[test]
 fn test_delegate_by_sig_hash_generation() {
-    testing::set_chain_id('SN_TEST');
+    cheat_chain_id_global('SN_TEST');
 
     let nonce = 0;
     let expiry = 'ts2';
     let delegator = contract_address_const::<
-        0x19dcd9e412145354a3328fb68b5975bded85972893eb42eed11355d4cfbb58a
+        0x70b0526a4bfbc9ca717c96aeb5a8afac85181f4585662273668928585a0d628
     >();
     let delegatee = RECIPIENT();
     let delegation = Delegation { delegatee, nonce, expiry };
@@ -225,50 +230,51 @@ fn test_delegate_by_sig_hash_generation() {
     // - name: 'DAPP_NAME'
     // - version: 'DAPP_VERSION'
     // - chainId: 'SN_TEST'
-    // - account: 0x19dcd9e412145354a3328fb68b5975bded85972893eb42eed11355d4cfbb58a
+    // - account: 0x70b0526a4bfbc9ca717c96aeb5a8afac85181f4585662273668928585a0d628
     // - delegatee: 'RECIPIENT'
     // - nonce: 0
     // - expiry: 'ts2'
     // - revision: '1'
-    let expected_hash = 0x5b9e8190392425e06024b1eedfbbe9dd3631ddd07a84154185d39ec1d657511;
+    let expected_hash = 0x314bd38b22b62d576691d8dafd9f8ea0601329ebe686bc64ca28e4d8821d5a0;
     assert_eq!(hash, expected_hash);
 }
 
 #[test]
 fn test_delegate_by_sig() {
+    cheat_chain_id_global('SN_TEST');
+    cheat_block_timestamp_global('ts1');
+
     let mut state = setup();
-    let account = setup_account();
-    testing::set_chain_id('SN_TEST');
+    let contract_address = test_address();
+    let key_pair = KeyPairTrait::<felt252, felt252>::generate();
+    let account = setup_account(key_pair.public_key);
 
     let nonce = 0;
     let expiry = 'ts2';
     let delegator = account;
     let delegatee = RECIPIENT();
 
-    // This signature was computed using starknet js sdk from the following values:
-    // - private_key: '1234'
-    // - public_key: 0x26da8d11938b76025862be14fdb8b28438827f73e75e86f7bfa38b196951fa7
-    // - msg_hash: 0x5b9e8190392425e06024b1eedfbbe9dd3631ddd07a84154185d39ec1d657511
-    let signature = array![
-        0x4b2ca5c3cb47eafc1263db0fb7a1c4ee54eb9cc6605607a072894c0a9ae3b08,
-        0x313dc5b5f05ab680db7d51b391fadd52e679c971551f0017a8ceba37bacc5c6
-    ];
+    let delegation = Delegation { delegatee, nonce, expiry };
+    let msg_hash = delegation.get_message_hash(delegator);
+    let (r, s) = key_pair.sign(msg_hash).unwrap();
 
-    testing::set_block_timestamp('ts1');
-    state.delegate_by_sig(delegator, delegatee, nonce, expiry, signature);
+    let mut spy = spy_events();
 
-    assert_only_event_delegate_changed(ZERO(), delegator, ZERO(), delegatee);
+    state.delegate_by_sig(delegator, delegatee, nonce, expiry, array![r, s]);
+
+    spy.assert_only_event_delegate_changed(contract_address, delegator, ZERO(), delegatee);
     assert_eq!(state.delegates(account), delegatee);
 }
 
 #[test]
 #[should_panic(expected: ('Votes: expired signature',))]
 fn test_delegate_by_sig_past_expiry() {
+    cheat_block_timestamp_global('ts5');
+
     let mut state = setup();
     let expiry = 'ts4';
     let signature = array![0, 0];
 
-    testing::set_block_timestamp('ts5');
     state.delegate_by_sig(OWNER(), RECIPIENT(), 0, expiry, signature);
 }
 
@@ -285,7 +291,7 @@ fn test_delegate_by_sig_invalid_nonce() {
 #[should_panic(expected: ('Votes: invalid signature',))]
 fn test_delegate_by_sig_invalid_signature() {
     let mut state = setup();
-    let account = setup_account();
+    let account = setup_account(0x123);
     let signature = array![0, 0];
 
     state.delegate_by_sig(account, RECIPIENT(), 0, 0, signature);
@@ -349,56 +355,53 @@ fn test_get_voting_units() {
 // Helpers
 //
 
-fn assert_event_delegate_changed(
-    contract: ContractAddress,
-    delegator: ContractAddress,
-    from_delegate: ContractAddress,
-    to_delegate: ContractAddress
-) {
-    let event = utils::pop_log::<ERC20VotesComponent::Event>(contract).unwrap();
-    let expected = ERC20VotesComponent::Event::DelegateChanged(
-        DelegateChanged { delegator, from_delegate, to_delegate }
-    );
-    assert!(event == expected);
+#[generate_trait]
+impl VotesSpyHelpersImpl of VotesSpyHelpers {
+    fn assert_event_delegate_changed(
+        ref self: EventSpy,
+        contract: ContractAddress,
+        delegator: ContractAddress,
+        from_delegate: ContractAddress,
+        to_delegate: ContractAddress
+    ) {
+        let expected = ERC20VotesComponent::Event::DelegateChanged(
+            DelegateChanged { delegator, from_delegate, to_delegate }
+        );
+        self.assert_emitted_single(contract, expected);
+    }
 
-    // Check indexed keys
-    let mut indexed_keys = array![];
-    indexed_keys.append_serde(selector!("DelegateChanged"));
-    indexed_keys.append_serde(delegator);
-    indexed_keys.append_serde(from_delegate);
-    indexed_keys.append_serde(to_delegate);
-    utils::assert_indexed_keys(event, indexed_keys.span())
-}
+    fn assert_only_event_delegate_changed(
+        ref self: EventSpy,
+        contract: ContractAddress,
+        delegator: ContractAddress,
+        from_delegate: ContractAddress,
+        to_delegate: ContractAddress
+    ) {
+        self.assert_event_delegate_changed(contract, delegator, from_delegate, to_delegate);
+        self.assert_no_events_left_from(contract);
+    }
 
-fn assert_only_event_delegate_changed(
-    contract: ContractAddress,
-    delegator: ContractAddress,
-    from_delegate: ContractAddress,
-    to_delegate: ContractAddress
-) {
-    assert_event_delegate_changed(contract, delegator, from_delegate, to_delegate);
-    utils::assert_no_events_left(contract);
-}
+    fn assert_event_delegate_votes_changed(
+        ref self: EventSpy,
+        contract: ContractAddress,
+        delegate: ContractAddress,
+        previous_votes: u256,
+        new_votes: u256
+    ) {
+        let expected = ERC20VotesComponent::Event::DelegateVotesChanged(
+            DelegateVotesChanged { delegate, previous_votes, new_votes }
+        );
+        self.assert_emitted_single(contract, expected);
+    }
 
-fn assert_event_delegate_votes_changed(
-    contract: ContractAddress, delegate: ContractAddress, previous_votes: u256, new_votes: u256
-) {
-    let event = utils::pop_log::<ERC20VotesComponent::Event>(contract).unwrap();
-    let expected = ERC20VotesComponent::Event::DelegateVotesChanged(
-        DelegateVotesChanged { delegate, previous_votes, new_votes }
-    );
-    assert!(event == expected);
-
-    // Check indexed keys
-    let mut indexed_keys = array![];
-    indexed_keys.append_serde(selector!("DelegateVotesChanged"));
-    indexed_keys.append_serde(delegate);
-    utils::assert_indexed_keys(event, indexed_keys.span())
-}
-
-fn assert_only_event_delegate_votes_changed(
-    contract: ContractAddress, delegate: ContractAddress, previous_votes: u256, new_votes: u256
-) {
-    assert_event_delegate_votes_changed(contract, delegate, previous_votes, new_votes);
-    utils::assert_no_events_left(contract);
+    fn assert_only_event_delegate_votes_changed(
+        ref self: EventSpy,
+        contract: ContractAddress,
+        delegate: ContractAddress,
+        previous_votes: u256,
+        new_votes: u256
+    ) {
+        self.assert_event_delegate_votes_changed(contract, delegate, previous_votes, new_votes);
+        self.assert_no_events_left_from(contract);
+    }
 }

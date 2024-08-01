@@ -10,6 +10,7 @@ pub mod serde;
 pub mod structs;
 pub mod unwrap_and_cast;
 
+pub use cryptography::merkle;
 pub use cryptography::nonces;
 pub use cryptography::snip12;
 pub use unwrap_and_cast::UnwrapAndCast;

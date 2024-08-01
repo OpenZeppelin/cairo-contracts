@@ -10,6 +10,7 @@ use starknet::ContractAddress;
 #[starknet::component]
 pub mod ERC1155Component {
     use core::num::traits::Zero;
+    use openzeppelin_account::interface::ISRC6_ID;
     use openzeppelin_introspection::interface::{ISRC5Dispatcher, ISRC5DispatcherTrait};
     use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
@@ -138,7 +139,6 @@ pub mod ERC1155Component {
         ) -> u256 {
             self.ERC1155_balances.read((token_id, account))
         }
-
 
         /// Returns a list of balances derived from the `accounts` and `token_ids` pairs.
         ///
@@ -690,7 +690,7 @@ pub mod ERC1155Component {
                     get_caller_address(), from, token_id, value, data
                 ) == interface::IERC1155_RECEIVER_ID
         } else {
-            src5_dispatcher.supports_interface(openzeppelin_account::interface::ISRC6_ID)
+            src5_dispatcher.supports_interface(ISRC6_ID)
         }
     }
 
@@ -711,7 +711,7 @@ pub mod ERC1155Component {
                     get_caller_address(), from, token_ids, values, data
                 ) == interface::IERC1155_RECEIVER_ID
         } else {
-            src5_dispatcher.supports_interface(openzeppelin_account::interface::ISRC6_ID)
+            src5_dispatcher.supports_interface(ISRC6_ID)
         }
     }
 }

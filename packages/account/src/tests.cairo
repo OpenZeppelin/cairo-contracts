@@ -1,5 +1,5 @@
 pub mod ethereum;
-pub mod mocks;
+pub(crate) mod mocks;
 pub mod starknet;
 
 #[cfg(test)]

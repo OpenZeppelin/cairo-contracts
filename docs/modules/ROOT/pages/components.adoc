@@ -254,7 +254,7 @@ Let's look at how a contract would integrate {ownable-component}:
 ----
 #[starknet::contract]
 mod MyContract {
-    use openzeppelinaccess::ownable::OwnableComponent;
+    use openzeppelin::access::ownable::OwnableComponent;
     use starknet::ContractAddress;
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);

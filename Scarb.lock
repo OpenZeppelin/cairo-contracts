@@ -5,6 +5,7 @@ version = 1
 name = "openzeppelin"
 version = "0.15.0-rc.0"
 dependencies = [
+<<<<<<< HEAD
  "openzeppelin_access",
  "openzeppelin_account",
  "openzeppelin_governance",
@@ -95,6 +96,8 @@ dependencies = [
 name = "openzeppelin_utils"
 version = "0.15.0-rc.0"
 dependencies = [
+=======
+>>>>>>> 8561d75fab0c8e1acfcf7a37d290db368ed6a01b
  "snforge_std",
 ]
 

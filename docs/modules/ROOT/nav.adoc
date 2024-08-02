@@ -17,7 +17,8 @@
 ** xref:accounts.adoc[Accounts]
 *** xref:/api/account.adoc[API Reference]
 
-** xref:/api/governance.adoc[Governance]
+** xref:governance.adoc[Governance]
+*** xref:/api/governance.adoc[API Reference]
 
 ** xref:introspection.adoc[Introspection]
 *** xref:/guides/src5-migration.adoc[Migrating ERC165 to SRC5]

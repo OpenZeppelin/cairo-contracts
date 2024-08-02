@@ -160,18 +160,14 @@ git clone git@github.com:OpenZeppelin/cairo-contracts.git
 `cd` into it and build:
 
 ```bash
-$ cd cairo-contracts
-$ scarb build
-
-Compiling lib(openzeppelin) openzeppelin v0.15.0-rc.0 (~/cairo-contracts/Scarb.toml)
-Compiling starknet-contract(openzeppelin) openzeppelin v0.15.0-rc.0 (~/cairo-contracts/Scarb.toml)
-Finished release target(s) in 16 seconds
+cd cairo-contracts
+scarb build -w
 ```
 
 ### Run tests
 
 ```bash
-scarb test
+snforge test -w
 ```
 
 ## Security

@@ -39,16 +39,8 @@ fn setup() -> (ComponentState, Span<u256>) {
     state.initializer();
 
     let tokens_list = array![TOKEN_1, TOKEN_2, TOKEN_3].span();
-    let mut i = 0;
-
-    loop {
-        if i == tokens_list.len() {
-            break;
-        };
-
-        let token = *tokens_list.at(i);
-        mock_state.erc721.mint(OWNER(), token);
-        i = i + 1;
+    for token in tokens_list {
+        mock_state.erc721.mint(OWNER(), *token);
     };
 
     (state, tokens_list)
@@ -514,62 +506,50 @@ fn assert_dual_token_of_owner_by_index(owner: ContractAddress, expected_token_li
     let mut state = COMPONENT_STATE();
 
     let mut i = 0;
-    loop {
-        if i == expected_token_list.len() {
-            break;
-        };
+    while i < expected_token_list.len() {
         let token = state.token_of_owner_by_index(owner, i.into());
         assert_eq!(token, *expected_token_list.at(i));
 
-        i = i + 1;
-    };
+        i += 1;
+    }
 }
 
 fn assert_dual_token_by_index(expected_token_list: Span<u256>) {
     let mut state = COMPONENT_STATE();
 
     let mut i = 0;
-    loop {
-        if i == expected_token_list.len() {
-            break;
-        };
+    while i < expected_token_list.len() {
         let token = state.token_by_index(i.into());
         assert_eq!(token, *expected_token_list.at(i));
 
-        i = i + 1;
-    };
+        i += 1;
+    }
 }
 
 fn assert_after_update_all_tokens_list(expected_list: Span<u256>) {
     let state = @COMPONENT_STATE();
 
     let mut i = 0;
-    loop {
-        if i == expected_list.len() {
-            break;
-        };
+    while i < expected_list.len() {
         // Check total tokens list
         let token = state.ERC721Enumerable_all_tokens.read(i.into());
         assert_eq!(token, *expected_list.at(i));
 
-        i = i + 1;
-    };
+        i += 1;
+    }
 }
 
 fn assert_after_update_owned_tokens_list(owner: ContractAddress, expected_list: Span<u256>) {
     let state = @COMPONENT_STATE();
 
     let mut i = 0;
-    loop {
-        if i == expected_list.len() {
-            break;
-        };
+    while i < expected_list.len() {
         // Check owned tokens list
         let token = state.ERC721Enumerable_owned_tokens.read((owner, i.into()));
         assert_eq!(token, *expected_list.at(i));
 
-        i = i + 1;
-    };
+        i += 1;
+    }
 }
 
 fn assert_all_tokens_index_to_id(index: u256, exp_token_id: u256) {

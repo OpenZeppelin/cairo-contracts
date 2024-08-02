@@ -344,6 +344,19 @@ mod MyContract {
 WARNING: Customizing implementations and accessing component storage can potentially corrupt the state, bypass security checks, and undermine the component logic.
 *Exercise extreme caution*. See {security}.
 
+=== Hooks
+
+Hooks are entrypoints to the business logic of a token component that are accessible at the contract level.
+This allows contracts to insert additional behaviors before and/or after token transfers (including mints and burns).
+Prior to hooks, extending functionality required contracts to create <<custom_implementations, custom implementations>>.
+
+Here's an example of how an ERC20 contract can leverage hooks and ensure tokens cannot move when the contract is paused.
+
+[,cairo]
+----
+
+----
+
 === Custom implementations
 
 :erc20-component: xref:/api/erc20.adoc#ERC20Component[ERC20Component]

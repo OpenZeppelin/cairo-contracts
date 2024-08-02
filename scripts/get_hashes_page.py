@@ -34,6 +34,10 @@ https://crates.io/crates/cairo-lang-compiler/{cmp_version}[cairo {cmp_version}]
         # Avoid the already added contracts in the known order
         if contract['name'] in KNOWN_ORDER:
             continue
+        # Avoid adding mocks
+        # TODO: remove this after mocks are removed from the artifacts built outside tests
+        if "Mock" in contract['name']:
+            continue
         hashes += f":{contract['name']}-class-hash: {normalize_len(contract['sierra'])}\n"
 
     footer = """// Presets page
@@ -44,7 +48,7 @@ https://crates.io/crates/cairo-lang-compiler/{cmp_version}[cairo {cmp_version}]
 
 def remove_prefix_from_names(contracts):
     for contract in contracts:
-        contract.update([("name", remove_prefix(contract['name'], 'openzeppelin_'))])
+        contract.update([("name", remove_prefix(contract['name'], 'openzeppelin_presets_'))])
     return contracts
 
 

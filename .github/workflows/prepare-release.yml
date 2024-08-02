@@ -4,7 +4,7 @@ on:
   create:
 
 jobs:
-  update_version:
+  update_version_and_presets_page:
     if: github.ref_type == 'branch' && startsWith(github.ref, 'refs/heads/release-v')
     runs-on: ubuntu-latest
 
@@ -45,12 +45,15 @@ jobs:
       with:
         version: "0.1.0"
 
+    - name: Build presets artifacts
+      run: scarb build -p openzeppelin_presets
+
     - name: Update presets page
       run: |
-        class_hash get --json | sed -e '1,4d' | python3 scripts/get_hashes_page.py "$CAIRO_VERSION" \
+        class_hash get --no-compile --json | python3 scripts/get_hashes_page.py "$CAIRO_VERSION" \
           > ./docs/modules/ROOT/pages/utils/_class_hashes.adoc
 
     - name: Auto-commit changes
       uses: stefanzweifel/git-auto-commit-action@3ea6ae190baf489ba007f7c92608f33ce20ef04a #v4.16.0
       with:
-        commit_message: Bump version to ${{ env.NEW_VERSION }}
+        commit_message: Bump version to ${{ env.NEW_VERSION }} and update presets page

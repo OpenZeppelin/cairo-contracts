@@ -389,8 +389,8 @@ fn test_multicall() {
     let key_pair = KEY_PAIR();
     let (account, _) = setup_dispatcher_with_data(key_pair, SIGNED_TX_DATA(key_pair));
     let erc20 = deploy_erc20(account.contract_address, 1000);
-    let recipient2 = RECIPIENT();
-    let recipient1 = OTHER();
+    let recipient1 = RECIPIENT();
+    let recipient2 = OTHER();
 
     // Craft 1st call
     let mut calldata1 = array![];

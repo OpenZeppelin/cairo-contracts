@@ -299,7 +299,7 @@ fn test_multicall() {
         to: erc20.contract_address, selector: selectors::transfer, calldata: calldata1.span()
     };
 
-    // Craft 2nd call1_serialized_retval
+    // Craft 2nd call
     let mut calldata2 = array![];
     let amount2: u256 = 500;
     calldata2.append_serde(recipient2);

@@ -513,7 +513,7 @@ fn test_assert_only_self_false() {
 #[test]
 fn test_assert_valid_new_owner() {
     let key_pair = KEY_PAIR();
-    let mut state = setup(key_pair);
+    let state = setup(key_pair);
     let contract_address = test_address();
 
     let new_key_pair = KEY_PAIR_2();
@@ -528,12 +528,12 @@ fn test_assert_valid_new_owner() {
 #[should_panic(expected: ('EthAccount: invalid signature',))]
 fn test_assert_valid_new_owner_invalid_signature() {
     let key_pair = KEY_PAIR();
-    let mut state = setup(key_pair);
+    let state = setup(key_pair);
 
     start_cheat_caller_address(test_address(), test_address());
     let mut bad_signature = array![];
-    let new_key_pair = KEY_PAIR_2();
     EthSignature { r: 'BAD'.into(), s: 'SIG'.into() }.serialize(ref bad_signature);
+    let new_key_pair = KEY_PAIR_2();
 
     state
         .assert_valid_new_owner(key_pair.public_key, new_key_pair.public_key, bad_signature.span());

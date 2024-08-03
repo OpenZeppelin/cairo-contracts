@@ -19,8 +19,6 @@ use starknet::{ContractAddress, SyscallResultTrait};
 
 #[derive(Drop)]
 pub(crate) struct SignedTransactionData {
-    // pub(crate) private_key: u256,
-    // pub(crate) public_key: EthPublicKey,
     pub(crate) tx_hash: felt252,
     pub(crate) signature: EthSignature
 }
@@ -28,10 +26,7 @@ pub(crate) struct SignedTransactionData {
 pub(crate) fn SIGNED_TX_DATA(key_pair: Secp256k1KeyPair) -> SignedTransactionData {
     let tx_hash = TRANSACTION_HASH;
     let (r, s) = key_pair.sign(tx_hash.into()).unwrap();
-    SignedTransactionData { // private_key: key_pair.secret_key,
-        // public_key: key_pair.public_key,
-        tx_hash, signature: EthSignature { r, s }
-    }
+    SignedTransactionData { tx_hash, signature: EthSignature { r, s } }
 }
 
 pub(crate) fn get_accept_ownership_signature(

@@ -1,5 +1,5 @@
-use openzeppelin_presets::universal_deployer::UniversalDeployer::ContractDeployed;
-use openzeppelin_presets::universal_deployer::UniversalDeployer;
+use openzeppelin_presets::UniversalDeployer::ContractDeployed;
+use openzeppelin_presets::UniversalDeployer;
 use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use openzeppelin_utils::deployments::{DeployerInfo, calculate_contract_address_from_udc};
 use openzeppelin_utils::interfaces::{

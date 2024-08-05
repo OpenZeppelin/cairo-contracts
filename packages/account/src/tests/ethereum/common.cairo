@@ -12,7 +12,7 @@ use openzeppelin_utils::test_utils as utils;
 use openzeppelin_utils::test_utils::constants::TRANSACTION_HASH;
 use openzeppelin_utils::test_utils::constants::{NAME, SYMBOL};
 use openzeppelin_utils::test_utils::events::EventSpyExt;
-use openzeppelin_utils::test_utils::signing::{Secp256k1KeyPair, Secp256k1KeyPairExt};
+use openzeppelin_utils::test_utils::signing::{Secp256k1KeyPair, Secp256k1SerializedSigning};
 use snforge_std::EventSpy;
 use snforge_std::signature::secp256k1_curve::Secp256k1CurveSignerImpl;
 use starknet::{ContractAddress, SyscallResultTrait};

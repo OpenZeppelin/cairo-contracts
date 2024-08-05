@@ -5,7 +5,7 @@ use openzeppelin_introspection::interface::ISRC5_ID;
 use openzeppelin_utils::test_utils as utils;
 use openzeppelin_utils::test_utils::constants::TRANSACTION_HASH;
 use openzeppelin_utils::test_utils::constants::stark::{KEY_PAIR, KEY_PAIR_2};
-use openzeppelin_utils::test_utils::signing::{StarkKeyPair, StarkKeyPairExt};
+use openzeppelin_utils::test_utils::signing::{StarkKeyPair, StarkSerializedSigning};
 use snforge_std::{declare, start_cheat_caller_address};
 
 use super::common::get_accept_ownership_signature;

@@ -7,7 +7,7 @@ use openzeppelin_utils::serde::SerializedAppend;
 use openzeppelin_utils::test_utils as utils;
 use openzeppelin_utils::test_utils::constants::secp256k1::KEY_PAIR;
 use openzeppelin_utils::test_utils::constants::{ETH_PUBKEY, NEW_ETH_PUBKEY, TRANSACTION_HASH};
-use openzeppelin_utils::test_utils::signing::Secp256k1KeyPairExt;
+use openzeppelin_utils::test_utils::signing::Secp256k1SerializedSigning;
 use snforge_std::start_cheat_caller_address;
 
 use super::common::get_accept_ownership_signature;

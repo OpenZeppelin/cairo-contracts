@@ -14,16 +14,18 @@ pub fn get_secp256k1_keys_from(private_key: u256) -> Secp256k1KeyPair {
     Secp256k1CurveKeyPairImpl::from_secret_key(private_key)
 }
 
-#[generate_trait]
-pub impl StarkKeyPairExt of StarkKeyPairExtTrait {
+pub trait SerializedSigning<KP, M> {
+    fn serialized_sign(self: KP, msg: M) -> Array<felt252>;
+}
+
+pub impl StarkSerializedSigning of SerializedSigning<StarkKeyPair, felt252> {
     fn serialized_sign(self: StarkKeyPair, msg: felt252) -> Array<felt252> {
         let (r, s) = self.sign(msg).unwrap();
         array![r, s]
     }
 }
 
-#[generate_trait]
-pub impl Secp256k1KeyPairExt of Secp256k1KeyPairExtTrait {
+pub impl Secp256k1SerializedSigning of SerializedSigning<Secp256k1KeyPair, u256> {
     fn serialized_sign(self: Secp256k1KeyPair, msg: u256) -> Array<felt252> {
         let (r, s) = self.sign(msg).unwrap();
         array![r.low.into(), r.high.into(), s.low.into(), s.high.into()]

@@ -1,5 +1,4 @@
 use core::num::traits::Bounded;
-
 use openzeppelin_test_common::erc20::ERC20SpyHelpers;
 use openzeppelin_testing::constants::{
     ZERO, OWNER, SPENDER, RECIPIENT, NAME, SYMBOL, DECIMALS, SUPPLY, VALUE

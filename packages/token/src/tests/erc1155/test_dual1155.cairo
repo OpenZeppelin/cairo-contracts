@@ -1,5 +1,4 @@
 use core::num::traits::Zero;
-
 use openzeppelin_test_common::erc1155::{setup_account, setup_receiver};
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{

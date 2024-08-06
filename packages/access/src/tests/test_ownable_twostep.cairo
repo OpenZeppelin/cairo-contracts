@@ -3,7 +3,6 @@ use openzeppelin_access::ownable::OwnableComponent::{InternalTrait, OwnershipTra
 use openzeppelin_access::ownable::OwnableComponent;
 use openzeppelin_access::ownable::interface::{IOwnableTwoStep, IOwnableTwoStepCamelOnly};
 use openzeppelin_access::tests::mocks::ownable_mocks::DualCaseTwoStepOwnableMock;
-
 use openzeppelin_test_common::ownable::OwnableSpyHelpers;
 use openzeppelin_testing::constants::{ZERO, OWNER, OTHER, NEW_OWNER};
 use openzeppelin_testing::events::EventSpyExt;

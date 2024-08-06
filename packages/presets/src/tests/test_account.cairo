@@ -1,27 +1,23 @@
 use core::num::traits::Zero;
 use openzeppelin_account::AccountComponent::{OwnerAdded, OwnerRemoved};
 use openzeppelin_account::interface::ISRC6_ID;
-use openzeppelin_account::tests::starknet::common::{
-    assert_only_event_owner_added, assert_event_owner_removed
-};
-use openzeppelin_account::tests::starknet::common::{
-    deploy_erc20, SIGNED_TX_DATA, SignedTransactionData
-};
 use openzeppelin_introspection::interface::ISRC5_ID;
 use openzeppelin_presets::AccountUpgradeable;
 use openzeppelin_presets::interfaces::{
     AccountUpgradeableABIDispatcher, AccountUpgradeableABIDispatcherTrait
 };
 use openzeppelin_presets::tests::mocks::account_mocks::SnakeAccountMock;
-use openzeppelin_token::erc20::interface::{IERC20DispatcherTrait, IERC20Dispatcher};
-use openzeppelin_upgrades::tests::common::assert_only_event_upgraded;
-use openzeppelin_utils::selectors;
-use openzeppelin_utils::serde::SerializedAppend;
-use openzeppelin_utils::test_utils::constants::{
+use openzeppelin_test_common::account::{assert_only_event_owner_added, assert_event_owner_removed};
+use openzeppelin_test_common::account::{deploy_erc20, SIGNED_TX_DATA, SignedTransactionData};
+use openzeppelin_test_common::upgrades::assert_only_event_upgraded;
+use openzeppelin_test_utils::constants::{
     PUBKEY, NEW_PUBKEY, SALT, ZERO, CALLER, RECIPIENT, OTHER, QUERY_OFFSET, QUERY_VERSION,
     MIN_TRANSACTION_VERSION, CLASS_HASH_ZERO
 };
-use openzeppelin_utils::test_utils;
+use openzeppelin_test_utils;
+use openzeppelin_token::erc20::interface::{IERC20DispatcherTrait, IERC20Dispatcher};
+use openzeppelin_utils::selectors;
+use openzeppelin_utils::serde::SerializedAppend;
 use starknet::account::Call;
 use starknet::{ContractAddress, ClassHash};
 

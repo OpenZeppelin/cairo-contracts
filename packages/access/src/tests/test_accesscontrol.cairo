@@ -7,10 +7,10 @@ use openzeppelin_access::accesscontrol::interface::{
 use openzeppelin_access::accesscontrol::{AccessControlComponent, DEFAULT_ADMIN_ROLE};
 use openzeppelin_access::tests::mocks::accesscontrol_mocks::DualCaseAccessControlMock;
 use openzeppelin_introspection::interface::ISRC5;
-use openzeppelin_utils::test_utils::constants::{
+use openzeppelin_test_utils::constants::{
     ADMIN, AUTHORIZED, OTHER, OTHER_ADMIN, ROLE, OTHER_ROLE, ZERO
 };
-use openzeppelin_utils::test_utils::events::EventSpyExt;
+use openzeppelin_test_utils::events::EventSpyExt;
 use snforge_std::{EventSpy, spy_events, start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
 

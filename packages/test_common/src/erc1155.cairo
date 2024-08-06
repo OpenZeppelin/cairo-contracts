@@ -1,10 +1,8 @@
+use openzeppelin_test_utils as utils;
+use openzeppelin_test_utils::constants::{PUBKEY, TOKEN_ID, TOKEN_ID_2, TOKEN_VALUE, TOKEN_VALUE_2};
+use openzeppelin_test_utils::events::EventSpyExt;
 use openzeppelin_token::erc1155::ERC1155Component::{TransferBatch, ApprovalForAll, TransferSingle};
 use openzeppelin_token::erc1155::ERC1155Component;
-use openzeppelin_utils::test_utils as utils;
-use openzeppelin_utils::test_utils::constants::{
-    PUBKEY, TOKEN_ID, TOKEN_ID_2, TOKEN_VALUE, TOKEN_VALUE_2
-};
-use openzeppelin_utils::test_utils::events::EventSpyExt;
 use snforge_std::EventSpy;
 use starknet::ContractAddress;
 

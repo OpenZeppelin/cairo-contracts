@@ -1,4 +1,4 @@
-use openzeppelin_utils::test_utils::constants::SUCCESS;
+const SUCCESS: felt252 = 123123;
 
 #[starknet::contract]
 pub(crate) mod SnakeERC721ReceiverMock {

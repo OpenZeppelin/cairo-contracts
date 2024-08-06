@@ -3,14 +3,14 @@ use openzeppelin_account::interface::{EthAccountABIDispatcherTrait, EthAccountAB
 use openzeppelin_account::utils::secp256k1::{DebugSecp256k1Point, Secp256k1PointPartialEq};
 use openzeppelin_account::utils::signature::EthSignature;
 use openzeppelin_introspection::interface::ISRC5_ID;
-use openzeppelin_utils::serde::SerializedAppend;
-use openzeppelin_utils::test_utils as utils;
-use openzeppelin_utils::test_utils::constants::secp256k1::KEY_PAIR;
-use openzeppelin_utils::test_utils::constants::{ETH_PUBKEY, NEW_ETH_PUBKEY, TRANSACTION_HASH};
-use openzeppelin_utils::test_utils::signing::Secp256k1KeyPairExt;
-use snforge_std::start_cheat_caller_address;
 
-use super::common::get_accept_ownership_signature;
+use openzeppelin_test_common::eth_account::get_accept_ownership_signature;
+use openzeppelin_test_utils as utils;
+use openzeppelin_test_utils::constants::secp256k1::KEY_PAIR;
+use openzeppelin_test_utils::constants::{ETH_PUBKEY, NEW_ETH_PUBKEY, TRANSACTION_HASH};
+use openzeppelin_test_utils::signing::Secp256k1KeyPairExt;
+use openzeppelin_utils::serde::SerializedAppend;
+use snforge_std::start_cheat_caller_address;
 
 //
 // Setup

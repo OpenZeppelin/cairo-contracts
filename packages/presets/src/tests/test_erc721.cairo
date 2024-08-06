@@ -1,27 +1,27 @@
 use core::num::traits::Zero;
-use openzeppelin_access::tests::common::OwnableSpyHelpers;
 use openzeppelin_introspection::interface::ISRC5_ID;
 use openzeppelin_presets::ERC721Upgradeable::InternalImpl;
 use openzeppelin_presets::ERC721Upgradeable;
 use openzeppelin_presets::interfaces::{
     ERC721UpgradeableABIDispatcher, ERC721UpgradeableABIDispatcherTrait
 };
+use openzeppelin_test_common::erc721::ERC721SpyHelpers;
+use openzeppelin_test_common::ownable::OwnableSpyHelpers;
+use openzeppelin_test_common::upgrades::UpgradeableSpyHelpers;
+use openzeppelin_test_utils as utils;
+use openzeppelin_test_utils::common::IntoBase16String;
+use openzeppelin_test_utils::constants::{
+    ZERO, DATA, OWNER, SPENDER, RECIPIENT, OTHER, OPERATOR, CLASS_HASH_ZERO, PUBKEY, NAME, SYMBOL,
+    BASE_URI
+};
+use openzeppelin_test_utils::events::EventSpyExt;
 use openzeppelin_token::erc721::ERC721Component::ERC721Impl;
 use openzeppelin_token::erc721::interface::{
     IERC721CamelOnlySafeDispatcher, IERC721CamelOnlySafeDispatcherTrait
 };
 use openzeppelin_token::erc721::interface::{IERC721Dispatcher, IERC721DispatcherTrait};
 use openzeppelin_token::erc721::interface::{IERC721_ID, IERC721_METADATA_ID};
-use openzeppelin_token::tests::erc721::common::ERC721SpyHelpers;
-use openzeppelin_upgrades::tests::common::UpgradeableSpyHelpers;
 use openzeppelin_utils::serde::SerializedAppend;
-use openzeppelin_utils::test_utils as utils;
-use openzeppelin_utils::test_utils::common::IntoBase16String;
-use openzeppelin_utils::test_utils::constants::{
-    ZERO, DATA, OWNER, SPENDER, RECIPIENT, OTHER, OPERATOR, CLASS_HASH_ZERO, PUBKEY, NAME, SYMBOL,
-    BASE_URI
-};
-use openzeppelin_utils::test_utils::events::EventSpyExt;
 use snforge_std::{spy_events, EventSpy, start_cheat_caller_address};
 use starknet::{ContractAddress, ClassHash};
 

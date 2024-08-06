@@ -1,6 +1,6 @@
 
 [package]
-name = "openzeppelin_upgrades"
+name = "openzeppelin_test_common"
 version.workspace = true
 edition.workspace = true
 cairo-version.workspace = true
@@ -18,11 +18,13 @@ fmt.workspace = true
 
 [dependencies]
 starknet.workspace = true
-
-[dev-dependencies]
 snforge_std.workspace = true
+openzeppelin_upgrades = { path = "../upgrades" }
+openzeppelin_access = { path = "../access" }
+openzeppelin_account = { path = "../account" }
+openzeppelin_token = { path = "../token" }
 openzeppelin_test_utils = { path = "../test_utils" }
-openzeppelin_test_common = { path = "../test_common" }
+openzeppelin_utils = { path = "../utils" }
 
 [lib]
 

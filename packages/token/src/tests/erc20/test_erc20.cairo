@@ -165,7 +165,7 @@ fn test_transfer() {
 
     assert_state_before_transfer(OWNER(), RECIPIENT());
     let success = state.transfer(RECIPIENT(), VALUE);
-    assert!(success);
+    assert!(success, "Transfer failed");
     assert_state_after_transfer(OWNER(), RECIPIENT(), VALUE);
 
     spy.assert_only_event_transfer(contract_address, OWNER(), RECIPIENT(), VALUE);
@@ -316,7 +316,7 @@ fn test_transferFrom() {
 
     assert_state_before_transfer(OWNER(), RECIPIENT());
     let success = state.transferFrom(OWNER(), RECIPIENT(), VALUE);
-    assert!(success);
+    assert!(success, "Transfer failed");
     assert_state_after_transfer(OWNER(), RECIPIENT(), VALUE);
 
     spy.assert_event_approval(contract_address, OWNER(), SPENDER(), 0);

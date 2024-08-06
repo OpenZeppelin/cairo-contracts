@@ -1,4 +1,4 @@
-const SUCCESS: felt252 = 123123;
+const SUCCESS: felt252 = 'SUCCESS';
 
 #[starknet::contract]
 pub(crate) mod SnakeERC721ReceiverMock {

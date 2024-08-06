@@ -29,7 +29,7 @@ pub fn to_base_16_string(value: felt252) -> ByteArray {
     format!("0x{}", string)
 }
 
-/// A helper trait that enables any value that can be converted to `felt252` to be represented 
+/// A helper trait that enables any value that can be converted to `felt252` to be represented
 /// as a base 16 string padded to 66 characters (including the `0x` prefix).
 #[generate_trait]
 pub impl IntoBase16String<T, +Into<T, felt252>> of IntoBase16StringTrait<T> {

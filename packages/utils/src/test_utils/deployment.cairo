@@ -45,7 +45,7 @@ pub fn declare_and_deploy(contract_name: ByteArray, calldata: Array<felt252>) ->
     deploy(contract_class, calldata)
 }
 
-/// Combines the declaration of a class and the deployment of a contract at the given address 
+/// Combines the declaration of a class and the deployment of a contract at the given address
 /// into one function call.
 pub fn declare_and_deploy_at(
     contract_name: ByteArray, target_address: ContractAddress, calldata: Array<felt252>

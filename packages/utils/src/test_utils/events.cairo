@@ -24,7 +24,8 @@ pub impl EventSpyExtImpl of EventSpyExt {
         self.drop_n_events(1);
     }
 
-    /// Removes `number_to_drop` events from the queue. If the queue is empty, the function will panic.
+    /// Removes `number_to_drop` events from the queue. If the queue is empty, the function will
+    /// panic.
     fn drop_n_events(ref self: EventSpy, number_to_drop: u32) {
         let events = self.get_events().events;
         let len = events.len();
@@ -35,7 +36,8 @@ pub impl EventSpyExtImpl of EventSpyExt {
         self._event_offset += number_to_drop;
     }
 
-    /// Removes all events remaining on the queue. If the queue is empty already, the function will do nothing.
+    /// Removes all events remaining on the queue. If the queue is empty already, the function will
+    /// do nothing.
     fn drop_all_events(ref self: EventSpy) {
         let events = self.get_events().events;
         self._event_offset += events.len();

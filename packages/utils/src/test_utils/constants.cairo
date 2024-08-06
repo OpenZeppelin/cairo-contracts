@@ -1,6 +1,6 @@
-use starknet::{ClassHash, ContractAddress, SyscallResultTrait, contract_address_const};
 use starknet::class_hash::class_hash_const;
 use starknet::secp256_trait::Secp256Trait;
+use starknet::{ClassHash, ContractAddress, SyscallResultTrait, contract_address_const};
 
 pub type EthPublicKey = starknet::secp256k1::Secp256k1Point;
 
@@ -101,7 +101,11 @@ pub fn OPERATOR() -> ContractAddress {
 }
 
 pub fn DATA(success: bool) -> Span<felt252> {
-    let value = if success { SUCCESS } else { FAILURE };
+    let value = if success {
+        SUCCESS
+    } else {
+        FAILURE
+    };
     array![value].span()
 }
 

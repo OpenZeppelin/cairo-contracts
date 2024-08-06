@@ -3,7 +3,7 @@ use openzeppelin_security::ReentrancyGuardComponent;
 use openzeppelin_security::tests::mocks::reentrancy_mocks::{
     ReentrancyMock, IReentrancyMockDispatcher, IReentrancyMockDispatcherTrait
 };
-use openzeppelin_utils::test_utils as utils;
+use openzeppelin_test_utils as utils;
 
 type ComponentState = ReentrancyGuardComponent::ComponentState<ReentrancyMock::ContractState>;
 

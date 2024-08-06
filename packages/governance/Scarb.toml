@@ -19,10 +19,10 @@ fmt.workspace = true
 starknet.workspace = true
 openzeppelin_access = { path = "../access" }
 openzeppelin_introspection = { path = "../introspection" }
-openzeppelin_utils = { path = "../utils" }
 
 [dev-dependencies]
 snforge_std.workspace = true
+openzeppelin_test_utils = { path = "../test_utils" }
 
 [lib]
 

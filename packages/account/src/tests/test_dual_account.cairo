@@ -1,14 +1,13 @@
 use openzeppelin_account::dual_account::{DualCaseAccountABI, DualCaseAccount};
 use openzeppelin_account::interface::{AccountABIDispatcherTrait, AccountABIDispatcher};
-use openzeppelin_account::tests::starknet::common::SIGNED_TX_DATA;
 use openzeppelin_introspection::interface::ISRC5_ID;
-use openzeppelin_utils::test_utils as utils;
-use openzeppelin_utils::test_utils::constants::TRANSACTION_HASH;
-use openzeppelin_utils::test_utils::constants::stark::{KEY_PAIR, KEY_PAIR_2};
-use openzeppelin_utils::test_utils::signing::{StarkKeyPair, StarkSerializedSigning};
-use snforge_std::{declare, start_cheat_caller_address};
 
-use super::common::get_accept_ownership_signature;
+use openzeppelin_test_common::account::{SIGNED_TX_DATA, get_accept_ownership_signature};
+use openzeppelin_test_utils as utils;
+use openzeppelin_test_utils::constants::TRANSACTION_HASH;
+use openzeppelin_test_utils::constants::stark::{KEY_PAIR, KEY_PAIR_2};
+use openzeppelin_test_utils::signing::{StarkKeyPair, StarkKeyPairExt};
+use snforge_std::{declare, start_cheat_caller_address};
 
 //
 // Setup

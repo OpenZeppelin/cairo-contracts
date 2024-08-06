@@ -18,7 +18,10 @@ fmt.workspace = true
 
 [dependencies]
 starknet.workspace = true
+
+[dev-dependencies]
 snforge_std.workspace = true
+openzeppelin_test_utils = { path = "../test_utils" }
 
 [lib]
 

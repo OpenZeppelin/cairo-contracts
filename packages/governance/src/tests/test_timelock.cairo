@@ -31,10 +31,10 @@ use openzeppelin_governance::timelock::interface::{
 use openzeppelin_governance::timelock::{PROPOSER_ROLE, EXECUTOR_ROLE, CANCELLER_ROLE};
 use openzeppelin_introspection::interface::ISRC5_ID;
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
+use openzeppelin_test_utils as utils;
+use openzeppelin_test_utils::constants::{ADMIN, ZERO, OTHER, SALT, FELT_VALUE as VALUE};
+use openzeppelin_test_utils::events::EventSpyExt;
 use openzeppelin_utils::serde::SerializedAppend;
-use openzeppelin_utils::test_utils as utils;
-use openzeppelin_utils::test_utils::constants::{ADMIN, ZERO, OTHER, SALT, FELT_VALUE as VALUE};
-use openzeppelin_utils::test_utils::events::EventSpyExt;
 use snforge_std::EventSpy;
 use snforge_std::{
     spy_events, test_address, start_cheat_caller_address, cheat_caller_address,

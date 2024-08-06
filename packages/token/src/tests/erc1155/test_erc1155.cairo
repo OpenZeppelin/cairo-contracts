@@ -1,5 +1,16 @@
 use core::num::traits::Zero;
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
+use openzeppelin_test_common::erc1155::{
+    ERC1155SpyHelpers, get_ids_and_values, get_ids_and_split_values
+};
+
+use openzeppelin_test_common::erc1155::{
+    setup_account, deploy_another_account_at, setup_src5, setup_receiver, setup_camel_receiver
+};
+use openzeppelin_test_utils::constants::{
+    EMPTY_DATA, ZERO, OWNER, RECIPIENT, OPERATOR, OTHER, TOKEN_ID, TOKEN_ID_2, TOKEN_VALUE,
+    TOKEN_VALUE_2
+};
 use openzeppelin_token::erc1155::ERC1155Component::ERC1155CamelImpl;
 use openzeppelin_token::erc1155::ERC1155Component::{
     ERC1155Impl, ERC1155MetadataURIImpl, InternalImpl
@@ -9,17 +20,8 @@ use openzeppelin_token::erc1155::ERC1155Component;
 use openzeppelin_token::erc1155;
 use openzeppelin_token::tests::mocks::erc1155_mocks::DualCaseERC1155Mock;
 use openzeppelin_utils::serde::SerializedAppend;
-use openzeppelin_utils::test_utils::constants::{
-    EMPTY_DATA, ZERO, OWNER, RECIPIENT, OPERATOR, OTHER, TOKEN_ID, TOKEN_ID_2, TOKEN_VALUE,
-    TOKEN_VALUE_2
-};
 use snforge_std::{spy_events, test_address, start_cheat_caller_address};
 use starknet::ContractAddress;
-
-use super::common::{
-    setup_account, deploy_another_account_at, setup_src5, setup_receiver, setup_camel_receiver
-};
-use super::common::{ERC1155SpyHelpers, get_ids_and_values, get_ids_and_split_values};
 
 //
 // Setup

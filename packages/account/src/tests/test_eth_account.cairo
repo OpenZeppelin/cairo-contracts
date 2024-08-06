@@ -8,15 +8,20 @@ use openzeppelin_account::tests::mocks::eth_account_mocks::DualCaseEthAccountMoc
 use openzeppelin_account::utils::secp256k1::{DebugSecp256k1Point, Secp256k1PointPartialEq};
 use openzeppelin_account::utils::signature::EthSignature;
 use openzeppelin_introspection::interface::{ISRC5, ISRC5_ID};
-use openzeppelin_token::erc20::interface::IERC20DispatcherTrait;
-use openzeppelin_utils::selectors;
-use openzeppelin_utils::serde::SerializedAppend;
-use openzeppelin_utils::test_utils as utils;
-use openzeppelin_utils::test_utils::constants::secp256k1::KEY_PAIR;
-use openzeppelin_utils::test_utils::constants::{
+
+use openzeppelin_test_common::eth_account::EthAccountSpyHelpers;
+use openzeppelin_test_common::eth_account::{
+    deploy_erc20, SIGNED_TX_DATA, SignedTransactionData, get_accept_ownership_signature
+};
+use openzeppelin_test_utils as utils;
+use openzeppelin_test_utils::constants::secp256k1::KEY_PAIR;
+use openzeppelin_test_utils::constants::{
     ETH_PUBKEY, NEW_ETH_PUBKEY, SALT, ZERO, OTHER, RECIPIENT, CALLER, QUERY_VERSION,
     MIN_TRANSACTION_VERSION
 };
+use openzeppelin_token::erc20::interface::IERC20DispatcherTrait;
+use openzeppelin_utils::selectors;
+use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{
     cheat_signature_global, cheat_transaction_version_global, cheat_transaction_hash_global,
     start_cheat_caller_address
@@ -24,11 +29,6 @@ use snforge_std::{
 use snforge_std::{spy_events, test_address};
 use starknet::ContractAddress;
 use starknet::account::Call;
-
-use super::common::EthAccountSpyHelpers;
-use super::common::{
-    deploy_erc20, SIGNED_TX_DATA, SignedTransactionData, get_accept_ownership_signature
-};
 
 //
 // Setup

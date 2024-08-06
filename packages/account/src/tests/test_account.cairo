@@ -7,24 +7,26 @@ use openzeppelin_account::interface::{AccountABIDispatcherTrait, AccountABIDispa
 use openzeppelin_account::interface::{ISRC6, ISRC6_ID};
 use openzeppelin_account::tests::mocks::account_mocks::DualCaseAccountMock;
 use openzeppelin_introspection::interface::{ISRC5, ISRC5_ID};
+use openzeppelin_test_common::account::{
+    deploy_erc20, SIGNED_TX_DATA, get_accept_ownership_signature
+};
+
+use openzeppelin_test_common::account::{AccountSpyHelpers, SignedTransactionData};
+use openzeppelin_test_utils as utils;
+use openzeppelin_test_utils::constants::stark::{KEY_PAIR, KEY_PAIR_2};
+use openzeppelin_test_utils::constants::{
+    SALT, ZERO, OTHER, CALLER, RECIPIENT, QUERY_OFFSET, QUERY_VERSION, MIN_TRANSACTION_VERSION
+};
+use openzeppelin_test_utils::signing::StarkKeyPair;
 use openzeppelin_token::erc20::interface::IERC20DispatcherTrait;
 use openzeppelin_utils::selectors;
 use openzeppelin_utils::serde::SerializedAppend;
-use openzeppelin_utils::test_utils as utils;
-use openzeppelin_utils::test_utils::constants::stark::{KEY_PAIR, KEY_PAIR_2};
-use openzeppelin_utils::test_utils::constants::{
-    SALT, ZERO, OTHER, CALLER, RECIPIENT, QUERY_OFFSET, QUERY_VERSION, MIN_TRANSACTION_VERSION
-};
-use openzeppelin_utils::test_utils::signing::StarkKeyPair;
 use snforge_std::{
     cheat_signature_global, cheat_transaction_version_global, cheat_transaction_hash_global
 };
 use snforge_std::{spy_events, declare, test_address, start_cheat_caller_address};
 use starknet::account::Call;
 use starknet::{contract_address_const, ContractAddress, ClassHash};
-
-use super::common::{AccountSpyHelpers, SignedTransactionData};
-use super::common::{deploy_erc20, SIGNED_TX_DATA, get_accept_ownership_signature};
 
 //
 // Setup

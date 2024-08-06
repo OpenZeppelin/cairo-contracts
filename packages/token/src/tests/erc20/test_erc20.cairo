@@ -1,5 +1,4 @@
 use core::num::traits::Bounded;
-use core::num::traits::Zero;
 use openzeppelin_token::erc20::ERC20Component::{Approval, Transfer};
 use openzeppelin_token::erc20::ERC20Component::{ERC20CamelOnlyImpl, ERC20Impl};
 use openzeppelin_token::erc20::ERC20Component::{ERC20MetadataImpl, InternalImpl};
@@ -566,7 +565,7 @@ fn assert_state_before_transfer(sender: ContractAddress, recipient: ContractAddr
 
     assert_eq!(initial_supply, current_supply);
     assert_eq!(state.balance_of(sender), SUPPLY);
-    assert!(state.balance_of(recipient).is_zero());
+    assert_eq!(state.balance_of(recipient), 0);
 }
 
 fn assert_state_after_transfer(sender: ContractAddress, recipient: ContractAddress, amount: u256) {
@@ -585,7 +584,7 @@ fn assert_state_before_mint(recipient: ContractAddress) {
     let current_supply = state.total_supply();
 
     assert_eq!(current_supply, initial_supply);
-    assert!(state.balance_of(recipient).is_zero());
+    assert_eq!(state.balance_of(recipient), 0);
 }
 
 fn assert_state_after_mint(recipient: ContractAddress, amount: u256) {

@@ -22,6 +22,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `openzeppelin_token`
   - `openzeppelin_upgrades`
   - `openzeppelin_utils`
+- Separated packages intended as [dev-dependencies] (#1084)
+  - `openzeppelin_test_utils`
+  - `openzeppelin_test_common`
 
 ### Changed
 

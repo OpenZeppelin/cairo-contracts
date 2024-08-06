@@ -482,6 +482,17 @@ fn test_update_from_non_zero_to_non_zero() {
 }
 
 #[test]
+#[should_panic(expected: ('ERC20: insufficient balance',))]
+fn test_update_from_non_zero_to_non_zero_insufficient_balance() {
+    let mut state = setup();
+    let contract_address = test_address();
+    let overflow_amt = SUPPLY + 1;
+
+    start_cheat_caller_address(contract_address, OWNER());
+    state.update(OWNER(), RECIPIENT(), overflow_amt);
+}
+
+#[test]
 fn test_update_from_non_zero_to_zero() {
     let mut state = setup();
 

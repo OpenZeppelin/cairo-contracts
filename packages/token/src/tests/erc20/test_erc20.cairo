@@ -250,7 +250,7 @@ fn test_transfer_from() {
 
     assert_state_before_transfer(OWNER(), RECIPIENT());
     let success = state.transfer_from(OWNER(), RECIPIENT(), VALUE);
-    assert!(success);
+    assert!(success, "Transfer failed");
     assert_state_after_transfer(OWNER(), RECIPIENT(), VALUE);
 
     spy.assert_event_approval(contract_address, OWNER(), SPENDER(), 0);

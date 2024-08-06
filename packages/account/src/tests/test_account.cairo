@@ -10,7 +10,6 @@ use openzeppelin_introspection::interface::{ISRC5, ISRC5_ID};
 use openzeppelin_test_common::account::{
     deploy_erc20, SIGNED_TX_DATA, get_accept_ownership_signature
 };
-
 use openzeppelin_test_common::account::{AccountSpyHelpers, SignedTransactionData};
 use openzeppelin_test_utils as utils;
 use openzeppelin_test_utils::constants::stark::{KEY_PAIR, KEY_PAIR_2};

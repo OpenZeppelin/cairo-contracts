@@ -22,8 +22,8 @@ pub const NEW_PUBKEY: felt252 = 0x26da8d11938b76025862be14fdb8b28438827f73e75e86
 pub const DAPP_NAME: felt252 = 'DAPP_NAME';
 pub const DAPP_VERSION: felt252 = 'DAPP_VERSION';
 pub const SALT: felt252 = 'SALT';
-pub const SUCCESS: felt252 = 123123;
-pub const FAILURE: felt252 = 456456;
+pub const SUCCESS: felt252 = 'SUCCESS';
+pub const FAILURE: felt252 = 'FAILURE';
 pub const MIN_TRANSACTION_VERSION: felt252 = 1;
 pub const TRANSACTION_HASH: felt252 = 'TRANSACTION_HASH';
 // 2**128

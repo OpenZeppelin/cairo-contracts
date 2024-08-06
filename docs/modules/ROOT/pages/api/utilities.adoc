@@ -2,8 +2,8 @@
 
 :deploy_syscall: link:https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/system-calls-cairo1/#deploy[deploy_syscall]
 
-The following documentation provides reasoning and examples for functions and constants found in `openzeppelin::utils`
-and `use openzeppelin::utils::test_utils;`.
+The following documentation provides reasoning and examples for functions and constants found in `openzeppelin_utils`
+and `openzeppelin_utils::test_utils`.
 
 CAUTION: Expect this module to evolve (as it has already done).
 
@@ -14,7 +14,7 @@ CAUTION: Expect this module to evolve (as it has already done).
 === `++utils++`
 
 ```cairo
-use openzeppelin::utils;
+use openzeppelin_utils;
 ```
 
 Module containing core utilities of the library.
@@ -77,8 +77,8 @@ casting and unwrapping the result multiple times.
 Usage example:
 
 ```cairo
-use openzeppelin::utils::selectors;
-use openzeppelin::utils::UnwrapAndCast;
+use openzeppelin_utils::selectors;
+use openzeppelin_utils::UnwrapAndCast;
 
 fn call_and_cast_to_bool(target: ContractAddress, args: Span<felt252>) -> bool {
     try_selector_with_fallback(
@@ -102,31 +102,31 @@ Note that it can be automatically casted to any type implementing the `Serde` tr
 [[utils-cryptography]]
 ==== `[.contract-item-name]#++cryptography++#` [.item-kind]#module#
 
-See xref:#cryptography[`openzeppelin::utils::cryptography`].
+See xref:#cryptography[`openzeppelin_utils::cryptography`].
 
 [.contract-item]
 [[utils-deployments]]
 ==== `[.contract-item-name]#++deployments++#` [.item-kind]#module#
 
-See xref:#deployments[`openzeppelin::utils::deployments`].
+See xref:#deployments[`openzeppelin_utils::deployments`].
 
 [.contract-item]
 [[utils-math]]
 ==== `[.contract-item-name]#++math++#` [.item-kind]#module#
 
-See xref:#math[`openzeppelin::utils::math`].
+See xref:#math[`openzeppelin_utils::math`].
 
 [.contract-item]
 [[utils-selectors]]
 ==== `[.contract-item-name]#++selectors++#` [.item-kind]#module#
 
-See xref:#selectors[`openzeppelin::utils::selectors`].
+See xref:#selectors[`openzeppelin_utils::selectors`].
 
 [.contract-item]
 [[utils-serde]]
 ==== `[.contract-item-name]#++serde++#` [.item-kind]#module#
 
-See xref:#serde[`openzeppelin::utils::serde`].
+See xref:#serde[`openzeppelin_utils::serde`].
 
 [.contract]
 [[cryptography]]
@@ -135,7 +135,7 @@ See xref:#serde[`openzeppelin::utils::serde`].
 :snip12: https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-12.md[SNIP12]
 
 ```cairo
-use openzeppelin::utils::cryptography;
+use openzeppelin_utils::cryptography;
 ```
 
 Module containing utilities related to cryptography.
@@ -155,13 +155,13 @@ Module containing utilities related to cryptography.
 [[cryptography-nonces]]
 ==== `[.contract-item-name]#++nonces++#` [.item-kind]#module#
 
-See xref:#NoncesComponent[`openzeppelin::utils::cryptography::nonces::NoncesComponent`].
+See xref:#NoncesComponent[`openzeppelin_utils::cryptography::nonces::NoncesComponent`].
 
 [.contract-item]
 [[cryptography-snip12]]
 ==== `[.contract-item-name]#++snip12++#` [.item-kind]#module#
 
-See xref:#snip12[`openzeppelin::utils::cryptography::snip12`].
+See xref:#snip12[`openzeppelin_utils::cryptography::snip12`].
 
 [.contract]
 [[deployments]]
@@ -170,7 +170,7 @@ See xref:#snip12[`openzeppelin::utils::cryptography::snip12`].
 :udc-doc: xref:/udc.adoc[Universal Deployer Contract]
 
 ```cairo
-use openzeppelin::utils::deployments;
+use openzeppelin_utils::deployments;
 ```
 
 Module containing utility functions for calculating contract addresses through {deploy_syscall} and the {udc-doc} (UDC).
@@ -230,7 +230,7 @@ Origin-dependent deployments hash `salt` with `caller_address` (member of {deplo
 === `++math++`
 
 ```cairo
-use openzeppelin::utils::math;
+use openzeppelin_utils::math;
 ```
 
 Module containing math utilities.
@@ -258,7 +258,7 @@ NOTE: `T` is a generic value matching different numeric implementations.
 === `++selectors++`
 
 ```cairo
-use openzeppelin::utils::selectors;
+use openzeppelin_utils::selectors;
 ```
 
 :selectors: https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.15.0-rc.0/src/utils/selectors.cairo[selectors.cairo]
@@ -271,7 +271,7 @@ To see the full list of selectors, see {selectors}.
 === `++serde++`
 
 ```cairo
-use openzeppelin::utils::serde;
+use openzeppelin_utils::serde;
 ```
 
 Module containing utilities related to serialization and deserialization of Cairo data structures.
@@ -296,7 +296,7 @@ implementing the `Serde` trait to a `felt252` buffer.
 Usage example:
 
 ```cairo
-use openzeppelin::utils::serde::SerializedAppend;
+use openzeppelin_utils::serde::SerializedAppend;
 use starknet::ContractAddress;
 
 fn to_calldata(recipient: ContractAddress, amount: u256) -> Array<felt252> {
@@ -317,7 +317,7 @@ that implements the `Serde` trait.
 === `++NoncesComponent++`
 
 ```cairo
-use openzeppelin::utils::cryptography::nonces::NoncesComponent;
+use openzeppelin_utils::cryptography::nonces::NoncesComponent;
 ```
 
 Simple component for managing nonces.
@@ -372,7 +372,7 @@ Same as `use_nonce` but checking that `nonce` is the next valid one for `owner`.
 === `++snip12++`
 
 ```cairo
-use openzeppelin::utils::snip12;
+use openzeppelin_utils::snip12;
 ```
 
 Supports on-chain generation of message hashes compliant with {snip12}.
@@ -380,134 +380,321 @@ Supports on-chain generation of message hashes compliant with {snip12}.
 NOTE: For a full walkthrough on how to use this module, see the
 xref:/guides/snip12.adoc[SNIP12 and Typed Messages] guide.
 
-== Test utilities
+== Test Utilities
 
 [.contract]
 [[testutils]]
-=== `++utils++`
+=== `++test_utils++`
 
 ```cairo
-use openzeppelin::utils::test_utils;
+use openzeppelin_utils::test_utils;
 ```
 
-Module containing utilities for testing the library.
+[.contract-index]
+.Members
+--
+.Inner modules
+* xref:#testutils-common[`++common++`]
+* xref:#testutils-deployment[`++deployment++`]
+* xref:#testutils-events[`++events++`]
+* xref:#testutils-signing[`++signing++`]
+--
+
+[#testutils-Inner-Modules]
+==== Inner modules
+
+[.contract-item]
+==== `[.contract-item-name]#++common++#` [.item-kind]#module#
+
+See xref:#testutils-common[`openzeppelin::test_utils::common`].
+
+[.contract-item]
+==== `[.contract-item-name]#++deployment++#` [.item-kind]#module#
+
+See xref:#testutils-deployment[`openzeppelin::test_utils::deployment`].
+
+[.contract-item]
+==== `[.contract-item-name]#++events++#` [.item-kind]#module#
+
+See xref:#testutils-events[`openzeppelin::test_utils::events`].
+
+[.contract-item]
+==== `[.contract-item-name]#++signing++#` [.item-kind]#module#
+
+See xref:#testutils-signing[`openzeppelin::test_utils::signing`].
+
+[.contract]
+[[testutils-common]]
+=== `++common++`
+
+```cairo
+use openzeppelin_utils::test_utils::common;
+```
 
 [.contract-index]
 .Members
 --
 .Functions
-* xref:#testutils-deploy[`++deploy(contract_class_hash, calldata)++`]
-* xref:#testutils-deploy_with_salt[`++deploy_with_salt(contract_class_hash, calldata, salt)++`]
-* xref:#testutils-pop_log[`++pop_log<T>(address)++`]
-* xref:#testutils-assert_indexed_keys[`++assert_indexed_keys<T>(event, expected_keys)++`]
-* xref:#testutils-assert_no_events_left[`++assert_no_events_left(address)++`]
-* xref:#testutils-drop_event[`++drop_event(address)++`]
-* xref:#testutils-drop_events[`++drop_events(address, n_events)++`]
+* xref:#testutils-common-panic_data_to_byte_array[`++panic_data_to_byte_array(panic_data)++`]
+* xref:#testutils-common-to_base_16_string[`++to_base_16_string(value)++`]
+* xref:#testutils-common-assert_entrypoint_not_found_error[`++assert_entrypoint_not_found_error(result, selector, contract_address)++`]
+
+.Traits
+* xref:#testutils-common-IntoBase16StringTrait[`++IntoBase16StringTrait++`]
 --
 
-[#testutils-Functions]
+[#testutils-common-Functions]
 ==== Functions
 
 [.contract-item]
-[[testutils-deploy]]
-==== `[.contract-item-name]#++deploy++#++(contract_class_hash: felt252, calldata: Array<felt252>) → ContractAddress++` [.item-kind]#function#
+[[testutils-common-panic_data_to_byte_array]]
+==== `[.contract-item-name]#++panic_data_to_byte_array++#++(panic_data: Array<felt252>) → ByteArray++` [.item-kind]#function#
 
-Uses the `{deploy_syscall}` to deploy an instance of the contract given the class hash and the calldata.
+Converts panic data into a string (ByteArray).
 
-The `contract_address_salt` is always set to zero, and `deploy_from_zero` is set to false.
+`panic_data` is expected to be a valid serialized byte array with an extra felt252 at the beginning, which is the BYTE_ARRAY_MAGIC.
+
+[.contract-item]
+[[testutils-common-to_base_16_string]]
+==== `[.contract-item-name]#++to_base_16_string++#++(value: felt252) → ByteArray++` [.item-kind]#function#
+
+Converts a felt252 to a base 16 string padded to 66 characters (including the `0x` prefix).
+
+[.contract-item]
+[[testutils-common-assert_entrypoint_not_found_error]]
+==== `[.contract-item-name]#++assert_entrypoint_not_found_error++#<T, +Drop<T>>(result: SyscallResult<T>, selector: felt252, contract_address: ContractAddress)` [.item-kind]#function#
+
+Asserts that the syscall result of a call failed with an "Entrypoint not found" error,
+following the Starknet Foundry emitted error format.
+
+[#testutils-common-Traits]
+==== Traits
+
+[.contract-item]
+[[testutils-common-IntoBase16StringTrait]]
+==== `[.contract-item-name]#++IntoBase16StringTrait++#` [.item-kind]#trait#
+
+A helper trait that enables a value to be represented as a base 16 string padded to 66 characters
+(including the `0x` prefix). For that the type of the value has to implement `Into<T, felt252>` to be
+convertible to `felt252`.
 
 Usage example:
 
 ```cairo
-use openzeppelin::presets::AccountUpgradeable;
-use openzeppelin::utils::test_utils;
-use starknet::ContractAddress;
+use openzeppelin_utils::test_utils::common::IntoBase16String;
 
-const PUBKEY: felt252 = 'PUBKEY';
+let expected_panic_message = format!(
+    "Entry point selector {} not found in contract {}",
+    selector.into_base_16_string(),
+    contract_address.into_base_16_string()
+);
+```
 
-fn deploy_test_contract() -> ContractAddress {
-    let calldata = array![PUBKEY];
-    test_utils::deploy(AccountUpgradeable::TEST_CLASS_HASH, calldata)
-}
+[.contract]
+[[testutils-deployment]]
+=== `++deployment++`
+
+```cairo
+use openzeppelin_utils::test_utils::deployment;
+```
+
+A module containing utilities aimed to simplify declaring and deploying contracts via Starknet Foundry.
+
+[.contract-index]
+.Members
+--
+.Functions
+* xref:#testutils-deployment-declare_class[`++declare_class(contract_name)++`]
+* xref:#testutils-deployment-deploy[`++deploy(contract_class, calldata)++`]
+* xref:#testutils-deployment-deploy_at[`++deploy_at(contract_class, contract_address, calldata)++`]
+* xref:#testutils-deployment-deploy_another_at[`++deploy_another_at(existing, target_address, calldata)++`]
+* xref:#testutils-deployment-declare_and_deploy[`++declare_and_deploy(contract_name, calldata)++`]
+* xref:#testutils-deployment-declare_and_deploy_at[`++declare_and_deploy_at(contract_name, target_address, calldata)++`]
+--
+
+[#testutils-deployment-Functions]
+==== Functions
+
+[.contract-item]
+[[testutils-deployment-declare_class]]
+==== `[.contract-item-name]#++declare_class++#++(contract_name: ByteArray) → ContractClass++` [.item-kind]#function#
+
+Declares a contract with a Starknet Foundry `declare` call and unwraps the result.
+
+[.contract-item]
+[[testutils-deployment-deploy]]
+==== `[.contract-item-name]#++deploy++#++(contract_class: ContractClass, calldata: Array<felt252>) → ContractAddress++` [.item-kind]#function#
+
+Deploys an instance of a contract and unwraps the result.
+
+[.contract-item]
+[[testutils-deployment-deploy_at]]
+==== `[.contract-item-name]#++deploy_at++#++(contract_class: ContractClass, target_address: ContractAddress, calldata: Array<felt252>)++` [.item-kind]#function#
+
+Deploys an instance of a contract at a given address.
+
+[.contract-item]
+[[testutils-deployment-deploy_another_at]]
+==== `[.contract-item-name]#++deploy_another_at++#++(existing: ContractAddress, target_address: ContractAddress, calldata: Array<felt252>)++` [.item-kind]#function#
+
+Deploys a contract using the class hash from another already-deployed contract.
+
+Note that currently, Starknet Foundry does not support redeclaring a contract class. Consequently,
+there is no direct method to deploy a second instance of a contract if neither its `ContractClass`
+nor its `class_hash` is available in the context. This helper function provides a solution by retrieving
+the class hash from an existing contract and using it to facilitate the deployment.
+
+```cairo
+use openzeppelin_utils::test_utils::deploy_another_at;
+
+let sender_address = setup_account(array!['PUBKEY']);
+let recipient_address = contract_address_const::<'RECIPIENT'>();
+deploy_another_at(sender_address, recipient_address, array!['ANOTHER_PUBKEY']);
 ```
 
 [.contract-item]
-[[testutils-deploy_with_salt]]
-==== `[.contract-item-name]#++deploy_with_salt++#++(contract_class_hash: felt252, calldata: Array<felt252>, salt: felt252) → ContractAddress++` [.item-kind]#function#
+[[testutils-deployment-declare_and_deploy]]
+==== `[.contract-item-name]#++declare_and_deploy++#++(contract_name: ByteArray, calldata: Array<felt252>) → ContractAddress++` [.item-kind]#function#
 
-:deploy: xref:testutils-deploy[utils::deploy]
-
-Same as {deploy} except this function accepts a `salt` argument.
-This utility is useful when tests require multiple deployed instances of the same contract.
+Combines the declaration of a class and the deployment of a contract into one function call.
 
 [.contract-item]
-[[testutils-pop_log]]
-==== `[.contract-item-name]#++pop_log++#++<T>(address: ContractAddress) → Option<T>++` [.item-kind]#function#
+[[testutils-deployment-declare_and_deploy_at]]
+==== `[.contract-item-name]#++declare_and_deploy_at++#++(contract_name: ByteArray, target_address: ContractAddress, calldata: Array<felt252>)++` [.item-kind]#function#
 
-Pops the earliest unpopped logged event for the contract as the requested type
-and checks that there's no more keys or data left on the event, preventing unaccounted params.
+Combines the declaration of a class and the deployment of a contract at the given address into one function call.
 
-Required traits for `T`:
+[.contract]
+[[testutils-events]]
+=== `++events++`
 
-- `Drop`
-- `starknet::Event`
+```cairo
+use openzeppelin_utils::test_utils::events;
+use openzeppelin_utils::test_utils::events::EventSpyExt;
+```
 
-Requirements:
+A module offering an extended set of functions for handling emitted events, enhancing the default
+event utilities provided by Starknet Foundry. These functions are accessible via the `EventSpyExt`
+trait implemented on the `EventSpy` struct.
 
-- No extra data or keys are left on the raw event after deserialization.
+[.contract-index]
+.Members
+--
+.Functions
+* xref:#testutils-events-assert_only_event[`++assert_only_event(self, from_address, event)++`]
+* xref:#testutils-events-assert_emitted_single[`++assert_emitted_single(self, from_address, expected_event)++`]
+* xref:#testutils-events-drop_event[`++drop_event(self)++`]
+* xref:#testutils-events-drop_n_events[`++drop_n_events(self, number_to_drop)++`]
+* xref:#testutils-events-drop_all_events[`++drop_all_events(self)++`]
+* xref:#testutils-events-assert_no_events_left[`++assert_no_events_left(self)++`]
+* xref:#testutils-events-assert_no_events_left_from[`++assert_no_events_left_from(self, from_address)++`]
+* xref:#testutils-events-count_events_from[`++count_events_from(self, from_address)++`]
+--
+
+[#testutils-events-Functions]
+==== Functions
+
+[.contract-item]
+[[testutils-events-assert_only_event]]
+==== `[.contract-item-name]#++assert_only_event++#++<T, +starknet::Event<T>, +Drop<T>>(ref self: EventSpy, from_address: ContractAddress, expected_event: T)++` [.item-kind]#function#
+
+Ensures that `from_address` has emitted only the `expected_event` and no additional events.
+
+[.contract-item]
+[[testutils-events-assert_emitted_single]]
+==== `[.contract-item-name]#++assert_emitted_single++#++<T, +starknet::Event<T>, +Drop<T>>(ref self: EventSpy, from_address: ContractAddress, expected_event: T)++` [.item-kind]#function#
+
+Ensures that `from_address` has emitted the `expected_event`.
+
+[.contract-item]
+[[testutils-events-drop_event]]
+==== `[.contract-item-name]#++drop_event++#++(ref self: EventSpy)++` [.item-kind]#function#
+
+Removes a single event from the queue. If the queue is empty, the function will panic.
+
+[.contract-item]
+[[testutils-events-drop_n_events]]
+==== `[.contract-item-name]#++drop_n_events++#++(ref self: EventSpy, number_to_drop: u32)++` [.item-kind]#function#
+
+Removes `number_to_drop` events from the queue. If the queue is empty, the function will panic.
+
+[.contract-item]
+[[testutils-events-drop_all_events]]
+==== `[.contract-item-name]#++drop_all_events++#++(ref self: EventSpy)++` [.item-kind]#function#
+
+Removes all events remaining on the queue. If the queue is empty already, the function will do nothing.
+
+[.contract-item]
+[[testutils-events-assert_no_events_left]]
+==== `[.contract-item-name]#++assert_no_events_left++#++(ref self: EventSpy)++` [.item-kind]#function#
+
+Ensures that there are no events remaining on the queue.
+
+[.contract-item]
+[[testutils-events-assert_no_events_left_from]]
+==== `[.contract-item-name]#++assert_no_events_left_from++#++(ref self: EventSpy, from_address: ContractAddress)++` [.item-kind]#function#
+
+Ensures that there are no events emitted from the given address remaining on the queue.
+
+[.contract-item]
+[[testutils-events-count_events_from]]
+==== `[.contract-item-name]#++count_events_from++#++(ref self: EventSpy, from_address: ContractAddress) → u32++` [.item-kind]#function#
+
+Counts the number of remaining events emitted from the given address.
+
+[.contract]
+[[testutils-signing]]
+=== `++signing++`
+
+```cairo
+use openzeppelin_utils::test_utils::signing;
+```
+
+A module offering utility functions for easier management of key pairs and signatures.
+
+[.contract-index]
+.Members
+--
+.Functions
+* xref:#testutils-signing-get_stark_keys_from[`++get_stark_keys_from(private_key)++`]
+* xref:#testutils-signing-get_secp256k1_keys_from[`++get_secp256k1_keys_from(private_key)++`]
+
+.Traits
+* xref:#testutils-signing-SerializedSigning[`++SerializedSigning++`]
+--
+
+[#testutils-signing-Functions]
+==== Functions
+
+[.contract-item]
+[[testutils-signing-get_stark_keys_from]]
+==== `[.contract-item-name]#++get_stark_keys_from++#++(private_key: felt252) → StarkKeyPair++` [.item-kind]#function#
+
+Builds a **Stark** Key Pair from a private key represented by a `felt252` value.
+
+[.contract-item]
+[[testutils-signing-get_secp256k1_keys_from]]
+==== `[.contract-item-name]#++get_secp256k1_keys_from++#++(private_key: u256) → Secp256k1KeyPair++` [.item-kind]#function#
+
+Builds a **Secp256k1** Key Pair from a private key represented by a `u256` value.
+
+
+[#testutils-signing-Traits]
+==== Traits
+
+[.contract-item]
+[[testutils-signing-SerializedSigning]]
+==== `[.contract-item-name]#++SerializedSigning++#` [.item-kind]#trait#
+
+A helper trait that facilitates signing and converting the result signature into a serialized format.
 
 Usage example:
 
 ```cairo
-use openzeppelin::utils::test_utils;
-use openzeppelin::token::erc20::ERC20Component;
-use openzeppelin::token::erc20::ERC20Component::Transfer;
-use starknet::ContractAddress;
+use openzeppelin_utils::test_utils::signing::{
+    StarkKeyPair, get_stark_keys_from, StarkSerializedSigning
+};
 
-fn assert_emitted_event(
-    target: ContractAddress, from: ContractAddress, to: ContractAddress, value: u256
-) {
-    let event = test_utils::pop_log::<ERC20Component::Event>(target).unwrap();
-    let expected = ERC20Component::Event::Transfer(Transfer { from, to, value });
-    assert!(event == expected);
-}
+let key_pair = get_stark_keys_from('SECRET_KEY');
+let serialized_signature = key_pair.serialized_sign('TX_HASH');
 ```
-
-[.contract-item]
-[[testutils-assert_indexed_keys]]
-==== `[.contract-item-name]#++assert_indexed_keys++#<T>(event: T, expected_keys: Span<felt252>)` [.item-kind]#function#
-
-Asserts that `expected_keys` exactly matches the indexed keys from `event`.
-
-`expected_keys` must include all indexed event keys for `event` in the order
-that they're defined.
-
-NOTE: If the event is not flattened, the first key will be the event member name
-e.g. `selector!("EnumMemberName")`.
-
-Required traits for `T`:
-
-- `Drop`
-- `starknet::Event`
-
-[.contract-item]
-[[testutils-assert_no_events_left]]
-==== `[.contract-item-name]#++assert_no_events_left++#++(address: ContractAddress)++` [.item-kind]#function#
-
-Asserts that there are no more events left in the queue for the given address.
-
-[.contract-item]
-[[testutils-drop_event]]
-==== `[.contract-item-name]#++drop_event++#++(address: ContractAddress)++` [.item-kind]#function#
-
-Removes an event from the queue for the given address.
-
-If the queue is empty, this function won't do anything.
-
-[.contract-item]
-[[testutils-drop_events]]
-==== `[.contract-item-name]#++drop_events++#++(address: ContractAddress, n_events: felt252)++` [.item-kind]#function#
-
-Removes `n_events` from the queue for the given address.
-
-If the queue is empty, this function won't do anything.

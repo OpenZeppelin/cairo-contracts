@@ -446,6 +446,15 @@ fn test_burn() {
 }
 
 #[test]
+#[should_panic(expected: ('ERC20: insufficient balance',))]
+fn test_burn_insufficient_balance() {
+    let mut state = setup();
+    let overflow_amt = SUPPLY + 1;
+
+    state.burn(OWNER(), overflow_amt);
+}
+
+#[test]
 #[should_panic(expected: ('ERC20: burn from 0',))]
 fn test_burn_from_zero() {
     let mut state = setup();
@@ -486,6 +495,17 @@ fn test_update_from_non_zero_to_zero() {
     assert_state_after_burn(OWNER(), VALUE);
 
     spy.assert_only_event_transfer(contract_address, OWNER(), ZERO(), VALUE);
+}
+
+#[test]
+#[should_panic(expected: ('ERC20: insufficient balance',))]
+fn test_update_from_non_zero_to_zero_insufficient_balance() {
+    let mut state = setup();
+    let contract_address = test_address();
+    let overflow_amt = SUPPLY + 1;
+
+    start_cheat_caller_address(contract_address, OWNER());
+    state.update(OWNER(), ZERO(), overflow_amt);
 }
 
 #[test]

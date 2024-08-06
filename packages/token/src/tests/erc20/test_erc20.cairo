@@ -532,8 +532,8 @@ fn assert_state_before_transfer(sender: ContractAddress, recipient: ContractAddr
     let state = COMPONENT_STATE();
     let initial_supply = SUPPLY;
     let current_supply = state.total_supply();
-    assert_eq!(initial_supply, current_supply);
 
+    assert_eq!(initial_supply, current_supply);
     assert_eq!(state.balance_of(sender), SUPPLY);
     assert!(state.balance_of(recipient).is_zero());
 }

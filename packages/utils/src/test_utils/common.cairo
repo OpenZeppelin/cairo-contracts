@@ -29,6 +29,8 @@ pub fn to_base_16_string(value: felt252) -> ByteArray {
     format!("0x{}", string)
 }
 
+/// A helper trait that enables any value that can be converted to `felt252` to be represented 
+/// as a base 16 string padded to 66 characters (including the `0x` prefix).
 #[generate_trait]
 pub impl IntoBase16String<T, +Into<T, felt252>> of IntoBase16StringTrait<T> {
     fn into_base_16_string(self: T) -> ByteArray {
@@ -37,7 +39,7 @@ pub impl IntoBase16String<T, +Into<T, felt252>> of IntoBase16StringTrait<T> {
 }
 
 /// Asserts that the syscall result of a call failed with an "Entrypoint not found" error,
-/// following the starknet foundry emitted error format.
+/// following the Starknet Foundry emitted error format.
 pub fn assert_entrypoint_not_found_error<T, +Drop<T>>(
     result: SyscallResult<T>, selector: felt252, contract_address: ContractAddress
 ) {

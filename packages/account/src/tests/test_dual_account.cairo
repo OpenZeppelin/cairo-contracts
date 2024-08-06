@@ -6,7 +6,7 @@ use openzeppelin_test_common::account::{SIGNED_TX_DATA, get_accept_ownership_sig
 use openzeppelin_test_utils as utils;
 use openzeppelin_test_utils::constants::TRANSACTION_HASH;
 use openzeppelin_test_utils::constants::stark::{KEY_PAIR, KEY_PAIR_2};
-use openzeppelin_test_utils::signing::{StarkKeyPair, StarkKeyPairExt};
+use openzeppelin_test_utils::signing::{StarkKeyPair, StarkSerializedSigning};
 use snforge_std::{declare, start_cheat_caller_address};
 
 //

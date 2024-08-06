@@ -10,7 +10,7 @@ use openzeppelin_test_utils as utils;
 use openzeppelin_test_utils::constants::TRANSACTION_HASH;
 use openzeppelin_test_utils::constants::{NAME, SYMBOL};
 use openzeppelin_test_utils::events::EventSpyExt;
-use openzeppelin_test_utils::signing::{Secp256k1KeyPair, Secp256k1KeyPairExt};
+use openzeppelin_test_utils::signing::{Secp256k1KeyPair, Secp256k1SerializedSigning};
 use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::EventSpy;

@@ -2,7 +2,7 @@ use openzeppelin_account::utils::signature::{is_valid_stark_signature, is_valid_
 use openzeppelin_test_common::account::SIGNED_TX_DATA as stark_signature_data;
 
 use openzeppelin_test_common::eth_account::SIGNED_TX_DATA as eth_signature_data;
-use openzeppelin_test_utils::constants::{stark, secp256k1};
+use openzeppelin_testing::constants::{stark, secp256k1};
 use starknet::secp256_trait::Secp256Trait;
 use starknet::secp256k1::Secp256k1Point;
 

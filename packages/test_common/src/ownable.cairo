@@ -1,6 +1,6 @@
 use openzeppelin_access::ownable::OwnableComponent::OwnershipTransferred;
 use openzeppelin_access::ownable::OwnableComponent;
-use openzeppelin_test_utils::EventSpyExt;
+use openzeppelin_testing::EventSpyExt;
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::EventSpy;
 use starknet::ContractAddress;

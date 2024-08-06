@@ -1,7 +1,7 @@
 use core::num::traits::Bounded;
 
 use openzeppelin_test_common::erc20::ERC20SpyHelpers;
-use openzeppelin_test_utils::constants::{
+use openzeppelin_testing::constants::{
     ZERO, OWNER, SPENDER, RECIPIENT, NAME, SYMBOL, DECIMALS, SUPPLY, VALUE
 };
 use openzeppelin_token::erc20::ERC20Component::{Approval, Transfer};

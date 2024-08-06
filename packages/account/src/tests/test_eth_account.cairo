@@ -8,14 +8,15 @@ use openzeppelin_account::tests::mocks::eth_account_mocks::DualCaseEthAccountMoc
 use openzeppelin_account::utils::secp256k1::{DebugSecp256k1Point, Secp256k1PointPartialEq};
 use openzeppelin_account::utils::signature::EthSignature;
 use openzeppelin_introspection::interface::{ISRC5, ISRC5_ID};
+use openzeppelin_test_common::erc20::deploy_erc20;
 
 use openzeppelin_test_common::eth_account::EthAccountSpyHelpers;
 use openzeppelin_test_common::eth_account::{
-    deploy_erc20, SIGNED_TX_DATA, SignedTransactionData, get_accept_ownership_signature
+    SIGNED_TX_DATA, SignedTransactionData, get_accept_ownership_signature
 };
-use openzeppelin_test_utils as utils;
-use openzeppelin_test_utils::constants::secp256k1::KEY_PAIR;
-use openzeppelin_test_utils::constants::{
+use openzeppelin_testing as utils;
+use openzeppelin_testing::constants::secp256k1::KEY_PAIR;
+use openzeppelin_testing::constants::{
     ETH_PUBKEY, NEW_ETH_PUBKEY, SALT, ZERO, OTHER, RECIPIENT, CALLER, QUERY_VERSION,
     MIN_TRANSACTION_VERSION
 };

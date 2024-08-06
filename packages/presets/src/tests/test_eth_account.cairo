@@ -9,14 +9,15 @@ use openzeppelin_presets::interfaces::eth_account::{
 use openzeppelin_presets::interfaces::{
     EthAccountUpgradeableABIDispatcher, EthAccountUpgradeableABIDispatcherTrait
 };
+use openzeppelin_test_common::erc20::deploy_erc20;
 use openzeppelin_test_common::eth_account::EthAccountSpyHelpers;
 use openzeppelin_test_common::eth_account::{
-    deploy_erc20, SIGNED_TX_DATA, SignedTransactionData, get_accept_ownership_signature
+    SIGNED_TX_DATA, SignedTransactionData, get_accept_ownership_signature
 };
 use openzeppelin_test_common::upgrades::UpgradeableSpyHelpers;
-use openzeppelin_test_utils as utils;
-use openzeppelin_test_utils::constants::secp256k1::KEY_PAIR;
-use openzeppelin_test_utils::constants::{
+use openzeppelin_testing as utils;
+use openzeppelin_testing::constants::secp256k1::KEY_PAIR;
+use openzeppelin_testing::constants::{
     CLASS_HASH_ZERO, ETH_PUBKEY, NEW_ETH_PUBKEY, SALT, ZERO, RECIPIENT, QUERY_VERSION,
     MIN_TRANSACTION_VERSION
 };

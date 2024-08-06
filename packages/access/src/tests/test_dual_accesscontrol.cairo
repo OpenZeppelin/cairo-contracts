@@ -7,8 +7,8 @@ use openzeppelin_access::accesscontrol::interface::{
 use openzeppelin_access::accesscontrol::interface::{
     IAccessControlDispatcher, IAccessControlDispatcherTrait
 };
-use openzeppelin_test_utils as utils;
-use openzeppelin_test_utils::constants::{ADMIN, AUTHORIZED, ROLE};
+use openzeppelin_testing as utils;
+use openzeppelin_testing::constants::{ADMIN, AUTHORIZED, ROLE};
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::start_cheat_caller_address;
 

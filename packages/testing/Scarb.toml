@@ -1,6 +1,6 @@
 
 [package]
-name = "openzeppelin_test_utils"
+name = "openzeppelin_testing"
 version.workspace = true
 edition.workspace = true
 cairo-version.workspace = true

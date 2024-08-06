@@ -5,10 +5,10 @@ use openzeppelin_account::utils::signature::EthSignature;
 use openzeppelin_introspection::interface::ISRC5_ID;
 
 use openzeppelin_test_common::eth_account::get_accept_ownership_signature;
-use openzeppelin_test_utils as utils;
-use openzeppelin_test_utils::constants::secp256k1::KEY_PAIR;
-use openzeppelin_test_utils::constants::{ETH_PUBKEY, NEW_ETH_PUBKEY, TRANSACTION_HASH};
-use openzeppelin_test_utils::signing::Secp256k1KeyPairExt;
+use openzeppelin_testing as utils;
+use openzeppelin_testing::constants::secp256k1::KEY_PAIR;
+use openzeppelin_testing::constants::{ETH_PUBKEY, NEW_ETH_PUBKEY, TRANSACTION_HASH};
+use openzeppelin_testing::signing::Secp256k1KeyPairExt;
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::start_cheat_caller_address;
 

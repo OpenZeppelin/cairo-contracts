@@ -1,8 +1,8 @@
 use core::num::traits::Bounded;
 use core::num::traits::Zero;
-use openzeppelin_test_utils as utils;
-use openzeppelin_test_utils::constants::{SUPPLY, ZERO, OWNER, RECIPIENT};
-use openzeppelin_test_utils::events::EventSpyExt;
+use openzeppelin_testing as utils;
+use openzeppelin_testing::constants::{SUPPLY, ZERO, OWNER, RECIPIENT};
+use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_token::erc20::ERC20Component::InternalImpl as ERC20Impl;
 use openzeppelin_token::erc20::extensions::ERC20VotesComponent::{
     DelegateChanged, DelegateVotesChanged

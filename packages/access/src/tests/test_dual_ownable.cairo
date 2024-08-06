@@ -3,8 +3,8 @@ use openzeppelin_access::ownable::dual_ownable::{DualCaseOwnable, DualCaseOwnabl
 use openzeppelin_access::ownable::interface::{
     IOwnableDispatcher, IOwnableCamelOnlyDispatcher, IOwnableDispatcherTrait
 };
-use openzeppelin_test_utils as utils;
-use openzeppelin_test_utils::constants::{OWNER, NEW_OWNER};
+use openzeppelin_testing as utils;
+use openzeppelin_testing::constants::{OWNER, NEW_OWNER};
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::start_cheat_caller_address;
 

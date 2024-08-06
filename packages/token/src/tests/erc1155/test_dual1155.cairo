@@ -1,8 +1,8 @@
 use core::num::traits::Zero;
 
 use openzeppelin_test_common::erc1155::{setup_account, setup_receiver};
-use openzeppelin_test_utils as utils;
-use openzeppelin_test_utils::constants::{
+use openzeppelin_testing as utils;
+use openzeppelin_testing::constants::{
     EMPTY_DATA, OWNER, RECIPIENT, OPERATOR, TOKEN_ID, TOKEN_ID_2, TOKEN_VALUE
 };
 use openzeppelin_token::erc1155::dual1155::{DualCaseERC1155, DualCaseERC1155Trait};

@@ -9,12 +9,12 @@ use openzeppelin_test_common::erc1155::{
 use openzeppelin_test_common::erc1155::{get_ids_and_values, get_ids_and_split_values};
 use openzeppelin_test_common::ownable::OwnableSpyHelpers;
 use openzeppelin_test_common::upgrades::UpgradeableSpyHelpers;
-use openzeppelin_test_utils as utils;
-use openzeppelin_test_utils::constants::{
+use openzeppelin_testing as utils;
+use openzeppelin_testing::constants::{
     EMPTY_DATA, ZERO, OWNER, RECIPIENT, CLASS_HASH_ZERO, OPERATOR, OTHER, TOKEN_ID, TOKEN_ID_2,
     TOKEN_VALUE, TOKEN_VALUE_2
 };
-use openzeppelin_test_utils::events::EventSpyExt;
+use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_token::erc1155::interface::{
     IERC1155CamelSafeDispatcher, IERC1155CamelSafeDispatcherTrait
 };

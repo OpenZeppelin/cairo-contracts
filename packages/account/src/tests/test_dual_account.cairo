@@ -3,10 +3,10 @@ use openzeppelin_account::interface::{AccountABIDispatcherTrait, AccountABIDispa
 use openzeppelin_introspection::interface::ISRC5_ID;
 
 use openzeppelin_test_common::account::{SIGNED_TX_DATA, get_accept_ownership_signature};
-use openzeppelin_test_utils as utils;
-use openzeppelin_test_utils::constants::TRANSACTION_HASH;
-use openzeppelin_test_utils::constants::stark::{KEY_PAIR, KEY_PAIR_2};
-use openzeppelin_test_utils::signing::{StarkKeyPair, StarkKeyPairExt};
+use openzeppelin_testing as utils;
+use openzeppelin_testing::constants::TRANSACTION_HASH;
+use openzeppelin_testing::constants::stark::{KEY_PAIR, KEY_PAIR_2};
+use openzeppelin_testing::signing::{StarkKeyPair, StarkKeyPairExt};
 use snforge_std::{declare, start_cheat_caller_address};
 
 //

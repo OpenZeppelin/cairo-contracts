@@ -122,7 +122,7 @@ pub fn EMPTY_DATA() -> Span<felt252> {
 //
 
 pub mod secp256k1 {
-    use openzeppelin_test_utils::signing::{Secp256k1KeyPair, get_secp256k1_keys_from};
+    use openzeppelin_testing::signing::{Secp256k1KeyPair, get_secp256k1_keys_from};
 
     pub fn KEY_PAIR() -> Secp256k1KeyPair {
         let private_key = u256 { low: 'PRIVATE_LOW', high: 'PRIVATE_HIGH' };
@@ -136,7 +136,7 @@ pub mod secp256k1 {
 }
 
 pub mod stark {
-    use openzeppelin_test_utils::signing::{StarkKeyPair, get_stark_keys_from};
+    use openzeppelin_testing::signing::{StarkKeyPair, get_stark_keys_from};
 
     pub fn KEY_PAIR() -> StarkKeyPair {
         get_stark_keys_from('PRIVATE_KEY')

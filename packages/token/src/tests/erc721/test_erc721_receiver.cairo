@@ -1,6 +1,6 @@
 use openzeppelin_introspection::interface::ISRC5_ID;
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
-use openzeppelin_test_utils::constants::{OWNER, OPERATOR, TOKEN_ID};
+use openzeppelin_testing::constants::{OWNER, OPERATOR, TOKEN_ID};
 use openzeppelin_token::erc721::ERC721ReceiverComponent::{
     ERC721ReceiverImpl, ERC721ReceiverCamelImpl, InternalImpl
 };

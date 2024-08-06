@@ -7,11 +7,11 @@ use openzeppelin_account::interface::{AccountABIDispatcherTrait, AccountABIDispa
 use openzeppelin_account::interface::{ISRC6, ISRC6_ID};
 use openzeppelin_account::tests::mocks::account_mocks::DualCaseAccountMock;
 use openzeppelin_introspection::interface::{ISRC5, ISRC5_ID};
-
-use openzeppelin_test_common::account::{AccountSpyHelpers, SignedTransactionData};
 use openzeppelin_test_common::account::{
     deploy_erc20, SIGNED_TX_DATA, get_accept_ownership_signature
 };
+
+use openzeppelin_test_common::account::{AccountSpyHelpers, SignedTransactionData};
 use openzeppelin_test_utils as utils;
 use openzeppelin_test_utils::constants::stark::{KEY_PAIR, KEY_PAIR_2};
 use openzeppelin_test_utils::constants::{

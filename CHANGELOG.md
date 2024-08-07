@@ -33,6 +33,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bump scarb to v2.7.0-rc.4 (#1064)
 - Bump scarb to v2.7.0 (#1065)
 
+### Changed (Breaking)
+
+- Test utilities moved out of the utils module (#1084).
+- Test utilities refactored to match the snforge test runner (#1084).
+
 ## 0.15.0-rc.0 (2024-07-8)
 
 ### Changed

@@ -9,7 +9,6 @@ use openzeppelin_account::utils::secp256k1::{DebugSecp256k1Point, Secp256k1Point
 use openzeppelin_account::utils::signature::EthSignature;
 use openzeppelin_introspection::interface::{ISRC5, ISRC5_ID};
 use openzeppelin_test_common::erc20::deploy_erc20;
-
 use openzeppelin_test_common::eth_account::EthAccountSpyHelpers;
 use openzeppelin_test_common::eth_account::{
     SIGNED_TX_DATA, SignedTransactionData, get_accept_ownership_signature

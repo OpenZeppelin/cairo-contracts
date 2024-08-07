@@ -1,4 +1,3 @@
-
 [package]
 name = "openzeppelin_testing"
 version.workspace = true

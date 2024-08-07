@@ -1,24 +1,32 @@
 use core::num::traits::Zero;
-use openzeppelin_account::AccountComponent::{OwnerAdded, OwnerRemoved};
 use openzeppelin_account::interface::ISRC6_ID;
 use openzeppelin_introspection::interface::ISRC5_ID;
 use openzeppelin_presets::AccountUpgradeable;
+use openzeppelin_presets::interfaces::account::{
+    AccountUpgradeableABISafeDispatcher, AccountUpgradeableABISafeDispatcherTrait
+};
 use openzeppelin_presets::interfaces::{
     AccountUpgradeableABIDispatcher, AccountUpgradeableABIDispatcherTrait
 };
-use openzeppelin_presets::tests::mocks::account_mocks::SnakeAccountMock;
-use openzeppelin_test_common::account::{SIGNED_TX_DATA, SignedTransactionData};
-use openzeppelin_test_common::account::{assert_only_event_owner_added, assert_event_owner_removed};
-use openzeppelin_test_common::erc20::deploy_erc20;
-use openzeppelin_test_common::upgrades::assert_only_event_upgraded;
-use openzeppelin_testing::constants::{
-    PUBKEY, NEW_PUBKEY, SALT, ZERO, CALLER, RECIPIENT, OTHER, QUERY_OFFSET, QUERY_VERSION,
-    MIN_TRANSACTION_VERSION, CLASS_HASH_ZERO
+use openzeppelin_test_common::account::{
+    SIGNED_TX_DATA, get_accept_ownership_signature, SignedTransactionData, AccountSpyHelpers
 };
-use openzeppelin_testing;
-use openzeppelin_token::erc20::interface::{IERC20DispatcherTrait, IERC20Dispatcher};
+use openzeppelin_test_common::erc20::deploy_erc20;
+use openzeppelin_test_common::upgrades::UpgradeableSpyHelpers;
+use openzeppelin_testing as utils;
+use openzeppelin_testing::constants::stark::{KEY_PAIR, KEY_PAIR_2};
+use openzeppelin_testing::constants::{
+    SALT, ZERO, CALLER, RECIPIENT, OTHER, QUERY_OFFSET, QUERY_VERSION, MIN_TRANSACTION_VERSION,
+    CLASS_HASH_ZERO
+};
+use openzeppelin_testing::signing::StarkKeyPair;
+use openzeppelin_token::erc20::interface::IERC20DispatcherTrait;
 use openzeppelin_utils::selectors;
 use openzeppelin_utils::serde::SerializedAppend;
+use snforge_std::{
+    cheat_signature_global, cheat_transaction_version_global, cheat_transaction_hash_global
+};
+use snforge_std::{spy_events, test_address, start_cheat_caller_address};
 use starknet::account::Call;
 use starknet::{ContractAddress, ClassHash};
 
@@ -116,8 +124,8 @@ fn test_public_key_setter_and_getter_camel() {
 
     assert_eq!(dispatcher.getPublicKey(), new_key_pair.public_key);
 
-    spy.assert_event_owner_removed(dispatcher.contract_address, key_pair.public_key);
-    spy.assert_only_event_owner_added(dispatcher.contract_address, new_key_pair.public_key);
+    spy.assert_event_owner_removed(account_address, key_pair.public_key);
+    spy.assert_only_event_owner_added(account_address, new_key_pair.public_key);
 }
 
 #[test]
@@ -226,8 +234,8 @@ fn test_supports_interface() {
     let supports_isrc6 = dispatcher.supports_interface(ISRC6_ID);
     assert!(supports_isrc6);
 
-    let doesnt_support_0x123 = !dispatcher.supports_interface('DUMMY_INTERFACE_ID');
-    assert!(doesnt_support_0x123);
+    let doesnt_support_dummy_id = !dispatcher.supports_interface('DUMMY_INTERFACE_ID');
+    assert!(doesnt_support_dummy_id);
 }
 
 //

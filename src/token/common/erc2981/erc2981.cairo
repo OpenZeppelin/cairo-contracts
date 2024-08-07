@@ -15,7 +15,7 @@ pub mod ERC2981Component {
     use starknet::ContractAddress;
     use starknet::storage::Map;
 
-    const default_fee_denominator: u256 = 10_000;
+    const DEFAULT_FEE_DENOMINATOR: u256 = 10_000;
 
     #[derive(Serde, Drop, PartialEq, starknet::Store)]
     struct RoyaltyInfo {
@@ -32,6 +32,7 @@ pub mod ERC2981Component {
     //
     // External
     //
+
     #[embeddable_as(ERC2981Impl)]
     impl ERC2981<
         TContractState,
@@ -53,7 +54,7 @@ pub mod ERC2981Component {
                 (royalty_info.receiver, royalty_info.royalty_fraction)
             };
 
-            let royalty_amount: u256 = (sale_price * royalty_fraction) / self._fee_denominator();
+            let royalty_amount = (sale_price * royalty_fraction) / self._fee_denominator();
 
             (royalty_receiver, royalty_amount)
         }
@@ -63,6 +64,7 @@ pub mod ERC2981Component {
     //
     // Internal
     //
+    
     #[generate_trait]
     pub impl InternalImpl<
         TContractState,
@@ -87,7 +89,7 @@ pub mod ERC2981Component {
         /// {_set_default_royalty} as a fraction of the sale price.
         /// Defaults to 10000 so fees are expressed in basis points
         fn _fee_denominator(self: @ComponentState<TContractState>) -> u256 {
-            default_fee_denominator
+            DEFAULT_FEE_DENOMINATOR
         }
 
         /// Returns the royalty information that all ids in this contract will default to.

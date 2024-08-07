@@ -17,7 +17,7 @@ pub fn panic_data_to_byte_array(panic_data: Array<felt252>) -> ByteArray {
     }
 }
 
-/// Converts a felt252 to a base 16 string padded to 66 characters including the `0x` prefix.
+/// Converts a `felt252` to a `base16` string padded to 66 characters including the `0x` prefix.
 pub fn to_base_16_string(value: felt252) -> ByteArray {
     let mut string = value.format_as_byte_array(16);
     let mut padding = 64 - string.len();
@@ -30,7 +30,7 @@ pub fn to_base_16_string(value: felt252) -> ByteArray {
 }
 
 /// A helper trait that enables any value that can be converted to `felt252` to be represented
-/// as a base 16 string padded to 66 characters (including the `0x` prefix).
+/// as a `base16` string padded to 66 characters (including the `0x` prefix).
 #[generate_trait]
 pub impl IntoBase16String<T, +Into<T, felt252>> of IntoBase16StringTrait<T> {
     fn into_base_16_string(self: T) -> ByteArray {

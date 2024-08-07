@@ -101,6 +101,7 @@ impl StorageArrayImpl<T, +Drop<T>, impl TStore: Store<T>> of StorageArrayTrait<T
 
     fn pop(ref self: StorageArray<T>) -> T {
         let len = self.len();
+        assert(len > 0, 'StorageArray is empty');
 
         // Read the element from storage
         let element = self.read_at(len - 1);

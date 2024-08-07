@@ -56,6 +56,7 @@ pub trait StorageArrayTrait<T> {
     fn read_at(self: @StorageArray<T>, index: usize) -> T;
     fn write_at(ref self: StorageArray<T>, index: usize, value: T) -> ();
     fn append(ref self: StorageArray<T>, value: T) -> ();
+    fn pop(ref self: StorageArray<T>) -> T;
     fn len(self: @StorageArray<T>) -> u32;
 }
 
@@ -96,6 +97,20 @@ impl StorageArrayImpl<T, +Drop<T>, impl TStore: Store<T>> of StorageArrayTrait<T
         let new_len: felt252 = (len + 1).into();
         storage_write_syscall(self.address_domain, storage_address_from_base(self.base), new_len)
             .unwrap_syscall();
+    }
+
+    fn pop(ref self: StorageArray<T>) -> T {
+        let len = self.len();
+
+        // Read the element from storage
+        let element = self.read_at(len - 1);
+
+        // Update the len
+        let new_len: felt252 = (len - 1).into();
+        storage_write_syscall(self.address_domain, storage_address_from_base(self.base), new_len)
+            .unwrap_syscall();
+
+        element
     }
 
     fn len(self: @StorageArray<T>) -> u32 {

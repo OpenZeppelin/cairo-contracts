@@ -9,8 +9,8 @@ members = [
     "packages/token",
     "packages/upgrades",
     "packages/utils",
+    "packages/testing",
     "packages/test_common",
-    "packages/test_utils",
 ]
 
 [package]
@@ -56,7 +56,7 @@ openzeppelin_utils = { path = "packages/utils" }
 [dev-dependencies]
 snforge_std.workspace = true
 openzeppelin_test_common = { path = "packages/test_common" }
-openzeppelin_test_utils = { path = "packages/test_utils" }
+openzeppelin_testing = { path = "packages/testing" }
 
 [lib]
 

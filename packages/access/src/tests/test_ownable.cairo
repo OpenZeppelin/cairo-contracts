@@ -5,7 +5,7 @@ use openzeppelin_access::ownable::interface::{IOwnable, IOwnableCamelOnly};
 use openzeppelin_access::tests::mocks::ownable_mocks::DualCaseOwnableMock;
 
 use openzeppelin_test_common::ownable::OwnableSpyHelpers;
-use openzeppelin_test_utils::constants::{ZERO, OTHER, OWNER};
+use openzeppelin_testing::constants::{ZERO, OTHER, OWNER};
 use snforge_std::{spy_events, test_address, start_cheat_caller_address};
 
 //

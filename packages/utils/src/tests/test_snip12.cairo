@@ -1,6 +1,6 @@
 use core::hash::{Hash, HashStateTrait, HashStateExTrait};
 use core::poseidon::{PoseidonTrait, poseidon_hash_span};
-use openzeppelin_test_utils::constants::{OWNER, RECIPIENT};
+use openzeppelin_testing::constants::{OWNER, RECIPIENT};
 use openzeppelin_utils::cryptography::snip12::{
     STARKNET_DOMAIN_TYPE_HASH, StarknetDomain, StructHash, OffchainMessageHashImpl, SNIP12Metadata
 };

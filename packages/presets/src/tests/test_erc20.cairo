@@ -9,12 +9,12 @@ use openzeppelin_presets::interfaces::{
 use openzeppelin_test_common::erc20::ERC20SpyHelpers;
 use openzeppelin_test_common::ownable::OwnableSpyHelpers;
 use openzeppelin_test_common::upgrades::UpgradeableSpyHelpers;
-use openzeppelin_test_utils as utils;
-use openzeppelin_test_utils::common::IntoBase16String;
-use openzeppelin_test_utils::constants::{
+use openzeppelin_testing as utils;
+use openzeppelin_testing::common::IntoBase16String;
+use openzeppelin_testing::constants::{
     ZERO, OWNER, SPENDER, RECIPIENT, OTHER, NAME, SYMBOL, DECIMALS, SUPPLY, VALUE, CLASS_HASH_ZERO
 };
-use openzeppelin_test_utils::events::EventSpyExt;
+use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{spy_events, EventSpy, start_cheat_caller_address};

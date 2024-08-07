@@ -1,5 +1,5 @@
-use openzeppelin_test_utils as utils;
-use openzeppelin_test_utils::constants::{
+use openzeppelin_testing as utils;
+use openzeppelin_testing::constants::{
     OWNER, RECIPIENT, SPENDER, OPERATOR, NAME, SYMBOL, DECIMALS, SUPPLY, VALUE
 };
 use openzeppelin_token::erc20::dual20::{DualCaseERC20, DualCaseERC20Trait};

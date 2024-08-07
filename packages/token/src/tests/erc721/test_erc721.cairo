@@ -1,13 +1,12 @@
 use core::num::traits::Zero;
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
-
 use openzeppelin_test_common::erc721::ERC721SpyHelpers;
-use openzeppelin_test_utils as utils;
-use openzeppelin_test_utils::constants::{
+use openzeppelin_testing as utils;
+use openzeppelin_testing::constants::{
     DATA, ZERO, OWNER, CALLER, RECIPIENT, SPENDER, OPERATOR, OTHER, NAME, SYMBOL, TOKEN_ID,
     TOKEN_ID_2, PUBKEY, BASE_URI, BASE_URI_2
 };
-use openzeppelin_test_utils::events::EventSpyExt;
+use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_token::erc721::ERC721Component::{ERC721Impl, ERC721CamelOnlyImpl};
 use openzeppelin_token::erc721::ERC721Component::{ERC721MetadataImpl, InternalImpl};
 use openzeppelin_token::erc721::ERC721Component;

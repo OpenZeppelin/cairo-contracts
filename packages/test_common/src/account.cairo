@@ -2,12 +2,10 @@ use core::hash::{HashStateTrait, HashStateExTrait};
 use core::poseidon::PoseidonTrait;
 use openzeppelin_account::AccountComponent::{OwnerAdded, OwnerRemoved};
 use openzeppelin_account::AccountComponent;
-use openzeppelin_test_utils as utils;
-use openzeppelin_test_utils::constants::{NAME, SYMBOL, TRANSACTION_HASH};
-use openzeppelin_test_utils::events::EventSpyExt;
-use openzeppelin_test_utils::signing::StarkKeyPair;
+use openzeppelin_testing::constants::TRANSACTION_HASH;
+use openzeppelin_testing::events::EventSpyExt;
+use openzeppelin_testing::signing::StarkKeyPair;
 use openzeppelin_token::erc20::interface::IERC20Dispatcher;
-use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::EventSpy;
 use snforge_std::signature::stark_curve::StarkCurveSignerImpl;
 use starknet::ContractAddress;
@@ -23,17 +21,6 @@ pub fn SIGNED_TX_DATA(key_pair: StarkKeyPair) -> SignedTransactionData {
     let tx_hash = TRANSACTION_HASH;
     let (r, s) = key_pair.sign(tx_hash).unwrap();
     SignedTransactionData { tx_hash, r, s }
-}
-
-pub fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> IERC20Dispatcher {
-    let mut calldata = array![];
-    calldata.append_serde(NAME());
-    calldata.append_serde(SYMBOL());
-    calldata.append_serde(initial_supply);
-    calldata.append_serde(recipient);
-
-    let address = utils::declare_and_deploy("DualCaseERC20Mock", calldata);
-    IERC20Dispatcher { contract_address: address }
 }
 
 pub fn get_accept_ownership_signature(

@@ -8,13 +8,13 @@ use openzeppelin_presets::interfaces::{
 use openzeppelin_test_common::erc721::ERC721SpyHelpers;
 use openzeppelin_test_common::ownable::OwnableSpyHelpers;
 use openzeppelin_test_common::upgrades::UpgradeableSpyHelpers;
-use openzeppelin_test_utils as utils;
-use openzeppelin_test_utils::common::IntoBase16String;
-use openzeppelin_test_utils::constants::{
+use openzeppelin_testing as utils;
+use openzeppelin_testing::common::IntoBase16String;
+use openzeppelin_testing::constants::{
     ZERO, DATA, OWNER, SPENDER, RECIPIENT, OTHER, OPERATOR, CLASS_HASH_ZERO, PUBKEY, NAME, SYMBOL,
     BASE_URI
 };
-use openzeppelin_test_utils::events::EventSpyExt;
+use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_token::erc721::ERC721Component::ERC721Impl;
 use openzeppelin_token::erc721::interface::{
     IERC721CamelOnlySafeDispatcher, IERC721CamelOnlySafeDispatcherTrait

@@ -7,14 +7,15 @@ use openzeppelin_presets::interfaces::{
     AccountUpgradeableABIDispatcher, AccountUpgradeableABIDispatcherTrait
 };
 use openzeppelin_presets::tests::mocks::account_mocks::SnakeAccountMock;
+use openzeppelin_test_common::account::{SIGNED_TX_DATA, SignedTransactionData};
 use openzeppelin_test_common::account::{assert_only_event_owner_added, assert_event_owner_removed};
-use openzeppelin_test_common::account::{deploy_erc20, SIGNED_TX_DATA, SignedTransactionData};
+use openzeppelin_test_common::erc20::deploy_erc20;
 use openzeppelin_test_common::upgrades::assert_only_event_upgraded;
-use openzeppelin_test_utils::constants::{
+use openzeppelin_testing::constants::{
     PUBKEY, NEW_PUBKEY, SALT, ZERO, CALLER, RECIPIENT, OTHER, QUERY_OFFSET, QUERY_VERSION,
     MIN_TRANSACTION_VERSION, CLASS_HASH_ZERO
 };
-use openzeppelin_test_utils;
+use openzeppelin_testing;
 use openzeppelin_token::erc20::interface::{IERC20DispatcherTrait, IERC20Dispatcher};
 use openzeppelin_utils::selectors;
 use openzeppelin_utils::serde::SerializedAppend;

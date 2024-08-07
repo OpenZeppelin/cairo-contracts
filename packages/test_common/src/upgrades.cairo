@@ -1,4 +1,4 @@
-use openzeppelin_test_utils::events::EventSpyExt;
+use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_upgrades::UpgradeableComponent::Upgraded;
 use openzeppelin_upgrades::UpgradeableComponent;
 use snforge_std::{EventSpy, EventSpyAssertionsTrait};

@@ -1,5 +1,5 @@
 use core::num::traits::Zero;
-use openzeppelin_test_utils::constants::OWNER;
+use openzeppelin_testing::constants::OWNER;
 use openzeppelin_utils::cryptography::interface::INonces;
 use openzeppelin_utils::cryptography::nonces::NoncesComponent::InternalTrait;
 use openzeppelin_utils::cryptography::nonces::NoncesComponent;

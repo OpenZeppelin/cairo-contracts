@@ -1,7 +1,7 @@
 use openzeppelin_test_common::upgrades::UpgradeableSpyHelpers;
-use openzeppelin_test_utils::constants::{CLASS_HASH_ZERO, ZERO, FELT_VALUE as VALUE};
-use openzeppelin_test_utils::events::EventSpyExt;
-use openzeppelin_test_utils::{declare_class, deploy};
+use openzeppelin_testing::constants::{CLASS_HASH_ZERO, ZERO, FELT_VALUE as VALUE};
+use openzeppelin_testing::events::EventSpyExt;
+use openzeppelin_testing::{declare_class, deploy};
 use openzeppelin_upgrades::UpgradeableComponent;
 use openzeppelin_upgrades::tests::mocks::upgrades_mocks::{
     IUpgradesV1Dispatcher, IUpgradesV1DispatcherTrait

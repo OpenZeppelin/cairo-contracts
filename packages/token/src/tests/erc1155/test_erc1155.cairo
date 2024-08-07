@@ -3,11 +3,10 @@ use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin_test_common::erc1155::{
     ERC1155SpyHelpers, get_ids_and_values, get_ids_and_split_values
 };
-
 use openzeppelin_test_common::erc1155::{
     setup_account, deploy_another_account_at, setup_src5, setup_receiver, setup_camel_receiver
 };
-use openzeppelin_test_utils::constants::{
+use openzeppelin_testing::constants::{
     EMPTY_DATA, ZERO, OWNER, RECIPIENT, OPERATOR, OTHER, TOKEN_ID, TOKEN_ID_2, TOKEN_VALUE,
     TOKEN_VALUE_2
 };

@@ -1,5 +1,5 @@
-use openzeppelin_test_utils as utils;
-use openzeppelin_test_utils::constants::{EMPTY_DATA, OPERATOR, OWNER, TOKEN_ID, TOKEN_VALUE};
+use openzeppelin_testing as utils;
+use openzeppelin_testing::constants::{EMPTY_DATA, OPERATOR, OWNER, TOKEN_ID, TOKEN_VALUE};
 use openzeppelin_token::erc1155::dual1155_receiver::{
     DualCaseERC1155Receiver, DualCaseERC1155ReceiverTrait
 };

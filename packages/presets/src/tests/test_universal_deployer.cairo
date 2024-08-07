@@ -1,8 +1,8 @@
 use openzeppelin_presets::universal_deployer::UniversalDeployer::ContractDeployed;
 use openzeppelin_presets::universal_deployer::UniversalDeployer;
-use openzeppelin_test_utils as utils;
-use openzeppelin_test_utils::constants::{NAME, SYMBOL, SUPPLY, SALT, CALLER, RECIPIENT};
-use openzeppelin_test_utils::events::EventSpyExt;
+use openzeppelin_testing as utils;
+use openzeppelin_testing::constants::{NAME, SYMBOL, SUPPLY, SALT, CALLER, RECIPIENT};
+use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use openzeppelin_utils::deployments::{DeployerInfo, calculate_contract_address_from_udc};
 use openzeppelin_utils::interfaces::{

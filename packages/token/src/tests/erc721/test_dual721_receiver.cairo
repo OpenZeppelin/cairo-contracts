@@ -1,5 +1,5 @@
-use openzeppelin_test_utils as utils;
-use openzeppelin_test_utils::constants::{DATA, OPERATOR, OWNER, TOKEN_ID};
+use openzeppelin_testing as utils;
+use openzeppelin_testing::constants::{DATA, OPERATOR, OWNER, TOKEN_ID};
 use openzeppelin_token::erc721::dual721_receiver::{
     DualCaseERC721Receiver, DualCaseERC721ReceiverTrait
 };

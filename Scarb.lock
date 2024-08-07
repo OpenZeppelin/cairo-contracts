@@ -12,7 +12,7 @@ dependencies = [
  "openzeppelin_presets",
  "openzeppelin_security",
  "openzeppelin_test_common",
- "openzeppelin_test_utils",
+ "openzeppelin_testing",
  "openzeppelin_token",
  "openzeppelin_upgrades",
  "openzeppelin_utils",
@@ -25,7 +25,7 @@ version = "0.15.0-rc.0"
 dependencies = [
  "openzeppelin_introspection",
  "openzeppelin_test_common",
- "openzeppelin_test_utils",
+ "openzeppelin_testing",
  "openzeppelin_utils",
  "snforge_std",
 ]
@@ -36,7 +36,7 @@ version = "0.15.0-rc.0"
 dependencies = [
  "openzeppelin_introspection",
  "openzeppelin_test_common",
- "openzeppelin_test_utils",
+ "openzeppelin_testing",
  "openzeppelin_token",
  "openzeppelin_utils",
  "snforge_std",
@@ -48,7 +48,7 @@ version = "0.15.0-rc.0"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_introspection",
- "openzeppelin_test_utils",
+ "openzeppelin_testing",
  "snforge_std",
 ]
 
@@ -67,7 +67,7 @@ dependencies = [
  "openzeppelin_account",
  "openzeppelin_introspection",
  "openzeppelin_test_common",
- "openzeppelin_test_utils",
+ "openzeppelin_testing",
  "openzeppelin_token",
  "openzeppelin_upgrades",
  "snforge_std",
@@ -77,7 +77,7 @@ dependencies = [
 name = "openzeppelin_security"
 version = "0.15.0-rc.0"
 dependencies = [
- "openzeppelin_test_utils",
+ "openzeppelin_testing",
  "snforge_std",
 ]
 
@@ -87,7 +87,7 @@ version = "0.15.0-rc.0"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_account",
- "openzeppelin_test_utils",
+ "openzeppelin_testing",
  "openzeppelin_token",
  "openzeppelin_upgrades",
  "openzeppelin_utils",
@@ -95,7 +95,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "openzeppelin_test_utils"
+name = "openzeppelin_testing"
 version = "0.15.0-rc.0"
 dependencies = [
  "snforge_std",
@@ -109,7 +109,7 @@ dependencies = [
  "openzeppelin_governance",
  "openzeppelin_introspection",
  "openzeppelin_test_common",
- "openzeppelin_test_utils",
+ "openzeppelin_testing",
  "snforge_std",
 ]
 
@@ -118,7 +118,7 @@ name = "openzeppelin_upgrades"
 version = "0.15.0-rc.0"
 dependencies = [
  "openzeppelin_test_common",
- "openzeppelin_test_utils",
+ "openzeppelin_testing",
  "snforge_std",
 ]
 
@@ -126,7 +126,7 @@ dependencies = [
 name = "openzeppelin_utils"
 version = "0.15.0-rc.0"
 dependencies = [
- "openzeppelin_test_utils",
+ "openzeppelin_testing",
  "snforge_std",
 ]
 

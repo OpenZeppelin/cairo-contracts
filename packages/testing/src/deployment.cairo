@@ -1,5 +1,5 @@
 use core::starknet::SyscallResultTrait;
-use openzeppelin_utils::test_utils::panic_data_to_byte_array;
+use openzeppelin_testing::panic_data_to_byte_array;
 use snforge_std::{declare, get_class_hash, ContractClass, ContractClassTrait};
 use snforge_std::{start_cheat_caller_address, stop_cheat_caller_address};
 use starknet::ContractAddress;

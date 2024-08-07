@@ -1,4 +1,7 @@
-= Test Utilities
+= Testing
+
+:stark: https://docs.starknet.io/architecture-and-concepts/cryptography/stark-curve/[Stark]
+:secp256k1: https://github.com/starkware-libs/cairo/blob/main/corelib/src/starknet/secp256k1.cairo[Secp256k1]
 
 This module provides various helper functions for declaring, deploying,
 and testing Smart Contracts using Starknet Foundry.
@@ -7,42 +10,13 @@ and testing Smart Contracts using Starknet Foundry.
 use openzeppelin_testing;
 ```
 
-[.contract-index]
-.Members
---
-.Inner modules
-* xref:#testutils-common[`++common++`]
-* xref:#testutils-deployment[`++deployment++`]
-* xref:#testutils-events[`++events++`]
-* xref:#testutils-signing[`++signing++`]
---
-
-[#testutils-Inner-Modules]
-==== Inner modules
-
-[.contract-item]
-==== `[.contract-item-name]#++common++#` [.item-kind]#module#
-
-See xref:#testutils-common[`openzeppelin_testing::common`].
-
-[.contract-item]
-==== `[.contract-item-name]#++deployment++#` [.item-kind]#module#
-
-See xref:#testutils-deployment[`openzeppelin_testing::deployment`].
-
-[.contract-item]
-==== `[.contract-item-name]#++events++#` [.item-kind]#module#
-
-See xref:#testutils-events[`openzeppelin_testing::events`].
-
-[.contract-item]
-==== `[.contract-item-name]#++signing++#` [.item-kind]#module#
-
-See xref:#testutils-signing[`openzeppelin_testing::signing`].
+== Test Utilities
 
 [.contract]
 [[testutils-common]]
 === `++common++`
+
+A module providing common test helpers.
 
 ```cairo
 use openzeppelin_testing::common;
@@ -65,7 +39,7 @@ use openzeppelin_testing::common;
 
 [.contract-item]
 [[testutils-common-panic_data_to_byte_array]]
-==== `[.contract-item-name]#++panic_data_to_byte_array++#++(panic_data: Array<felt252>) → ByteArray++` [.item-kind]#function#
+===== `[.contract-item-name]#++panic_data_to_byte_array++#++(panic_data: Array<felt252>) → ByteArray++` [.item-kind]#function#
 
 Converts panic data into a string (ByteArray).
 
@@ -73,7 +47,7 @@ Converts panic data into a string (ByteArray).
 
 [.contract-item]
 [[testutils-common-to_base_16_string]]
-==== `[.contract-item-name]#++to_base_16_string++#++(value: felt252) → ByteArray++` [.item-kind]#function#
+===== `[.contract-item-name]#++to_base_16_string++#++(value: felt252) → ByteArray++` [.item-kind]#function#
 
 Converts a `felt252` to a `base16` string padded to 66 characters (including the `0x` prefix).
 
@@ -287,15 +261,13 @@ A module offering utility functions for easier management of key pairs and signa
 [[testutils-signing-get_stark_keys_from]]
 ==== `[.contract-item-name]#++get_stark_keys_from++#++(private_key: felt252) → StarkKeyPair++` [.item-kind]#function#
 
-Builds a Stark[https://docs.starknet.io/architecture-and-concepts/cryptography/stark-curve/] key pair
-from a private key represented by a `felt252` value.
+Builds a {stark} key pair from a private key represented by a `felt252` value.
 
 [.contract-item]
 [[testutils-signing-get_secp256k1_keys_from]]
 ==== `[.contract-item-name]#++get_secp256k1_keys_from++#++(private_key: u256) → Secp256k1KeyPair++` [.item-kind]#function#
 
-Builds a Secp256k1[https://github.com/starkware-libs/cairo/blob/main/corelib/src/starknet/secp256k1.cairo]
-key pair from a private key represented by a `u256` value.
+Builds a {secp256k1} key pair from a private key represented by a `u256` value.
 
 [#testutils-signing-Traits]
 ==== Traits

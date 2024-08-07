@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `openzeppelin_token`
   - `openzeppelin_upgrades`
   - `openzeppelin_utils`
+- Add `pop` function to `StorageArray` (#1086)
 
 ### Changed
 

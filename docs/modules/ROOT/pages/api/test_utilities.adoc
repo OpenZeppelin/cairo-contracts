@@ -4,7 +4,7 @@ This module provides various helper functions for declaring, deploying,
 and testing Smart Contracts using Starknet Foundry.
 
 ```cairo
-use openzeppelin_test_utils;
+use openzeppelin_testing;
 ```
 
 [.contract-index]
@@ -23,29 +23,29 @@ use openzeppelin_test_utils;
 [.contract-item]
 ==== `[.contract-item-name]#++common++#` [.item-kind]#module#
 
-See xref:#testutils-common[`openzeppelin_test_utils::common`].
+See xref:#testutils-common[`openzeppelin_testing::common`].
 
 [.contract-item]
 ==== `[.contract-item-name]#++deployment++#` [.item-kind]#module#
 
-See xref:#testutils-deployment[`openzeppelin_test_utils::deployment`].
+See xref:#testutils-deployment[`openzeppelin_testing::deployment`].
 
 [.contract-item]
 ==== `[.contract-item-name]#++events++#` [.item-kind]#module#
 
-See xref:#testutils-events[`openzeppelin_test_utils::events`].
+See xref:#testutils-events[`openzeppelin_testing::events`].
 
 [.contract-item]
 ==== `[.contract-item-name]#++signing++#` [.item-kind]#module#
 
-See xref:#testutils-signing[`openzeppelin_test_utils::signing`].
+See xref:#testutils-signing[`openzeppelin_testing::signing`].
 
 [.contract]
 [[testutils-common]]
 === `++common++`
 
 ```cairo
-use openzeppelin_test_utils::common;
+use openzeppelin_testing::common;
 ```
 
 [.contract-index]
@@ -98,7 +98,7 @@ convertible to `felt252`.
 Usage example:
 
 ```cairo
-use openzeppelin_test_utils::common::IntoBase16String;
+use openzeppelin_testing::common::IntoBase16String;
 
 let expected_panic_message = format!(
     "Entry point selector {} not found in contract {}",
@@ -112,7 +112,7 @@ let expected_panic_message = format!(
 === `++deployment++`
 
 ```cairo
-use openzeppelin_test_utils::deployment;
+use openzeppelin_testing::deployment;
 ```
 
 A module containing utilities aimed to simplify declaring and deploying contracts via Starknet Foundry.
@@ -162,7 +162,7 @@ nor its `class_hash` is available in the context. This helper function provides 
 the class hash from an existing contract and using it to facilitate the deployment.
 
 ```cairo
-use openzeppelin_test_utils::deploy_another_at;
+use openzeppelin_testing::deploy_another_at;
 
 let sender_address = setup_account(array!['PUBKEY']);
 let recipient_address = contract_address_const::<'RECIPIENT'>();
@@ -186,8 +186,8 @@ Combines the declaration of a class and the deployment of a contract at the give
 === `++events++`
 
 ```cairo
-use openzeppelin_test_utils::events;
-use openzeppelin_test_utils::events::EventSpyExt;
+use openzeppelin_testing::events;
+use openzeppelin_testing::events::EventSpyExt;
 ```
 
 A module offering an extended set of functions for handling emitted events, enhancing the default
@@ -264,7 +264,7 @@ Counts the number of remaining events emitted from the given address.
 === `++signing++`
 
 ```cairo
-use openzeppelin_test_utils::signing;
+use openzeppelin_testing::signing;
 ```
 
 A module offering utility functions for easier management of key pairs and signatures.
@@ -308,7 +308,7 @@ A helper trait that facilitates signing and converting the result signature into
 Usage example:
 
 ```cairo
-use openzeppelin_test_utils::signing::{
+use openzeppelin_testing::signing::{
     StarkKeyPair, get_stark_keys_from, StarkSerializedSigning
 };
 

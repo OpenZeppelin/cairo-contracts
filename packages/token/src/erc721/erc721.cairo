@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.15.0-rc.0 (token/erc721/erc721.cairo)
+// OpenZeppelin Contracts for Cairo v0.15.0 (token/erc721/erc721.cairo)
 
 use starknet::ContractAddress;
 

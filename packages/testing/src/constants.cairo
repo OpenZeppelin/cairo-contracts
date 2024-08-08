@@ -22,8 +22,8 @@ pub const NEW_PUBKEY: felt252 = 0x26da8d11938b76025862be14fdb8b28438827f73e75e86
 pub const DAPP_NAME: felt252 = 'DAPP_NAME';
 pub const DAPP_VERSION: felt252 = 'DAPP_VERSION';
 pub const SALT: felt252 = 'SALT';
-pub const SUCCESS: felt252 = 123123;
-pub const FAILURE: felt252 = 456456;
+pub const SUCCESS: felt252 = 'SUCCESS';
+pub const FAILURE: felt252 = 'FAILURE';
 pub const MIN_TRANSACTION_VERSION: felt252 = 1;
 pub const TRANSACTION_HASH: felt252 = 'TRANSACTION_HASH';
 // 2**128
@@ -122,7 +122,7 @@ pub fn EMPTY_DATA() -> Span<felt252> {
 //
 
 pub mod secp256k1 {
-    use openzeppelin_utils::test_utils::signing::{Secp256k1KeyPair, get_secp256k1_keys_from};
+    use openzeppelin_testing::signing::{Secp256k1KeyPair, get_secp256k1_keys_from};
 
     pub fn KEY_PAIR() -> Secp256k1KeyPair {
         let private_key = u256 { low: 'PRIVATE_LOW', high: 'PRIVATE_HIGH' };
@@ -136,7 +136,7 @@ pub mod secp256k1 {
 }
 
 pub mod stark {
-    use openzeppelin_utils::test_utils::signing::{StarkKeyPair, get_stark_keys_from};
+    use openzeppelin_testing::signing::{StarkKeyPair, get_stark_keys_from};
 
     pub fn KEY_PAIR() -> StarkKeyPair {
         get_stark_keys_from('PRIVATE_KEY')

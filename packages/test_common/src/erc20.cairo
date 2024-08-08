@@ -1,8 +1,23 @@
+use openzeppelin_testing as utils;
+use openzeppelin_testing::constants::{NAME, SYMBOL};
+use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_token::erc20::ERC20Component::{Approval, Transfer};
 use openzeppelin_token::erc20::ERC20Component;
-use openzeppelin_utils::test_utils::events::EventSpyExt;
+use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::EventSpy;
 use starknet::ContractAddress;
+
+pub fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> IERC20Dispatcher {
+    let mut calldata = array![];
+    calldata.append_serde(NAME());
+    calldata.append_serde(SYMBOL());
+    calldata.append_serde(initial_supply);
+    calldata.append_serde(recipient);
+
+    let address = utils::declare_and_deploy("DualCaseERC20Mock", calldata);
+    IERC20Dispatcher { contract_address: address }
+}
 
 #[generate_trait]
 pub impl ERC20SpyHelpersImpl of ERC20SpyHelpers {

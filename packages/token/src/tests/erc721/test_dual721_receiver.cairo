@@ -1,3 +1,5 @@
+use openzeppelin_testing as utils;
+use openzeppelin_testing::constants::{DATA, OPERATOR, OWNER, TOKEN_ID};
 use openzeppelin_token::erc721::dual721_receiver::{
     DualCaseERC721Receiver, DualCaseERC721ReceiverTrait
 };
@@ -15,8 +17,6 @@ use openzeppelin_token::tests::mocks::erc721_receiver_mocks::{
     SnakeERC721ReceiverMock, SnakeERC721ReceiverPanicMock
 };
 use openzeppelin_token::tests::mocks::non_implementing_mock::NonImplementingMock;
-use openzeppelin_utils::test_utils as utils;
-use openzeppelin_utils::test_utils::constants::{DATA, OPERATOR, OWNER, TOKEN_ID};
 
 //
 // Setup

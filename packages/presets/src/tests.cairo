@@ -1,6 +1,7 @@
 mod mocks;
 
-// mod test_account;
+#[cfg(test)]
+mod test_account;
 #[cfg(test)]
 mod test_erc1155;
 #[cfg(test)]

@@ -4,7 +4,7 @@
 :secp256k1: https://github.com/starkware-libs/cairo/blob/main/corelib/src/starknet/secp256k1.cairo[Secp256k1]
 
 This module provides various helper functions for declaring, deploying,
-and testing Smart Contracts using Starknet Foundry.
+and testing Smart Contracts using `snforge` toolchain from Starknet Foundry.
 
 ```cairo
 use openzeppelin_testing;
@@ -41,9 +41,9 @@ use openzeppelin_testing::common;
 [[testutils-common-panic_data_to_byte_array]]
 ===== `[.contract-item-name]#++panic_data_to_byte_array++#++(panic_data: Array<felt252>) → ByteArray++` [.item-kind]#function#
 
-Converts panic data into a string (ByteArray).
+Converts panic data into a string (`ByteArray`).
 
-`panic_data` is expected to be a valid serialized byte array with an extra `felt252` at the beginning, which is the BYTE_ARRAY_MAGIC.
+`panic_data` is expected to be a valid serialized `ByteArray` with an extra `felt252` at the beginning, which is the BYTE_ARRAY_MAGIC.
 
 [.contract-item]
 [[testutils-common-to_base_16_string]]

@@ -10,6 +10,14 @@ and testing Smart Contracts using `snforge` toolchain from Starknet Foundry.
 use openzeppelin_testing;
 ```
 
+The module isn't part of the `openzeppelin` package and to be accessible has to
+be added as a separate dependency in `Scarb.toml`:
+
+```
+[dev-dependencies]
+openzeppelin_testing = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.15.0-rc.0" }
+```
+
 == Test Utilities
 
 [.contract]

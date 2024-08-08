@@ -6,7 +6,6 @@ use openzeppelin_token::erc1155::ERC1155Component;
 use snforge_std::EventSpy;
 use starknet::ContractAddress;
 
-
 pub fn setup_receiver() -> ContractAddress {
     utils::declare_and_deploy("SnakeERC1155ReceiverMock", array![])
 }

@@ -5,7 +5,8 @@
 = Contracts for Cairo
 
 *A library for secure smart contract development* written in Cairo for {starknet}. This library consists of a set of xref:components.adoc[reusable components] to build custom smart contracts, as well as
-ready-to-deploy xref:presets.adoc[presets]. You can also find other xref:/api/utilities.adoc[utilities] including xref:interfaces.adoc[interfaces and dispatchers].
+ready-to-deploy xref:presets.adoc[presets]. You can also find other xref:/api/utilities.adoc[utilities] including xref:interfaces.adoc[interfaces and dispatchers] and xref:/api/testing.adoc[test utilities]
+that facilitate testing with Starknet Foundry.
 
 WARNING: This repo contains highly experimental code. Expect rapid iteration. *Use at your own risk.*
 

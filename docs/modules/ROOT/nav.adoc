@@ -43,6 +43,7 @@
 *** xref:/api/upgrades.adoc[API Reference]
 
 ** xref:/api/utilities.adoc[Utilities]
+** xref:/api/testing.adoc[Test Utilities]
 
 * xref:backwards-compatibility.adoc[Backwards Compatibility]
 * xref:contracts::index.adoc[Contracts for Solidity]

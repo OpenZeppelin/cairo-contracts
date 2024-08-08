@@ -15,7 +15,7 @@ be added as a separate dependency in `Scarb.toml`:
 
 ```
 [dev-dependencies]
-openzeppelin_testing = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.15.0-rc.0" }
+openzeppelin_testing = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.15.0" }
 ```
 
 == Test Utilities
@@ -47,7 +47,7 @@ use openzeppelin_testing::common;
 
 [.contract-item]
 [[testing-common-panic_data_to_byte_array]]
-===== `[.contract-item-name]#++panic_data_to_byte_array++#++(panic_data: Array<felt252>) → ByteArray++` [.item-kind]#function#
+==== `[.contract-item-name]#++panic_data_to_byte_array++#++(panic_data: Array<felt252>) → ByteArray++` [.item-kind]#function#
 
 Converts panic data into a string (`ByteArray`).
 
@@ -55,7 +55,7 @@ Converts panic data into a string (`ByteArray`).
 
 [.contract-item]
 [[testing-common-to_base_16_string]]
-===== `[.contract-item-name]#++to_base_16_string++#++(value: felt252) → ByteArray++` [.item-kind]#function#
+==== `[.contract-item-name]#++to_base_16_string++#++(value: felt252) → ByteArray++` [.item-kind]#function#
 
 Converts a `felt252` to a `base16` string padded to 66 characters (including the `0x` prefix).
 

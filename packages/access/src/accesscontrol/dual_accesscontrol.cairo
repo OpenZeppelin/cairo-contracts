@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.15.0-rc.0 (access/accesscontrol/dual_accesscontrol.cairo)
+// OpenZeppelin Contracts for Cairo v0.15.0 (access/accesscontrol/dual_accesscontrol.cairo)
 
 use openzeppelin_utils::selectors;
 use openzeppelin_utils::serde::SerializedAppend;

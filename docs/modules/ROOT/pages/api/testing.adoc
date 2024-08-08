@@ -146,9 +146,9 @@ the class hash from an existing contract and using it to facilitate the deployme
 ```cairo
 use openzeppelin_testing::deploy_another_at;
 
-let sender_address = setup_account(array!['PUBKEY']);
-let recipient_address = contract_address_const::<'RECIPIENT'>();
-deploy_another_at(sender_address, recipient_address, array!['ANOTHER_PUBKEY']);
+let alice_address = setup_account(array!['ALICE_PUBKEY']);
+let bob_address = contract_address_const::<'BOB'>();
+deploy_another_at(alice_address, bob_address, array!['BOB_PUBKEY']);
 ```
 
 [.contract-item]

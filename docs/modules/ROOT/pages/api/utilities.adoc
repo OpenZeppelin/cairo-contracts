@@ -2,7 +2,7 @@
 
 :deploy_syscall: link:https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/system-calls-cairo1/#deploy[deploy_syscall]
 
-The following documentation provides reasoning and examples for functions and constants found in `openzeppelin_utils`.
+The following documentation provides reasoning and examples for functions and constants found in `openzeppelin::utils`.
 
 CAUTION: Expect this module to evolve (as it has already done).
 
@@ -13,7 +13,7 @@ CAUTION: Expect this module to evolve (as it has already done).
 === `++utils++`
 
 ```cairo
-use openzeppelin_utils;
+use openzeppelin::utils;
 ```
 
 Module containing core utilities of the library.
@@ -76,8 +76,8 @@ casting and unwrapping the result multiple times.
 Usage example:
 
 ```cairo
-use openzeppelin_utils::selectors;
-use openzeppelin_utils::UnwrapAndCast;
+use openzeppelin::utils::selectors;
+use openzeppelin::utils::UnwrapAndCast;
 
 fn call_and_cast_to_bool(target: ContractAddress, args: Span<felt252>) -> bool {
     try_selector_with_fallback(
@@ -101,31 +101,31 @@ Note that it can be automatically casted to any type implementing the `Serde` tr
 [[utils-cryptography]]
 ==== `[.contract-item-name]#++cryptography++#` [.item-kind]#module#
 
-See xref:#cryptography[`openzeppelin_utils::cryptography`].
+See xref:#cryptography[`openzeppelin::utils::cryptography`].
 
 [.contract-item]
 [[utils-deployments]]
 ==== `[.contract-item-name]#++deployments++#` [.item-kind]#module#
 
-See xref:#deployments[`openzeppelin_utils::deployments`].
+See xref:#deployments[`openzeppelin::utils::deployments`].
 
 [.contract-item]
 [[utils-math]]
 ==== `[.contract-item-name]#++math++#` [.item-kind]#module#
 
-See xref:#math[`openzeppelin_utils::math`].
+See xref:#math[`openzeppelin::utils::math`].
 
 [.contract-item]
 [[utils-selectors]]
 ==== `[.contract-item-name]#++selectors++#` [.item-kind]#module#
 
-See xref:#selectors[`openzeppelin_utils::selectors`].
+See xref:#selectors[`openzeppelin::utils::selectors`].
 
 [.contract-item]
 [[utils-serde]]
 ==== `[.contract-item-name]#++serde++#` [.item-kind]#module#
 
-See xref:#serde[`openzeppelin_utils::serde`].
+See xref:#serde[`openzeppelin::utils::serde`].
 
 [.contract]
 [[cryptography]]
@@ -134,7 +134,7 @@ See xref:#serde[`openzeppelin_utils::serde`].
 :snip12: https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-12.md[SNIP12]
 
 ```cairo
-use openzeppelin_utils::cryptography;
+use openzeppelin::utils::cryptography;
 ```
 
 Module containing utilities related to cryptography.
@@ -154,13 +154,13 @@ Module containing utilities related to cryptography.
 [[cryptography-nonces]]
 ==== `[.contract-item-name]#++nonces++#` [.item-kind]#module#
 
-See xref:#NoncesComponent[`openzeppelin_utils::cryptography::nonces::NoncesComponent`].
+See xref:#NoncesComponent[`openzeppelin::utils::cryptography::nonces::NoncesComponent`].
 
 [.contract-item]
 [[cryptography-snip12]]
 ==== `[.contract-item-name]#++snip12++#` [.item-kind]#module#
 
-See xref:#snip12[`openzeppelin_utils::cryptography::snip12`].
+See xref:#snip12[`openzeppelin::utils::cryptography::snip12`].
 
 [.contract]
 [[deployments]]
@@ -169,7 +169,7 @@ See xref:#snip12[`openzeppelin_utils::cryptography::snip12`].
 :udc-doc: xref:/udc.adoc[Universal Deployer Contract]
 
 ```cairo
-use openzeppelin_utils::deployments;
+use openzeppelin::utils::deployments;
 ```
 
 Module containing utility functions for calculating contract addresses through {deploy_syscall} and the {udc-doc} (UDC).
@@ -229,7 +229,7 @@ Origin-dependent deployments hash `salt` with `caller_address` (member of {deplo
 === `++math++`
 
 ```cairo
-use openzeppelin_utils::math;
+use openzeppelin::utils::math;
 ```
 
 Module containing math utilities.
@@ -257,7 +257,7 @@ NOTE: `T` is a generic value matching different numeric implementations.
 === `++selectors++`
 
 ```cairo
-use openzeppelin_utils::selectors;
+use openzeppelin::utils::selectors;
 ```
 
 :selectors: https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.15.0-rc.0/src/utils/selectors.cairo[selectors.cairo]
@@ -270,7 +270,7 @@ To see the full list of selectors, see {selectors}.
 === `++serde++`
 
 ```cairo
-use openzeppelin_utils::serde;
+use openzeppelin::utils::serde;
 ```
 
 Module containing utilities related to serialization and deserialization of Cairo data structures.
@@ -295,7 +295,7 @@ implementing the `Serde` trait to a `felt252` buffer.
 Usage example:
 
 ```cairo
-use openzeppelin_utils::serde::SerializedAppend;
+use openzeppelin::utils::serde::SerializedAppend;
 use starknet::ContractAddress;
 
 fn to_calldata(recipient: ContractAddress, amount: u256) -> Array<felt252> {
@@ -316,7 +316,7 @@ that implements the `Serde` trait.
 === `++NoncesComponent++`
 
 ```cairo
-use openzeppelin_utils::cryptography::nonces::NoncesComponent;
+use openzeppelin::utils::cryptography::nonces::NoncesComponent;
 ```
 
 Simple component for managing nonces.
@@ -371,7 +371,7 @@ Same as `use_nonce` but checking that `nonce` is the next valid one for `owner`.
 === `++snip12++`
 
 ```cairo
-use openzeppelin_utils::snip12;
+use openzeppelin::utils::snip12;
 ```
 
 Supports on-chain generation of message hashes compliant with {snip12}.

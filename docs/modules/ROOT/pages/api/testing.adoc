@@ -97,7 +97,7 @@ let expected_panic_message = format!(
 use openzeppelin_testing::deployment;
 ```
 
-A module containing utilities that simplify declaring and deploying contracts via Starknet Foundry.
+A module containing utilities that simplify declaring and deploying contracts using the `snforge` toolchain.
 
 [.contract-index]
 .Members
@@ -118,7 +118,7 @@ A module containing utilities that simplify declaring and deploying contracts vi
 [[testutils-deployment-declare_class]]
 ==== `[.contract-item-name]#++declare_class++#++(contract_name: ByteArray) → ContractClass++` [.item-kind]#function#
 
-Declares a contract with a Starknet Foundry `declare` call and unwraps the result.
+Declares a contract with a `snforge` `declare` call and unwraps the result.
 
 [.contract-item]
 [[testutils-deployment-deploy]]
@@ -138,7 +138,7 @@ Deploys an instance of a contract at a given address.
 
 Deploys a contract using the class hash from another already-deployed contract.
 
-Note that currently, Starknet Foundry does not support redeclaring a contract class. Consequently,
+Note that currently, `snforge` does not support redeclaring a contract class. Consequently,
 there is no direct method to deploy a second instance of a contract if neither its `ContractClass`
 nor its `class_hash` is available in the context. This helper function provides a solution by retrieving
 the class hash from an existing contract and using it to facilitate the deployment.
@@ -173,7 +173,7 @@ use openzeppelin_testing::events::EventSpyExt;
 ```
 
 A module offering an extended set of functions for handling emitted events, enhancing the default
-event utilities provided by Starknet Foundry. These functions are accessible via the `EventSpyExt`
+event utilities provided by `snforge`. These functions are accessible via the `EventSpyExt`
 trait implemented on the `EventSpy` struct.
 
 [.contract-index]

@@ -4,7 +4,7 @@ use snforge_std::{declare, get_class_hash, ContractClass, ContractClassTrait};
 use snforge_std::{start_cheat_caller_address, stop_cheat_caller_address};
 use starknet::ContractAddress;
 
-/// Declares a contract by making a Starknet Foundry `declare` call and unwraps the result.
+/// Declares a contract with a `snforge` `declare` call and unwraps the result.
 pub fn declare_class(contract_name: ByteArray) -> ContractClass {
     match snforge_std::declare(contract_name) {
         Result::Ok(contract_class) => contract_class,

@@ -1,0 +1,143 @@
+:github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
+:eip2981: https://eips.ethereum.org/EIPS/eip-2981[EIP-2981]
+
+= Common (Token)
+
+Reference of extension and utilities that are common to multiple token standards.
+
+== ERC2981
+
+[.contract]
+[[IERC2981]]
+=== `++IERC2981++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.15.0/packages/token/src/common/erc2981/interface.cairo[{github-icon},role=heading-link]
+
+[.hljs-theme-dark]
+```cairo
+use openzeppelin::token::common::erc2981::IERC2981;
+```
+
+Interface of the ERC2981 standard as defined in {eip2981}.
+
+[.contract-index]
+.Functions
+--
+* xref:#IERC2981-royalty_info[`++royalty_info(token_id, sale_price)++`]
+--
+
+[#IERC2981-Functions]
+==== Functions
+
+[.contract-item]
+[[IERC2981-royalty_info]]
+==== `[.contract-item-name]#++royalty_info++#++(token_id: u256, sale_price: u256) → (ContractAddress, u256)++` [.item-kind]#external#
+
+Returns how much royalty is owed and to whom, based on a sale price that may be denominated
+in any unit of exchange. The royalty amount is denominated and should be paid in that same
+unit of exchange.
+
+[.contract]
+[[ERC2981Component]]
+=== `++ERC2981Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.15.0/packages/token/src/common/erc2981/erc2981.cairo[{github-icon},role=heading-link]
+
+```cairo
+use openzeppelin::token::common::erc2981::ERC2981Component;
+```
+
+ERC2981 component extending <<IERC2981,IERC2981>>.
+
+[.contract-index#ERC2981Component-Embeddable-Impls]
+.Embeddable Implementations
+--
+[.sub-index#ERC2981Component-Embeddable-Impls-ERC20Impl]
+.ERC2981Impl
+* xref:#ERC2981Component-royalty_info[`++royalty_info(self, token_id, sale_price)++`]
+--
+
+[.contract-index]
+.Internal implementations
+--
+.InternalImpl
+* xref:#ERC2981Component-initializer[`++initializer(self, default_receiver, default_royalty_fraction)++`]
+* xref:#ERC2981Component-default_royalty[`++default_royalty(self)++`]
+* xref:#ERC2981Component-set_default_royalty[`++set_default_royalty(self, receiver, fee_numerator)++`]
+* xref:#ERC2981Component-token_royalty[`++token_royalty(self, token_id)++`]
+* xref:#ERC2981Component-set_token_royalty[`++set_token_royalty(self, token_id, receiver, fee_numerator)++`]
+* xref:#ERC2981Component-reset_token_royalty[`++reset_token_royalty(self, token_id)++`]
+--
+
+[#ERC2981Component-Embeddable-functions]
+==== Embeddable functions
+
+[.contract-item]
+[[ERC2981Component-royalty_info]]
+==== `[.contract-item-name]#++royalty_info++#++(@self: ContractState, token_id: u256, sale_price: u256) → (ContractAddress, u256)++` [.item-kind]#external#
+
+Returns how much royalty is owed and to whom, based on a sale price that may be
+denominated in any unit of exchange. The royalty amount is denominated and should be
+paid in that same unit of exchange.
+
+The returned tuple contains:
+
+- `t.0`: The receiver of the royalty payment.
+- `t.1`: The amount of royalty payment.
+
+[#ERC2981Component-Internal-functions]
+==== Internal functions
+
+[.contract-item]
+[[ERC2981Component-initializer]]
+==== `[.contract-item-name]#++initializer++#++(ref self: ContractState, default_receiver: ContractAddress, default_royalty_fraction: u256)++` [.item-kind]#internal#
+
+Initializes the contract by setting the default royalty and registering the supported interfaces.
+
+[.contract-item]
+[[ERC2981Component-default_royalty]]
+==== `[.contract-item-name]#++default_royalty++#++(self: @ContractState) → (ContractAddress, u256, u256)++` [.item-kind]#internal#
+
+Returns the royalty information that all ids in this contract will default to.
+
+The returned tuple contains:
+
+- `t.0`: The receiver of the royalty payment.
+- `t.1`: The numerator of the royalty fraction.
+- `t.2`: The denominator of the royalty fraction.
+
+[.contract-item]
+[[ERC2981Component-set_default_royalty]]
+==== `[.contract-item-name]#++set_default_royalty++#++(ref self: ContractState, receiver: ContractAddress, fee_numerator: u256)++` [.item-kind]#internal#
+
+Sets the royalty information that all ids in this contract will default to.
+
+Requirements:
+
+- `receiver` cannot be the zero address.
+- `fee_numerator` cannot be greater than the fee denominator.
+
+[.contract-item]
+[[ERC2981Component-token_royalty]]
+==== `[.contract-item-name]#++token_royalty++#++(self: @ContractState, token_id: u256) → (ContractAddress, u256, u256)++` [.item-kind]#internal#
+
+Returns the royalty information that all ids in this contract will default to.
+
+The returned tuple contains:
+
+- `t.0`: The receiver of the royalty payment.
+- `t.1`: The numerator of the royalty fraction.
+- `t.2`: The denominator of the royalty fraction.
+
+[.contract-item]
+[[ERC2981Component-set_token_royalty]]
+==== `[.contract-item-name]#++set_token_royalty++#++(ref self: ContractState, token_id: u256, receiver: ContractAddress, fee_numerator: u256)++` [.item-kind]#internal#
+
+Sets the royalty information for a specific token id, overriding the global default.
+
+Requirements:
+
+- `receiver` cannot be the zero address.
+- `fee_numerator` cannot be greater than the fee denominator.
+
+[.contract-item]
+[[ERC2981Component-reset_token_royalty]]
+==== `[.contract-item-name]#++reset_token_royalty++#++(ref self: ContractState, token_id: u256)++` [.item-kind]#internal#
+
+Resets royalty information for the token id back to unset.

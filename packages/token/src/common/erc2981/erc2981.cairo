@@ -47,8 +47,8 @@ pub mod ERC2981Component {
 
     /// Constants defined at the contract level used to configure the component behaviour.
     ///
-    /// `FEE_DENOMINATOR`: The denominator with which to interpret the fee set in
-    /// `set_token_royalty` and `set_default_royalty` as a fraction of the sale price.
+    /// - `FEE_DENOMINATOR`: The denominator with which to interpret the fee set in
+    ///   `set_token_royalty` and `set_default_royalty` as a fraction of the sale price.
     pub trait ImmutableT {
         const FEE_DENOMINATOR: u256;
     }
@@ -71,8 +71,8 @@ pub mod ERC2981Component {
         ///
         /// The returned tuple contains:
         ///
-        /// `t.0`: The receiver of the royalty payment.
-        /// `t.1`: The amount of royalty payment.
+        /// - `t.0`: The receiver of the royalty payment.
+        /// - `t.1`: The amount of royalty payment.
         fn royalty_info(
             self: @ComponentState<TContractState>, token_id: u256, sale_price: u256
         ) -> (ContractAddress, u256) {
@@ -121,9 +121,9 @@ pub mod ERC2981Component {
         ///
         /// The returned tuple contains:
         ///
-        /// `t.0`: The receiver of the royalty payment.
-        /// `t.1`: The numerator of the royalty fraction.
-        /// `t.2`: The denominator of the royalty fraction.
+        /// - `t.0`: The receiver of the royalty payment.
+        /// - `t.1`: The numerator of the royalty fraction.
+        /// - `t.2`: The denominator of the royalty fraction.
         fn default_royalty(self: @ComponentState<TContractState>) -> (ContractAddress, u256, u256) {
             let royalty_info = self.default_royalty_info.read();
             (royalty_info.receiver, royalty_info.royalty_fraction, Immutable::FEE_DENOMINATOR)
@@ -152,9 +152,9 @@ pub mod ERC2981Component {
         ///
         /// The returned tuple contains:
         ///
-        /// `t.0`: The receiver of the royalty payment.
-        /// `t.1`: The numerator of the royalty fraction.
-        /// `t.2`: The denominator of the royalty fraction.
+        /// - `t.0`: The receiver of the royalty payment.
+        /// - `t.1`: The numerator of the royalty fraction.
+        /// - `t.2`: The denominator of the royalty fraction.
         fn token_royalty(
             self: @ComponentState<TContractState>, token_id: u256
         ) -> (ContractAddress, u256, u256) {

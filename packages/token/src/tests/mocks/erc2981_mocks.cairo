@@ -1,7 +1,7 @@
 #[starknet::contract]
 pub(crate) mod ERC2981Mock {
-    use openzeppelin::introspection::src5::SRC5Component;
-    use openzeppelin::token::erc2981::{ERC2981Component, ERC2981ImmutableDefault};
+    use openzeppelin_introspection::src5::SRC5Component;
+    use openzeppelin_token::erc2981::{ERC2981Component, ERC2981ImmutableDefault};
     use starknet::ContractAddress;
 
     component!(path: ERC2981Component, storage: erc2981, event: ERC2981Event);

@@ -378,9 +378,9 @@ mod MyToken {
     impl PausableImpl = PausableComponent::PausableImpl<ContractState>;
     impl PausableInternalImpl = PausableComponent::InternalImpl<ContractState>;
 
-    // Create an hooks implementation
+    // Create the hooks implementation
     impl ERC20HooksImpl of ERC20Component::ERC20HooksTrait<ContractState> {
-        // Occurs before any token transfer
+        // Occurs before token transfers
         fn before_update(
             ref self: ERC20Component::ComponentState<ContractState>,
             from: ContractAddress,
@@ -389,11 +389,11 @@ mod MyToken {
         ) {
             // Access local state from component state
             let contract_state = ERC20Component::HasComponent::get_contract(@self);
-            // Function from integrated component
+            // Call function from integrated component
             contract_state.pausable.assert_not_paused();
         }
 
-        // Occurs after any token transfer
+        // Occurs after token transfers
         fn after_update(
             ref self: ERC20Component::ComponentState<ContractState>,
             from: ContractAddress,

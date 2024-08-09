@@ -575,7 +575,9 @@ fn assert_state_after_transfer(sender: ContractAddress, recipient: ContractAddre
     let current_supply = state.total_supply();
 
     assert_eq!(initial_supply, current_supply, "Incorrect supply after transfer");
-    assert_eq!(state.balance_of(sender), initial_supply - amount, "Incorrect balance after transfer");
+    assert_eq!(
+        state.balance_of(sender), initial_supply - amount, "Incorrect balance after transfer"
+    );
     assert_eq!(state.balance_of(recipient), amount, "Incorrect balance after transfer");
 }
 

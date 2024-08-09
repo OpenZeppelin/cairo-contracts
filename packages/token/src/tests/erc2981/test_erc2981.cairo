@@ -10,7 +10,6 @@
 
 // use starknet::{ContractAddress, contract_address_const};
 
-
 // type ComponentState = ERC2981Component::ComponentState<ERC2981Mock::ContractState>;
 
 // fn CONTRACT_STATE() -> ERC2981Mock::ContractState {
@@ -40,7 +39,6 @@
 //     state
 // }
 
-
 // #[test]
 // fn test_default_royalty() {
 //     let mut state = setup();
@@ -56,7 +54,6 @@
 //     assert_eq!(receiver, RECEIVER(), "Default receiver incorrect");
 //     assert_eq!(amount, 50000, "Default fees incorrect");
 // }
-
 
 // #[test]
 // fn test_token_royalty_token() {
@@ -133,7 +130,6 @@
 //     state._set_token_royalty(token_id, RECEIVER(), state._fee_denominator() + 1);
 // }
 
-
 // #[test]
 // #[should_panic(expected: ("Invalid default royalty receiver",))]
 // fn test_default_royalty_with_zero_receiver() {
@@ -170,3 +166,5 @@
 //     let supports_ierc2981 = mock_state.supports_interface(IERC2981_ID);
 //     assert!(supports_ierc2981);
 // }
+
+

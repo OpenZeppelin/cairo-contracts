@@ -98,7 +98,8 @@ fn test_approve() {
     let mut spy = spy_events();
 
     start_cheat_caller_address(contract_address, OWNER());
-    assert!(state.approve(SPENDER(), VALUE));
+    let success = state.approve(SPENDER(), VALUE);
+    assert!(success, "Transfer failed");
 
     spy.assert_only_event_approval(contract_address, OWNER(), SPENDER(), VALUE);
 
@@ -563,9 +564,9 @@ fn assert_state_before_transfer(sender: ContractAddress, recipient: ContractAddr
     let initial_supply = SUPPLY;
     let current_supply = state.total_supply();
 
-    assert_eq!(initial_supply, current_supply);
-    assert_eq!(state.balance_of(sender), SUPPLY);
-    assert_eq!(state.balance_of(recipient), 0);
+    assert_eq!(initial_supply, current_supply, "Incorrect supply before transfer");
+    assert_eq!(state.balance_of(sender), SUPPLY, "Incorrect balance before transfer");
+    assert_eq!(state.balance_of(recipient), 0, "Incorrect balance before transfer");
 }
 
 fn assert_state_after_transfer(sender: ContractAddress, recipient: ContractAddress, amount: u256) {
@@ -573,9 +574,9 @@ fn assert_state_after_transfer(sender: ContractAddress, recipient: ContractAddre
     let initial_supply = SUPPLY;
     let current_supply = state.total_supply();
 
-    assert_eq!(initial_supply, current_supply);
-    assert_eq!(state.balance_of(sender), initial_supply - amount);
-    assert_eq!(state.balance_of(recipient), amount);
+    assert_eq!(initial_supply, current_supply, "Incorrect supply after transfer");
+    assert_eq!(state.balance_of(sender), initial_supply - amount, "Incorrect balance after transfer");
+    assert_eq!(state.balance_of(recipient), amount, "Incorrect balance after transfer");
 }
 
 fn assert_state_before_mint(recipient: ContractAddress) {
@@ -583,8 +584,8 @@ fn assert_state_before_mint(recipient: ContractAddress) {
     let initial_supply = SUPPLY;
     let current_supply = state.total_supply();
 
-    assert_eq!(current_supply, initial_supply);
-    assert_eq!(state.balance_of(recipient), 0);
+    assert_eq!(current_supply, initial_supply, "Incorrect supply before mint");
+    assert_eq!(state.balance_of(recipient), 0, "Incorrect balance before mint");
 }
 
 fn assert_state_after_mint(recipient: ContractAddress, amount: u256) {
@@ -592,8 +593,8 @@ fn assert_state_after_mint(recipient: ContractAddress, amount: u256) {
     let initial_supply = SUPPLY;
     let current_supply = state.total_supply();
 
-    assert_eq!(state.balance_of(recipient), amount);
-    assert_eq!(current_supply, initial_supply + amount);
+    assert_eq!(current_supply, initial_supply + amount, "Incorrect supply after mint");
+    assert_eq!(state.balance_of(recipient), amount, "Incorrect balance after mint");
 }
 
 fn assert_state_before_burn(account: ContractAddress) {
@@ -601,8 +602,8 @@ fn assert_state_before_burn(account: ContractAddress) {
     let initial_supply = SUPPLY;
     let current_supply = state.total_supply();
 
-    assert_eq!(initial_supply, current_supply);
-    assert_eq!(state.balance_of(account), SUPPLY);
+    assert_eq!(initial_supply, current_supply, "Incorrect supply before burn");
+    assert_eq!(state.balance_of(account), SUPPLY, "Incorrect balance before burn");
 }
 
 fn assert_state_after_burn(account: ContractAddress, amount: u256) {
@@ -610,6 +611,6 @@ fn assert_state_after_burn(account: ContractAddress, amount: u256) {
     let initial_supply = SUPPLY;
     let current_supply = state.total_supply();
 
-    assert_eq!(state.balance_of(account), initial_supply - amount);
-    assert_eq!(current_supply, initial_supply - amount)
+    assert_eq!(current_supply, initial_supply - amount, "Incorrect supply after burn");
+    assert_eq!(state.balance_of(account), initial_supply - amount, "Incorrect balance after burn");
 }

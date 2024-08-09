@@ -35,6 +35,7 @@
 **** xref:/api/erc721.adoc[API Reference]
 *** xref:erc1155.adoc[ERC1155]
 **** xref:/api/erc1155.adoc[API Reference]
+*** xref:/api/token_common.adoc[Common]
 
 ** xref:udc.adoc[Universal Deployer Contract]
 *** xref:/api/udc.adoc[API Reference]

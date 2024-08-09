@@ -26,6 +26,7 @@ pub mod ERC2981Component {
     use starknet::ContractAddress;
     use starknet::storage::Map;
 
+    // This default denominator is only used when the
     pub const DEFAULT_FEE_DENOMINATOR: u256 = 10_000;
 
     #[derive(Serde, Drop, starknet::Store)]
@@ -45,11 +46,12 @@ pub mod ERC2981Component {
         pub const INVALID_ROYALTY_RECEIVER: felt252 = 'ERC2981: invalid receiver';
     }
 
-    /// Constants defined at the contract level used to configure the component behaviour.
+    /// Constants expected to be defined at the contract level used to configure the component
+    /// behaviour.
     ///
     /// - `FEE_DENOMINATOR`: The denominator with which to interpret the fee set in
     ///   `set_token_royalty` and `set_default_royalty` as a fraction of the sale price.
-    pub trait ImmutableT {
+    pub trait ImmutableConfig {
         const FEE_DENOMINATOR: u256;
     }
 
@@ -61,7 +63,7 @@ pub mod ERC2981Component {
     impl ERC2981<
         TContractState,
         +HasComponent<TContractState>,
-        impl Immutable: ImmutableT,
+        impl Immutable: ImmutableConfig,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>,
     > of IERC2981<ComponentState<TContractState>> {
@@ -101,7 +103,7 @@ pub mod ERC2981Component {
     pub impl InternalImpl<
         TContractState,
         +HasComponent<TContractState>,
-        impl Immutable: ImmutableT,
+        impl Immutable: ImmutableConfig,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
@@ -203,6 +205,6 @@ pub mod ERC2981Component {
 /// Implementation of the ERC2981 component that can be directly used in contracts.
 ///
 /// The default fee denominator is set to DEFAULT_FEE_DENOMINATOR.
-pub impl ERC2981ImmutableDefault of ERC2981Component::ImmutableT {
+pub impl DefaultConfig of ERC2981Component::ImmutableConfig {
     const FEE_DENOMINATOR: u256 = ERC2981Component::DEFAULT_FEE_DENOMINATOR;
 }

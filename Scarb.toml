@@ -1,22 +1,62 @@
+[workspace]
+members = [
+    "packages/access",
+    "packages/account",
+    "packages/governance",
+    "packages/introspection",
+    "packages/presets",
+    "packages/security",
+    "packages/token",
+    "packages/upgrades",
+    "packages/utils",
+    "packages/testing",
+    "packages/test_common",
+]
+
 [package]
 name = "openzeppelin"
-version = "0.15.0-rc.0"
+version.workspace = true
+
+[workspace.package]
+version = "0.15.0"
 edition = "2023_11"
-cairo-version = "2.7.0-rc.2"
-scarb-version = "2.7.0-rc.2"
+cairo-version = "2.7.0"
+scarb-version = "2.7.0"
 authors = ["OpenZeppelin Community <maintainers@openzeppelin.org>"]
-description = "OpenZeppelin Contracts written in Cairo for StarkNet, a decentralized ZK Rollup"
+description = "OpenZeppelin Contracts written in Cairo for Starknet, a decentralized ZK Rollup"
 documentation = "https://docs.openzeppelin.com/contracts-cairo"
 readme = "README.md"
 repository = "https://github.com/OpenZeppelin/cairo-contracts"
 license-file = "LICENSE"
-keywords = ["openzeppelin", "starknet", "cairo", "contracts", "security", "standards"]
+keywords = [
+    "openzeppelin",
+    "starknet",
+    "cairo",
+    "contracts",
+    "security",
+    "standards",
+]
+
+[workspace.dependencies]
+starknet = "2.7.0"
+snforge_std = { git = "https://github.com/foundry-rs/starknet-foundry.git", tag = "v0.26.0" }
 
 [dependencies]
-starknet = "2.7.0-rc.2"
+starknet.workspace = true
+openzeppelin_access = { path = "packages/access" }
+openzeppelin_account = { path = "packages/account" }
+openzeppelin_governance = { path = "packages/governance" }
+openzeppelin_introspection = { path = "packages/introspection" }
+openzeppelin_presets = { path = "packages/presets" }
+openzeppelin_security = { path = "packages/security" }
+openzeppelin_token = { path = "packages/token" }
+openzeppelin_upgrades = { path = "packages/upgrades" }
+openzeppelin_utils = { path = "packages/utils" }
 
 [dev-dependencies]
-cairo_test = "2.7.0-rc.2"
+snforge_std.workspace = true
+openzeppelin_test_common = { path = "packages/test_common" }
+openzeppelin_testing = { path = "packages/testing" }
 
 [lib]
 
@@ -25,5 +65,8 @@ allowed-libfuncs-list.name = "experimental"
 sierra = true
 casm = false
 
-[tool.fmt]
+[workspace.tool.fmt]
 sort-module-level-items = true
+
+[tool]
+fmt.workspace = true

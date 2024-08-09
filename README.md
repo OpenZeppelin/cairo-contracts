@@ -43,7 +43,14 @@ Edit `scarb.toml` and add:
 
 ```toml
 [dependencies]
-openzeppelin = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.15.0-rc.0" }
+openzeppelin = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.15.0" }
+```
+
+The previous example would import the entire library. we can also add each package as a separated dependency to improve the time for building by not including modules that won't be used:
+
+```toml
+[dependencies]
+openzeppelin_token = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.15.0" }
 ```
 
 Build the project to download it:
@@ -65,6 +72,7 @@ For example, this is how to write an ERC20-compliant contract:
 ```cairo
 #[starknet::contract]
 mod MyToken {
+    // If only the token package was added as a dependency, use `openzeppelin_token::` instead
     use openzeppelin::token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
 
@@ -105,7 +113,7 @@ mod MyToken {
 
 ### Unsupported
 
-[`DualCase` dispatchers](https://docs.openzeppelin.com/contracts-cairo/0.15.0-rc.0/interfaces#dualcase_dispatchers) rely on Sierra's ability to catch a revert to resume execution. Currently, Starknet live chains (testnets and mainnet) don't implement that behavior. Starknet's testing framework does support it.
+[`DualCase` dispatchers](https://docs.openzeppelin.com/contracts-cairo/0.15.0/interfaces#dualcase_dispatchers) rely on Sierra's ability to catch a revert to resume execution. Currently, Starknet live chains (testnets and mainnet) don't implement that behavior. Starknet's testing framework does support it.
 
 ## Learn
 
@@ -152,18 +160,14 @@ git clone git@github.com:OpenZeppelin/cairo-contracts.git
 `cd` into it and build:
 
 ```bash
-$ cd cairo-contracts
-$ scarb build
-
-Compiling lib(openzeppelin) openzeppelin v0.15.0-rc.0 (~/cairo-contracts/Scarb.toml)
-Compiling starknet-contract(openzeppelin) openzeppelin v0.15.0-rc.0 (~/cairo-contracts/Scarb.toml)
-Finished release target(s) in 16 seconds
+cd cairo-contracts
+scarb build -w
 ```
 
 ### Run tests
 
 ```bash
-scarb test
+snforge test -w
 ```
 
 ## Security

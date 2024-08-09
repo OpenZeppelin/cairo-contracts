@@ -5,7 +5,8 @@
 = Contracts for Cairo
 
 *A library for secure smart contract development* written in Cairo for {starknet}. This library consists of a set of xref:components.adoc[reusable components] to build custom smart contracts, as well as
-ready-to-deploy xref:presets.adoc[presets]. You can also find other xref:/api/utilities.adoc[utilities] including xref:interfaces.adoc[interfaces and dispatchers].
+ready-to-deploy xref:presets.adoc[presets]. You can also find other xref:/api/utilities.adoc[utilities] including xref:interfaces.adoc[interfaces and dispatchers] and xref:/api/testing.adoc[test utilities]
+that facilitate testing with Starknet Foundry.
 
 WARNING: This repo contains highly experimental code. Expect rapid iteration. *Use at your own risk.*
 
@@ -20,8 +21,8 @@ before proceeding, and run the following command to check that the installation 
 ----
 $ scarb --version
 
-scarb 2.7.0-rc.2 (55754b5d3 2024-07-12)
-cairo: 2.7.0-rc.2 (https://crates.io/crates/cairo-lang-compiler/2.7.0-rc.2)
+scarb 2.7.0 (e9a2b8716 2024-08-01)
+cairo: 2.7.0 (https://crates.io/crates/cairo-lang-compiler/2.7.0)
 sierra: 1.6.0
 ----
 
@@ -57,7 +58,7 @@ Install the library by declaring it as a dependency in the project's `Scarb.toml
 [,text]
 ----
 [dependencies]
-openzeppelin = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.15.0-rc.0" }
+openzeppelin = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.15.0" }
 ----
 
 WARNING: Make sure the tag matches the target release.

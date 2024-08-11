@@ -18,7 +18,7 @@ pub use cryptography::{nonces, snip12};
 pub use unwrap_and_cast::UnwrapAndCast;
 use starknet::syscalls::call_contract_syscall;
 
-use starknet::{ContractAddress, SyscallResult, SyscallResultTrait};
+use starknet::{ContractAddress, SyscallResult};
 
 pub fn try_selector_with_fallback(
     target: ContractAddress, selector: felt252, fallback: felt252, args: Span<felt252>

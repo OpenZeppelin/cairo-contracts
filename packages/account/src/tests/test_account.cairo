@@ -24,7 +24,6 @@ use snforge_std::{
 };
 use snforge_std::{spy_events, declare, test_address, start_cheat_caller_address};
 use starknet::account::Call;
-use starknet::{contract_address_const, ContractAddress, ClassHash};
 
 //
 // Setup

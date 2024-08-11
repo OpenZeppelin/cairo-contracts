@@ -1,6 +1,6 @@
 use snforge_std::signature::secp256k1_curve::{Secp256k1CurveSignerImpl, Secp256k1CurveKeyPairImpl};
 use snforge_std::signature::stark_curve::{StarkCurveSignerImpl, StarkCurveKeyPairImpl};
-use snforge_std::signature::{KeyPair, KeyPairTrait};
+use snforge_std::signature::{KeyPair};
 use starknet::secp256k1::Secp256k1Point;
 
 pub type StarkKeyPair = KeyPair<felt252, felt252>;

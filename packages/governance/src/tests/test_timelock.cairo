@@ -1,5 +1,4 @@
 use core::hash::{HashStateTrait, HashStateExTrait};
-use core::num::traits::Zero;
 use core::pedersen::PedersenTrait;
 use openzeppelin_access::accesscontrol::AccessControlComponent::{
     AccessControlImpl, InternalImpl as AccessControlInternalImpl
@@ -7,16 +6,11 @@ use openzeppelin_access::accesscontrol::AccessControlComponent::{
 use openzeppelin_access::accesscontrol::DEFAULT_ADMIN_ROLE;
 use openzeppelin_access::accesscontrol::interface::IACCESSCONTROL_ID;
 use openzeppelin_access::accesscontrol::interface::IAccessControl;
-use openzeppelin_governance::tests::mocks::timelock_mocks::MockContract;
 use openzeppelin_governance::tests::mocks::timelock_mocks::{
     IMockContractDispatcher, IMockContractDispatcherTrait
 };
-use openzeppelin_governance::tests::mocks::timelock_mocks::{
-    ITimelockAttackerDispatcher, ITimelockAttackerDispatcherTrait
-};
-use openzeppelin_governance::tests::mocks::timelock_mocks::{
-    TimelockControllerMock, TimelockAttackerMock
-};
+use openzeppelin_governance::tests::mocks::timelock_mocks::{ITimelockAttackerDispatcher};
+use openzeppelin_governance::tests::mocks::timelock_mocks::{TimelockControllerMock};
 use openzeppelin_governance::timelock::OperationState;
 use openzeppelin_governance::timelock::TimelockControllerComponent::{
     CallScheduled, CallExecuted, CallSalt, CallCancelled, MinDelayChanged

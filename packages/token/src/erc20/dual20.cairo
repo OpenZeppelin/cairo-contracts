@@ -6,7 +6,6 @@ use openzeppelin_utils::selectors;
 use openzeppelin_utils::serde::SerializedAppend;
 use openzeppelin_utils::try_selector_with_fallback;
 use starknet::ContractAddress;
-use starknet::SyscallResultTrait;
 use starknet::syscalls::call_contract_syscall;
 
 #[derive(Copy, Drop)]

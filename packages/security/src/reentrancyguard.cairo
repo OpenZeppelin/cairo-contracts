@@ -7,8 +7,6 @@
 /// to a function.
 #[starknet::component]
 pub mod ReentrancyGuardComponent {
-    use starknet::get_caller_address;
-
     #[storage]
     struct Storage {
         ReentrancyGuard_entered: bool

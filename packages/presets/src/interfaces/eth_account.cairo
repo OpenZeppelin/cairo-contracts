@@ -1,6 +1,6 @@
 use openzeppelin_account::interface::EthPublicKey;
 use starknet::account::Call;
-use starknet::{ContractAddress, ClassHash};
+use starknet::{ClassHash};
 
 #[starknet::interface]
 pub trait EthAccountUpgradeableABI<TState> {

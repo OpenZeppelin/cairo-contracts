@@ -1,4 +1,3 @@
-use core::starknet::SyscallResultTrait;
 use openzeppelin_account::EthAccountComponent::{InternalTrait, SRC6CamelOnlyImpl};
 use openzeppelin_account::EthAccountComponent::{PublicKeyCamelImpl, PublicKeyImpl};
 use openzeppelin_account::EthAccountComponent;
@@ -27,7 +26,6 @@ use snforge_std::{
     start_cheat_caller_address
 };
 use snforge_std::{spy_events, test_address};
-use starknet::ContractAddress;
 use starknet::account::Call;
 
 //

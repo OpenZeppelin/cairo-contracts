@@ -352,7 +352,7 @@ Hooks are entrypoints to the business logic of a token component that are access
 This allows contracts to insert additional behaviors before and/or after token transfers (including mints and burns).
 Prior to hooks, extending functionality required contracts to create <<custom_implementations, custom implementations>>.
 
-All token components include a generic hooks trait.
+All token components include a generic hooks trait that include empty default functions.
 When creating a token contract, the using contract must create an implementation of the hooks trait.
 Suppose an ERC20 contract wanted to include Pausable functionality on token transfers.
 The following snippet leverages the `before_update` hook to include this behavior.
@@ -412,9 +412,9 @@ The hook then moves the scope up with the Cairo-generated `get_contract` through
 From here, the hook can access the using contract's integrated components, storage, and implementations.
 
 Be advised that even if a token contract does not require hooks, the hooks trait must still be implemented.
-Contracts may implement the trait with empty functions.
-However, the Contracts for Cairo library offers default empty hook implementations to abstract this away from contracts.
-Rather than defining the hooks implementation, the using contract just needs to bring the default implementation into scope like this:
+The using contract may instantiate an empty impl of the trait;
+however, the Contracts for Cairo library already provides the instantiated impl to abstract this away from contracts.
+The using contract just needs to bring the implementation into scope like this:
 
 [,cairo]
 ----

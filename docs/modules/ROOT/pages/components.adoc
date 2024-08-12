@@ -427,7 +427,7 @@ mod MyToken {
 }
 ----
 
-See {hooks-post} for a more in-depth guide.
+TIP: For a more in-depth guide on hooks, see {hooks-post}.
 
 === Custom implementations
 

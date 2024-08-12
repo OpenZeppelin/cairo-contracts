@@ -28,7 +28,7 @@ pub mod ERC2981Component {
     use starknet::storage::Map;
 
     // This default denominator is only used when the DefaultConfig
-    // is in scope in the implemeting contract.
+    // is in scope in the implementing contract.
     pub const DEFAULT_FEE_DENOMINATOR: u128 = 10_000;
 
     #[derive(Serde, Drop, starknet::Store)]

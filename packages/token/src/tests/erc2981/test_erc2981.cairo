@@ -22,9 +22,9 @@ fn DEFAULT_RECEIVER() -> ContractAddress {
 }
 
 // 0.5% (default denominator is 10000)
-const DEFAULT_FEE_NUMERATOR: u256 = 50;
+const DEFAULT_FEE_NUMERATOR: u128 = 50;
 // 5% (default denominator is 10000)
-const FEE_NUMERATOR: u256 = 500;
+const FEE_NUMERATOR: u128 = 500;
 
 fn setup() -> ComponentState {
     let mut state = COMPONENT_STATE();

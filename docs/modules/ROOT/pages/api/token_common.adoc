@@ -60,6 +60,7 @@ ERC2981 component extending <<IERC2981,IERC2981>>.
 * xref:#ERC2981Component-initializer[`++initializer(self, default_receiver, default_royalty_fraction)++`]
 * xref:#ERC2981Component-default_royalty[`++default_royalty(self)++`]
 * xref:#ERC2981Component-set_default_royalty[`++set_default_royalty(self, receiver, fee_numerator)++`]
+* xref:#ERC2981Component-delete_default_royalty[`++delete_default_royalty(self)++`]
 * xref:#ERC2981Component-token_royalty[`++token_royalty(self, token_id)++`]
 * xref:#ERC2981Component-set_token_royalty[`++set_token_royalty(self, token_id, receiver, fee_numerator)++`]
 * xref:#ERC2981Component-reset_token_royalty[`++reset_token_royalty(self, token_id)++`]
@@ -112,6 +113,12 @@ Requirements:
 
 - `receiver` cannot be the zero address.
 - `fee_numerator` cannot be greater than the fee denominator.
+
+[.contract-item]
+[[ERC2981Component-delete_default_royalty]]
+==== `[.contract-item-name]#++delete_default_royalty++#++(ref self: ContractState)++` [.item-kind]#internal#
+
+Removes default royalty information.
 
 [.contract-item]
 [[ERC2981Component-token_royalty]]

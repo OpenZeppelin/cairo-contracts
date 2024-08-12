@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.15.0 (token/erc2981/erc2981.cairo)
+// OpenZeppelin Contracts for Cairo v0.15.0 (token/common/erc2981/erc2981.cairo)
 
-/// #ERC2981 Component
+/// # ERC2981 Component
 ///
 /// Implementation of the NFT Royalty Standard, a standardized way to retrieve royalty payment
 /// information.
@@ -11,7 +11,8 @@
 /// over the first.
 ///
 /// Royalty is specified as a fraction of sale price. The denominator is set by the contract by
-/// using the Immutable pattern.
+/// using the Immutable Component Config pattern.
+/// See https://community.starknet.io/t/immutable-component-config/114434.
 ///
 /// IMPORTANT: ERC-2981 only specifies a way to signal royalty information and does not enforce its
 /// payment. See https://eips.ethereum.org/EIPS/eip-2981#optional-royalty-payments[Rationale] in the
@@ -26,13 +27,14 @@ pub mod ERC2981Component {
     use starknet::ContractAddress;
     use starknet::storage::Map;
 
-    // This default denominator is only used when the
-    pub const DEFAULT_FEE_DENOMINATOR: u256 = 10_000;
+    // This default denominator is only used when the DefaultConfig
+    // is in scope in the implemeting contract.
+    pub const DEFAULT_FEE_DENOMINATOR: u128 = 10_000;
 
     #[derive(Serde, Drop, starknet::Store)]
     struct RoyaltyInfo {
         pub receiver: ContractAddress,
-        pub royalty_fraction: u256,
+        pub royalty_fraction: u128,
     }
 
     #[storage]
@@ -52,7 +54,7 @@ pub mod ERC2981Component {
     /// - `FEE_DENOMINATOR`: The denominator with which to interpret the fee set in
     ///   `set_token_royalty` and `set_default_royalty` as a fraction of the sale price.
     pub trait ImmutableConfig {
-        const FEE_DENOMINATOR: u256;
+        const FEE_DENOMINATOR: u128;
     }
 
     //
@@ -88,8 +90,8 @@ pub mod ERC2981Component {
             };
 
             let royalty_amount = sale_price
-                * royalty_info.royalty_fraction
-                / Immutable::FEE_DENOMINATOR;
+                * royalty_info.royalty_fraction.into()
+                / Immutable::FEE_DENOMINATOR.into();
 
             (royalty_info.receiver, royalty_amount)
         }
@@ -111,7 +113,7 @@ pub mod ERC2981Component {
         fn initializer(
             ref self: ComponentState<TContractState>,
             default_receiver: ContractAddress,
-            default_royalty_fraction: u256
+            default_royalty_fraction: u128
         ) {
             let mut src5_component = get_dep_component_mut!(ref self, SRC5);
             src5_component.register_interface(IERC2981_ID);
@@ -126,7 +128,7 @@ pub mod ERC2981Component {
         /// - `t.0`: The receiver of the royalty payment.
         /// - `t.1`: The numerator of the royalty fraction.
         /// - `t.2`: The denominator of the royalty fraction.
-        fn default_royalty(self: @ComponentState<TContractState>) -> (ContractAddress, u256, u256) {
+        fn default_royalty(self: @ComponentState<TContractState>) -> (ContractAddress, u128, u128) {
             let royalty_info = self.default_royalty_info.read();
             (royalty_info.receiver, royalty_info.royalty_fraction, Immutable::FEE_DENOMINATOR)
         }
@@ -140,7 +142,7 @@ pub mod ERC2981Component {
         fn set_default_royalty(
             ref self: ComponentState<TContractState>,
             receiver: ContractAddress,
-            fee_numerator: u256,
+            fee_numerator: u128,
         ) {
             let fee_denominator = Immutable::FEE_DENOMINATOR;
             assert(fee_numerator <= fee_denominator, Errors::INVALID_ROYALTY);
@@ -150,7 +152,15 @@ pub mod ERC2981Component {
                 .write(RoyaltyInfo { receiver, royalty_fraction: fee_numerator })
         }
 
-        /// Returns the royalty information that all ids in this contract will default to.
+        /// Removes default royalty information.
+        fn delete_default_royalty(ref self: ComponentState<TContractState>) {
+            self
+                .default_royalty_info
+                .write(RoyaltyInfo { receiver: Zero::zero(), royalty_fraction: 0 })
+        }
+
+        /// Returns the royalty information specific to a token.
+        /// If no specific royalty information is set for the token, the default is returned.
         ///
         /// The returned tuple contains:
         ///
@@ -159,7 +169,7 @@ pub mod ERC2981Component {
         /// - `t.2`: The denominator of the royalty fraction.
         fn token_royalty(
             self: @ComponentState<TContractState>, token_id: u256
-        ) -> (ContractAddress, u256, u256) {
+        ) -> (ContractAddress, u128, u128) {
             let token_royalty_info = self.token_royalty_info.read(token_id);
 
             // If the token has no specific royalty info, use the default.
@@ -182,7 +192,7 @@ pub mod ERC2981Component {
             ref self: ComponentState<TContractState>,
             token_id: u256,
             receiver: ContractAddress,
-            fee_numerator: u256
+            fee_numerator: u128
         ) {
             let fee_denominator = Immutable::FEE_DENOMINATOR;
             assert(fee_numerator <= fee_denominator, Errors::INVALID_ROYALTY);
@@ -202,9 +212,10 @@ pub mod ERC2981Component {
     }
 }
 
-/// Implementation of the ERC2981 component that can be directly used in contracts.
+/// Implementation of the default ERC2981Component ImmutableConfig.
+/// See https://community.starknet.io/t/immutable-component-config/114434#p-2357364-defaultconfig-4
 ///
 /// The default fee denominator is set to DEFAULT_FEE_DENOMINATOR.
 pub impl DefaultConfig of ERC2981Component::ImmutableConfig {
-    const FEE_DENOMINATOR: u256 = ERC2981Component::DEFAULT_FEE_DENOMINATOR;
+    const FEE_DENOMINATOR: u128 = ERC2981Component::DEFAULT_FEE_DENOMINATOR;
 }

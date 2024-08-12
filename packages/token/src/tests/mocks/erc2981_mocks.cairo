@@ -37,7 +37,7 @@ pub(crate) mod ERC2981Mock {
         ref self: ContractState,
         owner: ContractAddress,
         default_receiver: ContractAddress,
-        default_royalty_fraction: u256
+        default_royalty_fraction: u128
     ) {
         self.erc2981.initializer(default_receiver, default_royalty_fraction);
     }

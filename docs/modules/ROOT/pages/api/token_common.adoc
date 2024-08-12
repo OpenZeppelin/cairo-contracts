@@ -32,7 +32,7 @@ Interface of the ERC2981 standard as defined in {eip2981}.
 ==== `[.contract-item-name]#++royalty_info++#++(token_id: u256, sale_price: u256) → (ContractAddress, u256)++` [.item-kind]#external#
 
 Returns how much royalty is owed and to whom, based on a sale price that may be denominated
-in any unit of exchange. The royalty amount is denominated and should be paid in that same
+in any unit of exchange. The royalty amount is denominated and must be paid in that same
 unit of exchange.
 
 [.contract]

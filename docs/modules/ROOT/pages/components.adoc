@@ -413,7 +413,7 @@ From here, the hook can access the using contract's integrated components, stora
 
 Be advised that even if a token contract does not require hooks, the hooks trait must still be implemented.
 Contracts may implement the trait with empty functions.
-The Contracts for Cairo library, however, offers default empty hook implementations to abstract this away from contracts.
+However, the Contracts for Cairo library offers default empty hook implementations to abstract this away from contracts.
 Rather than defining the hooks implementation, the using contract just needs to bring the default implementation into scope like this:
 
 [,cairo]

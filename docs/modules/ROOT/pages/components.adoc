@@ -393,13 +393,8 @@ mod MyToken {
             contract_state.pausable.assert_not_paused();
         }
 
-        // Occurs after token transfers
-        fn after_update(
-            ref self: ERC20Component::ComponentState<ContractState>,
-            from: ContractAddress,
-            recipient: ContractAddress,
-            amount: u256
-        ) {}
+        // Omitting the `after_update` hook because the default behavior
+        // is already implemented in the trait
     }
 
     (...)

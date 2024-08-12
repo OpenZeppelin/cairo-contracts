@@ -1,4 +1,4 @@
-use openzeppelin_introspection::interface::{ISRC5Dispatcher, ISRC5DispatcherTrait};
+use openzeppelin_introspection::interface::ISRC5Dispatcher;
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin_testing::constants::{OTHER, ZERO, RECIPIENT};
 use openzeppelin_token::common::erc2981::ERC2981Component::{ERC2981Impl, InternalImpl};

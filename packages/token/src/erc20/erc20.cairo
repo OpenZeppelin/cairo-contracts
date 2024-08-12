@@ -79,14 +79,14 @@ pub mod ERC20Component {
             from: ContractAddress,
             recipient: ContractAddress,
             amount: u256
-        );
+        ) {}
 
         fn after_update(
             ref self: ComponentState<TContractState>,
             from: ContractAddress,
             recipient: ContractAddress,
             amount: u256
-        );
+        ) {}
     }
 
     //
@@ -436,18 +436,4 @@ pub mod ERC20Component {
 }
 
 /// An empty implementation of the ERC20 hooks to be used in basic ERC20 preset contracts.
-pub impl ERC20HooksEmptyImpl<TContractState> of ERC20Component::ERC20HooksTrait<TContractState> {
-    fn before_update(
-        ref self: ERC20Component::ComponentState<TContractState>,
-        from: ContractAddress,
-        recipient: ContractAddress,
-        amount: u256
-    ) {}
-
-    fn after_update(
-        ref self: ERC20Component::ComponentState<TContractState>,
-        from: ContractAddress,
-        recipient: ContractAddress,
-        amount: u256
-    ) {}
-}
+pub impl ERC20HooksEmptyImpl<TContractState> of ERC20Component::ERC20HooksTrait<TContractState> {}

@@ -1,4 +1,4 @@
-use core::hash::{Hash, HashStateTrait, HashStateExTrait};
+use core::hash::{HashStateTrait, HashStateExTrait};
 use core::poseidon::{PoseidonTrait, poseidon_hash_span};
 use openzeppelin_testing::constants::{OWNER, RECIPIENT};
 use openzeppelin_utils::cryptography::snip12::{

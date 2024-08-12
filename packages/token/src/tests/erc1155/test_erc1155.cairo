@@ -14,11 +14,9 @@ use openzeppelin_token::erc1155::ERC1155Component::ERC1155CamelImpl;
 use openzeppelin_token::erc1155::ERC1155Component::{
     ERC1155Impl, ERC1155MetadataURIImpl, InternalImpl
 };
-use openzeppelin_token::erc1155::ERC1155Component::{TransferBatch, ApprovalForAll, TransferSingle};
 use openzeppelin_token::erc1155::ERC1155Component;
 use openzeppelin_token::erc1155;
 use openzeppelin_token::tests::mocks::erc1155_mocks::DualCaseERC1155Mock;
-use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{spy_events, test_address, start_cheat_caller_address};
 use starknet::ContractAddress;
 

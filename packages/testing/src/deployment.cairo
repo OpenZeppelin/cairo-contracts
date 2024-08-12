@@ -1,7 +1,5 @@
-use core::starknet::SyscallResultTrait;
 use openzeppelin_testing::panic_data_to_byte_array;
-use snforge_std::{declare, get_class_hash, ContractClass, ContractClassTrait};
-use snforge_std::{start_cheat_caller_address, stop_cheat_caller_address};
+use snforge_std::{ContractClass, ContractClassTrait};
 use starknet::ContractAddress;
 
 /// Declares a contract with a `snforge` `declare` call and unwraps the result.

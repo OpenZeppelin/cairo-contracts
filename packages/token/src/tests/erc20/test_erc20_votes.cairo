@@ -13,7 +13,6 @@ use openzeppelin_token::erc20::extensions::erc20_votes::Delegation;
 use openzeppelin_token::tests::mocks::erc20_votes_mocks::DualCaseERC20VotesMock::SNIP12MetadataImpl;
 use openzeppelin_token::tests::mocks::erc20_votes_mocks::DualCaseERC20VotesMock;
 use openzeppelin_utils::cryptography::snip12::OffchainMessageHash;
-use openzeppelin_utils::serde::SerializedAppend;
 use openzeppelin_utils::structs::checkpoint::{Checkpoint, TraceTrait};
 use snforge_std::signature::KeyPairTrait;
 use snforge_std::signature::stark_curve::{StarkCurveKeyPairImpl, StarkCurveSignerImpl};
@@ -21,7 +20,7 @@ use snforge_std::{
     cheat_block_timestamp_global, start_cheat_caller_address, spy_events, cheat_chain_id_global,
     test_address
 };
-use snforge_std::{EventSpy, EventSpyAssertionsTrait};
+use snforge_std::{EventSpy};
 use starknet::ContractAddress;
 use starknet::contract_address_const;
 

@@ -408,7 +408,7 @@ mod MyToken {
 
 Notice that the `self` parameter expects a component state type.
 Instead of passing the component state, the using contract's state can be passed which simplifies the syntax.
-The hook then moves the scope up with the Cairo-generated `get_contract` through the `HasComponent` trait (through ERC20Component in this example).
+The hook then moves the scope up with the Cairo-generated `get_contract` through the `HasComponent` trait (as illustrated with ERC20Component in this example).
 From here, the hook can access the using contract's integrated components, storage, and implementations.
 
 Be advised that even if a token contract does not require hooks, the hooks trait must still be implemented.

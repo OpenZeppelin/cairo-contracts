@@ -88,7 +88,7 @@ The returned tuple contains:
 [[ERC2981Component-initializer]]
 ==== `[.contract-item-name]#++initializer++#++(ref self: ContractState, default_receiver: ContractAddress, default_royalty_fraction: u256)++` [.item-kind]#internal#
 
-Initializes the contract by setting the default royalty and registering the supported interfaces.
+Initializes the contract by setting the default royalty and registering the supported interface.
 
 [.contract-item]
 [[ERC2981Component-default_royalty]]

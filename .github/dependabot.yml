@@ -1,0 +1,14 @@
+version: 2
+# Allow Dependabot to open PRs for security issues and general version updates.
+# It checks github actions and npm packages(for docs).
+# Unfortunately this is not yet possible for Scarb packages(https://github.com/software-mansion/scarb/issues/1083)
+updates:
+  - package-ecosystem: github-actions
+    directory: '/'
+    schedule:
+      interval: daily
+    # npm packages for docs
+  - package-ecosystem: 'npm'
+    directory: '/docs'
+    schedule:
+      interval: 'daily'

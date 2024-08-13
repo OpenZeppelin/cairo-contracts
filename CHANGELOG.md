@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+<<<<<<< HEAD
 ### Added (2024-06-21)
 
 - ERC6909 token standard (2024-06-21) in `/src/token/`
@@ -15,6 +16,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ERC6909 tests in `/src/tests/token/erc6909/`
 - New selectors for the ERC6909 standard on `src/utils/selectors.cairo`
 - Docs page for ERC6909 in `/docs/`
+=======
+## 0.15.0 (2024-08-08)
+
+### Added
+
+- TimelockController component (#996)
+- HashCall implementation (#996)
+- Separated package for each submodule (#1065)
+  - `openzeppelin_access`
+  - `openzeppelin_account`
+  - `openzeppelin_governance`
+  - `openzeppelin_introspection`
+  - `openzeppelin_presets`
+  - `openzeppelin_security`
+  - `openzeppelin_token`
+  - `openzeppelin_upgrades`
+  - `openzeppelin_utils`
+- Separated packages intended as [dev-dependencies] (#1084)
+  - `openzeppelin_testing`
+  - `openzeppelin_test_common`
+
+### Changed
+
+- Bump scarb to v2.7.0-rc.1 (#1025)
+- Bump scarb to v2.7.0-rc.2 (#1052)
+- Bump scarb to v2.7.0-rc.4 (#1064)
+- Bump scarb to v2.7.0 (#1065)
+
+### Changed (Breaking)
+
+- Test utilities moved out of the utils module (#1084).
+- Test utilities refactored to match the snforge test runner (#1084).
+
+## 0.15.0-rc.0 (2024-07-8)
+
+### Changed
+
+- `Trace`, `Checkpoint`, and `StorageArray` structs made public.
+
+### Changed (Breaking)
+
+- Removed `num_checkpoints` and `checkpoints` from `ERC20VotesABI`.
+>>>>>>> 0638a4a640a19c0d93570dc4ab7324bcfe1ef1c3
 
 ## 0.14.0 (2024-06-14)
 
@@ -98,10 +142,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - UDC preset contract (#919)
 - ERC1155Component and ERC1155ReceiverComponent mixins (#941)
 - ERC721ReceiverComponent documentation (#945)
-
-### Changed
-
-- Bump scarb to v2.6.3 (#946)
 
 ### Fixed
 

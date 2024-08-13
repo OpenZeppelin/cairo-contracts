@@ -20,7 +20,6 @@ use openzeppelin_testing::constants::{
 };
 use openzeppelin_testing::signing::StarkKeyPair;
 use openzeppelin_utils::selectors;
-use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{
     cheat_signature_global, cheat_transaction_version_global, cheat_transaction_hash_global
 };

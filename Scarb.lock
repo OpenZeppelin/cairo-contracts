@@ -37,7 +37,6 @@ dependencies = [
  "openzeppelin_introspection",
  "openzeppelin_test_common",
  "openzeppelin_testing",
- "openzeppelin_token",
  "openzeppelin_utils",
  "snforge_std",
 ]

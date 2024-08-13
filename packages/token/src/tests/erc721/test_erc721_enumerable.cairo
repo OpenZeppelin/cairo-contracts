@@ -98,7 +98,7 @@ fn test_total_supply() {
 fn test_token_by_index() {
     let (_a, token_list) = setup();
 
-    assert_dual_token_by_index(token_list);
+    assert_token_by_index(token_list);
 }
 
 #[test]
@@ -128,7 +128,7 @@ fn test_token_by_index_burn_last_token() {
     contract_state.erc721.burn(last_token);
 
     let expected_list = array![TOKEN_1, TOKEN_2];
-    assert_dual_token_by_index(expected_list.span());
+    assert_token_by_index(expected_list.span());
 }
 
 #[test]
@@ -142,7 +142,7 @@ fn test_token_by_index_burn_first_token() {
     // Burnt tokens are replaced by the last token
     // to prevent indexing gaps
     let expected_list = array![TOKEN_3, TOKEN_2];
-    assert_dual_token_by_index(expected_list.span());
+    assert_token_by_index(expected_list.span());
 }
 
 #[test]
@@ -162,7 +162,7 @@ fn test_token_by_index_burn_and_mint_all() {
     contract_state.erc721.mint(OWNER(), TOKEN_3);
 
     let expected_list = array![TOKEN_1, TOKEN_2, TOKEN_3];
-    assert_dual_token_by_index(expected_list.span());
+    assert_token_by_index(expected_list.span());
 }
 
 //
@@ -173,7 +173,7 @@ fn test_token_by_index_burn_and_mint_all() {
 fn test_token_of_owner_by_index() {
     let (_, tokens_list) = setup();
 
-    assert_dual_token_of_owner_by_index(OWNER(), tokens_list);
+    assert_token_of_owner_by_index(OWNER(), tokens_list);
 }
 
 #[test]
@@ -219,7 +219,7 @@ fn test_token_of_owner_by_index_remove_last_token() {
     contract_state.erc721.transfer(OWNER(), RECIPIENT(), last_token);
 
     let expected_list = array![TOKEN_1, TOKEN_2];
-    assert_dual_token_of_owner_by_index(OWNER(), expected_list.span());
+    assert_token_of_owner_by_index(OWNER(), expected_list.span());
 }
 
 #[test]
@@ -233,7 +233,7 @@ fn test_token_of_owner_by_index_remove_first_token() {
     // Removed tokens are replaced by the last token
     // to prevent indexing gaps
     let expected_list = array![TOKEN_3, TOKEN_2];
-    assert_dual_token_of_owner_by_index(OWNER(), expected_list.span());
+    assert_token_of_owner_by_index(OWNER(), expected_list.span());
 }
 
 #[test]
@@ -245,7 +245,7 @@ fn test_token_of_owner_by_index_when_all_tokens_transferred() {
     contract_state.erc721.transfer(OWNER(), RECIPIENT(), TOKEN_2);
     contract_state.erc721.transfer(OWNER(), RECIPIENT(), TOKEN_3);
 
-    assert_dual_token_of_owner_by_index(RECIPIENT(), tokens_list);
+    assert_token_of_owner_by_index(RECIPIENT(), tokens_list);
 }
 
 //
@@ -270,7 +270,7 @@ fn test__update_when_mint() {
 
     // Check total tokens list
     let exp_total_tokens = array![TOKEN_1, TOKEN_2, TOKEN_3, new_token];
-    assert_dual_token_by_index(exp_total_tokens.span());
+    assert_token_by_index(exp_total_tokens.span());
 }
 
 #[test]
@@ -502,7 +502,7 @@ fn test__remove_token_from_all_tokens_enumeration_with_first_token() {
 // Helpers
 //
 
-fn assert_dual_token_of_owner_by_index(owner: ContractAddress, expected_token_list: Span<u256>) {
+fn assert_token_of_owner_by_index(owner: ContractAddress, expected_token_list: Span<u256>) {
     let mut state = COMPONENT_STATE();
 
     let mut i = 0;
@@ -514,7 +514,7 @@ fn assert_dual_token_of_owner_by_index(owner: ContractAddress, expected_token_li
     }
 }
 
-fn assert_dual_token_by_index(expected_token_list: Span<u256>) {
+fn assert_token_by_index(expected_token_list: Span<u256>) {
     let mut state = COMPONENT_STATE();
 
     let mut i = 0;

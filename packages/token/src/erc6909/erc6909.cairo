@@ -3,24 +3,27 @@
 
 use core::starknet::{ContractAddress};
 
+/// TODO: ADD SRC5 As a component
+
 /// # ERC6909 Component
 ///
-/// The ERC6909 component provides an implementation of the Minimal Multi-Token standard authored by jtriley.eth
-/// See https://eips.ethereum.org/EIPS/eip-6909.
+/// The ERC6909 component provides an implementation of the Minimal Multi-Token standard authored by
+/// jtriley.eth See https://eips.ethereum.org/EIPS/eip-6909.
 #[starknet::component]
 pub mod ERC6909Component {
-    use core::integer::BoundedInt;
+    use core::num::traits::Bounded;
     use core::num::traits::Zero;
-    use openzeppelin::introspection::interface::ISRC5_ID;
-    use openzeppelin::token::erc6909::interface;
+    use openzeppelin_account::interface::ISRC6_ID;
+    use openzeppelin_token::erc6909::interface;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
+    use starknet::storage::Map;
 
     #[storage]
     struct Storage {
-        ERC6909_balances: LegacyMap<(ContractAddress, u256), u256>,
-        ERC6909_allowances: LegacyMap<(ContractAddress, ContractAddress, u256), u256>,
-        ERC6909_operators: LegacyMap<(ContractAddress, ContractAddress), bool>,
+        ERC6909_balances: Map<(ContractAddress, u256), u256>,
+        ERC6909_allowances: Map<(ContractAddress, ContractAddress, u256), u256>,
+        ERC6909_operators: Map<(ContractAddress, ContractAddress), bool>,
     }
 
     #[event]
@@ -182,7 +185,7 @@ pub mod ERC6909Component {
         fn supports_interface(
             self: @ComponentState<TContractState>, interface_id: felt252
         ) -> bool {
-            interface_id == interface::IERC6909_ID || interface_id == ISRC5_ID
+            interface_id == interface::IERC6909_ID || interface_id == ISRC6_ID
         }
     }
 
@@ -226,12 +229,13 @@ pub mod ERC6909Component {
             self.update(get_caller_address(), account, Zero::zero(), id, amount);
         }
 
-        /// Transfers an `amount` of tokens from `sender` to `receiver`, or alternatively mints (or burns) 
+        /// Transfers an `amount` of tokens from `sender` to `receiver`, or alternatively mints (or
+        /// burns)
         /// if `sender` (or `receiver`) is the zero address.
         ///
-        /// This function can be extended using the `before_update` and `after_update` hooks. 
-        /// The implementation does not keep track of individual token supplies and this logic is left
-        /// to the extensions instead.
+        /// This function can be extended using the `before_update` and `after_update` hooks.
+        /// The implementation does not keep track of individual token supplies and this logic is
+        /// left to the extensions instead.
         ///
         /// Emits a `Transfer` event.
         fn update(
@@ -274,7 +278,8 @@ pub mod ERC6909Component {
         }
 
         /// Updates `sender`s allowance for `spender`  and `id` based on spent `amount`.
-        /// Does not update the allowance value in case of infinite allowance or if spender is operator.
+        /// Does not update the allowance value in case of infinite allowance or if spender is
+        /// operator.
         fn _spend_allowance(
             ref self: ComponentState<TContractState>,
             sender: ContractAddress,
@@ -282,12 +287,12 @@ pub mod ERC6909Component {
             id: u256,
             amount: u256
         ) {
-            // In accordance with the transferFrom method, spenders with operator permission are not subject to 
-            // allowance restrictions (https://eips.ethereum.org/EIPS/eip-6909).
+            // In accordance with the transferFrom method, spenders with operator permission are not
+            // subject to allowance restrictions (https://eips.ethereum.org/EIPS/eip-6909).
             if sender != spender && !self.ERC6909_operators.read((sender, spender)) {
                 let sender_allowance = self.ERC6909_allowances.read((sender, spender, id));
                 assert(sender_allowance >= amount, Errors::INSUFFICIENT_ALLOWANCE);
-                if sender_allowance != BoundedInt::max() {
+                if sender_allowance != Bounded::MAX {
                     self._approve(sender, spender, id, sender_allowance - amount)
                 }
             }

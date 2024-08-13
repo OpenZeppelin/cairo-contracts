@@ -9,8 +9,8 @@ use starknet::ContractAddress;
 /// The internal function `initializer` should be used ideally in the constructor.
 #[starknet::component]
 pub mod ERC6909ContentURIComponent {
-    use openzeppelin::token::erc6909::ERC6909Component;
-    use openzeppelin::token::erc6909::interface;
+    use openzeppelin_token::erc6909::ERC6909Component;
+    use openzeppelin_token::erc6909::interface;
 
     #[storage]
     struct Storage {

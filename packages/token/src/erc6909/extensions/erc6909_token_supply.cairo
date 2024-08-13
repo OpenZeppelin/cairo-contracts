@@ -10,13 +10,14 @@ use starknet::ContractAddress;
 #[starknet::component]
 pub mod ERC6909TokenSupplyComponent {
     use core::num::traits::Zero;
-    use openzeppelin::token::erc6909::ERC6909Component;
-    use openzeppelin::token::erc6909::interface;
+    use openzeppelin_token::erc6909::ERC6909Component;
+    use openzeppelin_token::erc6909::interface;
     use starknet::ContractAddress;
+    use starknet::storage::Map;
 
     #[storage]
     struct Storage {
-        ERC6909TokenSupply_total_supply: LegacyMap<u256, u256>,
+        ERC6909TokenSupply_total_supply: Map<u256, u256>,
     }
 
     #[embeddable_as(ERC6909TokenSupplyImpl)]
@@ -46,7 +47,7 @@ pub mod ERC6909TokenSupplyComponent {
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
         /// Updates the total supply of a token ID.
-        /// Ideally this function should be called in a `before_update` or `after_update` 
+        /// Ideally this function should be called in a `before_update` or `after_update`
         /// hook during mints and burns.
         fn _update_token_supply(
             ref self: ComponentState<TContractState>,

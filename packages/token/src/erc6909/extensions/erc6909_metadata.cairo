@@ -10,15 +10,16 @@ use starknet::ContractAddress;
 #[starknet::component]
 pub mod ERC6909MetadataComponent {
     use core::num::traits::Zero;
-    use openzeppelin::token::erc6909::ERC6909Component;
-    use openzeppelin::token::erc6909::interface;
+    use openzeppelin_token::erc6909::ERC6909Component;
+    use openzeppelin_token::erc6909::interface;
     use starknet::ContractAddress;
+    use starknet::storage::Map;
 
     #[storage]
     struct Storage {
-        ERC6909Metadata_name: LegacyMap<u256, ByteArray>,
-        ERC6909Metadata_symbol: LegacyMap<u256, ByteArray>,
-        ERC6909Metadata_decimals: LegacyMap<u256, u8>,
+        ERC6909Metadata_name: Map<u256, ByteArray>,
+        ERC6909Metadata_symbol: Map<u256, ByteArray>,
+        ERC6909Metadata_decimals: Map<u256, u8>,
     }
 
     #[embeddable_as(ERC6909MetadataImpl)]

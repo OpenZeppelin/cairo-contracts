@@ -224,3 +224,10 @@ fn test_reset_token_royalty() {
     assert_eq!(receiver, DEFAULT_RECEIVER());
     assert_eq!(amount, 5000);
 }
+
+#[test]
+fn test_default_config() {
+    let fee_denominator = DefaultConfig::FEE_DENOMINATOR;
+    assert_eq!(fee_denominator, ERC2981Component::DEFAULT_FEE_DENOMINATOR);
+    assert_eq!(fee_denominator, 10_000);
+}

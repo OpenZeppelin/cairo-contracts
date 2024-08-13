@@ -56,16 +56,14 @@ pub mod ERC6909TokenSupplyComponent {
             id: u256,
             amount: u256
         ) {
-            let zero_address = Zero::zero();
-
             // In case of mints we increase the total supply of this token ID
-            if (sender == zero_address) {
+            if (sender.is_zero()) {
                 let total_supply = self.ERC6909TokenSupply_total_supply.read(id);
                 self.ERC6909TokenSupply_total_supply.write(id, total_supply + amount);
             }
 
             // In case of burns we decrease the total supply of this token ID
-            if (receiver == zero_address) {
+            if (receiver.is_zero()) {
                 let total_supply = self.ERC6909TokenSupply_total_supply.read(id);
                 self.ERC6909TokenSupply_total_supply.write(id, total_supply - amount);
             }

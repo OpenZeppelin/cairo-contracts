@@ -34,9 +34,9 @@ pub mod ERC6909ContentURIComponent {
         fn token_uri(self: @ComponentState<TContractState>, id: u256) -> ByteArray {
             let contract_uri = self.contract_uri();
             if contract_uri.len() == 0 {
-                return "";
+                ""
             } else {
-                return format!("{}{}", contract_uri, id);
+                format!("{}{}", contract_uri, id)
             }
         }
     }

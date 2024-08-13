@@ -15,8 +15,7 @@ pub mod ERC6909Component {
     use core::num::traits::Zero;
     use openzeppelin_account::interface::ISRC6_ID;
     use openzeppelin_token::erc6909::interface;
-    use starknet::ContractAddress;
-    use starknet::get_caller_address;
+    use starknet::{ContractAddress, get_caller_address};
     use starknet::storage::Map;
 
     #[storage]
@@ -142,7 +141,7 @@ pub mod ERC6909Component {
             amount: u256
         ) -> bool {
             let caller = get_caller_address();
-            self._transfer(caller, caller, receiver, id, amount);
+            self._transfer(caller, receiver, id, amount);
             true
         }
 
@@ -156,7 +155,7 @@ pub mod ERC6909Component {
         ) -> bool {
             let caller = get_caller_address();
             self._spend_allowance(sender, caller, id, amount);
-            self._transfer(caller, sender, receiver, id, amount);
+            self._transfer(sender, receiver, id, amount);
             true
         }
 
@@ -208,7 +207,7 @@ pub mod ERC6909Component {
             amount: u256
         ) {
             assert(!receiver.is_zero(), Errors::MINT_TO_ZERO);
-            self.update(get_caller_address(), Zero::zero(), receiver, id, amount);
+            self.update(Zero::zero(), receiver, id, amount);
         }
 
         /// Destroys `amount` of tokens from `account`.
@@ -226,7 +225,7 @@ pub mod ERC6909Component {
             amount: u256
         ) {
             assert(!account.is_zero(), Errors::BURN_FROM_ZERO);
-            self.update(get_caller_address(), account, Zero::zero(), id, amount);
+            self.update(account, Zero::zero(), id, amount);
         }
 
         /// Transfers an `amount` of tokens from `sender` to `receiver`, or alternatively mints (or
@@ -240,7 +239,6 @@ pub mod ERC6909Component {
         /// Emits a `Transfer` event.
         fn update(
             ref self: ComponentState<TContractState>,
-            caller: ContractAddress, // For the `Transfer` event
             sender: ContractAddress, // from
             receiver: ContractAddress, // to
             id: u256,
@@ -248,20 +246,18 @@ pub mod ERC6909Component {
         ) {
             Hooks::before_update(ref self, sender, receiver, id, amount);
 
-            let zero_address = Zero::zero();
-
-            if (sender != zero_address) {
+            if (sender.is_non_zero()) {
                 let sender_balance = self.ERC6909_balances.read((sender, id));
                 assert(sender_balance >= amount, Errors::INSUFFICIENT_BALANCE);
                 self.ERC6909_balances.write((sender, id), sender_balance - amount);
             }
 
-            if (receiver != zero_address) {
+            if (receiver.is_non_zero()) {
                 let receiver_balance = self.ERC6909_balances.read((receiver, id));
                 self.ERC6909_balances.write((receiver, id), receiver_balance + amount);
             }
 
-            self.emit(Transfer { caller, sender, receiver, id, amount });
+            self.emit(Transfer { caller: get_caller_address(), sender, receiver, id, amount });
 
             Hooks::after_update(ref self, sender, receiver, id, amount);
         }
@@ -282,18 +278,19 @@ pub mod ERC6909Component {
         /// operator.
         fn _spend_allowance(
             ref self: ComponentState<TContractState>,
-            sender: ContractAddress,
+            owner: ContractAddress,
             spender: ContractAddress,
             id: u256,
             amount: u256
         ) {
             // In accordance with the transferFrom method, spenders with operator permission are not
             // subject to allowance restrictions (https://eips.ethereum.org/EIPS/eip-6909).
-            if sender != spender && !self.ERC6909_operators.read((sender, spender)) {
-                let sender_allowance = self.ERC6909_allowances.read((sender, spender, id));
-                assert(sender_allowance >= amount, Errors::INSUFFICIENT_ALLOWANCE);
+            if owner != spender && !self.ERC6909_operators.read((owner, spender)) {
+                let sender_allowance = self.ERC6909_allowances.read((owner, spender, id));
+
                 if sender_allowance != Bounded::MAX {
-                    self._approve(sender, spender, id, sender_allowance - amount)
+                    assert(sender_allowance >= amount, Errors::INSUFFICIENT_ALLOWANCE);
+                    self._approve(owner, spender, id, sender_allowance - amount)
                 }
             }
         }
@@ -314,8 +311,8 @@ pub mod ERC6909Component {
             id: u256,
             amount: u256
         ) {
-            assert(!owner.is_zero(), Errors::APPROVE_FROM_ZERO);
-            assert(!spender.is_zero(), Errors::APPROVE_TO_ZERO);
+            assert(owner.is_non_zero(), Errors::APPROVE_FROM_ZERO);
+            assert(spender.is_non_zero(), Errors::APPROVE_TO_ZERO);
             self.ERC6909_allowances.write((owner, spender, id), amount);
             self.emit(Approval { owner, spender, id, amount });
         }
@@ -331,7 +328,6 @@ pub mod ERC6909Component {
         /// Emits a `Transfer` event.
         fn _transfer(
             ref self: ComponentState<TContractState>,
-            caller: ContractAddress,
             sender: ContractAddress,
             receiver: ContractAddress,
             id: u256,
@@ -339,7 +335,7 @@ pub mod ERC6909Component {
         ) {
             assert(!sender.is_zero(), Errors::TRANSFER_FROM_ZERO);
             assert(!receiver.is_zero(), Errors::TRANSFER_TO_ZERO);
-            self.update(caller, sender, receiver, id, amount);
+            self.update(sender, receiver, id, amount);
         }
     }
 }

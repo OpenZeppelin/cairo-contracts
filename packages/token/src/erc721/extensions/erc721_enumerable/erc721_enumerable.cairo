@@ -119,17 +119,15 @@ pub mod ERC721EnumerableComponent {
             let zero_address = Zero::zero();
 
             if previous_owner == zero_address {
-                PrivateImpl::_add_token_to_all_tokens_enumeration(ref self, token_id);
+                self._add_token_to_all_tokens_enumeration(token_id);
             } else if previous_owner != to {
-                PrivateImpl::_remove_token_from_owner_enumeration(
-                    ref self, previous_owner, token_id
-                );
+                self._remove_token_from_owner_enumeration(previous_owner, token_id);
             }
 
             if to == zero_address {
-                PrivateImpl::_remove_token_from_all_tokens_enumeration(ref self, token_id);
+                self._remove_token_from_all_tokens_enumeration(token_id);
             } else if previous_owner != to {
-                PrivateImpl::_add_token_to_owner_enumeration(ref self, to, token_id);
+                self._add_token_to_owner_enumeration(to, token_id);
             }
         }
     }

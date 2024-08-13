@@ -11,7 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed (Breaking)
 
-- Changed ABI suffix to Trait in dual case account and eth account traits (#1096).
+- Changed ABI suffix to Trait in dual case account and eth account modules (#1096).
+  - `DualCaseAccountABI` renamed to `DualCaseAccountTrait`
+  - `DualCaseEthAccountABI` renamed to `DualCaseEthAccountTrait`
 
 ## 0.15.0 (2024-08-08)
 

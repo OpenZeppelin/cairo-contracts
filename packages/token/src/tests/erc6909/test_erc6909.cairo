@@ -65,7 +65,8 @@ fn test_allowance() {
 #[test]
 fn test_set_supports_interface() {
     let mut state = setup();
-    // IERC6909_ID as defined in `interface.cairo` = 0x32cb2c2fe3eafecaa713aaa072ee54795f66abbd45618bd0ff07284d97116ee
+    // IERC6909_ID as defined in `interface.cairo` =
+    // 0x32cb2c2fe3eafecaa713aaa072ee54795f66abbd45618bd0ff07284d97116ee
     assert!(
         state.supports_interface(0x32cb2c2fe3eafecaa713aaa072ee54795f66abbd45618bd0ff07284d97116ee)
     );
@@ -82,7 +83,8 @@ fn test_set_supports_interface() {
 #[test]
 fn test_set_supportsInterface() {
     let mut state = setup();
-    // IERC6909_ID as defined in `interface.cairo` = 0x32cb2c2fe3eafecaa713aaa072ee54795f66abbd45618bd0ff07284d97116ee
+    // IERC6909_ID as defined in `interface.cairo` =
+    // 0x32cb2c2fe3eafecaa713aaa072ee54795f66abbd45618bd0ff07284d97116ee
     assert!(
         state.supportsInterface(0x32cb2c2fe3eafecaa713aaa072ee54795f66abbd45618bd0ff07284d97116ee)
     );
@@ -293,7 +295,7 @@ fn test_transfer_from_to_zero_address() {
     state.transfer_from(OWNER(), ZERO(), TOKEN_ID, VALUE);
 }
 
-// This does not check `_spend_allowance` since the owner (the zero address) 
+// This does not check `_spend_allowance` since the owner (the zero address)
 // is the sender, see `_spend_allowance` in erc6909.cairo
 #[test]
 #[should_panic(expected: ('ERC6909: transfer from 0',))]

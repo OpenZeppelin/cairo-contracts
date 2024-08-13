@@ -63,10 +63,8 @@ pub mod ERC6909MetadataComponent {
             symbol: ByteArray,
             decimals: u8
         ) {
-            let zero_address = Zero::zero();
-
             // In case of new ID mints update the token metadata
-            if (sender == zero_address) {
+            if (sender.is_zero()) {
                 let token_metadata_exists = self._token_metadata_exists(id);
                 if (!token_metadata_exists) {
                     self._set_token_metadata(id, name, symbol, decimals)

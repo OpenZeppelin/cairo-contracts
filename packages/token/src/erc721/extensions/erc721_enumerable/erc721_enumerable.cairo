@@ -116,15 +116,14 @@ pub mod ERC721EnumerableComponent {
         ) {
             let erc721_component = get_dep_component!(@self, ERC721);
             let previous_owner = erc721_component._owner_of(token_id);
-            let zero_address = Zero::zero();
 
-            if previous_owner == zero_address {
+            if previous_owner.is_zero() {
                 self._add_token_to_all_tokens_enumeration(token_id);
             } else if previous_owner != to {
                 self._remove_token_from_owner_enumeration(previous_owner, token_id);
             }
 
-            if to == zero_address {
+            if to.is_zero() {
                 self._remove_token_from_all_tokens_enumeration(token_id);
             } else if previous_owner != to {
                 self._add_token_to_owner_enumeration(to, token_id);

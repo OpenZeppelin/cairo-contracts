@@ -44,14 +44,6 @@ pub fn BASE_URI_2() -> ByteArray {
     "https://api.example.com/v2/"
 }
 
-pub fn ETH_PUBKEY() -> EthPublicKey {
-    Secp256Trait::secp256_ec_get_point_from_x_syscall(3, false).unwrap_syscall().unwrap()
-}
-
-pub fn NEW_ETH_PUBKEY() -> EthPublicKey {
-    Secp256Trait::secp256_ec_get_point_from_x_syscall(4, false).unwrap_syscall().unwrap()
-}
-
 pub fn ADMIN() -> ContractAddress {
     contract_address_const::<'ADMIN'>()
 }

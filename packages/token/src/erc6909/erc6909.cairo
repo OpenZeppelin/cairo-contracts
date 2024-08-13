@@ -15,8 +15,8 @@ pub mod ERC6909Component {
     use core::num::traits::Zero;
     use openzeppelin_account::interface::ISRC6_ID;
     use openzeppelin_token::erc6909::interface;
-    use starknet::{ContractAddress, get_caller_address};
     use starknet::storage::Map;
+    use starknet::{ContractAddress, get_caller_address};
 
     #[storage]
     struct Storage {
@@ -273,7 +273,7 @@ pub mod ERC6909Component {
             self.emit(OperatorSet { owner, spender, approved });
         }
 
-        /// Updates `sender`s allowance for `spender`  and `id` based on spent `amount`.
+        /// Updates `sender`'s allowance for `spender`  and `id` based on spent `amount`.
         /// Does not update the allowance value in case of infinite allowance or if spender is
         /// operator.
         fn _spend_allowance(

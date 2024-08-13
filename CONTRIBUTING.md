@@ -51,10 +51,10 @@ As a contributor, you are expected to fork this repository, work on your own for
 
     ```bash
     # run tests
-    scarb test
+    snforge test -w
 
     # run linter
-    scarb fmt --check
+    scarb fmt -w --check
     ```
 
 6. Go to [OpenZeppelin/cairo-contracts](https://github.com/OpenZeppelin/cairo-contracts) in your web browser and issue a new pull request.

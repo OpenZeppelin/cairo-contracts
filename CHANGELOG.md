@@ -8,6 +8,48 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## 0.15.0 (2024-08-08)
+
+### Added
+
+- TimelockController component (#996)
+- HashCall implementation (#996)
+- Separated package for each submodule (#1065)
+  - `openzeppelin_access`
+  - `openzeppelin_account`
+  - `openzeppelin_governance`
+  - `openzeppelin_introspection`
+  - `openzeppelin_presets`
+  - `openzeppelin_security`
+  - `openzeppelin_token`
+  - `openzeppelin_upgrades`
+  - `openzeppelin_utils`
+- Separated packages intended as [dev-dependencies] (#1084)
+  - `openzeppelin_testing`
+  - `openzeppelin_test_common`
+
+### Changed
+
+- Bump scarb to v2.7.0-rc.1 (#1025)
+- Bump scarb to v2.7.0-rc.2 (#1052)
+- Bump scarb to v2.7.0-rc.4 (#1064)
+- Bump scarb to v2.7.0 (#1065)
+
+### Changed (Breaking)
+
+- Test utilities moved out of the utils module (#1084).
+- Test utilities refactored to match the snforge test runner (#1084).
+
+## 0.15.0-rc.0 (2024-07-8)
+
+### Changed
+
+- `Trace`, `Checkpoint`, and `StorageArray` structs made public.
+
+### Changed (Breaking)
+
+- Removed `num_checkpoints` and `checkpoints` from `ERC20VotesABI`.
+
 ## 0.14.0 (2024-06-14)
 
 ### Changed (Breaking)
@@ -90,10 +132,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - UDC preset contract (#919)
 - ERC1155Component and ERC1155ReceiverComponent mixins (#941)
 - ERC721ReceiverComponent documentation (#945)
-
-### Changed
-
-- Bump scarb to v2.6.3 (#946)
 
 ### Fixed
 

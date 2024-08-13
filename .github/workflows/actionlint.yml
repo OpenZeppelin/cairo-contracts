@@ -1,0 +1,15 @@
+name: Lint workflows
+
+on:
+  pull_request:
+    paths:
+      - '.github/**/*.ya?ml'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add problem matchers
+        run: echo "::add-matcher::.github/actionlint-matcher.json"
+      - uses: docker://rhysd/actionlint:latest

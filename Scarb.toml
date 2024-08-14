@@ -1,7 +1,5 @@
 [workspace]
 members = [
-    "packages/account",
-    "packages/governance",
     "packages/presets",
     "packages/security",
     "packages/token",
@@ -41,8 +39,8 @@ snforge_std = "0.26.0"
 [dependencies]
 starknet.workspace = true
 openzeppelin_access = "0.15.1"
-openzeppelin_account = { path = "packages/account" }
-openzeppelin_governance = { path = "packages/governance" }
+openzeppelin_account = "0.15.1"
+openzeppelin_governance = "0.15.1"
 openzeppelin_presets = { path = "packages/presets" }
 openzeppelin_security = { path = "packages/security" }
 openzeppelin_token = { path = "packages/token" }

@@ -30,22 +30,21 @@ dependencies = [
 [[package]]
 name = "openzeppelin_account"
 version = "0.15.1"
+source = "registry+https://scarbs.xyz/"
+checksum = "sha256:a8959106a1223b8f47d4142ef636a1b44dcf16f6a7fc9ed1b071a3376d8ec6ee"
 dependencies = [
  "openzeppelin_introspection",
- "openzeppelin_test_common",
- "openzeppelin_testing",
  "openzeppelin_utils",
- "snforge_std",
 ]
 
 [[package]]
 name = "openzeppelin_governance"
 version = "0.15.1"
+source = "registry+https://scarbs.xyz/"
+checksum = "sha256:657045bcac71ce8eb4bf2cf3c69ff8e87f1b594d60cbaa1d0d5e581f47feb216"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_introspection",
- "openzeppelin_testing",
- "snforge_std",
 ]
 
 [[package]]

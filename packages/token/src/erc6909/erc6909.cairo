@@ -229,8 +229,7 @@ pub mod ERC6909Component {
         }
 
         /// Transfers an `amount` of tokens from `sender` to `receiver`, or alternatively mints (or
-        /// burns)
-        /// if `sender` (or `receiver`) is the zero address.
+        /// burns) if `sender` (or `receiver`) is the zero address.
         ///
         /// This function can be extended using the `before_update` and `after_update` hooks.
         /// The implementation does not keep track of individual token supplies and this logic is
@@ -239,8 +238,8 @@ pub mod ERC6909Component {
         /// Emits a `Transfer` event.
         fn update(
             ref self: ComponentState<TContractState>,
-            sender: ContractAddress, // from
-            receiver: ContractAddress, // to
+            sender: ContractAddress,
+            receiver: ContractAddress,
             id: u256,
             amount: u256
         ) {

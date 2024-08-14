@@ -132,4 +132,5 @@ dependencies = [
 [[package]]
 name = "snforge_std"
 version = "0.26.0"
-source = "git+https://github.com/foundry-rs/starknet-foundry.git?tag=v0.26.0#50eb589db65e113efe4f09241feb59b574228c7e"
+source = "registry+https://scarbs.xyz/"
+checksum = "sha256:b4ce766f1faad1b7ca703f574cc8ed585e08b4d59bf7215d078c143f0bca6c15"

@@ -1,4 +1,4 @@
-use openzeppelin_account::dual_eth_account::DualCaseEthAccount;
+use openzeppelin_account::dual_eth_account::{DualCaseEthAccount, DualCaseEthAccountABI};
 use openzeppelin_account::interface::{EthAccountABIDispatcherTrait, EthAccountABIDispatcher};
 use openzeppelin_account::utils::secp256k1::{DebugSecp256k1Point, Secp256k1PointPartialEq};
 use openzeppelin_introspection::interface::ISRC5_ID;
@@ -106,8 +106,7 @@ fn test_dual_get_public_key_exists_and_panics() {
 #[test]
 fn test_dual_is_valid_signature() {
     let key_pair = KEY_PAIR();
-    let (snake_dispatcher, target) = setup_snake(key_pair);
-    let contract_address = snake_dispatcher.contract_address;
+    let (snake_dispatcher, _) = setup_snake(key_pair);
 
     let serialized_signature = key_pair.serialized_sign(TRANSACTION_HASH.into());
     let is_valid = snake_dispatcher.is_valid_signature(TRANSACTION_HASH, serialized_signature);
@@ -118,21 +117,19 @@ fn test_dual_is_valid_signature() {
 #[ignore] // REASON: should_panic attribute not fit for complex panic messages.
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_is_valid_signature() {
-    let hash = 0x0;
     let signature = array![];
 
     let dispatcher = setup_non_account();
-    dispatcher.is_valid_signature(hash, signature);
+    dispatcher.is_valid_signature(TRANSACTION_HASH, signature);
 }
 
 #[test]
 #[should_panic(expected: ("Some error",))]
 fn test_dual_is_valid_signature_exists_and_panics() {
-    let hash = 0x0;
     let signature = array![];
 
     let (dispatcher, _) = setup_account_panic();
-    dispatcher.is_valid_signature(hash, signature);
+    dispatcher.is_valid_signature(TRANSACTION_HASH, signature);
 }
 
 #[test]
@@ -205,8 +202,7 @@ fn test_dual_getPublicKey_exists_and_panics() {
 #[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 fn test_dual_isValidSignature() {
     let key_pair = KEY_PAIR();
-    let (camel_dispatcher, target) = setup_camel(key_pair);
-    let contract_address = camel_dispatcher.contract_address;
+    let (camel_dispatcher, _) = setup_camel(key_pair);
 
     let serialized_signature = key_pair.serialized_sign(TRANSACTION_HASH.into());
     let is_valid = camel_dispatcher.is_valid_signature(TRANSACTION_HASH, serialized_signature);
@@ -217,9 +213,8 @@ fn test_dual_isValidSignature() {
 #[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 #[should_panic(expected: ("Some error",))]
 fn test_dual_isValidSignature_exists_and_panics() {
-    let hash = 0x0;
     let signature = array![];
 
     let (_, dispatcher) = setup_account_panic();
-    dispatcher.is_valid_signature(hash, signature);
+    dispatcher.is_valid_signature(TRANSACTION_HASH, signature);
 }

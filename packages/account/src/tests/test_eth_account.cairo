@@ -340,7 +340,7 @@ fn test_multicall() {
 fn test_multicall_zero_calls() {
     let key_pair = KEY_PAIR();
     let (account, _) = setup_dispatcher(key_pair, SIGNED_TX_DATA(key_pair));
-    let mut calls = array![];
+    let calls = array![];
 
     let ret = account.__execute__(calls);
 

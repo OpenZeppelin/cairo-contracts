@@ -19,7 +19,7 @@ fmt.workspace = true
 starknet.workspace = true
 snforge_std.workspace = true
 openzeppelin_upgrades = { path = "../upgrades" }
-openzeppelin_access = { path = "../access" }
+openzeppelin_access = "0.15.1"
 openzeppelin_account = { path = "../account" }
 openzeppelin_token = { path = "../token" }
 openzeppelin_testing = { path = "../testing" }

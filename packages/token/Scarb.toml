@@ -19,7 +19,7 @@ fmt.workspace = true
 [dependencies]
 starknet.workspace = true
 openzeppelin_account = { path = "../account" }
-openzeppelin_introspection = { path = "../introspection" }
+openzeppelin_introspection = "0.15.1"
 openzeppelin_governance = { path = "../governance" }
 
 [dev-dependencies]

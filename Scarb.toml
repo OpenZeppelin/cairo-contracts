@@ -3,12 +3,10 @@ members = [
     "packages/access",
     "packages/account",
     "packages/governance",
-    "packages/introspection",
     "packages/presets",
     "packages/security",
     "packages/token",
     "packages/upgrades",
-    "packages/utils",
     "packages/testing",
     "packages/test_common",
 ]
@@ -46,12 +44,10 @@ starknet.workspace = true
 openzeppelin_access = { path = "packages/access" }
 openzeppelin_account = { path = "packages/account" }
 openzeppelin_governance = { path = "packages/governance" }
-openzeppelin_introspection = { path = "packages/introspection" }
 openzeppelin_presets = { path = "packages/presets" }
 openzeppelin_security = { path = "packages/security" }
 openzeppelin_token = { path = "packages/token" }
 openzeppelin_upgrades = { path = "packages/upgrades" }
-openzeppelin_utils = { path = "packages/utils" }
 
 [dev-dependencies]
 snforge_std.workspace = true

@@ -23,7 +23,7 @@ openzeppelin_access = { path = "../access" }
 openzeppelin_account = { path = "../account" }
 openzeppelin_token = { path = "../token" }
 openzeppelin_testing = { path = "../testing" }
-openzeppelin_utils = { path = "../utils" }
+openzeppelin_utils = "0.15.1"
 
 [lib]
 

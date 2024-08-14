@@ -4,10 +4,13 @@ use openzeppelin_account::EthAccountComponent;
 use openzeppelin_account::interface::{EthAccountABIDispatcherTrait, EthAccountABIDispatcher};
 use openzeppelin_account::interface::{ISRC6, ISRC6_ID};
 use openzeppelin_account::tests::mocks::eth_account_mocks::DualCaseEthAccountMock;
+use openzeppelin_account::tests::mocks::simple_mock::SimpleMock;
+use openzeppelin_account::tests::mocks::simple_mock::{
+    ISimpleMockDispatcher, ISimpleMockDispatcherTrait
+};
 use openzeppelin_account::utils::secp256k1::{DebugSecp256k1Point, Secp256k1PointPartialEq};
 use openzeppelin_account::utils::signature::EthSignature;
 use openzeppelin_introspection::interface::{ISRC5, ISRC5_ID};
-use openzeppelin_test_common::erc20::deploy_erc20;
 use openzeppelin_test_common::eth_account::EthAccountSpyHelpers;
 use openzeppelin_test_common::eth_account::{
     SIGNED_TX_DATA, SignedTransactionData, get_accept_ownership_signature
@@ -18,7 +21,7 @@ use openzeppelin_testing::constants::{
     SALT, ZERO, OTHER, RECIPIENT, CALLER, QUERY_VERSION, MIN_TRANSACTION_VERSION
 };
 use openzeppelin_testing::signing::Secp256k1KeyPair;
-use openzeppelin_token::erc20::interface::IERC20DispatcherTrait;
+// use openzeppelin_token::erc20::interface::IERC20DispatcherTrait;
 use openzeppelin_utils::selectors;
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{
@@ -221,19 +224,21 @@ fn test_execute_with_version(version: Option<felt252>) {
     let key_pair = KEY_PAIR();
     let data = SIGNED_TX_DATA(key_pair);
     let (account, _) = setup_dispatcher(key_pair, data);
-    let erc20 = deploy_erc20(account.contract_address, 1000);
-    let recipient = RECIPIENT();
+
+    // Deploy target contract
+    let calldata = array![];
+    let address = utils::declare_and_deploy("SimpleMock", calldata);
+    let simple_mock = ISimpleMockDispatcher { contract_address: address };
 
     // Craft call and add to calls array
-    let mut calldata = array![];
-    let amount: u256 = 200;
-    calldata.append_serde(recipient);
-    calldata.append_serde(amount);
+    let amount = 200;
+    let calldata = array![amount];
     let call = Call {
-        to: erc20.contract_address, selector: selectors::transfer, calldata: calldata.span()
+        to: simple_mock.contract_address,
+        selector: selector!("increase_balance"),
+        calldata: calldata.span()
     };
-    let mut calls = array![];
-    calls.append(call);
+    let calls = array![call];
 
     // Handle version for test
     if let Option::Some(version) = version {
@@ -243,9 +248,8 @@ fn test_execute_with_version(version: Option<felt252>) {
     // Execute
     let ret = account.__execute__(calls);
 
-    // Assert that the transfer was successful
-    assert_eq!(erc20.balance_of(account.contract_address), 800, "Should have remainder");
-    assert_eq!(erc20.balance_of(recipient), amount, "Should have transferred");
+    // Assert that the call was successful
+    assert_eq!(simple_mock.get_balance(), amount);
 
     // Test return value
     let mut call_serialized_retval = *ret.at(0);
@@ -295,36 +299,37 @@ fn test_validate_invalid() {
 fn test_multicall() {
     let key_pair = KEY_PAIR();
     let (account, _) = setup_dispatcher(key_pair, SIGNED_TX_DATA(key_pair));
-    let erc20 = deploy_erc20(account.contract_address, 1000);
-    let recipient1 = RECIPIENT();
-    let recipient2 = OTHER();
+
+    // Deploy target contract
+    let calldata = array![];
+    let address = utils::declare_and_deploy("SimpleMock", calldata);
+    let simple_mock = ISimpleMockDispatcher { contract_address: address };
 
     // Craft 1st call
-    let mut calldata1 = array![];
-    let amount1: u256 = 300;
-    calldata1.append_serde(recipient1);
-    calldata1.append_serde(amount1);
+    let amount1 = 300;
+    let calldata1 = array![amount1];
     let call1 = Call {
-        to: erc20.contract_address, selector: selectors::transfer, calldata: calldata1.span()
+        to: simple_mock.contract_address,
+        selector: selector!("increase_balance"),
+        calldata: calldata1.span()
     };
 
     // Craft 2nd call
-    let mut calldata2 = array![];
-    let amount2: u256 = 500;
-    calldata2.append_serde(recipient2);
-    calldata2.append_serde(amount2);
+    let amount2 = 500;
+    let calldata2 = array![amount2];
     let call2 = Call {
-        to: erc20.contract_address, selector: selectors::transfer, calldata: calldata2.span()
+        to: simple_mock.contract_address,
+        selector: selector!("increase_balance"),
+        calldata: calldata2.span()
     };
 
     // Bundle calls and execute
     let calls = array![call1, call2];
     let ret = account.__execute__(calls);
 
-    // Assert that the transfers were successful
-    assert_eq!(erc20.balance_of(account.contract_address), 200, "Should have remainder");
-    assert_eq!(erc20.balance_of(recipient1), 300, "Should have transferred in call 1");
-    assert_eq!(erc20.balance_of(recipient2), 500, "Should have transferred in call 2");
+    // Assert that the txs were successful
+    let total_balance = amount1 + amount2;
+    assert_eq!(simple_mock.get_balance(), total_balance);
 
     // Test return value
     let mut call1_serialized_retval = *ret.at(0);

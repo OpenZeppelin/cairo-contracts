@@ -260,7 +260,7 @@ NOTE: `T` is a generic value matching different numeric implementations.
 use openzeppelin::utils::selectors;
 ```
 
-:selectors: https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.15.0/packages/utils/src/selectors.cairo[selectors.cairo]
+:selectors: https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.15.1/packages/utils/src/selectors.cairo[selectors.cairo]
 
 Module containing constants matching multiple selectors used through the library.
 To see the full list of selectors, see {selectors}.

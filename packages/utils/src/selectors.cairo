@@ -102,3 +102,17 @@ pub const getPublicKey: felt252 = selector!("getPublicKey");
 pub const is_valid_signature: felt252 = selector!("is_valid_signature");
 pub const isValidSignature: felt252 = selector!("isValidSignature");
 pub const supports_interface: felt252 = selector!("supports_interface");
+
+//
+// ERC6909
+//
+
+// The following ERC20 selectors are already defined above:
+// name, symbol, balance_of, balanceOf, transfer_from, transferFrom, approve, 
+// totalSupply, total_supply, allowance, transfer, supports_interface
+
+pub const is_operator: felt252 = selector!("is_operator");
+pub const isOperator: felt252 = selector!("isOperator");
+pub const set_operator: felt252 = selector!("set_operator");
+pub const setOperator: felt252 = selector!("setOperator");
+pub const supportsInterface: felt252 = selector!("supportsInterface");

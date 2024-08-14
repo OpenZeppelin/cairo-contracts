@@ -8,6 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+<<<<<<< HEAD
+### Added (2024-06-21)
+
+- ERC6909 token standard (2024-06-21) in `/src/token/`
+- ERC6909 mocks in `/src/tests/mocks/`
+- ERC6909 tests in `/src/tests/token/erc6909/`
+- New selectors for the ERC6909 standard on `src/utils/selectors.cairo`
+- Docs page for ERC6909 in `/docs/`
+=======
 ## 0.15.0 (2024-08-08)
 
 ### Added
@@ -49,6 +58,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed (Breaking)
 
 - Removed `num_checkpoints` and `checkpoints` from `ERC20VotesABI`.
+>>>>>>> 0638a4a640a19c0d93570dc4ab7324bcfe1ef1c3
 
 ## 0.14.0 (2024-06-14)
 

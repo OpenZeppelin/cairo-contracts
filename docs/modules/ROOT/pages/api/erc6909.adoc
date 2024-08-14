@@ -1,0 +1,511 @@
+:github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
+:eip6909: https://eips.ethereum.org/EIPS/eip-6909[EIP-6909]
+:erc6909-guide: xref:erc6909.adoc[ERC6909 guide]
+:casing-discussion: https://github.com/OpenZeppelin/cairo-contracts/discussions/34[here]
+
+= ERC6909
+
+include::../utils/_common.adoc[]
+
+Reference of interfaces and utilities related to ERC6909 contracts.
+
+TIP: For an overview of ERC6909, read our {erc6909-guide}.
+
+== Core
+
+[.contract]
+[[IERC6909]]
+=== `++IERC6909++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.14.0/src/token/erc6909/interface.cairo[{github-icon},role=heading-link]
+
+[.hljs-theme-dark]
+```cairo
+use openzeppelin::token::erc6909::interface::IERC6909;
+```
+
+Interface of the IERC6909 standard as defined in {eip6909}.
+
+[.contract-index]
+.Functions
+--
+* xref:#IERC6909-balance_of[`++balance_of(owner, id)++`]
+* xref:#IERC6909-allowance[`++allowance(owner, spender, id)++`]
+* xref:#IERC6909-is_operator[`++is_operator(owner, spender)++`]
+* xref:#IERC6909-transfer[`++transfer(receiver, id, amount)++`]
+* xref:#IERC6909-transfer_from[`++transfer_from(sender, receiver, id, amount)++`]
+* xref:#IERC6909-approve[`++approve(spender, id, amount)++`]
+* xref:#IERC6909-set_operator[`++set_operator(spender, approved)++`]
+* xref:#IERC6909-supports_interface[`++supports_interface(interface_id)++`]
+--
+
+[.contract-index]
+.Events
+--
+* xref:#IERC6909-Transfer[`++Transfer(caller, sender, receiver, id, amount)++`]
+* xref:#IERC6909-Approval[`++Approval(owner, spender, id, amount)++`]
+* xref:#IERC6909-OperatorSet[`++OperatorSet(owner, spender, approved)++`]
+--
+
+[#IERC6909-Functions]
+==== Functions
+
+[.contract-item]
+[[IERC6909-balance_of]]
+==== `[.contract-item-name]#++balance_of++#++(owner: ContractAddress, id: u256) → u256++` [.item-kind]#external#
+
+Returns the amount owned by `owner` of `id`.
+
+[.contract-item]
+[[IERC6909-allowance]]
+==== `[.contract-item-name]#++allowance++#++(owner: ContractAddress, spender: ContractAddress, id: u256) → u256++` [.item-kind]#external#
+
+Returns the remaining number of `id` tokens that `spender` is allowed to spend on behalf of `owner` through <<transfer_from,transfer_from>>. This is zero by default.
+
+This value changes when <<IERC6909-approve,approve>> or <<IERC6909-transfer_from,transfer_from>> are called, unless called by an operator.
+
+[.contract-item]
+[[IERC6909-is_operator]]
+==== `[.contract-item-name]#++is_operator++#++(owner: ContractAddress, spender: ContractAddress) → bool++` [.item-kind]#external#
+
+Checks if a `spender` is approved by an `owner` as an operator. Operators are not subject to allowance restrictions.
+
+[.contract-item]
+[[IERC6909-transfer]]
+==== `[.contract-item-name]#++transfer++#++(receiver: ContractAddress, id: u256, amount: u256) → bool++` [.item-kind]#external#
+
+Moves `amount` of an `id` from the caller's token balance to `receiver`.
+Returns `true` on success, reverts otherwise.
+
+Emits a <<IERC6909-Transfer,Transfer>> event.
+
+[.contract-item]
+[[IERC6909-transfer_from]]
+==== `[.contract-item-name]#++transfer_from++#++(sender: ContractAddress, receiver: ContractAddress, id: u256, amount: u256) → bool++` [.item-kind]#external#
+
+Moves `amount` of an `id` from `sender` to `receiver` using the allowance mechanism.
+`amount` is then deducted from the caller's allowance, unless called by an operator.
+Returns `true` on success, reverts otherwise.
+
+Emits a <<IERC6909-Transfer,Transfer>> event.
+
+[.contract-item]
+[[IERC6909-approve]]
+==== `[.contract-item-name]#++approve++#++(spender: ContractAddress, id: u256, amount: u256) → bool++` [.item-kind]#external#
+
+Sets `amount` as the allowance of `spender` over the caller's `id`.
+Returns `true` on success, reverts otherwise.
+
+Emits an <<ERC6909-Approval,Approval>> event.
+
+[.contract-item]
+[[IERC6909-set_operator]]
+==== `[.contract-item-name]#++set_operator++#++(spender: ContractAddress, approved: bool) → bool++` [.item-kind]#external#
+
+Sets or unsets `spender` as an operator for the caller.
+
+Emits an <<ERC6909-OperatorSet,OperatorSet>> event.
+
+[.contract-item]
+[[IERC6909-supports_interface]]
+==== `[.contract-item-name]#++supports_interface++#++(interface_id: felt252) → bool++` [.item-kind]#external#
+
+Checks if a contract implements `interface_id`.
+
+[#IERC6909-Events]
+==== Events
+
+[.contract-item]
+[[IERC6909-Transfer]]
+==== `[.contract-item-name]#++Transfer++#++(caller: ContractAddress, sender: ContractAddress, receiver: ContractAddress, id: u256, amount: u256)++` [.item-kind]#event#
+
+Emitted when `amount` of `id` are moved from `sender` to `receiver`.
+
+Note that `amount` may be zero.
+
+[.contract-item]
+[[IERC6909-Approval]]
+==== `[.contract-item-name]#++Approval++#++(owner: ContractAddress, spender: ContractAddress, id: u256, amount: u256)++` [.item-kind]#event#
+
+Emitted when the allowance of a `spender` for an `owner` is set over a token `id`.
+`amount` is the new allowance.
+
+[.contract-item]
+[[IERC6909-OperatorSet]]
+==== `[.contract-item-name]#++OperatorSet++#++(owner: ContractAddress, spender: ContractAddress, approved: bool)++` [.item-kind]#event#
+
+Emitted when an operator (`spender`) is set or unset for `owner`. `approved` is the new status of the operator.
+
+[.contract]
+[[ERC6909Component]]
+=== `++ERC6909Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.14.0/src/token/erc6909/erc6909.cairo[{github-icon},role=heading-link]
+
+[.hljs-theme-dark]
+```cairo
+use openzeppelin::token::erc6909::ERC6909Component;
+```
+ERC6909 component extending <<IERC6909,IERC6909>>.
+
+NOTE: See xref:#ERC6909Component-Hooks[Hooks] to understand how are hooks used.
+
+[.contract-index]
+.Hooks
+--
+[.sub-index#ERC6909Component-ERC6909HooksTrait]
+.ERC6909HooksTrait
+* xref:#ERC6909Component-before_update[`++before_update(self, from, recipient, id, amount)++`]
+* xref:#ERC6909Component-after_update[`++after_update(self, from, recipient, id, amount)++`]
+--
+
+[.contract-index#ERC6909Component-Embeddable-Mixin-Impl]
+.{mixin-impls}
+--
+.ERC6909MixinImpl
+* xref:#ERC6909Component-Embeddable-Impls-ERC6909Impl[`++ERC6909Impl++`]
+* xref:#ERC6909Component-Embeddable-Impls-ERC6909CamelOnlyImpl[`++ERC6909CamelOnlyImpl++`]
+--
+
+[.contract-index#ERC6909Component-Embeddable-Impls]
+.Embeddable Implementations
+--
+[.sub-index#ERC6909Component-Embeddable-Impls-ERC6909Impl]
+.ERC6909Impl
+* xref:#ERC6909Component-balance_of[`++balance_of(self, owner, id)++`]
+* xref:#ERC6909Component-allowance[`++allowance(self, owner, spender, id)++`]
+* xref:#ERC6909Component-is_operator[`++is_operator(self, owner, spender)++`]
+* xref:#ERC6909Component-transfer[`++transfer(self, receiver, id, amount)++`]
+* xref:#ERC6909Component-transfer_from[`++transfer_from(self, sender, receiver, id, amount)++`]
+* xref:#ERC6909Component-approve[`++approve(self, spender, id, amount)++`]
+* xref:#ERC6909Component-set_operator[`++set_operator(self, spender, approved)++`]
+* xref:#ERC6909Component-supports_interface[`++supports_interface(self, interface_id)++`]
+
+[.sub-index#ERC6909Component-Embeddable-Impls-ERC6909CamelOnlyImpl]
+.ERC6909CamelOnlyImpl
+* xref:#ERC6909Component-balanceOf[`++balanceOf(self, owner, id)++`]
+* xref:#ERC6909Component-isOperator[`++isOperator(self, owner, spender)++`]
+* xref:#ERC6909Component-transferFrom[`++transferFrom(self, sender, receiver, id, amount)++`]
+* xref:#ERC6909Component-setOperator[`++setOperator(self, spender, approved)++`]
+* xref:#ERC6909Component-supportsInterface[`++supportsInterface(self, interface_id)++`]
+--
+
+[.contract-index]
+.Internal implementations
+--
+.InternalImpl
+* xref:#ERC6909Component-mint[`++mint(self, receiver, id, amount)++`]
+* xref:#ERC6909Component-burn[`++burn(self, account, id, amount)++`]
+* xref:#ERC6909Component-update[`++update(self, caller, sender, receiver, id, amount)++`]
+* xref:#ERC6909Component-_set_operator[`++_set_operator(self, owner, spender, approved)++`]
+* xref:#ERC6909Component-_spend_allowance[`++_spend_allowance(self, sender, spender, id, amount)++`]
+* xref:#ERC6909Component-_approve[`++_approve(self, owner, spender, id, amount)++`]
+* xref:#ERC6909Component-_transfer[`++_approve(self, caller, sender, receiver, id, amount)++`]
+--
+
+[.contract-index]
+.Events
+--
+* xref:#ERC6909Component-Transfer[`++Transfer(caller, sender, receiver, id, amount)++`]
+* xref:#ERC6909Component-Approval[`++Approval(owner, spender, id, amount)++`]
+* xref:#ERC6909Component-OperatorSet[`++OperatorSet(owner, spender, approved)++`]
+--
+
+[#ERC6909Component-Hooks]
+==== Hooks
+
+Hooks are functions which implementations can extend the functionality of the component source code. Every contract
+using ERC6909Component is expected to provide an implementation of the ERC6909HooksTrait. For basic token contracts, an
+empty implementation with no logic must be provided.
+
+TIP: You can use `openzeppelin::token::erc6909::ERC6909HooksEmptyImpl` which is already available as part of the library
+for this purpose.
+
+[.contract-item]
+[[ERC6909Component-before_update]]
+==== `[.contract-item-name]#++before_update++#++(ref self: ContractState, sender: ContractAddress, receiver: ContractAddress, id: u256, amount: u256)++` [.item-kind]#hook#
+
+Function executed at the beginning of the xref:#ERC6909Component-update[update] function prior to any other logic.
+
+[.contract-item]
+[[ERC6909Component-after_update]]
+==== `[.contract-item-name]#++after_update++#++(ref self: ContractState, sender: ContractAddress, receiver: ContractAddress, id: u256, amount: u256)++` [.item-kind]#hook#
+
+Function executed at the end of the xref:#ERC6909Component-update[update] function.
+
+[#ERC6909Component-Embeddable-functions]
+==== Embeddable functions
+
+[.contract-item]
+[[ERC6909Component-balance_of]]
+==== `[.contract-item-name]#++balance_of++#++(@self: ContractState, owner: ContractAddress, id: u256) → u256++` [.item-kind]#external#
+
+See <<IERC6909-balance_of,IERC6909::balance_of>>.
+
+[.contract-item]
+[[ERC6909Component-allowance]]
+==== `[.contract-item-name]#++allowance++#++(@self: ContractState, owner: ContractAddress, spender: ContractAddress, id: u256) → u256++` [.item-kind]#external#
+
+See <<IERC6909-allowance,IERC6909::allowance>>.
+
+[.contract-item]
+[[ERC6909Component-is_operator]]
+==== `[.contract-item-name]#++is_operator++#++(@self: ContractState, owner: ContractAddress, spender: ContractAddress) → bool++` [.item-kind]#external#
+
+See <<IERC6909-is_operator,IERC6909::is_operator>>.
+
+[.contract-item]
+[[ERC6909Component-transfer]]
+==== `[.contract-item-name]#++transfer++#++(ref self: ContractState, receiver: ContractAddress, id: u256, amount: u256) → bool++` [.item-kind]#external#
+
+See <<IERC6909-transfer,IERC6909::transfer>>.
+
+Requirements:
+
+- `receiver` cannot be the zero address.
+- The caller must have a balance of at least `amount`.
+
+[.contract-item]
+[[ERC6909Component-transfer_from]]
+==== `[.contract-item-name]#++transfer_from++#++(ref self: ContractState, sender: ContractAddress, receiver: ContractAddress, id: u256, amount: u256) → bool++` [.item-kind]#external#
+
+See <<IERC6909-transfer_from,IERC6909::transfer_from>>.
+
+Requirements:
+
+- `sender` cannot be the zero address.
+- `sender` must have a balance of at least `amount`.
+- `receiver` cannot be the zero address.
+- The caller must have allowance for ``sender``'s tokens of at least `amount`.
+
+[.contract-item]
+[[ERC6909Component-approve]]
+==== `[.contract-item-name]#++approve++#++(ref self: ContractState, spender: ContractAddress, id: u256, amount: u256) → bool++` [.item-kind]#external#
+
+See <<IERC6909-approve,IERC6909::approve>>.
+
+Requirements:
+
+- `spender` cannot be the zero address.
+
+[.contract-item]
+[[ERC6909Component-set_operator]]
+==== `[.contract-item-name]#++set_operator++#++(ref self: ContractState, spender: ContractAddress, approved: bool) → bool++` [.item-kind]#external#
+
+See <<IERC6909-set_operator,IERC6909::set_operator>>.
+
+[.contract-item]
+[[ERC6909Component-supports_interface]]
+==== `[.contract-item-name]#++supports_interface++#++(self: @ContractState, interface_id: felt252) → bool++` [.item-kind]#external#
+
+See <<IERC6909-supports_interface,IERC6909::supports_interface>>.
+
+[.contract-item]
+[[ERC6909Component-balanceOf]]
+==== `[.contract-item-name]#++balanceOf++#++(@self: ContractState, owner: ContractAddress, id: u256) → u256++` [.item-kind]#external#
+
+See <<IERC6909-balance_of,IERC6909::balance_of>>.
+
+Supports the Cairo v0 convention of writing external methods in camelCase as discussed {casing-discussion}.
+
+[.contract-item]
+[[ERC6909Component-isOperator]]
+==== `[.contract-item-name]#++isOperator++#++(@self: ContractState, owner: ContractAddress, spender: ContractAddress) → bool++` [.item-kind]#external#
+
+See <<IERC6909-is_operator,IERC6909::is_operator>>.
+
+Supports the Cairo v0 convention of writing external methods in camelCase as discussed {casing-discussion}.
+
+[.contract-item]
+[[ERC6909Component-transferFrom]]
+==== `[.contract-item-name]#++transferFrom++#++(ref self: ContractState, sender: ContractAddress, receiver: ContractAddress, id: u256, amount: u256) → bool++` [.item-kind]#external#
+
+See <<IERC6909-transfer_from,IERC6909::transfer_from>>.
+
+Supports the Cairo v0 convention of writing external methods in camelCase as discussed {casing-discussion}.
+
+[.contract-item]
+[[ERC6909Component-setOperator]]
+==== `[.contract-item-name]#++setOperator++#++(ref self: ContractState, operator: ContractAddress, approved: bool) → bool++` [.item-kind]#external#
+
+See <<IERC6909-set_operator,IERC6909::set_operator>>.
+
+Supports the Cairo v0 convention of writing external methods in camelCase as discussed {casing-discussion}.
+
+[.contract-item]
+[[ERC6909Component-supportsInterface]]
+==== `[.contract-item-name]#++supportsInterface++#++(ref self: ContractState, interface_id: felt252) → bool++` [.item-kind]#external#
+
+See <<IERC6909-supports_interface,IERC6909::supports_interface>>.
+
+Supports the Cairo v0 convention of writing external methods in camelCase as discussed {casing-discussion}.
+
+[#ERC6909Component-Internal-functions]
+==== Internal functions
+
+[.contract-item]
+[[ERC6909Component-mint]]
+==== `[.contract-item-name]#++mint++#++(ref self: ContractState, receiver: ContractAddress, id: u256, amount: u256)++` [.item-kind]#internal#
+
+Creates an `amount` number of `id` tokens and assigns them to `receiver`.
+
+Emits a <<ERC6909Component-Transfer,Transfer>> event with `from` being the zero address.
+
+Requirements:
+
+- `receiver` cannot be the zero address.
+
+[.contract-item]
+[[ERC6909Component-burn]]
+==== `[.contract-item-name]#++burn++#++(ref self: ContractState, account: ContractAddress, id: u256, amount: u256)++` [.item-kind]#internal#
+
+Destroys `amount` number of `id` tokens from `account`.
+
+Emits a <<ERC6909Component-Transfer,Transfer>> event with `to` set to the zero address.
+
+Requirements:
+
+- `account` cannot be the zero address.
+
+[.contract-item]
+[[ERC6909Component-update]]
+==== `[.contract-item-name]#++update++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, id: u256, amount: u256)++` [.item-kind]#internal#
+
+Transfers an `amount` of `id` tokens from `from` to `to`, or alternatively mints (or burns) if `from` (or `to`) is
+the zero address.
+
+NOTE: This function can be extended using the xref:ERC6909Component-ERC6909HooksTrait[ERC6909HooksTrait], to add
+functionality before and/or after the transfer, mint, or burn.
+
+Emits a <<ERC6909Component-Transfer,Transfer>> event.
+
+[.contract-item]
+[[ERC6909Component-_transfer]]
+==== `[.contract-item-name]#++_transfer++#++(ref self: ContractState, caller: ContractAddress, sender: ContractAddress, receiver: ContractAddress, id: u256, amount: u256)++` [.item-kind]#internal#
+
+Moves `amount` of `id` tokens from `from` to `to`.
+
+This internal function does not check for access permissions but can be useful as a building block, for example to implement automatic token fees, slashing mechanisms, etc.
+
+Emits a <<ERC6909Component-Transfer,Transfer>> event.
+
+Requirements:
+
+- `from` cannot be the zero address.
+- `to` cannot be the zero address.
+- `from` must have a balance of `id` tokens of at least `amount`.
+
+[.contract-item]
+[[ERC6909Component-_approve]]
+==== `[.contract-item-name]#++_approve++#++(ref self: ContractState, owner: ContractAddress, spender: ContractAddress, id: u256, amount: u256)++` [.item-kind]#internal#
+
+Sets `amount` as the allowance of `spender` over ``owner``'s `id` tokens.
+
+This internal function does not check for access permissions but can be useful as a building block, for example to implement automatic allowances on behalf of other addresses.
+
+Emits an <<ERC6909Component-Approval,Approval>> event.
+
+Requirements:
+
+- `owner` cannot be the zero address.
+- `spender` cannot be the zero address.
+
+[.contract-item]
+[[ERC6909Component-_spend_allowance]]
+==== `[.contract-item-name]#++_spend_allowance++#++(ref self: ContractState, owner: ContractAddress, spender: ContractAddress, id: u256, amount: u256)++` [.item-kind]#internal#
+
+Updates ``owner``'s allowance for `spender` based on spent `amount` for `id` tokens.
+
+This internal function does not update the allowance value in the case of infinite allowance or if spender is operator.
+
+Possibly emits an <<ERC6909Component-Approval,Approval>> event.
+
+[#ERC6909Component-Events]
+==== Events
+
+[.contract-item]
+[[ERC6909Component-Transfer]]
+==== `[.contract-item-name]#++Transfer++#++(caller: ContractAddress, sender: ContractAddress, receiver: ContractAddress, id: u256, amount: u256)++` [.item-kind]#event#
+
+See <<IERC6909-Transfer,IERC6909::Transfer>>.
+
+[.contract-item]
+[[ERC6909Component-Approval]]
+==== `[.contract-item-name]#++Approval++#++(owner: ContractAddress, spender: ContractAddress, value: u256)++` [.item-kind]#event#
+
+See <<IERC6909-Approval,IERC6909::Approval>>.
+
+[.contract-item]
+[[ERC6909Component-OperatorSet]]
+==== `[.contract-item-name]#++OperatorSet++#++(owner: ContractAddress, spender: ContractAddress, approved: bool)++` [.item-kind]#event#
+
+See <<IERC6909-OperatorSet,IERC6909::OperatorSet>>.
+
+== Extensions
+
+[.contract]
+[[ERC6909ContentURIComponent]]
+=== `++ERC6909ContentURIComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.14.0/src/token/erc6909/extensions/erc6909_content_uri.cairo[{github-icon},role=heading-link]
+
+```cairo
+use openzeppelin::token::erc6909::extensions::ERC6909ContentURIComponent;
+```
+
+Extension of ERC6909 to support contract and token URIs.
+
+NOTE: Implementing xref:#ERC6909Component[ERC6909Component] is a requirement for this component to be implemented.
+
+This extension allows to set the contract URI (ideally) in the constructor via `initializer(uri: ByteArray)`.
+
+[.contract-index#ERC6909ContentURIComponent-Embeddable-Impls]
+.Embeddable Implementations
+--
+[.sub-index#ERC6909ContentURIComponent-Embeddable-Impls-ERC6909ContentURIImpl]
+.ERC6909ContentURIImpl
+* xref:#ERC6909ContentURIComponent-contract_uri[`++contract_uri(self)++`]
+* xref:#ERC6909ContentURIComponent-token_uri[`++token_uri(self, id)++`]
+--
+
+[.contract-index]
+.Internal implementations
+--
+.InternalImpl
+* xref:#ERC6909ContentURIComponent-initializer[`++initializer(self, contract_uri)++`]
+--
+
+[#ERC6909ContentURI-Embeddable-functions]
+==== Embeddable functions
+
+[.contract-item]
+[[ERC6909ContentURI-contract_uri]]
+==== `[.contract-item-name]#++contract_uri++#++(self: @ContractState) → ByteArray++` [.item-kind]#external#
+
+Returns the contract URI.
+
+[.contract-item]
+[[ERC6909ContentURI-token_uri]]
+==== `[.contract-item-name]#++token_uri++#++(self: @ContractState, id: u256) → ByteArray++` [.item-kind]#external#
+
+Returns the token URI for `id` token
+
+[#ERC6909ContentURI-Internal-functions]
+==== Internal functions
+
+[.contract-item]
+[[ERC6909ContentURI-initializer]]
+==== `[.contract-item-name]#++initializer++#++(ref self: ContractState, contract_uri: ByteArray)++` [.item-kind]#internal#
+
+Initializes the contract URI. 
+This should be used inside of the contract's constructor.
+
+[.contract]
+[[ERC6909MetadataComponent]]
+=== `++ERC6909MetadataComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.14.0/src/token/erc6909/extensions/erc6909_metadata.cairo[{github-icon},role=heading-link]
+
+```cairo
+use openzeppelin::token::erc6909::extensions::ERC6909MetadataComponent;
+```
+
+Extension of ERC6909 to support contract metadata.
+
+NOTE: Implementing xref:#ERC6909Component[ERC6909Component] is a requirement for this component to be implemented.
+
+WARNING: To individual token metadata, this extension requires that the
+xref:#ERC6909MetadataComponent-_update_token_metadata[_update_token_metadata] function is called after every mint. For this, the xref:ERC6909Component-ERC6909HooksTrait[ERC6909HooksTrait] must be used.
+

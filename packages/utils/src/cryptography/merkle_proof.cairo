@@ -13,36 +13,38 @@
 /// leaf inclusion in trees built using non-commutative hashing functions requires
 /// additional logic that is not supported by this library.
 
-use openzeppelin_utils::cryptography::hashes::{CommutativeHash, Pedersen, Poseidon};
+use openzeppelin_utils::cryptography::hashes::{CommutativeHasher, PedersenCHasher, PoseidonCHasher};
 
 /// Version of `verify` using perdersen as the hashing function.
 pub fn verify_pedersen(proof: Span<felt252>, root: felt252, leaf: felt252) -> bool {
-    verify::<Pedersen>(proof, root, leaf)
+    verify::<PedersenCHasher>(proof, root, leaf)
 }
 
 /// Version of `verify` using poseidon as the hashing function.
 pub fn verify_poseidon(proof: Span<felt252>, root: felt252, leaf: felt252) -> bool {
-    verify::<Poseidon>(proof, root, leaf)
+    verify::<PoseidonCHasher>(proof, root, leaf)
 }
 
 /// Returns true if a `leaf` can be proved to be a part of a Merkle tree
 /// defined by `root`. For this, a `proof` must be provided, containing
 /// sibling hashes on the branch from the leaf to the root of the tree. Each
 /// pair of leaves and each pair of pre-images are assumed to be sorted.
-pub fn verify<impl Hash: CommutativeHash>(
+pub fn verify<impl Hasher: CommutativeHasher>(
     proof: Span<felt252>, root: felt252, leaf: felt252
 ) -> bool {
-    process_proof::<Hash>(proof, leaf) == root
+    process_proof::<Hasher>(proof, leaf) == root
 }
 
 /// Returns the rebuilt hash obtained by traversing a Merkle tree up
 /// from `leaf` using `proof`. A `proof` is valid if and only if the rebuilt
 /// hash matches the root of the tree. When processing the proof, the pairs
 /// of leaves & pre-images are assumed to be sorted.
-pub fn process_proof<impl Hash: CommutativeHash>(proof: Span<felt252>, leaf: felt252) -> felt252 {
+pub fn process_proof<impl Hasher: CommutativeHasher>(
+    proof: Span<felt252>, leaf: felt252
+) -> felt252 {
     let mut computed_hash = leaf;
     for hash in proof {
-        computed_hash = Hash::commutative_hash(computed_hash, *hash);
+        computed_hash = Hasher::commutative_hash(computed_hash, *hash);
     };
     computed_hash
 }
@@ -54,10 +56,10 @@ pub fn process_proof<impl Hash: CommutativeHash>(proof: Span<felt252>, leaf: fel
 ///
 /// NOTE: Consider the case where `root == proof[0] && leaves.len() == 0` as it will return `True`.
 /// The `leaves` must be validated independently. See `process_multi_proof`.
-fn verify_multi_proof<impl Hash: CommutativeHash>(
+fn verify_multi_proof<impl Hasher: CommutativeHasher>(
     proof: Span<felt252>, proof_flags: Span<bool>, root: felt252, leaves: Span<felt252>
 ) -> bool {
-    process_multi_proof::<Hash>(proof, proof_flags, leaves) == root
+    process_multi_proof::<Hasher>(proof, proof_flags, leaves) == root
 }
 
 /// Returns the root of a tree reconstructed from `leaves` and sibling nodes in `proof`. The
@@ -73,7 +75,7 @@ fn verify_multi_proof<impl Hash: CommutativeHash>(
 /// NOTE: The _empty set_ (i.e. the case where `proof.len() == 1 && leaves.len() == 0`) is
 /// considered a no-op, and therefore a valid multiproof (i.e. it returns `proof.at(0)`). Consider
 /// disallowing this case if you're not validating the leaves elsewhere.
-pub fn process_multi_proof<impl Hash: CommutativeHash>(
+pub fn process_multi_proof<impl Hasher: CommutativeHasher>(
     proof: Span<felt252>, proof_flags: Span<bool>, leaves: Span<felt252>
 ) -> felt252 {
     // This function rebuilds the root hash by traversing the tree up from the leaves. The root is
@@ -123,7 +125,7 @@ pub fn process_multi_proof<impl Hash: CommutativeHash>(
             proof.at(proof_pos - 1)
         };
 
-        hashes.append(Hash::commutative_hash(*a, *b));
+        hashes.append(Hasher::commutative_hash(*a, *b));
         i += 1;
     };
 

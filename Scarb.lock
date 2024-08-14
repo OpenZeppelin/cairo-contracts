@@ -8,50 +8,55 @@ dependencies = [
  "openzeppelin_access",
  "openzeppelin_account",
  "openzeppelin_governance",
+ "openzeppelin_introspection",
  "openzeppelin_presets",
  "openzeppelin_security",
  "openzeppelin_test_common",
  "openzeppelin_testing",
  "openzeppelin_token",
  "openzeppelin_upgrades",
+ "openzeppelin_utils",
  "snforge_std",
 ]
 
 [[package]]
 name = "openzeppelin_access"
 version = "0.15.1"
-source = "registry+https://scarbs.xyz/"
-checksum = "sha256:9c90539ab54d18253d656e58b75cd6334c76333e85a9e8758ba4091e53574c3c"
 dependencies = [
  "openzeppelin_introspection",
+ "openzeppelin_test_common",
+ "openzeppelin_testing",
  "openzeppelin_utils",
+ "snforge_std",
 ]
 
 [[package]]
 name = "openzeppelin_account"
 version = "0.15.1"
-source = "registry+https://scarbs.xyz/"
-checksum = "sha256:a8959106a1223b8f47d4142ef636a1b44dcf16f6a7fc9ed1b071a3376d8ec6ee"
 dependencies = [
  "openzeppelin_introspection",
+ "openzeppelin_test_common",
+ "openzeppelin_testing",
  "openzeppelin_utils",
+ "snforge_std",
 ]
 
 [[package]]
 name = "openzeppelin_governance"
 version = "0.15.1"
-source = "registry+https://scarbs.xyz/"
-checksum = "sha256:657045bcac71ce8eb4bf2cf3c69ff8e87f1b594d60cbaa1d0d5e581f47feb216"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_introspection",
+ "openzeppelin_testing",
+ "snforge_std",
 ]
 
 [[package]]
 name = "openzeppelin_introspection"
 version = "0.15.1"
-source = "registry+https://scarbs.xyz/"
-checksum = "sha256:f5f88a3f7fd81c1cb9acb0edeea1207baade23e2e4555e8487a5c8161e584827"
+dependencies = [
+ "snforge_std",
+]
 
 [[package]]
 name = "openzeppelin_presets"
@@ -119,11 +124,12 @@ dependencies = [
 [[package]]
 name = "openzeppelin_utils"
 version = "0.15.1"
-source = "registry+https://scarbs.xyz/"
-checksum = "sha256:981ebd7ddfbd9fc03515fa7790ca41c8b721ea020412651510ab63e40ebd2303"
+dependencies = [
+ "openzeppelin_testing",
+ "snforge_std",
+]
 
 [[package]]
 name = "snforge_std"
 version = "0.26.0"
-source = "registry+https://scarbs.xyz/"
-checksum = "sha256:b4ce766f1faad1b7ca703f574cc8ed585e08b4d59bf7215d078c143f0bca6c15"
+source = "git+https://github.com/foundry-rs/starknet-foundry.git?tag=v0.26.0#50eb589db65e113efe4f09241feb59b574228c7e"

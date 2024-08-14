@@ -17,8 +17,8 @@ fmt.workspace = true
 
 [dependencies]
 starknet.workspace = true
-openzeppelin_introspection = "0.15.1"
-openzeppelin_utils = "0.15.1"
+openzeppelin_introspection = { path = "../introspection" }
+openzeppelin_utils = { path = "../utils" }
 
 [dev-dependencies]
 snforge_std.workspace = true

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.15.0 (token/erc20/erc20.cairo)
+// OpenZeppelin Contracts for Cairo v0.15.1 (token/erc20/erc20.cairo)
 
 use starknet::ContractAddress;
 
@@ -10,7 +10,7 @@ use starknet::ContractAddress;
 /// component is agnostic regarding how tokens are created, which means that developers
 /// must create their own token distribution mechanism.
 /// See [the documentation]
-/// (https://docs.openzeppelin.com/contracts-cairo/0.15.0/guides/erc20-supply)
+/// (https://docs.openzeppelin.com/contracts-cairo/0.15.1/guides/erc20-supply)
 /// for examples.
 #[starknet::component]
 pub mod ERC20Component {
@@ -79,14 +79,14 @@ pub mod ERC20Component {
             from: ContractAddress,
             recipient: ContractAddress,
             amount: u256
-        );
+        ) {}
 
         fn after_update(
             ref self: ComponentState<TContractState>,
             from: ContractAddress,
             recipient: ContractAddress,
             amount: u256
-        );
+        ) {}
     }
 
     //
@@ -436,18 +436,4 @@ pub mod ERC20Component {
 }
 
 /// An empty implementation of the ERC20 hooks to be used in basic ERC20 preset contracts.
-pub impl ERC20HooksEmptyImpl<TContractState> of ERC20Component::ERC20HooksTrait<TContractState> {
-    fn before_update(
-        ref self: ERC20Component::ComponentState<TContractState>,
-        from: ContractAddress,
-        recipient: ContractAddress,
-        amount: u256
-    ) {}
-
-    fn after_update(
-        ref self: ERC20Component::ComponentState<TContractState>,
-        from: ContractAddress,
-        recipient: ContractAddress,
-        amount: u256
-    ) {}
-}
+pub impl ERC20HooksEmptyImpl<TContractState> of ERC20Component::ERC20HooksTrait<TContractState> {}

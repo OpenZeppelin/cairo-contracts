@@ -91,7 +91,6 @@ pub(crate) mod TimelockAttackerMock {
     use openzeppelin_governance::timelock::interface::{
         ITimelockDispatcher, ITimelockDispatcherTrait
     };
-    use starknet::ContractAddress;
     use starknet::account::Call;
     use super::ITimelockAttacker;
 

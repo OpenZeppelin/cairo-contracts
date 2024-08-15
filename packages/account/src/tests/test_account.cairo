@@ -294,7 +294,7 @@ fn test_multicall() {
     let address = utils::declare_and_deploy("SimpleMock", calldata);
     let simple_mock = ISimpleMockDispatcher { contract_address: address };
 
-    // Craft call1
+    // Craft 1st call
     let amount1 = 300;
     let calldata1 = array![amount1];
     let call1 = Call {
@@ -303,7 +303,7 @@ fn test_multicall() {
         calldata: calldata1.span()
     };
 
-    // Craft call2
+    // Craft 2nd call
     let amount2 = 500;
     let calldata2 = array![amount2];
     let call2 = Call {

@@ -1,4 +1,4 @@
-use openzeppelin_account::dual_account::{DualCaseAccountABI, DualCaseAccount};
+use openzeppelin_account::dual_account::{DualCaseAccountTrait, DualCaseAccount};
 use openzeppelin_account::interface::{AccountABIDispatcherTrait, AccountABIDispatcher};
 use openzeppelin_introspection::interface::ISRC5_ID;
 

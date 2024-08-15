@@ -278,7 +278,7 @@ impl StructHashImpl of StructHash<Message> {
 
 #[starknet::contract]
 mod CustomERC20 {
-    use openzeppelin::account::dual_account::{DualCaseAccount, DualCaseAccountABI};
+    use openzeppelin::account::dual_account::{DualCaseAccount, DualCaseAccountTrait};
     use openzeppelin::token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     use openzeppelin::utils::cryptography::nonces::NoncesComponent;
     use starknet::ContractAddress;

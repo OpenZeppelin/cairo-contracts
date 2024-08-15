@@ -19,7 +19,6 @@ fmt.workspace = true
 starknet.workspace = true
 openzeppelin_introspection = { path = "../introspection" }
 openzeppelin_utils = { path = "../utils" }
-openzeppelin_token = { path = "../token" }
 
 [dev-dependencies]
 snforge_std.workspace = true

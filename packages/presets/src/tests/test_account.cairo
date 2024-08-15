@@ -436,7 +436,7 @@ fn test_multicall() {
     let recipient2 = OTHER();
     let mut calls = array![];
 
-    // Craft call1
+    // Craft 1st call
     let mut calldata1 = array![];
     let amount1: u256 = 300;
     calldata1.append_serde(recipient1);
@@ -445,7 +445,7 @@ fn test_multicall() {
         to: erc20.contract_address, selector: selectors::transfer, calldata: calldata1.span()
     };
 
-    // Craft call2
+    // Craft 2nd call
     let mut calldata2 = array![];
     let amount2: u256 = 500;
     calldata2.append_serde(recipient2);

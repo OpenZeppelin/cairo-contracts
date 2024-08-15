@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.15.0 (token/erc1155/erc1155.cairo)
+// OpenZeppelin Contracts for Cairo v0.15.1 (token/erc1155/erc1155.cairo)
 
 use starknet::ContractAddress;
 
@@ -110,7 +110,7 @@ pub mod ERC1155Component {
             to: ContractAddress,
             token_ids: Span<u256>,
             values: Span<u256>
-        );
+        ) {}
 
         fn after_update(
             ref self: ComponentState<TContractState>,
@@ -118,7 +118,7 @@ pub mod ERC1155Component {
             to: ContractAddress,
             token_ids: Span<u256>,
             values: Span<u256>
-        );
+        ) {}
     }
 
     //
@@ -719,20 +719,4 @@ pub mod ERC1155Component {
 /// An empty implementation of the ERC1155 hooks to be used in basic ERC1155 preset contracts.
 pub impl ERC1155HooksEmptyImpl<
     TContractState
-> of ERC1155Component::ERC1155HooksTrait<TContractState> {
-    fn before_update(
-        ref self: ERC1155Component::ComponentState<TContractState>,
-        from: ContractAddress,
-        to: ContractAddress,
-        token_ids: Span<u256>,
-        values: Span<u256>
-    ) {}
-
-    fn after_update(
-        ref self: ERC1155Component::ComponentState<TContractState>,
-        from: ContractAddress,
-        to: ContractAddress,
-        token_ids: Span<u256>,
-        values: Span<u256>
-    ) {}
-}
+> of ERC1155Component::ERC1155HooksTrait<TContractState> {}

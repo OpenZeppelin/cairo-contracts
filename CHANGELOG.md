@@ -8,12 +8,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
-
 ### Changed (Breaking)
 
 - Changed ABI suffix to Trait in dual case account and eth account modules (#1096).
   - `DualCaseAccountABI` renamed to `DualCaseAccountTrait`
   - `DualCaseEthAccountABI` renamed to `DualCaseEthAccountTrait`
+  
+## 0.15.1 (2024-08-13)
+
+### Changed
+
+- Remove token dependency from account package (#1100)
+- Fix docsite links (#1094)
+
+
 
 ## 0.15.0 (2024-08-08)
 

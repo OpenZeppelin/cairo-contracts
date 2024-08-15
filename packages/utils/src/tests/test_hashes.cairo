@@ -1,4 +1,5 @@
-use core::pedersen::pedersen;
+use core::hash::{HashStateTrait};
+use core::pedersen::PedersenTrait;
 use core::poseidon::poseidon_hash_span;
 use openzeppelin_utils::cryptography::hashes::{PedersenCHasher, PoseidonCHasher};
 
@@ -15,9 +16,11 @@ fn test_pedersen_commutative_hash_smaller_first() {
     let a = 'a';
     let b = 'b';
 
-    // Expected hash is pedersen(a, b), since a < b
+    let hash_state = PedersenTrait::new(0);
+    let expected = hash_state.update(a).update(b).update(2).finalize();
+
     let hash = PedersenCHasher::commutative_hash(b, a);
-    assert_eq!(hash, pedersen(a, b));
+    assert_eq!(hash, expected);
 }
 
 #[test]

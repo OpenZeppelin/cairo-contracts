@@ -20,8 +20,8 @@ version.workspace = true
 [workspace.package]
 version = "0.15.0"
 edition = "2023_11"
-cairo-version = "2.7.0"
-scarb-version = "2.7.0"
+cairo-version = "2.7.1"
+scarb-version = "2.7.1"
 authors = ["OpenZeppelin Community <maintainers@openzeppelin.org>"]
 description = "OpenZeppelin Contracts written in Cairo for Starknet, a decentralized ZK Rollup"
 documentation = "https://docs.openzeppelin.com/contracts-cairo"
@@ -38,7 +38,7 @@ keywords = [
 ]
 
 [workspace.dependencies]
-starknet = "2.7.0"
+starknet = "2.7.1"
 snforge_std = { git = "https://github.com/foundry-rs/starknet-foundry.git", tag = "v0.26.0" }
 
 [dependencies]

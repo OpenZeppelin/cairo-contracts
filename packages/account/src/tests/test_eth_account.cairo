@@ -21,7 +21,6 @@ use openzeppelin_testing::constants::{
     SALT, ZERO, OTHER, RECIPIENT, CALLER, QUERY_VERSION, MIN_TRANSACTION_VERSION
 };
 use openzeppelin_testing::signing::Secp256k1KeyPair;
-// use openzeppelin_token::erc20::interface::IERC20DispatcherTrait;
 use openzeppelin_utils::selectors;
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{

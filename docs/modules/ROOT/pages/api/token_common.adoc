@@ -134,7 +134,7 @@ The returned tuple contains:
 
 [.contract-item]
 [[ERC2981Component-set_token_royalty]]
-==== `[.contract-item-name]#++set_token_royalty++#++(ref self: ContractState, token_id: u256, receiver: ContractAddress, fee_numerator: u256)++` [.item-kind]#internal#
+==== `[.contract-item-name]#++set_token_royalty++#++(ref self: ContractState, token_id: u256, receiver: ContractAddress, fee_numerator: u128)++` [.item-kind]#internal#
 
 Sets the royalty information for a specific token id, overriding the global default.
 

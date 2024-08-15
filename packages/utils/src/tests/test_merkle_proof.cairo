@@ -176,7 +176,9 @@ fn test_verify_multi_proof_invalid_len_proof_flags_panics() {
 #[should_panic(expected: ('Index out of bounds',))]
 fn test_process_multi_proof_flags_extra_leaves_expected() {
     let leaves = LEAVES();
-    let leaves_to_prove = [leaf_hash(*leaves.at(0)), leaf_hash(*leaves.at(1)), leaf_hash(*leaves.at(2))].span();
+    let leaves_to_prove = [
+        leaf_hash(*leaves.at(0)), leaf_hash(*leaves.at(1)), leaf_hash(*leaves.at(2))
+    ].span();
     let proof = [
         0x044fdc540a81d0189ed30b49d64136f9e8bd499c942ba170404ef0b9406e524c,
         0x05fb6a626bb2c1e12fc2d6fa7f218ec06928ba5febf4d5677c2c5060827e383b
@@ -192,7 +194,9 @@ fn test_process_multi_proof_flags_extra_leaves_expected() {
 #[should_panic(expected: ('Index out of bounds',))]
 fn test_process_multi_proof_flags_extra_proofs_expected() {
     let leaves = LEAVES();
-    let leaves_to_prove = [leaf_hash(*leaves.at(0)), leaf_hash(*leaves.at(1)), leaf_hash(*leaves.at(2))].span();
+    let leaves_to_prove = [
+        leaf_hash(*leaves.at(0)), leaf_hash(*leaves.at(1)), leaf_hash(*leaves.at(2))
+    ].span();
     let proof = [
         0x044fdc540a81d0189ed30b49d64136f9e8bd499c942ba170404ef0b9406e524c,
         0x05fb6a626bb2c1e12fc2d6fa7f218ec06928ba5febf4d5677c2c5060827e383b
@@ -208,7 +212,9 @@ fn test_process_multi_proof_flags_extra_proofs_expected() {
 #[should_panic(expected: ('Index out of bounds',))]
 fn test_verify_multi_proof_flags_extra_leaves_expected() {
     let leaves = LEAVES();
-    let leaves_to_prove = [leaf_hash(*leaves.at(0)), leaf_hash(*leaves.at(1)), leaf_hash(*leaves.at(2))].span();
+    let leaves_to_prove = [
+        leaf_hash(*leaves.at(0)), leaf_hash(*leaves.at(1)), leaf_hash(*leaves.at(2))
+    ].span();
     let root = 0x02a40717603180fa52f40a55508cd360d301840f3e502665cf0132ef412911de;
     let proof = [
         0x044fdc540a81d0189ed30b49d64136f9e8bd499c942ba170404ef0b9406e524c,
@@ -225,7 +231,9 @@ fn test_verify_multi_proof_flags_extra_leaves_expected() {
 #[should_panic(expected: ('Index out of bounds',))]
 fn test_verify_multi_proof_flags_extra_proofs_expected() {
     let leaves = LEAVES();
-    let leaves_to_prove = [leaf_hash(*leaves.at(0)), leaf_hash(*leaves.at(1)), leaf_hash(*leaves.at(2))].span();
+    let leaves_to_prove = [
+        leaf_hash(*leaves.at(0)), leaf_hash(*leaves.at(1)), leaf_hash(*leaves.at(2))
+    ].span();
     let root = 0x02a40717603180fa52f40a55508cd360d301840f3e502665cf0132ef412911de;
     let proof = [
         0x044fdc540a81d0189ed30b49d64136f9e8bd499c942ba170404ef0b9406e524c,

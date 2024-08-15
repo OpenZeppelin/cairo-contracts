@@ -87,13 +87,13 @@ The returned tuple contains:
 
 [.contract-item]
 [[ERC2981Component-initializer]]
-==== `[.contract-item-name]#++initializer++#++(ref self: ContractState, default_receiver: ContractAddress, default_royalty_fraction: u256)++` [.item-kind]#internal#
+==== `[.contract-item-name]#++initializer++#++(ref self: ContractState, default_receiver: ContractAddress, default_royalty_fraction: u128)++` [.item-kind]#internal#
 
 Initializes the contract by setting the default royalty and registering the supported interface.
 
 [.contract-item]
 [[ERC2981Component-default_royalty]]
-==== `[.contract-item-name]#++default_royalty++#++(self: @ContractState) → (ContractAddress, u256, u256)++` [.item-kind]#internal#
+==== `[.contract-item-name]#++default_royalty++#++(self: @ContractState) → (ContractAddress, u128, u128)++` [.item-kind]#internal#
 
 Returns the royalty information that all ids in this contract will default to.
 
@@ -105,7 +105,7 @@ The returned tuple contains:
 
 [.contract-item]
 [[ERC2981Component-set_default_royalty]]
-==== `[.contract-item-name]#++set_default_royalty++#++(ref self: ContractState, receiver: ContractAddress, fee_numerator: u256)++` [.item-kind]#internal#
+==== `[.contract-item-name]#++set_default_royalty++#++(ref self: ContractState, receiver: ContractAddress, fee_numerator: u128)++` [.item-kind]#internal#
 
 Sets the royalty information that all ids in this contract will default to.
 
@@ -134,7 +134,7 @@ The returned tuple contains:
 
 [.contract-item]
 [[ERC2981Component-set_token_royalty]]
-==== `[.contract-item-name]#++set_token_royalty++#++(ref self: ContractState, token_id: u256, receiver: ContractAddress, fee_numerator: u256)++` [.item-kind]#internal#
+==== `[.contract-item-name]#++set_token_royalty++#++(ref self: ContractState, token_id: u256, receiver: ContractAddress, fee_numerator: u128)++` [.item-kind]#internal#
 
 Sets the royalty information for a specific token id, overriding the global default.
 

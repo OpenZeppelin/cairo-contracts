@@ -252,8 +252,13 @@ fn test_token_of_owner_by_index_when_all_tokens_transferred() {
 // _update
 //
 
+// Note that `before_update` only updates the ERC721Enumerable state
+// and NOT the ERC721 state.
+// The following `before_update` tests are testing the isolated functionality of
+// `before_update` and will have an inconsistent state with that of the ERC721 component.
+
 #[test]
-fn test__update_when_mint() {
+fn test_before_update_when_mint() {
     let (mut state, _) = setup();
     let initial_supply = state.total_supply();
     let new_token = 'TOKEN_4';
@@ -274,7 +279,7 @@ fn test__update_when_mint() {
 }
 
 #[test]
-fn test__update_when_last_token_burned() {
+fn test_before_update_when_last_token_burned() {
     let (mut state, tokens_list) = setup();
     let initial_supply = state.total_supply();
     let last_token_toburn = *tokens_list.at(initial_supply.try_into().unwrap() - 1);
@@ -291,11 +296,11 @@ fn test__update_when_last_token_burned() {
 
     // Check total tokens
     let exp_total_tokens = array![TOKEN_1, TOKEN_2];
-    assert_after_update_all_tokens_list(exp_total_tokens.span());
+    assert_token_by_index(exp_total_tokens.span());
 }
 
 #[test]
-fn test__update_when_first_token_burned() {
+fn test_before_update_when_first_token_burned() {
     let (mut state, tokens_list) = setup();
     let initial_supply = state.total_supply();
     let first_token_toburn = *tokens_list.at(0);
@@ -315,11 +320,11 @@ fn test__update_when_first_token_burned() {
 
     // Check total tokens
     let exp_total_tokens = array![TOKEN_3, TOKEN_2];
-    assert_after_update_all_tokens_list(exp_total_tokens.span());
+    assert_token_by_index(exp_total_tokens.span());
 }
 
 #[test]
-fn test__update_when_transfer_last_token() {
+fn test_before_update_when_transfer_last_token() {
     let (mut state, tokens_list) = setup();
     let initial_supply = state.total_supply();
     let transfer_token = *tokens_list.at(initial_supply.try_into().unwrap() - 1);
@@ -340,11 +345,11 @@ fn test__update_when_transfer_last_token() {
 
     // Check total tokens
     let exp_total_tokens = array![TOKEN_1, TOKEN_2, TOKEN_3];
-    assert_after_update_all_tokens_list(exp_total_tokens.span());
+    assert_token_by_index(exp_total_tokens.span());
 }
 
 #[test]
-fn test__update_when_transfer_first_token() {
+fn test_before_update_when_transfer_first_token() {
     let (mut state, tokens_list) = setup();
     let initial_supply = state.total_supply();
     let transfer_token = *tokens_list.at(0);
@@ -368,7 +373,7 @@ fn test__update_when_transfer_first_token() {
 
     // Check all tokens
     let exp_total_tokens = array![TOKEN_1, TOKEN_2, TOKEN_3];
-    assert_after_update_all_tokens_list(exp_total_tokens.span());
+    assert_token_by_index(exp_total_tokens.span());
 }
 
 //
@@ -537,19 +542,10 @@ fn assert_token_by_index(expected_token_list: Span<u256>) {
     }
 }
 
-fn assert_after_update_all_tokens_list(expected_list: Span<u256>) {
-    let state = @COMPONENT_STATE();
-
-    let mut i = 0;
-    while i < expected_list.len() {
-        // Check total tokens list
-        let token = state.ERC721Enumerable_all_tokens.read(i.into());
-        assert_eq!(token, *expected_list.at(i));
-
-        i += 1;
-    }
-}
-
+/// Helper assertion that checks each token id in `expected_list` is stored for `owner`
+/// in storage. This assertion reads from storage because it bypasses the out of bounds check
+/// in `token_of_owner_by_index`. The `before_update` function does not update the
+/// ERC721 state.
 fn assert_after_update_owned_tokens_list(owner: ContractAddress, expected_list: Span<u256>) {
     let state = @COMPONENT_STATE();
 

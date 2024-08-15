@@ -46,6 +46,7 @@ pub mod ERC2981Component {
     mod Errors {
         pub const INVALID_ROYALTY: felt252 = 'ERC2981: invalid royalty';
         pub const INVALID_ROYALTY_RECEIVER: felt252 = 'ERC2981: invalid receiver';
+        pub const INVALID_FEE_DENOMINATOR: felt252 = 'Invalid fee denominator';
     }
 
     /// Constants expected to be defined at the contract level used to configure the component
@@ -115,6 +116,8 @@ pub mod ERC2981Component {
             default_receiver: ContractAddress,
             default_royalty_fraction: u128
         ) {
+            assert(Immutable::FEE_DENOMINATOR > 0, Errors::INVALID_FEE_DENOMINATOR);
+
             let mut src5_component = get_dep_component_mut!(ref self, SRC5);
             src5_component.register_interface(IERC2981_ID);
 
@@ -218,4 +221,33 @@ pub mod ERC2981Component {
 /// The default fee denominator is set to DEFAULT_FEE_DENOMINATOR.
 pub impl DefaultConfig of ERC2981Component::ImmutableConfig {
     const FEE_DENOMINATOR: u128 = ERC2981Component::DEFAULT_FEE_DENOMINATOR;
+}
+
+
+#[cfg(test)]
+mod tests {
+    use openzeppelin_token::tests::mocks::erc2981_mocks::ERC2981Mock;
+    use starknet::contract_address_const;
+    use super::ERC2981Component::InternalImpl;
+    use super::ERC2981Component;
+
+    type ComponentState = ERC2981Component::ComponentState<ERC2981Mock::ContractState>;
+
+    fn COMPONENT_STATE() -> ComponentState {
+        ERC2981Component::component_state_for_testing()
+    }
+
+    // Invalid fee denominator
+    impl InvalidImmutableConfig of ERC2981Component::ImmutableConfig {
+        const FEE_DENOMINATOR: u128 = 0;
+    }
+
+    #[test]
+    #[should_panic(expected: ('Invalid fee denominator',))]
+    fn test_initializer_invalid_config_panics() {
+        let mut state = COMPONENT_STATE();
+        let receiver = contract_address_const::<'DEFAULT_RECEIVER'>();
+
+        state.initializer(receiver, 50);
+    }
 }

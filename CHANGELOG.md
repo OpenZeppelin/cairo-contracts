@@ -22,8 +22,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Remove token dependency from account package (#1100)
 - Fix docsite links (#1094)
 
-
-
 ## 0.15.0 (2024-08-08)
 
 ### Added

@@ -56,7 +56,7 @@ pub fn process_proof<impl Hasher: CommutativeHasher>(
 ///
 /// NOTE: Consider the case where `root == proof[0] && leaves.len() == 0` as it will return `True`.
 /// The `leaves` must be validated independently. See `process_multi_proof`.
-fn verify_multi_proof<impl Hasher: CommutativeHasher>(
+pub fn verify_multi_proof<impl Hasher: CommutativeHasher>(
     proof: Span<felt252>, proof_flags: Span<bool>, root: felt252, leaves: Span<felt252>
 ) -> bool {
     process_multi_proof::<Hasher>(proof, proof_flags, leaves) == root
@@ -130,11 +130,16 @@ pub fn process_multi_proof<impl Hasher: CommutativeHasher>(
     };
 
     let root = if proof_flags_len > 0 {
+        // If `proof_flags` is not empty, assert that every
+        // proof was used in the validation process.
         if proof_pos != proof.len() {
+            // TODO: check if this is not unrechable code.
             panic!("MerkleProof: invalid multi proof");
         }
         hashes.at(proof_flags_len - 1)
     } else if leaves_len > 0 {
+        // If `proof_flags_len` is zero, and `leaves_len` is greater then zero,
+        // then `leaves_len` can only be 1, because of the proof validity check.
         leaves.at(0)
     } else {
         proof.at(0)

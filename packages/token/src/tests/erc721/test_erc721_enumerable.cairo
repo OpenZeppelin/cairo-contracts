@@ -8,7 +8,7 @@ use openzeppelin_token::erc721::extensions::erc721_enumerable::ERC721EnumerableC
 use openzeppelin_token::erc721::extensions::erc721_enumerable::erc721_enumerable::ERC721EnumerableComponent::PrivateTrait;
 use openzeppelin_token::erc721::extensions::erc721_enumerable::interface;
 use openzeppelin_token::tests::mocks::erc721_enumerable_mocks::ERC721EnumerableMock;
-use openzeppelin_utils::test_utils::constants::{OWNER, RECIPIENT, OTHER, ZERO};
+use openzeppelin_testing::constants::{OWNER, RECIPIENT, OTHER, ZERO};
 use starknet::ContractAddress;
 
 // Token IDs

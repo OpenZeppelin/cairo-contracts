@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.15.0-rc.0 (utils/deployments.cairo)
+// OpenZeppelin Contracts for Cairo v0.15.1 (utils/deployments.cairo)
 
 pub mod interface;
 
@@ -7,15 +7,13 @@ use core::hash::{HashStateTrait, HashStateExTrait};
 use core::num::traits::Zero;
 use core::pedersen::PedersenTrait;
 use core::poseidon::PoseidonTrait;
-use interface::IUniversalDeployer;
 use openzeppelin_utils::serde::SerializedAppend;
-use starknet::ClassHash;
-use starknet::ContractAddress;
+use starknet::{ClassHash, ContractAddress};
 
 // 2**251 - 256
-const L2_ADDRESS_UPPER_BOUND: felt252 =
+pub const L2_ADDRESS_UPPER_BOUND: felt252 =
     0x7ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff00;
-const CONTRACT_ADDRESS_PREFIX: felt252 = 'STARKNET_CONTRACT_ADDRESS';
+pub const CONTRACT_ADDRESS_PREFIX: felt252 = 'STARKNET_CONTRACT_ADDRESS';
 
 /// Returns the contract address from a `deploy_syscall`.
 /// `deployer_address` should be the zero address if the deployment is origin-independent (deployed
@@ -86,14 +84,12 @@ pub fn calculate_contract_address_from_udc(
                 .update_with(deployer_info.caller_address)
                 .update_with(salt)
                 .finalize();
-            return calculate_contract_address_from_deploy_syscall(
+            calculate_contract_address_from_deploy_syscall(
                 hashed_salt, class_hash, constructor_calldata, deployer_info.udc_address
-            );
+            )
         },
-        Option::None => {
-            return calculate_contract_address_from_deploy_syscall(
-                salt, class_hash, constructor_calldata, Zero::zero()
-            );
-        },
+        Option::None => calculate_contract_address_from_deploy_syscall(
+            salt, class_hash, constructor_calldata, Zero::zero()
+        ),
     }
 }

@@ -1,4 +1,5 @@
 <!-- markdownlint-disable MD024 -->
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
@@ -7,6 +8,21 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+### Changed (Breaking)
+
+- Changed ABI suffix to Trait in dual case account and eth account modules (#1096).
+  - `DualCaseAccountABI` renamed to `DualCaseAccountTrait`
+  - `DualCaseEthAccountABI` renamed to `DualCaseEthAccountTrait`
+
+## 0.15.1 (2024-08-13)
+
+### Changed
+
+- Remove token dependency from account package (#1100)
+- Fix docsite links (#1094)
+
+## 0.15.0 (2024-08-08)
 
 ### Added
 
@@ -23,6 +39,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `openzeppelin_token`
   - `openzeppelin_upgrades`
   - `openzeppelin_utils`
+- Separated packages intended as [dev-dependencies] (#1084)
+  - `openzeppelin_testing`
+  - `openzeppelin_test_common`
 
 ### Changed
 
@@ -30,6 +49,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bump scarb to v2.7.0-rc.2 (#1052)
 - Bump scarb to v2.7.0-rc.4 (#1064)
 - Bump scarb to v2.7.0 (#1065)
+
+### Changed (Breaking)
+
+- Test utilities moved out of the utils module (#1084).
+- Test utilities refactored to match the snforge test runner (#1084).
 
 ## 0.15.0-rc.0 (2024-07-8)
 
@@ -54,7 +78,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `Trace` and `Checkpoint` structs are not public anymore, since they are intended to be used in `ERC20Votes`, and not as generic utilities.
   - `StorageArray` is not public anymore, since this implementation is specific to `ERC20Votes`, and is not intended as a generic utility, but as a temporary solution until Starknet native implementation arrives.
 
-- Apply underscore pattern to modules (#993)
+- Apply underscore pattern to modules (#993):
   - AccessControlComponent
     - `_set_role_admin` function renamed to `set_role_admin`
   - PausableComponent

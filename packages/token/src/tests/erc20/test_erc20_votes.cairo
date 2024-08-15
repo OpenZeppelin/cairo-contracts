@@ -1,5 +1,8 @@
 use core::num::traits::Bounded;
 use core::num::traits::Zero;
+use openzeppelin_testing as utils;
+use openzeppelin_testing::constants::{SUPPLY, ZERO, OWNER, RECIPIENT};
+use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_token::erc20::ERC20Component::InternalImpl as ERC20Impl;
 use openzeppelin_token::erc20::extensions::ERC20VotesComponent::{
     DelegateChanged, DelegateVotesChanged
@@ -10,18 +13,14 @@ use openzeppelin_token::erc20::extensions::erc20_votes::Delegation;
 use openzeppelin_token::tests::mocks::erc20_votes_mocks::DualCaseERC20VotesMock::SNIP12MetadataImpl;
 use openzeppelin_token::tests::mocks::erc20_votes_mocks::DualCaseERC20VotesMock;
 use openzeppelin_utils::cryptography::snip12::OffchainMessageHash;
-use openzeppelin_utils::serde::SerializedAppend;
 use openzeppelin_utils::structs::checkpoint::{Checkpoint, TraceTrait};
-use openzeppelin_utils::test_utils as utils;
-use openzeppelin_utils::test_utils::constants::{SUPPLY, ZERO, OWNER, RECIPIENT};
-use openzeppelin_utils::test_utils::events::EventSpyExt;
 use snforge_std::signature::KeyPairTrait;
 use snforge_std::signature::stark_curve::{StarkCurveKeyPairImpl, StarkCurveSignerImpl};
 use snforge_std::{
     cheat_block_timestamp_global, start_cheat_caller_address, spy_events, cheat_chain_id_global,
     test_address
 };
-use snforge_std::{EventSpy, EventSpyAssertionsTrait};
+use snforge_std::{EventSpy};
 use starknet::ContractAddress;
 use starknet::contract_address_const;
 

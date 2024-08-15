@@ -249,7 +249,7 @@ fn test_token_of_owner_by_index_when_all_tokens_transferred() {
 }
 
 //
-// _update
+// before_update
 //
 
 // Note that `before_update` only updates the ERC721Enumerable state
@@ -271,7 +271,7 @@ fn test_before_update_when_mint() {
 
     // Check owner's tokens
     let exp_owner_tokens = array![TOKEN_1, TOKEN_2, TOKEN_3, new_token];
-    assert_after_update_owned_tokens_list(OWNER(), exp_owner_tokens.span());
+    assert_owned_tokens_list_after_update(OWNER(), exp_owner_tokens.span());
 
     // Check total tokens list
     let exp_total_tokens = array![TOKEN_1, TOKEN_2, TOKEN_3, new_token];
@@ -292,7 +292,7 @@ fn test_before_update_when_last_token_burned() {
 
     // Check owner's tokens
     let exp_owner_tokens = array![TOKEN_1, TOKEN_2];
-    assert_after_update_owned_tokens_list(OWNER(), exp_owner_tokens.span());
+    assert_owned_tokens_list_after_update(OWNER(), exp_owner_tokens.span());
 
     // Check total tokens
     let exp_total_tokens = array![TOKEN_1, TOKEN_2];
@@ -316,7 +316,7 @@ fn test_before_update_when_first_token_burned() {
     //
     // Check owner's tokens
     let exp_owner_tokens = array![TOKEN_3, TOKEN_2];
-    assert_after_update_owned_tokens_list(OWNER(), exp_owner_tokens.span());
+    assert_owned_tokens_list_after_update(OWNER(), exp_owner_tokens.span());
 
     // Check total tokens
     let exp_total_tokens = array![TOKEN_3, TOKEN_2];
@@ -337,11 +337,11 @@ fn test_before_update_when_transfer_last_token() {
 
     // Check owner's tokens
     let exp_owner_tokens = array![TOKEN_1, TOKEN_2];
-    assert_after_update_owned_tokens_list(OWNER(), exp_owner_tokens.span());
+    assert_owned_tokens_list_after_update(OWNER(), exp_owner_tokens.span());
 
     // Check recipient's tokens
     let exp_recipient_tokens = array![transfer_token];
-    assert_after_update_owned_tokens_list(RECIPIENT(), exp_recipient_tokens.span());
+    assert_owned_tokens_list_after_update(RECIPIENT(), exp_recipient_tokens.span());
 
     // Check total tokens
     let exp_total_tokens = array![TOKEN_1, TOKEN_2, TOKEN_3];
@@ -365,11 +365,11 @@ fn test_before_update_when_transfer_first_token() {
     //
     // Check owner's tokens
     let exp_owner_tokens = array![TOKEN_3, TOKEN_2];
-    assert_after_update_owned_tokens_list(OWNER(), exp_owner_tokens.span());
+    assert_owned_tokens_list_after_update(OWNER(), exp_owner_tokens.span());
 
     // Check recipient's tokens
     let exp_recipient_tokens = array![transfer_token];
-    assert_after_update_owned_tokens_list(RECIPIENT(), exp_recipient_tokens.span());
+    assert_owned_tokens_list_after_update(RECIPIENT(), exp_recipient_tokens.span());
 
     // Check all tokens
     let exp_total_tokens = array![TOKEN_1, TOKEN_2, TOKEN_3];
@@ -546,7 +546,7 @@ fn assert_token_by_index(expected_token_list: Span<u256>) {
 /// in storage. This assertion reads from storage because it bypasses the out of bounds check
 /// in `token_of_owner_by_index`. The `before_update` function does not update the
 /// ERC721 state.
-fn assert_after_update_owned_tokens_list(owner: ContractAddress, expected_list: Span<u256>) {
+fn assert_owned_tokens_list_after_update(owner: ContractAddress, expected_list: Span<u256>) {
     let state = @COMPONENT_STATE();
 
     let mut i = 0;

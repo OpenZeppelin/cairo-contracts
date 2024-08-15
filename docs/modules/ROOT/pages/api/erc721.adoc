@@ -181,7 +181,7 @@ If the URI is not set for `token_id`, the return value will be an empty `ByteArr
 
 [.contract]
 [[IERC721Enumerable]]
-=== `++IERC721Enumerable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.15.0-rc.0/src/token/erc721/extensions/erc721_enumerable/interface.cairo[{github-icon},role=heading-link]
+=== `++IERC721Enumerable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.15.1/src/token/erc721/extensions/erc721_enumerable/interface.cairo[{github-icon},role=heading-link]
 
 Interface for the optional enumerable functions in {eip721}.
 
@@ -735,7 +735,7 @@ See <<IERC721-Transfer,IERC721::Transfer>>.
 
 [.contract]
 [[ERC721EnumerableComponent]]
-=== `++ERC721EnumerableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.15.0-rc.0/src/token/erc721/extensions/erc721_enumerable.cairo[{github-icon},role=heading-link]
+=== `++ERC721EnumerableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.15.1/src/token/erc721/extensions/erc721_enumerable.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin::token::extensions::ERC721EnumerableComponent;

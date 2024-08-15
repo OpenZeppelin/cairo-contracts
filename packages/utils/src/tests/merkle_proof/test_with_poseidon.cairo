@@ -1,10 +1,8 @@
 use core::hash::{HashStateTrait, HashStateExTrait};
-
-use core::pedersen::PedersenTrait;
-use core::pedersen::pedersen;
-use openzeppelin_utils::cryptography::hashes::PedersenCHasher;
+use core::poseidon::poseidon_hash_span;
+use openzeppelin_utils::cryptography::hashes::PoseidonCHasher;
 use openzeppelin_utils::cryptography::merkle_proof::{
-    process_proof, process_multi_proof, verify, verify_multi_proof, verify_pedersen
+    process_proof, process_multi_proof, verify, verify_multi_proof, verify_poseidon
 };
 use starknet::{ContractAddress, contract_address_const};
 
@@ -52,25 +50,24 @@ fn test_valid_merkle_proof() {
     let leaves = LEAVES();
     let hash = leaf_hash(*leaves.at(0));
     // `root` and `proof` were computed using @ericnordelo/strk-merkle-tree
-    let root = 0x02a40717603180fa52f40a55508cd360d301840f3e502665cf0132ef412911de;
+    let root = 0x02fde31926e7ef7ac8c0ff1d438e4a177a4cf1a79960381806e3d546071bbc47;
     let proof = [
-        0x044fdc540a81d0189ed30b49d64136f9e8bd499c942ba170404ef0b9406e524c,
-        0x02b0ee474cf2ab27501e54a661d17ac1dc162571c111fe2455d09fe23471099e
+        0x0610491af77d9d95e10b0f9183a1d94c7472eda1ea081384ff48e6b8dbda73d3,
+        0x82d19fa40550cddbb066d587210180c68fcbaa221176e885b5519274580c25
     ].span();
 
-    assert_eq!(process_proof::<PedersenCHasher>(proof, hash), root);
-    assert!(verify::<PedersenCHasher>(proof, root, hash));
-    assert!(verify_pedersen(proof, root, hash));
+    assert_eq!(process_proof::<PoseidonCHasher>(proof, hash), root);
+    assert!(verify::<PoseidonCHasher>(proof, root, hash));
+    assert!(verify_poseidon(proof, root, hash));
 
     // For demonstration, it is also possible to create valid
     // proofs for certain values *NOT* in elements:
-    let hash_state = PedersenTrait::new(0);
-    let no_such_leaf = hash_state.update_with(hash).update_with(*proof.at(0)).update(2).finalize();
-    let second_proof = [0x02b0ee474cf2ab27501e54a661d17ac1dc162571c111fe2455d09fe23471099e].span();
+    let no_such_leaf = poseidon_hash_span([hash, *proof.at(0)].span());
+    let second_proof = [0x82d19fa40550cddbb066d587210180c68fcbaa221176e885b5519274580c25].span();
 
-    assert_eq!(process_proof::<PedersenCHasher>(second_proof, no_such_leaf), root);
-    assert!(verify::<PedersenCHasher>(second_proof, root, no_such_leaf));
-    assert!(verify_pedersen(second_proof, root, no_such_leaf));
+    assert_eq!(process_proof::<PoseidonCHasher>(second_proof, no_such_leaf), root);
+    assert!(verify::<PoseidonCHasher>(second_proof, root, no_such_leaf));
+    assert!(verify_poseidon(second_proof, root, no_such_leaf));
 }
 
 #[test]
@@ -78,14 +75,14 @@ fn test_invalid_merkle_proof() {
     let leaves = LEAVES();
     let hash = leaf_hash(*leaves.at(0));
     // `root` was computed using @ericnordelo/strk-merkle-tree
-    let root = 0x02a40717603180fa52f40a55508cd360d301840f3e502665cf0132ef412911de;
+    let root = 0x02fde31926e7ef7ac8c0ff1d438e4a177a4cf1a79960381806e3d546071bbc47;
     let invalid_proof = [
         0x044fdc540a81d0189ed30b49d64136f9e8bd499c942ba170404ef0b9406e524c, 'invalid'
     ].span();
 
-    assert!(process_proof::<PedersenCHasher>(invalid_proof, hash) != root);
-    assert!(!verify::<PedersenCHasher>(invalid_proof, root, hash));
-    assert!(!verify_pedersen(invalid_proof, root, hash));
+    assert!(process_proof::<PoseidonCHasher>(invalid_proof, hash) != root);
+    assert!(!verify::<PoseidonCHasher>(invalid_proof, root, hash));
+    assert!(!verify_poseidon(invalid_proof, root, hash));
 }
 
 //
@@ -97,15 +94,15 @@ fn test_valid_merkle_multi_proof() {
     let leaves = LEAVES();
     let leaves_to_prove = [leaf_hash(*leaves.at(0)), leaf_hash(*leaves.at(1))].span();
     // `root`, `proof`, and `proof_flags` were computed using @ericnordelo/strk-merkle-tree
-    let root = 0x02a40717603180fa52f40a55508cd360d301840f3e502665cf0132ef412911de;
+    let root = 0x02fde31926e7ef7ac8c0ff1d438e4a177a4cf1a79960381806e3d546071bbc47;
     let proof = [
         0x044fdc540a81d0189ed30b49d64136f9e8bd499c942ba170404ef0b9406e524c,
         0x05fb6a626bb2c1e12fc2d6fa7f218ec06928ba5febf4d5677c2c5060827e383b
     ].span();
     let proof_flags = [false, false, true].span();
 
-    assert_eq!(process_multi_proof::<PedersenCHasher>(proof, proof_flags, leaves_to_prove), root);
-    assert!(verify_multi_proof::<PedersenCHasher>(proof, proof_flags, root, leaves_to_prove));
+    assert_eq!(process_multi_proof::<PoseidonCHasher>(proof, proof_flags, leaves_to_prove), root);
+    assert!(verify_multi_proof::<PoseidonCHasher>(proof, proof_flags, root, leaves_to_prove));
 }
 
 #[test]
@@ -113,14 +110,14 @@ fn test_invalid_merkle_multi_proof() {
     let leaves = LEAVES();
     let leaves_to_prove = [leaf_hash(*leaves.at(0)), leaf_hash(*leaves.at(1))].span();
     // `root` and `proof_flags` were computed using @ericnordelo/strk-merkle-tree
-    let root = 0x02a40717603180fa52f40a55508cd360d301840f3e502665cf0132ef412911de;
+    let root = 0x02fde31926e7ef7ac8c0ff1d438e4a177a4cf1a79960381806e3d546071bbc47;
     let proof = [
         0x044fdc540a81d0189ed30b49d64136f9e8bd499c942ba170404ef0b9406e524c, 'invalid'
     ].span();
     let proof_flags = [false, false, true].span();
 
-    assert!(process_multi_proof::<PedersenCHasher>(proof, proof_flags, leaves_to_prove) != root);
-    assert!(!verify_multi_proof::<PedersenCHasher>(proof, proof_flags, root, leaves_to_prove));
+    assert!(process_multi_proof::<PoseidonCHasher>(proof, proof_flags, leaves_to_prove) != root);
+    assert!(!verify_multi_proof::<PoseidonCHasher>(proof, proof_flags, root, leaves_to_prove));
 }
 
 #[test]
@@ -128,15 +125,15 @@ fn test_invalid_merkle_multi_proof_flags() {
     let leaves = LEAVES();
     let leaves_to_prove = [leaf_hash(*leaves.at(0)), leaf_hash(*leaves.at(1))].span();
     // `root` and `proof` were computed using @ericnordelo/strk-merkle-tree
-    let root = 0x02a40717603180fa52f40a55508cd360d301840f3e502665cf0132ef412911de;
+    let root = 0x02fde31926e7ef7ac8c0ff1d438e4a177a4cf1a79960381806e3d546071bbc47;
     let proof = [
         0x044fdc540a81d0189ed30b49d64136f9e8bd499c942ba170404ef0b9406e524c,
         0x05fb6a626bb2c1e12fc2d6fa7f218ec06928ba5febf4d5677c2c5060827e383b
     ].span();
     let proof_flags = [false, true, false].span();
 
-    assert!(process_multi_proof::<PedersenCHasher>(proof, proof_flags, leaves_to_prove) != root);
-    assert!(!verify_multi_proof::<PedersenCHasher>(proof, proof_flags, root, leaves_to_prove));
+    assert!(process_multi_proof::<PoseidonCHasher>(proof, proof_flags, leaves_to_prove) != root);
+    assert!(!verify_multi_proof::<PoseidonCHasher>(proof, proof_flags, root, leaves_to_prove));
 }
 
 #[test]
@@ -152,7 +149,7 @@ fn test_process_multi_proof_invalid_len_proof_flags_panics() {
     // `proof_flags.len()` is not equal to `proof.len() + leaves_to_prove.len() + 1`
     let proof_flags = [true, false].span();
 
-    process_multi_proof::<PedersenCHasher>(proof, proof_flags, leaves_to_prove);
+    process_multi_proof::<PoseidonCHasher>(proof, proof_flags, leaves_to_prove);
 }
 
 #[test]
@@ -160,7 +157,7 @@ fn test_process_multi_proof_invalid_len_proof_flags_panics() {
 fn test_verify_multi_proof_invalid_len_proof_flags_panics() {
     let leaves = LEAVES();
     let leaves_to_prove = [leaf_hash(*leaves.at(0)), leaf_hash(*leaves.at(1))].span();
-    let root = 0x02a40717603180fa52f40a55508cd360d301840f3e502665cf0132ef412911de;
+    let root = 0x02fde31926e7ef7ac8c0ff1d438e4a177a4cf1a79960381806e3d546071bbc47;
     let proof = [
         0x044fdc540a81d0189ed30b49d64136f9e8bd499c942ba170404ef0b9406e524c,
         0x05fb6a626bb2c1e12fc2d6fa7f218ec06928ba5febf4d5677c2c5060827e383b
@@ -169,7 +166,7 @@ fn test_verify_multi_proof_invalid_len_proof_flags_panics() {
     // `proof_flags.len()` is not equal to `proof.len() + leaves_to_prove.len() + 1`
     let proof_flags = [true, false].span();
 
-    verify_multi_proof::<PedersenCHasher>(proof, proof_flags, root, leaves_to_prove);
+    verify_multi_proof::<PoseidonCHasher>(proof, proof_flags, root, leaves_to_prove);
 }
 
 #[test]
@@ -187,7 +184,7 @@ fn test_process_multi_proof_flags_extra_leaves_expected() {
     // For each true one leaf is expected
     let proof_flags = [true, true, true, true].span();
 
-    process_multi_proof::<PedersenCHasher>(proof, proof_flags, leaves_to_prove);
+    process_multi_proof::<PoseidonCHasher>(proof, proof_flags, leaves_to_prove);
 }
 
 #[test]
@@ -205,7 +202,7 @@ fn test_process_multi_proof_flags_extra_proofs_expected() {
     // For each false one leaf is expected
     let proof_flags = [true, false, false, false].span();
 
-    process_multi_proof::<PedersenCHasher>(proof, proof_flags, leaves_to_prove);
+    process_multi_proof::<PoseidonCHasher>(proof, proof_flags, leaves_to_prove);
 }
 
 #[test]
@@ -215,7 +212,7 @@ fn test_verify_multi_proof_flags_extra_leaves_expected() {
     let leaves_to_prove = [
         leaf_hash(*leaves.at(0)), leaf_hash(*leaves.at(1)), leaf_hash(*leaves.at(2))
     ].span();
-    let root = 0x02a40717603180fa52f40a55508cd360d301840f3e502665cf0132ef412911de;
+    let root = 0x02fde31926e7ef7ac8c0ff1d438e4a177a4cf1a79960381806e3d546071bbc47;
     let proof = [
         0x044fdc540a81d0189ed30b49d64136f9e8bd499c942ba170404ef0b9406e524c,
         0x05fb6a626bb2c1e12fc2d6fa7f218ec06928ba5febf4d5677c2c5060827e383b
@@ -224,7 +221,7 @@ fn test_verify_multi_proof_flags_extra_leaves_expected() {
     // For each true one leaf is expected
     let proof_flags = [true, true, true, true].span();
 
-    verify_multi_proof::<PedersenCHasher>(proof, proof_flags, root, leaves_to_prove);
+    verify_multi_proof::<PoseidonCHasher>(proof, proof_flags, root, leaves_to_prove);
 }
 
 #[test]
@@ -234,7 +231,7 @@ fn test_verify_multi_proof_flags_extra_proofs_expected() {
     let leaves_to_prove = [
         leaf_hash(*leaves.at(0)), leaf_hash(*leaves.at(1)), leaf_hash(*leaves.at(2))
     ].span();
-    let root = 0x02a40717603180fa52f40a55508cd360d301840f3e502665cf0132ef412911de;
+    let root = 0x02fde31926e7ef7ac8c0ff1d438e4a177a4cf1a79960381806e3d546071bbc47;
     let proof = [
         0x044fdc540a81d0189ed30b49d64136f9e8bd499c942ba170404ef0b9406e524c,
         0x05fb6a626bb2c1e12fc2d6fa7f218ec06928ba5febf4d5677c2c5060827e383b
@@ -243,7 +240,7 @@ fn test_verify_multi_proof_flags_extra_proofs_expected() {
     // For each false one leaf is expected
     let proof_flags = [true, false, false, false].span();
 
-    verify_multi_proof::<PedersenCHasher>(proof, proof_flags, root, leaves_to_prove);
+    verify_multi_proof::<PoseidonCHasher>(proof, proof_flags, root, leaves_to_prove);
 }
 
 //
@@ -251,6 +248,5 @@ fn test_verify_multi_proof_flags_extra_proofs_expected() {
 //
 
 fn leaf_hash(leaf: Leaf) -> felt252 {
-    let hash_state = PedersenTrait::new(0);
-    pedersen(0, hash_state.update_with(leaf).update(2).finalize())
+    poseidon_hash_span([0, poseidon_hash_span([leaf.address.into(), leaf.amount.into()].span())].span())
 }

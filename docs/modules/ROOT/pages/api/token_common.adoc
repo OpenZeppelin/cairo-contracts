@@ -93,7 +93,7 @@ Initializes the contract by setting the default royalty and registering the supp
 
 [.contract-item]
 [[ERC2981Component-default_royalty]]
-==== `[.contract-item-name]#++default_royalty++#++(self: @ContractState) → (ContractAddress, u256, u256)++` [.item-kind]#internal#
+==== `[.contract-item-name]#++default_royalty++#++(self: @ContractState) → (ContractAddress, u128, u128)++` [.item-kind]#internal#
 
 Returns the royalty information that all ids in this contract will default to.
 

@@ -133,7 +133,7 @@ pub fn process_multi_proof<impl Hasher: CommutativeHasher>(
         // If `proof_flags` is not empty, assert that every
         // proof was used in the validation process.
         if proof_pos != proof.len() {
-            // TODO: check if this is not unrechable code.
+            // TODO: check if this is not unreachable code.
             panic!("MerkleProof: invalid multi proof");
         }
         hashes.at(proof_flags_len - 1)

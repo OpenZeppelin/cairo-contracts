@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.15.0 (utils/cryptography/hashes.cairo)
 
-use core::hash::{HashStateTrait};
+use core::hash::HashStateTrait;
 use core::pedersen::PedersenTrait;
-use core::poseidon::poseidon_hash_span;
+use core::poseidon::PoseidonTrait;
 use openzeppelin_utils::common::Felt252PartialOrd;
 
 /// Computes a commutative hash of a sorted pair of felt252.
@@ -35,10 +35,11 @@ pub impl PedersenCHasher of CommutativeHasher {
 pub impl PoseidonCHasher of CommutativeHasher {
     /// Computes the Poseidon hash of the concatenation of two values, sorting the pair first.
     fn commutative_hash(a: felt252, b: felt252) -> felt252 {
+        let hash_state = PoseidonTrait::new();
         if a < b {
-            poseidon_hash_span([a, b].span())
+            hash_state.update(a).update(b).finalize()
         } else {
-            poseidon_hash_span([b, a].span())
+            hash_state.update(b).update(a).finalize()
         }
     }
 }

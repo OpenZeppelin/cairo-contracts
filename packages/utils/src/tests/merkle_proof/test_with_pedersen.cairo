@@ -5,41 +5,7 @@ use openzeppelin_utils::cryptography::merkle_proof::{
     process_proof, process_multi_proof, verify, verify_multi_proof, verify_pedersen
 };
 use starknet::{ContractAddress, contract_address_const};
-
-#[derive(Serde, Copy, Drop, Hash)]
-struct Leaf {
-    address: ContractAddress,
-    amount: u128,
-}
-
-fn LEAVES() -> Span<Leaf> {
-    [
-        Leaf {
-            address: contract_address_const::<
-                0x7ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffc8
-            >(),
-            amount: 0xfc104e31d098d1ab488fc1acaeb0269
-        },
-        Leaf {
-            address: contract_address_const::<
-                0x7ffffffffffffffffffffffffffffffffffffffffffffffffffffc66ca5c000
-            >(),
-            amount: 0xfc104e31d098d1ab488fc1acaeb0269
-        },
-        Leaf {
-            address: contract_address_const::<
-                0x6a1f098854799debccf2d3c4059ff0f02dbfef6673dc1fcbfffffffffffffc8
-            >(),
-            amount: 0xfc104e31d098d1ab488fc1acaeb0269
-        },
-        Leaf {
-            address: contract_address_const::<
-                0xfa6541b7909bfb5e8585f1222fcf272eea352c7e0e8ed38c988bd1e2a85e82
-            >(),
-            amount: 0xaa8565d732c2c9fa5f6c001d89d5c219
-        },
-    ].span()
-}
+use super::common::{Leaf, LEAVES};
 
 //
 // verify
@@ -62,8 +28,7 @@ fn test_valid_merkle_proof() {
 
     // For demonstration, it is also possible to create valid
     // proofs for certain values *NOT* in elements:
-    let hash_state = PedersenTrait::new(0);
-    let no_such_leaf = hash_state.update_with(hash).update_with(*proof.at(0)).update(2).finalize();
+    let no_such_leaf = PedersenCHasher::commutative_hash(hash, *proof.at(0));
     let second_proof = [0x02b0ee474cf2ab27501e54a661d17ac1dc162571c111fe2455d09fe23471099e].span();
 
     assert_eq!(process_proof::<PedersenCHasher>(second_proof, no_such_leaf), root);

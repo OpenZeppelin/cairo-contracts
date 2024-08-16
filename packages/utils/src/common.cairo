@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.15.0 (utils/common.cairo)
+// OpenZeppelin Contracts for Cairo v0.15.1 (utils/common.cairo)
 
 use core::traits::PartialOrd;
 

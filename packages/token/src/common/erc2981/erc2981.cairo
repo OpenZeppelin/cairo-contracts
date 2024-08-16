@@ -67,7 +67,7 @@ pub mod ERC2981Component {
         TContractState,
         +HasComponent<TContractState>,
         impl Immutable: ImmutableConfig,
-        impl SRC5: SRC5Component::HasComponent<TContractState>,
+       +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>,
     > of IERC2981<ComponentState<TContractState>> {
         /// Returns how much royalty is owed and to whom, based on a sale price that may be

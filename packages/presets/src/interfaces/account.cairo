@@ -1,5 +1,5 @@
 use starknet::account::Call;
-use starknet::{ContractAddress, ClassHash};
+use starknet::{ClassHash};
 
 #[starknet::interface]
 pub trait AccountUpgradeableABI<TState> {

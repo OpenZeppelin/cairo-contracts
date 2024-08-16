@@ -9,7 +9,7 @@ use openzeppelin_utils::interfaces::{
     IUniversalDeployerDispatcher, IUniversalDeployerDispatcherTrait
 };
 use openzeppelin_utils::serde::SerializedAppend;
-use snforge_std::{EventSpy, spy_events, declare, start_cheat_caller_address};
+use snforge_std::{EventSpy, spy_events, start_cheat_caller_address};
 use starknet::{ClassHash, ContractAddress};
 
 fn ERC20_CLASS_HASH() -> ClassHash {

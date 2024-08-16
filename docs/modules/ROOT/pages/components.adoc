@@ -344,6 +344,86 @@ mod MyContract {
 WARNING: Customizing implementations and accessing component storage can potentially corrupt the state, bypass security checks, and undermine the component logic.
 *Exercise extreme caution*. See {security}.
 
+=== Hooks
+
+:hooks-post: https://fleming-andrew.medium.com/extending-cairo-contracts-with-hooks-c3ca21d1d6b8[Extending Cairo Contracts with Hooks]
+
+Hooks are entrypoints to the business logic of a token component that are accessible at the contract level.
+This allows contracts to insert additional behaviors before and/or after token transfers (including mints and burns).
+Prior to hooks, extending functionality required contracts to create <<custom_implementations, custom implementations>>.
+
+All token components include a generic hooks trait that include empty default functions.
+When creating a token contract, the using contract must create an implementation of the hooks trait.
+Suppose an ERC20 contract wanted to include Pausable functionality on token transfers.
+The following snippet leverages the `before_update` hook to include this behavior.
+
+[,cairo]
+----
+#[starknet::contract]
+mod MyToken {
+    use openzeppelin::security::pausable::PausableComponent::InternalTrait;
+    use openzeppelin::security::pausable::PausableComponent;
+    use openzeppelin::token::erc20::ERC20Component;
+    use starknet::ContractAddress;
+
+    component!(path: ERC20Component, storage: erc20, event: ERC20Event);
+    component!(path: PausableComponent, storage: pausable, event: PausableEvent);
+
+    // ERC20 Mixin
+    #[abi(embed_v0)]
+    impl ERC20MixinImpl = ERC20Component::ERC20MixinImpl<ContractState>;
+    impl ERC20InternalImpl = ERC20Component::InternalImpl<ContractState>;
+
+    #[abi(embed_v0)]
+    impl PausableImpl = PausableComponent::PausableImpl<ContractState>;
+    impl PausableInternalImpl = PausableComponent::InternalImpl<ContractState>;
+
+    // Create the hooks implementation
+    impl ERC20HooksImpl of ERC20Component::ERC20HooksTrait<ContractState> {
+        // Occurs before token transfers
+        fn before_update(
+            ref self: ERC20Component::ComponentState<ContractState>,
+            from: ContractAddress,
+            recipient: ContractAddress,
+            amount: u256
+        ) {
+            // Access local state from component state
+            let contract_state = ERC20Component::HasComponent::get_contract(@self);
+            // Call function from integrated component
+            contract_state.pausable.assert_not_paused();
+        }
+
+        // Omitting the `after_update` hook because the default behavior
+        // is already implemented in the trait
+    }
+
+    (...)
+}
+----
+
+Notice that the `self` parameter expects a component state type.
+Instead of passing the component state, the using contract's state can be passed which simplifies the syntax.
+The hook then moves the scope up with the Cairo-generated `get_contract` through the `HasComponent` trait (as illustrated with ERC20Component in this example).
+From here, the hook can access the using contract's integrated components, storage, and implementations.
+
+Be advised that even if a token contract does not require hooks, the hooks trait must still be implemented.
+The using contract may instantiate an empty impl of the trait;
+however, the Contracts for Cairo library already provides the instantiated impl to abstract this away from contracts.
+The using contract just needs to bring the implementation into scope like this:
+
+[,cairo]
+----
+#[starknet::contract]
+mod MyToken {
+    use openzeppelin::token::erc20::ERC20Component;
+    use openzeppelin::token::erc20::ERC20HooksEmptyImpl;
+
+    (...)
+}
+----
+
+TIP: For a more in-depth guide on hooks, see {hooks-post}.
+
 === Custom implementations
 
 :erc20-component: xref:/api/erc20.adoc#ERC20Component[ERC20Component]

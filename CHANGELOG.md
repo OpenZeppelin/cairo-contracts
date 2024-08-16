@@ -1,4 +1,5 @@
 <!-- markdownlint-disable MD024 -->
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
@@ -7,6 +8,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## Unreleased
+
+### Added
+
+- Merkle tree utilities to verify proofs and multi proofs (#1101)
+
+### Changed (Breaking)
+
+- Changed ABI suffix to Trait in dual case account and eth account modules (#1096).
+  - `DualCaseAccountABI` renamed to `DualCaseAccountTrait`
+  - `DualCaseEthAccountABI` renamed to `DualCaseEthAccountTrait`
+- Bump scarb to v2.7.1 (#1025)
+
+## 0.15.1 (2024-08-13)
+
+### Changed
+
+- Remove token dependency from account package (#1100)
+- Fix docsite links (#1094)
 
 ## 0.15.0 (2024-08-08)
 
@@ -63,7 +82,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `Trace` and `Checkpoint` structs are not public anymore, since they are intended to be used in `ERC20Votes`, and not as generic utilities.
   - `StorageArray` is not public anymore, since this implementation is specific to `ERC20Votes`, and is not intended as a generic utility, but as a temporary solution until Starknet native implementation arrives.
 
-- Apply underscore pattern to modules (#993)
+- Apply underscore pattern to modules (#993):
   - AccessControlComponent
     - `_set_role_admin` function renamed to `set_role_admin`
   - PausableComponent

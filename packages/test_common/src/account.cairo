@@ -5,7 +5,6 @@ use openzeppelin_account::AccountComponent;
 use openzeppelin_testing::constants::TRANSACTION_HASH;
 use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_testing::signing::StarkKeyPair;
-use openzeppelin_token::erc20::interface::IERC20Dispatcher;
 use snforge_std::EventSpy;
 use snforge_std::signature::stark_curve::StarkCurveSignerImpl;
 use starknet::ContractAddress;

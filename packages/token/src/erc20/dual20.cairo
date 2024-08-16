@@ -1,12 +1,11 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.15.0 (token/erc20/dual20.cairo)
+// OpenZeppelin Contracts for Cairo v0.15.1 (token/erc20/dual20.cairo)
 
 use openzeppelin_utils::UnwrapAndCast;
 use openzeppelin_utils::selectors;
 use openzeppelin_utils::serde::SerializedAppend;
 use openzeppelin_utils::try_selector_with_fallback;
 use starknet::ContractAddress;
-use starknet::SyscallResultTrait;
 use starknet::syscalls::call_contract_syscall;
 
 #[derive(Copy, Drop)]

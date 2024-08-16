@@ -67,13 +67,6 @@ pub(crate) mod DualCaseERC20VotesMock {
         +NoncesComponent::HasComponent<TContractState>,
         +Drop<TContractState>
     > of ERC20Component::ERC20HooksTrait<TContractState> {
-        fn before_update(
-            ref self: ERC20Component::ComponentState<TContractState>,
-            from: ContractAddress,
-            recipient: ContractAddress,
-            amount: u256
-        ) {}
-
         fn after_update(
             ref self: ERC20Component::ComponentState<TContractState>,
             from: ContractAddress,

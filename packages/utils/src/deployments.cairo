@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.15.0 (utils/deployments.cairo)
+// OpenZeppelin Contracts for Cairo v0.15.1 (utils/deployments.cairo)
 
 pub mod interface;
 
@@ -7,7 +7,6 @@ use core::hash::{HashStateTrait, HashStateExTrait};
 use core::num::traits::Zero;
 use core::pedersen::PedersenTrait;
 use core::poseidon::PoseidonTrait;
-use interface::IUniversalDeployer;
 use openzeppelin_utils::serde::SerializedAppend;
 use starknet::{ClassHash, ContractAddress};
 

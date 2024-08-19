@@ -3,6 +3,8 @@
 
 = Common (Token)
 
+include::../utils/_common.adoc[]
+
 Reference of extension and utilities that are common to multiple token standards.
 
 == ERC2981
@@ -45,6 +47,16 @@ use openzeppelin::token::common::erc2981::ERC2981Component;
 
 ERC2981 component extending <<IERC2981,IERC2981>>.
 
+[.contract-index]
+.{immutable-config}
+--
+.constants
+* xref:#ERC2981Component-IC-FEE_DENOMINATOR[`++FEE_DENOMINATOR++`]
+
+.functions
+* xref:#ERC2981Component-IC-validate[`++validate()++`]
+--
+
 [.contract-index#ERC2981Component-Embeddable-Impls]
 .Embeddable Implementations
 --
@@ -65,6 +77,28 @@ ERC2981 component extending <<IERC2981,IERC2981>>.
 * xref:#ERC2981Component-set_token_royalty[`++set_token_royalty(self, token_id, receiver, fee_numerator)++`]
 * xref:#ERC2981Component-reset_token_royalty[`++reset_token_royalty(self, token_id)++`]
 --
+
+[#ERC2981Component-Immutable-Config]
+==== Immutable Config constants
+
+[.contract-item]
+[[ERC2981Component-IC-FEE_DENOMINATOR]]
+==== `[.contract-item-name]#++FEE_DENOMINATOR:++#++ u128++` [.item-kind]#constant#
+
+The denominator with which to interpret the fee set in
+`set_token_royalty` and `set_default_royalty` as a fraction of the sale price.
+
+[.contract-item]
+[[ERC2981Component-IC-validate]]
+==== `[.contract-item-name]#++validate++#++()++` [.item-kind]#internal#
+
+Validates the given implementation of the contract's configuration.
+
+Requirements:
+
+- FEE_DENOMINATOR must be greater than 0.
+
+NOTE: This function is called by the contract's initializer.
 
 [#ERC2981Component-Embeddable-functions]
 ==== Embeddable functions
@@ -97,7 +131,7 @@ Requirements:
 - `default_royalty_fraction` cannot be greater than the fee denominator.
 - The fee denominator must be greater than 0.
 
-NOTE: The fee denominator is set by the contract using the Immutable Component Config.
+NOTE: The fee denominator is set by the contract using the {immutable-config}.
 
 [.contract-item]
 [[ERC2981Component-default_royalty]]

@@ -57,7 +57,7 @@ pub mod ERC2981Component {
     ///
     /// Requirements:
     ///
-    /// - FEE_DENOMINATOR must be greater than 0.
+    /// - `FEE_DENOMINATOR` must be greater than 0.
     pub trait ImmutableConfig {
         const FEE_DENOMINATOR: u128;
 

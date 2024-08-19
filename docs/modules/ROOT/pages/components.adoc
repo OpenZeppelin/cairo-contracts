@@ -283,6 +283,115 @@ mod MyContract {
 }
 ----
 
+=== Immutable Config
+
+:erc2981-component: xref:/api/token_common.adoc#ERC2981Component[ERC2981Component]
+
+While initializers help set up the component's initial state, some require configuration that may be defined
+as constants, saving gas by avoiding the necessity of reading from storage each time the variable needs to be used. The
+Immutable Component Config pattern helps with this matter by allowing the implementing contract to define a set of
+constants declared in the component, customizing its functionality.
+
+Here's an example of how to use the Immutable Component Config pattern with the {erc2981-component}:
+
+[,cairo]
+----
+#[starknet::contract]
+mod MyContract {
+    use openzeppelin::introspection::src5::SRC5Component;
+    use openzeppelin::token::common::erc2981::ERC2981Component;
+    use starknet::contract_address_const;
+
+    component!(path: ERC2981Component, storage: erc2981, event: ERC2981Event);
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
+
+    // SRC5
+    #[abi(embed_v0)]
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
+
+    // Instantiate `InternalImpl` to give the contract access to the `initializer`
+    impl InternalImpl = ERC2981Component::InternalImpl<ContractState>;
+
+    #[storage]
+    struct Storage {
+        #[substorage(v0)]
+        erc2981: ERC2981Component::Storage,
+        #[substorage(v0)]
+        src5: SRC5Component::Storage
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        ERC2981Event: ERC2981Component::Event,
+        #[flat]
+        SRC5Event: SRC5Component::Event
+    }
+
+    // Define the immutable config
+    pub impl DefaultConfig of ERC2981Component::ImmutableConfig {
+        const FEE_DENOMINATOR: u128 = 10_000;
+    }
+
+    #[constructor]
+    fn constructor(ref self: ContractState) {
+        let default_receiver = contract_address_const::<'RECEIVER'>();
+        let default_royalty_fraction = 1000;
+        // Invoke erc2981's `initializer`
+        self.erc2981.initializer(default_receiver, default_royalty_fraction);
+    }
+}
+----
+
+==== Default config
+
+Sometimes, components implementing the Immutable Component Config pattern provide a default configuration that can be
+directly used without implementing the `ImmutableConfig` trait locally. When provided, this implementation will be named
+`DefaultConfig` and will be available in the same module containing the component, as a sibling.
+
+In the following example, the `DefaultConfig` trait is used to define the `FEE_DENOMINATOR` config constant.
+
+[,cairo]
+----
+#[starknet::contract]
+mod MyContract {
+    use openzeppelin::introspection::src5::SRC5Component;
+    // Bring the DefaultConfig trait into scope
+    use openzeppelin::token::common::erc2981::{ERC2981Component, DefaultConfig};
+    use starknet::contract_address_const;
+
+    component!(path: ERC2981Component, storage: erc2981, event: ERC2981Event);
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
+
+    // SRC5
+    #[abi(embed_v0)]
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
+
+    // Instantiate `InternalImpl` to give the contract access to the `initializer`
+    impl InternalImpl = ERC2981Component::InternalImpl<ContractState>;
+
+    #[storage]
+    struct Storage {
+        (...)
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        (...)
+    }
+
+    #[constructor]
+    fn constructor(ref self: ContractState) {
+        let default_receiver = contract_address_const::<'RECEIVER'>();
+        let default_royalty_fraction = 1000;
+        // Invoke erc2981's `initializer`
+        self.erc2981.initializer(default_receiver, default_royalty_fraction);
+    }
+}
+----
+
 === Dependencies
 
 :access-component: xref:/api/access.adoc#AccessControlComponent[AccessControlComponent]

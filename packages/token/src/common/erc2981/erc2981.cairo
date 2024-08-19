@@ -60,6 +60,10 @@ pub mod ERC2981Component {
     /// - FEE_DENOMINATOR must be greater than 0.
     pub trait ImmutableConfig {
         const FEE_DENOMINATOR: u128;
+
+        fn validate() {
+            assert(Self::FEE_DENOMINATOR > 0, Errors::INVALID_FEE_DENOMINATOR);
+        }
     }
 
     //
@@ -128,7 +132,7 @@ pub mod ERC2981Component {
             default_receiver: ContractAddress,
             default_royalty_fraction: u128
         ) {
-            assert(Immutable::FEE_DENOMINATOR > 0, Errors::INVALID_FEE_DENOMINATOR);
+            ImmutableConfig::validate();
 
             let mut src5_component = get_dep_component_mut!(ref self, SRC5);
             src5_component.register_interface(IERC2981_ID);

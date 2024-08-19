@@ -91,6 +91,14 @@ The returned tuple contains:
 
 Initializes the contract by setting the default royalty and registering the supported interface.
 
+Requirements:
+
+- `default_receiver` cannot be the zero address.
+- `default_royalty_fraction` cannot be greater than the fee denominator.
+- The fee denominator must be greater than 0.
+
+NOTE: The fee denominator is set by the contract using the Immutable Component Config.
+
 [.contract-item]
 [[ERC2981Component-default_royalty]]
 ==== `[.contract-item-name]#++default_royalty++#++(self: @ContractState) → (ContractAddress, u128, u128)++` [.item-kind]#internal#

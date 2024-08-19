@@ -234,7 +234,7 @@ pub mod ERC2981Component {
 /// Implementation of the default ERC2981Component ImmutableConfig.
 /// See https://community.starknet.io/t/immutable-component-config/114434#p-2357364-defaultconfig-4
 ///
-/// The default fee denominator is set to DEFAULT_FEE_DENOMINATOR.
+/// The default fee denominator is set to `DEFAULT_FEE_DENOMINATOR`.
 pub impl DefaultConfig of ERC2981Component::ImmutableConfig {
     const FEE_DENOMINATOR: u128 = ERC2981Component::DEFAULT_FEE_DENOMINATOR;
 }

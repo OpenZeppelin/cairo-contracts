@@ -54,6 +54,10 @@ pub mod ERC2981Component {
     ///
     /// - `FEE_DENOMINATOR`: The denominator with which to interpret the fee set in
     ///   `set_token_royalty` and `set_default_royalty` as a fraction of the sale price.
+    ///
+    /// Requirements:
+    ///
+    /// - FEE_DENOMINATOR must be greater than 0.
     pub trait ImmutableConfig {
         const FEE_DENOMINATOR: u128;
     }
@@ -67,7 +71,7 @@ pub mod ERC2981Component {
         TContractState,
         +HasComponent<TContractState>,
         impl Immutable: ImmutableConfig,
-        +SRC5Component::HasComponent<TContractState>,
+        impl SRC5: SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>,
     > of IERC2981<ComponentState<TContractState>> {
         /// Returns how much royalty is owed and to whom, based on a sale price that may be
@@ -111,6 +115,14 @@ pub mod ERC2981Component {
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
         /// Initializes the contract by setting the default royalty.
+        ///
+        /// Requirements:
+        ///
+        /// - `default_receiver` cannot be the zero address.
+        /// - `default_royalty_fraction` cannot be greater than the fee denominator.
+        /// - The fee denominator must be greater than 0.
+        ///
+        /// NOTE: The fee denominator is set by the contract using the Immutable Component Config.
         fn initializer(
             ref self: ComponentState<TContractState>,
             default_receiver: ContractAddress,

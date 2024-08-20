@@ -209,14 +209,14 @@ Returns the total amount of tokens stored by the contract.
 
 [.contract-item]
 [[IERC721Metadata-token_by_index]]
-==== `[.contract-item-name]#++token_by_index++#++(index) -> u256++` [.item-kind]#external#
+==== `[.contract-item-name]#++token_by_index++#++(index: u256) -> u256++` [.item-kind]#external#
 
 Returns a token id at a given `index` of all the tokens stored by the contract.
 Use along with xref:#IERC721Enumerable-total_supply[IERC721Enumerable::total_supply] to enumerate all tokens.
 
 [.contract-item]
 [[IERC721Metadata-token_of_owner_by_index]]
-==== `[.contract-item-name]#++token_of_owner_by_index++#++(owner, index) -> u256++` [.item-kind]#external#
+==== `[.contract-item-name]#++token_of_owner_by_index++#++(owner: ContractAddress, index: u256) -> u256++` [.item-kind]#external#
 
 Returns the token id owned by `owner` at a given `index` of its token list.
 Use along with xref:#IERC721-balance_of[IERC721::balance_of] to enumerate all of ``owner``'s tokens.
@@ -671,8 +671,6 @@ Requirements:
 
 Emits an <<IERC721-Approval,Approval>> event.
 
-Emits an <<IERC721-Approval,Approval>> event.
-
 [.contract-item]
 [[ERC721Component-_set_base_uri]]
 ==== `[.contract-item-name]#++_set_base_uri++#++(ref self: ContractState, base_uri: ByteArray)++` [.item-kind]#internal#
@@ -738,7 +736,7 @@ See <<IERC721-Transfer,IERC721::Transfer>>.
 === `++ERC721EnumerableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.15.1/packages/token/src/erc721/extensions/erc721_enumerable.cairo[{github-icon},role=heading-link]
 
 ```cairo
-use openzeppelin::token::extensions::ERC721EnumerableComponent;
+use openzeppelin::token::erc721::extensions::ERC721EnumerableComponent;
 ```
 
 Extension of ERC721 as defined in the EIP that adds enumerability of all the token ids in the contract as well as all token ids owned by each account.
@@ -746,7 +744,7 @@ This extension allows contracts to publish their entire list of NFTs and make th
 
 NOTE: Implementing xref:#ERC721Component[ERC721Component] is a requirement for this component to be implemented.
 
-WARNING: To properly track token ids, this extension requires that the xref:#ERC721EnumerableComponent-before_update[ERC721EnumerableComponent::before_update] function is called after every transfer, mint, or burn operation.
+WARNING: To properly track token ids, this extension requires that the xref:#ERC721EnumerableComponent-before_update[ERC721EnumerableComponent::before_update] function is called before every transfer, mint, or burn operation.
 For this, the xref:ERC721Component-before_update[ERC721HooksTrait::before_update] hook must be used.
 
 [.contract-index#ERC721EnumerableComponent-Embeddable-Impls]

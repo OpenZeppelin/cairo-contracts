@@ -8,6 +8,7 @@ use openzeppelin_token::erc20::ERC20Component::{ERC20MetadataImpl, InternalImpl}
 use openzeppelin_token::erc20::ERC20Component;
 use openzeppelin_token::tests::mocks::erc20_mocks::DualCaseERC20Mock;
 use snforge_std::{spy_events, test_address, start_cheat_caller_address};
+use starknet::ContractAddress;
 
 //
 // Setup

@@ -129,17 +129,7 @@ pub mod ERC721EnumerableComponent {
                 self._add_token_to_owner_enumeration(to, token_id);
             }
         }
-    }
 
-    #[generate_trait]
-    pub impl PrivateImpl<
-        TContractState,
-        +HasComponent<TContractState>,
-        impl ERC721: ERC721Component::HasComponent<TContractState>,
-        +ERC721Component::ERC721HooksTrait<TContractState>,
-        +SRC5Component::HasComponent<TContractState>,
-        +Drop<TContractState>
-    > of PrivateTrait<TContractState> {
         /// Adds token to this extension's ownership-tracking data structures.
         fn _add_token_to_owner_enumeration(
             ref self: ComponentState<TContractState>, to: ContractAddress, token_id: u256

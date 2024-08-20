@@ -6,7 +6,6 @@ use openzeppelin_token::erc721::extensions::erc721_enumerable::ERC721EnumerableC
     ERC721EnumerableImpl, InternalImpl
 };
 use openzeppelin_token::erc721::extensions::erc721_enumerable::ERC721EnumerableComponent;
-use openzeppelin_token::erc721::extensions::erc721_enumerable::erc721_enumerable::ERC721EnumerableComponent::PrivateTrait;
 use openzeppelin_token::erc721::extensions::erc721_enumerable::interface;
 use openzeppelin_token::tests::mocks::erc721_enumerable_mocks::ERC721EnumerableMock;
 use starknet::ContractAddress;

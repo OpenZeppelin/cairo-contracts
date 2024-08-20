@@ -1,3 +1,2 @@
-pub mod vesting;
-
 pub mod tests;
+pub mod vesting;

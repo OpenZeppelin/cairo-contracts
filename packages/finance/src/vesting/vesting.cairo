@@ -3,12 +3,12 @@
 
 #[starknet::component]
 pub mod VestingComponent {
-    use starknet::{ContractAddress, get_block_timestamp};
-    use starknet::storage::Map;
+    use openzeppelin_access::ownable::ownable::OwnableComponent::OwnableImpl;
+    use openzeppelin_access::ownable::ownable::OwnableComponent;
     use openzeppelin_finance::vesting::interface;
     use openzeppelin_token::erc20::utils::ERC20Utils;
-    use openzeppelin_access::ownable::ownable::OwnableComponent;
-    use openzeppelin_access::ownable::ownable::OwnableComponent::OwnableImpl;
+    use starknet::storage::Map;
+    use starknet::{ContractAddress, get_block_timestamp};
 
     #[storage]
     struct Storage {
@@ -33,11 +33,7 @@ pub mod VestingComponent {
 
     pub trait VestingScheduleTrait {
         fn calculate_vested_amount(
-            total_allocation: u256,
-            timestamp: u64,
-            start: u64,
-            duration: u64,
-            cliff: u64,
+            total_allocation: u256, timestamp: u64, start: u64, duration: u64, cliff: u64,
         ) -> u256;
     }
 
@@ -74,11 +70,13 @@ pub mod VestingComponent {
             vested_amount - self.released(token)
         }
 
-        fn vested_amount(self: @ComponentState<TContractState>, token: ContractAddress, timestamp: u64) -> u256 {
+        fn vested_amount(
+            self: @ComponentState<TContractState>, token: ContractAddress, timestamp: u64
+        ) -> u256 {
             let now = get_block_timestamp();
             self.resolve_vested_amount(token, now)
         }
-        
+
         fn release(ref self: ComponentState<TContractState>, token: ContractAddress) -> u256 {
             let now = get_block_timestamp();
             let vested_amount = self.resolve_vested_amount(token, now);
@@ -95,16 +93,10 @@ pub mod VestingComponent {
 
     #[generate_trait]
     pub impl InternalImpl<
-        TContractState, 
-        +HasComponent<TContractState>,
-        impl VestingSchedule: VestingScheduleTrait
+        TContractState, +HasComponent<TContractState>, impl VestingSchedule: VestingScheduleTrait
     > of InternalTrait<TContractState> {
-
         fn initializer(
-            ref self: ComponentState<TContractState>, 
-            start: u64,
-            duration: u64,
-            cliff: u64
+            ref self: ComponentState<TContractState>, start: u64, duration: u64, cliff: u64
         ) {
             self.Vesting_start.write(start);
             self.Vesting_duration.write(duration);
@@ -114,9 +106,7 @@ pub mod VestingComponent {
         }
 
         fn resolve_vested_amount(
-            self: @ComponentState<TContractState>,
-            token: ContractAddress,
-            timestamp: u64
+            self: @ComponentState<TContractState>, token: ContractAddress, timestamp: u64
         ) -> u256 {
             let released_amount = self.Vesting_released.read(token);
             let total_allocation = ERC20Utils::get_self_balance(token) + released_amount;
@@ -134,11 +124,7 @@ pub mod VestingComponent {
 
 pub impl LinearVestingSchedule of VestingComponent::VestingScheduleTrait {
     fn calculate_vested_amount(
-        total_allocation: u256,
-        timestamp: u64,
-        start: u64,
-        duration: u64,
-        cliff: u64,
+        total_allocation: u256, timestamp: u64, start: u64, duration: u64, cliff: u64,
     ) -> u256 {
         if timestamp < start + cliff {
             0

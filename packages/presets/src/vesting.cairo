@@ -4,8 +4,8 @@
 #[starknet::contract]
 pub mod VestingWallet {
     use openzeppelin_access::ownable::OwnableComponent;
-    use openzeppelin_finance::vesting::vesting::VestingComponent;
     use openzeppelin_finance::vesting::vesting::LinearVestingSchedule;
+    use openzeppelin_finance::vesting::vesting::VestingComponent;
     use starknet::ContractAddress;
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
@@ -13,7 +13,8 @@ pub mod VestingWallet {
 
     // Ownable Mixin
     #[abi(embed_v0)]
-    impl OwnableTwoStepMixinImpl = OwnableComponent::OwnableTwoStepMixinImpl<ContractState>;
+    impl OwnableTwoStepMixinImpl =
+        OwnableComponent::OwnableTwoStepMixinImpl<ContractState>;
     impl OwnableInternalImpl = OwnableComponent::InternalImpl<ContractState>;
 
     // Vesting
@@ -40,11 +41,7 @@ pub mod VestingWallet {
 
     #[constructor]
     fn constructor(
-        ref self: ContractState,
-        beneficiary: ContractAddress,
-        start: u64,
-        duration: u64,
-        cliff: u64
+        ref self: ContractState, beneficiary: ContractAddress, start: u64, duration: u64, cliff: u64
     ) {
         self.ownable.initializer(beneficiary);
         self.vesting.initializer(start, duration, cliff);

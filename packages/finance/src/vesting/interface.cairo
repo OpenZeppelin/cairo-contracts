@@ -12,6 +12,6 @@ pub trait IVesting<TState> {
     fn released(self: @TState, token: ContractAddress) -> u256;
     fn releasable(self: @TState, token: ContractAddress) -> u256;
     fn vested_amount(self: @TState, token: ContractAddress, timestamp: u64) -> u256;
-    
+
     fn release(ref self: TState, token: ContractAddress) -> u256;
 }

@@ -1,5 +1,6 @@
 :github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
 :eip2981: https://eips.ethereum.org/EIPS/eip-2981[EIP-2981]
+:inner-src5: xref:api/introspection.adoc#ISRC5[SRC5 ID]
 
 = Common (Token)
 
@@ -17,6 +18,12 @@ Reference of extension and utilities that are common to multiple token standards
 ```cairo
 use openzeppelin::token::common::erc2981::IERC2981;
 ```
+
+[.contract-index]
+.{inner-src5}
+--
+0x2d3414e45a8700c29f119a54b9f11dca0e29e06ddcb214018fc37340e165ed6
+--
 
 Interface of the ERC2981 standard as defined in {eip2981}.
 

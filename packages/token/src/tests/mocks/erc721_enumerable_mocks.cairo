@@ -66,13 +66,6 @@ pub(crate) mod ERC721EnumerableMock {
             );
             erc721_enumerable_component.before_update(to, token_id);
         }
-
-        fn after_update(
-            ref self: ERC721Component::ComponentState<TContractState>,
-            to: ContractAddress,
-            token_id: u256,
-            auth: ContractAddress
-        ) {}
     }
 
     #[constructor]
@@ -156,13 +149,6 @@ pub(crate) mod SnakeERC721EnumerableMock {
             );
             erc721_enumerable_component.before_update(to, token_id);
         }
-
-        fn after_update(
-            ref self: ERC721Component::ComponentState<TContractState>,
-            to: ContractAddress,
-            token_id: u256,
-            auth: ContractAddress
-        ) {}
     }
 
     #[constructor]

@@ -2,6 +2,7 @@
 members = [
     "packages/access",
     "packages/account",
+    "packages/finance",
     "packages/governance",
     "packages/introspection",
     "packages/presets",
@@ -45,6 +46,7 @@ snforge_std = { git = "https://github.com/foundry-rs/starknet-foundry.git", tag 
 starknet.workspace = true
 openzeppelin_access = { path = "packages/access" }
 openzeppelin_account = { path = "packages/account" }
+openzeppelin_finance = { path = "packages/finance" }
 openzeppelin_governance = { path = "packages/governance" }
 openzeppelin_introspection = { path = "packages/introspection" }
 openzeppelin_presets = { path = "packages/presets" }

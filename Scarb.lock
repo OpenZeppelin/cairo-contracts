@@ -7,6 +7,7 @@ version = "0.15.1"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_account",
+ "openzeppelin_finance",
  "openzeppelin_governance",
  "openzeppelin_introspection",
  "openzeppelin_presets",
@@ -42,6 +43,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "openzeppelin_finance"
+version = "0.15.1"
+dependencies = [
+ "openzeppelin_test_common",
+ "openzeppelin_testing",
+ "openzeppelin_utils",
+ "snforge_std",
+]
+
+[[package]]
 name = "openzeppelin_governance"
 version = "0.15.1"
 dependencies = [
@@ -64,6 +75,7 @@ version = "0.15.1"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_account",
+ "openzeppelin_finance",
  "openzeppelin_introspection",
  "openzeppelin_test_common",
  "openzeppelin_testing",

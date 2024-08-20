@@ -1,6 +1,5 @@
-
 [package]
-name = "openzeppelin_presets"
+name = "openzeppelin_finance"
 version.workspace = true
 edition.workspace = true
 cairo-version.workspace = true
@@ -18,12 +17,7 @@ fmt.workspace = true
 
 [dependencies]
 starknet.workspace = true
-openzeppelin_access = { path = "../access" }
-openzeppelin_account = { path = "../account" }
-openzeppelin_finance = { path = "../finance" }
-openzeppelin_introspection = { path = "../introspection" }
-openzeppelin_token = { path = "../token" }
-openzeppelin_upgrades = { path = "../upgrades" }
+openzeppelin_utils = { path = "../utils" }
 
 [dev-dependencies]
 snforge_std.workspace = true

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.15.0-rc.0 (security/reentrancyguard.cairo)
+// OpenZeppelin Contracts for Cairo v0.15.1 (security/reentrancyguard.cairo)
 
 /// # ReentrancyGuard Component
 ///
@@ -7,8 +7,6 @@
 /// to a function.
 #[starknet::component]
 pub mod ReentrancyGuardComponent {
-    use starknet::get_caller_address;
-
     #[storage]
     struct Storage {
         ReentrancyGuard_entered: bool

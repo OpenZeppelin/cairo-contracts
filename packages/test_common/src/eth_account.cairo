@@ -6,13 +6,9 @@ use openzeppelin_account::EthAccountComponent::{OwnerAdded, OwnerRemoved};
 use openzeppelin_account::EthAccountComponent;
 use openzeppelin_account::interface::EthPublicKey;
 use openzeppelin_account::utils::signature::EthSignature;
-use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-use openzeppelin_utils::serde::SerializedAppend;
-use openzeppelin_utils::test_utils as utils;
-use openzeppelin_utils::test_utils::constants::TRANSACTION_HASH;
-use openzeppelin_utils::test_utils::constants::{NAME, SYMBOL};
-use openzeppelin_utils::test_utils::events::EventSpyExt;
-use openzeppelin_utils::test_utils::signing::{Secp256k1KeyPair, Secp256k1KeyPairExt};
+use openzeppelin_testing::constants::TRANSACTION_HASH;
+use openzeppelin_testing::events::EventSpyExt;
+use openzeppelin_testing::signing::{Secp256k1KeyPair, Secp256k1SerializedSigning};
 use snforge_std::EventSpy;
 use snforge_std::signature::secp256k1_curve::Secp256k1CurveSignerImpl;
 use starknet::{ContractAddress, SyscallResultTrait};
@@ -49,19 +45,6 @@ pub fn get_accept_ownership_signature(
 
     new_key_pair.serialized_sign(msg_hash).span()
 }
-
-pub fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> IERC20Dispatcher {
-    let mut calldata = array![];
-
-    calldata.append_serde(NAME());
-    calldata.append_serde(SYMBOL());
-    calldata.append_serde(initial_supply);
-    calldata.append_serde(recipient);
-
-    let address = utils::declare_and_deploy("DualCaseERC20Mock", calldata);
-    IERC20Dispatcher { contract_address: address }
-}
-
 
 #[generate_trait]
 pub impl EthAccountSpyHelpersImpl of EthAccountSpyHelpers {

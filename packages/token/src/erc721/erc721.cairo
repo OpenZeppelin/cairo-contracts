@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.15.0-rc.0 (token/erc721/erc721.cairo)
+// OpenZeppelin Contracts for Cairo v0.15.1 (token/erc721/erc721.cairo)
 
 use starknet::ContractAddress;
 
@@ -96,14 +96,14 @@ pub mod ERC721Component {
             to: ContractAddress,
             token_id: u256,
             auth: ContractAddress
-        );
+        ) {}
 
         fn after_update(
             ref self: ComponentState<TContractState>,
             to: ContractAddress,
             token_id: u256,
             auth: ContractAddress
-        );
+        ) {}
     }
 
     //
@@ -825,18 +825,6 @@ pub mod ERC721Component {
 }
 
 /// An empty implementation of the ERC721 hooks to be used in basic ERC721 preset contracts.
-pub impl ERC721HooksEmptyImpl<TContractState> of ERC721Component::ERC721HooksTrait<TContractState> {
-    fn before_update(
-        ref self: ERC721Component::ComponentState<TContractState>,
-        to: ContractAddress,
-        token_id: u256,
-        auth: ContractAddress
-    ) {}
-
-    fn after_update(
-        ref self: ERC721Component::ComponentState<TContractState>,
-        to: ContractAddress,
-        token_id: u256,
-        auth: ContractAddress
-    ) {}
-}
+pub impl ERC721HooksEmptyImpl<
+    TContractState
+> of ERC721Component::ERC721HooksTrait<TContractState> {}

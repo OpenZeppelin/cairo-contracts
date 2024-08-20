@@ -1,7 +1,7 @@
+use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_upgrades::UpgradeableComponent::Upgraded;
 use openzeppelin_upgrades::UpgradeableComponent;
-use openzeppelin_utils::test_utils::events::EventSpyExt;
-use snforge_std::{EventSpy, EventSpyAssertionsTrait};
+use snforge_std::{EventSpy};
 use starknet::{ContractAddress, ClassHash};
 
 #[generate_trait]

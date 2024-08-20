@@ -9,6 +9,8 @@ members = [
     "packages/token",
     "packages/upgrades",
     "packages/utils",
+    "packages/testing",
+    "packages/test_common",
 ]
 
 [package]
@@ -16,12 +18,12 @@ name = "openzeppelin"
 version.workspace = true
 
 [workspace.package]
-version = "0.15.0-rc.0"
+version = "0.15.1"
 edition = "2023_11"
 cairo-version = "2.7.0"
 scarb-version = "2.7.0"
 authors = ["OpenZeppelin Community <maintainers@openzeppelin.org>"]
-description = "OpenZeppelin Contracts written in Cairo for StarkNet, a decentralized ZK Rollup"
+description = "OpenZeppelin Contracts written in Cairo for Starknet, a decentralized ZK Rollup"
 documentation = "https://docs.openzeppelin.com/contracts-cairo"
 readme = "README.md"
 repository = "https://github.com/OpenZeppelin/cairo-contracts"
@@ -53,6 +55,8 @@ openzeppelin_utils = { path = "packages/utils" }
 
 [dev-dependencies]
 snforge_std.workspace = true
+openzeppelin_test_common = { path = "packages/test_common" }
+openzeppelin_testing = { path = "packages/testing" }
 
 [lib]
 

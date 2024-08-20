@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.15.0-rc.0 (account/eth_account.cairo)
+// OpenZeppelin Contracts for Cairo v0.15.1 (account/eth_account.cairo)
 
 /// # EthAccount Component
 ///
@@ -13,7 +13,7 @@ pub mod EthAccountComponent {
     use openzeppelin_account::interface::EthPublicKey;
     use openzeppelin_account::interface;
     use openzeppelin_account::utils::secp256k1::Secp256k1PointStorePacking;
-    use openzeppelin_account::utils::{MIN_TRANSACTION_VERSION, QUERY_VERSION, QUERY_OFFSET};
+    use openzeppelin_account::utils::{MIN_TRANSACTION_VERSION, QUERY_OFFSET};
     use openzeppelin_account::utils::{execute_calls, is_valid_eth_signature};
     use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;

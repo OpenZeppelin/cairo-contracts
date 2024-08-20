@@ -3,10 +3,10 @@ use openzeppelin_access::ownable::OwnableComponent::InternalTrait;
 use openzeppelin_access::ownable::OwnableComponent;
 use openzeppelin_access::ownable::interface::{IOwnable, IOwnableCamelOnly};
 use openzeppelin_access::tests::mocks::ownable_mocks::DualCaseOwnableMock;
-use openzeppelin_utils::test_utils::constants::{ZERO, OTHER, OWNER};
-use snforge_std::{spy_events, test_address, start_cheat_caller_address};
 
-use super::common::OwnableSpyHelpers;
+use openzeppelin_test_common::ownable::OwnableSpyHelpers;
+use openzeppelin_testing::constants::{ZERO, OTHER, OWNER};
+use snforge_std::{spy_events, test_address, start_cheat_caller_address};
 
 //
 // Setup

@@ -1,14 +1,11 @@
-use starknet::ClassHash;
-use starknet::ContractAddress;
-use starknet::SyscallResultTrait;
 use starknet::class_hash::class_hash_const;
-use starknet::contract_address_const;
 use starknet::secp256_trait::Secp256Trait;
+use starknet::{ClassHash, ContractAddress, SyscallResultTrait, contract_address_const};
 
 pub type EthPublicKey = starknet::secp256k1::Secp256k1Point;
 
-pub const DECIMALS: u8 = 18_u8;
-pub const SUPPLY: u256 = 2000;
+pub const DECIMALS: u8 = 18;
+pub const SUPPLY: u256 = 2_000;
 pub const VALUE: u256 = 300;
 pub const FELT_VALUE: felt252 = 'FELT_VALUE';
 pub const ROLE: felt252 = 'ROLE';
@@ -22,8 +19,8 @@ pub const NEW_PUBKEY: felt252 = 0x26da8d11938b76025862be14fdb8b28438827f73e75e86
 pub const DAPP_NAME: felt252 = 'DAPP_NAME';
 pub const DAPP_VERSION: felt252 = 'DAPP_VERSION';
 pub const SALT: felt252 = 'SALT';
-pub const SUCCESS: felt252 = 123123;
-pub const FAILURE: felt252 = 456456;
+pub const SUCCESS: felt252 = 'SUCCESS';
+pub const FAILURE: felt252 = 'FAILURE';
 pub const MIN_TRANSACTION_VERSION: felt252 = 1;
 pub const TRANSACTION_HASH: felt252 = 'TRANSACTION_HASH';
 // 2**128
@@ -45,14 +42,6 @@ pub fn BASE_URI() -> ByteArray {
 
 pub fn BASE_URI_2() -> ByteArray {
     "https://api.example.com/v2/"
-}
-
-pub fn ETH_PUBKEY() -> EthPublicKey {
-    Secp256Trait::secp256_ec_get_point_from_x_syscall(3, false).unwrap_syscall().unwrap()
-}
-
-pub fn NEW_ETH_PUBKEY() -> EthPublicKey {
-    Secp256Trait::secp256_ec_get_point_from_x_syscall(4, false).unwrap_syscall().unwrap()
 }
 
 pub fn ADMIN() -> ContractAddress {
@@ -104,13 +93,12 @@ pub fn OPERATOR() -> ContractAddress {
 }
 
 pub fn DATA(success: bool) -> Span<felt252> {
-    let mut data = array![];
-    if success {
-        data.append(SUCCESS);
+    let value = if success {
+        SUCCESS
     } else {
-        data.append(FAILURE);
-    }
-    data.span()
+        FAILURE
+    };
+    array![value].span()
 }
 
 pub fn EMPTY_DATA() -> Span<felt252> {
@@ -122,7 +110,7 @@ pub fn EMPTY_DATA() -> Span<felt252> {
 //
 
 pub mod secp256k1 {
-    use openzeppelin_utils::test_utils::signing::{Secp256k1KeyPair, get_secp256k1_keys_from};
+    use openzeppelin_testing::signing::{Secp256k1KeyPair, get_secp256k1_keys_from};
 
     pub fn KEY_PAIR() -> Secp256k1KeyPair {
         let private_key = u256 { low: 'PRIVATE_LOW', high: 'PRIVATE_HIGH' };
@@ -136,7 +124,7 @@ pub mod secp256k1 {
 }
 
 pub mod stark {
-    use openzeppelin_utils::test_utils::signing::{StarkKeyPair, get_stark_keys_from};
+    use openzeppelin_testing::signing::{StarkKeyPair, get_stark_keys_from};
 
     pub fn KEY_PAIR() -> StarkKeyPair {
         get_stark_keys_from('PRIVATE_KEY')

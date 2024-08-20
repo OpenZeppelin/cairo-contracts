@@ -1,43 +1,48 @@
-use openzeppelin_account::dual_account::{DualCaseAccountABI, DualCaseAccount};
-use openzeppelin_account::interface::{AccountABIDispatcherTrait, AccountABIDispatcher};
-use openzeppelin_account::tests::starknet::common::SIGNED_TX_DATA;
+use openzeppelin_account::dual_eth_account::{DualCaseEthAccountTrait, DualCaseEthAccount};
+use openzeppelin_account::interface::{EthAccountABIDispatcherTrait, EthAccountABIDispatcher};
+use openzeppelin_account::utils::secp256k1::{DebugSecp256k1Point, Secp256k1PointPartialEq};
 use openzeppelin_introspection::interface::ISRC5_ID;
-use openzeppelin_utils::test_utils as utils;
-use openzeppelin_utils::test_utils::constants::TRANSACTION_HASH;
-use openzeppelin_utils::test_utils::constants::stark::{KEY_PAIR, KEY_PAIR_2};
-use openzeppelin_utils::test_utils::signing::{StarkKeyPair, StarkKeyPairExt};
-use snforge_std::{declare, start_cheat_caller_address};
 
-use super::common::get_accept_ownership_signature;
+use openzeppelin_test_common::eth_account::get_accept_ownership_signature;
+use openzeppelin_testing as utils;
+use openzeppelin_testing::constants::TRANSACTION_HASH;
+use openzeppelin_testing::constants::secp256k1::{KEY_PAIR, KEY_PAIR_2};
+use openzeppelin_testing::signing::{Secp256k1KeyPair, Secp256k1SerializedSigning};
+use openzeppelin_utils::serde::SerializedAppend;
+use snforge_std::start_cheat_caller_address;
 
 //
 // Setup
 //
 
-fn setup_snake(key_pair: StarkKeyPair) -> (DualCaseAccount, AccountABIDispatcher) {
-    let calldata = array![key_pair.public_key];
-    let contract_address = utils::declare_and_deploy("SnakeAccountMock", calldata);
-    (DualCaseAccount { contract_address }, AccountABIDispatcher { contract_address })
+fn setup_snake(key_pair: Secp256k1KeyPair) -> (DualCaseEthAccount, EthAccountABIDispatcher) {
+    let mut calldata = array![];
+    calldata.append_serde(key_pair.public_key);
+
+    let contract_address = utils::declare_and_deploy("SnakeEthAccountMock", calldata);
+    (DualCaseEthAccount { contract_address }, EthAccountABIDispatcher { contract_address })
 }
 
-fn setup_camel(key_pair: StarkKeyPair) -> (DualCaseAccount, AccountABIDispatcher) {
-    let calldata = array![key_pair.public_key];
-    let contract_address = utils::declare_and_deploy("CamelAccountMock", calldata);
-    (DualCaseAccount { contract_address }, AccountABIDispatcher { contract_address })
+fn setup_camel(key_pair: Secp256k1KeyPair) -> (DualCaseEthAccount, EthAccountABIDispatcher) {
+    let mut calldata = array![];
+    calldata.append_serde(key_pair.public_key);
+
+    let contract_address = utils::declare_and_deploy("CamelEthAccountMock", calldata);
+    (DualCaseEthAccount { contract_address }, EthAccountABIDispatcher { contract_address })
 }
 
-fn setup_non_account() -> DualCaseAccount {
+fn setup_non_account() -> DualCaseEthAccount {
     let calldata = array![];
     let contract_address = utils::declare_and_deploy("NonImplementingMock", calldata);
-    DualCaseAccount { contract_address }
+    DualCaseEthAccount { contract_address }
 }
 
-fn setup_account_panic() -> (DualCaseAccount, DualCaseAccount) {
-    let snake_target = utils::declare_and_deploy("SnakeAccountPanicMock", array![]);
-    let camel_target = utils::declare_and_deploy("CamelAccountPanicMock", array![]);
+fn setup_account_panic() -> (DualCaseEthAccount, DualCaseEthAccount) {
+    let snake_target = utils::declare_and_deploy("SnakeEthAccountPanicMock", array![]);
+    let camel_target = utils::declare_and_deploy("CamelEthAccountPanicMock", array![]);
     (
-        DualCaseAccount { contract_address: snake_target },
-        DualCaseAccount { contract_address: camel_target }
+        DualCaseEthAccount { contract_address: snake_target },
+        DualCaseEthAccount { contract_address: camel_target }
     )
 }
 
@@ -49,12 +54,13 @@ fn setup_account_panic() -> (DualCaseAccount, DualCaseAccount) {
 fn test_dual_set_public_key() {
     let key_pair = KEY_PAIR();
     let (snake_dispatcher, target) = setup_snake(key_pair);
-    let new_key_pair = KEY_PAIR_2();
-    let signature = get_accept_ownership_signature(
-        snake_dispatcher.contract_address, key_pair.public_key, new_key_pair
-    );
-    start_cheat_caller_address(target.contract_address, target.contract_address);
+    let contract_address = snake_dispatcher.contract_address;
 
+    let new_key_pair = KEY_PAIR_2();
+    start_cheat_caller_address(contract_address, contract_address);
+    let signature = get_accept_ownership_signature(
+        contract_address, key_pair.public_key, new_key_pair
+    );
     snake_dispatcher.set_public_key(new_key_pair.public_key, signature);
 
     assert_eq!(target.get_public_key(), new_key_pair.public_key);
@@ -65,24 +71,21 @@ fn test_dual_set_public_key() {
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
 fn test_dual_no_set_public_key() {
     let dispatcher = setup_non_account();
-    let new_public_key = KEY_PAIR_2().public_key;
-    dispatcher.set_public_key(new_public_key, array![].span());
+    dispatcher.set_public_key(KEY_PAIR().public_key, array![].span());
 }
 
 #[test]
 #[should_panic(expected: ("Some error",))]
 fn test_dual_set_public_key_exists_and_panics() {
-    let (snake_dispatcher, _) = setup_account_panic();
-    let new_public_key = KEY_PAIR_2().public_key;
-    snake_dispatcher.set_public_key(new_public_key, array![].span());
+    let (dispatcher, _) = setup_account_panic();
+    dispatcher.set_public_key(KEY_PAIR().public_key, array![].span());
 }
 
 #[test]
 fn test_dual_get_public_key() {
     let key_pair = KEY_PAIR();
     let (snake_dispatcher, _) = setup_snake(key_pair);
-    let expected_public_key = key_pair.public_key;
-    assert_eq!(snake_dispatcher.get_public_key(), expected_public_key);
+    assert_eq!(snake_dispatcher.get_public_key(), key_pair.public_key);
 }
 
 #[test]
@@ -96,18 +99,17 @@ fn test_dual_no_get_public_key() {
 #[test]
 #[should_panic(expected: ("Some error",))]
 fn test_dual_get_public_key_exists_and_panics() {
-    let (snake_dispatcher, _) = setup_account_panic();
-    snake_dispatcher.get_public_key();
+    let (dispatcher, _) = setup_account_panic();
+    dispatcher.get_public_key();
 }
 
 #[test]
 fn test_dual_is_valid_signature() {
     let key_pair = KEY_PAIR();
     let (snake_dispatcher, _) = setup_snake(key_pair);
-    let tx_hash = TRANSACTION_HASH;
-    let serialized_signature = key_pair.serialized_sign(tx_hash);
 
-    let is_valid = snake_dispatcher.is_valid_signature(tx_hash, serialized_signature);
+    let serialized_signature = key_pair.serialized_sign(TRANSACTION_HASH.into());
+    let is_valid = snake_dispatcher.is_valid_signature(TRANSACTION_HASH, serialized_signature);
     assert_eq!(is_valid, starknet::VALIDATED);
 }
 
@@ -125,16 +127,15 @@ fn test_dual_no_is_valid_signature() {
 #[should_panic(expected: ("Some error",))]
 fn test_dual_is_valid_signature_exists_and_panics() {
     let signature = array![];
-    let (snake_dispatcher, _) = setup_account_panic();
 
-    snake_dispatcher.is_valid_signature(TRANSACTION_HASH, signature);
+    let (dispatcher, _) = setup_account_panic();
+    dispatcher.is_valid_signature(TRANSACTION_HASH, signature);
 }
 
 #[test]
 fn test_dual_supports_interface() {
     let (snake_dispatcher, _) = setup_snake(KEY_PAIR());
-    let supports_isrc5 = snake_dispatcher.supports_interface(ISRC5_ID);
-    assert!(supports_isrc5);
+    assert!(snake_dispatcher.supports_interface(ISRC5_ID), "Should implement ISRC5");
 }
 
 #[test]
@@ -148,8 +149,8 @@ fn test_dual_no_supports_interface() {
 #[test]
 #[should_panic(expected: ("Some error",))]
 fn test_dual_supports_interface_exists_and_panics() {
-    let (snake_dispatcher, _) = setup_account_panic();
-    snake_dispatcher.supports_interface(ISRC5_ID);
+    let (dispatcher, _) = setup_account_panic();
+    dispatcher.supports_interface(ISRC5_ID);
 }
 
 //
@@ -161,14 +162,15 @@ fn test_dual_supports_interface_exists_and_panics() {
 fn test_dual_setPublicKey() {
     let key_pair = KEY_PAIR();
     let (camel_dispatcher, target) = setup_camel(key_pair);
+    let contract_address = camel_dispatcher.contract_address;
+
+    start_cheat_caller_address(contract_address, contract_address);
     let new_key_pair = KEY_PAIR_2();
     let signature = get_accept_ownership_signature(
-        camel_dispatcher.contract_address, key_pair.public_key, new_key_pair
+        contract_address, key_pair.public_key, new_key_pair
     );
-    start_cheat_caller_address(target.contract_address, target.contract_address);
 
     camel_dispatcher.set_public_key(new_key_pair.public_key, signature);
-
     assert_eq!(target.getPublicKey(), new_key_pair.public_key);
 }
 
@@ -176,9 +178,8 @@ fn test_dual_setPublicKey() {
 #[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 #[should_panic(expected: ("Some error",))]
 fn test_dual_setPublicKey_exists_and_panics() {
-    let (_, camel_dispatcher) = setup_account_panic();
-    let new_public_key = KEY_PAIR_2().public_key;
-    camel_dispatcher.set_public_key(new_public_key, array![].span());
+    let (_, dispatcher) = setup_account_panic();
+    dispatcher.set_public_key(KEY_PAIR_2().public_key, array![].span());
 }
 
 #[test]
@@ -186,16 +187,15 @@ fn test_dual_setPublicKey_exists_and_panics() {
 fn test_dual_getPublicKey() {
     let key_pair = KEY_PAIR();
     let (camel_dispatcher, _) = setup_camel(key_pair);
-    let expected_public_key = key_pair.public_key;
-    assert_eq!(camel_dispatcher.get_public_key(), expected_public_key);
+    assert_eq!(camel_dispatcher.get_public_key(), key_pair.public_key);
 }
 
 #[test]
 #[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
 #[should_panic(expected: ("Some error",))]
 fn test_dual_getPublicKey_exists_and_panics() {
-    let (_, camel_dispatcher) = setup_account_panic();
-    camel_dispatcher.get_public_key();
+    let (_, dispatcher) = setup_account_panic();
+    dispatcher.get_public_key();
 }
 
 #[test]
@@ -203,10 +203,9 @@ fn test_dual_getPublicKey_exists_and_panics() {
 fn test_dual_isValidSignature() {
     let key_pair = KEY_PAIR();
     let (camel_dispatcher, _) = setup_camel(key_pair);
-    let tx_hash = TRANSACTION_HASH;
-    let serialized_signature = key_pair.serialized_sign(tx_hash);
 
-    let is_valid = camel_dispatcher.is_valid_signature(tx_hash, serialized_signature);
+    let serialized_signature = key_pair.serialized_sign(TRANSACTION_HASH.into());
+    let is_valid = camel_dispatcher.is_valid_signature(TRANSACTION_HASH, serialized_signature);
     assert_eq!(is_valid, starknet::VALIDATED);
 }
 
@@ -216,6 +215,6 @@ fn test_dual_isValidSignature() {
 fn test_dual_isValidSignature_exists_and_panics() {
     let signature = array![];
 
-    let (_, camel_dispatcher) = setup_account_panic();
-    camel_dispatcher.is_valid_signature(TRANSACTION_HASH, signature);
+    let (_, dispatcher) = setup_account_panic();
+    dispatcher.is_valid_signature(TRANSACTION_HASH, signature);
 }

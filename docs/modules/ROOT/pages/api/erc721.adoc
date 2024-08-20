@@ -763,8 +763,6 @@ For this, the xref:ERC721Component-before_update[ERC721HooksTrait::before_update
 .InternalImpl
 * xref:#ERC721EnumerableComponent-initializer[`++initializer(self)++`]
 * xref:#ERC721EnumerableComponent-before_update[`++before_update(self, to, token_id)++`]
-
-.PrivateImpl
 * xref:#ERC721EnumerableComponent-_add_token_to_owner_enumeration[`++_add_token_to_owner_enumeration(self, to, token_id)++`]
 * xref:#ERC721EnumerableComponent-_add_token_to_all_tokens_enumeration[`++_add_token_to_all_tokens_enumeration(self, token_id)++`]
 * xref:#ERC721EnumerableComponent-_remove_token_from_owner_enumeration[`++_remove_token_from_owner_enumeration(self, from, token_id)++`]
@@ -824,19 +822,19 @@ This must be added to the implementing contract's xref:ERC721Component-before_up
 
 [.contract-item]
 [[ERC721EnumerableComponent-_add_token_to_owner_enumeration]]
-==== `[.contract-item-name]#++_add_token_to_owner_enumeration++#++(ref self: ContractState, to: ContractAddress, token_id: u256)++` [.item-kind]#private#
+==== `[.contract-item-name]#++_add_token_to_owner_enumeration++#++(ref self: ContractState, to: ContractAddress, token_id: u256)++` [.item-kind]#internal#
 
 Adds token to this extension's ownership-tracking data structures.
 
 [.contract-item]
 [[ERC721EnumerableComponent-_add_token_to_all_tokens_enumeration]]
-==== `[.contract-item-name]#++_add_token_to_all_tokens_enumeration++#++(ref self: ContractState, token_id: u256)++` [.item-kind]#private#
+==== `[.contract-item-name]#++_add_token_to_all_tokens_enumeration++#++(ref self: ContractState, token_id: u256)++` [.item-kind]#internal#
 
 Adds token to this extension's token-tracking data structures.
 
 [.contract-item]
 [[ERC721EnumerableComponent-_remove_token_from_owner_enumeration]]
-==== `[.contract-item-name]#++_remove_token_from_owner_enumeration++#++(ref self: ContractState, from: ContractAddress, token_id: u256)++` [.item-kind]#private#
+==== `[.contract-item-name]#++_remove_token_from_owner_enumeration++#++(ref self: ContractState, from: ContractAddress, token_id: u256)++` [.item-kind]#internal#
 
 Removes a token from this extension's ownership-tracking data structures.
 
@@ -844,7 +842,7 @@ This has 0(1) time complexity but alters the indexed order of owned tokens by sw
 
 [.contract-item]
 [[ERC721EnumerableComponent-_remove_token_from_all_tokens_enumeration]]
-==== `[.contract-item-name]#++_remove_token_from_all_tokens_enumeration++#++(ref self: ContractState, token_id: u256)++` [.item-kind]#private#
+==== `[.contract-item-name]#++_remove_token_from_all_tokens_enumeration++#++(ref self: ContractState, token_id: u256)++` [.item-kind]#internal#
 
 Removes `token_id` from this extension's token-tracking data structures.
 

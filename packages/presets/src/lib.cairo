@@ -4,6 +4,7 @@ pub mod erc20;
 pub mod erc721;
 pub mod eth_account;
 pub mod interfaces;
+pub mod vesting;
 
 mod tests;
 pub mod universal_deployer;
@@ -14,3 +15,4 @@ pub use erc20::ERC20Upgradeable;
 pub use erc721::ERC721Upgradeable;
 pub use eth_account::EthAccountUpgradeable;
 pub use universal_deployer::UniversalDeployer;
+pub use vesting::VestingWallet;

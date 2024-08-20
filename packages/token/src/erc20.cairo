@@ -1,6 +1,7 @@
 pub mod dual20;
 pub mod erc20;
 pub mod extensions;
+pub mod utils;
 pub mod interface;
 
 pub use erc20::ERC20Component;

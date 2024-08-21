@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Changed
+
+- Bump snforge to v0.27.0 (#1107)
+
 ### Changed (Breaking)
 
 - Changed ABI suffix to Trait in dual case account and eth account modules (#1096).

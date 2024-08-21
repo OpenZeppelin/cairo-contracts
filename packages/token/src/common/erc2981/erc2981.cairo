@@ -52,6 +52,9 @@ pub mod ERC2981Component {
     /// Constants expected to be defined at the contract level used to configure the component
     /// behaviour.
     ///
+    /// See
+    /// https://github.com/starknet-io/SNIPs/blob/963848f0752bde75c7087c2446d83b7da8118b25/SNIPS/snip-107.md
+    ///
     /// - `FEE_DENOMINATOR`: The denominator with which to interpret the fee set in
     ///   `set_token_royalty` and `set_default_royalty` as a fraction of the sale price.
     ///
@@ -232,7 +235,9 @@ pub mod ERC2981Component {
 }
 
 /// Implementation of the default ERC2981Component ImmutableConfig.
-/// See https://community.starknet.io/t/immutable-component-config/114434#p-2357364-defaultconfig-4
+///
+/// See
+/// https://github.com/starknet-io/SNIPs/blob/963848f0752bde75c7087c2446d83b7da8118b25/SNIPS/snip-107.md#defaultconfig-implementation
 ///
 /// The default fee denominator is set to `DEFAULT_FEE_DENOMINATOR`.
 pub impl DefaultConfig of ERC2981Component::ImmutableConfig {

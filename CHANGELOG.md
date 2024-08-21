@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Merkle tree utilities to verify proofs and multi proofs (#1101)
+- `merkle_tree` package with utilities to verify proofs and multi proofs (#1101)
 
 ### Changed (Breaking)
 

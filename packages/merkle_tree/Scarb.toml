@@ -16,8 +16,6 @@ keywords.workspace = true
 [tool]
 fmt.workspace = true
 
-[dependencies]
-
 [dev-dependencies]
 starknet.workspace = true
 snforge_std.workspace = true

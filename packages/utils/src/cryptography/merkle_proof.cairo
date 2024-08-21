@@ -130,12 +130,6 @@ pub fn process_multi_proof<impl Hasher: CommutativeHasher>(
     };
 
     let root = if proof_flags_len > 0 {
-        // If `proof_flags` is not empty, assert that every
-        // proof was used in the validation process.
-        if proof_pos != proof.len() {
-            // TODO: check if this is not unreachable code.
-            panic!("MerkleProof: invalid multi proof");
-        }
         hashes.at(proof_flags_len - 1)
     } else if leaves_len > 0 {
         // If `proof_flags_len` is zero, and `leaves_len` is greater then zero,

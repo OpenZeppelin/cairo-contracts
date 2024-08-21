@@ -103,7 +103,7 @@ Validates the given implementation of the contract's configuration.
 
 Requirements:
 
-- FEE_DENOMINATOR must be greater than 0.
+- `FEE_DENOMINATOR` must be greater than 0.
 
 NOTE: This function is called by the contract's initializer.
 

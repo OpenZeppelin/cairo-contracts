@@ -286,11 +286,14 @@ mod MyContract {
 === Immutable Config
 
 :erc2981-component: xref:/api/token_common.adoc#ERC2981Component[ERC2981Component]
+:SRC-107: https://github.com/starknet-io/SNIPs/blob/963848f0752bde75c7087c2446d83b7da8118b25/SNIPS/snip-107.md[SRC-107]
 
 While initializers help set up the component's initial state, some require configuration that may be defined
 as constants, saving gas by avoiding the necessity of reading from storage each time the variable needs to be used. The
 Immutable Component Config pattern helps with this matter by allowing the implementing contract to define a set of
 constants declared in the component, customizing its functionality.
+
+NOTE: The Immutable Component Config standard is defined in the {SRC-107}.
 
 Here's an example of how to use the Immutable Component Config pattern with the {erc2981-component}:
 
@@ -330,7 +333,7 @@ mod MyContract {
     }
 
     // Define the immutable config
-    pub impl DefaultConfig of ERC2981Component::ImmutableConfig {
+    pub impl ERC2981ImmutableConfig of ERC2981Component::ImmutableConfig {
         const FEE_DENOMINATOR: u128 = 10_000;
     }
 
@@ -391,6 +394,14 @@ mod MyContract {
     }
 }
 ----
+
+==== `validate` function
+
+:validate-section: https://github.com/starknet-io/SNIPs/blob/963848f0752bde75c7087c2446d83b7da8118b25/SNIPS/snip-107.md#validate-function[validate section of the SRC-107]
+
+The `ImmutableConfig` trait may also include a `validate` function with a default implementation, which
+asserts that the configuration is correct, and must not be overridden by the implementing contract. For more information
+on how to use this function, refer to the {validate-section}.
 
 === Dependencies
 

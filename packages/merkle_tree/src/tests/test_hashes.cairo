@@ -1,7 +1,7 @@
-use core::hash::{HashStateTrait};
+use core::hash::HashStateTrait;
 use core::pedersen::PedersenTrait;
 use core::poseidon::poseidon_hash_span;
-use openzeppelin_utils::cryptography::hashes::{PedersenCHasher, PoseidonCHasher};
+use openzeppelin_merkle_tree::hashes::{PedersenCHasher, PoseidonCHasher};
 
 #[test]
 fn test_pedersen_commutative_hash_is_commutative() {

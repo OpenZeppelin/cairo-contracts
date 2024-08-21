@@ -4,6 +4,7 @@ members = [
     "packages/account",
     "packages/governance",
     "packages/introspection",
+    "packages/merkle_tree",
     "packages/presets",
     "packages/security",
     "packages/token",
@@ -35,6 +36,7 @@ keywords = [
     "contracts",
     "security",
     "standards",
+    "merkle_tree"
 ]
 
 [workspace.dependencies]

@@ -1,7 +1,7 @@
 use core::hash::{HashStateTrait, HashStateExTrait};
 use core::pedersen::{PedersenTrait, pedersen};
-use openzeppelin_utils::cryptography::hashes::PedersenCHasher;
-use openzeppelin_utils::cryptography::merkle_proof::{
+use openzeppelin_merkle_tree::hashes::PedersenCHasher;
+use openzeppelin_merkle_tree::merkle_proof::{
     process_proof, process_multi_proof, verify, verify_multi_proof, verify_pedersen
 };
 use starknet::{ContractAddress, contract_address_const};

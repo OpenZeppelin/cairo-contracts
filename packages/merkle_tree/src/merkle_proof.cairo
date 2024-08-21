@@ -13,7 +13,7 @@
 /// leaf inclusion in trees built using non-commutative hashing functions requires
 /// additional logic that is not supported by this library.
 
-use openzeppelin_utils::cryptography::hashes::{CommutativeHasher, PedersenCHasher, PoseidonCHasher};
+use openzeppelin_merkle_tree::hashes::{CommutativeHasher, PedersenCHasher, PoseidonCHasher};
 
 /// Version of `verify` using perdersen as the hashing function.
 pub fn verify_pedersen(proof: Span<felt252>, root: felt252, leaf: felt252) -> bool {

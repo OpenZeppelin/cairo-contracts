@@ -1,6 +1,6 @@
 use core::poseidon::poseidon_hash_span;
-use openzeppelin_utils::cryptography::hashes::PoseidonCHasher;
-use openzeppelin_utils::cryptography::merkle_proof::{
+use openzeppelin_merkle_tree::hashes::PoseidonCHasher;
+use openzeppelin_merkle_tree::merkle_proof::{
     process_proof, process_multi_proof, verify, verify_multi_proof, verify_poseidon
 };
 use starknet::{ContractAddress, contract_address_const};

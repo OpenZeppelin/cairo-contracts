@@ -120,6 +120,9 @@ A module containing utilities that simplify declaring and deploying contracts us
 
 Declares a contract with a `snforge` `declare` call and unwraps the result.
 
+NOTE: If the contract is already declared, this function won't panic but will instead
+return the existing class.
+
 [.contract-item]
 [[testing-deployment-deploy]]
 ==== `[.contract-item-name]#++deploy++#++(contract_class: ContractClass, calldata: Array<felt252>) → ContractAddress++` [.item-kind]#function#
@@ -157,11 +160,17 @@ deploy_another_at(alice_address, bob_address, array!['BOB_PUBKEY']);
 
 Combines the declaration of a class and the deployment of a contract into one function call.
 
+NOTE: If the contract is already declared, this function will skip the declaration step and will
+deploy it.
+
 [.contract-item]
 [[testing-deployment-declare_and_deploy_at]]
 ==== `[.contract-item-name]#++declare_and_deploy_at++#++(contract_name: ByteArray, target_address: ContractAddress, calldata: Array<felt252>)++` [.item-kind]#function#
 
 Combines the declaration of a class and the deployment of a contract at the given address into one function call.
+
+NOTE: If the contract is already declared, this function will skip the declaration step and will
+deploy it.
 
 [.contract]
 [[testing-events]]

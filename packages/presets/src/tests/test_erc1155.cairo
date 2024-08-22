@@ -4,7 +4,7 @@ use openzeppelin_presets::interfaces::{
 };
 use openzeppelin_test_common::erc1155::ERC1155SpyHelpers;
 use openzeppelin_test_common::erc1155::{
-    setup_account, setup_receiver, setup_camel_receiver, deploy_another_account_at, setup_src5
+    setup_account, setup_receiver, setup_camel_receiver, setup_account_at, setup_src5
 };
 use openzeppelin_test_common::erc1155::{get_ids_and_values, get_ids_and_split_values};
 use openzeppelin_test_common::ownable::OwnableSpyHelpers;
@@ -219,7 +219,7 @@ fn test_safe_transfer_from_to_account() {
     let (mut spy, dispatcher, owner) = setup_dispatcher();
     let contract = dispatcher.contract_address;
     let recipient = RECIPIENT();
-    deploy_another_account_at(owner, recipient);
+    setup_account_at(recipient);
     spy.drop_all_events();
 
     assert_state_before_transfer_single(dispatcher, owner, recipient, TOKEN_ID);
@@ -235,7 +235,7 @@ fn test_safeTransferFrom_to_account() {
     let (mut spy, dispatcher, owner) = setup_dispatcher();
     let contract = dispatcher.contract_address;
     let recipient = RECIPIENT();
-    deploy_another_account_at(owner, recipient);
+    setup_account_at(recipient);
     spy.drop_all_events();
 
     assert_state_before_transfer_single(dispatcher, owner, recipient, TOKEN_ID);
@@ -252,7 +252,7 @@ fn test_safe_transfer_from_approved_operator() {
     let contract = dispatcher.contract_address;
     let operator = OPERATOR();
     let recipient = RECIPIENT();
-    deploy_another_account_at(owner, recipient);
+    setup_account_at(recipient);
     spy.drop_all_events();
 
     dispatcher.set_approval_for_all(operator, true);
@@ -276,7 +276,7 @@ fn test_safeTransferFrom_approved_operator() {
     let contract = dispatcher.contract_address;
     let operator = OPERATOR();
     let recipient = RECIPIENT();
-    deploy_another_account_at(owner, recipient);
+    setup_account_at(recipient);
     spy.drop_all_events();
 
     dispatcher.set_approval_for_all(operator, true);
@@ -448,7 +448,7 @@ fn test_safe_batch_transfer_from_to_account() {
     let contract = dispatcher.contract_address;
     let (token_ids, values) = get_ids_and_values();
     let recipient = RECIPIENT();
-    deploy_another_account_at(owner, recipient);
+    setup_account_at(recipient);
     spy.drop_all_events();
 
     assert_state_before_transfer_batch(dispatcher, owner, recipient, token_ids, values);
@@ -465,7 +465,7 @@ fn test_safeBatchTransferFrom_to_account() {
     let contract = dispatcher.contract_address;
     let (token_ids, values) = get_ids_and_values();
     let recipient = RECIPIENT();
-    deploy_another_account_at(owner, recipient);
+    setup_account_at(recipient);
     spy.drop_all_events();
 
     assert_state_before_transfer_batch(dispatcher, owner, recipient, token_ids, values);
@@ -484,7 +484,7 @@ fn test_safe_batch_transfer_from_approved_operator() {
     let (token_ids, values) = get_ids_and_values();
     let operator = OPERATOR();
     let recipient = RECIPIENT();
-    deploy_another_account_at(owner, recipient);
+    setup_account_at(recipient);
     spy.drop_all_events();
 
     dispatcher.set_approval_for_all(operator, true);
@@ -506,7 +506,7 @@ fn test_safeBatchTransferFrom_approved_operator() {
     let (token_ids, values) = get_ids_and_values();
     let operator = OPERATOR();
     let recipient = RECIPIENT();
-    deploy_another_account_at(owner, recipient);
+    setup_account_at(recipient);
     spy.drop_all_events();
 
     dispatcher.set_approval_for_all(operator, true);

@@ -19,9 +19,9 @@ pub fn setup_account() -> ContractAddress {
     utils::declare_and_deploy("SnakeAccountMock", calldata)
 }
 
-pub fn deploy_another_account_at(existing: ContractAddress, target_address: ContractAddress) {
+pub fn setup_account_at(target_address: ContractAddress) {
     let calldata = array![PUBKEY];
-    utils::deploy_another_at(existing, target_address, calldata);
+    utils::declare_and_deploy_at("SnakeAccountMock", target_address, calldata);
 }
 
 pub fn setup_src5() -> ContractAddress {

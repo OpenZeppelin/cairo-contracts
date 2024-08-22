@@ -4,7 +4,7 @@ use openzeppelin_test_common::erc1155::{
     ERC1155SpyHelpers, get_ids_and_values, get_ids_and_split_values
 };
 use openzeppelin_test_common::erc1155::{
-    setup_account, deploy_another_account_at, setup_src5, setup_receiver, setup_camel_receiver
+    setup_account, setup_account_at, setup_src5, setup_receiver, setup_camel_receiver
 };
 use openzeppelin_testing::constants::{
     EMPTY_DATA, ZERO, OWNER, RECIPIENT, OPERATOR, OTHER, TOKEN_ID, TOKEN_ID_2, TOKEN_VALUE,
@@ -222,7 +222,7 @@ fn test_safeTransferFrom_owner_to_camel_receiver() {
 fn test_safe_transfer_from_owner_to_account() {
     let (mut state, owner) = setup();
     let recipient = RECIPIENT();
-    deploy_another_account_at(owner, recipient);
+    setup_account_at(recipient);
     let mut spy = spy_events();
     let contract_address = test_address();
 
@@ -242,7 +242,7 @@ fn test_safe_transfer_from_owner_to_account() {
 fn test_safeTransferFrom_owner_to_account() {
     let (mut state, owner) = setup();
     let recipient = RECIPIENT();
-    deploy_another_account_at(owner, recipient);
+    setup_account_at(recipient);
     let mut spy = spy_events();
     let contract_address = test_address();
 
@@ -262,7 +262,7 @@ fn test_safeTransferFrom_owner_to_account() {
 fn test_safe_transfer_from_approved_operator() {
     let (mut state, owner) = setup();
     let recipient = RECIPIENT();
-    deploy_another_account_at(owner, recipient);
+    setup_account_at(recipient);
     let operator = OPERATOR();
     let mut spy = spy_events();
     let contract_address = test_address();
@@ -287,7 +287,7 @@ fn test_safe_transfer_from_approved_operator() {
 fn test_safeTransferFrom_approved_operator() {
     let (mut state, owner) = setup();
     let recipient = RECIPIENT();
-    deploy_another_account_at(owner, recipient);
+    setup_account_at(recipient);
     let operator = OPERATOR();
     let mut spy = spy_events();
     let contract_address = test_address();
@@ -490,7 +490,7 @@ fn test_safeBatchTransferFrom_owner_to_camel_receiver() {
 fn test_safe_batch_transfer_from_owner_to_account() {
     let (mut state, owner) = setup();
     let recipient = RECIPIENT();
-    deploy_another_account_at(owner, recipient);
+    setup_account_at(recipient);
     let (token_ids, values) = get_ids_and_values();
     let mut spy = spy_events();
     let contract_address = test_address();
@@ -511,7 +511,7 @@ fn test_safe_batch_transfer_from_owner_to_account() {
 fn test_safeBatchTransferFrom_owner_to_account() {
     let (mut state, owner) = setup();
     let recipient = RECIPIENT();
-    deploy_another_account_at(owner, recipient);
+    setup_account_at(recipient);
     let (token_ids, values) = get_ids_and_values();
     let mut spy = spy_events();
     let contract_address = test_address();
@@ -533,7 +533,7 @@ fn test_safeBatchTransferFrom_owner_to_account() {
 fn test_safe_batch_transfer_from_approved_operator() {
     let (mut state, owner) = setup();
     let recipient = RECIPIENT();
-    deploy_another_account_at(owner, recipient);
+    setup_account_at(recipient);
     let operator = OPERATOR();
     let (token_ids, values) = get_ids_and_values();
     let mut spy = spy_events();
@@ -559,7 +559,7 @@ fn test_safe_batch_transfer_from_approved_operator() {
 fn test_safeBatchTransferFrom_approved_operator() {
     let (mut state, owner) = setup();
     let recipient = RECIPIENT();
-    deploy_another_account_at(owner, recipient);
+    setup_account_at(recipient);
     let operator = OPERATOR();
     let (token_ids, values) = get_ids_and_values();
     let mut spy = spy_events();
@@ -946,7 +946,7 @@ fn test_update_wac_single_from_non_zero_to_non_zero_camel_receiver() {
 fn test_update_wac_single_from_non_zero_to_non_zero_account() {
     let (mut state, owner) = setup();
     let recipient = RECIPIENT();
-    deploy_another_account_at(owner, recipient);
+    setup_account_at(recipient);
     let token_ids = array![TOKEN_ID].span();
     let values = array![TOKEN_VALUE].span();
     let mut spy = spy_events();
@@ -1009,7 +1009,7 @@ fn test_update_wac_batch_from_non_zero_to_non_zero_camel_receiver() {
 fn test_update_wac_batch_from_non_zero_to_non_zero_account() {
     let (mut state, owner) = setup();
     let recipient = RECIPIENT();
-    deploy_another_account_at(owner, recipient);
+    setup_account_at(recipient);
     let (token_ids, values) = get_ids_and_values();
     let mut spy = spy_events();
     let contract_address = test_address();
@@ -1088,7 +1088,7 @@ fn test_update_wac_from_zero_to_non_zero_camel_receiver() {
 fn test_update_wac_from_zero_to_non_zero_account() {
     let (mut state, owner) = setup();
     let recipient = RECIPIENT();
-    deploy_another_account_at(owner, recipient);
+    setup_account_at(recipient);
     let sender = ZERO();
     let (token_ids, values) = get_ids_and_values();
     let mut spy = spy_events();

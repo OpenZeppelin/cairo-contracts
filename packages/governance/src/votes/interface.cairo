@@ -33,3 +33,9 @@ pub trait IVotes<TState> {
         signature: Array<felt252>
     );
 }
+
+/// Common interface for tokens used for voting(e.g. `ERC721Votes` or `ERC20Votes`)
+#[starknet::interface]
+pub trait IVotesToken<TState> {
+    fn get_voting_units(self: @TState, account: ContractAddress) -> u256;
+}

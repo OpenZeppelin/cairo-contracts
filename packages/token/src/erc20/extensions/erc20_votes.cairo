@@ -18,7 +18,8 @@ use starknet::ContractAddress;
 pub mod ERC20VotesComponent {
     use core::num::traits::Zero;
     use openzeppelin_account::dual_account::{DualCaseAccount, DualCaseAccountTrait};
-    use openzeppelin_governance::utils::interfaces::IVotes;
+    use openzeppelin_governance::votes::interface::IVotes;
+    use openzeppelin_governance::votes::utils::{Delegation};
     use openzeppelin_token::erc20::ERC20Component;
     use openzeppelin_token::erc20::interface::IERC20;
     use openzeppelin_utils::nonces::NoncesComponent::InternalTrait as NoncesInternalTrait;
@@ -26,7 +27,7 @@ pub mod ERC20VotesComponent {
     use openzeppelin_utils::structs::checkpoint::{Checkpoint, Trace, TraceTrait};
     use starknet::ContractAddress;
     use starknet::storage::Map;
-    use super::{Delegation, OffchainMessageHash, SNIP12Metadata};
+    use super::{OffchainMessageHash, SNIP12Metadata};
 
     #[storage]
     struct Storage {
@@ -283,29 +284,5 @@ pub mod ERC20VotesComponent {
             let mut erc20_component = get_dep_component!(self, ERC20);
             erc20_component.balance_of(account)
         }
-    }
-}
-
-//
-// Offchain message hash generation helpers.
-//
-
-// sn_keccak("\"Delegation\"(\"delegatee\":\"ContractAddress\",\"nonce\":\"felt\",\"expiry\":\"u128\")")
-//
-// Since there's no u64 type in SNIP-12, we use u128 for `expiry` in the type hash generation.
-pub const DELEGATION_TYPE_HASH: felt252 =
-    0x241244ac7acec849adc6df9848262c651eb035a3add56e7f6c7bcda6649e837;
-
-#[derive(Copy, Drop, Hash)]
-pub struct Delegation {
-    pub delegatee: ContractAddress,
-    pub nonce: felt252,
-    pub expiry: u64
-}
-
-impl StructHashImpl of StructHash<Delegation> {
-    fn hash_struct(self: @Delegation) -> felt252 {
-        let hash_state = PoseidonTrait::new();
-        hash_state.update_with(DELEGATION_TYPE_HASH).update_with(*self).finalize()
     }
 }

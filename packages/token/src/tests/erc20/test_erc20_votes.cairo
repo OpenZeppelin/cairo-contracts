@@ -9,7 +9,7 @@ use openzeppelin_token::erc20::extensions::ERC20VotesComponent::{
 };
 use openzeppelin_token::erc20::extensions::ERC20VotesComponent::{ERC20VotesImpl, InternalImpl};
 use openzeppelin_token::erc20::extensions::ERC20VotesComponent;
-use openzeppelin_token::erc20::extensions::erc20_votes::Delegation;
+use openzeppelin_governance::votes::utils::{Delegation};
 use openzeppelin_token::tests::mocks::erc20_votes_mocks::DualCaseERC20VotesMock::SNIP12MetadataImpl;
 use openzeppelin_token::tests::mocks::erc20_votes_mocks::DualCaseERC20VotesMock;
 use openzeppelin_utils::cryptography::snip12::OffchainMessageHash;

@@ -46,8 +46,10 @@ name = "openzeppelin_governance"
 version = "0.15.1"
 dependencies = [
  "openzeppelin_access",
+ "openzeppelin_account",
  "openzeppelin_introspection",
  "openzeppelin_testing",
+ "openzeppelin_token",
  "snforge_std",
 ]
 

@@ -54,7 +54,9 @@ pub fn process_proof<impl Hasher: CommutativeHasher>(
 ///
 /// CAUTION: Not all Merkle trees admit multiproofs. See `process_multi_proof` for details.
 ///
-/// NOTE: Consider the case where `root == proof.at(0) && leaves.len() == 0` as it will return `True`.
+/// NOTE: Consider the case where `root == proof.at(0) && leaves.len() == 0`
+/// as it will return `True`.
+///
 /// The `leaves` must be validated independently. See `process_multi_proof`.
 pub fn verify_multi_proof<impl Hasher: CommutativeHasher>(
     proof: Span<felt252>, proof_flags: Span<bool>, root: felt252, leaves: Span<felt252>

@@ -70,7 +70,7 @@ fn test_dual_no_supports_interface() {
 }
 
 #[test]
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_supports_interface_exists_and_panics() {
     let (snake_dispatcher, _) = setup_accesscontrol_panic();
     snake_dispatcher.supports_interface(IACCESSCONTROL_ID);
@@ -92,7 +92,7 @@ fn test_dual_no_has_role() {
 }
 
 #[test]
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_has_role_exists_and_panics() {
     let (dispatcher, _) = setup_accesscontrol_panic();
     dispatcher.has_role(DEFAULT_ADMIN_ROLE, ADMIN());
@@ -114,7 +114,7 @@ fn test_dual_no_get_role_admin() {
 }
 
 #[test]
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_get_role_admin_exists_and_panics() {
     let (snake_dispatcher, _) = setup_accesscontrol_panic();
     snake_dispatcher.get_role_admin(ROLE);
@@ -139,7 +139,7 @@ fn test_dual_no_grant_role() {
 }
 
 #[test]
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_grant_role_exists_and_panics() {
     let (snake_dispatcher, _) = setup_accesscontrol_panic();
     snake_dispatcher.grant_role(ROLE, AUTHORIZED());
@@ -164,7 +164,7 @@ fn test_dual_no_revoke_role() {
 }
 
 #[test]
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_revoke_role_exists_and_panics() {
     let (snake_dispatcher, _) = setup_accesscontrol_panic();
     snake_dispatcher.revoke_role(ROLE, AUTHORIZED());
@@ -189,7 +189,7 @@ fn test_dual_no_renounce_role() {
 }
 
 #[test]
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_renounce_role_exists_and_panics() {
     let (snake_dispatcher, _) = setup_accesscontrol_panic();
     snake_dispatcher.renounce_role(DEFAULT_ADMIN_ROLE, ADMIN());
@@ -210,7 +210,7 @@ fn test_dual_hasRole() {
 
 #[test]
 #[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_hasRole_exists_and_panics() {
     let (_, camel_dispatcher) = setup_accesscontrol_panic();
     camel_dispatcher.has_role(DEFAULT_ADMIN_ROLE, ADMIN());
@@ -227,7 +227,7 @@ fn test_dual_getRoleAdmin() {
 
 #[test]
 #[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_getRoleAdmin_exists_and_panics() {
     let (_, camel_dispatcher) = setup_accesscontrol_panic();
     camel_dispatcher.get_role_admin(ROLE);
@@ -246,7 +246,7 @@ fn test_dual_grantRole() {
 
 #[test]
 #[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_grantRole_exists_and_panics() {
     let (_, camel_dispatcher) = setup_accesscontrol_panic();
     camel_dispatcher.grant_role(ROLE, AUTHORIZED());
@@ -266,7 +266,7 @@ fn test_dual_revokeRole() {
 
 #[test]
 #[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_revokeRole_exists_and_panics() {
     let (_, camel_dispatcher) = setup_accesscontrol_panic();
     camel_dispatcher.revoke_role(ROLE, AUTHORIZED());
@@ -285,7 +285,7 @@ fn test_dual_renounceRole() {
 
 #[test]
 #[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_renounceRole_exists_and_panics() {
     let (_, camel_dispatcher) = setup_accesscontrol_panic();
     camel_dispatcher.renounce_role(DEFAULT_ADMIN_ROLE, ADMIN());

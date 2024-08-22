@@ -69,7 +69,7 @@ fn test_dual_no_owner() {
 }
 
 #[test]
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_owner_exists_and_panics() {
     let (dispatcher, _) = setup_ownable_panic();
     dispatcher.owner();
@@ -98,7 +98,7 @@ fn test_dual_no_transfer_ownership() {
 }
 
 #[test]
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_transfer_ownership_exists_and_panics() {
     let (dispatcher, _) = setup_ownable_panic();
     dispatcher.transfer_ownership(NEW_OWNER());
@@ -123,7 +123,7 @@ fn test_dual_no_renounce_ownership() {
 }
 
 #[test]
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_renounce_ownership_exists_and_panics() {
     let (dispatcher, _) = setup_ownable_panic();
     dispatcher.renounce_ownership();
@@ -146,7 +146,7 @@ fn test_dual_transferOwnership() {
 
 #[test]
 #[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_transferOwnership_exists_and_panics() {
     let (_, camel_dispatcher) = setup_ownable_panic();
     camel_dispatcher.transfer_ownership(NEW_OWNER());
@@ -165,7 +165,7 @@ fn test_dual_renounceOwnership() {
 
 #[test]
 #[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_renounceOwnership_exists_and_panics() {
     let (_, camel_dispatcher) = setup_ownable_panic();
     camel_dispatcher.renounce_ownership();

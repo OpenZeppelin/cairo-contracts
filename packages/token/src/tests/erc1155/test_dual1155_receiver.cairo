@@ -65,7 +65,7 @@ fn test_dual_no_on_erc1155_received() {
 }
 
 #[test]
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_on_erc1155_received_exists_and_panics() {
     let (dispatcher, _) = setup_erc1155_receiver_panic();
     dispatcher.on_erc1155_received(OPERATOR(), OWNER(), TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
@@ -91,7 +91,7 @@ fn test_dual_no_on_erc1155_batch_received() {
 }
 
 #[test]
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_on_erc1155_batch_received_exists_and_panics() {
     let (dispatcher, _) = setup_erc1155_receiver_panic();
     let (token_ids, values) = get_ids_and_values();
@@ -113,7 +113,7 @@ fn test_dual_onERC1155Received() {
 
 #[test]
 #[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_onERC1155Received_exists_and_panics() {
     let (_, dispatcher) = setup_erc1155_receiver_panic();
     dispatcher.on_erc1155_received(OPERATOR(), OWNER(), TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
@@ -132,7 +132,7 @@ fn test_dual_onERC1155BatchReceived() {
 
 #[test]
 #[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_onERC1155BatchReceived_exists_and_panics() {
     let (_, dispatcher) = setup_erc1155_receiver_panic();
     let (token_ids, values) = get_ids_and_values();

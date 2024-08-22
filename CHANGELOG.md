@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+- ERC2981 (NFT Royalty Standard) component (#1091)
+
 ### Changed
 
 - Bump snforge to v0.27.0 (#1107)

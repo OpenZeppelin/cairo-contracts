@@ -22,6 +22,7 @@ openzeppelin_introspection = { path = "../introspection" }
 
 [dev-dependencies]
 snforge_std.workspace = true
+assert_macros.workspace = true
 openzeppelin_testing = { path = "../testing" }
 
 [lib]

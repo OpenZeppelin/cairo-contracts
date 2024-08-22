@@ -40,6 +40,8 @@ keywords = [
 [workspace.dependencies]
 starknet = "2.7.0"
 snforge_std = { git = "https://github.com/foundry-rs/starknet-foundry.git", tag = "v0.28.0" }
+# This should be included in the next release of snforge_std
+assert_macros = "0.1.0"
 
 [dependencies]
 starknet.workspace = true

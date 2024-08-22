@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.15.1 (utils/utils.cairo)
 
-pub mod common;
 pub mod cryptography;
 pub mod deployments;
 pub mod interfaces;

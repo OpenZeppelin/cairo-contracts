@@ -3,7 +3,7 @@
 
 /// These functions deal with verification of Merkle Tree proofs.
 ///
-/// WARNING: You should avoid using leaf values that are 62 bytes long prior to
+/// WARNING: You should avoid using leaf values that are 64 bytes long prior to
 /// hashing, or use a different hash function for hashing leaves and pre-images.
 /// This is because the concatenation of a sorted pair of internal nodes in
 /// the Merkle tree could be reinterpreted as a leaf value.
@@ -15,16 +15,6 @@
 
 use openzeppelin_merkle_tree::hashes::{CommutativeHasher, PedersenCHasher, PoseidonCHasher};
 
-/// Version of `verify` using perdersen as the hashing function.
-pub fn verify_pedersen(proof: Span<felt252>, root: felt252, leaf: felt252) -> bool {
-    verify::<PedersenCHasher>(proof, root, leaf)
-}
-
-/// Version of `verify` using poseidon as the hashing function.
-pub fn verify_poseidon(proof: Span<felt252>, root: felt252, leaf: felt252) -> bool {
-    verify::<PoseidonCHasher>(proof, root, leaf)
-}
-
 /// Returns true if a `leaf` can be proved to be a part of a Merkle tree
 /// defined by `root`. For this, a `proof` must be provided, containing
 /// sibling hashes on the branch from the leaf to the root of the tree. Each
@@ -33,6 +23,16 @@ pub fn verify<impl Hasher: CommutativeHasher>(
     proof: Span<felt252>, root: felt252, leaf: felt252
 ) -> bool {
     process_proof::<Hasher>(proof, leaf) == root
+}
+
+/// Version of `verify` using Perdersen as the hashing function.
+pub fn verify_pedersen(proof: Span<felt252>, root: felt252, leaf: felt252) -> bool {
+    verify::<PedersenCHasher>(proof, root, leaf)
+}
+
+/// Version of `verify` using Poseidon as the hashing function.
+pub fn verify_poseidon(proof: Span<felt252>, root: felt252, leaf: felt252) -> bool {
+    verify::<PoseidonCHasher>(proof, root, leaf)
 }
 
 /// Returns the rebuilt hash obtained by traversing a Merkle tree up
@@ -54,7 +54,7 @@ pub fn process_proof<impl Hasher: CommutativeHasher>(
 ///
 /// CAUTION: Not all Merkle trees admit multiproofs. See `process_multi_proof` for details.
 ///
-/// NOTE: Consider the case where `root == proof[0] && leaves.len() == 0` as it will return `True`.
+/// NOTE: Consider the case where `root == proof.at(0) && leaves.len() == 0` as it will return `True`.
 /// The `leaves` must be validated independently. See `process_multi_proof`.
 pub fn verify_multi_proof<impl Hasher: CommutativeHasher>(
     proof: Span<felt252>, proof_flags: Span<bool>, root: felt252, leaves: Span<felt252>

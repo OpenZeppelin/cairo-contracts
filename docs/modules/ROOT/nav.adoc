@@ -24,6 +24,8 @@
 *** xref:/guides/src5-migration.adoc[Migrating ERC165 to SRC5]
 *** xref:/api/introspection.adoc[API Reference]
 
+** xref:/api/merkle-tree.adoc[Merkle Tree]
+
 ** xref:security.adoc[Security]
 *** xref:/api/security.adoc[API Reference]
 

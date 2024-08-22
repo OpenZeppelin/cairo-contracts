@@ -12,9 +12,9 @@ pub mod VotesComponent {
     // Instead we can rely on Vec
     use core::num::traits::Zero;
     use openzeppelin_account::dual_account::{DualCaseAccount, DualCaseAccountTrait};
-    use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_governance::votes::interface::{IVotes, IVotesToken};
     use openzeppelin_governance::votes::utils::{Delegation};
+    use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_token::erc721::ERC721Component;
     use openzeppelin_token::erc721::interface::IERC721;
     use openzeppelin_utils::nonces::NoncesComponent::InternalTrait as NoncesInternalTrait;

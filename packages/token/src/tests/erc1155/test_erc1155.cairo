@@ -1028,9 +1028,7 @@ fn test_update_wac_batch_from_non_zero_to_non_zero_account() {
 
 #[test]
 #[should_panic(
-    expected: (
-        "Contract not deployed at address: 0x0000000000000000000000000000000000000000000000000000000000000000",
-    )
+    expected: "Contract not deployed at address: 0x0000000000000000000000000000000000000000000000000000000000000000"
 )]
 fn test_update_wac_from_non_zero_to_zero() {
     let (mut state, owner) = setup();

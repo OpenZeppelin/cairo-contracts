@@ -9,6 +9,7 @@ dependencies = [
  "openzeppelin_account",
  "openzeppelin_governance",
  "openzeppelin_introspection",
+ "openzeppelin_merkle_tree",
  "openzeppelin_presets",
  "openzeppelin_security",
  "openzeppelin_test_common",
@@ -138,5 +139,5 @@ dependencies = [
 
 [[package]]
 name = "snforge_std"
-version = "0.26.0"
-source = "git+https://github.com/foundry-rs/starknet-foundry.git?tag=v0.26.0#50eb589db65e113efe4f09241feb59b574228c7e"
+version = "0.27.0"
+source = "git+https://github.com/foundry-rs/starknet-foundry.git?tag=v0.27.0#2d99b7c00678ef0363881ee0273550c44a9263de"

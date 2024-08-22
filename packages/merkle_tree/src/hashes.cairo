@@ -44,7 +44,7 @@ pub impl PoseidonCHasher of CommutativeHasher {
     }
 }
 
-impl Felt252PartialOrd of PartialOrd<felt252> {
+impl Felt252AsIntPartialOrd of PartialOrd<felt252> {
     #[inline(always)]
     fn le(lhs: felt252, rhs: felt252) -> bool {
         let lhs: u256 = lhs.into();

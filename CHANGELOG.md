@@ -11,7 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- ERC2981 (NFT Royalty Standard) component (#1091)
 - `merkle_tree` package with utilities to verify proofs and multi proofs (#1101)
+
+### Changed
+
+- Bump snforge to v0.27.0 (#1107)
 
 ### Changed (Breaking)
 

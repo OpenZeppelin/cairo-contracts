@@ -41,7 +41,7 @@ keywords = [
 
 [workspace.dependencies]
 starknet = "2.7.1"
-snforge_std = { git = "https://github.com/foundry-rs/starknet-foundry.git", tag = "v0.26.0" }
+snforge_std = { git = "https://github.com/foundry-rs/starknet-foundry.git", tag = "v0.27.0" }
 
 [dependencies]
 starknet.workspace = true
@@ -49,6 +49,7 @@ openzeppelin_access = { path = "packages/access" }
 openzeppelin_account = { path = "packages/account" }
 openzeppelin_governance = { path = "packages/governance" }
 openzeppelin_introspection = { path = "packages/introspection" }
+openzeppelin_merkle_tree = { path = "packages/merkle_tree" }
 openzeppelin_presets = { path = "packages/presets" }
 openzeppelin_security = { path = "packages/security" }
 openzeppelin_token = { path = "packages/token" }

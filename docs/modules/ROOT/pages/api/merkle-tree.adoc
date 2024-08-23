@@ -39,7 +39,10 @@ These functions deal with verification of Merkle Tree proofs.
 
 The tree and the proofs can be generated using this {strk-merkle-tree}. You will find a quickstart guide in the readme.
 
-WARNING: You should use a hash function other than the one used to hash internal nodes for hashing leaves. This is because the concatenation of a sorted pair of internal nodes in the Merkle tree could be reinterpreted as a leaf value. the JavaScript library generates Merkle trees that are safe against this attack out of the box.
+WARNING: You should avoid using leaf values that are two felt252 long prior to hashing, or use a hash function
+other than the one used to hash internal nodes for hashing leaves. This is because the concatenation of a sorted pair
+of internal nodes in the Merkle tree could be reinterpreted as a leaf value. the JavaScript library generates Merkle
+trees that are safe against this attack out of the box.
 
 [.contract-index]
 .Functions
@@ -100,14 +103,14 @@ NOTE: This function expects a `CommutativeHasher` implementation. See xref:#hash
 [[merkle_proof-verify_multi_proof]]
 ==== `[.contract-item-name]#++verify_multi_proof<+CommutativeHasher>++#++(proof: Span<felt252>, proof_flags: Span<bool>, root: felt252, leaves: Span<felt252>) → bool++` [.item-kind]#public#
 
-Returns True if the `leaves` can be simultaneously proven to be a part of a Merkle tree defined
+Returns true if the `leaves` can be simultaneously proven to be a part of a Merkle tree defined
 by `root`, according to `proof` and `proof_flags` as described in `{process_multi_proof}`.
 
-The `leaves` must be validated independently. See `{process_multi_proof}`.
+The `leaves` must be validated independently.
 
 CAUTION: Not all Merkle trees admit multiproofs. See `{process_multi_proof}` for details.
 
-NOTE: Consider the case where `root == proof.at(0) && leaves.len() == 0` as it will return `True`.
+NOTE: Consider the case where `root == proof.at(0) && leaves.len() == 0` as it will return `true`.
 
 NOTE: This function expects a `CommutativeHasher` implementation. See xref:#hashes-CommutativeHasher[hashes::CommutativeHasher] for more information.
 

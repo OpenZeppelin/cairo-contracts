@@ -37,7 +37,6 @@ fn test_poseidon_commutative_hash_smaller_first() {
     let a = 'a';
     let b = 'b';
 
-    // Expected hash is pedersen(a, b), since a < b
     let hash = PoseidonCHasher::commutative_hash(a, b);
     assert_eq!(hash, poseidon_hash_span([a, b].span()));
 }

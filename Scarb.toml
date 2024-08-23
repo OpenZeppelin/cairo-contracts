@@ -35,8 +35,7 @@ keywords = [
     "cairo",
     "contracts",
     "security",
-    "standards",
-    "merkle_tree"
+    "standards"
 ]
 
 [workspace.dependencies]

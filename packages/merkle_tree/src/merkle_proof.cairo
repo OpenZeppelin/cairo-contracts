@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.15.1 (utils/cryptography/merkle_proof.cairo)
+// OpenZeppelin Contracts for Cairo v0.15.1 (merkle_tree/merkle_proof.cairo)
 
 /// These functions deal with verification of Merkle Tree proofs.
 ///
-/// WARNING: You should avoid using leaf values that are 64 bytes long prior to
+/// WARNING: You should avoid using leaf values that are two felt252 long prior to
 /// hashing, or use a different hash function for hashing leaves and pre-images.
 /// This is because the concatenation of a sorted pair of internal nodes in
 /// the Merkle tree could be reinterpreted as a leaf value.
@@ -49,13 +49,13 @@ pub fn process_proof<impl Hasher: CommutativeHasher>(
     computed_hash
 }
 
-/// Returns True if the `leaves` can be simultaneously proven to be a part of a Merkle tree defined
+/// Returns true if the `leaves` can be simultaneously proven to be a part of a Merkle tree defined
 /// by `root`, according to `proof` and `proof_flags` as described in `process_multi_proof`.
 ///
 /// CAUTION: Not all Merkle trees admit multiproofs. See `process_multi_proof` for details.
 ///
 /// NOTE: Consider the case where `root == proof.at(0) && leaves.len() == 0`
-/// as it will return `True`.
+/// as it will return `true`.
 ///
 /// The `leaves` must be validated independently. See `process_multi_proof`.
 pub fn verify_multi_proof<impl Hasher: CommutativeHasher>(

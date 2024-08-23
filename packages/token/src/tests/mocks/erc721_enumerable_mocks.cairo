@@ -48,23 +48,15 @@ pub(crate) mod ERC721EnumerableMock {
         SRC5Event: SRC5Component::Event
     }
 
-    impl ERC721EnumerableHooksImpl<
-        TContractState,
-        impl ERC721Enumerable: ERC721EnumerableComponent::HasComponent<TContractState>,
-        impl HasComponent: ERC721Component::HasComponent<TContractState>,
-        +SRC5Component::HasComponent<TContractState>,
-        +Drop<TContractState>
-    > of ERC721Component::ERC721HooksTrait<TContractState> {
+    impl ERC721HooksImpl of ERC721Component::ERC721HooksTrait<ContractState> {
         fn before_update(
-            ref self: ERC721Component::ComponentState<TContractState>,
+            ref self: ERC721Component::ComponentState<ContractState>,
             to: ContractAddress,
             token_id: u256,
             auth: ContractAddress
         ) {
-            let mut erc721_enumerable_component = get_dep_component_mut!(
-                ref self, ERC721Enumerable
-            );
-            erc721_enumerable_component.before_update(to, token_id);
+            let mut contract_state = ERC721Component::HasComponent::get_contract_mut(ref self);
+            contract_state.erc721_enumerable.before_update(to, token_id);
         }
     }
 
@@ -131,23 +123,15 @@ pub(crate) mod SnakeERC721EnumerableMock {
         SRC5Event: SRC5Component::Event
     }
 
-    impl ERC721EnumerableHooksImpl<
-        TContractState,
-        impl ERC721Enumerable: ERC721EnumerableComponent::HasComponent<TContractState>,
-        impl HasComponent: ERC721Component::HasComponent<TContractState>,
-        +SRC5Component::HasComponent<TContractState>,
-        +Drop<TContractState>
-    > of ERC721Component::ERC721HooksTrait<TContractState> {
+    impl ERC721HooksImpl of ERC721Component::ERC721HooksTrait<ContractState> {
         fn before_update(
-            ref self: ERC721Component::ComponentState<TContractState>,
+            ref self: ERC721Component::ComponentState<ContractState>,
             to: ContractAddress,
             token_id: u256,
             auth: ContractAddress
         ) {
-            let mut erc721_enumerable_component = get_dep_component_mut!(
-                ref self, ERC721Enumerable
-            );
-            erc721_enumerable_component.before_update(to, token_id);
+            let mut contract_state = ERC721Component::HasComponent::get_contract_mut(ref self);
+            contract_state.erc721_enumerable.before_update(to, token_id);
         }
     }
 

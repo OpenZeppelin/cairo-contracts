@@ -758,7 +758,7 @@ For this, the xref:ERC721Component-before_update[ERC721HooksTrait::before_update
 --
 
 [.contract-index]
-.Internal implementations
+.Internal functions
 --
 .InternalImpl
 * xref:#ERC721EnumerableComponent-initializer[`++initializer(self)++`]

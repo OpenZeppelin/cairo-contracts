@@ -744,8 +744,32 @@ This extension allows contracts to publish their entire list of NFTs and make th
 
 NOTE: Implementing xref:#ERC721Component[ERC721Component] is a requirement for this component to be implemented.
 
-WARNING: To properly track token ids, this extension requires that the xref:#ERC721EnumerableComponent-before_update[ERC721EnumerableComponent::before_update] function is called before every transfer, mint, or burn operation.
+To properly track token ids, this extension requires that the xref:#ERC721EnumerableComponent-before_update[ERC721EnumerableComponent::before_update] function is called before every transfer, mint, or burn operation.
 For this, the xref:ERC721Component-before_update[ERC721HooksTrait::before_update] hook must be used.
+Here's how the hook should be implemented in a contract:
+
+```[,cairo]
+#[starknet::contract]
+mod ERC721EnumerableContract {
+    (...)
+
+    component!(path: ERC721Component, storage: erc721, event: ERC721Event);
+    component!(path: ERC721EnumerableComponent, storage: erc721_enumerable, event: ERC721EnumerableEvent);
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
+
+    impl ERC721HooksImpl of ERC721Component::ERC721HooksTrait<ContractState> {
+        fn before_update(
+            ref self: ERC721Component::ComponentState<ContractState>,
+            to: ContractAddress,
+            token_id: u256,
+            auth: ContractAddress
+        ) {
+            let mut contract_state = ERC721Component::HasComponent::get_contract_mut(ref self);
+            contract_state.erc721_enumerable.before_update(to, token_id);
+        }
+    }
+}
+```
 
 [.contract-index#ERC721EnumerableComponent-Embeddable-Impls]
 .Embeddable Implementations

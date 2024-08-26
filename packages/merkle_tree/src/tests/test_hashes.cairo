@@ -37,6 +37,6 @@ fn test_poseidon_commutative_hash_smaller_first() {
     let a = 'a';
     let b = 'b';
 
-    let hash = PoseidonCHasher::commutative_hash(a, b);
+    let hash = PoseidonCHasher::commutative_hash(b, a);
     assert_eq!(hash, poseidon_hash_span([a, b].span()));
 }

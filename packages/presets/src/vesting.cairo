@@ -13,8 +13,7 @@ pub mod VestingWallet {
 
     // Ownable Mixin
     #[abi(embed_v0)]
-    impl OwnableTwoStepMixinImpl =
-        OwnableComponent::OwnableTwoStepMixinImpl<ContractState>;
+    impl OwnableMixinImpl = OwnableComponent::OwnableMixinImpl<ContractState>;
     impl OwnableInternalImpl = OwnableComponent::InternalImpl<ContractState>;
 
     // Vesting

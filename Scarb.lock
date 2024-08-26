@@ -46,8 +46,10 @@ dependencies = [
 name = "openzeppelin_finance"
 version = "0.15.1"
 dependencies = [
+ "openzeppelin_access",
  "openzeppelin_test_common",
  "openzeppelin_testing",
+ "openzeppelin_token",
  "openzeppelin_utils",
  "snforge_std",
 ]

@@ -17,6 +17,8 @@ fmt.workspace = true
 
 [dependencies]
 starknet.workspace = true
+openzeppelin_access = { path = "../access" }
+openzeppelin_token = { path = "../token" }
 openzeppelin_utils = { path = "../utils" }
 
 [dev-dependencies]

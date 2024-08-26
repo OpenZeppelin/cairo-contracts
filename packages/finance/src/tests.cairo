@@ -1,2 +1,4 @@
+pub(crate) mod mocks;
+
 #[cfg(test)]
-mod test_vesting;
+mod vesting;

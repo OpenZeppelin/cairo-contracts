@@ -7,7 +7,7 @@ use openzeppelin_finance::vesting::vesting::VestingComponent;
 use openzeppelin_test_common::vesting::VestingSpyHelpers;
 use openzeppelin_testing::constants::OWNER;
 use openzeppelin_testing::events::EventSpyExt;
-use snforge_std::{spy_events, start_cheat_caller_address, cheat_block_timestamp_global};
+use snforge_std::{spy_events, start_cheat_caller_address, start_cheat_block_timestamp_global};
 use starknet::ContractAddress;
 
 //
@@ -115,7 +115,7 @@ fn test_release_single_call_within_duration() {
     let time_passed = 40;
     let expected_release_amount = time_passed.into()
         * (data.total_allocation / data.duration.into());
-    cheat_block_timestamp_global(data.start + time_passed);
+    start_cheat_block_timestamp_global(data.start + time_passed);
     let mut spy = spy_events();
 
     assert_eq!(vesting.released(token), 0);
@@ -138,7 +138,7 @@ fn test_release_single_call_after_end() {
     start_cheat_caller_address(vesting.contract_address, data.beneficiary);
 
     let time_passed = data.duration + 1;
-    cheat_block_timestamp_global(data.start + time_passed);
+    start_cheat_block_timestamp_global(data.start + time_passed);
     let mut spy = spy_events();
 
     assert_eq!(vesting.released(token), 0);
@@ -162,7 +162,7 @@ fn test_release_multiple_calls() {
     start_cheat_caller_address(vesting.contract_address, data.beneficiary);
 
     // 1. Before cliff ended
-    cheat_block_timestamp_global(vesting.cliff() - 1);
+    start_cheat_block_timestamp_global(vesting.cliff() - 1);
     assert_eq!(vesting.released(token), 0);
     assert_eq!(vesting.releasable(token), 0);
 
@@ -172,7 +172,7 @@ fn test_release_multiple_calls() {
     assert_eq!(vesting.releasable(token), 0);
 
     // 2. When the cliff ended
-    cheat_block_timestamp_global(vesting.cliff());
+    start_cheat_block_timestamp_global(vesting.cliff());
     assert_eq!(vesting.released(token), 0);
     assert_eq!(vesting.releasable(token), 60);
 
@@ -182,7 +182,7 @@ fn test_release_multiple_calls() {
     assert_eq!(vesting.releasable(token), 0);
 
     // 3. When 40/100 seconds passed
-    cheat_block_timestamp_global(data.start + 40);
+    start_cheat_block_timestamp_global(data.start + 40);
     assert_eq!(vesting.released(token), 60);
     assert_eq!(vesting.releasable(token), 20);
 
@@ -192,7 +192,7 @@ fn test_release_multiple_calls() {
     assert_eq!(vesting.releasable(token), 0);
 
     // 3. After the vesting ended
-    cheat_block_timestamp_global(data.start + data.duration + 1);
+    start_cheat_block_timestamp_global(data.start + data.duration + 1);
     assert_eq!(vesting.released(token), 80);
     assert_eq!(vesting.releasable(token), 120);
 

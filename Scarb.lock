@@ -100,6 +100,7 @@ version = "0.15.1"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_account",
+ "openzeppelin_finance",
  "openzeppelin_testing",
  "openzeppelin_token",
  "openzeppelin_upgrades",

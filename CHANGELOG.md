@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - ERC2981 (NFT Royalty Standard) component (#1091)
+- Vesting component and VestingWallet preset (#334)
 
 ### Changed
 

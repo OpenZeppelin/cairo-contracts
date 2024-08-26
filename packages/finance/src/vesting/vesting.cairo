@@ -5,17 +5,17 @@
 ///
 /// A component for the controlled release of ERC-20 tokens to a designated beneficiary according
 /// to a predefined vesting schedule. The implementing contract is required to contain `Ownable`
-/// component, so that the owner of the contract is the vesting beneficiary. It also means that 
+/// component, so that the owner of the contract is the vesting beneficiary. It also means that
 /// ownership rights to the contract and to the vesting allocation can be assigned and transferred.
 ///
-/// Vesting schedule is specified through the `VestingScheduleTrait` trait implementation. 
+/// Vesting schedule is specified through the `VestingScheduleTrait` trait implementation.
 /// This trait is intended to be used to implement any custom vesting schedules.
 ///
-/// This module implements the `VestingScheduleTrait` trait that follows a vesting formula, 
-/// returning 0 until the cliff period ends. After the cliff, the calculated vested amount is 
+/// This module implements the `VestingScheduleTrait` trait that follows a vesting formula,
+/// returning 0 until the cliff period ends. After the cliff, the calculated vested amount is
 /// directly proportional to the time elapsed since the vesting start.
-/// 
-/// Any assets transferred to this contract will follow the vesting schedule as if they were locked 
+///
+/// Any assets transferred to this contract will follow the vesting schedule as if they were locked
 /// from the beginning. Consequently, if the vesting has already started, any amount of tokens sent
 /// to this contract may be immediately releasable.
 ///
@@ -23,12 +23,14 @@
 /// that hold tokens for a beneficiary until a specified time.
 ///
 /// NOTE:
-/// - A separate contract with a Vesting component must be deployed and utilized for each beneficiary.
+/// - A separate contract with a Vesting component must be deployed for each beneficiary.
 /// - Can be used to vest multiple tokens to a single beneficiary, provided that the core vesting
 ///   parameters (start, duration, and cliff_duration) are identical.
-/// - When using this contract with any token whose balance is adjusted automatically 
-///   (i.e. a rebase token), make sure to account the supply/balance adjustment in the 
+/// - When using this contract with any token whose balance is adjusted automatically
+///   (i.e. a rebase token), make sure to account the supply/balance adjustment in the
 ///   vesting schedule to ensure the vested amount is as intended.
+
+use starknet::ContractAddress;
 
 #[starknet::component]
 pub mod VestingComponent {
@@ -67,7 +69,8 @@ pub mod VestingComponent {
 
     /// A trait that defines the logic for calculating the vested amount based on a given timestamp.
     pub trait VestingScheduleTrait<TContractState> {
-        /// Calculates and returns the vested amount at a given timestamp based on the core vesting parameters.
+        /// Calculates and returns the vested amount at a given `timestamp` based on the core
+        /// vesting parameters.
         fn calculate_vested_amount(
             self: @ComponentState<TContractState>,
             token: ContractAddress,
@@ -123,7 +126,7 @@ pub mod VestingComponent {
             }
         }
 
-        /// Calculates and returns the total vested amount of a specified `token` at a given `timestamp`.
+        /// Returns the total vested amount of a specified `token` at a given `timestamp`.
         fn vested_amount(
             self: @ComponentState<TContractState>, token: ContractAddress, timestamp: u64
         ) -> u256 {
@@ -162,7 +165,8 @@ pub mod VestingComponent {
             self.Vesting_cliff.write(start + cliff_duration);
         }
 
-        /// Returns the vested amount that's calculated using the `VestingScheduleTrait` implementation.
+        /// Returns the vested amount that's calculated using the `VestingScheduleTrait`
+        /// implementation.
         fn resolve_vested_amount(
             self: @ComponentState<TContractState>, token: ContractAddress, timestamp: u64
         ) -> u256 {
@@ -182,10 +186,8 @@ pub mod VestingComponent {
     }
 }
 
-use starknet::ContractAddress;
-
-/// Defines the logic for calculating the vested amount, incorporating a cliff period. 
-/// It returns 0 before the cliff ends. After the cliff period, the vested amount returned 
+/// Defines the logic for calculating the vested amount, incorporating a cliff period.
+/// It returns 0 before the cliff ends. After the cliff period, the vested amount returned
 /// is directly proportional to the time passed since the start of the vesting schedule.
 pub impl LinearVestingSchedule<
     TContractState

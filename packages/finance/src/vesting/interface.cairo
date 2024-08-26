@@ -23,7 +23,7 @@ pub trait IVesting<TState> {
     /// Returns the amount of a given `token` that can be released at the time of the call.
     fn releasable(self: @TState, token: ContractAddress) -> u256;
 
-    /// Calculates and returns the total vested amount of a specified `token` at a given `timestamp`.
+    /// Returns the total vested amount of a specified `token` at a given `timestamp`.
     fn vested_amount(self: @TState, token: ContractAddress, timestamp: u64) -> u256;
 
     /// Releases the amount of a given `token` that has already vested.

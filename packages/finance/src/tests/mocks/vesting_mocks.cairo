@@ -106,6 +106,7 @@ pub(crate) mod StepsVestingMock {
     impl VestingSchedule of VestingScheduleTrait<ContractState> {
         fn calculate_vested_amount(
             self: @VestingComponent::ComponentState<ContractState>,
+            token: ContractAddress,
             total_allocation: u256,
             timestamp: u64,
             start: u64,

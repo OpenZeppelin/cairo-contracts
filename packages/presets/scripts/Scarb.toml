@@ -1,0 +1,23 @@
+[package]
+name = "declare_presets"
+version = "0.15.1"
+
+[dependencies]
+starknet = "2.7.1"
+sncast_std = { git = "https://github.com/foundry-rs/starknet-foundry.git", tag = "v0.27.0" }
+openzeppelin_presets = { path = "../" }
+
+[lib]
+sierra = true
+casm = true
+
+[[target.starknet-contract]]
+sierra = true
+casm = true
+build-external-contracts = [
+    "openzeppelin_presets::account::AccountUpgradeable",
+    "openzeppelin_presets::erc20::ERC20Upgradeable",
+    "openzeppelin_presets::erc721::ERC721Upgradeable",
+    "openzeppelin_presets::erc1155::ERC1155Upgradeable",
+    "openzeppelin_presets::eth_account::EthAccountUpgradeable",
+]

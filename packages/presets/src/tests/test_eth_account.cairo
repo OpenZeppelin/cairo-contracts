@@ -24,8 +24,8 @@ use openzeppelin_token::erc20::interface::IERC20DispatcherTrait;
 use openzeppelin_utils::selectors;
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{
-    cheat_signature_global, cheat_transaction_version_global, cheat_transaction_hash_global,
-    start_cheat_caller_address
+    start_cheat_signature_global, start_cheat_transaction_version_global,
+    start_cheat_transaction_hash_global, start_cheat_caller_address
 };
 use snforge_std::{spy_events, test_address};
 use starknet::ClassHash;
@@ -62,9 +62,9 @@ fn setup_dispatcher_with_data(
 
     let mut serialized_signature = array![];
     data.signature.serialize(ref serialized_signature);
-    cheat_signature_global(serialized_signature.span());
-    cheat_transaction_hash_global(data.tx_hash);
-    cheat_transaction_version_global(MIN_TRANSACTION_VERSION);
+    start_cheat_signature_global(serialized_signature.span());
+    start_cheat_transaction_hash_global(data.tx_hash);
+    start_cheat_transaction_version_global(MIN_TRANSACTION_VERSION);
     start_cheat_caller_address(contract_address, ZERO());
 
     (dispatcher, contract_class.class_hash.into())
@@ -256,7 +256,7 @@ fn test_validate_deploy_invalid_signature_length() {
     let (account, class_hash) = setup_dispatcher_with_data(key_pair, SIGNED_TX_DATA(key_pair));
 
     let invalid_len_sig = array!['INVALID_LEN'];
-    cheat_signature_global(invalid_len_sig.span());
+    start_cheat_signature_global(invalid_len_sig.span());
     account.__validate_deploy__(class_hash, SALT, key_pair.public_key);
 }
 
@@ -267,7 +267,7 @@ fn test_validate_deploy_empty_signature() {
     let (account, class_hash) = setup_dispatcher_with_data(key_pair, SIGNED_TX_DATA(key_pair));
 
     let empty_sig = array![];
-    cheat_signature_global(empty_sig.span());
+    start_cheat_signature_global(empty_sig.span());
     account.__validate_deploy__(class_hash, SALT, key_pair.public_key);
 }
 
@@ -301,7 +301,7 @@ fn test_validate_declare_invalid_signature_length() {
     let (account, class_hash) = setup_dispatcher_with_data(key_pair, SIGNED_TX_DATA(key_pair));
     let invalid_len_sig = array!['INVALID_LEN'];
 
-    cheat_signature_global(invalid_len_sig.span());
+    start_cheat_signature_global(invalid_len_sig.span());
     account.__validate_declare__(class_hash);
 }
 
@@ -312,7 +312,7 @@ fn test_validate_declare_empty_signature() {
     let (account, class_hash) = setup_dispatcher_with_data(key_pair, SIGNED_TX_DATA(key_pair));
     let empty_sig = array![];
 
-    cheat_signature_global(empty_sig.span());
+    start_cheat_signature_global(empty_sig.span());
     account.__validate_declare__(class_hash);
 }
 
@@ -334,7 +334,7 @@ fn test_execute_with_version(version: Option<felt252>) {
     let calls = array![call];
 
     if let Option::Some(version) = version {
-        cheat_transaction_version_global(version);
+        start_cheat_transaction_version_global(version);
     }
 
     let ret = account.__execute__(calls);

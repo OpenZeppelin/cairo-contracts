@@ -1,4 +1,4 @@
-use openzeppelin_account::dual_eth_account::{DualCaseEthAccount, DualCaseEthAccountABI};
+use openzeppelin_account::dual_eth_account::{DualCaseEthAccountTrait, DualCaseEthAccount};
 use openzeppelin_account::interface::{EthAccountABIDispatcherTrait, EthAccountABIDispatcher};
 use openzeppelin_account::utils::secp256k1::{DebugSecp256k1Point, Secp256k1PointPartialEq};
 use openzeppelin_introspection::interface::ISRC5_ID;

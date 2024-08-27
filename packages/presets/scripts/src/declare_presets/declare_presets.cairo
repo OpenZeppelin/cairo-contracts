@@ -1,8 +1,8 @@
 use sncast_std::ErrorData;
 use sncast_std::ProviderError::{UnknownError};
 use sncast_std::StarknetError::{ClassAlreadyDeclared};
-use sncast_std::{declare, DeclareResult, get_nonce, DisplayClassHash, FeeSettings, EthFeeSettings};
 use sncast_std::{ScriptCommandError, ProviderError, StarknetError};
+use sncast_std::{declare, DeclareResult, get_nonce, DisplayClassHash, FeeSettings, EthFeeSettings};
 
 fn main() {
     let max_fee = 99999999999999999;

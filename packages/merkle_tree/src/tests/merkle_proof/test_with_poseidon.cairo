@@ -161,7 +161,7 @@ fn test_process_multi_proof_flags_extra_proofs_expected() {
         0x05fb6a626bb2c1e12fc2d6fa7f218ec06928ba5febf4d5677c2c5060827e383b
     ].span();
 
-    // For each false one leaf is expected
+    // For each false one proof is expected
     let proof_flags = [true, false, false, false].span();
 
     process_multi_proof::<PoseidonCHasher>(proof, proof_flags, leaves_to_prove);

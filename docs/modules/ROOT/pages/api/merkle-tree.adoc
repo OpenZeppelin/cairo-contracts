@@ -130,7 +130,7 @@ Not all Merkle trees admit multiproofs.
 To use multiproofs, it is sufficient to ensure that:
 
 1. The tree is complete (but not necessarily perfect).
-2. the leaves to be proven are in the opposite order they are in the tree
+2. The leaves to be proven are in the opposite order they are in the tree.
 (i.e., as seen from right to left starting at the deepest layer and continuing at the next layer).
 ====
 

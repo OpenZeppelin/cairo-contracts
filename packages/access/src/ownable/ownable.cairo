@@ -273,6 +273,8 @@ pub mod OwnableComponent {
         fn _transfer_ownership(
             ref self: ComponentState<TContractState>, new_owner: ContractAddress
         ) {
+            self.Ownable_pending_owner.write(Zero::zero());
+
             let previous_owner: ContractAddress = self.Ownable_owner.read();
             self.Ownable_owner.write(new_owner);
             self

@@ -1,10 +1,7 @@
-// SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.15.1 (finance/tests/mocks/vesting_mock.cairo)
-
 #[starknet::contract]
 pub(crate) mod LinearVestingMock {
     use openzeppelin_access::ownable::OwnableComponent;
-    use openzeppelin_finance::vesting::vesting::{VestingComponent, LinearVestingSchedule};
+    use openzeppelin_finance::vesting::{VestingComponent, LinearVestingSchedule};
     use starknet::ContractAddress;
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
@@ -54,8 +51,8 @@ pub(crate) mod LinearVestingMock {
 pub(crate) mod StepsVestingMock {
     use openzeppelin_access::ownable::OwnableComponent;
     use openzeppelin_finance::vesting::interface::IVesting;
-    use openzeppelin_finance::vesting::vesting::VestingComponent::VestingScheduleTrait;
-    use openzeppelin_finance::vesting::vesting::VestingComponent;
+    use openzeppelin_finance::vesting::VestingComponent::VestingScheduleTrait;
+    use openzeppelin_finance::vesting::VestingComponent;
     use starknet::ContractAddress;
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);

@@ -1,9 +1,9 @@
 use openzeppelin_access::ownable::interface::{IOwnableDispatcher, IOwnableDispatcherTrait};
 use openzeppelin_finance::tests::mocks::vesting_mocks::StepsVestingMock;
-use openzeppelin_finance::tests::vesting::helpers::{VestingStrategy, TestData, setup};
+use openzeppelin_finance::tests::common::{VestingStrategy, TestData, setup};
 use openzeppelin_finance::vesting::interface::{IVestingDispatcher, IVestingDispatcherTrait};
-use openzeppelin_finance::vesting::vesting::VestingComponent::InternalImpl;
-use openzeppelin_finance::vesting::vesting::VestingComponent;
+use openzeppelin_finance::vesting::VestingComponent::InternalImpl;
+use openzeppelin_finance::vesting::VestingComponent;
 use openzeppelin_test_common::vesting::VestingSpyHelpers;
 use openzeppelin_testing::constants::OWNER;
 use openzeppelin_testing::events::EventSpyExt;

@@ -1,4 +1,8 @@
 pub(crate) mod mocks;
 
 #[cfg(test)]
-mod vesting;
+pub(crate) mod common;
+#[cfg(test)]
+mod test_vesting_linear;
+#[cfg(test)]
+mod test_vesting_steps;

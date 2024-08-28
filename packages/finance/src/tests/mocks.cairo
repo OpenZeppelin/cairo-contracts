@@ -1,2 +1,2 @@
-pub(crate) mod erc20_mock;
+pub(crate) mod erc20_mocks;
 pub(crate) mod vesting_mocks;

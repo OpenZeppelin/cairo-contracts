@@ -4,16 +4,12 @@
 /// # Vesting Component
 ///
 /// A component for the controlled release of ERC-20 tokens to a designated beneficiary according
-/// to a predefined vesting schedule. The implementing contract is required to contain `Ownable`
+/// to a predefined vesting schedule. The implementing contract is required to implement `Ownable`
 /// component, so that the owner of the contract is the vesting beneficiary. It also means that
 /// ownership rights to the contract and to the vesting allocation can be assigned and transferred.
 ///
 /// Vesting schedule is specified through the `VestingScheduleTrait` trait implementation.
 /// This trait is intended to be used to implement any custom vesting schedules.
-///
-/// This module implements the `VestingScheduleTrait` trait that follows a vesting formula,
-/// returning 0 until the cliff period ends. After the cliff, the calculated vested amount is
-/// directly proportional to the time elapsed since the vesting start.
 ///
 /// Any assets transferred to this contract will follow the vesting schedule as if they were locked
 /// from the beginning. Consequently, if the vesting has already started, any amount of tokens sent
@@ -34,8 +30,8 @@ use starknet::ContractAddress;
 
 #[starknet::component]
 pub mod VestingComponent {
-    use openzeppelin_access::ownable::ownable::OwnableComponent::OwnableImpl;
-    use openzeppelin_access::ownable::ownable::OwnableComponent;
+    use openzeppelin_access::ownable::OwnableComponent::OwnableImpl;
+    use openzeppelin_access::ownable::OwnableComponent;
     use openzeppelin_finance::vesting::interface;
     use openzeppelin_token::erc20::utils::ERC20Utils;
     use starknet::ContractAddress;
@@ -134,6 +130,8 @@ pub mod VestingComponent {
         }
 
         /// Releases the amount of a given `token` that has already vested.
+        ///
+        /// Emits an `AmountReleased` event.
         fn release(ref self: ComponentState<TContractState>, token: ContractAddress) -> u256 {
             let amount = self.releasable(token);
             self.Vesting_released.write(token, self.Vesting_released.read(token) + amount);

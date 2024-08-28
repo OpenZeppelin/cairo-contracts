@@ -1,7 +1,7 @@
 use openzeppelin_access::ownable::interface::{IOwnableDispatcher, IOwnableDispatcherTrait};
 use openzeppelin_finance::vesting::interface::{IVestingDispatcher, IVestingDispatcherTrait};
-use openzeppelin_finance::vesting::vesting::VestingComponent::InternalImpl;
-use openzeppelin_finance::vesting::vesting::VestingComponent;
+use openzeppelin_finance::vesting::VestingComponent::InternalImpl;
+use openzeppelin_finance::vesting::VestingComponent;
 use openzeppelin_presets::vesting::VestingWallet;
 use openzeppelin_test_common::erc20::deploy_erc20;
 use openzeppelin_test_common::vesting::VestingSpyHelpers;
@@ -15,12 +15,6 @@ use starknet::ContractAddress;
 //
 // Setup
 //
-
-type ComponentState = VestingComponent::ComponentState<VestingWallet::ContractState>;
-
-fn COMPONENT_STATE() -> ComponentState {
-    VestingComponent::component_state_for_testing()
-}
 
 #[derive(Copy, Drop)]
 struct TestData {
@@ -66,16 +60,6 @@ fn test_state_after_init() {
     assert_eq!(vesting.end(), data.start + data.duration);
     let beneficiary = IOwnableDispatcher { contract_address: vesting.contract_address }.owner();
     assert_eq!(beneficiary, data.beneficiary);
-}
-
-#[test]
-#[should_panic(expected: ('Vesting: Invalid cliff duration',))]
-fn test_init_invalid_cliff_value() {
-    let mut component_state = COMPONENT_STATE();
-    let mut data: TestData = Default::default();
-    data.cliff_duration = data.duration + 1;
-
-    component_state.initializer(data.start, data.duration, data.cliff_duration);
 }
 
 #[test]

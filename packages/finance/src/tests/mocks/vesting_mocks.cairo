@@ -50,9 +50,9 @@ pub(crate) mod LinearVestingMock {
 #[starknet::contract]
 pub(crate) mod StepsVestingMock {
     use openzeppelin_access::ownable::OwnableComponent;
-    use openzeppelin_finance::vesting::interface::IVesting;
     use openzeppelin_finance::vesting::VestingComponent::VestingScheduleTrait;
     use openzeppelin_finance::vesting::VestingComponent;
+    use openzeppelin_finance::vesting::interface::IVesting;
     use starknet::ContractAddress;
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);

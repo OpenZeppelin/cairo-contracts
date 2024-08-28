@@ -1,7 +1,7 @@
 use openzeppelin_access::ownable::interface::{IOwnableDispatcher, IOwnableDispatcherTrait};
-use openzeppelin_finance::vesting::interface::{IVestingDispatcher, IVestingDispatcherTrait};
 use openzeppelin_finance::vesting::VestingComponent::InternalImpl;
 use openzeppelin_finance::vesting::VestingComponent;
+use openzeppelin_finance::vesting::interface::{IVestingDispatcher, IVestingDispatcherTrait};
 use openzeppelin_presets::vesting::VestingWallet;
 use openzeppelin_test_common::erc20::deploy_erc20;
 use openzeppelin_test_common::vesting::VestingSpyHelpers;

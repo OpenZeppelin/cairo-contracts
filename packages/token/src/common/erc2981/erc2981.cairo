@@ -11,8 +11,8 @@
 /// over the first.
 ///
 /// Royalty is specified as a fraction of sale price. The denominator is set by the contract by
-/// using the Immutable Component Config pattern.
-/// See https://community.starknet.io/t/immutable-component-config/114434.
+/// using the Immutable Component Config pattern. See
+/// https://github.com/starknet-io/SNIPs/blob/963848f0752bde75c7087c2446d83b7da8118b25/SNIPS/snip-107.md
 ///
 /// IMPORTANT: ERC-2981 only specifies a way to signal royalty information and does not enforce its
 /// payment. See https://eips.ethereum.org/EIPS/eip-2981#optional-royalty-payments[Rationale] in the
@@ -39,8 +39,8 @@ pub mod ERC2981Component {
 
     #[storage]
     struct Storage {
-        default_royalty_info: RoyaltyInfo,
-        token_royalty_info: Map<u256, RoyaltyInfo>,
+        ERC2981_default_royalty_info: RoyaltyInfo,
+        ERC2981_token_royalty_info: Map<u256, RoyaltyInfo>,
     }
 
     mod Errors {
@@ -51,9 +51,6 @@ pub mod ERC2981Component {
 
     /// Constants expected to be defined at the contract level used to configure the component
     /// behaviour.
-    ///
-    /// See
-    /// https://github.com/starknet-io/SNIPs/blob/963848f0752bde75c7087c2446d83b7da8118b25/SNIPS/snip-107.md
     ///
     /// - `FEE_DENOMINATOR`: The denominator with which to interpret the fee set in
     ///   `set_token_royalty` and `set_default_royalty` as a fraction of the sale price.
@@ -92,11 +89,11 @@ pub mod ERC2981Component {
         fn royalty_info(
             self: @ComponentState<TContractState>, token_id: u256, sale_price: u256
         ) -> (ContractAddress, u256) {
-            let token_royalty_info = self.token_royalty_info.read(token_id);
+            let token_royalty_info = self.ERC2981_token_royalty_info.read(token_id);
 
             // If the token has no specific royalty info, use the default.
             let royalty_info = if token_royalty_info.receiver.is_zero() {
-                self.default_royalty_info.read()
+                self.ERC2981_default_royalty_info.read()
             } else {
                 token_royalty_info
             };
@@ -151,7 +148,7 @@ pub mod ERC2981Component {
         /// - `t.1`: The numerator of the royalty fraction.
         /// - `t.2`: The denominator of the royalty fraction.
         fn default_royalty(self: @ComponentState<TContractState>) -> (ContractAddress, u128, u128) {
-            let royalty_info = self.default_royalty_info.read();
+            let royalty_info = self.ERC2981_default_royalty_info.read();
             (royalty_info.receiver, royalty_info.royalty_fraction, Immutable::FEE_DENOMINATOR)
         }
 
@@ -170,14 +167,14 @@ pub mod ERC2981Component {
             assert(fee_numerator <= fee_denominator, Errors::INVALID_ROYALTY);
             assert(receiver.is_non_zero(), Errors::INVALID_ROYALTY_RECEIVER);
             self
-                .default_royalty_info
+                .ERC2981_default_royalty_info
                 .write(RoyaltyInfo { receiver, royalty_fraction: fee_numerator })
         }
 
         /// Removes default royalty information.
         fn delete_default_royalty(ref self: ComponentState<TContractState>) {
             self
-                .default_royalty_info
+                .ERC2981_default_royalty_info
                 .write(RoyaltyInfo { receiver: Zero::zero(), royalty_fraction: 0 })
         }
 
@@ -192,11 +189,11 @@ pub mod ERC2981Component {
         fn token_royalty(
             self: @ComponentState<TContractState>, token_id: u256
         ) -> (ContractAddress, u128, u128) {
-            let token_royalty_info = self.token_royalty_info.read(token_id);
+            let token_royalty_info = self.ERC2981_token_royalty_info.read(token_id);
 
             // If the token has no specific royalty info, use the default.
             let royalty_info = if token_royalty_info.receiver.is_zero() {
-                self.default_royalty_info.read()
+                self.ERC2981_default_royalty_info.read()
             } else {
                 token_royalty_info
             };
@@ -221,14 +218,14 @@ pub mod ERC2981Component {
             assert(!receiver.is_zero(), Errors::INVALID_ROYALTY_RECEIVER);
 
             self
-                .token_royalty_info
+                .ERC2981_token_royalty_info
                 .write(token_id, RoyaltyInfo { receiver, royalty_fraction: fee_numerator },)
         }
 
         /// Resets royalty information for the token id back to unset.
         fn reset_token_royalty(ref self: ComponentState<TContractState>, token_id: u256) {
             self
-                .token_royalty_info
+                .ERC2981_token_royalty_info
                 .write(token_id, RoyaltyInfo { receiver: Zero::zero(), royalty_fraction: 0 },)
         }
     }

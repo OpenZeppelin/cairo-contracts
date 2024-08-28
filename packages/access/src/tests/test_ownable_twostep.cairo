@@ -245,6 +245,22 @@ fn test_renounce_ownership() {
 }
 
 #[test]
+fn test_renounce_ownership_resets_pending_owner() {
+    let mut state = setup();
+    let contract_address = test_address();
+    start_cheat_caller_address(contract_address, OWNER());
+
+    state.Ownable_pending_owner.write(OTHER());
+    let current_pending_owner = state.Ownable_pending_owner.read();
+    assert_eq!(current_pending_owner, OTHER());
+
+    state.renounce_ownership();
+
+    let current_owner = state.Ownable_pending_owner.read();
+    assert!(current_owner.is_zero());
+}
+
+#[test]
 #[should_panic(expected: ('Caller is the zero address',))]
 fn test_renounce_ownership_from_zero_address() {
     let mut state = setup();

@@ -22,16 +22,14 @@ fn COMPONENT_STATE() -> ComponentState {
 
 const TOTAL_STEPS: u64 = 10;
 
-impl DefaultTestData of Default<TestData> {
-    fn default() -> TestData {
-        TestData {
-            strategy: VestingStrategy::Steps(TOTAL_STEPS),
-            total_allocation: 200,
-            beneficiary: OWNER(),
-            start: 30,
-            duration: 100,
-            cliff_duration: 0
-        }
+fn TEST_DATA() -> TestData {
+    TestData {
+        strategy: VestingStrategy::Steps(TOTAL_STEPS),
+        total_allocation: 200,
+        beneficiary: OWNER(),
+        start: 30,
+        duration: 100,
+        cliff_duration: 0
     }
 }
 
@@ -41,7 +39,7 @@ impl DefaultTestData of Default<TestData> {
 
 #[test]
 fn test_state_after_init() {
-    let data = Default::default();
+    let data = TEST_DATA();
     let (vesting, _) = setup(data);
 
     assert_eq!(vesting.start(), data.start);
@@ -56,7 +54,7 @@ fn test_state_after_init() {
 #[should_panic(expected: ('Vesting: Invalid cliff duration',))]
 fn test_init_invalid_cliff_value() {
     let mut component_state = COMPONENT_STATE();
-    let mut data: TestData = Default::default();
+    let mut data = TEST_DATA();
     data.cliff_duration = data.duration + 1;
 
     component_state.initializer(data.start, data.duration, data.cliff_duration);
@@ -64,7 +62,7 @@ fn test_init_invalid_cliff_value() {
 
 #[test]
 fn test_vesting_schedule_no_cliff() {
-    let data = Default::default();
+    let data = TEST_DATA();
     let (vesting, token) = setup(data);
     let tokens_per_step = data.total_allocation / TOTAL_STEPS.into();
     let step_duration = data.duration / TOTAL_STEPS;
@@ -85,7 +83,7 @@ fn test_vesting_schedule_no_cliff() {
 
 #[test]
 fn test_vesting_schedule_with_cliff() {
-    let mut data: TestData = Default::default();
+    let mut data = TEST_DATA();
     data.cliff_duration = 30;
     let (vesting, token) = setup(data);
     let tokens_per_step = data.total_allocation / TOTAL_STEPS.into();
@@ -114,7 +112,7 @@ fn test_vesting_schedule_with_cliff() {
 
 #[test]
 fn test_release_single_call_within_duration() {
-    let data = Default::default();
+    let data = TEST_DATA();
     let (vesting, token) = setup(data);
     start_cheat_caller_address(vesting.contract_address, data.beneficiary);
 
@@ -139,7 +137,7 @@ fn test_release_single_call_within_duration() {
 
 #[test]
 fn test_release_single_call_after_end() {
-    let data = Default::default();
+    let data = TEST_DATA();
     let (vesting, token) = setup(data);
     start_cheat_caller_address(vesting.contract_address, data.beneficiary);
 
@@ -162,7 +160,7 @@ fn test_release_single_call_after_end() {
 
 #[test]
 fn test_release_multiple_calls() {
-    let mut data: TestData = Default::default();
+    let mut data = TEST_DATA();
     data.cliff_duration = 30;
     let (vesting, token) = setup(data);
     start_cheat_caller_address(vesting.contract_address, data.beneficiary);

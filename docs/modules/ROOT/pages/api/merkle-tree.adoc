@@ -41,7 +41,7 @@ The tree and the proofs can be generated using this {strk-merkle-tree}. You will
 
 WARNING: You should avoid using leaf values that are two felt252 long prior to hashing, or use a hash function
 other than the one used to hash internal nodes for hashing leaves. This is because the concatenation of a sorted pair
-of internal nodes in the Merkle tree could be reinterpreted as a leaf value. the JavaScript library generates Merkle
+of internal nodes in the Merkle tree could be reinterpreted as a leaf value. The JavaScript library generates Merkle
 trees that are safe against this attack out of the box.
 
 [.contract-index]

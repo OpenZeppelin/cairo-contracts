@@ -9,7 +9,7 @@
 /// ownership rights to the contract and to the vesting allocation can be assigned and transferred.
 ///
 /// Vesting schedule is specified through the `VestingScheduleTrait` trait implementation.
-/// This trait is intended to be used to implement any custom vesting schedules.
+/// This trait can be used to implement any custom vesting schedules.
 ///
 /// Any assets transferred to this contract will follow the vesting schedule as if they were locked
 /// from the beginning. Consequently, if the vesting has already started, any amount of tokens sent
@@ -51,7 +51,7 @@ pub mod VestingComponent {
         AmountReleased: AmountReleased
     }
 
-    /// Emitted when an amount of the vested tokens is released to the beneficiary.
+    /// Emitted when vested tokens are released to the beneficiary.
     #[derive(Drop, PartialEq, starknet::Event)]
     pub struct AmountReleased {
         #[key]

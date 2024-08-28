@@ -23,6 +23,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `DualCaseAccountABI` renamed to `DualCaseAccountTrait`
   - `DualCaseEthAccountABI` renamed to `DualCaseEthAccountTrait`
 
+### Fixed
+
+- `OwnableTwoStep` allowing a pending owner to accept ownership after the original owner has renounced ownership (#1119)
+
 ## 0.15.1 (2024-08-13)
 
 ### Changed

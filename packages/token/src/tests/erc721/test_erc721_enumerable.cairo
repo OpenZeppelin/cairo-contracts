@@ -507,8 +507,8 @@ fn test__remove_token_from_all_tokens_enumeration_with_first_token() {
 //
 
 fn assert_token_of_owner_by_index(owner: ContractAddress, expected_token_list: Span<u256>) {
-    let mut state = COMPONENT_STATE();
-    let mut contract_state = CONTRACT_STATE();
+    let state = @COMPONENT_STATE();
+    let contract_state = @CONTRACT_STATE();
 
     // Check owner balance == expected_token_list
     let owner_bal = contract_state.balance_of(owner);
@@ -525,7 +525,7 @@ fn assert_token_of_owner_by_index(owner: ContractAddress, expected_token_list: S
 }
 
 fn assert_token_by_index(expected_token_list: Span<u256>) {
-    let mut state = COMPONENT_STATE();
+    let state = @COMPONENT_STATE();
 
     // Check total_supply == expected_token_list
     let total_supply = state.total_supply();

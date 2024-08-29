@@ -17,13 +17,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Bump snforge to v0.27.0 (#1107)
+- Bump scarb to v2.7.1 (#1025)
+- Bump scarb to v2.8.0 (#1120)
 
 ### Changed (Breaking)
 
 - Changed ABI suffix to Trait in dual case account and eth account modules (#1096).
   - `DualCaseAccountABI` renamed to `DualCaseAccountTrait`
   - `DualCaseEthAccountABI` renamed to `DualCaseEthAccountTrait`
-- Bump scarb to v2.7.1 (#1025)
+
 
 ## 0.15.1 (2024-08-13)
 

@@ -351,7 +351,7 @@ mod CustomERC20 {
         let is_valid_signature_felt = DualCaseAccount { contract_address: owner }
             .is_valid_signature(hash, signature);
 
-        // Check either 'VALID' or True for backwards compatibility
+        // Check either 'VALID' or true for backwards compatibility
         let is_valid_signature = is_valid_signature_felt == starknet::VALIDATED
             || is_valid_signature_felt == 1;
         assert(is_valid_signature, 'Invalid signature');

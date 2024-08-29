@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - ERC2981 (NFT Royalty Standard) component (#1091)
+- `merkle_tree` package with utilities to verify proofs and multi proofs (#1101)
 
 ### Changed
 
@@ -22,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Changed ABI suffix to Trait in dual case account and eth account modules (#1096).
   - `DualCaseAccountABI` renamed to `DualCaseAccountTrait`
   - `DualCaseEthAccountABI` renamed to `DualCaseEthAccountTrait`
+- Bump scarb to v2.7.1 (#1025)
 
 ## 0.15.1 (2024-08-13)
 

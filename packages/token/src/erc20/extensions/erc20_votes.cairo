@@ -163,7 +163,7 @@ pub mod ERC20VotesComponent {
             let is_valid_signature_felt = DualCaseAccount { contract_address: delegator }
                 .is_valid_signature(hash, signature);
 
-            // Check either 'VALID' or True for backwards compatibility.
+            // Check either 'VALID' or true for backwards compatibility.
             let is_valid_signature = is_valid_signature_felt == starknet::VALIDATED
                 || is_valid_signature_felt == 1;
 

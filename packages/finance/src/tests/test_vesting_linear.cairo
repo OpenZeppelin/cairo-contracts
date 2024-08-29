@@ -7,7 +7,7 @@ use openzeppelin_finance::vesting::interface::{IVestingDispatcher, IVestingDispa
 use openzeppelin_test_common::vesting::VestingSpyHelpers;
 use openzeppelin_testing::constants::OWNER;
 use openzeppelin_testing::events::EventSpyExt;
-use snforge_std::{spy_events, start_cheat_caller_address, start_cheat_block_timestamp_global};
+use snforge_std::{spy_events, start_cheat_block_timestamp_global};
 use starknet::ContractAddress;
 
 //
@@ -32,7 +32,7 @@ fn TEST_DATA() -> TestData {
 }
 
 //
-// initializer
+// Tests
 //
 
 #[test]
@@ -108,7 +108,6 @@ fn test_vesting_schedule_with_cliff() {
 fn test_release_single_call_within_duration() {
     let data = TEST_DATA();
     let (vesting, token) = setup(data);
-    start_cheat_caller_address(vesting.contract_address, data.beneficiary);
 
     let time_passed = 40;
     let expected_release_amount = time_passed.into()
@@ -133,7 +132,6 @@ fn test_release_single_call_within_duration() {
 fn test_release_single_call_after_end() {
     let data = TEST_DATA();
     let (vesting, token) = setup(data);
-    start_cheat_caller_address(vesting.contract_address, data.beneficiary);
 
     let time_passed = data.duration + 1;
     start_cheat_block_timestamp_global(data.start + time_passed);
@@ -157,7 +155,6 @@ fn test_release_multiple_calls() {
     let mut data = TEST_DATA();
     data.cliff_duration = 30;
     let (vesting, token) = setup(data);
-    start_cheat_caller_address(vesting.contract_address, data.beneficiary);
 
     // 1. Before cliff ended
     start_cheat_block_timestamp_global(vesting.cliff() - 1);
@@ -189,7 +186,7 @@ fn test_release_multiple_calls() {
     assert_eq!(vesting.released(token), 80);
     assert_eq!(vesting.releasable(token), 0);
 
-    // 3. After the vesting ended
+    // 4. After the vesting ended
     start_cheat_block_timestamp_global(data.start + data.duration + 1);
     assert_eq!(vesting.released(token), 80);
     assert_eq!(vesting.releasable(token), 120);

@@ -1,2 +1,2 @@
-pub mod tests;
+mod tests;
 pub mod vesting;

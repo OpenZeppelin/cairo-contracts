@@ -33,7 +33,7 @@ pub mod VestingComponent {
     use openzeppelin_access::ownable::OwnableComponent::OwnableImpl;
     use openzeppelin_access::ownable::OwnableComponent;
     use openzeppelin_finance::vesting::interface;
-    use openzeppelin_token::erc20::utils::ERC20Utils;
+    use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
     use starknet::ContractAddress;
     use starknet::storage::Map;
 
@@ -61,6 +61,7 @@ pub mod VestingComponent {
 
     pub mod Errors {
         pub const INVALID_CLIFF_DURATION: felt252 = 'Vesting: Invalid cliff duration';
+        pub const TOKEN_TRANSFER_FAILED: felt252 = 'Vesting: Token transfer failed';
     }
 
     /// A trait that defines the logic for calculating the vested amount based on a given timestamp.
@@ -137,7 +138,8 @@ pub mod VestingComponent {
             self.Vesting_released.write(token, self.Vesting_released.read(token) + amount);
 
             let beneficiary = get_dep_component!(@self, Ownable).owner();
-            ERC20Utils::transfer(token, beneficiary, amount);
+            let token_dispatcher = IERC20Dispatcher { contract_address: token };
+            assert(token_dispatcher.transfer(beneficiary, amount), Errors::TOKEN_TRANSFER_FAILED);
             self.emit(AmountReleased { token, amount });
 
             amount
@@ -169,7 +171,9 @@ pub mod VestingComponent {
             self: @ComponentState<TContractState>, token: ContractAddress, timestamp: u64
         ) -> u256 {
             let released_amount = self.Vesting_released.read(token);
-            let total_allocation = ERC20Utils::get_self_balance(token) + released_amount;
+            let token_dispatcher = IERC20Dispatcher { contract_address: token };
+            let self_balance = token_dispatcher.balance_of(starknet::get_contract_address());
+            let total_allocation = self_balance + released_amount;
             let vested_amount = VestingSchedule::calculate_vested_amount(
                 self,
                 token,

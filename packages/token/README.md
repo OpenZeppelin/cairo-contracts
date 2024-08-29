@@ -5,7 +5,7 @@ standards.
 
 ### ERC20
 
-NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts-cairo/api/erc20
+> **NOTE:** This document is better viewed at https://docs.openzeppelin.com/contracts-cairo/api/erc20
 
 #### Interfaces
 
@@ -19,7 +19,7 @@ NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts-
 
 ### ERC721
 
-NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts-cairo/api/erc721
+> **NOTE:** This document is better viewed at https://docs.openzeppelin.com/contracts-cairo/api/erc721
 
 #### Interfaces
 
@@ -34,7 +34,7 @@ NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts-
 
 ### ERC1155
 
-NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts-cairo/api/erc1155
+> **NOTE:** This document is better viewed at https://docs.openzeppelin.com/contracts-cairo/api/erc1155
 
 #### Interfaces
 
@@ -49,7 +49,7 @@ NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts-
 
 ### Common
 
-NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts-cairo/api/token_common
+> **NOTE:** This document is better viewed at https://docs.openzeppelin.com/contracts-cairo/api/token_common
 
 #### Interfaces
 

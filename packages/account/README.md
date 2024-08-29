@@ -1,7 +1,6 @@
 ## Account
 
-[.readme-notice]
-NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts-cairo/api/account
+> **NOTE:** This document is better viewed at https://docs.openzeppelin.com/contracts-cairo/api/account
 
 This crate provides components to implement account contracts that can be used for interacting with the network.
 

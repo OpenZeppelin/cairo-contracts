@@ -3,8 +3,8 @@
 :stark: https://docs.starknet.io/architecture-and-concepts/cryptography/stark-curve/[Stark]
 :secp256k1: https://github.com/starkware-libs/cairo/blob/main/corelib/src/starknet/secp256k1.cairo[Secp256k1]
 
-This module provides various helper functions for declaring, deploying,
-and testing Smart Contracts using `snforge` toolchain from Starknet Foundry.
+This crate provides various helper functions for declaring, deploying,
+and testing smart contracts using the `snforge` toolchain from Starknet Foundry.
 
 ```cairo
 use openzeppelin_testing;

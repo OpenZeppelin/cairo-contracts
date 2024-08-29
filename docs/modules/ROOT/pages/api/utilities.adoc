@@ -2,7 +2,8 @@
 
 :deploy_syscall: link:https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/system-calls-cairo1/#deploy[deploy_syscall]
 
-The following documentation provides reasoning and examples for functions and constants found in `openzeppelin::utils`.
+This crate provides miscellaneous components and libraries containing utility functions
+you can use to handle common tasks.
 
 CAUTION: Expect this module to evolve (as it has already done).
 

@@ -4,7 +4,7 @@
 
 = Introspection
 
-Reference of interfaces and utilities related to https://en.wikipedia.org/wiki/Type_introspection[type introspection].
+This crate deals with https://en.wikipedia.org/wiki/Type_introspection[type introspection] of contracts, that is, examining which functions can be called on them. This is usually referred to as a contract’s interface.
 
 == Core
 

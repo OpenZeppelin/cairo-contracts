@@ -5,9 +5,10 @@ use openzeppelin_finance::vesting::VestingComponent::InternalImpl;
 use openzeppelin_finance::vesting::VestingComponent;
 use openzeppelin_finance::vesting::interface::{IVestingDispatcher, IVestingDispatcherTrait};
 use openzeppelin_test_common::vesting::VestingSpyHelpers;
-use openzeppelin_testing::constants::OWNER;
+use openzeppelin_testing::constants::{OWNER, OTHER};
 use openzeppelin_testing::events::EventSpyExt;
-use snforge_std::{spy_events, start_cheat_block_timestamp_global};
+use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+use snforge_std::{spy_events, start_cheat_caller_address, start_cheat_block_timestamp_global};
 use starknet::ContractAddress;
 
 //
@@ -195,4 +196,33 @@ fn test_release_multiple_calls() {
 
     assert_eq!(vesting.released(token), data.total_allocation);
     assert_eq!(vesting.releasable(token), 0);
+}
+
+#[test]
+fn test_release_after_ownership_transferred() {
+    let data = TEST_DATA();
+    let (vesting, token) = setup(data);
+    let ownable_vesting = IOwnableDispatcher { contract_address: vesting.contract_address };
+    let token_dispatcher = IERC20Dispatcher { contract_address: token };
+
+    // 1. Release to initial owner
+    let time_passed = 40;
+    let release_amount_1 = 80;
+    start_cheat_block_timestamp_global(data.start + time_passed);
+    vesting.release(token);
+    assert_eq!(vesting.released(token), release_amount_1);
+    assert_eq!(token_dispatcher.balance_of(data.beneficiary), release_amount_1);
+
+    // 2. Transfer ownership
+    let new_owner = OTHER();
+    start_cheat_caller_address(vesting.contract_address, data.beneficiary);
+    ownable_vesting.transfer_ownership(new_owner);
+
+    // 3. Release to new owner
+    let release_amount_2 = data.total_allocation - release_amount_1;
+    start_cheat_block_timestamp_global(data.start + data.duration);
+    vesting.release(token);
+    assert_eq!(vesting.released(token), data.total_allocation);
+    assert_eq!(token_dispatcher.balance_of(data.beneficiary), release_amount_1);
+    assert_eq!(token_dispatcher.balance_of(new_owner), release_amount_2);
 }

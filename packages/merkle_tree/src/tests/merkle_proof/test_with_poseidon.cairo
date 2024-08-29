@@ -82,8 +82,12 @@ fn test_invalid_merkle_multi_proof() {
     ].span();
     let proof_flags = [false, false, true].span();
 
-    assert!(process_multi_proof::<PoseidonCHasher>(invalid_proof, proof_flags, leaves_to_prove) != ROOT);
-    assert!(!verify_multi_proof::<PoseidonCHasher>(invalid_proof, proof_flags, ROOT, leaves_to_prove));
+    assert!(
+        process_multi_proof::<PoseidonCHasher>(invalid_proof, proof_flags, leaves_to_prove) != ROOT
+    );
+    assert!(
+        !verify_multi_proof::<PoseidonCHasher>(invalid_proof, proof_flags, ROOT, leaves_to_prove)
+    );
 }
 
 #[test]

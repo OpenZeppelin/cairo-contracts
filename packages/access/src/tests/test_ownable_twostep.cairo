@@ -239,8 +239,8 @@ fn test_renounce_ownership_resets_pending_owner() {
 
     state.renounce_ownership();
 
-    let current_owner = state.Ownable_pending_owner.read();
-    assert!(current_owner.is_zero());
+    let current_pending_owner = state.Ownable_pending_owner.read();
+    assert!(current_pending_owner.is_zero());
 }
 
 #[test]

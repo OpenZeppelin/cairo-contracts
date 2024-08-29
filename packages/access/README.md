@@ -1,6 +1,6 @@
 ## Access Control
 
-NOTE: This document is better viewed at https://docs.openzeppelin.com/contracts-cairo/api/access
+> **NOTE:** This document is better viewed at https://docs.openzeppelin.com/contracts-cairo/api/access
 
 This crate provides ways to restrict who can access the functions of a contract or when they can do it.
 

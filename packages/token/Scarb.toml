@@ -2,6 +2,14 @@
 [package]
 name = "openzeppelin_token"
 readme = "README.md"
+keywords = [
+    "openzeppelin",
+    "starknet",
+    "cairo",
+    "contracts",
+    "standards",
+    "token"
+]
 version.workspace = true
 edition.workspace = true
 cairo-version.workspace = true
@@ -11,7 +19,6 @@ description.workspace = true
 documentation.workspace = true
 repository.workspace = true
 license-file.workspace = true
-keywords.workspace = true
 
 [tool]
 fmt.workspace = true

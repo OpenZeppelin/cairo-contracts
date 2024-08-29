@@ -2,6 +2,11 @@
 [package]
 name = "openzeppelin_merkle_tree"
 readme = "README.md"
+keywords = [
+    "openzeppelin",
+    "cairo",
+    "merkle_tree",
+]
 version.workspace = true
 edition.workspace = true
 cairo-version.workspace = true
@@ -11,7 +16,6 @@ description.workspace = true
 documentation.workspace = true
 repository.workspace = true
 license-file.workspace = true
-keywords.workspace = true
 
 [tool]
 fmt.workspace = true

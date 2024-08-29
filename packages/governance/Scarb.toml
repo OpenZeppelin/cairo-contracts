@@ -1,6 +1,14 @@
 [package]
 name = "openzeppelin_governance"
 readme = "README.md"
+keywords = [
+    "openzeppelin",
+    "starknet",
+    "cairo",
+    "contracts",
+    "standards",
+    "governance"
+]
 version.workspace = true
 edition.workspace = true
 cairo-version.workspace = true
@@ -10,7 +18,6 @@ description.workspace = true
 documentation.workspace = true
 repository.workspace = true
 license-file.workspace = true
-keywords.workspace = true
 
 [tool]
 fmt.workspace = true

@@ -36,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- ERC721Enumerable component (#983)
 - TimelockController component (#996)
 - HashCall implementation (#996)
 - Separated package for each submodule (#1065)

@@ -89,7 +89,6 @@ This module includes the internal `assert_only_owner` to restrict a function to 
 * xref:OwnableComponent-assert_only_owner[`++assert_only_owner(self)++`]
 * xref:OwnableComponent-_transfer_ownership[`++_transfer_ownership(self, new_owner)++`]
 * xref:OwnableComponent-_propose_owner[`++_propose_owner(self, new_owner)++`]
-* xref:OwnableComponent-_accept_ownership[`++_accept_ownership(self)++`]
 --
 
 [.contract-index]
@@ -238,17 +237,6 @@ Sets a new pending owner in a two step transfer.
 Internal function without access restriction.
 
 Emits an xref:OwnableComponent-OwnershipTransferStarted[OwnershipTransferStarted] event.
-
-[.contract-item]
-[[OwnableComponent-_accept_ownership]]
-==== `[.contract-item-name]#++_accept_ownership++#++(ref self: ContractState)++` [.item-kind]#internal#
-
-Transfers ownership to the pending owner. Resets pending owner to zero address.
-Calls xref:OwnableComponent-_transfer_ownership[_transfer_ownership].
-
-Internal function without access restriction.
-
-Emits an xref:OwnableComponent-OwnershipTransferred[OwnershipTransferred] event.
 
 [#OwnableComponent-Events]
 ==== Events

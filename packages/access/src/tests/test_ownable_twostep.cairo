@@ -45,23 +45,6 @@ fn test_initializer_owner_pending_owner() {
 }
 
 //
-// _accept_ownership
-//
-
-#[test]
-fn test__accept_ownership() {
-    let mut state = setup();
-    let mut spy = spy_events();
-    state.Ownable_pending_owner.write(OTHER());
-
-    state._accept_ownership();
-
-    spy.assert_only_event_ownership_transferred(test_address(), OWNER(), OTHER());
-    assert_eq!(state.owner(), OTHER());
-    assert!(state.pending_owner().is_zero());
-}
-
-//
 // _propose_owner
 //
 

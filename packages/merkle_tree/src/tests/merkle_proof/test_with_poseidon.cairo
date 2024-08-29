@@ -151,7 +151,7 @@ fn test_process_multi_proof_flags_extra_proofs_expected() {
     ].span();
     let proof = MULTI_PROOF.span();
 
-    // For each false one leaf is expected
+    // For each false one proof is expected
     let proof_flags = [true, false, false, false].span();
 
     process_multi_proof::<PoseidonCHasher>(proof, proof_flags, leaves_to_prove);
@@ -181,7 +181,7 @@ fn test_verify_multi_proof_flags_extra_proofs_expected() {
     ].span();
     let proof = MULTI_PROOF.span();
 
-    // For each false one leaf is expected
+    // For each false one proof is expected
     let proof_flags = [true, false, false, false].span();
 
     verify_multi_proof::<PoseidonCHasher>(proof, proof_flags, ROOT, leaves_to_prove);

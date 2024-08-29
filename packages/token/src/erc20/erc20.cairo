@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.15.1 (token/erc20/erc20.cairo)
 
-use starknet::ContractAddress;
-
 /// # ERC20 Component
 ///
 /// The ERC20 component provides an implementation of the IERC20 interface as well as
@@ -16,7 +14,7 @@ use starknet::ContractAddress;
 pub mod ERC20Component {
     use core::num::traits::Bounded;
     use core::num::traits::Zero;
-    use openzeppelin_token::erc20::interface;
+    use crate::erc20::interface;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
     use starknet::storage::Map;

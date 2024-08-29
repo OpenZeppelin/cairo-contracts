@@ -8,13 +8,11 @@
 /// safe transfers.
 #[starknet::component]
 pub mod ERC1155ReceiverComponent {
+    use crate::erc1155::interface::IERC1155_RECEIVER_ID;
+    use crate::erc1155::interface::{IERC1155Receiver, IERC1155ReceiverCamel, ERC1155ReceiverABI};
     use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
     use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_token::erc1155::interface::IERC1155_RECEIVER_ID;
-    use openzeppelin_token::erc1155::interface::{
-        IERC1155Receiver, IERC1155ReceiverCamel, ERC1155ReceiverABI
-    };
     use starknet::ContractAddress;
 
     #[storage]

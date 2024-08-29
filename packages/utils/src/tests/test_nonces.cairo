@@ -1,9 +1,9 @@
 use core::num::traits::Zero;
+use crate::cryptography::interface::INonces;
+use crate::cryptography::nonces::NoncesComponent::InternalTrait;
+use crate::cryptography::nonces::NoncesComponent;
+use crate::tests::mocks::nonces_mocks::NoncesMock;
 use openzeppelin_testing::constants::OWNER;
-use openzeppelin_utils::cryptography::interface::INonces;
-use openzeppelin_utils::cryptography::nonces::NoncesComponent::InternalTrait;
-use openzeppelin_utils::cryptography::nonces::NoncesComponent;
-use openzeppelin_utils::tests::mocks::nonces_mocks::NoncesMock;
 
 type ComponentState = NoncesComponent::ComponentState<NoncesMock::ContractState>;
 

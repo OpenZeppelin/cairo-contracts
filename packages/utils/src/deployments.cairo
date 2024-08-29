@@ -7,7 +7,7 @@ use core::hash::{HashStateTrait, HashStateExTrait};
 use core::num::traits::Zero;
 use core::pedersen::PedersenTrait;
 use core::poseidon::PoseidonTrait;
-use openzeppelin_utils::serde::SerializedAppend;
+use crate::serde::SerializedAppend;
 use starknet::{ClassHash, ContractAddress};
 
 // 2**251 - 256

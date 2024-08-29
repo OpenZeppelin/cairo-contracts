@@ -1,4 +1,9 @@
 use core::num::traits::Zero;
+use crate::erc721::ERC721Component::{ERC721Impl, ERC721CamelOnlyImpl};
+use crate::erc721::ERC721Component::{ERC721MetadataImpl, InternalImpl};
+use crate::erc721::ERC721Component;
+use crate::erc721;
+use crate::tests::mocks::erc721_mocks::DualCaseERC721Mock;
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin_test_common::erc721::ERC721SpyHelpers;
 use openzeppelin_testing as utils;
@@ -7,11 +12,6 @@ use openzeppelin_testing::constants::{
     TOKEN_ID_2, PUBKEY, BASE_URI, BASE_URI_2
 };
 use openzeppelin_testing::events::EventSpyExt;
-use openzeppelin_token::erc721::ERC721Component::{ERC721Impl, ERC721CamelOnlyImpl};
-use openzeppelin_token::erc721::ERC721Component::{ERC721MetadataImpl, InternalImpl};
-use openzeppelin_token::erc721::ERC721Component;
-use openzeppelin_token::erc721;
-use openzeppelin_token::tests::mocks::erc721_mocks::DualCaseERC721Mock;
 use snforge_std::{spy_events, test_address, start_cheat_caller_address};
 use starknet::ContractAddress;
 

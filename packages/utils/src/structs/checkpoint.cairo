@@ -2,7 +2,7 @@
 // OpenZeppelin Contracts for Cairo v0.15.1 (utils/structs/checkpoint.cairo)
 
 use core::num::traits::Sqrt;
-use openzeppelin_utils::math;
+use crate::math;
 use starknet::storage_access::StorePacking;
 use super::storage_array::{StorageArray, StorageArrayTrait};
 

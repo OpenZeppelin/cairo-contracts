@@ -1,11 +1,9 @@
+use crate::erc721::dual721_receiver::{DualCaseERC721Receiver, DualCaseERC721ReceiverTrait};
+use crate::erc721::interface::IERC721_RECEIVER_ID;
+use crate::erc721::interface::{IERC721ReceiverCamelDispatcher};
+use crate::erc721::interface::{IERC721ReceiverDispatcher};
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{DATA, OPERATOR, OWNER, TOKEN_ID};
-use openzeppelin_token::erc721::dual721_receiver::{
-    DualCaseERC721Receiver, DualCaseERC721ReceiverTrait
-};
-use openzeppelin_token::erc721::interface::IERC721_RECEIVER_ID;
-use openzeppelin_token::erc721::interface::{IERC721ReceiverCamelDispatcher};
-use openzeppelin_token::erc721::interface::{IERC721ReceiverDispatcher};
 
 //
 // Setup

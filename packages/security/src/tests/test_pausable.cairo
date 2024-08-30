@@ -1,7 +1,7 @@
-use openzeppelin_security::PausableComponent::{InternalImpl, PausableImpl};
-use openzeppelin_security::PausableComponent::{Paused, Unpaused};
-use openzeppelin_security::PausableComponent;
-use openzeppelin_security::tests::mocks::pausable_mocks::PausableMock;
+use crate::PausableComponent::{InternalImpl, PausableImpl};
+use crate::PausableComponent::{Paused, Unpaused};
+use crate::PausableComponent;
+use crate::tests::mocks::pausable_mocks::PausableMock;
 use openzeppelin_testing::constants::CALLER;
 use openzeppelin_testing::events::EventSpyExt;
 use snforge_std::EventSpy;

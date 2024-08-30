@@ -1,5 +1,5 @@
-use openzeppelin_account::dual_account::{DualCaseAccountTrait, DualCaseAccount};
-use openzeppelin_account::interface::{AccountABIDispatcherTrait, AccountABIDispatcher};
+use crate::dual_account::{DualCaseAccountTrait, DualCaseAccount};
+use crate::interface::{AccountABIDispatcherTrait, AccountABIDispatcher};
 use openzeppelin_introspection::interface::ISRC5_ID;
 
 use openzeppelin_test_common::account::{get_accept_ownership_signature};

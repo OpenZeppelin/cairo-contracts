@@ -8,7 +8,7 @@
 /// or `assert_not_paused` will be affected by this mechanism.
 #[starknet::component]
 pub mod PausableComponent {
-    use openzeppelin_security::interface::IPausable;
+    use crate::interface::IPausable;
 
     use starknet::ContractAddress;
     use starknet::get_caller_address;

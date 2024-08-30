@@ -1,12 +1,10 @@
-use openzeppelin_access::accesscontrol::DEFAULT_ADMIN_ROLE;
-use openzeppelin_access::accesscontrol::dual_accesscontrol::DualCaseAccessControl;
-use openzeppelin_access::accesscontrol::dual_accesscontrol::DualCaseAccessControlTrait;
-use openzeppelin_access::accesscontrol::interface::{
+use crate::accesscontrol::DEFAULT_ADMIN_ROLE;
+use crate::accesscontrol::dual_accesscontrol::DualCaseAccessControl;
+use crate::accesscontrol::dual_accesscontrol::DualCaseAccessControlTrait;
+use crate::accesscontrol::interface::{
     IACCESSCONTROL_ID, IAccessControlCamelDispatcher, IAccessControlCamelDispatcherTrait
 };
-use openzeppelin_access::accesscontrol::interface::{
-    IAccessControlDispatcher, IAccessControlDispatcherTrait
-};
+use crate::accesscontrol::interface::{IAccessControlDispatcher, IAccessControlDispatcherTrait};
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{ADMIN, AUTHORIZED, ROLE};
 use openzeppelin_utils::serde::SerializedAppend;

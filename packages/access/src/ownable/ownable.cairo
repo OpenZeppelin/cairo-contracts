@@ -16,8 +16,8 @@
 #[starknet::component]
 pub mod OwnableComponent {
     use core::num::traits::Zero;
-    use openzeppelin_access::ownable::interface::IOwnableTwoStep;
-    use openzeppelin_access::ownable::interface;
+    use crate::ownable::interface::IOwnableTwoStep;
+    use crate::ownable::interface;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
 

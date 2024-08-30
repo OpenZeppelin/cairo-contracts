@@ -1,6 +1,6 @@
 use core::num::traits::Zero;
-use openzeppelin_access::ownable::dual_ownable::{DualCaseOwnable, DualCaseOwnableTrait};
-use openzeppelin_access::ownable::interface::{
+use crate::ownable::dual_ownable::{DualCaseOwnable, DualCaseOwnableTrait};
+use crate::ownable::interface::{
     IOwnableDispatcher, IOwnableCamelOnlyDispatcher, IOwnableDispatcherTrait
 };
 use openzeppelin_testing as utils;

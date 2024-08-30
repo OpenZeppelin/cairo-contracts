@@ -1,9 +1,8 @@
 #[starknet::contract]
 pub(crate) mod ERC721EnumerableMock {
     use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_token::erc721::ERC721Component::ERC721HooksTrait;
-    use openzeppelin_token::erc721::ERC721Component;
-    use openzeppelin_token::erc721::extensions::ERC721EnumerableComponent;
+    use crate::erc721::ERC721Component;
+    use crate::erc721::extensions::ERC721EnumerableComponent;
     use starknet::ContractAddress;
 
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);
@@ -78,9 +77,8 @@ pub(crate) mod ERC721EnumerableMock {
 #[starknet::contract]
 pub(crate) mod SnakeERC721EnumerableMock {
     use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_token::erc721::ERC721Component::ERC721HooksTrait;
-    use openzeppelin_token::erc721::ERC721Component;
-    use openzeppelin_token::erc721::extensions::ERC721EnumerableComponent;
+    use crate::erc721::ERC721Component;
+    use crate::erc721::extensions::ERC721EnumerableComponent;
 
     use starknet::ContractAddress;
 

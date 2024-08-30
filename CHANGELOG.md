@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## 0.16.0 (2024-08-30)
+
 ### Added
 
 - ERC721Enumerable component (#983)
@@ -18,7 +20,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Bump snforge to v0.27.0 (#1107)
-- Bump scarb to v2.7.1 (#1025)
 - Bump scarb to v2.8.0 (#1120)
 
 ### Changed (Breaking)

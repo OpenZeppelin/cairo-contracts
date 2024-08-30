@@ -29,7 +29,7 @@ To use it as a standalone package, you can add it in your `Scarb.toml` as follow
 
 [.contract]
 [[merkle_proof]]
-=== `++merkle_proof++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.15.1/packages/merkle_tree/src/merkle_proof.cairo[{github-icon},role=heading-link]
+=== `++merkle_proof++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/merkle_tree/src/merkle_proof.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin_merkle_tree::merkle_proof;
@@ -143,7 +143,7 @@ NOTE: This function expects a `CommutativeHasher` implementation. See xref:#hash
 
 [.contract]
 [[hashes]]
-=== `++hashes++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.15.1/packages/merkle_tree/src/hashes.cairo[{github-icon},role=heading-link]
+=== `++hashes++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/merkle_tree/src/hashes.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin_merkle_tree::hashes;

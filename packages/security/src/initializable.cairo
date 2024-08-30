@@ -8,7 +8,7 @@
 /// initial state in scenarios where a constructor cannot be used.
 #[starknet::component]
 pub mod InitializableComponent {
-    use openzeppelin_security::interface::IInitializable;
+    use crate::interface::IInitializable;
 
     #[storage]
     struct Storage {

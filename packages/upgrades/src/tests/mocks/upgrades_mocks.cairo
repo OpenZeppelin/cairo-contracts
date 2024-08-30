@@ -14,7 +14,7 @@ pub(crate) trait IUpgradesV1<TState> {
 
 #[starknet::contract]
 pub(crate) mod UpgradesV1 {
-    use openzeppelin_upgrades::UpgradeableComponent;
+    use crate::UpgradeableComponent;
     use starknet::ClassHash;
 
     component!(path: UpgradeableComponent, storage: upgradeable, event: UpgradeableEvent);
@@ -64,7 +64,7 @@ pub(crate) trait IUpgradesV2<TState> {
 
 #[starknet::contract]
 pub(crate) mod UpgradesV2 {
-    use openzeppelin_upgrades::UpgradeableComponent;
+    use crate::UpgradeableComponent;
     use starknet::ClassHash;
 
     component!(path: UpgradeableComponent, storage: upgradeable, event: UpgradeableEvent);

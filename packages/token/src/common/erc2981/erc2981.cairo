@@ -20,10 +20,10 @@
 #[starknet::component]
 pub mod ERC2981Component {
     use core::num::traits::Zero;
+    use crate::common::erc2981::interface::{IERC2981, IERC2981_ID};
     use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
     use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_token::common::erc2981::interface::{IERC2981, IERC2981_ID};
     use starknet::ContractAddress;
     use starknet::storage::Map;
 
@@ -244,7 +244,7 @@ pub impl DefaultConfig of ERC2981Component::ImmutableConfig {
 
 #[cfg(test)]
 mod tests {
-    use openzeppelin_token::tests::mocks::erc2981_mocks::ERC2981Mock;
+    use crate::tests::mocks::erc2981_mocks::ERC2981Mock;
     use starknet::contract_address_const;
     use super::ERC2981Component::InternalImpl;
     use super::ERC2981Component;

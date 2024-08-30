@@ -1,6 +1,4 @@
-pub use openzeppelin_utils::cryptography::interface::{
-    INonces, INoncesDispatcher, INoncesDispatcherTrait
-};
-pub use openzeppelin_utils::deployments::interface::{
+pub use crate::cryptography::interface::{INonces, INoncesDispatcher, INoncesDispatcherTrait};
+pub use crate::deployments::interface::{
     IUniversalDeployer, IUniversalDeployerDispatcher, IUniversalDeployerDispatcherTrait
 };

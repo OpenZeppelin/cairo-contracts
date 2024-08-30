@@ -1,8 +1,8 @@
 use core::num::traits::Zero;
-use openzeppelin_access::ownable::OwnableComponent::InternalTrait;
-use openzeppelin_access::ownable::OwnableComponent;
-use openzeppelin_access::ownable::interface::{IOwnable, IOwnableCamelOnly};
-use openzeppelin_access::tests::mocks::ownable_mocks::DualCaseOwnableMock;
+use crate::ownable::OwnableComponent::InternalTrait;
+use crate::ownable::OwnableComponent;
+use crate::ownable::interface::{IOwnable, IOwnableCamelOnly};
+use crate::tests::mocks::ownable_mocks::DualCaseOwnableMock;
 
 use openzeppelin_test_common::ownable::OwnableSpyHelpers;
 use openzeppelin_testing::constants::{ZERO, OTHER, OWNER, RECIPIENT};

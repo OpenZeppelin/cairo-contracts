@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.15.1 (account/dual_eth_account.cairo)
 
-use openzeppelin_account::interface::EthPublicKey;
+use crate::interface::EthPublicKey;
 use openzeppelin_utils::UnwrapAndCast;
 use openzeppelin_utils::selectors;
 use openzeppelin_utils::serde::SerializedAppend;

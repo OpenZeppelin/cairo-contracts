@@ -9,9 +9,9 @@ pub mod AccountComponent {
     use core::hash::{HashStateExTrait, HashStateTrait};
     use core::num::traits::Zero;
     use core::poseidon::PoseidonTrait;
-    use openzeppelin_account::interface;
-    use openzeppelin_account::utils::{MIN_TRANSACTION_VERSION, QUERY_OFFSET};
-    use openzeppelin_account::utils::{execute_calls, is_valid_stark_signature};
+    use crate::interface;
+    use crate::utils::{MIN_TRANSACTION_VERSION, QUERY_OFFSET};
+    use crate::utils::{execute_calls, is_valid_stark_signature};
     use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
     use openzeppelin_introspection::src5::SRC5Component;

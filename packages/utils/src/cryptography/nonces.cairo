@@ -3,7 +3,7 @@
 
 #[starknet::component]
 pub mod NoncesComponent {
-    use openzeppelin_utils::interfaces::INonces;
+    use crate::interfaces::INonces;
     use starknet::ContractAddress;
     use starknet::storage::Map;
 

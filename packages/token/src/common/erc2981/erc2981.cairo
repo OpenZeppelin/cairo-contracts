@@ -20,10 +20,10 @@
 #[starknet::component]
 pub mod ERC2981Component {
     use core::num::traits::Zero;
+    use crate::common::erc2981::interface::{IERC2981, IERC2981_ID};
     use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
     use openzeppelin_introspection::src5::SRC5Component;
-    use crate::common::erc2981::interface::{IERC2981, IERC2981_ID};
     use starknet::ContractAddress;
     use starknet::storage::Map;
 

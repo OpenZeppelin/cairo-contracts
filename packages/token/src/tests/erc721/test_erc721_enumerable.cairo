@@ -1,6 +1,3 @@
-use openzeppelin_introspection::interface::ISRC5_ID;
-use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
-use openzeppelin_testing::constants::{OWNER, RECIPIENT, OTHER, ZERO};
 use crate::erc721::ERC721Component::{ERC721Impl, InternalImpl as ERC721InternalImpl};
 use crate::erc721::extensions::erc721_enumerable::ERC721EnumerableComponent::{
     ERC721EnumerableImpl, InternalImpl
@@ -8,6 +5,9 @@ use crate::erc721::extensions::erc721_enumerable::ERC721EnumerableComponent::{
 use crate::erc721::extensions::erc721_enumerable::ERC721EnumerableComponent;
 use crate::erc721::extensions::erc721_enumerable::interface;
 use crate::tests::mocks::erc721_enumerable_mocks::ERC721EnumerableMock;
+use openzeppelin_introspection::interface::ISRC5_ID;
+use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
+use openzeppelin_testing::constants::{OWNER, RECIPIENT, OTHER, ZERO};
 use starknet::ContractAddress;
 
 // Token IDs

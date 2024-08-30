@@ -17,13 +17,13 @@
 #[starknet::component]
 pub mod ERC721EnumerableComponent {
     use core::num::traits::Zero;
-    use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
-    use openzeppelin_introspection::src5::SRC5Component;
     use crate::erc721::ERC721Component::ERC721Impl;
     use crate::erc721::ERC721Component::InternalImpl as ERC721InternalImpl;
     use crate::erc721::ERC721Component;
     use crate::erc721::extensions::erc721_enumerable::interface::IERC721Enumerable;
     use crate::erc721::extensions::erc721_enumerable::interface;
+    use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
+    use openzeppelin_introspection::src5::SRC5Component;
     use starknet::ContractAddress;
     use starknet::storage::Map;
 

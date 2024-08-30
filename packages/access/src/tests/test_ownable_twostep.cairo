@@ -45,23 +45,6 @@ fn test_initializer_owner_pending_owner() {
 }
 
 //
-// _accept_ownership
-//
-
-#[test]
-fn test__accept_ownership() {
-    let mut state = setup();
-    let mut spy = spy_events();
-    state.Ownable_pending_owner.write(OTHER());
-
-    state._accept_ownership();
-
-    spy.assert_only_event_ownership_transferred(test_address(), OWNER(), OTHER());
-    assert_eq!(state.owner(), OTHER());
-    assert!(state.pending_owner().is_zero());
-}
-
-//
 // _propose_owner
 //
 
@@ -245,6 +228,22 @@ fn test_renounce_ownership() {
 }
 
 #[test]
+fn test_renounce_ownership_resets_pending_owner() {
+    let mut state = setup();
+    let contract_address = test_address();
+    start_cheat_caller_address(contract_address, OWNER());
+
+    state.Ownable_pending_owner.write(OTHER());
+    let current_pending_owner = state.Ownable_pending_owner.read();
+    assert_eq!(current_pending_owner, OTHER());
+
+    state.renounce_ownership();
+
+    let current_pending_owner = state.Ownable_pending_owner.read();
+    assert!(current_pending_owner.is_zero());
+}
+
+#[test]
 #[should_panic(expected: ('Caller is the zero address',))]
 fn test_renounce_ownership_from_zero_address() {
     let mut state = setup();
@@ -303,31 +302,6 @@ fn test_full_two_step_transfer() {
     state.accept_ownership();
 
     spy.assert_only_event_ownership_transferred(contract_address, OWNER(), OTHER());
-    assert_eq!(state.owner(), OTHER());
-    assert!(state.pending_owner().is_zero());
-}
-
-#[test]
-fn test_pending_accept_after_owner_renounce() {
-    let mut state = setup();
-    let mut spy = spy_events();
-    let contract_address = test_address();
-    start_cheat_caller_address(contract_address, OWNER());
-    state.transfer_ownership(OTHER());
-
-    spy.assert_event_ownership_transfer_started(contract_address, OWNER(), OTHER());
-    assert_eq!(state.owner(), OWNER());
-    assert_eq!(state.pending_owner(), OTHER());
-
-    state.renounce_ownership();
-
-    spy.assert_only_event_ownership_transferred(contract_address, OWNER(), ZERO());
-    assert!(state.owner().is_zero());
-
-    start_cheat_caller_address(contract_address, OTHER());
-    state.accept_ownership();
-
-    spy.assert_only_event_ownership_transferred(contract_address, ZERO(), OTHER());
     assert_eq!(state.owner(), OTHER());
     assert!(state.pending_owner().is_zero());
 }

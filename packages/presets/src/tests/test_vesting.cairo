@@ -7,7 +7,6 @@ use openzeppelin_test_common::erc20::deploy_erc20;
 use openzeppelin_test_common::vesting::VestingSpyHelpers;
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{OWNER, OTHER};
-use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{spy_events, start_cheat_caller_address, start_cheat_block_timestamp_global};
@@ -127,7 +126,6 @@ fn test_release_single_call_within_duration() {
     assert_eq!(vesting.released(token), expected_release_amount);
     assert_eq!(vesting.releasable(token), 0);
 
-    spy.drop_event(); // Drops Transfer event from ERC20 mock
     spy.assert_only_event_amount_released(vesting.contract_address, token, expected_release_amount);
 }
 
@@ -149,7 +147,6 @@ fn test_release_single_call_after_end() {
     assert_eq!(vesting.released(token), data.total_allocation);
     assert_eq!(vesting.releasable(token), 0);
 
-    spy.drop_event(); // Drops Transfer event from ERC20 mock
     spy.assert_only_event_amount_released(vesting.contract_address, token, data.total_allocation);
 }
 

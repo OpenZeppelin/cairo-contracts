@@ -136,11 +136,11 @@ pub mod VestingComponent {
         fn release(ref self: ComponentState<TContractState>, token: ContractAddress) -> u256 {
             let amount = self.releasable(token);
             self.Vesting_released.write(token, self.Vesting_released.read(token) + amount);
+            self.emit(AmountReleased { token, amount });
 
             let beneficiary = get_dep_component!(@self, Ownable).owner();
             let token_dispatcher = IERC20Dispatcher { contract_address: token };
             assert(token_dispatcher.transfer(beneficiary, amount), Errors::TOKEN_TRANSFER_FAILED);
-            self.emit(AmountReleased { token, amount });
 
             amount
         }

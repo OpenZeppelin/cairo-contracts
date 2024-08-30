@@ -180,6 +180,48 @@ Returns the Uniform Resource Identifier (URI) for the `token_id` token.
 If the URI is not set for `token_id`, the return value will be an empty `ByteArray`.
 
 [.contract]
+[[IERC721Enumerable]]
+=== `++IERC721Enumerable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.15.1/packages/token/src/erc721/extensions/erc721_enumerable/interface.cairo[{github-icon},role=heading-link]
+
+Interface for the optional enumerable functions in {eip721}.
+
+[.contract-index]
+.{inner-src5}
+--
+0x16bc0f502eeaf65ce0b3acb5eea656e2f26979ce6750e8502a82f377e538c87
+--
+
+[.contract-index]
+.Functions
+--
+* xref:#IERC721Enumerable-total_supply[`++total_supply()++`]
+* xref:#IERC721Enumerable-token_by_index[`++token_by_index(index)++`]
+* xref:#IERC721Enumerable-token_of_owner_by_index[`++token_of_owner_by_index(owner, index)++`]
+--
+
+==== Functions
+
+[.contract-item]
+[[IERC721Enumerable-total_supply]]
+==== `[.contract-item-name]#++total_supply++#++() -> u256++` [.item-kind]#external#
+
+Returns the total amount of tokens stored by the contract.
+
+[.contract-item]
+[[IERC721Metadata-token_by_index]]
+==== `[.contract-item-name]#++token_by_index++#++(index: u256) -> u256++` [.item-kind]#external#
+
+Returns a token id at a given `index` of all the tokens stored by the contract.
+Use along with xref:#IERC721Enumerable-total_supply[IERC721Enumerable::total_supply] to enumerate all tokens.
+
+[.contract-item]
+[[IERC721Metadata-token_of_owner_by_index]]
+==== `[.contract-item-name]#++token_of_owner_by_index++#++(owner: ContractAddress, index: u256) -> u256++` [.item-kind]#external#
+
+Returns the token id owned by `owner` at a given `index` of its token list.
+Use along with xref:#IERC721-balance_of[IERC721::balance_of] to enumerate all of ``owner``'s tokens.
+
+[.contract]
 [[ERC721Component]]
 === `++ERC721Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.15.1/packages/token/src/erc721/erc721.cairo#L7[{github-icon},role=heading-link]
 
@@ -688,6 +730,147 @@ See <<IERC721-ApprovalForAll,IERC721::ApprovalForAll>>.
 ==== `[.contract-item-name]#++Transfer++#++(from: ContractAddress, to: ContractAddress, token_id: u256)++` [.item-kind]#event#
 
 See <<IERC721-Transfer,IERC721::Transfer>>.
+
+[.contract]
+[[ERC721EnumerableComponent]]
+=== `++ERC721EnumerableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.15.1/packages/token/src/erc721/extensions/erc721_enumerable.cairo[{github-icon},role=heading-link]
+
+```cairo
+use openzeppelin::token::erc721::extensions::ERC721EnumerableComponent;
+```
+
+Extension of ERC721 as defined in the EIP that adds enumerability of all the token ids in the contract as well as all token ids owned by each account.
+This extension allows contracts to publish their entire list of NFTs and make them discoverable.
+
+NOTE: Implementing xref:#ERC721Component[ERC721Component] is a requirement for this component to be implemented.
+
+To properly track token ids, this extension requires that the xref:#ERC721EnumerableComponent-before_update[ERC721EnumerableComponent::before_update] function is called before every transfer, mint, or burn operation.
+For this, the xref:ERC721Component-before_update[ERC721HooksTrait::before_update] hook must be used.
+Here's how the hook should be implemented in a contract:
+
+```[,cairo]
+#[starknet::contract]
+mod ERC721EnumerableContract {
+    (...)
+
+    component!(path: ERC721Component, storage: erc721, event: ERC721Event);
+    component!(path: ERC721EnumerableComponent, storage: erc721_enumerable, event: ERC721EnumerableEvent);
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
+
+    impl ERC721HooksImpl of ERC721Component::ERC721HooksTrait<ContractState> {
+        fn before_update(
+            ref self: ERC721Component::ComponentState<ContractState>,
+            to: ContractAddress,
+            token_id: u256,
+            auth: ContractAddress
+        ) {
+            let mut contract_state = ERC721Component::HasComponent::get_contract_mut(ref self);
+            contract_state.erc721_enumerable.before_update(to, token_id);
+        }
+    }
+}
+```
+
+[.contract-index#ERC721EnumerableComponent-Embeddable-Impls]
+.Embeddable Implementations
+--
+[.sub-index#ERC721EnumerableComponent-Embeddable-Impls-ERC721EnumerableImpl]
+.ERC721EnumerableImpl
+* xref:#ERC721EnumerableComponent-total_supply[`++total_supply(self)++`]
+* xref:#ERC721EnumerableComponent-token_by_index[`++token_by_index(self, index)++`]
+* xref:#ERC721EnumerableComponent-token_of_owner_by_index[`++token_of_owner_by_index(self, address, index)++`]
+--
+
+[.contract-index]
+.Internal functions
+--
+.InternalImpl
+* xref:#ERC721EnumerableComponent-initializer[`++initializer(self)++`]
+* xref:#ERC721EnumerableComponent-before_update[`++before_update(self, to, token_id)++`]
+* xref:#ERC721EnumerableComponent-_add_token_to_owner_enumeration[`++_add_token_to_owner_enumeration(self, to, token_id)++`]
+* xref:#ERC721EnumerableComponent-_add_token_to_all_tokens_enumeration[`++_add_token_to_all_tokens_enumeration(self, token_id)++`]
+* xref:#ERC721EnumerableComponent-_remove_token_from_owner_enumeration[`++_remove_token_from_owner_enumeration(self, from, token_id)++`]
+* xref:#ERC721EnumerableComponent-_remove_token_from_all_tokens_enumeration[`++_remove_token_from_all_tokens_enumeration(self, token_id)++`]
+--
+
+[#ERC721EnumerableComponent-Embeddable-functions]
+==== Embeddable functions
+
+[.contract-item]
+[[ERC721EnumerableComponent-total_supply]]
+==== `[.contract-item-name]#++total_supply++#++(self: @ContractState) → u256++` [.item-kind]#external#
+
+Returns the current amount of votes that `account` has.
+
+[.contract-item]
+[[ERC721EnumerableComponent-token_by_index]]
+==== `[.contract-item-name]#++token_by_index++#++(self: @ContractState, index: u256) → u256++` [.item-kind]#external#
+
+See xref:#IERC721Enumerable-token_by_index[IERC721Enumerable::token_by_index].
+
+Requirements:
+
+- `index` is less than the total token supply.
+
+[.contract-item]
+[[ERC721EnumerableComponent-token_of_owner_by_index]]
+==== `[.contract-item-name]#++token_of_owner_by_index++#++(self: @ContractState, owner: ContractAddress, index: u256) → u256++` [.item-kind]#external#
+
+See xref:#IERC721Enumerable-token_of_owner_by_index[IERC721Enumerable::token_of_owner_by_index].
+
+Requirements:
+
+- `index` is less than ``owner``'s token balance.
+- `owner` is not the zero address.
+
+[#ERC721EnumerableComponent-Internal-functions]
+==== Internal functions
+
+[.contract-item]
+[[ERC721EnumerableComponent-initializer]]
+==== `[.contract-item-name]#++initializer++#++(ref self: ContractState)++` [.item-kind]#internal#
+
+Registers the `IERC721Enumerable` interface ID as supported through introspection.
+
+[.contract-item]
+[[ERC721EnumerableComponent-before_update]]
+==== `[.contract-item-name]#++before_update++#++(ref self: ContractState, to: ContractAddress, token_id: u256)++` [.item-kind]#internal#
+
+Updates the ownership and token-tracking data structures.
+
+When a token is minted (or burned), `token_id` is added to (or removed from) the token-tracking structures.
+
+When a token is transferred, minted, or burned, the ownership-tracking data structures reflect the change in ownership of `token_id`.
+
+This must be added to the implementing contract's xref:ERC721Component-before_update[ERC721HooksTrait::before_update] hook.
+
+[.contract-item]
+[[ERC721EnumerableComponent-_add_token_to_owner_enumeration]]
+==== `[.contract-item-name]#++_add_token_to_owner_enumeration++#++(ref self: ContractState, to: ContractAddress, token_id: u256)++` [.item-kind]#internal#
+
+Adds token to this extension's ownership-tracking data structures.
+
+[.contract-item]
+[[ERC721EnumerableComponent-_add_token_to_all_tokens_enumeration]]
+==== `[.contract-item-name]#++_add_token_to_all_tokens_enumeration++#++(ref self: ContractState, token_id: u256)++` [.item-kind]#internal#
+
+Adds token to this extension's token-tracking data structures.
+
+[.contract-item]
+[[ERC721EnumerableComponent-_remove_token_from_owner_enumeration]]
+==== `[.contract-item-name]#++_remove_token_from_owner_enumeration++#++(ref self: ContractState, from: ContractAddress, token_id: u256)++` [.item-kind]#internal#
+
+Removes a token from this extension's ownership-tracking data structures.
+
+This has 0(1) time complexity but alters the indexed order of owned tokens by swapping `token_id` and the index thereof with the last token id and the index thereof e.g. removing `1` from `[1, 2, 3, 4]` results in `[4, 2, 3]`.
+
+[.contract-item]
+[[ERC721EnumerableComponent-_remove_token_from_all_tokens_enumeration]]
+==== `[.contract-item-name]#++_remove_token_from_all_tokens_enumeration++#++(ref self: ContractState, token_id: u256)++` [.item-kind]#internal#
+
+Removes `token_id` from this extension's token-tracking data structures.
+
+This has 0(1) time complexity but alters the indexed order by swapping `token_id` and the index thereof with the last token id and the index thereof e.g. removing `1` from `[1, 2, 3, 4]` results in `[4, 2, 3]`.
 
 == Receiver
 

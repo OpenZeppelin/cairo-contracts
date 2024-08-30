@@ -9,6 +9,7 @@ dependencies = [
  "openzeppelin_account",
  "openzeppelin_governance",
  "openzeppelin_introspection",
+ "openzeppelin_merkle_tree",
  "openzeppelin_presets",
  "openzeppelin_security",
  "openzeppelin_test_common",
@@ -53,6 +54,13 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_introspection"
+version = "0.15.1"
+dependencies = [
+ "snforge_std",
+]
+
+[[package]]
+name = "openzeppelin_merkle_tree"
 version = "0.15.1"
 dependencies = [
  "snforge_std",

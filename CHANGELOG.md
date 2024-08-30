@@ -11,19 +11,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- ERC721Enumerable component (#983)
 - ERC2981 (NFT Royalty Standard) component (#1091)
 - `merkle_tree` package with utilities to verify proofs and multi proofs (#1101)
 
 ### Changed
 
 - Bump snforge to v0.27.0 (#1107)
+- Bump scarb to v2.7.1 (#1025)
 
 ### Changed (Breaking)
 
-- Changed ABI suffix to Trait in dual case account and eth account modules (#1096).
+- Changed ABI suffix to Trait in dual case account and eth account modules (#1096)
   - `DualCaseAccountABI` renamed to `DualCaseAccountTrait`
   - `DualCaseEthAccountABI` renamed to `DualCaseEthAccountTrait`
-- Bump scarb to v2.7.1 (#1025)
+- Removed `_accept_ownership` from `OwnableComponent::InternalImpl`
 
 ### Fixed
 
@@ -40,7 +42,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- ERC721Enumerable component (#983)
 - TimelockController component (#996)
 - HashCall implementation (#996)
 - Separated package for each submodule (#1065)

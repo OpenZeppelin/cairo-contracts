@@ -1,10 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.15.1 (governance/votes/votes.cairo)
 
-use core::hash::{HashStateTrait, HashStateExTrait};
-use core::poseidon::PoseidonTrait;
-use openzeppelin_utils::cryptography::snip12::{OffchainMessageHash, StructHash, SNIP12Metadata};
-use starknet::ContractAddress;
+use openzeppelin_utils::cryptography::snip12::{OffchainMessageHash, SNIP12Metadata};
 
 /// # Votes Component
 ///
@@ -25,7 +22,7 @@ pub mod VotesComponent {
     use core::num::traits::Zero;
     use openzeppelin_account::dual_account::{DualCaseAccount, DualCaseAccountTrait};
     use openzeppelin_governance::votes::interface::{IVotes, TokenVotesTrait};
-    use openzeppelin_governance::votes::utils::{Delegation};
+    use openzeppelin_governance::votes::utils::Delegation;
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_token::erc20::ERC20Component;
     use openzeppelin_token::erc20::interface::IERC20;
@@ -33,7 +30,7 @@ pub mod VotesComponent {
     use openzeppelin_token::erc721::interface::IERC721;
     use openzeppelin_utils::nonces::NoncesComponent::InternalTrait as NoncesInternalTrait;
     use openzeppelin_utils::nonces::NoncesComponent;
-    use openzeppelin_utils::structs::checkpoint::{Checkpoint, Trace, TraceTrait};
+    use openzeppelin_utils::structs::checkpoint::{Trace, TraceTrait};
     use starknet::ContractAddress;
     use starknet::storage::Map;
     use super::{OffchainMessageHash, SNIP12Metadata};
@@ -81,7 +78,7 @@ pub mod VotesComponent {
         TContractState,
         +HasComponent<TContractState>,
         impl Nonces: NoncesComponent::HasComponent<TContractState>,
-        impl TokenTrait: TokenVotesTrait<ComponentState<TContractState>>,
+        +TokenVotesTrait<ComponentState<TContractState>>,
         +SNIP12Metadata,
         +Drop<TContractState>
     > of IVotes<ComponentState<TContractState>> {
@@ -175,7 +172,7 @@ pub mod VotesComponent {
     }
 
     //
-    // Internal for ERC721Votes
+    // Internal
     //
 
     pub impl ERC721VotesImpl<
@@ -199,10 +196,6 @@ pub mod VotesComponent {
         }
     }
 
-    //
-    // Internal for ERC20Votes
-    //
-
     pub impl ERC20VotesImpl<
         TContractState,
         +HasComponent<TContractState>,
@@ -222,10 +215,6 @@ pub mod VotesComponent {
             erc20_component.balance_of(account)
         }
     }
-
-    //
-    // Common internal for Votes
-    //
 
     #[generate_trait]
     pub impl InternalImpl<

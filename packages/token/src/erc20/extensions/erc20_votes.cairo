@@ -1,10 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.15.1 (token/erc20/extensions/erc20_votes.cairo)
 
-use core::hash::{HashStateTrait, HashStateExTrait};
-use core::poseidon::PoseidonTrait;
-use openzeppelin_utils::cryptography::snip12::{OffchainMessageHash, StructHash, SNIP12Metadata};
-use starknet::ContractAddress;
+use openzeppelin_utils::cryptography::snip12::{OffchainMessageHash, SNIP12Metadata};
 
 /// # ERC20Votes Component
 ///

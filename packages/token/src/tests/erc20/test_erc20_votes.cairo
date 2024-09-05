@@ -1,6 +1,6 @@
 use core::num::traits::Bounded;
 use core::num::traits::Zero;
-use openzeppelin_governance::votes::utils::{Delegation};
+use openzeppelin_governance::votes::utils::Delegation;
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{SUPPLY, ZERO, OWNER, RECIPIENT};
 use openzeppelin_testing::events::EventSpyExt;

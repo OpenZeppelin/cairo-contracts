@@ -175,7 +175,7 @@ pub mod VotesComponent {
     // Internal
     //
 
-    pub impl ERC721VotesImpl<
+    impl ERC721VotesImpl<
         TContractState,
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
@@ -196,7 +196,7 @@ pub mod VotesComponent {
         }
     }
 
-    pub impl ERC20VotesImpl<
+    impl ERC20VotesImpl<
         TContractState,
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,

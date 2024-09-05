@@ -1,33 +1,35 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.16.0 (token/erc20/extensions/erc20_permit/erc20_permit.cairo)
 
-use starknet::ContractAddress;
 use core::hash::{HashStateTrait, HashStateExTrait};
 use core::poseidon::PoseidonTrait;
-use openzeppelin_utils::cryptography::snip12::{OffchainMessageHash, StructHash, SNIP12Metadata};
+use openzeppelin_utils::cryptography::snip12::StructHash;
+use starknet::ContractAddress;
 
 /// # ERC20Permit Component
 ///
-/// The ERC20Permit component implements the EIP-2612 standard, facilitating token approvals via off-chain signatures.
-/// This approach allows token holders to delegate their approval to spend tokens without executing an on-chain 
-/// transaction, reducing gas costs and enhancing usability. The message signed and the signature must follow the 
-/// SNIP-12 standard for hashing and signing typed structured data.
+/// The ERC20Permit component implements the EIP-2612 standard, facilitating token approvals via
+/// off-chain signatures. This approach allows token holders to delegate their approval to spend
+/// tokens without executing an on-chain transaction, reducing gas costs and enhancing usability.
+/// The message signed and the signature must follow the SNIP-12 standard for hashing and signing
+/// typed structured data.
 ///
-/// To safeguard against replay attacks and ensure the uniqueness of each approval via `permit`, the data signed includes:
+/// To safeguard against replay attacks and ensure the uniqueness of each approval via `permit`, the
+/// data signed includes:
 ///   - The address of the owner
 ///   - The parameters specified in the `approve` function (spender and amount)
 ///   - The address of the token contract itself
-///   - A nonce, which must be unique for each operation, incrementing after each use to prevent reuse of the signature
-///   - The chain ID, which protects against cross-chain replay attacks
+///   - A nonce, which must be unique for each operation, incrementing after each use to prevent
+///   reuse of the signature - The chain ID, which protects against cross-chain replay attacks
 ///
 /// EIP-2612: https://eips.ethereum.org/EIPS/eip-2612
 /// SNIP-12:  https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-12.md
 #[starknet::component]
 pub mod ERC20PermitComponent {
-    use openzeppelin_account::dual_account::{DualCaseAccount, DualCaseAccountTrait};
     use crate::erc20::ERC20Component::InternalTrait;
     use crate::erc20::ERC20Component;
     use crate::erc20::extensions::erc20_permit::interface::IERC20Permit;
+    use openzeppelin_account::dual_account::{DualCaseAccount, DualCaseAccountTrait};
     use openzeppelin_utils::cryptography::interface::{INonces, ISNIP12Metadata};
     use openzeppelin_utils::cryptography::snip12::{
         StructHash, OffchainMessageHash, SNIP12Metadata, StarknetDomain
@@ -127,7 +129,7 @@ pub mod ERC20PermitComponent {
     impl SNIP12MetadataExternal<
         TContractState, +HasComponent<TContractState>, impl Metadata: SNIP12Metadata
     > of ISNIP12Metadata<ComponentState<TContractState>> {
-        /// Returns domain name and version used for generating a message hash for `permit` signature.
+        /// Returns domain name and version used for generating a message hash for permit signature.
         fn snip12_metadata(self: @ComponentState<TContractState>) -> (felt252, felt252) {
             (Metadata::name(), Metadata::version())
         }
@@ -157,7 +159,8 @@ pub struct Permit {
 //         \"deadline\":\"u128\"
 //     )"
 // );
-pub const PERMIT_TYPE_HASH: felt252 = 0x2a8eb238e7cde741a544afcc79fe945d4292b089875fd068633854927fd5a96;
+pub const PERMIT_TYPE_HASH: felt252 =
+    0x2a8eb238e7cde741a544afcc79fe945d4292b089875fd068633854927fd5a96;
 
 impl StructHashImpl of StructHash<Permit> {
     fn hash_struct(self: @Permit) -> felt252 {

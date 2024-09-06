@@ -23,9 +23,11 @@ pub mod EthAccountComponent {
     use starknet::get_caller_address;
     use starknet::get_contract_address;
     use starknet::get_tx_info;
+    use starknet::storage::StoragePointerReadAccess;
+    use starknet::storage::StoragePointerWriteAccess;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         EthAccount_public_key: EthPublicKey
     }
 

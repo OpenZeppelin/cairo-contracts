@@ -6,9 +6,11 @@ pub mod NoncesComponent {
     use crate::interfaces::INonces;
     use starknet::ContractAddress;
     use starknet::storage::Map;
+    use starknet::storage::StorageMapReadAccess;
+    use starknet::storage::StorageMapWriteAccess;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         Nonces_nonces: Map<ContractAddress, felt252>
     }
 

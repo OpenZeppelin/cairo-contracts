@@ -16,6 +16,8 @@ pub(crate) trait IUpgradesV1<TState> {
 pub(crate) mod UpgradesV1 {
     use crate::UpgradeableComponent;
     use starknet::ClassHash;
+    use starknet::storage::StoragePointerReadAccess;
+    use starknet::storage::StoragePointerWriteAccess;
 
     component!(path: UpgradeableComponent, storage: upgradeable, event: UpgradeableEvent);
 
@@ -66,6 +68,8 @@ pub(crate) trait IUpgradesV2<TState> {
 pub(crate) mod UpgradesV2 {
     use crate::UpgradeableComponent;
     use starknet::ClassHash;
+    use starknet::storage::StoragePointerReadAccess;
+    use starknet::storage::StoragePointerWriteAccess;
 
     component!(path: UpgradeableComponent, storage: upgradeable, event: UpgradeableEvent);
 

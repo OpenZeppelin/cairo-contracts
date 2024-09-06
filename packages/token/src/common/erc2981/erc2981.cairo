@@ -26,6 +26,10 @@ pub mod ERC2981Component {
     use openzeppelin_introspection::src5::SRC5Component;
     use starknet::ContractAddress;
     use starknet::storage::Map;
+    use starknet::storage::StorageMapReadAccess;
+    use starknet::storage::StorageMapWriteAccess;
+    use starknet::storage::StoragePointerReadAccess;
+    use starknet::storage::StoragePointerWriteAccess;
 
     // This default denominator is only used when the DefaultConfig
     // is in scope in the implementing contract.
@@ -38,7 +42,7 @@ pub mod ERC2981Component {
     }
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         ERC2981_default_royalty_info: RoyaltyInfo,
         ERC2981_token_royalty_info: Map<u256, RoyaltyInfo>,
     }

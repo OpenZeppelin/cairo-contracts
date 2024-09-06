@@ -60,8 +60,9 @@ pub(crate) mod SnakeOwnableMock {
 
 #[starknet::contract]
 pub(crate) mod CamelOwnableMock {
-    use crate::ownable::OwnableComponent;
+use crate::ownable::OwnableComponent;
     use starknet::ContractAddress;
+    use crate::ownable::interface::IOwnable;
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
 
@@ -93,7 +94,7 @@ pub(crate) mod CamelOwnableMock {
     impl ExternalImpl of ExternalTrait {
         #[external(v0)]
         fn owner(self: @ContractState) -> ContractAddress {
-            self.ownable.Ownable_owner.read()
+            self.ownable.owner()
         }
     }
 }

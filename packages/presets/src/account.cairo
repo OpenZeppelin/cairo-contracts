@@ -27,7 +27,7 @@ pub mod AccountUpgradeable {
     impl UpgradeableInternalImpl = UpgradeableComponent::InternalImpl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
         account: AccountComponent::Storage,
         #[substorage(v0)]

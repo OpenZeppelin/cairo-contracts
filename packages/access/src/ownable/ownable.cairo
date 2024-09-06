@@ -20,9 +20,11 @@ pub mod OwnableComponent {
     use crate::ownable::interface;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
+    use starknet::storage::StoragePointerReadAccess;
+    use starknet::storage::StoragePointerWriteAccess;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         Ownable_owner: ContractAddress,
         Ownable_pending_owner: ContractAddress
     }

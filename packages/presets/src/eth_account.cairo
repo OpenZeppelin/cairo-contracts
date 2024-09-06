@@ -28,7 +28,7 @@ pub(crate) mod EthAccountUpgradeable {
     impl UpgradeableInternalImpl = UpgradeableComponent::InternalImpl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
         eth_account: EthAccountComponent::Storage,
         #[substorage(v0)]

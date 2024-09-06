@@ -26,10 +26,13 @@ pub mod ERC20VotesComponent {
     use openzeppelin_utils::structs::checkpoint::{Checkpoint, Trace, TraceTrait};
     use starknet::ContractAddress;
     use starknet::storage::Map;
+    use starknet::storage::StorageMapReadAccess;
+    use starknet::storage::StorageMapWriteAccess;
+    use starknet::storage::StoragePointerReadAccess;
     use super::{Delegation, OffchainMessageHash, SNIP12Metadata};
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         ERC20Votes_delegatee: Map<ContractAddress, ContractAddress>,
         ERC20Votes_delegate_checkpoints: Map<ContractAddress, Trace>,
         ERC20Votes_total_checkpoints: Trace

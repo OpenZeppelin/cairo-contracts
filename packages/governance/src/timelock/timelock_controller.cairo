@@ -31,6 +31,10 @@ pub mod TimelockControllerComponent {
     use starknet::SyscallResultTrait;
     use starknet::account::Call;
     use starknet::storage::Map;
+    use starknet::storage::StorageMapReadAccess;
+    use starknet::storage::StorageMapWriteAccess;
+    use starknet::storage::StoragePointerReadAccess;
+    use starknet::storage::StoragePointerWriteAccess;
     use super::OperationState;
 
     // Constants
@@ -40,7 +44,7 @@ pub mod TimelockControllerComponent {
     const DONE_TIMESTAMP: u64 = 1;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         TimelockController_timestamps: Map<felt252, u64>,
         TimelockController_min_delay: u64
     }

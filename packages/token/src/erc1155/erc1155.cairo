@@ -18,9 +18,13 @@ pub mod ERC1155Component {
     use starknet::ContractAddress;
     use starknet::get_caller_address;
     use starknet::storage::Map;
+    use starknet::storage::StorageMapReadAccess;
+    use starknet::storage::StorageMapWriteAccess;
+    use starknet::storage::StoragePointerReadAccess;
+    use starknet::storage::StoragePointerWriteAccess;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         ERC1155_balances: Map<(u256, ContractAddress), u256>,
         ERC1155_operator_approvals: Map<(ContractAddress, ContractAddress), bool>,
         ERC1155_uri: ByteArray,

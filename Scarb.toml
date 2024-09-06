@@ -20,7 +20,7 @@ version.workspace = true
 
 [workspace.package]
 version = "0.16.0"
-edition = "2023_11"
+edition = "2024_07"
 cairo-version = "2.8.0"
 scarb-version = "2.8.0"
 authors = ["OpenZeppelin Community <maintainers@openzeppelin.org>"]

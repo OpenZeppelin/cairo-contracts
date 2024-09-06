@@ -15,7 +15,7 @@ pub mod UniversalDeployer {
     use starknet::get_caller_address;
 
     #[storage]
-    struct Storage {}
+    pub struct Storage {}
 
     #[event]
     #[derive(Drop, PartialEq, starknet::Event)]

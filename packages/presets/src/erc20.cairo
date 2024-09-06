@@ -35,7 +35,7 @@ pub mod ERC20Upgradeable {
     impl UpgradeableInternalImpl = UpgradeableComponent::InternalImpl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
         ownable: OwnableComponent::Storage,
         #[substorage(v0)]

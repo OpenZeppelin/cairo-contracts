@@ -8,9 +8,11 @@
 pub mod SRC5Component {
     use crate::interface;
     use starknet::storage::Map;
+    use starknet::storage::StorageMapReadAccess;
+    use starknet::storage::StorageMapWriteAccess;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         SRC5_supported_interfaces: Map<felt252, bool>
     }
 

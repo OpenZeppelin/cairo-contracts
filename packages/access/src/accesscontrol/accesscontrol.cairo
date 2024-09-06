@@ -14,9 +14,11 @@ pub mod AccessControlComponent {
     use starknet::ContractAddress;
     use starknet::get_caller_address;
     use starknet::storage::Map;
+    use starknet::storage::StorageMapReadAccess;
+    use starknet::storage::StorageMapWriteAccess;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         AccessControl_role_admin: Map<felt252, felt252>,
         AccessControl_role_member: Map<(felt252, ContractAddress), bool>,
     }

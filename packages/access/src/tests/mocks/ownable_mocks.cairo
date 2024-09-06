@@ -60,9 +60,9 @@ pub(crate) mod SnakeOwnableMock {
 
 #[starknet::contract]
 pub(crate) mod CamelOwnableMock {
-use crate::ownable::OwnableComponent;
-    use starknet::ContractAddress;
+    use crate::ownable::OwnableComponent;
     use crate::ownable::interface::IOwnable;
+    use starknet::ContractAddress;
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
 

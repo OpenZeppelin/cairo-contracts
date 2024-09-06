@@ -17,11 +17,11 @@ pub(crate) trait IReentrancyMock<TState> {
 
 #[starknet::contract]
 pub(crate) mod ReentrancyMock {
-    use starknet::storage::StoragePointerReadAccess;
-use starknet::storage::StoragePointerWriteAccess;
-use crate::reentrancyguard::ReentrancyGuardComponent;
+    use crate::reentrancyguard::ReentrancyGuardComponent;
     use starknet::ContractAddress;
     use starknet::get_contract_address;
+    use starknet::storage::StoragePointerReadAccess;
+    use starknet::storage::StoragePointerWriteAccess;
     use super::IAttackerDispatcher;
     use super::IAttackerDispatcherTrait;
     use super::IReentrancyGuardedDispatcher;

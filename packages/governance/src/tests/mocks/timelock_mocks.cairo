@@ -58,8 +58,8 @@ pub(crate) trait IMockContract<TState> {
 #[starknet::contract]
 pub(crate) mod MockContract {
     use starknet::storage::StoragePointerReadAccess;
-use starknet::storage::StoragePointerWriteAccess;
-use super::IMockContract;
+    use starknet::storage::StoragePointerWriteAccess;
+    use super::IMockContract;
 
     #[storage]
     struct Storage {
@@ -90,10 +90,10 @@ pub(crate) trait ITimelockAttacker<TState> {
 
 #[starknet::contract]
 pub(crate) mod TimelockAttackerMock {
-    use starknet::storage::StoragePointerWriteAccess;
-use starknet::storage::StoragePointerReadAccess;
-use crate::timelock::interface::{ITimelockDispatcher, ITimelockDispatcherTrait};
+    use crate::timelock::interface::{ITimelockDispatcher, ITimelockDispatcherTrait};
     use starknet::account::Call;
+    use starknet::storage::StoragePointerReadAccess;
+    use starknet::storage::StoragePointerWriteAccess;
     use super::ITimelockAttacker;
 
     const NO_PREDECESSOR: felt252 = 0;

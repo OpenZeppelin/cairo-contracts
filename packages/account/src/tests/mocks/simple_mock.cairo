@@ -7,8 +7,8 @@ pub(crate) trait ISimpleMock<TContractState> {
 #[starknet::contract]
 pub(crate) mod SimpleMock {
     use starknet::storage::StoragePointerReadAccess;
-use starknet::storage::StoragePointerWriteAccess;
-#[storage]
+    use starknet::storage::StoragePointerWriteAccess;
+    #[storage]
     pub struct Storage {
         balance: felt252,
     }

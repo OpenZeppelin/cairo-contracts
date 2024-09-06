@@ -74,7 +74,7 @@ following the Starknet Foundry emitted error format.
 ==== `[.contract-item-name]#++IntoBase16StringTrait++#` [.item-kind]#trait#
 
 A helper trait that enables a value to be represented as a `base16`(hexadecimal) string padded to 66 characters
-(including the `0x` prefix). There's also a version with no padding for comatibility with Starknet Foundry `0.28.0` and above, where addresses and selectors are not padded properly. The type of the value must implement `Into<T, felt252>` to be
+(including the `0x` prefix). There's also a version with no padding for compatibility with Starknet Foundry `0.28.0` and above, where addresses and selectors are not padded properly. The type of the value must implement `Into<T, felt252>` to be
 convertible to `felt252`.
 
 Usage example:

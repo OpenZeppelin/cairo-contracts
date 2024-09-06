@@ -20,7 +20,9 @@ use snforge_std::{
     start_cheat_signature_global, start_cheat_transaction_version_global,
     start_cheat_transaction_hash_global
 };
-use snforge_std::{spy_events, declare, test_address, start_cheat_caller_address, DeclareResultTrait, DeclareResult};
+use snforge_std::{
+    spy_events, declare, test_address, start_cheat_caller_address, DeclareResultTrait, DeclareResult
+};
 use starknet::account::Call;
 
 //

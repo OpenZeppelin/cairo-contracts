@@ -20,7 +20,7 @@ use snforge_std::{
     start_cheat_signature_global, start_cheat_transaction_version_global,
     start_cheat_transaction_hash_global
 };
-use snforge_std::{spy_events, declare, test_address, start_cheat_caller_address};
+use snforge_std::{spy_events, declare, test_address, start_cheat_caller_address, DeclareResultTrait, DeclareResult};
 use starknet::account::Call;
 
 //
@@ -46,7 +46,11 @@ fn setup(key_pair: StarkKeyPair) -> ComponentState {
 fn setup_dispatcher(
     key_pair: StarkKeyPair, data: SignedTransactionData
 ) -> (AccountABIDispatcher, felt252) {
-    let contract_class = declare("DualCaseAccountMock").unwrap_syscall();
+    let declare_result = declare("DualCaseAccountMock").unwrap_syscall();
+    let contract_class = match declare_result {
+        DeclareResult::Success(contract_class) => contract_class,
+        DeclareResult::AlreadyDeclared(contract_class) => contract_class
+    };
     let calldata = array![key_pair.public_key];
     let address = utils::deploy(contract_class, calldata);
     let dispatcher = AccountABIDispatcher { contract_address: address };

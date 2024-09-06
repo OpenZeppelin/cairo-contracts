@@ -101,7 +101,7 @@ fn test_invalid_merkle_multi_proof_flags() {
 }
 
 #[test]
-#[should_panic(expected: ("MerkleProof: invalid multi proof",))]
+#[should_panic(expected: "MerkleProof: invalid multi proof")]
 fn test_process_multi_proof_invalid_len_proof_flags_panics() {
     let leaves = LEAVES();
     let leaves_to_prove = [leaf_hash(*leaves.at(0)), leaf_hash(*leaves.at(1))].span();
@@ -114,7 +114,7 @@ fn test_process_multi_proof_invalid_len_proof_flags_panics() {
 }
 
 #[test]
-#[should_panic(expected: ("MerkleProof: invalid multi proof",))]
+#[should_panic(expected: "MerkleProof: invalid multi proof")]
 fn test_verify_multi_proof_invalid_len_proof_flags_panics() {
     let leaves = LEAVES();
     let leaves_to_prove = [leaf_hash(*leaves.at(0)), leaf_hash(*leaves.at(1))].span();

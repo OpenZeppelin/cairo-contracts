@@ -1126,8 +1126,8 @@ fn test_v2_missing_camel_selector() {
     let selector = selector!("ownerOf");
     let expected_panic_message = format!(
         "Entry point selector {} not found in contract {}",
-        selector.into_base_16_string(),
-        v1.contract_address.into_base_16_string()
+        selector.into_base_16_string_no_padding(),
+        v1.contract_address.into_base_16_string_no_padding()
     );
     assert_eq!(utils::panic_data_to_byte_array(panic_data), expected_panic_message);
 }

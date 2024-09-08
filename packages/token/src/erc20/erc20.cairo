@@ -25,11 +25,11 @@ pub mod ERC20Component {
 
     #[storage]
     pub struct Storage {
-        ERC20_name: ByteArray,
-        ERC20_symbol: ByteArray,
-        ERC20_total_supply: u256,
-        ERC20_balances: Map<ContractAddress, u256>,
-        ERC20_allowances: Map<(ContractAddress, ContractAddress), u256>,
+        pub ERC20_name: ByteArray,
+        pub ERC20_symbol: ByteArray,
+        pub ERC20_total_supply: u256,
+        pub ERC20_balances: Map<ContractAddress, u256>,
+        pub ERC20_allowances: Map<(ContractAddress, ContractAddress), u256>,
     }
 
     #[event]

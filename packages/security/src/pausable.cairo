@@ -17,7 +17,7 @@ pub mod PausableComponent {
 
     #[storage]
     pub struct Storage {
-        Pausable_paused: bool
+        pub Pausable_paused: bool
     }
 
     #[event]

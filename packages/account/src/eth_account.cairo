@@ -28,7 +28,7 @@ pub mod EthAccountComponent {
 
     #[storage]
     pub struct Storage {
-        EthAccount_public_key: EthPublicKey
+        pub EthAccount_public_key: EthPublicKey
     }
 
     #[event]

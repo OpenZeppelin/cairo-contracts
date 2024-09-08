@@ -10,7 +10,7 @@ pub(crate) mod SimpleMock {
     use starknet::storage::StoragePointerWriteAccess;
     #[storage]
     pub struct Storage {
-        balance: felt252,
+        pub balance: felt252,
     }
 
     #[abi(embed_v0)]

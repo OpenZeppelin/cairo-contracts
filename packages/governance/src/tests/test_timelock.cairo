@@ -1,3 +1,6 @@
+use starknet::storage::StoragePointerWriteAccess;
+use starknet::storage::StorageMapReadAccess;
+use starknet::storage::StorageMapWriteAccess;
 use core::hash::{HashStateTrait, HashStateExTrait};
 use core::pedersen::PedersenTrait;
 use crate::tests::mocks::timelock_mocks::{IMockContractDispatcher, IMockContractDispatcherTrait};
@@ -37,8 +40,8 @@ use starknet::contract_address_const;
 type ComponentState =
     TimelockControllerComponent::ComponentState<TimelockControllerMock::ContractState>;
 
-fn CONTRACT_STATE() -> TimelockControllerMock::ContractState {
-    TimelockControllerMock::contract_state_for_testing()
+fn CONTRACT_STATE() -> @TimelockControllerMock::ContractState {
+    @TimelockControllerMock::contract_state_for_testing()
 }
 
 fn COMPONENT_STATE() -> ComponentState {

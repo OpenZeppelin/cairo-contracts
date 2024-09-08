@@ -1,3 +1,4 @@
+use starknet::storage::StorageMapReadAccess;
 use crate::erc721::ERC721Component::{ERC721Impl, InternalImpl as ERC721InternalImpl};
 use crate::erc721::extensions::erc721_enumerable::ERC721EnumerableComponent::{
     ERC721EnumerableImpl, InternalImpl

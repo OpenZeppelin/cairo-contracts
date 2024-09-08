@@ -9,9 +9,9 @@ pub(crate) mod PausableMock {
     impl InternalImpl = PausableComponent::InternalImpl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        pausable: PausableComponent::Storage
+        pub pausable: PausableComponent::Storage
     }
 
     #[event]

@@ -25,9 +25,9 @@ pub mod ERC1155Component {
 
     #[storage]
     pub struct Storage {
-        ERC1155_balances: Map<(u256, ContractAddress), u256>,
-        ERC1155_operator_approvals: Map<(ContractAddress, ContractAddress), bool>,
-        ERC1155_uri: ByteArray,
+        pub ERC1155_balances: Map<(u256, ContractAddress), u256>,
+        pub ERC1155_operator_approvals: Map<(ContractAddress, ContractAddress), bool>,
+        pub ERC1155_uri: ByteArray,
     }
 
     #[event]

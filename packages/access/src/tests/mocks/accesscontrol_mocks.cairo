@@ -15,11 +15,11 @@ pub(crate) mod DualCaseAccessControlMock {
     impl AccessControlInternalImpl = AccessControlComponent::InternalImpl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        accesscontrol: AccessControlComponent::Storage,
+        pub accesscontrol: AccessControlComponent::Storage,
         #[substorage(v0)]
-        src5: SRC5Component::Storage
+        pub src5: SRC5Component::Storage
     }
 
     #[event]
@@ -59,11 +59,11 @@ pub(crate) mod SnakeAccessControlMock {
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        accesscontrol: AccessControlComponent::Storage,
+        pub accesscontrol: AccessControlComponent::Storage,
         #[substorage(v0)]
-        src5: SRC5Component::Storage,
+        pub src5: SRC5Component::Storage,
     }
 
     #[event]
@@ -104,11 +104,11 @@ pub(crate) mod CamelAccessControlMock {
 
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        accesscontrol: AccessControlComponent::Storage,
+        pub accesscontrol: AccessControlComponent::Storage,
         #[substorage(v0)]
-        src5: SRC5Component::Storage
+        pub src5: SRC5Component::Storage
     }
 
     #[event]
@@ -138,7 +138,7 @@ pub(crate) mod SnakeAccessControlPanicMock {
     use starknet::ContractAddress;
 
     #[storage]
-    struct Storage {}
+    pub struct Storage {}
 
     #[abi(per_item)]
     #[generate_trait]
@@ -183,7 +183,7 @@ pub(crate) mod CamelAccessControlPanicMock {
     use starknet::ContractAddress;
 
     #[storage]
-    struct Storage {}
+    pub struct Storage {}
 
     #[abi(per_item)]
     #[generate_trait]

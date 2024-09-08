@@ -43,8 +43,8 @@ pub mod ERC2981Component {
 
     #[storage]
     pub struct Storage {
-        ERC2981_default_royalty_info: RoyaltyInfo,
-        ERC2981_token_royalty_info: Map<u256, RoyaltyInfo>,
+        pub ERC2981_default_royalty_info: RoyaltyInfo,
+        pub ERC2981_token_royalty_info: Map<u256, RoyaltyInfo>,
     }
 
     mod Errors {

@@ -16,13 +16,13 @@ pub(crate) mod TimelockControllerMock {
     impl TimelockInternalImpl = TimelockControllerComponent::InternalImpl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        access_control: AccessControlComponent::Storage,
+        pub access_control: AccessControlComponent::Storage,
         #[substorage(v0)]
-        src5: SRC5Component::Storage,
+        pub src5: SRC5Component::Storage,
         #[substorage(v0)]
-        timelock: TimelockControllerComponent::Storage
+        pub timelock: TimelockControllerComponent::Storage
     }
 
     #[event]
@@ -62,8 +62,8 @@ pub(crate) mod MockContract {
     use super::IMockContract;
 
     #[storage]
-    struct Storage {
-        number: felt252,
+    pub struct Storage {
+        pub number: felt252,
     }
 
     #[abi(embed_v0)]
@@ -100,9 +100,9 @@ pub(crate) mod TimelockAttackerMock {
     const NO_SALT: felt252 = 0;
 
     #[storage]
-    struct Storage {
-        balance: felt252,
-        count: felt252
+    pub struct Storage {
+        pub balance: felt252,
+        pub count: felt252
     }
 
     #[abi(embed_v0)]

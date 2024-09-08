@@ -11,7 +11,7 @@ pub mod ReentrancyGuardComponent {
     use starknet::storage::StoragePointerWriteAccess;
     #[storage]
     pub struct Storage {
-        ReentrancyGuard_entered: bool
+        pub ReentrancyGuard_entered: bool
     }
 
     pub mod Errors {

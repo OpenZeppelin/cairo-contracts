@@ -34,10 +34,10 @@ pub(crate) mod ReentrancyMock {
     impl InternalImpl = ReentrancyGuardComponent::InternalImpl<ContractState>;
 
     #[storage]
-    struct Storage {
-        counter: felt252,
+    pub struct Storage {
+        pub counter: felt252,
         #[substorage(v0)]
-        reentrancy_guard: ReentrancyGuardComponent::Storage
+        pub reentrancy_guard: ReentrancyGuardComponent::Storage
     }
 
     #[event]
@@ -115,7 +115,7 @@ pub(crate) mod Attacker {
     use super::IReentrancyMockDispatcherTrait;
 
     #[storage]
-    struct Storage {}
+    pub struct Storage {}
 
     #[abi(embed_v0)]
     impl IAttackerImpl of super::IAttacker<ContractState> {

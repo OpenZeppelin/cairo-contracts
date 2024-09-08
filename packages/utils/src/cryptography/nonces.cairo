@@ -11,7 +11,7 @@ pub mod NoncesComponent {
 
     #[storage]
     pub struct Storage {
-        Nonces_nonces: Map<ContractAddress, felt252>
+        pub Nonces_nonces: Map<ContractAddress, felt252>
     }
 
     pub mod Errors {

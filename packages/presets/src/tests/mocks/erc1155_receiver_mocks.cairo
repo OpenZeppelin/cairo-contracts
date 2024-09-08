@@ -19,11 +19,11 @@ pub(crate) mod SnakeERC1155ReceiverMock {
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        erc1155_receiver: ERC1155ReceiverComponent::Storage,
+        pub erc1155_receiver: ERC1155ReceiverComponent::Storage,
         #[substorage(v0)]
-        src5: SRC5Component::Storage
+        pub src5: SRC5Component::Storage
     }
 
     #[event]

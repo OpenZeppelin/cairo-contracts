@@ -20,11 +20,11 @@ pub(crate) mod DualCaseEthAccountMock {
     impl EthAccountInternalImpl = EthAccountComponent::InternalImpl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        eth_account: EthAccountComponent::Storage,
+        pub eth_account: EthAccountComponent::Storage,
         #[substorage(v0)]
-        src5: SRC5Component::Storage
+        pub src5: SRC5Component::Storage
     }
 
     #[event]
@@ -60,11 +60,11 @@ pub(crate) mod SnakeEthAccountMock {
     impl EthAccountInternalImpl = EthAccountComponent::InternalImpl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        eth_account: EthAccountComponent::Storage,
+        pub eth_account: EthAccountComponent::Storage,
         #[substorage(v0)]
-        src5: SRC5Component::Storage
+        pub src5: SRC5Component::Storage
     }
 
     #[event]
@@ -103,11 +103,11 @@ pub(crate) mod CamelEthAccountMock {
     impl EthAccountInternalImpl = EthAccountComponent::InternalImpl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        eth_account: EthAccountComponent::Storage,
+        pub eth_account: EthAccountComponent::Storage,
         #[substorage(v0)]
-        src5: SRC5Component::Storage
+        pub src5: SRC5Component::Storage
     }
 
     #[event]
@@ -152,7 +152,7 @@ pub(crate) mod SnakeEthAccountPanicMock {
     use starknet::secp256_trait::Secp256Trait;
 
     #[storage]
-    struct Storage {}
+    pub struct Storage {}
 
     #[abi(per_item)]
     #[generate_trait]
@@ -193,7 +193,7 @@ pub(crate) mod CamelEthAccountPanicMock {
     use starknet::secp256_trait::Secp256Trait;
 
     #[storage]
-    struct Storage {}
+    pub struct Storage {}
 
     #[abi(per_item)]
     #[generate_trait]

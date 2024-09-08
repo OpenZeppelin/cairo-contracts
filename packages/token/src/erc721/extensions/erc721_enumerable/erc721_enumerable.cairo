@@ -33,11 +33,11 @@ pub mod ERC721EnumerableComponent {
 
     #[storage]
     pub struct Storage {
-        ERC721Enumerable_owned_tokens: Map<(ContractAddress, u256), u256>,
-        ERC721Enumerable_owned_tokens_index: Map<u256, u256>,
-        ERC721Enumerable_all_tokens_len: u256,
-        ERC721Enumerable_all_tokens: Map<u256, u256>,
-        ERC721Enumerable_all_tokens_index: Map<u256, u256>
+        pub ERC721Enumerable_owned_tokens: Map<(ContractAddress, u256), u256>,
+        pub ERC721Enumerable_owned_tokens_index: Map<u256, u256>,
+        pub ERC721Enumerable_all_tokens_len: u256,
+        pub ERC721Enumerable_all_tokens: Map<u256, u256>,
+        pub ERC721Enumerable_all_tokens_index: Map<u256, u256>
     }
 
     pub mod Errors {

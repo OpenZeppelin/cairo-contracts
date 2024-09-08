@@ -24,13 +24,13 @@ pub mod ERC721Component {
 
     #[storage]
     pub struct Storage {
-        ERC721_name: ByteArray,
-        ERC721_symbol: ByteArray,
-        ERC721_owners: Map<u256, ContractAddress>,
-        ERC721_balances: Map<ContractAddress, u256>,
-        ERC721_token_approvals: Map<u256, ContractAddress>,
-        ERC721_operator_approvals: Map<(ContractAddress, ContractAddress), bool>,
-        ERC721_base_uri: ByteArray
+        pub ERC721_name: ByteArray,
+        pub ERC721_symbol: ByteArray,
+        pub ERC721_owners: Map<u256, ContractAddress>,
+        pub ERC721_balances: Map<ContractAddress, u256>,
+        pub ERC721_token_approvals: Map<u256, ContractAddress>,
+        pub ERC721_operator_approvals: Map<(ContractAddress, ContractAddress), bool>,
+        pub ERC721_base_uri: ByteArray
     }
 
     #[event]

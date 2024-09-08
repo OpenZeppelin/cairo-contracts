@@ -13,7 +13,7 @@ pub mod SRC5Component {
 
     #[storage]
     pub struct Storage {
-        SRC5_supported_interfaces: Map<felt252, bool>
+        pub SRC5_supported_interfaces: Map<felt252, bool>
     }
 
     pub mod Errors {

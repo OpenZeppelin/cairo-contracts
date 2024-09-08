@@ -1,3 +1,4 @@
+use starknet::storage::StoragePointerReadAccess;
 use core::num::traits::Zero;
 use crate::erc1155::ERC1155Component::ERC1155CamelImpl;
 use crate::erc1155::ERC1155Component::{ERC1155Impl, ERC1155MetadataURIImpl, InternalImpl};

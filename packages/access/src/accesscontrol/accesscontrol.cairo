@@ -19,8 +19,8 @@ pub mod AccessControlComponent {
 
     #[storage]
     pub struct Storage {
-        AccessControl_role_admin: Map<felt252, felt252>,
-        AccessControl_role_member: Map<(felt252, ContractAddress), bool>,
+        pub AccessControl_role_admin: Map<felt252, felt252>,
+        pub AccessControl_role_member: Map<(felt252, ContractAddress), bool>,
     }
 
     #[event]

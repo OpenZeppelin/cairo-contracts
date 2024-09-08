@@ -45,8 +45,8 @@ pub mod TimelockControllerComponent {
 
     #[storage]
     pub struct Storage {
-        TimelockController_timestamps: Map<felt252, u64>,
-        TimelockController_min_delay: u64
+        pub TimelockController_timestamps: Map<felt252, u64>,
+        pub TimelockController_min_delay: u64
     }
 
     #[event]

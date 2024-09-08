@@ -1,3 +1,5 @@
+use starknet::storage::StoragePointerWriteAccess;
+use starknet::storage::StoragePointerReadAccess;
 use core::num::traits::Zero;
 use crate::ownable::OwnableComponent::{InternalTrait, OwnershipTransferStarted};
 use crate::ownable::OwnableComponent;

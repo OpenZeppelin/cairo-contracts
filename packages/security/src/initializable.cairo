@@ -14,7 +14,7 @@ pub mod InitializableComponent {
 
     #[storage]
     pub struct Storage {
-        Initializable_initialized: bool
+        pub Initializable_initialized: bool
     }
 
     pub mod Errors {

@@ -24,10 +24,10 @@ pub(crate) mod UpgradesV1 {
     impl InternalImpl = UpgradeableComponent::InternalImpl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        upgradeable: UpgradeableComponent::Storage,
-        value: felt252
+        pub upgradeable: UpgradeableComponent::Storage,
+        pub value: felt252
     }
 
     #[event]
@@ -76,11 +76,11 @@ pub(crate) mod UpgradesV2 {
     impl InternalImpl = UpgradeableComponent::InternalImpl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        upgradeable: UpgradeableComponent::Storage,
-        value: felt252,
-        value2: felt252
+        pub upgradeable: UpgradeableComponent::Storage,
+        pub value: felt252,
+        pub value2: felt252
     }
 
     #[event]

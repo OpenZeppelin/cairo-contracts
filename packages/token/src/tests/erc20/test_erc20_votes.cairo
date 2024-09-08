@@ -1,3 +1,5 @@
+use starknet::storage::StoragePointerReadAccess;
+use starknet::storage::StorageMapReadAccess;
 use core::num::traits::Bounded;
 use core::num::traits::Zero;
 use crate::erc20::ERC20Component::InternalImpl as ERC20Impl;

@@ -25,8 +25,8 @@ pub mod OwnableComponent {
 
     #[storage]
     pub struct Storage {
-        Ownable_owner: ContractAddress,
-        Ownable_pending_owner: ContractAddress
+        pub Ownable_owner: ContractAddress,
+        pub Ownable_pending_owner: ContractAddress
     }
 
     #[event]

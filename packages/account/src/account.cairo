@@ -24,7 +24,7 @@ pub mod AccountComponent {
 
     #[storage]
     pub struct Storage {
-        Account_public_key: felt252
+        pub Account_public_key: felt252
     }
 
     #[event]

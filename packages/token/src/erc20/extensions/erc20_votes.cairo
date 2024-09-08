@@ -33,9 +33,9 @@ pub mod ERC20VotesComponent {
 
     #[storage]
     pub struct Storage {
-        ERC20Votes_delegatee: Map<ContractAddress, ContractAddress>,
-        ERC20Votes_delegate_checkpoints: Map<ContractAddress, Trace>,
-        ERC20Votes_total_checkpoints: Trace
+        pub ERC20Votes_delegatee: Map<ContractAddress, ContractAddress>,
+        pub ERC20Votes_delegate_checkpoints: Map<ContractAddress, Trace>,
+        pub ERC20Votes_total_checkpoints: Trace
     }
 
     #[event]

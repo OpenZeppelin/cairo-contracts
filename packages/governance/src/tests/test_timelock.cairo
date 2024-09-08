@@ -1,6 +1,3 @@
-use starknet::storage::StoragePointerWriteAccess;
-use starknet::storage::StorageMapReadAccess;
-use starknet::storage::StorageMapWriteAccess;
 use core::hash::{HashStateTrait, HashStateExTrait};
 use core::pedersen::PedersenTrait;
 use crate::tests::mocks::timelock_mocks::{IMockContractDispatcher, IMockContractDispatcherTrait};
@@ -36,6 +33,9 @@ use snforge_std::{
 use starknet::ContractAddress;
 use starknet::account::Call;
 use starknet::contract_address_const;
+use starknet::storage::StorageMapReadAccess;
+use starknet::storage::StorageMapWriteAccess;
+use starknet::storage::StoragePointerWriteAccess;
 
 type ComponentState =
     TimelockControllerComponent::ComponentState<TimelockControllerMock::ContractState>;

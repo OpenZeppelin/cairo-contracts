@@ -1,5 +1,3 @@
-use starknet::storage::StoragePointerWriteAccess;
-use starknet::storage::StoragePointerReadAccess;
 use core::num::traits::Zero;
 use crate::ownable::OwnableComponent::{InternalTrait, OwnershipTransferStarted};
 use crate::ownable::OwnableComponent;
@@ -10,6 +8,8 @@ use openzeppelin_testing::constants::{ZERO, OWNER, OTHER, NEW_OWNER};
 use openzeppelin_testing::events::EventSpyExt;
 use snforge_std::{EventSpy, spy_events, start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
+use starknet::storage::StoragePointerReadAccess;
+use starknet::storage::StoragePointerWriteAccess;
 
 //
 // Setup

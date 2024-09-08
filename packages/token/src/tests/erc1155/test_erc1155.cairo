@@ -1,4 +1,3 @@
-use starknet::storage::StoragePointerReadAccess;
 use core::num::traits::Zero;
 use crate::erc1155::ERC1155Component::ERC1155CamelImpl;
 use crate::erc1155::ERC1155Component::{ERC1155Impl, ERC1155MetadataURIImpl, InternalImpl};
@@ -18,6 +17,7 @@ use openzeppelin_testing::constants::{
 };
 use snforge_std::{spy_events, test_address, start_cheat_caller_address};
 use starknet::ContractAddress;
+use starknet::storage::StoragePointerReadAccess;
 
 //
 // Setup

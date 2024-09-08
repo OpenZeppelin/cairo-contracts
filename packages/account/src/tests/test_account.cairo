@@ -15,11 +15,11 @@ use openzeppelin_testing::constants::{
     SALT, ZERO, OTHER, CALLER, QUERY_OFFSET, QUERY_VERSION, MIN_TRANSACTION_VERSION
 };
 use openzeppelin_testing::signing::StarkKeyPair;
-use snforge_std::{spy_events, test_address, start_cheat_caller_address};
 use snforge_std::{
     start_cheat_signature_global, start_cheat_transaction_version_global,
     start_cheat_transaction_hash_global
 };
+use snforge_std::{spy_events, test_address, start_cheat_caller_address};
 use starknet::account::Call;
 
 //

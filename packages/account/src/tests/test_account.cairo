@@ -1,5 +1,4 @@
 use core::num::traits::Zero;
-use core::starknet::SyscallResultTrait;
 use crate::AccountComponent::{InternalTrait, SRC6CamelOnlyImpl};
 use crate::AccountComponent::{PublicKeyCamelImpl, PublicKeyImpl};
 use crate::AccountComponent;
@@ -17,7 +16,7 @@ use openzeppelin_testing::constants::{
 };
 use openzeppelin_testing::signing::StarkKeyPair;
 use snforge_std::{
-    spy_events, declare, test_address, start_cheat_caller_address, DeclareResultTrait, DeclareResult
+    spy_events, test_address, start_cheat_caller_address
 };
 use snforge_std::{
     start_cheat_signature_global, start_cheat_transaction_version_global,
@@ -48,11 +47,8 @@ fn setup(key_pair: StarkKeyPair) -> ComponentState {
 fn setup_dispatcher(
     key_pair: StarkKeyPair, data: SignedTransactionData
 ) -> (AccountABIDispatcher, felt252) {
-    let declare_result = declare("DualCaseAccountMock").unwrap_syscall();
-    let contract_class = match declare_result {
-        DeclareResult::Success(contract_class) => contract_class,
-        DeclareResult::AlreadyDeclared(contract_class) => contract_class
-    };
+    let contract_class = utils::declare_class("DualCaseAccountMock");
+    
     let calldata = array![key_pair.public_key];
     let address = utils::deploy(contract_class, calldata);
     let dispatcher = AccountABIDispatcher { contract_address: address };

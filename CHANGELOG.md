@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `into_base_16_string_no_padding` function to the test helpers to accomodate to Starknet Foundry output where addresses and selectors don't have trailing zeros after 0x (#1137)
+- `into_base_16_string_no_padding` function to the test helpers to accomodate to Starknet Foundry output where addresses and selectors don't have trailing zeros after `0x` (#1137)
 
 ### Changed
 

@@ -118,19 +118,19 @@ A module containing utilities that simplify declaring and deploying contracts us
 [[testing-deployment-declare_class]]
 ==== `[.contract-item-name]#++declare_class++#++(contract_name: ByteArray) → ContractClass++` [.item-kind]#function#
 
-Declares a contract with a `snforge` `declare` call and unwraps the result. This function will skip declaration and just return the `ContractClass` if the contract is already declared(the result of `snforge` `declare` call is of type `DeclareResult::AlreadyDeclared`)
+Declares a contract with a `snforge` `declare` call and unwraps the result. This function will skip declaration and just return the `ContractClass` if the contract is already declared(the result of `snforge` `declare` call is of type `DeclareResult::AlreadyDeclared`).
 
 [.contract-item]
 [[testing-deployment-deploy]]
 ==== `[.contract-item-name]#++deploy++#++(contract_class: ContractClass, calldata: Array<felt252>) → ContractAddress++` [.item-kind]#function#
 
-Deploys an instance of a contract and unwraps the result. This function will skip declaration and just return the `ContractClass` if the contract is already declared(the result of `snforge` `declare` call is of type `DeclareResult::AlreadyDeclared`)
+Deploys an instance of a contract and unwraps the result. This function will skip declaration if the contract is already declared(the result of `snforge` `declare` call is of type `DeclareResult::AlreadyDeclared`).
 
 [.contract-item]
 [[testing-deployment-deploy_at]]
 ==== `[.contract-item-name]#++deploy_at++#++(contract_class: ContractClass, target_address: ContractAddress, calldata: Array<felt252>)++` [.item-kind]#function#
 
-Deploys an instance of a contract at a given address. This function will skip declaration and just return the `ContractClass` if the contract is already declared(the result of `snforge` `declare` call is of type `DeclareResult::AlreadyDeclared`)
+Deploys an instance of a contract at a given address. This function will skip declaration if the contract is already declared(the result of `snforge` `declare` call is of type `DeclareResult::AlreadyDeclared`).
 
 [.contract-item]
 [[testing-deployment-deploy_another_at]]

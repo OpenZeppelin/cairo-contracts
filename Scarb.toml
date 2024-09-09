@@ -39,8 +39,8 @@ keywords = [
 ]
 
 [workspace.dependencies]
-assert_macros = "2.8.0"
-starknet = "2.8.0"
+assert_macros = "2.8.2"
+starknet = "2.8.2"
 snforge_std = { git = "https://github.com/foundry-rs/starknet-foundry.git", tag = "v0.30.0" }
 
 [dependencies]

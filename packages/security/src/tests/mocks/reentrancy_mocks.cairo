@@ -20,8 +20,7 @@ pub(crate) mod ReentrancyMock {
     use crate::reentrancyguard::ReentrancyGuardComponent;
     use starknet::ContractAddress;
     use starknet::get_contract_address;
-    use starknet::storage::StoragePointerReadAccess;
-    use starknet::storage::StoragePointerWriteAccess;
+    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
     use super::IAttackerDispatcher;
     use super::IAttackerDispatcherTrait;
     use super::IReentrancyGuardedDispatcher;

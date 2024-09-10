@@ -25,11 +25,10 @@ pub mod ERC721EnumerableComponent {
     use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin_introspection::src5::SRC5Component;
     use starknet::ContractAddress;
-    use starknet::storage::Map;
-    use starknet::storage::StorageMapReadAccess;
-    use starknet::storage::StorageMapWriteAccess;
-    use starknet::storage::StoragePointerReadAccess;
-    use starknet::storage::StoragePointerWriteAccess;
+    use starknet::storage::{
+        Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
+        StoragePointerWriteAccess
+    };
 
     #[storage]
     pub struct Storage {

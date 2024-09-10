@@ -30,11 +30,7 @@ pub mod TimelockControllerComponent {
     use starknet::ContractAddress;
     use starknet::SyscallResultTrait;
     use starknet::account::Call;
-    use starknet::storage::Map;
-    use starknet::storage::StorageMapReadAccess;
-    use starknet::storage::StorageMapWriteAccess;
-    use starknet::storage::StoragePointerReadAccess;
-    use starknet::storage::StoragePointerWriteAccess;
+    use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess, StoragePointerWriteAccess};
     use super::OperationState;
 
     // Constants

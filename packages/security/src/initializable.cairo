@@ -9,8 +9,7 @@
 #[starknet::component]
 pub mod InitializableComponent {
     use crate::interface::IInitializable;
-    use starknet::storage::StoragePointerReadAccess;
-    use starknet::storage::StoragePointerWriteAccess;
+    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 
     #[storage]
     pub struct Storage {

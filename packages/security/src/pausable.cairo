@@ -12,8 +12,7 @@ pub mod PausableComponent {
 
     use starknet::ContractAddress;
     use starknet::get_caller_address;
-    use starknet::storage::StoragePointerReadAccess;
-    use starknet::storage::StoragePointerWriteAccess;
+    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 
     #[storage]
     pub struct Storage {

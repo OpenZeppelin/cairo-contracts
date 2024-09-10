@@ -7,9 +7,7 @@
 #[starknet::component]
 pub mod SRC5Component {
     use crate::interface;
-    use starknet::storage::Map;
-    use starknet::storage::StorageMapReadAccess;
-    use starknet::storage::StorageMapWriteAccess;
+    use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
 
     #[storage]
     pub struct Storage {

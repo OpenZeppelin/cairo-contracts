@@ -7,8 +7,7 @@
 /// to a function.
 #[starknet::component]
 pub mod ReentrancyGuardComponent {
-    use starknet::storage::StoragePointerReadAccess;
-    use starknet::storage::StoragePointerWriteAccess;
+    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
     #[storage]
     pub struct Storage {
         pub ReentrancyGuard_entered: bool

@@ -19,8 +19,7 @@ use snforge_std::{
     start_cheat_block_timestamp_global, start_cheat_caller_address, spy_events,
     start_cheat_chain_id_global, test_address
 };
-use starknet::storage::StorageMapReadAccess;
-use starknet::storage::StoragePointerReadAccess;
+use starknet::storage::{StorageMapReadAccess, StoragePointerReadAccess};
 use starknet::{ContractAddress, contract_address_const};
 
 //

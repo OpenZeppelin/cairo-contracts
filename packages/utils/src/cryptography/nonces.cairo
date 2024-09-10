@@ -5,9 +5,7 @@
 pub mod NoncesComponent {
     use crate::interfaces::INonces;
     use starknet::ContractAddress;
-    use starknet::storage::Map;
-    use starknet::storage::StorageMapReadAccess;
-    use starknet::storage::StorageMapWriteAccess;
+    use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
 
     #[storage]
     pub struct Storage {

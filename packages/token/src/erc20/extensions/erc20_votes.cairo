@@ -25,7 +25,9 @@ pub mod ERC20VotesComponent {
     use openzeppelin_utils::nonces::NoncesComponent;
     use openzeppelin_utils::structs::checkpoint::{Checkpoint, Trace, TraceTrait};
     use starknet::ContractAddress;
-    use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess};
+    use starknet::storage::{
+        Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess
+    };
     use super::{Delegation, OffchainMessageHash, SNIP12Metadata};
 
     #[storage]

@@ -17,7 +17,10 @@ pub mod ERC20Component {
     use crate::erc20::interface;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
-    use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess, StoragePointerWriteAccess};
+    use starknet::storage::{
+        Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
+        StoragePointerWriteAccess
+    };
 
     #[storage]
     pub struct Storage {

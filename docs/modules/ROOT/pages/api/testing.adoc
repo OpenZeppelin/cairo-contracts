@@ -124,13 +124,13 @@ Declares a contract with a `snforge_std::declare` call and unwraps the result. T
 [[testing-deployment-deploy]]
 ==== `[.contract-item-name]#++deploy++#++(contract_class: ContractClass, calldata: Array<felt252>) → ContractAddress++` [.item-kind]#function#
 
-Deploys an instance of a contract and unwraps the result. This function will skip declaration if the contract is already declared(the result of `snforge_std::declare` call is of type `DeclareResult::AlreadyDeclared`).
+Deploys an instance of a contract and unwraps the result.
 
 [.contract-item]
 [[testing-deployment-deploy_at]]
 ==== `[.contract-item-name]#++deploy_at++#++(contract_class: ContractClass, target_address: ContractAddress, calldata: Array<felt252>)++` [.item-kind]#function#
 
-Deploys an instance of a contract at a given address. This function will skip declaration if the contract is already declared(the result of `snforge_std::declare` call is of type `DeclareResult::AlreadyDeclared`).
+Deploys an instance of a contract at a given address.
 
 [.contract-item]
 [[testing-deployment-deploy_another_at]]
@@ -155,13 +155,13 @@ deploy_another_at(alice_address, bob_address, array!['BOB_PUBKEY']);
 [[testing-deployment-declare_and_deploy]]
 ==== `[.contract-item-name]#++declare_and_deploy++#++(contract_name: ByteArray, calldata: Array<felt252>) → ContractAddress++` [.item-kind]#function#
 
-Combines the declaration of a class and the deployment of a contract into one function call.
+Combines the declaration of a class and the deployment of a contract into one function call. This function will skip declaration if the contract is already declared(the result of `snforge_std::declare` call is of type `DeclareResult::AlreadyDeclared`).
 
 [.contract-item]
 [[testing-deployment-declare_and_deploy_at]]
 ==== `[.contract-item-name]#++declare_and_deploy_at++#++(contract_name: ByteArray, target_address: ContractAddress, calldata: Array<felt252>)++` [.item-kind]#function#
 
-Combines the declaration of a class and the deployment of a contract at the given address into one function call.
+Combines the declaration of a class and the deployment of a contract at the given address into one function call. This function will skip declaration if the contract is already declared(the result of `snforge_std::declare` call is of type `DeclareResult::AlreadyDeclared`).
 
 [.contract]
 [[testing-events]]

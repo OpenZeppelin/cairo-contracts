@@ -142,11 +142,11 @@ pub mod ERC20PermitComponent {
 
 #[derive(Copy, Drop, Hash)]
 pub struct Permit {
-    token: ContractAddress,
-    spender: ContractAddress,
-    amount: u256,
-    nonce: felt252,
-    deadline: u64,
+    pub token: ContractAddress,
+    pub spender: ContractAddress,
+    pub amount: u256,
+    pub nonce: felt252,
+    pub deadline: u64,
 }
 
 // Since there's no u64 type in SNIP-12, the type used for `deadline` parameter is u128

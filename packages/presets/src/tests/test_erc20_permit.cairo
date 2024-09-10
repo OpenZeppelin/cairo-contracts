@@ -1,20 +1,22 @@
-use core::poseidon::PoseidonTrait;
 use core::hash::{HashStateTrait, HashStateExTrait};
+use core::poseidon::PoseidonTrait;
+use openzeppelin_testing as utils;
 use openzeppelin_testing::constants;
 use openzeppelin_testing::signing::{StarkKeyPair, StarkSerializedSigning};
-use openzeppelin_testing as utils;
 use openzeppelin_token::erc20::ERC20Component::{ERC20MixinImpl, InternalImpl};
 use openzeppelin_token::erc20::extensions::ERC20PermitComponent::{
     ERC20PermitImpl, SNIP12MetadataExternalImpl
 };
-use openzeppelin_token::erc20::extensions::erc20_permit::interface::{ERC20PermitABIDispatcher, ERC20PermitABIDispatcherTrait};
 use openzeppelin_token::erc20::extensions::erc20_permit::erc20_permit::Permit;
-use openzeppelin_utils::cryptography::snip12::{
-    StarknetDomain, StructHashStarknetDomainImpl
+use openzeppelin_token::erc20::extensions::erc20_permit::interface::{
+    ERC20PermitABIDispatcher, ERC20PermitABIDispatcherTrait
 };
+use openzeppelin_utils::cryptography::snip12::{StarknetDomain, StructHashStarknetDomainImpl};
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::signature::stark_curve::StarkCurveSignerImpl;
-use snforge_std::{start_cheat_caller_address, start_cheat_block_timestamp, start_cheat_chain_id_global};
+use snforge_std::{
+    start_cheat_caller_address, start_cheat_block_timestamp, start_cheat_chain_id_global
+};
 use starknet::ContractAddress;
 
 //
@@ -63,7 +65,9 @@ fn TEST_DATA() -> TestData {
 fn setup(data: TestData) -> ERC20PermitABIDispatcher {
     start_cheat_chain_id_global(data.chain_id);
 
-    utils::declare_and_deploy_at("DualCaseAccountMock", data.owner, array![data.key_pair.public_key]);
+    utils::declare_and_deploy_at(
+        "DualCaseAccountMock", data.owner, array![data.key_pair.public_key]
+    );
 
     let mut calldata = array![];
     calldata.append_serde(data.name.clone());
@@ -439,9 +443,7 @@ fn test_invalid_sig_bad_deadline() {
 // Helpers
 //
 
-fn prepare_permit_signature(
-    data: TestData, nonce: felt252
-) -> Array<felt252> {
+fn prepare_permit_signature(data: TestData, nonce: felt252) -> Array<felt252> {
     let sn_domain = StarknetDomain {
         name: data.metadata_name,
         version: data.metadata_version,
@@ -449,7 +451,11 @@ fn prepare_permit_signature(
         revision: data.revision
     };
     let permit = Permit {
-        token: data.contract_address, spender: data.spender, amount: data.amount, nonce, deadline: data.deadline
+        token: data.contract_address,
+        spender: data.spender,
+        amount: data.amount,
+        nonce,
+        deadline: data.deadline
     };
     let msg_hash = PoseidonTrait::new()
         .update_with('StarkNet Message')
@@ -466,9 +472,7 @@ fn assert_valid_nonce(account: ContractAddress, expected: felt252) {
     assert_eq!(dispatcher.nonces(account), expected);
 }
 
-fn assert_valid_allowance(
-    owner: ContractAddress, spender: ContractAddress, expected: u256
-) {
+fn assert_valid_allowance(owner: ContractAddress, spender: ContractAddress, expected: u256) {
     let dispatcher = ERC20PermitABIDispatcher { contract_address: constants::CONTRACT_ADDRESS() };
     assert_eq!(dispatcher.allowance(owner, spender), expected);
 }

@@ -68,6 +68,6 @@ pub fn assert_entrypoint_not_found_error<T, +Drop<T>>(
             "Got unexpected panic message: {actual_panic_message}"
         );
     } else {
-        panic!("${selector} call was expected to fail, but succeeded");
+        panic!("{selector} call was expected to fail, but succeeded");
     }
 }

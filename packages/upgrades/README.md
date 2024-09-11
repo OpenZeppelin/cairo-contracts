@@ -2,7 +2,7 @@
 
 > **NOTE:** This document is better viewed at https://docs.openzeppelin.com/contracts-cairo/api/upgrades
 
-Reference of interfaces and utilities related to upgradeability.
+This crate provides an interface and component used for upgradeability.
 
 ### Interfaces
 

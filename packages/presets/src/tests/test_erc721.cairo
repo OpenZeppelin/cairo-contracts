@@ -1121,15 +1121,10 @@ fn test_v2_missing_camel_selector() {
     v1.upgrade(v2_class_hash);
 
     let safe_dispatcher = IERC721CamelOnlySafeDispatcher { contract_address: v1.contract_address };
-    let mut panic_data = safe_dispatcher.ownerOf(TOKEN_1).unwrap_err();
-
+    let mut result = safe_dispatcher.ownerOf(TOKEN_1);
     let selector = selector!("ownerOf");
-    let expected_panic_message = format!(
-        "Entry point selector {} not found in contract {}",
-        selector.into_base_16_string_no_padding(),
-        v1.contract_address.into_base_16_string_no_padding()
-    );
-    assert_eq!(utils::panic_data_to_byte_array(panic_data), expected_panic_message);
+
+    utils::assert_entrypoint_not_found_error(result, selector, v1.contract_address);
 }
 
 #[test]

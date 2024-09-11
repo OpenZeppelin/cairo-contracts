@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.15.1 (account/interface.cairo)
+// OpenZeppelin Contracts for Cairo v0.16.0 (account/interface.cairo)
 
 use starknet::account::Call;
 

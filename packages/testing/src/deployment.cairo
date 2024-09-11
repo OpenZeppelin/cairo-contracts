@@ -1,4 +1,4 @@
-use openzeppelin_testing::panic_data_to_byte_array;
+use crate::panic_data_to_byte_array;
 use snforge_std::{ContractClass, ContractClassTrait};
 use starknet::ContractAddress;
 

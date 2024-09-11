@@ -1,7 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.15.1 (token/erc1155/erc1155.cairo)
-
-use starknet::ContractAddress;
+// OpenZeppelin Contracts for Cairo v0.16.0 (token/erc1155/erc1155.cairo)
 
 /// # ERC1155 Component
 ///
@@ -10,15 +8,13 @@ use starknet::ContractAddress;
 #[starknet::component]
 pub mod ERC1155Component {
     use core::num::traits::Zero;
+    use crate::erc1155::dual1155_receiver::{DualCaseERC1155Receiver, DualCaseERC1155ReceiverTrait};
+    use crate::erc1155::interface;
     use openzeppelin_account::interface::ISRC6_ID;
     use openzeppelin_introspection::interface::{ISRC5Dispatcher, ISRC5DispatcherTrait};
     use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
     use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_token::erc1155::dual1155_receiver::{
-        DualCaseERC1155Receiver, DualCaseERC1155ReceiverTrait
-    };
-    use openzeppelin_token::erc1155::interface;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
     use starknet::storage::Map;

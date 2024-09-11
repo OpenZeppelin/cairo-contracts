@@ -1,6 +1,6 @@
 #[starknet::contract(account)]
 pub(crate) mod DualCaseAccountMock {
-    use openzeppelin_account::AccountComponent;
+    use crate::AccountComponent;
     use openzeppelin_introspection::src5::SRC5Component;
 
     component!(path: AccountComponent, storage: account, event: AccountEvent);
@@ -46,7 +46,7 @@ pub(crate) mod DualCaseAccountMock {
 
 #[starknet::contract(account)]
 pub(crate) mod SnakeAccountMock {
-    use openzeppelin_account::AccountComponent;
+    use crate::AccountComponent;
     use openzeppelin_introspection::src5::SRC5Component;
 
     component!(path: AccountComponent, storage: account, event: AccountEvent);
@@ -88,7 +88,7 @@ pub(crate) mod SnakeAccountMock {
 
 #[starknet::contract(account)]
 pub(crate) mod CamelAccountMock {
-    use openzeppelin_account::AccountComponent;
+    use crate::AccountComponent;
     use openzeppelin_introspection::src5::SRC5Component;
     use starknet::account::Call;
 

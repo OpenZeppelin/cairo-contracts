@@ -1,11 +1,11 @@
 use core::num::traits::Zero;
-use openzeppelin_access::ownable::OwnableComponent::InternalTrait;
-use openzeppelin_access::ownable::OwnableComponent;
-use openzeppelin_access::ownable::interface::{IOwnable, IOwnableCamelOnly};
-use openzeppelin_access::tests::mocks::ownable_mocks::DualCaseOwnableMock;
+use crate::ownable::OwnableComponent::InternalTrait;
+use crate::ownable::OwnableComponent;
+use crate::ownable::interface::{IOwnable, IOwnableCamelOnly};
+use crate::tests::mocks::ownable_mocks::DualCaseOwnableMock;
 
 use openzeppelin_test_common::ownable::OwnableSpyHelpers;
-use openzeppelin_testing::constants::{ZERO, OTHER, OWNER};
+use openzeppelin_testing::constants::{ZERO, OTHER, OWNER, RECIPIENT};
 use snforge_std::{spy_events, test_address, start_cheat_caller_address};
 
 //
@@ -84,6 +84,20 @@ fn test__transfer_ownership() {
 
     let current_owner = state.Ownable_owner.read();
     assert_eq!(current_owner, OTHER());
+}
+
+#[test]
+fn test__transfer_ownership_resets_pending_owner() {
+    let mut state = setup();
+
+    state.Ownable_pending_owner.write(OTHER());
+    let current_pending_owner = state.Ownable_pending_owner.read();
+    assert_eq!(current_pending_owner, OTHER());
+
+    state._transfer_ownership(RECIPIENT());
+
+    let current_pending_owner = state.Ownable_pending_owner.read();
+    assert!(current_pending_owner.is_zero());
 }
 
 //

@@ -1,13 +1,13 @@
 use core::num::traits::Zero;
+use crate::erc1155::dual1155::{DualCaseERC1155, DualCaseERC1155Trait};
+use crate::erc1155::interface::IERC1155_ID;
+use crate::erc1155::interface::{IERC1155CamelDispatcher, IERC1155CamelDispatcherTrait};
+use crate::erc1155::interface::{IERC1155Dispatcher, IERC1155DispatcherTrait};
 use openzeppelin_test_common::erc1155::{setup_account, setup_receiver};
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{
     EMPTY_DATA, OWNER, RECIPIENT, OPERATOR, TOKEN_ID, TOKEN_ID_2, TOKEN_VALUE
 };
-use openzeppelin_token::erc1155::dual1155::{DualCaseERC1155, DualCaseERC1155Trait};
-use openzeppelin_token::erc1155::interface::IERC1155_ID;
-use openzeppelin_token::erc1155::interface::{IERC1155CamelDispatcher, IERC1155CamelDispatcherTrait};
-use openzeppelin_token::erc1155::interface::{IERC1155Dispatcher, IERC1155DispatcherTrait};
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::start_cheat_caller_address;
 use starknet::ContractAddress;

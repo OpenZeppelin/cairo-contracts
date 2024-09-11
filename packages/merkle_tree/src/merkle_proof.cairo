@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.15.1 (merkle_tree/merkle_proof.cairo)
+// OpenZeppelin Contracts for Cairo v0.16.0 (merkle_tree/merkle_proof.cairo)
 
 /// These functions deal with verification of Merkle Tree proofs.
 ///
@@ -13,7 +13,7 @@
 /// leaf inclusion in trees built using non-commutative hashing functions requires
 /// additional logic that is not supported by this library.
 
-use openzeppelin_merkle_tree::hashes::{CommutativeHasher, PedersenCHasher, PoseidonCHasher};
+use crate::hashes::{CommutativeHasher, PedersenCHasher, PoseidonCHasher};
 
 /// Returns true if a `leaf` can be proved to be a part of a Merkle tree
 /// defined by `root`. For this, a `proof` must be provided, containing
@@ -98,38 +98,37 @@ pub fn process_multi_proof<impl Hasher: CommutativeHasher>(
     let mut leaf_pos = 0;
     let mut hash_pos = 0;
     let mut proof_pos = 0;
-    let mut i = 0;
 
     // At each step, we compute the next hash using two values:
     // - a value from the "main queue". If not all leaves have been consumed, we get the next leaf,
     // otherwise we get the next hash.
     // - depending on the flag, either another value from the "main queue" (merging branches) or an
     // element from the `proof` array.
-    while i < proof_flags_len {
-        let a = if leaf_pos < leaves_len {
-            leaf_pos += 1;
-            leaves.at(leaf_pos - 1)
-        } else {
-            hash_pos += 1;
-            hashes.at(hash_pos - 1)
-        };
-
-        let b = if *proof_flags.at(i) {
-            if leaf_pos < leaves_len {
+    for i in 0
+        ..proof_flags_len {
+            let a = if leaf_pos < leaves_len {
                 leaf_pos += 1;
                 leaves.at(leaf_pos - 1)
             } else {
                 hash_pos += 1;
                 hashes.at(hash_pos - 1)
-            }
-        } else {
-            proof_pos += 1;
-            proof.at(proof_pos - 1)
-        };
+            };
 
-        hashes.append(Hasher::commutative_hash(*a, *b));
-        i += 1;
-    };
+            let b = if *proof_flags.at(i) {
+                if leaf_pos < leaves_len {
+                    leaf_pos += 1;
+                    leaves.at(leaf_pos - 1)
+                } else {
+                    hash_pos += 1;
+                    hashes.at(hash_pos - 1)
+                }
+            } else {
+                proof_pos += 1;
+                proof.at(proof_pos - 1)
+            };
+
+            hashes.append(Hasher::commutative_hash(*a, *b));
+        };
 
     let root = if proof_flags_len > 0 {
         hashes.at(proof_flags_len - 1)

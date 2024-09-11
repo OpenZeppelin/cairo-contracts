@@ -1,10 +1,10 @@
+use crate::erc20::dual20::{DualCaseERC20, DualCaseERC20Trait};
+use crate::erc20::interface::{IERC20CamelDispatcher, IERC20CamelDispatcherTrait};
+use crate::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{
     OWNER, RECIPIENT, SPENDER, OPERATOR, NAME, SYMBOL, DECIMALS, SUPPLY, VALUE
 };
-use openzeppelin_token::erc20::dual20::{DualCaseERC20, DualCaseERC20Trait};
-use openzeppelin_token::erc20::interface::{IERC20CamelDispatcher, IERC20CamelDispatcherTrait};
-use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{test_address, start_cheat_caller_address};
 

@@ -1,6 +1,6 @@
-use openzeppelin_account::dual_eth_account::{DualCaseEthAccountTrait, DualCaseEthAccount};
-use openzeppelin_account::interface::{EthAccountABIDispatcherTrait, EthAccountABIDispatcher};
-use openzeppelin_account::utils::secp256k1::{DebugSecp256k1Point, Secp256k1PointPartialEq};
+use crate::dual_eth_account::{DualCaseEthAccountTrait, DualCaseEthAccount};
+use crate::interface::{EthAccountABIDispatcherTrait, EthAccountABIDispatcher};
+use crate::utils::secp256k1::{DebugSecp256k1Point, Secp256k1PointPartialEq};
 use openzeppelin_introspection::interface::ISRC5_ID;
 
 use openzeppelin_test_common::eth_account::get_accept_ownership_signature;

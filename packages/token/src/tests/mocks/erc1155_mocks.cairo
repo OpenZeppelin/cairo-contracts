@@ -1,7 +1,7 @@
 #[starknet::contract]
 pub(crate) mod DualCaseERC1155Mock {
+    use crate::erc1155::{ERC1155Component, ERC1155HooksEmptyImpl};
     use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_token::erc1155::{ERC1155Component, ERC1155HooksEmptyImpl};
     use starknet::ContractAddress;
 
     component!(path: ERC1155Component, storage: erc1155, event: ERC1155Event);
@@ -53,8 +53,8 @@ pub(crate) mod DualCaseERC1155Mock {
 
 #[starknet::contract]
 pub(crate) mod SnakeERC1155Mock {
+    use crate::erc1155::{ERC1155Component, ERC1155HooksEmptyImpl};
     use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_token::erc1155::{ERC1155Component, ERC1155HooksEmptyImpl};
     use starknet::ContractAddress;
 
     component!(path: ERC1155Component, storage: erc1155, event: ERC1155Event);
@@ -104,8 +104,8 @@ pub(crate) mod SnakeERC1155Mock {
 
 #[starknet::contract]
 pub(crate) mod CamelERC1155Mock {
+    use crate::erc1155::{ERC1155Component, ERC1155HooksEmptyImpl};
     use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_token::erc1155::{ERC1155Component, ERC1155HooksEmptyImpl};
     use starknet::ContractAddress;
 
     component!(path: ERC1155Component, storage: erc1155, event: ERC1155Event);

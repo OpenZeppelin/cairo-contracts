@@ -1,7 +1,7 @@
 #[starknet::contract]
 pub(crate) mod DualCaseERC721Mock {
+    use crate::erc721::{ERC721Component, ERC721HooksEmptyImpl};
     use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_token::erc721::{ERC721Component, ERC721HooksEmptyImpl};
     use starknet::ContractAddress;
 
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);
@@ -56,8 +56,8 @@ pub(crate) mod DualCaseERC721Mock {
 
 #[starknet::contract]
 pub(crate) mod SnakeERC721Mock {
+    use crate::erc721::{ERC721Component, ERC721HooksEmptyImpl};
     use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_token::erc721::{ERC721Component, ERC721HooksEmptyImpl};
     use starknet::ContractAddress;
 
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);
@@ -107,9 +107,9 @@ pub(crate) mod SnakeERC721Mock {
 
 #[starknet::contract]
 pub(crate) mod CamelERC721Mock {
+    use crate::erc721::ERC721Component::{ERC721Impl, ERC721MetadataImpl};
+    use crate::erc721::{ERC721Component, ERC721HooksEmptyImpl};
     use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_token::erc721::ERC721Component::{ERC721Impl, ERC721MetadataImpl};
-    use openzeppelin_token::erc721::{ERC721Component, ERC721HooksEmptyImpl};
     use starknet::ContractAddress;
 
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);

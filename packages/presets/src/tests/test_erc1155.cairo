@@ -1,7 +1,5 @@
 use core::num::traits::Zero;
-use openzeppelin_presets::interfaces::{
-    ERC1155UpgradeableABIDispatcher, ERC1155UpgradeableABIDispatcherTrait
-};
+use crate::interfaces::{ERC1155UpgradeableABIDispatcher, ERC1155UpgradeableABIDispatcherTrait};
 use openzeppelin_test_common::erc1155::ERC1155SpyHelpers;
 use openzeppelin_test_common::erc1155::{
     setup_account, setup_receiver, setup_camel_receiver, deploy_another_account_at, setup_src5

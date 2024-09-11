@@ -1,9 +1,8 @@
 use core::poseidon::poseidon_hash_span;
-use openzeppelin_merkle_tree::hashes::PoseidonCHasher;
-use openzeppelin_merkle_tree::merkle_proof::{
+use crate::hashes::PoseidonCHasher;
+use crate::merkle_proof::{
     process_proof, process_multi_proof, verify, verify_multi_proof, verify_poseidon
 };
-use starknet::{ContractAddress, contract_address_const};
 use super::common::{Leaf, LEAVES};
 
 // `ROOT`, `PROOF`, and `MULTI_PROOF` were computed using @ericnordelo/strk-merkle-tree

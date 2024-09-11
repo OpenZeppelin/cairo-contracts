@@ -1,12 +1,12 @@
 use core::num::traits::Bounded;
+use crate::erc20::ERC20Component::{ERC20CamelOnlyImpl, ERC20Impl};
+use crate::erc20::ERC20Component::{ERC20MetadataImpl, InternalImpl};
+use crate::erc20::ERC20Component;
+use crate::tests::mocks::erc20_mocks::DualCaseERC20Mock;
 use openzeppelin_test_common::erc20::ERC20SpyHelpers;
 use openzeppelin_testing::constants::{
     ZERO, OWNER, SPENDER, RECIPIENT, NAME, SYMBOL, DECIMALS, SUPPLY, VALUE
 };
-use openzeppelin_token::erc20::ERC20Component::{ERC20CamelOnlyImpl, ERC20Impl};
-use openzeppelin_token::erc20::ERC20Component::{ERC20MetadataImpl, InternalImpl};
-use openzeppelin_token::erc20::ERC20Component;
-use openzeppelin_token::tests::mocks::erc20_mocks::DualCaseERC20Mock;
 use snforge_std::{spy_events, test_address, start_cheat_caller_address};
 use starknet::ContractAddress;
 

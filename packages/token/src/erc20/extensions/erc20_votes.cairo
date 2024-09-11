@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.15.1 (token/erc20/extensions/erc20_votes.cairo)
+// OpenZeppelin Contracts for Cairo v0.16.0 (token/erc20/extensions/erc20_votes.cairo)
 
 use core::hash::{HashStateTrait, HashStateExTrait};
 use core::poseidon::PoseidonTrait;
@@ -17,10 +17,10 @@ use starknet::ContractAddress;
 #[starknet::component]
 pub mod ERC20VotesComponent {
     use core::num::traits::Zero;
+    use crate::erc20::ERC20Component;
+    use crate::erc20::interface::IERC20;
     use openzeppelin_account::dual_account::{DualCaseAccount, DualCaseAccountTrait};
     use openzeppelin_governance::utils::interfaces::IVotes;
-    use openzeppelin_token::erc20::ERC20Component;
-    use openzeppelin_token::erc20::interface::IERC20;
     use openzeppelin_utils::nonces::NoncesComponent::InternalTrait as NoncesInternalTrait;
     use openzeppelin_utils::nonces::NoncesComponent;
     use openzeppelin_utils::structs::checkpoint::{Checkpoint, Trace, TraceTrait};

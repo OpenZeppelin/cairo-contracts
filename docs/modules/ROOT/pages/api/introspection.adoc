@@ -10,7 +10,7 @@ This crate deals with https://en.wikipedia.org/wiki/Type_introspection[type intr
 
 [.contract]
 [[ISRC5]]
-=== `++ISRC5++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.15.1/packages/introspection/src/interface.cairo#L7[{github-icon},role=heading-link]
+=== `++ISRC5++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/introspection/src/interface.cairo#L7[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin::introspection::interface::ISRC5;
@@ -44,7 +44,7 @@ on how to compute this ID.
 
 [.contract]
 [[SRC5Component]]
-=== `++SRC5Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.15.1/packages/introspection/src/src5.cairo[{github-icon},role=heading-link]
+=== `++SRC5Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/introspection/src/src5.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin::introspection::src5::SRC5Component;

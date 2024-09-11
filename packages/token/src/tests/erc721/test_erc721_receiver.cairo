@@ -1,11 +1,11 @@
+use crate::erc721::ERC721ReceiverComponent::{
+    ERC721ReceiverImpl, ERC721ReceiverCamelImpl, InternalImpl
+};
+use crate::erc721::interface::IERC721_RECEIVER_ID;
+use crate::tests::mocks::erc721_receiver_mocks::DualCaseERC721ReceiverMock;
 use openzeppelin_introspection::interface::ISRC5_ID;
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin_testing::constants::{OWNER, OPERATOR, TOKEN_ID};
-use openzeppelin_token::erc721::ERC721ReceiverComponent::{
-    ERC721ReceiverImpl, ERC721ReceiverCamelImpl, InternalImpl
-};
-use openzeppelin_token::erc721::interface::IERC721_RECEIVER_ID;
-use openzeppelin_token::tests::mocks::erc721_receiver_mocks::DualCaseERC721ReceiverMock;
 
 fn STATE() -> DualCaseERC721ReceiverMock::ContractState {
     DualCaseERC721ReceiverMock::contract_state_for_testing()

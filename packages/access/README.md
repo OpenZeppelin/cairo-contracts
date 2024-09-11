@@ -4,7 +4,7 @@
 
 This crate provides ways to restrict who can access the functions of a contract or when they can do it.
 
-- `Ownable` is a simple mechanism with a single "owner" role that can be assigned to a single account. This mechanism
+- `Ownable` is a simple mechanism with a single "owner" role that can be assigned to a single contract (usually an account). This mechanism
 can be useful in simple scenarios, but fine grained access needs are likely to outgrow it.
 
 - `AccessControl` provides a general role based access control mechanism. Multiple hierarchical roles can be created

@@ -8,7 +8,7 @@
 
 include::../utils/_common.adoc[]
 
-Reference of interfaces, presets, and utilities related to ERC721 contracts.
+This module provides interfaces, presets, and utilities related to ERC721 contracts.
 
 TIP: For an overview of ERC721, read our xref:erc721.adoc[ERC721 guide].
 

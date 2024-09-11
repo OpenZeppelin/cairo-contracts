@@ -6,7 +6,7 @@
 
 include::../utils/_common.adoc[]
 
-Reference of extension and utilities that are common to multiple token standards.
+This module provides extensions and utilities that are common to multiple token standards.
 
 == ERC2981
 

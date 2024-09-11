@@ -26,11 +26,13 @@ standards.
 - `IERC721`
 - `IERC721Metadata`
 - `IERC721Receiver`
+- `IERC721Enumerable`
 
 #### Components
 
 - `ERC721Component`
 - `ERC721ReceiverComponent`
+- `ERC721EnumerableComponent`
 
 ### ERC1155
 

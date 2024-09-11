@@ -20,7 +20,6 @@ readme = "README.md"
 version.workspace = true
 keywords.workspace = true
 
-
 [workspace.package]
 version = "0.16.0"
 edition = "2023_11"
@@ -30,6 +29,7 @@ authors = ["OpenZeppelin Community <maintainers@openzeppelin.org>"]
 description = "OpenZeppelin Contracts written in Cairo for Starknet, a decentralized ZK Rollup"
 documentation = "https://docs.openzeppelin.com/contracts-cairo"
 repository = "https://github.com/OpenZeppelin/cairo-contracts"
+license-file = "LICENSE"
 keywords = [
     "openzeppelin",
     "starknet",
@@ -38,7 +38,6 @@ keywords = [
     "security",
     "standards"
 ]
-license-file = "LICENSE"
 
 [workspace.dependencies]
 starknet = "2.8.0"

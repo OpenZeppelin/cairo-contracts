@@ -33,7 +33,6 @@ license-file = "LICENSE"
 keywords = [
     "openzeppelin",
     "starknet",
-    "cairo",
     "contracts",
     "security",
     "standards"

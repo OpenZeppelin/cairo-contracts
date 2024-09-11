@@ -4,7 +4,6 @@ readme = "README.md"
 keywords = [
     "openzeppelin",
     "starknet",
-    "cairo",
     "contracts",
     "standards",
     "access"

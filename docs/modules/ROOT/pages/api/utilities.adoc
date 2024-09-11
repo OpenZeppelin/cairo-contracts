@@ -2,7 +2,7 @@
 
 :deploy_syscall: link:https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/system-calls-cairo1/#deploy[deploy_syscall]
 
-CAUTION: Expect this module to evolve (as it has already done).
+This crate provides miscellaneous components and libraries containing utility functions to handle common tasks.
 
 == Core
 

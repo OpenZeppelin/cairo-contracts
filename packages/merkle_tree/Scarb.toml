@@ -17,5 +17,6 @@ keywords.workspace = true
 fmt.workspace = true
 
 [dev-dependencies]
+assert_macros.workspace = true
 starknet.workspace = true
 snforge_std.workspace = true

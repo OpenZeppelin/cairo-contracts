@@ -16,6 +16,7 @@ keywords.workspace = true
 fmt.workspace = true
 
 [dependencies]
+assert_macros.workspace = true
 starknet.workspace = true
 snforge_std.workspace = true
 openzeppelin_upgrades = { path = "../upgrades" }

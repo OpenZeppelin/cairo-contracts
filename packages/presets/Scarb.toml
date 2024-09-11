@@ -5,7 +5,8 @@ readme = "README.md"
 keywords = [
     "openzeppelin",
     "starknet",
-    "contracts"
+    "contracts",
+    "presets"
 ]
 version.workspace = true
 edition.workspace = true

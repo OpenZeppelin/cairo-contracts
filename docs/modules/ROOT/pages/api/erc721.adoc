@@ -824,7 +824,7 @@ Returns a token id at a given `index` of all the tokens stored by the contract.
 Use along with xref:#IERC721Enumerable-total_supply[IERC721Enumerable::total_supply] to enumerate all tokens.
 
 [.contract-item]
-[[IERC721Metadata-token_of_owner_by_index]]
+[[IERC721Enumerable-token_of_owner_by_index]]
 ==== `[.contract-item-name]#++token_of_owner_by_index++#++(owner: ContractAddress, index: u256) -> u256++` [.item-kind]#external#
 
 Returns the token id owned by `owner` at a given `index` of its token list.

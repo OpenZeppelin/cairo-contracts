@@ -2,8 +2,8 @@ const SUCCESS: felt252 = 'SUCCESS';
 
 #[starknet::contract]
 pub(crate) mod DualCaseERC1155ReceiverMock {
+    use crate::erc1155::ERC1155ReceiverComponent;
     use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_token::erc1155::ERC1155ReceiverComponent;
 
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
     component!(
@@ -41,8 +41,8 @@ pub(crate) mod DualCaseERC1155ReceiverMock {
 
 #[starknet::contract]
 pub(crate) mod SnakeERC1155ReceiverMock {
+    use crate::erc1155::ERC1155ReceiverComponent;
     use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_token::erc1155::ERC1155ReceiverComponent;
 
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
     component!(
@@ -84,8 +84,8 @@ pub(crate) mod SnakeERC1155ReceiverMock {
 
 #[starknet::contract]
 pub(crate) mod CamelERC1155ReceiverMock {
+    use crate::erc1155::ERC1155ReceiverComponent;
     use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_token::erc1155::ERC1155ReceiverComponent;
 
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
     component!(

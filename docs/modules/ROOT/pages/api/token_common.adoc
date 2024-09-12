@@ -12,7 +12,7 @@ Reference of extension and utilities that are common to multiple token standards
 
 [.contract]
 [[IERC2981]]
-=== `++IERC2981++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.15.0/packages/token/src/common/erc2981/interface.cairo[{github-icon},role=heading-link]
+=== `++IERC2981++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/token/src/common/erc2981/interface.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -46,7 +46,7 @@ unit of exchange.
 
 [.contract]
 [[ERC2981Component]]
-=== `++ERC2981Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.15.0/packages/token/src/common/erc2981/erc2981.cairo[{github-icon},role=heading-link]
+=== `++ERC2981Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/token/src/common/erc2981/erc2981.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin::token::common::erc2981::ERC2981Component;

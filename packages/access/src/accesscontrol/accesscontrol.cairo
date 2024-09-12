@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.15.1 (access/accesscontrol/accesscontrol.cairo)
+// OpenZeppelin Contracts for Cairo v0.16.0 (access/accesscontrol/accesscontrol.cairo)
 
 /// # AccessControl Component
 ///
@@ -7,7 +7,7 @@
 /// Roles are referred to by their `felt252` identifier.
 #[starknet::component]
 pub mod AccessControlComponent {
-    use openzeppelin_access::accesscontrol::interface;
+    use crate::accesscontrol::interface;
     use openzeppelin_introspection::src5::SRC5Component::InternalImpl as SRC5InternalImpl;
     use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
     use openzeppelin_introspection::src5::SRC5Component;

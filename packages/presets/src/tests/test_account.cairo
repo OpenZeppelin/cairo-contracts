@@ -1,13 +1,11 @@
 use core::num::traits::Zero;
-use openzeppelin_account::interface::ISRC6_ID;
-use openzeppelin_introspection::interface::ISRC5_ID;
-use openzeppelin_presets::AccountUpgradeable;
-use openzeppelin_presets::interfaces::account::{
+use crate::AccountUpgradeable;
+use crate::interfaces::account::{
     AccountUpgradeableABISafeDispatcher, AccountUpgradeableABISafeDispatcherTrait
 };
-use openzeppelin_presets::interfaces::{
-    AccountUpgradeableABIDispatcher, AccountUpgradeableABIDispatcherTrait
-};
+use crate::interfaces::{AccountUpgradeableABIDispatcher, AccountUpgradeableABIDispatcherTrait};
+use openzeppelin_account::interface::ISRC6_ID;
+use openzeppelin_introspection::interface::ISRC5_ID;
 use openzeppelin_test_common::account::{
     SIGNED_TX_DATA, get_accept_ownership_signature, SignedTransactionData, AccountSpyHelpers
 };

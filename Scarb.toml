@@ -5,6 +5,7 @@ members = [
     "packages/finance",
     "packages/governance",
     "packages/introspection",
+    "packages/merkle_tree",
     "packages/presets",
     "packages/security",
     "packages/token",
@@ -19,10 +20,10 @@ name = "openzeppelin"
 version.workspace = true
 
 [workspace.package]
-version = "0.15.1"
+version = "0.16.0"
 edition = "2023_11"
-cairo-version = "2.7.0"
-scarb-version = "2.7.0"
+cairo-version = "2.8.0"
+scarb-version = "2.8.0"
 authors = ["OpenZeppelin Community <maintainers@openzeppelin.org>"]
 description = "OpenZeppelin Contracts written in Cairo for Starknet, a decentralized ZK Rollup"
 documentation = "https://docs.openzeppelin.com/contracts-cairo"
@@ -35,11 +36,11 @@ keywords = [
     "cairo",
     "contracts",
     "security",
-    "standards",
+    "standards"
 ]
 
 [workspace.dependencies]
-starknet = "2.7.0"
+starknet = "2.8.0"
 snforge_std = { git = "https://github.com/foundry-rs/starknet-foundry.git", tag = "v0.27.0" }
 
 [dependencies]
@@ -49,6 +50,7 @@ openzeppelin_account = { path = "packages/account" }
 openzeppelin_finance = { path = "packages/finance" }
 openzeppelin_governance = { path = "packages/governance" }
 openzeppelin_introspection = { path = "packages/introspection" }
+openzeppelin_merkle_tree = { path = "packages/merkle_tree" }
 openzeppelin_presets = { path = "packages/presets" }
 openzeppelin_security = { path = "packages/security" }
 openzeppelin_token = { path = "packages/token" }

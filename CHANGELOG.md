@@ -11,18 +11,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- ERC2981 (NFT Royalty Standard) component (#1091)
 - Vesting component and VestingWallet preset (#334)
+
+## 0.16.0 (2024-08-30)
+
+### Added
+
+- ERC721Enumerable component (#983)
+- ERC2981 (NFT Royalty Standard) component (#1091)
+- `merkle_tree` package with utilities to verify proofs and multi proofs (#1101)
 
 ### Changed
 
 - Bump snforge to v0.27.0 (#1107)
+- Bump scarb to v2.8.0 (#1120)
 
 ### Changed (Breaking)
 
-- Changed ABI suffix to Trait in dual case account and eth account modules (#1096).
+- Changed ABI suffix to Trait in dual case account and eth account modules (#1096)
   - `DualCaseAccountABI` renamed to `DualCaseAccountTrait`
   - `DualCaseEthAccountABI` renamed to `DualCaseEthAccountTrait`
+- Removed `_accept_ownership` from `OwnableComponent::InternalImpl`
+
+### Fixed
+
+- `OwnableTwoStep` allowing a pending owner to accept ownership after the original owner has renounced ownership (#1119)
 
 ## 0.15.1 (2024-08-13)
 

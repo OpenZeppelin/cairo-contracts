@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.15.1 (utils/unwrap_and_cast.cairo)
+// OpenZeppelin Contracts for Cairo v0.16.0 (utils/unwrap_and_cast.cairo)
 
 use starknet::SyscallResult;
 use starknet::SyscallResultTrait;

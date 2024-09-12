@@ -1,11 +1,9 @@
 use core::num::traits::Bounded;
 use core::num::traits::Zero;
-use openzeppelin_presets::interfaces::erc20::{
+use crate::interfaces::erc20::{
     ERC20UpgradeableABISafeDispatcher, ERC20UpgradeableABISafeDispatcherTrait
 };
-use openzeppelin_presets::interfaces::{
-    ERC20UpgradeableABIDispatcher, ERC20UpgradeableABIDispatcherTrait
-};
+use crate::interfaces::{ERC20UpgradeableABIDispatcher, ERC20UpgradeableABIDispatcherTrait};
 use openzeppelin_test_common::erc20::ERC20SpyHelpers;
 use openzeppelin_test_common::ownable::OwnableSpyHelpers;
 use openzeppelin_test_common::upgrades::UpgradeableSpyHelpers;

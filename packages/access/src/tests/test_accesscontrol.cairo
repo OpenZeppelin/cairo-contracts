@@ -1,11 +1,9 @@
-use openzeppelin_access::accesscontrol::AccessControlComponent::{
+use crate::accesscontrol::AccessControlComponent::{
     InternalImpl, RoleAdminChanged, RoleGranted, RoleRevoked
 };
-use openzeppelin_access::accesscontrol::interface::{
-    IAccessControl, IAccessControlCamel, IACCESSCONTROL_ID
-};
-use openzeppelin_access::accesscontrol::{AccessControlComponent, DEFAULT_ADMIN_ROLE};
-use openzeppelin_access::tests::mocks::accesscontrol_mocks::DualCaseAccessControlMock;
+use crate::accesscontrol::interface::{IAccessControl, IAccessControlCamel, IACCESSCONTROL_ID};
+use crate::accesscontrol::{AccessControlComponent, DEFAULT_ADMIN_ROLE};
+use crate::tests::mocks::accesscontrol_mocks::DualCaseAccessControlMock;
 use openzeppelin_introspection::interface::ISRC5;
 use openzeppelin_testing::constants::{
     ADMIN, AUTHORIZED, OTHER, OTHER_ADMIN, ROLE, OTHER_ROLE, ZERO

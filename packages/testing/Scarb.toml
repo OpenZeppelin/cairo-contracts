@@ -1,5 +1,12 @@
 [package]
 name = "openzeppelin_testing"
+readme = "README.md"
+keywords = [
+    "openzeppelin",
+    "starknet",
+    "testing",
+    "utils"
+]
 version.workspace = true
 edition.workspace = true
 cairo-version.workspace = true
@@ -7,10 +14,8 @@ scarb-version.workspace = true
 authors.workspace = true
 description.workspace = true
 documentation.workspace = true
-readme.workspace = true
 repository.workspace = true
 license-file.workspace = true
-keywords.workspace = true
 
 [tool]
 fmt.workspace = true

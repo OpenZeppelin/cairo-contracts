@@ -8,7 +8,7 @@
 
 include::../utils/_common.adoc[]
 
-Reference of interfaces, presets, and utilities related to ERC721 contracts.
+This module provides interfaces, presets, and utilities related to ERC721 contracts.
 
 TIP: For an overview of ERC721, read our xref:erc721.adoc[ERC721 guide].
 
@@ -178,48 +178,6 @@ Returns the NFT ticker symbol.
 
 Returns the Uniform Resource Identifier (URI) for the `token_id` token.
 If the URI is not set for `token_id`, the return value will be an empty `ByteArray`.
-
-[.contract]
-[[IERC721Enumerable]]
-=== `++IERC721Enumerable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/token/src/erc721/extensions/erc721_enumerable/interface.cairo[{github-icon},role=heading-link]
-
-Interface for the optional enumerable functions in {eip721}.
-
-[.contract-index]
-.{inner-src5}
---
-0x16bc0f502eeaf65ce0b3acb5eea656e2f26979ce6750e8502a82f377e538c87
---
-
-[.contract-index]
-.Functions
---
-* xref:#IERC721Enumerable-total_supply[`++total_supply()++`]
-* xref:#IERC721Enumerable-token_by_index[`++token_by_index(index)++`]
-* xref:#IERC721Enumerable-token_of_owner_by_index[`++token_of_owner_by_index(owner, index)++`]
---
-
-==== Functions
-
-[.contract-item]
-[[IERC721Enumerable-total_supply]]
-==== `[.contract-item-name]#++total_supply++#++() -> u256++` [.item-kind]#external#
-
-Returns the total amount of tokens stored by the contract.
-
-[.contract-item]
-[[IERC721Metadata-token_by_index]]
-==== `[.contract-item-name]#++token_by_index++#++(index: u256) -> u256++` [.item-kind]#external#
-
-Returns a token id at a given `index` of all the tokens stored by the contract.
-Use along with xref:#IERC721Enumerable-total_supply[IERC721Enumerable::total_supply] to enumerate all tokens.
-
-[.contract-item]
-[[IERC721Metadata-token_of_owner_by_index]]
-==== `[.contract-item-name]#++token_of_owner_by_index++#++(owner: ContractAddress, index: u256) -> u256++` [.item-kind]#external#
-
-Returns the token id owned by `owner` at a given `index` of its token list.
-Use along with xref:#IERC721-balance_of[IERC721::balance_of] to enumerate all of ``owner``'s tokens.
 
 [.contract]
 [[ERC721Component]]
@@ -731,6 +689,147 @@ See <<IERC721-ApprovalForAll,IERC721::ApprovalForAll>>.
 
 See <<IERC721-Transfer,IERC721::Transfer>>.
 
+== Receiver
+
+[.contract]
+[[IERC721Receiver]]
+=== `++IERC721Receiver++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/token/src/erc721/interface.cairo#L70-L79[{github-icon},role=heading-link]
+
+[.hljs-theme-dark]
+```cairo
+use openzeppelin::token::erc721::interface::IERC721Receiver;
+```
+
+Interface for contracts that support receiving `safe_transfer_from` transfers.
+
+[.contract-index]
+.{inner-src5}
+--
+0x3a0dff5f70d80458ad14ae37bb182a728e3c8cdda0402a5daa86620bdf910bc
+--
+
+[.contract-index]
+.Functions
+--
+* xref:#IERC721Receiver-on_erc721_received[`++on_erc721_received(operator, from, token_id, data)++`]
+--
+
+==== Functions
+
+[.contract-item]
+[[IERC721Receiver-on_erc721_received]]
+==== `[.contract-item-name]#++on_erc721_received++#++(operator: ContractAddress, from: ContractAddress, token_id: u256, data: Span<felt252>) -> felt252++` [.item-kind]#external#
+
+Whenever an IERC721 `token_id` token is transferred to this non-account contract via <<IERC721-safe_transfer_from,IERC721::safe_transfer_from>> by `operator` from `from`, this function is called.
+
+[.contract]
+[[ERC721ReceiverComponent]]
+=== `++ERC721ReceiverComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/token/src/erc721/erc721_receiver.cairo[{github-icon},role=heading-link]
+
+[.hljs-theme-dark]
+```cairo
+use openzeppelin::token::erc721::ERC721ReceiverComponent;
+```
+
+ERC721Receiver component implementing <<IERC721Receiver,IERC721Receiver>>.
+
+NOTE: {src5-component-required-note}
+
+[.contract-index#ERC721ReceiverComponent-Embeddable-Mixin-Impl]
+.{mixin-impls}
+
+--
+.ERCReceiverMixinImpl
+* xref:#ERC721ReceiverComponent-Embeddable-Impls-ERC721ReceiverImpl[`++ERC721ReceiverImpl++`]
+* xref:#ERC721ReceiverComponent-Embeddable-Impls-ERC721ReceiverCamelImpl[`++ERC721ReceiverCamelImpl++`]
+* xref:api/introspection.adoc#SRC5Component-Embeddable-Impls[`++SRC5Impl++`]
+--
+
+[.contract-index#ERC721ReceiverComponent-Embeddable-Impls]
+.Embeddable Implementations
+--
+[.sub-index#ERC721ReceiverComponent-Embeddable-Impls-ERC721ReceiverImpl]
+.ERC721ReceiverImpl
+* xref:#ERC721ReceiverComponent-on_erc721_received[`++on_erc721_received(self, operator, from, token_id, data)++`]
+
+[.sub-index#ERC721ReceiverComponent-Embeddable-Impls-ERC721ReceiverCamelImpl]
+.ERC721ReceiverCamelImpl
+* xref:#ERC721ReceiverComponent-onERC721Received[`++onERC721Received(self, operator, from, tokenId, data)++`]
+--
+
+[.contract-index]
+.Internal Functions
+--
+.InternalImpl
+* xref:#ERC721ReceiverComponent-initializer[`++initializer(self)++`]
+--
+
+==== Embeddable functions
+
+[.contract-item]
+[[ERC721ReceiverComponent-on_erc721_received]]
+==== `[.contract-item-name]#++on_erc721_received++#++(self: @ContractState, operator: ContractAddress, from: ContractAddress, token_id: u256, data Span<felt252>) -> felt252++` [.item-kind]#external#
+
+Returns the `IERC721Receiver` interface ID.
+
+[.contract-item]
+[[ERC721ReceiverComponent-onERC721Received]]
+==== `[.contract-item-name]#++onERC721Received++#++(self: @ContractState, operator: ContractAddress, from: ContractAddress, token_id: u256, data Span<felt252>) -> felt252++` [.item-kind]#external#
+
+See <<ERC721ReceiverComponent-on_erc721_received,ERC721ReceiverComponent::on_erc721_received>>.
+
+==== Internal functions
+
+[.contract-item]
+[[ERC721ReceiverComponent-initializer]]
+==== `[.contract-item-name]#++initializer++#++(ref self: ContractState)++` [.item-kind]#internal#
+
+Registers the `IERC721Receiver` interface ID as supported through introspection.
+
+== Extensions
+
+[.contract]
+[[IERC721Enumerable]]
+=== `++IERC721Enumerable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/token/src/erc721/extensions/erc721_enumerable/interface.cairo[{github-icon},role=heading-link]
+
+Interface for the optional enumerable functions in {eip721}.
+
+[.contract-index]
+.{inner-src5}
+--
+0x16bc0f502eeaf65ce0b3acb5eea656e2f26979ce6750e8502a82f377e538c87
+--
+
+[.contract-index]
+.Functions
+--
+* xref:#IERC721Enumerable-total_supply[`++total_supply()++`]
+* xref:#IERC721Enumerable-token_by_index[`++token_by_index(index)++`]
+* xref:#IERC721Enumerable-token_of_owner_by_index[`++token_of_owner_by_index(owner, index)++`]
+--
+
+==== Functions
+
+[.contract-item]
+[[IERC721Enumerable-total_supply]]
+==== `[.contract-item-name]#++total_supply++#++() -> u256++` [.item-kind]#external#
+
+Returns the total amount of tokens stored by the contract.
+
+[.contract-item]
+[[IERC721Enumerable-token_by_index]]
+==== `[.contract-item-name]#++token_by_index++#++(index: u256) -> u256++` [.item-kind]#external#
+
+Returns a token id at a given `index` of all the tokens stored by the contract.
+Use along with xref:#IERC721Enumerable-total_supply[IERC721Enumerable::total_supply] to enumerate all tokens.
+
+[.contract-item]
+[[IERC721Enumerable-token_of_owner_by_index]]
+==== `[.contract-item-name]#++token_of_owner_by_index++#++(owner: ContractAddress, index: u256) -> u256++` [.item-kind]#external#
+
+Returns the token id owned by `owner` at a given `index` of its token list.
+Use along with xref:#IERC721-balance_of[IERC721::balance_of] to enumerate all of ``owner``'s tokens.
+
 [.contract]
 [[ERC721EnumerableComponent]]
 === `++ERC721EnumerableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/token/src/erc721/extensions/erc721_enumerable.cairo[{github-icon},role=heading-link]
@@ -871,103 +970,6 @@ This has 0(1) time complexity but alters the indexed order of owned tokens by sw
 Removes `token_id` from this extension's token-tracking data structures.
 
 This has 0(1) time complexity but alters the indexed order by swapping `token_id` and the index thereof with the last token id and the index thereof e.g. removing `1` from `[1, 2, 3, 4]` results in `[4, 2, 3]`.
-
-== Receiver
-
-[.contract]
-[[IERC721Receiver]]
-=== `++IERC721Receiver++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/token/src/erc721/interface.cairo#L70-L79[{github-icon},role=heading-link]
-
-[.hljs-theme-dark]
-```cairo
-use openzeppelin::token::erc721::interface::IERC721Receiver;
-```
-
-Interface for contracts that support receiving `safe_transfer_from` transfers.
-
-[.contract-index]
-.{inner-src5}
---
-0x3a0dff5f70d80458ad14ae37bb182a728e3c8cdda0402a5daa86620bdf910bc
---
-
-[.contract-index]
-.Functions
---
-* xref:#IERC721Receiver-on_erc721_received[`++on_erc721_received(operator, from, token_id, data)++`]
---
-
-==== Functions
-
-[.contract-item]
-[[IERC721Receiver-on_erc721_received]]
-==== `[.contract-item-name]#++on_erc721_received++#++(operator: ContractAddress, from: ContractAddress, token_id: u256, data: Span<felt252>) -> felt252++` [.item-kind]#external#
-
-Whenever an IERC721 `token_id` token is transferred to this non-account contract via <<IERC721-safe_transfer_from,IERC721::safe_transfer_from>> by `operator` from `from`, this function is called.
-
-[.contract]
-[[ERC721ReceiverComponent]]
-=== `++ERC721ReceiverComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/token/src/erc721/erc721_receiver.cairo[{github-icon},role=heading-link]
-
-[.hljs-theme-dark]
-```cairo
-use openzeppelin::token::erc721::ERC721ReceiverComponent;
-```
-
-ERC721Receiver component implementing <<IERC721Receiver,IERC721Receiver>>.
-
-NOTE: {src5-component-required-note}
-
-[.contract-index#ERC721ReceiverComponent-Embeddable-Mixin-Impl]
-.{mixin-impls}
-
---
-.ERCReceiverMixinImpl
-* xref:#ERC721ReceiverComponent-Embeddable-Impls-ERC721ReceiverImpl[`++ERC721ReceiverImpl++`]
-* xref:#ERC721ReceiverComponent-Embeddable-Impls-ERC721ReceiverCamelImpl[`++ERC721ReceiverCamelImpl++`]
-* xref:api/introspection.adoc#SRC5Component-Embeddable-Impls[`++SRC5Impl++`]
---
-
-[.contract-index#ERC721ReceiverComponent-Embeddable-Impls]
-.Embeddable Implementations
---
-[.sub-index#ERC721ReceiverComponent-Embeddable-Impls-ERC721ReceiverImpl]
-.ERC721ReceiverImpl
-* xref:#ERC721ReceiverComponent-on_erc721_received[`++on_erc721_received(self, operator, from, token_id, data)++`]
-
-[.sub-index#ERC721ReceiverComponent-Embeddable-Impls-ERC721ReceiverCamelImpl]
-.ERC721ReceiverCamelImpl
-* xref:#ERC721ReceiverComponent-onERC721Received[`++onERC721Received(self, operator, from, tokenId, data)++`]
---
-
-[.contract-index]
-.Internal Functions
---
-.InternalImpl
-* xref:#ERC721ReceiverComponent-initializer[`++initializer(self)++`]
---
-
-==== Embeddable functions
-
-[.contract-item]
-[[ERC721ReceiverComponent-on_erc721_received]]
-==== `[.contract-item-name]#++on_erc721_received++#++(self: @ContractState, operator: ContractAddress, from: ContractAddress, token_id: u256, data Span<felt252>) -> felt252++` [.item-kind]#external#
-
-Returns the `IERC721Receiver` interface ID.
-
-[.contract-item]
-[[ERC721ReceiverComponent-onERC721Received]]
-==== `[.contract-item-name]#++onERC721Received++#++(self: @ContractState, operator: ContractAddress, from: ContractAddress, token_id: u256, data Span<felt252>) -> felt252++` [.item-kind]#external#
-
-See <<ERC721ReceiverComponent-on_erc721_received,ERC721ReceiverComponent::on_erc721_received>>.
-
-==== Internal functions
-
-[.contract-item]
-[[ERC721ReceiverComponent-initializer]]
-==== `[.contract-item-name]#++initializer++#++(ref self: ContractState)++` [.item-kind]#internal#
-
-Registers the `IERC721Receiver` interface ID as supported through introspection.
 
 == Presets
 

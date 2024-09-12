@@ -3,7 +3,7 @@
 
 = Upgrades
 
-Reference of interfaces and utilities related to upgradeability.
+This crate provides interfaces and utilities related to upgradeability.
 
 == Core
 

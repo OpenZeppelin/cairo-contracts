@@ -2,7 +2,7 @@
 
 = Security
 
-Reference of components, interfaces and utilities found in the library's `security/` directory.
+This crate provides components to handle common security-related tasks.
 
 == Initializable
 

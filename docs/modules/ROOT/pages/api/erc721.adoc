@@ -817,7 +817,7 @@ Interface for the optional enumerable functions in {eip721}.
 Returns the total amount of tokens stored by the contract.
 
 [.contract-item]
-[[IERC721Metadata-token_by_index]]
+[[IERC721Enumerable-token_by_index]]
 ==== `[.contract-item-name]#++token_by_index++#++(index: u256) -> u256++` [.item-kind]#external#
 
 Returns a token id at a given `index` of all the tokens stored by the contract.

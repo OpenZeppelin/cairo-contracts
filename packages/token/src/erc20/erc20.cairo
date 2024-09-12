@@ -17,15 +17,18 @@ pub mod ERC20Component {
     use crate::erc20::interface;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
-    use starknet::storage::Map;
+    use starknet::storage::{
+        Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
+        StoragePointerWriteAccess
+    };
 
     #[storage]
-    struct Storage {
-        ERC20_name: ByteArray,
-        ERC20_symbol: ByteArray,
-        ERC20_total_supply: u256,
-        ERC20_balances: Map<ContractAddress, u256>,
-        ERC20_allowances: Map<(ContractAddress, ContractAddress), u256>,
+    pub struct Storage {
+        pub ERC20_name: ByteArray,
+        pub ERC20_symbol: ByteArray,
+        pub ERC20_total_supply: u256,
+        pub ERC20_balances: Map<ContractAddress, u256>,
+        pub ERC20_allowances: Map<(ContractAddress, ContractAddress), u256>,
     }
 
     #[event]

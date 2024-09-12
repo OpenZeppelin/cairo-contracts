@@ -28,13 +28,13 @@ pub(crate) mod EthAccountUpgradeable {
     impl UpgradeableInternalImpl = UpgradeableComponent::InternalImpl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        eth_account: EthAccountComponent::Storage,
+        pub eth_account: EthAccountComponent::Storage,
         #[substorage(v0)]
-        src5: SRC5Component::Storage,
+        pub src5: SRC5Component::Storage,
         #[substorage(v0)]
-        upgradeable: UpgradeableComponent::Storage
+        pub upgradeable: UpgradeableComponent::Storage
     }
 
     #[event]

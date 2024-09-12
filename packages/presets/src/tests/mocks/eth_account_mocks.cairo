@@ -16,11 +16,11 @@ pub(crate) mod SnakeEthAccountMock {
     impl EthAccountInternalImpl = EthAccountComponent::InternalImpl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        eth_account: EthAccountComponent::Storage,
+        pub eth_account: EthAccountComponent::Storage,
         #[substorage(v0)]
-        src5: SRC5Component::Storage
+        pub src5: SRC5Component::Storage
     }
 
     #[event]

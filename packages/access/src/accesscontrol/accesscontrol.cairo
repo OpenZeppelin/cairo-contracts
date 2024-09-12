@@ -13,12 +13,12 @@ pub mod AccessControlComponent {
     use openzeppelin_introspection::src5::SRC5Component;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
-    use starknet::storage::Map;
+    use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
 
     #[storage]
-    struct Storage {
-        AccessControl_role_admin: Map<felt252, felt252>,
-        AccessControl_role_member: Map<(felt252, ContractAddress), bool>,
+    pub struct Storage {
+        pub AccessControl_role_admin: Map<felt252, felt252>,
+        pub AccessControl_role_member: Map<(felt252, ContractAddress), bool>,
     }
 
     #[event]

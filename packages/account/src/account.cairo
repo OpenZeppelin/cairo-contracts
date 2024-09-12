@@ -19,10 +19,11 @@ pub mod AccountComponent {
     use starknet::get_caller_address;
     use starknet::get_contract_address;
     use starknet::get_tx_info;
+    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 
     #[storage]
-    struct Storage {
-        Account_public_key: felt252
+    pub struct Storage {
+        pub Account_public_key: felt252
     }
 
     #[event]

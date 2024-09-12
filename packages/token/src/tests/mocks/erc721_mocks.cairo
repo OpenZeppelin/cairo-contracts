@@ -24,11 +24,11 @@ pub(crate) mod DualCaseERC721Mock {
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        erc721: ERC721Component::Storage,
+        pub erc721: ERC721Component::Storage,
         #[substorage(v0)]
-        src5: SRC5Component::Storage
+        pub src5: SRC5Component::Storage
     }
 
     #[event]
@@ -75,11 +75,11 @@ pub(crate) mod SnakeERC721Mock {
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        erc721: ERC721Component::Storage,
+        pub erc721: ERC721Component::Storage,
         #[substorage(v0)]
-        src5: SRC5Component::Storage
+        pub src5: SRC5Component::Storage
     }
 
     #[event]
@@ -128,11 +128,11 @@ pub(crate) mod CamelERC721Mock {
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        erc721: ERC721Component::Storage,
+        pub erc721: ERC721Component::Storage,
         #[substorage(v0)]
-        src5: SRC5Component::Storage
+        pub src5: SRC5Component::Storage
     }
 
     #[event]
@@ -191,7 +191,7 @@ pub(crate) mod SnakeERC721PanicMock {
     use starknet::ContractAddress;
 
     #[storage]
-    struct Storage {}
+    pub struct Storage {}
 
     #[abi(per_item)]
     #[generate_trait]
@@ -284,7 +284,7 @@ pub(crate) mod CamelERC721PanicMock {
     use starknet::ContractAddress;
 
     #[storage]
-    struct Storage {}
+    pub struct Storage {}
 
     #[abi(per_item)]
     #[generate_trait]

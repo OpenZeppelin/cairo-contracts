@@ -17,6 +17,7 @@ use openzeppelin_testing::constants::{
 };
 use snforge_std::{spy_events, test_address, start_cheat_caller_address};
 use starknet::ContractAddress;
+use starknet::storage::StoragePointerReadAccess;
 
 //
 // Setup

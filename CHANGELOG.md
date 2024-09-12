@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bump scarb to v2.8.2 (#1137)
 - Bump snforge to 0.30.0 (#1137)
 - `declare_class`, `declare_and_deploy`, and `declare_and_deploy_at` will skip declaration if the contract is already declared (#1137)
+- Bump edition to 2024_07 (#1138)
 
 ## 0.16.0 (2024-08-30)
 

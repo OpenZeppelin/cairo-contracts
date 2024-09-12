@@ -1,7 +1,7 @@
 #[starknet::contract]
 pub(crate) mod ERC2981Mock {
+    use crate::common::erc2981::{ERC2981Component, DefaultConfig};
     use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_token::common::erc2981::{ERC2981Component, DefaultConfig};
     use starknet::ContractAddress;
 
     component!(path: ERC2981Component, storage: erc2981, event: ERC2981Event);
@@ -16,11 +16,11 @@ pub(crate) mod ERC2981Mock {
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        erc2981: ERC2981Component::Storage,
+        pub erc2981: ERC2981Component::Storage,
         #[substorage(v0)]
-        src5: SRC5Component::Storage
+        pub src5: SRC5Component::Storage
     }
 
     #[event]

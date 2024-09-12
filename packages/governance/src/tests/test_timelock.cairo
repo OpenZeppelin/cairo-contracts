@@ -1,28 +1,24 @@
 use core::hash::{HashStateTrait, HashStateExTrait};
 use core::pedersen::PedersenTrait;
+use crate::tests::mocks::timelock_mocks::{IMockContractDispatcher, IMockContractDispatcherTrait};
+use crate::tests::mocks::timelock_mocks::{ITimelockAttackerDispatcher};
+use crate::tests::mocks::timelock_mocks::{TimelockControllerMock};
+use crate::timelock::OperationState;
+use crate::timelock::TimelockControllerComponent::{
+    CallScheduled, CallExecuted, CallSalt, CallCancelled, MinDelayChanged
+};
+use crate::timelock::TimelockControllerComponent::{
+    TimelockImpl, InternalImpl as TimelockInternalImpl
+};
+use crate::timelock::TimelockControllerComponent;
+use crate::timelock::interface::{TimelockABIDispatcher, TimelockABIDispatcherTrait};
+use crate::timelock::{PROPOSER_ROLE, EXECUTOR_ROLE, CANCELLER_ROLE};
 use openzeppelin_access::accesscontrol::AccessControlComponent::{
     AccessControlImpl, InternalImpl as AccessControlInternalImpl
 };
 use openzeppelin_access::accesscontrol::DEFAULT_ADMIN_ROLE;
 use openzeppelin_access::accesscontrol::interface::IACCESSCONTROL_ID;
 use openzeppelin_access::accesscontrol::interface::IAccessControl;
-use openzeppelin_governance::tests::mocks::timelock_mocks::{
-    IMockContractDispatcher, IMockContractDispatcherTrait
-};
-use openzeppelin_governance::tests::mocks::timelock_mocks::{ITimelockAttackerDispatcher};
-use openzeppelin_governance::tests::mocks::timelock_mocks::{TimelockControllerMock};
-use openzeppelin_governance::timelock::OperationState;
-use openzeppelin_governance::timelock::TimelockControllerComponent::{
-    CallScheduled, CallExecuted, CallSalt, CallCancelled, MinDelayChanged
-};
-use openzeppelin_governance::timelock::TimelockControllerComponent::{
-    TimelockImpl, InternalImpl as TimelockInternalImpl
-};
-use openzeppelin_governance::timelock::TimelockControllerComponent;
-use openzeppelin_governance::timelock::interface::{
-    TimelockABIDispatcher, TimelockABIDispatcherTrait
-};
-use openzeppelin_governance::timelock::{PROPOSER_ROLE, EXECUTOR_ROLE, CANCELLER_ROLE};
 use openzeppelin_introspection::interface::ISRC5_ID;
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin_testing as utils;
@@ -37,12 +33,13 @@ use snforge_std::{
 use starknet::ContractAddress;
 use starknet::account::Call;
 use starknet::contract_address_const;
+use starknet::storage::{StorageMapReadAccess, StorageMapWriteAccess, StoragePointerWriteAccess};
 
 type ComponentState =
     TimelockControllerComponent::ComponentState<TimelockControllerMock::ContractState>;
 
-fn CONTRACT_STATE() -> TimelockControllerMock::ContractState {
-    TimelockControllerMock::contract_state_for_testing()
+fn CONTRACT_STATE() -> @TimelockControllerMock::ContractState {
+    @TimelockControllerMock::contract_state_for_testing()
 }
 
 fn COMPONENT_STATE() -> ComponentState {

@@ -17,9 +17,10 @@ pub(crate) trait IReentrancyMock<TState> {
 
 #[starknet::contract]
 pub(crate) mod ReentrancyMock {
-    use openzeppelin_security::reentrancyguard::ReentrancyGuardComponent;
+    use crate::reentrancyguard::ReentrancyGuardComponent;
     use starknet::ContractAddress;
     use starknet::get_contract_address;
+    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
     use super::IAttackerDispatcher;
     use super::IAttackerDispatcherTrait;
     use super::IReentrancyGuardedDispatcher;
@@ -32,10 +33,10 @@ pub(crate) mod ReentrancyMock {
     impl InternalImpl = ReentrancyGuardComponent::InternalImpl<ContractState>;
 
     #[storage]
-    struct Storage {
-        counter: felt252,
+    pub struct Storage {
+        pub counter: felt252,
         #[substorage(v0)]
-        reentrancy_guard: ReentrancyGuardComponent::Storage
+        pub reentrancy_guard: ReentrancyGuardComponent::Storage
     }
 
     #[event]
@@ -113,7 +114,7 @@ pub(crate) mod Attacker {
     use super::IReentrancyMockDispatcherTrait;
 
     #[storage]
-    struct Storage {}
+    pub struct Storage {}
 
     #[abi(embed_v0)]
     impl IAttackerImpl of super::IAttacker<ContractState> {

@@ -1,6 +1,6 @@
 #[starknet::contract]
 pub(crate) mod DualCaseERC20Mock {
-    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
+    use crate::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
@@ -14,9 +14,9 @@ pub(crate) mod DualCaseERC20Mock {
     impl InternalImpl = ERC20Component::InternalImpl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        erc20: ERC20Component::Storage
+        pub erc20: ERC20Component::Storage
     }
 
     #[event]
@@ -41,7 +41,7 @@ pub(crate) mod DualCaseERC20Mock {
 
 #[starknet::contract]
 pub(crate) mod SnakeERC20Mock {
-    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
+    use crate::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
@@ -53,9 +53,9 @@ pub(crate) mod SnakeERC20Mock {
     impl InternalImpl = ERC20Component::InternalImpl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        erc20: ERC20Component::Storage
+        pub erc20: ERC20Component::Storage
     }
 
     #[event]
@@ -80,7 +80,7 @@ pub(crate) mod SnakeERC20Mock {
 
 #[starknet::contract]
 pub(crate) mod CamelERC20Mock {
-    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
+    use crate::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
@@ -96,9 +96,9 @@ pub(crate) mod CamelERC20Mock {
     impl InternalImpl = ERC20Component::InternalImpl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        erc20: ERC20Component::Storage
+        pub erc20: ERC20Component::Storage
     }
 
     #[event]
@@ -153,7 +153,7 @@ pub(crate) mod SnakeERC20Panic {
     use starknet::ContractAddress;
 
     #[storage]
-    struct Storage {}
+    pub struct Storage {}
 
     #[abi(per_item)]
     #[generate_trait]
@@ -223,7 +223,7 @@ pub(crate) mod CamelERC20Panic {
     use starknet::ContractAddress;
 
     #[storage]
-    struct Storage {}
+    pub struct Storage {}
 
     #[abi(per_item)]
     #[generate_trait]

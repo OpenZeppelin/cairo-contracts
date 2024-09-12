@@ -1,6 +1,6 @@
 #[starknet::contract]
 pub(crate) mod InitializableMock {
-    use openzeppelin_security::initializable::InitializableComponent;
+    use crate::initializable::InitializableComponent;
 
     component!(path: InitializableComponent, storage: initializable, event: InitializableEvent);
 
@@ -9,9 +9,9 @@ pub(crate) mod InitializableMock {
         InitializableComponent::InitializableImpl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        initializable: InitializableComponent::Storage
+        pub initializable: InitializableComponent::Storage
     }
 
     #[event]

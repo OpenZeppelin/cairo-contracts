@@ -14,18 +14,19 @@ pub(crate) trait IUpgradesV1<TState> {
 
 #[starknet::contract]
 pub(crate) mod UpgradesV1 {
-    use openzeppelin_upgrades::UpgradeableComponent;
+    use crate::UpgradeableComponent;
     use starknet::ClassHash;
+    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 
     component!(path: UpgradeableComponent, storage: upgradeable, event: UpgradeableEvent);
 
     impl InternalImpl = UpgradeableComponent::InternalImpl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        upgradeable: UpgradeableComponent::Storage,
-        value: felt252
+        pub upgradeable: UpgradeableComponent::Storage,
+        pub value: felt252
     }
 
     #[event]
@@ -64,19 +65,20 @@ pub(crate) trait IUpgradesV2<TState> {
 
 #[starknet::contract]
 pub(crate) mod UpgradesV2 {
-    use openzeppelin_upgrades::UpgradeableComponent;
+    use crate::UpgradeableComponent;
     use starknet::ClassHash;
+    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 
     component!(path: UpgradeableComponent, storage: upgradeable, event: UpgradeableEvent);
 
     impl InternalImpl = UpgradeableComponent::InternalImpl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        upgradeable: UpgradeableComponent::Storage,
-        value: felt252,
-        value2: felt252
+        pub upgradeable: UpgradeableComponent::Storage,
+        pub value: felt252,
+        pub value2: felt252
     }
 
     #[event]

@@ -1,8 +1,8 @@
 #[starknet::contract]
 pub(crate) mod DualCaseERC20VotesMock {
-    use openzeppelin_token::erc20::ERC20Component;
-    use openzeppelin_token::erc20::extensions::ERC20VotesComponent::InternalTrait as ERC20VotesInternalTrait;
-    use openzeppelin_token::erc20::extensions::ERC20VotesComponent;
+    use crate::erc20::ERC20Component;
+    use crate::erc20::extensions::ERC20VotesComponent::InternalTrait as ERC20VotesInternalTrait;
+    use crate::erc20::extensions::ERC20VotesComponent;
     use openzeppelin_utils::cryptography::nonces::NoncesComponent;
     use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
     use starknet::ContractAddress;
@@ -26,13 +26,13 @@ pub(crate) mod DualCaseERC20VotesMock {
     impl NoncesImpl = NoncesComponent::NoncesImpl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        erc20_votes: ERC20VotesComponent::Storage,
+        pub erc20_votes: ERC20VotesComponent::Storage,
         #[substorage(v0)]
-        erc20: ERC20Component::Storage,
+        pub erc20: ERC20Component::Storage,
         #[substorage(v0)]
-        nonces: NoncesComponent::Storage
+        pub nonces: NoncesComponent::Storage
     }
 
     #[event]

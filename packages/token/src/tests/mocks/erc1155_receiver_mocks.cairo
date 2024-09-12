@@ -2,8 +2,8 @@ const SUCCESS: felt252 = 'SUCCESS';
 
 #[starknet::contract]
 pub(crate) mod DualCaseERC1155ReceiverMock {
+    use crate::erc1155::ERC1155ReceiverComponent;
     use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_token::erc1155::ERC1155ReceiverComponent;
 
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
     component!(
@@ -17,11 +17,11 @@ pub(crate) mod DualCaseERC1155ReceiverMock {
     impl ERC1155ReceiverInternalImpl = ERC1155ReceiverComponent::InternalImpl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        erc1155_receiver: ERC1155ReceiverComponent::Storage,
+        pub erc1155_receiver: ERC1155ReceiverComponent::Storage,
         #[substorage(v0)]
-        src5: SRC5Component::Storage
+        pub src5: SRC5Component::Storage
     }
 
     #[event]
@@ -41,8 +41,8 @@ pub(crate) mod DualCaseERC1155ReceiverMock {
 
 #[starknet::contract]
 pub(crate) mod SnakeERC1155ReceiverMock {
+    use crate::erc1155::ERC1155ReceiverComponent;
     use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_token::erc1155::ERC1155ReceiverComponent;
 
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
     component!(
@@ -60,11 +60,11 @@ pub(crate) mod SnakeERC1155ReceiverMock {
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        erc1155_receiver: ERC1155ReceiverComponent::Storage,
+        pub erc1155_receiver: ERC1155ReceiverComponent::Storage,
         #[substorage(v0)]
-        src5: SRC5Component::Storage
+        pub src5: SRC5Component::Storage
     }
 
     #[event]
@@ -84,8 +84,8 @@ pub(crate) mod SnakeERC1155ReceiverMock {
 
 #[starknet::contract]
 pub(crate) mod CamelERC1155ReceiverMock {
+    use crate::erc1155::ERC1155ReceiverComponent;
     use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_token::erc1155::ERC1155ReceiverComponent;
 
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
     component!(
@@ -103,11 +103,11 @@ pub(crate) mod CamelERC1155ReceiverMock {
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        erc1155_receiver: ERC1155ReceiverComponent::Storage,
+        pub erc1155_receiver: ERC1155ReceiverComponent::Storage,
         #[substorage(v0)]
-        src5: SRC5Component::Storage
+        pub src5: SRC5Component::Storage
     }
 
     #[event]
@@ -130,7 +130,7 @@ pub(crate) mod SnakeERC1155ReceiverPanicMock {
     use starknet::ContractAddress;
 
     #[storage]
-    struct Storage {}
+    pub struct Storage {}
 
     #[external(v0)]
     fn on_erc1155_received(
@@ -164,7 +164,7 @@ pub(crate) mod CamelERC1155ReceiverPanicMock {
     use starknet::ContractAddress;
 
     #[storage]
-    struct Storage {}
+    pub struct Storage {}
 
     #[external(v0)]
     fn onERC1155Received(

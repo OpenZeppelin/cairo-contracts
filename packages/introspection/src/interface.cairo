@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.15.1 (introspection/interface.cairo)
+// OpenZeppelin Contracts for Cairo v0.16.0 (introspection/interface.cairo)
 
 pub const ISRC5_ID: felt252 = 0x3f918d17e5ee77373b56385708f855659a07f75997f365cf87748628532a055;
 

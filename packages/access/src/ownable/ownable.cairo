@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.15.1 (access/ownable/ownable.cairo)
+// OpenZeppelin Contracts for Cairo v0.16.0 (access/ownable/ownable.cairo)
 
 /// # Ownable Component
 ///
@@ -16,15 +16,16 @@
 #[starknet::component]
 pub mod OwnableComponent {
     use core::num::traits::Zero;
-    use openzeppelin_access::ownable::interface::IOwnableTwoStep;
-    use openzeppelin_access::ownable::interface;
+    use crate::ownable::interface::IOwnableTwoStep;
+    use crate::ownable::interface;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
+    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 
     #[storage]
-    struct Storage {
-        Ownable_owner: ContractAddress,
-        Ownable_pending_owner: ContractAddress
+    pub struct Storage {
+        pub Ownable_owner: ContractAddress,
+        pub Ownable_pending_owner: ContractAddress
     }
 
     #[event]
@@ -113,14 +114,26 @@ pub mod OwnableComponent {
 
         /// Finishes the two-step ownership transfer process by accepting the ownership.
         /// Can only be called by the pending owner.
+        ///
+        /// Requirements:
+        ///
+        /// - The caller is the pending owner.
+        ///
+        /// Emits an `OwnershipTransferred` event.
         fn accept_ownership(ref self: ComponentState<TContractState>) {
             let caller = get_caller_address();
             let pending_owner = self.Ownable_pending_owner.read();
             assert(caller == pending_owner, Errors::NOT_PENDING_OWNER);
-            self._accept_ownership();
+            self._transfer_ownership(pending_owner);
         }
 
         /// Starts the two-step ownership transfer process by setting the pending owner.
+        ///
+        /// Requirements:
+        ///
+        /// - The caller is the contract owner.
+        ///
+        /// Emits an `OwnershipTransferStarted` event.
         fn transfer_ownership(
             ref self: ComponentState<TContractState>, new_owner: ContractAddress
         ) {
@@ -130,6 +143,12 @@ pub mod OwnableComponent {
 
         /// Leaves the contract without owner. It will not be possible to call `assert_only_owner`
         /// functions anymore. Can only be called by the current owner.
+        ///
+        /// Requirements:
+        ///
+        /// - The caller is the contract owner.
+        ///
+        /// Emits an `OwnershipTransferred` event.
         fn renounce_ownership(ref self: ComponentState<TContractState>) {
             Ownable::renounce_ownership(ref self);
         }
@@ -265,7 +284,8 @@ pub mod OwnableComponent {
             assert(caller == owner, Errors::NOT_OWNER);
         }
 
-        /// Transfers ownership of the contract to a new address.
+        /// Transfers ownership of the contract to a new address and resets
+        /// the pending owner to the zero address.
         ///
         /// Internal function without access restriction.
         ///
@@ -273,6 +293,8 @@ pub mod OwnableComponent {
         fn _transfer_ownership(
             ref self: ComponentState<TContractState>, new_owner: ContractAddress
         ) {
+            self.Ownable_pending_owner.write(Zero::zero());
+
             let previous_owner: ContractAddress = self.Ownable_owner.read();
             self.Ownable_owner.write(new_owner);
             self
@@ -295,17 +317,6 @@ pub mod OwnableComponent {
                         previous_owner: previous_owner, new_owner: new_owner
                     }
                 );
-        }
-
-        /// Transfers ownership to the pending owner.
-        ///
-        /// Internal function without access restriction.
-        ///
-        /// Emits an `OwnershipTransferred` event.
-        fn _accept_ownership(ref self: ComponentState<TContractState>) {
-            let pending_owner = self.Ownable_pending_owner.read();
-            self.Ownable_pending_owner.write(Zero::zero());
-            self._transfer_ownership(pending_owner);
         }
     }
 }

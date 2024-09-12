@@ -1,13 +1,11 @@
+use crate::erc721::dual721::{DualCaseERC721, DualCaseERC721Trait};
+use crate::erc721::interface::IERC721_ID;
+use crate::erc721::interface::{IERC721CamelOnlyDispatcher, IERC721CamelOnlyDispatcherTrait};
+use crate::erc721::interface::{IERC721Dispatcher, IERC721DispatcherTrait};
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{
     DATA, OWNER, RECIPIENT, SPENDER, OPERATOR, NAME, SYMBOL, BASE_URI, TOKEN_ID
 };
-use openzeppelin_token::erc721::dual721::{DualCaseERC721, DualCaseERC721Trait};
-use openzeppelin_token::erc721::interface::IERC721_ID;
-use openzeppelin_token::erc721::interface::{
-    IERC721CamelOnlyDispatcher, IERC721CamelOnlyDispatcherTrait
-};
-use openzeppelin_token::erc721::interface::{IERC721Dispatcher, IERC721DispatcherTrait};
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{start_cheat_caller_address};
 use starknet::ContractAddress;
@@ -86,7 +84,7 @@ fn test_dual_no_name() {
 }
 
 #[test]
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_name_exists_and_panics() {
     let (dispatcher, _) = setup_erc721_panic();
     dispatcher.name();
@@ -109,7 +107,7 @@ fn test_dual_no_symbol() {
 }
 
 #[test]
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_symbol_exists_and_panics() {
     let (dispatcher, _) = setup_erc721_panic();
     dispatcher.symbol();
@@ -139,7 +137,7 @@ fn test_dual_no_approve() {
 }
 
 #[test]
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_approve_exists_and_panics() {
     let (dispatcher, _) = setup_erc721_panic();
     dispatcher.approve(SPENDER(), TOKEN_ID);
@@ -164,7 +162,7 @@ fn test_dual_no_balance_of() {
 }
 
 #[test]
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_balance_of_exists_and_panics() {
     let (dispatcher, _) = setup_erc721_panic();
     dispatcher.balance_of(OWNER());
@@ -185,7 +183,7 @@ fn test_dual_no_owner_of() {
 }
 
 #[test]
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_owner_of_exists_and_panics() {
     let (dispatcher, _) = setup_erc721_panic();
     dispatcher.owner_of(TOKEN_ID);
@@ -207,7 +205,7 @@ fn test_dual_no_transfer_from() {
 }
 
 #[test]
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_transfer_from_exists_and_panics() {
     let (dispatcher, _) = setup_erc721_panic();
     dispatcher.transfer_from(OWNER(), RECIPIENT(), TOKEN_ID);
@@ -230,7 +228,7 @@ fn test_dual_no_safe_transfer_from() {
 }
 
 #[test]
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_safe_transfer_from_exists_and_panics() {
     let (dispatcher, _) = setup_erc721_panic();
     dispatcher.safe_transfer_from(OWNER(), RECIPIENT(), TOKEN_ID, DATA(true));
@@ -254,7 +252,7 @@ fn test_dual_no_get_approved() {
 }
 
 #[test]
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_get_approved_exists_and_panics() {
     let (dispatcher, _) = setup_erc721_panic();
     dispatcher.get_approved(TOKEN_ID);
@@ -280,7 +278,7 @@ fn test_dual_no_set_approval_for_all() {
 }
 
 #[test]
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_set_approval_for_all_exists_and_panics() {
     let (dispatcher, _) = setup_erc721_panic();
     dispatcher.set_approval_for_all(OPERATOR(), true);
@@ -306,7 +304,7 @@ fn test_dual_no_is_approved_for_all() {
 }
 
 #[test]
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_is_approved_for_all_exists_and_panics() {
     let (dispatcher, _) = setup_erc721_panic();
     dispatcher.is_approved_for_all(OWNER(), OPERATOR());
@@ -329,7 +327,7 @@ fn test_dual_no_token_uri() {
 }
 
 #[test]
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_token_uri_exists_and_panics() {
     let (dispatcher, _) = setup_erc721_panic();
     dispatcher.token_uri(TOKEN_ID);
@@ -351,7 +349,7 @@ fn test_dual_no_supports_interface() {
 }
 
 #[test]
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_supports_interface_exists_and_panics() {
     let (dispatcher, _) = setup_erc721_panic();
     dispatcher.supports_interface(IERC721_ID);
@@ -370,7 +368,7 @@ fn test_dual_balanceOf() {
 
 #[test]
 #[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_balanceOf_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_panic();
     dispatcher.balance_of(OWNER());
@@ -386,7 +384,7 @@ fn test_dual_ownerOf() {
 
 #[test]
 #[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_ownerOf_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_panic();
     dispatcher.owner_of(TOKEN_ID);
@@ -406,7 +404,7 @@ fn test_dual_transferFrom() {
 
 #[test]
 #[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_transferFrom_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_panic();
     dispatcher.transfer_from(OWNER(), RECIPIENT(), TOKEN_ID);
@@ -425,7 +423,7 @@ fn test_dual_safeTransferFrom() {
 
 #[test]
 #[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_safeTransferFrom_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_panic();
     dispatcher.safe_transfer_from(OWNER(), RECIPIENT(), TOKEN_ID, DATA(true));
@@ -445,7 +443,7 @@ fn test_dual_getApproved() {
 
 #[test]
 #[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_getApproved_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_panic();
     dispatcher.get_approved(TOKEN_ID);
@@ -465,7 +463,7 @@ fn test_dual_setApprovalForAll() {
 
 #[test]
 #[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_setApprovalForAll_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_panic();
     dispatcher.set_approval_for_all(OPERATOR(), true);
@@ -485,7 +483,7 @@ fn test_dual_isApprovedForAll() {
 
 #[test]
 #[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_isApprovedForAll_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_panic();
     dispatcher.is_approved_for_all(OWNER(), OPERATOR());
@@ -502,7 +500,7 @@ fn test_dual_tokenURI() {
 
 #[test]
 #[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_tokenURI_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_panic();
     dispatcher.token_uri(TOKEN_ID);

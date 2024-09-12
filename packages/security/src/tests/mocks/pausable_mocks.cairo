@@ -1,6 +1,6 @@
 #[starknet::contract]
 pub(crate) mod PausableMock {
-    use openzeppelin_security::pausable::PausableComponent;
+    use crate::pausable::PausableComponent;
 
     component!(path: PausableComponent, storage: pausable, event: PausableEvent);
 
@@ -9,9 +9,9 @@ pub(crate) mod PausableMock {
     impl InternalImpl = PausableComponent::InternalImpl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        pausable: PausableComponent::Storage
+        pub pausable: PausableComponent::Storage
     }
 
     #[event]

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.15.1 (token/common/erc2981/erc2981.cairo)
+// OpenZeppelin Contracts for Cairo v0.16.0 (token/common/erc2981/erc2981.cairo)
 
 /// # ERC2981 Component
 ///
@@ -20,12 +20,15 @@
 #[starknet::component]
 pub mod ERC2981Component {
     use core::num::traits::Zero;
+    use crate::common::erc2981::interface::{IERC2981, IERC2981_ID};
     use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
     use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_token::common::erc2981::interface::{IERC2981, IERC2981_ID};
     use starknet::ContractAddress;
-    use starknet::storage::Map;
+    use starknet::storage::{
+        Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
+        StoragePointerWriteAccess
+    };
 
     // This default denominator is only used when the DefaultConfig
     // is in scope in the implementing contract.
@@ -38,9 +41,9 @@ pub mod ERC2981Component {
     }
 
     #[storage]
-    struct Storage {
-        ERC2981_default_royalty_info: RoyaltyInfo,
-        ERC2981_token_royalty_info: Map<u256, RoyaltyInfo>,
+    pub struct Storage {
+        pub ERC2981_default_royalty_info: RoyaltyInfo,
+        pub ERC2981_token_royalty_info: Map<u256, RoyaltyInfo>,
     }
 
     mod Errors {
@@ -244,7 +247,7 @@ pub impl DefaultConfig of ERC2981Component::ImmutableConfig {
 
 #[cfg(test)]
 mod tests {
-    use openzeppelin_token::tests::mocks::erc2981_mocks::ERC2981Mock;
+    use crate::tests::mocks::erc2981_mocks::ERC2981Mock;
     use starknet::contract_address_const;
     use super::ERC2981Component::InternalImpl;
     use super::ERC2981Component;

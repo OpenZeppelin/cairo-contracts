@@ -1,10 +1,10 @@
+use crate::erc20::dual20::{DualCaseERC20, DualCaseERC20Trait};
+use crate::erc20::interface::{IERC20CamelDispatcher, IERC20CamelDispatcherTrait};
+use crate::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{
     OWNER, RECIPIENT, SPENDER, OPERATOR, NAME, SYMBOL, DECIMALS, SUPPLY, VALUE
 };
-use openzeppelin_token::erc20::dual20::{DualCaseERC20, DualCaseERC20Trait};
-use openzeppelin_token::erc20::interface::{IERC20CamelDispatcher, IERC20CamelDispatcherTrait};
-use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{test_address, start_cheat_caller_address};
 
@@ -69,7 +69,7 @@ fn test_dual_no_name() {
 }
 
 #[test]
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_name_exists_and_panics() {
     let (dispatcher, _) = setup_erc20_panic();
     dispatcher.name();
@@ -92,7 +92,7 @@ fn test_dual_no_symbol() {
 }
 
 #[test]
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_symbol_exists_and_panics() {
     let (dispatcher, _) = setup_erc20_panic();
     dispatcher.symbol();
@@ -115,7 +115,7 @@ fn test_dual_no_decimals() {
 }
 
 #[test]
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_decimals_exists_and_panics() {
     let (dispatcher, _) = setup_erc20_panic();
     dispatcher.decimals();
@@ -144,7 +144,7 @@ fn test_dual_no_transfer() {
 }
 
 #[test]
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_transfer_exists_and_panics() {
     let (dispatcher, _) = setup_erc20_panic();
     dispatcher.transfer(RECIPIENT(), VALUE);
@@ -176,7 +176,7 @@ fn test_dual_no_approve() {
 }
 
 #[test]
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_approve_exists_and_panics() {
     let (dispatcher, _) = setup_erc20_panic();
     dispatcher.approve(SPENDER(), VALUE);
@@ -201,7 +201,7 @@ fn test_dual_no_total_supply() {
 }
 
 #[test]
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_total_supply_exists_and_panics() {
     let (dispatcher, _) = setup_erc20_panic();
     dispatcher.total_supply();
@@ -222,7 +222,7 @@ fn test_dual_no_balance_of() {
 }
 
 #[test]
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_balance_of_exists_and_panics() {
     let (dispatcher, _) = setup_erc20_panic();
     dispatcher.balance_of(OWNER());
@@ -248,7 +248,7 @@ fn test_dual_no_transfer_from() {
 }
 
 #[test]
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_transfer_from_exists_and_panics() {
     let (dispatcher, _) = setup_erc20_panic();
     dispatcher.transfer_from(OWNER(), RECIPIENT(), VALUE);
@@ -267,7 +267,7 @@ fn test_dual_totalSupply() {
 
 #[test]
 #[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_totalSupply_exists_and_panics() {
     let (_, dispatcher) = setup_erc20_panic();
     dispatcher.total_supply();
@@ -282,7 +282,7 @@ fn test_dual_balanceOf() {
 
 #[test]
 #[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_balanceOf_exists_and_panics() {
     let (_, dispatcher) = setup_erc20_panic();
     dispatcher.balance_of(OWNER());
@@ -302,7 +302,7 @@ fn test_dual_transferFrom() {
 
 #[test]
 #[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_transferFrom_exists_and_panics() {
     let (_, dispatcher) = setup_erc20_panic();
     dispatcher.transfer_from(OWNER(), RECIPIENT(), VALUE);

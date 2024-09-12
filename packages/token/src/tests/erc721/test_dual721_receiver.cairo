@@ -1,11 +1,9 @@
+use crate::erc721::dual721_receiver::{DualCaseERC721Receiver, DualCaseERC721ReceiverTrait};
+use crate::erc721::interface::{
+    IERC721ReceiverDispatcher, IERC721ReceiverCamelDispatcher, IERC721_RECEIVER_ID
+};
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{DATA, OPERATOR, OWNER, TOKEN_ID};
-use openzeppelin_token::erc721::dual721_receiver::{
-    DualCaseERC721Receiver, DualCaseERC721ReceiverTrait
-};
-use openzeppelin_token::erc721::interface::IERC721_RECEIVER_ID;
-use openzeppelin_token::erc721::interface::{IERC721ReceiverCamelDispatcher};
-use openzeppelin_token::erc721::interface::{IERC721ReceiverDispatcher};
 
 //
 // Setup
@@ -66,7 +64,7 @@ fn test_dual_no_on_erc721_received() {
 }
 
 #[test]
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_on_erc721_received_exists_and_panics() {
     let (dispatcher, _) = setup_erc721_receiver_panic();
     dispatcher.on_erc721_received(OPERATOR(), OWNER(), TOKEN_ID, DATA(true));
@@ -88,7 +86,7 @@ fn test_dual_onERC721Received() {
 
 #[test]
 #[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_onERC721Received_exists_and_panics() {
     let (_, dispatcher) = setup_erc721_receiver_panic();
     dispatcher.on_erc721_received(OPERATOR(), OWNER(), TOKEN_ID, DATA(true));

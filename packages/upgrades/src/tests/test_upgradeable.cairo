@@ -1,12 +1,8 @@
+use crate::tests::mocks::upgrades_mocks::{IUpgradesV1Dispatcher, IUpgradesV1DispatcherTrait};
+use crate::tests::mocks::upgrades_mocks::{IUpgradesV2Dispatcher, IUpgradesV2DispatcherTrait};
 use openzeppelin_test_common::upgrades::UpgradeableSpyHelpers;
 use openzeppelin_testing::constants::{CLASS_HASH_ZERO, FELT_VALUE as VALUE};
 use openzeppelin_testing::{declare_class, deploy};
-use openzeppelin_upgrades::tests::mocks::upgrades_mocks::{
-    IUpgradesV1Dispatcher, IUpgradesV1DispatcherTrait
-};
-use openzeppelin_upgrades::tests::mocks::upgrades_mocks::{
-    IUpgradesV2Dispatcher, IUpgradesV2DispatcherTrait
-};
 use snforge_std::{spy_events, ContractClass};
 
 //

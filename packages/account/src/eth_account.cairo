@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.15.1 (account/eth_account.cairo)
+// OpenZeppelin Contracts for Cairo v0.16.0 (account/eth_account.cairo)
 
 /// # EthAccount Component
 ///
@@ -10,11 +10,11 @@ pub mod EthAccountComponent {
     use core::num::traits::Zero;
     use core::poseidon::{PoseidonTrait, poseidon_hash_span};
     use core::starknet::secp256_trait::Secp256PointTrait;
-    use openzeppelin_account::interface::EthPublicKey;
-    use openzeppelin_account::interface;
-    use openzeppelin_account::utils::secp256k1::Secp256k1PointStorePacking;
-    use openzeppelin_account::utils::{MIN_TRANSACTION_VERSION, QUERY_OFFSET};
-    use openzeppelin_account::utils::{execute_calls, is_valid_eth_signature};
+    use crate::interface::EthPublicKey;
+    use crate::interface;
+    use crate::utils::secp256k1::Secp256k1PointStorePacking;
+    use crate::utils::{MIN_TRANSACTION_VERSION, QUERY_OFFSET};
+    use crate::utils::{execute_calls, is_valid_eth_signature};
     use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
     use openzeppelin_introspection::src5::SRC5Component;
@@ -23,10 +23,11 @@ pub mod EthAccountComponent {
     use starknet::get_caller_address;
     use starknet::get_contract_address;
     use starknet::get_tx_info;
+    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 
     #[storage]
-    struct Storage {
-        EthAccount_public_key: EthPublicKey
+    pub struct Storage {
+        pub EthAccount_public_key: EthPublicKey
     }
 
     #[event]

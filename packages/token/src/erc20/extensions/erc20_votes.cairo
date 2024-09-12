@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.15.1 (token/erc20/extensions/erc20_votes.cairo)
+// OpenZeppelin Contracts for Cairo v0.16.0 (token/erc20/extensions/erc20_votes.cairo)
 
 use core::hash::{HashStateTrait, HashStateExTrait};
 use core::poseidon::PoseidonTrait;
@@ -17,22 +17,24 @@ use starknet::ContractAddress;
 #[starknet::component]
 pub mod ERC20VotesComponent {
     use core::num::traits::Zero;
+    use crate::erc20::ERC20Component;
+    use crate::erc20::interface::IERC20;
     use openzeppelin_account::dual_account::{DualCaseAccount, DualCaseAccountTrait};
     use openzeppelin_governance::utils::interfaces::IVotes;
-    use openzeppelin_token::erc20::ERC20Component;
-    use openzeppelin_token::erc20::interface::IERC20;
     use openzeppelin_utils::nonces::NoncesComponent::InternalTrait as NoncesInternalTrait;
     use openzeppelin_utils::nonces::NoncesComponent;
     use openzeppelin_utils::structs::checkpoint::{Checkpoint, Trace, TraceTrait};
     use starknet::ContractAddress;
-    use starknet::storage::Map;
+    use starknet::storage::{
+        Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess
+    };
     use super::{Delegation, OffchainMessageHash, SNIP12Metadata};
 
     #[storage]
-    struct Storage {
-        ERC20Votes_delegatee: Map<ContractAddress, ContractAddress>,
-        ERC20Votes_delegate_checkpoints: Map<ContractAddress, Trace>,
-        ERC20Votes_total_checkpoints: Trace
+    pub struct Storage {
+        pub ERC20Votes_delegatee: Map<ContractAddress, ContractAddress>,
+        pub ERC20Votes_delegate_checkpoints: Map<ContractAddress, Trace>,
+        pub ERC20Votes_total_checkpoints: Trace
     }
 
     #[event]
@@ -163,7 +165,7 @@ pub mod ERC20VotesComponent {
             let is_valid_signature_felt = DualCaseAccount { contract_address: delegator }
                 .is_valid_signature(hash, signature);
 
-            // Check either 'VALID' or True for backwards compatibility.
+            // Check either 'VALID' or true for backwards compatibility.
             let is_valid_signature = is_valid_signature_felt == starknet::VALIDATED
                 || is_valid_signature_felt == 1;
 

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.15.1 (governance/timelock/timelock_controller.cairo)
+// OpenZeppelin Contracts for Cairo v0.16.0 (governance/timelock/timelock_controller.cairo)
 
 /// # TimelockController Component
 ///
@@ -17,22 +17,23 @@ pub mod TimelockControllerComponent {
     use core::hash::{HashStateTrait, HashStateExTrait};
     use core::num::traits::Zero;
     use core::pedersen::PedersenTrait;
+    use crate::timelock::interface::{ITimelock, TimelockABI};
+    use crate::timelock::utils::call_impls::{HashCallImpl, HashCallsImpl, CallPartialEq};
     use openzeppelin_access::accesscontrol::AccessControlComponent::InternalTrait as AccessControlInternalTrait;
     use openzeppelin_access::accesscontrol::AccessControlComponent::{
         AccessControlImpl, AccessControlCamelImpl
     };
     use openzeppelin_access::accesscontrol::AccessControlComponent;
     use openzeppelin_access::accesscontrol::DEFAULT_ADMIN_ROLE;
-    use openzeppelin_governance::timelock::interface::{ITimelock, TimelockABI};
-    use openzeppelin_governance::timelock::utils::call_impls::{
-        HashCallImpl, HashCallsImpl, CallPartialEq
-    };
     use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
     use openzeppelin_introspection::src5::SRC5Component;
     use starknet::ContractAddress;
     use starknet::SyscallResultTrait;
     use starknet::account::Call;
-    use starknet::storage::Map;
+    use starknet::storage::{
+        Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
+        StoragePointerWriteAccess
+    };
     use super::OperationState;
 
     // Constants
@@ -42,9 +43,9 @@ pub mod TimelockControllerComponent {
     const DONE_TIMESTAMP: u64 = 1;
 
     #[storage]
-    struct Storage {
-        TimelockController_timestamps: Map<felt252, u64>,
-        TimelockController_min_delay: u64
+    pub struct Storage {
+        pub TimelockController_timestamps: Map<felt252, u64>,
+        pub TimelockController_min_delay: u64
     }
 
     #[event]

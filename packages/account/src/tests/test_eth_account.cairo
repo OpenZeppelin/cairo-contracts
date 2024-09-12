@@ -1,15 +1,12 @@
-use openzeppelin_account::EthAccountComponent::{InternalTrait, SRC6CamelOnlyImpl};
-use openzeppelin_account::EthAccountComponent::{PublicKeyCamelImpl, PublicKeyImpl};
-use openzeppelin_account::EthAccountComponent;
-use openzeppelin_account::interface::{EthAccountABIDispatcherTrait, EthAccountABIDispatcher};
-use openzeppelin_account::interface::{ISRC6, ISRC6_ID};
-use openzeppelin_account::tests::mocks::eth_account_mocks::DualCaseEthAccountMock;
-use openzeppelin_account::tests::mocks::simple_mock::SimpleMock;
-use openzeppelin_account::tests::mocks::simple_mock::{
-    ISimpleMockDispatcher, ISimpleMockDispatcherTrait
-};
-use openzeppelin_account::utils::secp256k1::{DebugSecp256k1Point, Secp256k1PointPartialEq};
-use openzeppelin_account::utils::signature::EthSignature;
+use crate::EthAccountComponent::{InternalTrait, SRC6CamelOnlyImpl};
+use crate::EthAccountComponent::{PublicKeyCamelImpl, PublicKeyImpl};
+use crate::EthAccountComponent;
+use crate::interface::{EthAccountABIDispatcherTrait, EthAccountABIDispatcher};
+use crate::interface::{ISRC6, ISRC6_ID};
+use crate::tests::mocks::eth_account_mocks::DualCaseEthAccountMock;
+use crate::tests::mocks::simple_mock::{ISimpleMockDispatcher, ISimpleMockDispatcherTrait};
+use crate::utils::secp256k1::{DebugSecp256k1Point, Secp256k1PointPartialEq};
+use crate::utils::signature::EthSignature;
 use openzeppelin_introspection::interface::{ISRC5, ISRC5_ID};
 use openzeppelin_test_common::eth_account::EthAccountSpyHelpers;
 use openzeppelin_test_common::eth_account::{
@@ -18,10 +15,9 @@ use openzeppelin_test_common::eth_account::{
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::secp256k1::{KEY_PAIR, KEY_PAIR_2};
 use openzeppelin_testing::constants::{
-    SALT, ZERO, OTHER, RECIPIENT, CALLER, QUERY_VERSION, MIN_TRANSACTION_VERSION
+    SALT, ZERO, OTHER, CALLER, QUERY_VERSION, MIN_TRANSACTION_VERSION
 };
 use openzeppelin_testing::signing::Secp256k1KeyPair;
-use openzeppelin_utils::selectors;
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{
     start_cheat_signature_global, start_cheat_transaction_version_global,

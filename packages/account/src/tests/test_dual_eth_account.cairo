@@ -75,7 +75,7 @@ fn test_dual_no_set_public_key() {
 }
 
 #[test]
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_set_public_key_exists_and_panics() {
     let (dispatcher, _) = setup_account_panic();
     dispatcher.set_public_key(KEY_PAIR().public_key, array![].span());
@@ -97,7 +97,7 @@ fn test_dual_no_get_public_key() {
 }
 
 #[test]
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_get_public_key_exists_and_panics() {
     let (dispatcher, _) = setup_account_panic();
     dispatcher.get_public_key();
@@ -124,7 +124,7 @@ fn test_dual_no_is_valid_signature() {
 }
 
 #[test]
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_is_valid_signature_exists_and_panics() {
     let signature = array![];
 
@@ -147,7 +147,7 @@ fn test_dual_no_supports_interface() {
 }
 
 #[test]
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_supports_interface_exists_and_panics() {
     let (dispatcher, _) = setup_account_panic();
     dispatcher.supports_interface(ISRC5_ID);
@@ -176,7 +176,7 @@ fn test_dual_setPublicKey() {
 
 #[test]
 #[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_setPublicKey_exists_and_panics() {
     let (_, dispatcher) = setup_account_panic();
     dispatcher.set_public_key(KEY_PAIR_2().public_key, array![].span());
@@ -192,7 +192,7 @@ fn test_dual_getPublicKey() {
 
 #[test]
 #[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_getPublicKey_exists_and_panics() {
     let (_, dispatcher) = setup_account_panic();
     dispatcher.get_public_key();
@@ -211,7 +211,7 @@ fn test_dual_isValidSignature() {
 
 #[test]
 #[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_isValidSignature_exists_and_panics() {
     let signature = array![];
 

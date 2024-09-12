@@ -16,17 +16,20 @@ pub mod ERC721Component {
     use openzeppelin_introspection::src5::SRC5Component;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
-    use starknet::storage::Map;
+    use starknet::storage::{
+        Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
+        StoragePointerWriteAccess
+    };
 
     #[storage]
-    struct Storage {
-        ERC721_name: ByteArray,
-        ERC721_symbol: ByteArray,
-        ERC721_owners: Map<u256, ContractAddress>,
-        ERC721_balances: Map<ContractAddress, u256>,
-        ERC721_token_approvals: Map<u256, ContractAddress>,
-        ERC721_operator_approvals: Map<(ContractAddress, ContractAddress), bool>,
-        ERC721_base_uri: ByteArray
+    pub struct Storage {
+        pub ERC721_name: ByteArray,
+        pub ERC721_symbol: ByteArray,
+        pub ERC721_owners: Map<u256, ContractAddress>,
+        pub ERC721_balances: Map<ContractAddress, u256>,
+        pub ERC721_token_approvals: Map<u256, ContractAddress>,
+        pub ERC721_operator_approvals: Map<(ContractAddress, ContractAddress), bool>,
+        pub ERC721_base_uri: ByteArray
     }
 
     #[event]

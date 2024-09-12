@@ -11,7 +11,7 @@ pub mod UpgradeableComponent {
     use starknet::SyscallResultTrait;
 
     #[storage]
-    struct Storage {}
+    pub struct Storage {}
 
     #[event]
     #[derive(Drop, PartialEq, starknet::Event)]

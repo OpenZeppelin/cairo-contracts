@@ -1,7 +1,7 @@
 #[starknet::contract]
 pub(crate) mod NonImplementingMock {
     #[storage]
-    struct Storage {}
+    pub struct Storage {}
 
     #[external(v0)]
     fn nope(self: @ContractState) -> bool {

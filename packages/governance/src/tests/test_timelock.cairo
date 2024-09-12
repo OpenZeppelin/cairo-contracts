@@ -33,12 +33,13 @@ use snforge_std::{
 use starknet::ContractAddress;
 use starknet::account::Call;
 use starknet::contract_address_const;
+use starknet::storage::{StorageMapReadAccess, StorageMapWriteAccess, StoragePointerWriteAccess};
 
 type ComponentState =
     TimelockControllerComponent::ComponentState<TimelockControllerMock::ContractState>;
 
-fn CONTRACT_STATE() -> TimelockControllerMock::ContractState {
-    TimelockControllerMock::contract_state_for_testing()
+fn CONTRACT_STATE() -> @TimelockControllerMock::ContractState {
+    @TimelockControllerMock::contract_state_for_testing()
 }
 
 fn COMPONENT_STATE() -> ComponentState {

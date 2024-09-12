@@ -14,9 +14,9 @@ pub(crate) mod DualCaseERC20Mock {
     impl InternalImpl = ERC20Component::InternalImpl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        erc20: ERC20Component::Storage
+        pub erc20: ERC20Component::Storage
     }
 
     #[event]
@@ -53,9 +53,9 @@ pub(crate) mod SnakeERC20Mock {
     impl InternalImpl = ERC20Component::InternalImpl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        erc20: ERC20Component::Storage
+        pub erc20: ERC20Component::Storage
     }
 
     #[event]

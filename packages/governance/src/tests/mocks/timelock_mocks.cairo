@@ -16,13 +16,13 @@ pub(crate) mod TimelockControllerMock {
     impl TimelockInternalImpl = TimelockControllerComponent::InternalImpl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        access_control: AccessControlComponent::Storage,
+        pub access_control: AccessControlComponent::Storage,
         #[substorage(v0)]
-        src5: SRC5Component::Storage,
+        pub src5: SRC5Component::Storage,
         #[substorage(v0)]
-        timelock: TimelockControllerComponent::Storage
+        pub timelock: TimelockControllerComponent::Storage
     }
 
     #[event]
@@ -57,11 +57,12 @@ pub(crate) trait IMockContract<TState> {
 
 #[starknet::contract]
 pub(crate) mod MockContract {
+    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
     use super::IMockContract;
 
     #[storage]
-    struct Storage {
-        number: felt252,
+    pub struct Storage {
+        pub number: felt252,
     }
 
     #[abi(embed_v0)]
@@ -90,15 +91,16 @@ pub(crate) trait ITimelockAttacker<TState> {
 pub(crate) mod TimelockAttackerMock {
     use crate::timelock::interface::{ITimelockDispatcher, ITimelockDispatcherTrait};
     use starknet::account::Call;
+    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
     use super::ITimelockAttacker;
 
     const NO_PREDECESSOR: felt252 = 0;
     const NO_SALT: felt252 = 0;
 
     #[storage]
-    struct Storage {
-        balance: felt252,
-        count: felt252
+    pub struct Storage {
+        pub balance: felt252,
+        pub count: felt252
     }
 
     #[abi(embed_v0)]

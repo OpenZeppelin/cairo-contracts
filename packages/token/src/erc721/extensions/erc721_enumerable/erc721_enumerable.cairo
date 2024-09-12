@@ -25,15 +25,18 @@ pub mod ERC721EnumerableComponent {
     use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin_introspection::src5::SRC5Component;
     use starknet::ContractAddress;
-    use starknet::storage::Map;
+    use starknet::storage::{
+        Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
+        StoragePointerWriteAccess
+    };
 
     #[storage]
-    struct Storage {
-        ERC721Enumerable_owned_tokens: Map<(ContractAddress, u256), u256>,
-        ERC721Enumerable_owned_tokens_index: Map<u256, u256>,
-        ERC721Enumerable_all_tokens_len: u256,
-        ERC721Enumerable_all_tokens: Map<u256, u256>,
-        ERC721Enumerable_all_tokens_index: Map<u256, u256>
+    pub struct Storage {
+        pub ERC721Enumerable_owned_tokens: Map<(ContractAddress, u256), u256>,
+        pub ERC721Enumerable_owned_tokens_index: Map<u256, u256>,
+        pub ERC721Enumerable_all_tokens_len: u256,
+        pub ERC721Enumerable_all_tokens: Map<u256, u256>,
+        pub ERC721Enumerable_all_tokens_index: Map<u256, u256>
     }
 
     pub mod Errors {

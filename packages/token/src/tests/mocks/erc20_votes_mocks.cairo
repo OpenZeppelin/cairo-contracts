@@ -26,13 +26,13 @@ pub(crate) mod DualCaseERC20VotesMock {
     impl NoncesImpl = NoncesComponent::NoncesImpl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        erc20_votes: ERC20VotesComponent::Storage,
+        pub erc20_votes: ERC20VotesComponent::Storage,
         #[substorage(v0)]
-        erc20: ERC20Component::Storage,
+        pub erc20: ERC20Component::Storage,
         #[substorage(v0)]
-        nonces: NoncesComponent::Storage
+        pub nonces: NoncesComponent::Storage
     }
 
     #[event]

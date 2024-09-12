@@ -17,6 +17,7 @@ use openzeppelin_testing::constants::{
 };
 use snforge_std::{spy_events, test_address, start_cheat_caller_address};
 use starknet::ContractAddress;
+use starknet::storage::StoragePointerReadAccess;
 
 //
 // Setup
@@ -1025,11 +1026,7 @@ fn test_update_wac_batch_from_non_zero_to_non_zero_account() {
 }
 
 #[test]
-#[should_panic(
-    expected: (
-        "Contract not deployed at address: 0x0000000000000000000000000000000000000000000000000000000000000000",
-    )
-)]
+#[should_panic(expected: "Contract not deployed at address: 0x0")]
 fn test_update_wac_from_non_zero_to_zero() {
     let (mut state, owner) = setup();
     let recipient = ZERO();

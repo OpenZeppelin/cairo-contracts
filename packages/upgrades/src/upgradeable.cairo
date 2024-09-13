@@ -45,5 +45,27 @@ pub mod UpgradeableComponent {
             starknet::syscalls::replace_class_syscall(new_class_hash).unwrap_syscall();
             self.emit(Upgraded { class_hash: new_class_hash });
         }
+
+        /// Replaces the contract's class hash with `new_class_hash` and then calls `selector`
+        /// from the upgraded context.
+        ///
+        /// Requirements:
+        ///
+        /// - `new_class_hash` is not zero.
+        ///
+        /// Emits an `Upgraded` event.
+        fn upgrade_and_call(
+            ref self: ComponentState<TContractState>,
+            new_class_hash: ClassHash,
+            selector: felt252,
+            calldata: Span<felt252>
+        ) {
+            self.upgrade(new_class_hash);
+            let this = starknet::get_contract_address();
+            // `call_contract_syscall` is used in order to call `selector` from the new class.
+            // See:
+            // https://docs.starknet.io/documentation/architecture_and_concepts/Contracts/system-calls-cairo1/#replace_class
+            starknet::syscalls::call_contract_syscall(this, selector, calldata).unwrap_syscall();
+        }
     }
 }

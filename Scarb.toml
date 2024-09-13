@@ -74,3 +74,6 @@ sort-module-level-items = true
 
 [tool]
 fmt.workspace = true
+
+[features]
+mock_contract = []

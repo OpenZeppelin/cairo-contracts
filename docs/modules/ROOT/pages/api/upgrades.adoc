@@ -43,28 +43,19 @@ NOTE: This function is usually protected by an xref:access.adoc[Access Control] 
 :Upgraded: xref:UpgradeableComponent-Upgraded[Upgraded]
 
 ```cairo
-use openzeppelin::upgrades::interface::IUpgradeable;
+use openzeppelin::upgrades::interface::IUpgradeAndCall;
 ```
 
-Interface of an upgradeable contract that also offers the ability to upgrade and call a function in the upgraded context.
+Interface for an upgradeable contract that couples an upgrade with a function call in the upgraded context.
 
 [.contract-index]
 .Functions
 --
-* xref:#IUpgradeAndCall-upgrade[`++upgrade(new_class_hash)++`]
 * xref:#IUpgradeAndCall-upgrade_and_call[`++upgrade_and_call(new_class_hash, selector, calldata)++`]
 --
 
 [#IUpgradeAndCall-Functions]
 ==== Functions
-
-[.contract-item]
-[[IUpgradeAndCall-upgrade]]
-==== `[.contract-item-name]#++upgrade++#++(new_class_hash: ClassHash)++` [.item-kind]#external#
-
-Upgrades the contract code by updating its {class_hash}.
-
-NOTE: This function is usually protected by an xref:access.adoc[Access Control] mechanism.
 
 [.contract-item]
 [[IUpgradeAndCall-upgrade_and_call]]
@@ -102,6 +93,8 @@ Upgradeable component.
 [#UpgradeableComponent-Internal-Functions]
 ==== Internal Functions
 
+:snip6: https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-6.md[SNIP-6]
+
 [.contract-item]
 [[UpgradeableComponent-upgrade]]
 ==== `[.contract-item-name]#++upgrade++#++(ref self: ContractState, new_class_hash: ClassHash)++` [.item-kind]#internal#
@@ -124,6 +117,12 @@ from the upgraded context.
 Requirements:
 
 - `new_class_hash` must be different from zero.
+
+NOTE: The function call comes from the calling contract iself and not the account.
+
+NOTE: This behavior can also be achieved with a list of calls from an account since the {snip6} account standard supports multicall.
+An account can execute a list of calls with xref:IUpgradeable-upgrade[upgrade] being the first element in the list and the extra function call as the second.
+The extra call would be executed from the account itself and can't be front-ran.
 
 Emits an {Upgraded} event.
 

@@ -111,7 +111,7 @@ fn test_upgrade_and_call_with_new_selector() {
 fn test_upgrade_and_call_with_removed_selector() {
     let (v1, v2_class) = setup_test();
 
-    let calldata = array![VALUE];
+    let calldata = array![];
     let removed_selector = selector!("remove_selector");
     v1.upgrade_and_call(v2_class.class_hash, removed_selector, calldata.span());
 }

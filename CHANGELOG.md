@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `into_base_16_string_no_padding` function to the test helpers (#1137)
+- `IUpgradeAndCall` interface (#1148)
+- `upgrade_and_call` function in UpgradeableComponent's InternalImpl (#1148)
 
 ### Changed
 

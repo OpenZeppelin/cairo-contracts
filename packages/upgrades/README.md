@@ -7,6 +7,7 @@ This crate provides an interface and component used for upgradeability.
 ### Interfaces
 
 - `IUpgradeable`
+- `IUpgradeAndCall`
 
 ### Components
 

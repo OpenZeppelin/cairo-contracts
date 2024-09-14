@@ -118,11 +118,11 @@ Requirements:
 
 - `new_class_hash` must be different from zero.
 
-NOTE: The function call comes from the calling contract iself and not the account.
+NOTE: The function call comes from the calling contract itself and not the account.
 
 NOTE: This behavior can also be achieved with a list of calls from an account since the {snip6} account standard supports multicall.
 An account can execute a list of calls with xref:IUpgradeable-upgrade[upgrade] being the first element in the list and the extra function call as the second.
-The extra call would be executed from the account itself and can't be front-ran.
+The extra call would be executed from the account and can't be front-ran.
 
 Emits an {Upgraded} event.
 

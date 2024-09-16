@@ -319,7 +319,9 @@ that implements the `Serde` trait.
 use openzeppelin::utils::cryptography::nonces::NoncesComponent;
 ```
 
-Simple component for managing nonces.
+This component provides a simple mechanism for handling incremental
+nonces for a set of addresses. It is commonly used to prevent replay attacks
+when contracts accept signatures as input.
 
 [.contract-index#NoncesComponent-Embeddable-Impls]
 .Embeddable Implementations

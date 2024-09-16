@@ -12,7 +12,7 @@
 pub mod SRC9Component {
     use crate::extensions::src9::OutsideExecution;
     use crate::extensions::src9::interface;
-    use crate::extensions::src9::snip12::OutsideExecutionStructHash;
+    use crate::extensions::src9::snip12_utils::OutsideExecutionStructHash;
     use crate::utils::execute_calls;
     use openzeppelin_account::dual_account::{DualCaseAccount, DualCaseAccountTrait};
     use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;

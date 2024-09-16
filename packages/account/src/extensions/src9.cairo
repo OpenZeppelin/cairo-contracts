@@ -1,5 +1,5 @@
 pub mod interface;
-pub mod snip12;
+pub mod snip12_utils;
 pub mod src9;
 
 pub use interface::{IOutsideExecutionV2, OutsideExecution};

@@ -566,6 +566,10 @@ Emitted when a `public_key` is added.
 
 Emitted when a `public_key` is removed.
 
+== Extensions
+
+
+
 == Presets
 
 [.contract]

@@ -4,7 +4,7 @@
 
 = Account
 
-Reference of interfaces, presets, and utilities related to account contracts.
+This crate provides components to implement account contracts that can be used for interacting with the network.
 
 == Core
 

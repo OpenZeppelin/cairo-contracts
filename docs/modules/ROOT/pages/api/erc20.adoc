@@ -8,7 +8,7 @@
 
 include::../utils/_common.adoc[]
 
-Reference of interfaces and utilities related to ERC20 contracts.
+This module provides interfaces, presets, and utilities related to ERC20 contracts.
 
 TIP: For an overview of ERC20, read our {erc20-guide}.
 

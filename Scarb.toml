@@ -17,7 +17,9 @@ members = [
 
 [package]
 name = "openzeppelin"
+readme = "README.md"
 version.workspace = true
+keywords.workspace = true
 
 [workspace.package]
 version = "0.16.0"
@@ -27,13 +29,11 @@ scarb-version = "2.8.2"
 authors = ["OpenZeppelin Community <maintainers@openzeppelin.org>"]
 description = "OpenZeppelin Contracts written in Cairo for Starknet, a decentralized ZK Rollup"
 documentation = "https://docs.openzeppelin.com/contracts-cairo"
-readme = "README.md"
 repository = "https://github.com/OpenZeppelin/cairo-contracts"
 license-file = "LICENSE"
 keywords = [
     "openzeppelin",
     "starknet",
-    "cairo",
     "contracts",
     "security",
     "standards"

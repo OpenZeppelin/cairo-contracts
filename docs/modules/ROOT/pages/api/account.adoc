@@ -624,7 +624,7 @@ Get the status of a given nonce. `true` if the nonce is available to use.
 === `++OutsideExecutionComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/account/src/extensions/src9/src9.cairo[{github-icon},role=heading-link]
 
 ```cairo
-use openzeppelin::account::extensions::src9::OutsideExecutionComponent;
+use openzeppelin::account::extensions::OutsideExecutionComponent;
 ```
 
 OutsideExecution component implementing xref:IOutsideExecutionV2[`IOutsideExecutionV2`].

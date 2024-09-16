@@ -8,7 +8,7 @@
 
 include::../utils/_common.adoc[]
 
-Reference of interfaces, presets, and utilities related to ERC1155 contracts.
+This module provides interfaces, presets, and utilities related to ERC1155 contracts.
 
 TIP: For an overview of ERC1155, read our xref:erc1155.adoc[ERC1155 guide].
 

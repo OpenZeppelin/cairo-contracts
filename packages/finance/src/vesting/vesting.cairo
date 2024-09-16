@@ -116,7 +116,7 @@ pub mod VestingComponent {
             let now = starknet::get_block_timestamp();
             let vested_amount = self.resolve_vested_amount(token, now);
             let released_amount = self.released(token);
-            if vested_amount >= released_amount {
+            if vested_amount > released_amount {
                 vested_amount - released_amount
             } else {
                 0

@@ -45,7 +45,7 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_finance"
-version = "0.15.1"
+version = "0.16.0"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_test_common",

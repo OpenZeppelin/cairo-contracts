@@ -35,14 +35,15 @@ pub mod VestingComponent {
     use openzeppelin_finance::vesting::interface;
     use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
     use starknet::ContractAddress;
-    use starknet::storage::Map;
+    use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
+    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 
     #[storage]
-    struct Storage {
-        Vesting_start: u64,
-        Vesting_duration: u64,
-        Vesting_cliff: u64,
-        Vesting_released: Map<ContractAddress, u256>
+    pub struct Storage {
+        pub Vesting_start: u64,
+        pub Vesting_duration: u64,
+        pub Vesting_cliff: u64,
+        pub Vesting_released: Map<ContractAddress, u256>
     }
 
     #[event]

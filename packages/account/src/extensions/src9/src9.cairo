@@ -9,7 +9,7 @@
 /// This component is designed to be account agnostic, as long as the contract implements the ISRC6
 /// interface
 #[starknet::component]
-pub mod SRC9Component {
+pub mod OutsideExecutionComponent {
     use crate::extensions::src9::OutsideExecution;
     use crate::extensions::src9::interface;
     use crate::extensions::src9::snip12_utils::OutsideExecutionStructHash;
@@ -62,11 +62,19 @@ pub mod SRC9Component {
         /// verifies that the provided `signature` matches the hash of `outside_execution` and that
         /// `nonce` was not already used.
         ///
-        /// # Arguments
+        /// Arguments:
         ///
-        /// - `outside_execution ` - The parameters of the transaction to execute.
-        /// - `signature ` - A valid signature on the SNIP-12 message encoding of
+        /// - `outside_execution` - The parameters of the transaction to execute.
+        /// - `signature` - A valid signature on the SNIP-12 message encoding of
         /// `outside_execution`.
+        ///
+        /// Requirements:
+        ///
+        /// - The caller must be the `outside_execution.caller` unless 'ANY_CALLER' is used.
+        /// - The current time must be within the `outside_execution.execute_after` and
+        /// `outside_execution.execute_before` span.
+        /// - The `outside_execution.nonce` must not be used before.
+        /// - The `signature` must be valid.
         fn execute_from_outside_v2(
             ref self: ComponentState<TContractState>,
             outside_execution: OutsideExecution,
@@ -130,7 +138,7 @@ pub mod SRC9Component {
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
         /// Initializes the account by registering the IOutsideExecutionV2 interface Id.
-        fn initializer(ref self: ComponentState<TContractState>, public_key: felt252) {
+        fn initializer(ref self: ComponentState<TContractState>) {
             let mut src5_component = get_dep_component_mut!(ref self, SRC5);
             src5_component.register_interface(interface::IOUTSIDE_EXECUTION_V2_ID);
         }

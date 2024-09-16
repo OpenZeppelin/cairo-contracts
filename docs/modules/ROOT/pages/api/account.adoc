@@ -1,5 +1,6 @@
 :github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
-:snip6: https://github.com/ericnordelo/SNIPs/blob/feat/standard-account/SNIPS/snip-6.md[SNIP-6]
+:snip6: https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-6.md[SNIP-6]
+:snip9: https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-9.md[SNIP-9]
 :inner-src5: xref:api/introspection.adoc#ISRC5[SRC5 ID]
 
 = Account
@@ -568,7 +569,126 @@ Emitted when a `public_key` is removed.
 
 == Extensions
 
+[.contract]
+[[IOutsideExecutionV2]]
+=== `++IOutsideExecutionV2++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/account/src/extensions/src9/interface.cairo[{github-icon},role=heading-link]
 
+```cairo
+use openzeppelin::account::extensions::src9::IOutsideExecutionV2;
+```
+
+Interface of the SRC9 Standard as defined in the {snip9}.
+
+[.contract-index]
+.{inner-src5}
+--
+0x1d1144bb2138366ff28d8e9ab57456b1d332ac42196230c3a602003c89872
+--
+
+[.contract-index]
+.Functions
+--
+* xref:#IOutsideExecutionV2-execute_from_outside_v2[`++execute_from_outside_v2(outside_execution, signature)++`]
+* xref:#IOutsideExecutionV2-is_valid_outside_execution_nonce[`++is_valid_outside_execution_nonce(nonce)++`]
+--
+
+[#IOutsideExecutionV2-Functions]
+==== Functions
+
+[.contract-item]
+[[IOutsideExecutionV2-execute_from_outside_v2]]
+==== `[.contract-item-name]#++execute_from_outside_v2++#++(outside_execution: OutsideExecution, signature: Span<felt252>,) → Array<Span<felt252>>++` [.item-kind]#external#
+
+Allows anyone to submit a transaction on behalf of the account as long as they have the relevant signatures.
+
+This method allows reentrancy. A call to `__execute__` or `execute_from_outside` can trigger
+another nested transaction to `execute_from_outside` thus the implementation MUST verify
+that the provided `signature` matches the hash of `outside_execution` and that `nonce` was
+not already used.
+
+The implementation should expect version to be set to 2 in the domain separator.
+
+Arguments:
+
+- `outside_execution` - The parameters of the transaction to execute.
+- `signature` - A valid signature on the SNIP-12 message encoding of `outside_execution`.
+
+[.contract-item]
+[[IOutsideExecutionV2-is_valid_outside_execution_nonce]]
+==== `[.contract-item-name]#++is_valid_outside_execution_nonce++#++(nonce: felt252) → bool++` [.item-kind]#external#
+
+Get the status of a given nonce. `true` if the nonce is available to use.
+
+[.contract]
+[[OutsideExecutionComponent]]
+=== `++OutsideExecutionComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/account/src/extensions/src9/src9.cairo[{github-icon},role=heading-link]
+
+```cairo
+use openzeppelin::account::extensions::src9::OutsideExecutionComponent;
+```
+
+OutsideExecution component implementing xref:IOutsideExecutionV2[`IOutsideExecutionV2`].
+
+[.contract-index#OutsideExecutionComponent-Embeddable-Impls]
+.Embeddable Implementations
+--
+[.sub-index#OutsideExecutionComponent-Embeddable-Impls-OutsideExecutionV2Impl]
+.OutsideExecutionV2Impl
+
+* xref:#OutsideExecutionComponent-execute_from_outside_v2[`++execute_from_outside_v2(self, outside_execution, signature)++`]
+* xref:#OutsideExecutionComponent-is_valid_outside_execution_nonce[`++is_valid_outside_execution_nonce(self, nonce)++`]
+--
+
+[.contract-index]
+.Internal Implementations
+--
+.InternalImpl
+
+* xref:#OutsideExecutionComponent-initializer[`++initializer(self)++`]
+--
+
+[#OutsideExecutionComponent-Embeddable-Functions]
+==== Embeddable functions
+
+[.contract-item]
+[[OutsideExecutionComponent-execute_from_outside_v2]]
+==== `[.contract-item-name]#++execute_from_outside_v2++#++(ref self: ContractState, outside_execution: OutsideExecution, signature: Span<felt252>) → Array<Span<felt252>>++` [.item-kind]#external#
+
+Allows anyone to submit a transaction on behalf of the account as long as they
+have the relevant signatures.
+
+This method allows reentrancy. A call to `__execute__` or `execute_from_outside` can
+trigger another nested transaction to `execute_from_outside`. This implementation
+verifies that the provided `signature` matches the hash of `outside_execution` and that
+`nonce` was not already used.
+
+Arguments:
+
+- `outside_execution` - The parameters of the transaction to execute.
+- `signature` - A valid signature on the SNIP-12 message encoding of
+`outside_execution`.
+
+Requirements:
+
+- The caller must be the `outside_execution.caller` unless 'ANY_CALLER' is used.
+- The current time must be within the `outside_execution.execute_after` and `outside_execution.execute_before` span.
+- The `outside_execution.nonce` must not be used before.
+- The `signature` must be valid.
+
+[.contract-item]
+[[OutsideExecutionComponent-is_valid_outside_execution_nonce]]
+==== `[.contract-item-name]#++is_valid_outside_execution_nonce++#++(self: @ContractState, nonce: felt252) → bool++` [.item-kind]#external#
+
+Returns the status of a given nonce. `true` if the nonce is available to use.
+
+[#OutsideExecutionComponent-Internal-Functions]
+==== Internal functions
+
+[.contract-item]
+[[OutsideExecutionComponent-initializer]]
+==== `[.contract-item-name]#++initializer++#++(ref self: ComponentState)++` [.item-kind]#internal#
+
+Initializes the account by registering the `IOutsideExecutionV2` interface Id.
 
 == Presets
 

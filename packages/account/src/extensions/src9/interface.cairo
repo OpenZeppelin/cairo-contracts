@@ -28,14 +28,14 @@ pub trait IOutsideExecutionV2<TContractState> {
     ///
     /// The implementation should expect version to be set to 2 in the domain separator.
     ///
-    /// # Arguments
+    /// Arguments:
     ///
-    /// - `outside_execution ` - The parameters of the transaction to execute.
-    /// - `signature ` - A valid signature on the SNIP-12 message encoding of `outside_execution`.
+    /// - `outside_execution` - The parameters of the transaction to execute.
+    /// - `signature` - A valid signature on the SNIP-12 message encoding of `outside_execution`.
     fn execute_from_outside_v2(
         ref self: TContractState, outside_execution: OutsideExecution, signature: Span<felt252>,
     ) -> Array<Span<felt252>>;
 
-    /// Get the status of a given nonce, true if the nonce is available to use
+    /// Get the status of a given nonce. `true` if the nonce is available to use.
     fn is_valid_outside_execution_nonce(self: @TContractState, nonce: felt252) -> bool;
 }

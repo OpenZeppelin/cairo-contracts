@@ -8,8 +8,6 @@ on:
   push:
     branches:
       - main
-      - coverage
-  workflow_dispatch:
 
 jobs:
   lint_and_test:

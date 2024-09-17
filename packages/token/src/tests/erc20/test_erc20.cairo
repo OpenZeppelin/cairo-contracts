@@ -1,13 +1,14 @@
 use core::num::traits::Bounded;
+use crate::erc20::ERC20Component::{ERC20CamelOnlyImpl, ERC20Impl};
+use crate::erc20::ERC20Component::{ERC20MetadataImpl, InternalImpl};
+use crate::erc20::ERC20Component;
+use crate::tests::mocks::erc20_mocks::DualCaseERC20Mock;
 use openzeppelin_test_common::erc20::ERC20SpyHelpers;
 use openzeppelin_testing::constants::{
     ZERO, OWNER, SPENDER, RECIPIENT, NAME, SYMBOL, DECIMALS, SUPPLY, VALUE
 };
-use openzeppelin_token::erc20::ERC20Component::{ERC20CamelOnlyImpl, ERC20Impl};
-use openzeppelin_token::erc20::ERC20Component::{ERC20MetadataImpl, InternalImpl};
-use openzeppelin_token::erc20::ERC20Component;
-use openzeppelin_token::tests::mocks::erc20_mocks::DualCaseERC20Mock;
 use snforge_std::{spy_events, test_address, start_cheat_caller_address};
+use starknet::ContractAddress;
 
 //
 // Setup
@@ -94,7 +95,8 @@ fn test_approve() {
     let mut spy = spy_events();
 
     start_cheat_caller_address(contract_address, OWNER());
-    assert!(state.approve(SPENDER(), VALUE));
+    let tx_success = state.approve(SPENDER(), VALUE);
+    assert!(tx_success);
 
     spy.assert_only_event_approval(contract_address, OWNER(), SPENDER(), VALUE);
 
@@ -158,12 +160,13 @@ fn test_transfer() {
     let mut spy = spy_events();
 
     start_cheat_caller_address(contract_address, OWNER());
-    assert!(state.transfer(RECIPIENT(), VALUE));
+
+    assert_state_before_transfer(OWNER(), RECIPIENT());
+    let tx_success = state.transfer(RECIPIENT(), VALUE);
+    assert!(tx_success);
+    assert_state_after_transfer(OWNER(), RECIPIENT(), VALUE);
 
     spy.assert_only_event_transfer(contract_address, OWNER(), RECIPIENT(), VALUE);
-    assert_eq!(state.balance_of(RECIPIENT()), VALUE);
-    assert_eq!(state.balance_of(OWNER()), SUPPLY - VALUE);
-    assert_eq!(state.total_supply(), SUPPLY);
 }
 
 #[test]
@@ -197,12 +200,11 @@ fn test__transfer() {
     let contract_address = test_address();
     let mut spy = spy_events();
 
+    assert_state_before_transfer(OWNER(), RECIPIENT());
     state._transfer(OWNER(), RECIPIENT(), VALUE);
+    assert_state_after_transfer(OWNER(), RECIPIENT(), VALUE);
 
     spy.assert_only_event_transfer(contract_address, OWNER(), RECIPIENT(), VALUE);
-    assert_eq!(state.balance_of(RECIPIENT()), VALUE);
-    assert_eq!(state.balance_of(OWNER()), SUPPLY - VALUE);
-    assert_eq!(state.total_supply(), SUPPLY);
 }
 
 #[test]
@@ -243,17 +245,17 @@ fn test_transfer_from() {
 
     let mut spy = spy_events();
     start_cheat_caller_address(contract_address, SPENDER());
-    assert!(state.transfer_from(OWNER(), RECIPIENT(), VALUE));
+
+    assert_state_before_transfer(OWNER(), RECIPIENT());
+    let tx_success = state.transfer_from(OWNER(), RECIPIENT(), VALUE);
+    assert!(tx_success);
+    assert_state_after_transfer(OWNER(), RECIPIENT(), VALUE);
 
     spy.assert_event_approval(contract_address, OWNER(), SPENDER(), 0);
     spy.assert_only_event_transfer(contract_address, OWNER(), RECIPIENT(), VALUE);
 
     let allowance = state.allowance(OWNER(), SPENDER());
     assert_eq!(allowance, 0);
-
-    assert_eq!(state.balance_of(RECIPIENT()), VALUE);
-    assert_eq!(state.balance_of(OWNER()), SUPPLY - VALUE);
-    assert_eq!(state.total_supply(), SUPPLY);
 }
 
 #[test]
@@ -309,17 +311,16 @@ fn test_transferFrom() {
 
     let mut spy = spy_events();
     start_cheat_caller_address(contract_address, SPENDER());
-    assert!(state.transferFrom(OWNER(), RECIPIENT(), VALUE));
+
+    assert_state_before_transfer(OWNER(), RECIPIENT());
+    let tx_success = state.transferFrom(OWNER(), RECIPIENT(), VALUE);
+    assert!(tx_success);
+    assert_state_after_transfer(OWNER(), RECIPIENT(), VALUE);
 
     spy.assert_event_approval(contract_address, OWNER(), SPENDER(), 0);
     spy.assert_only_event_transfer(contract_address, OWNER(), RECIPIENT(), VALUE);
 
     let allowance = state.allowance(OWNER(), SPENDER());
-    assert_eq!(allowance, 0);
-
-    assert_eq!(state.balance_of(RECIPIENT()), VALUE);
-    assert_eq!(state.balance_of(OWNER()), SUPPLY - VALUE);
-    assert_eq!(state.total_supply(), SUPPLY);
     assert_eq!(allowance, 0);
 }
 
@@ -404,15 +405,16 @@ fn test__spend_allowance_unlimited() {
 
 #[test]
 fn test_mint() {
-    let mut state = COMPONENT_STATE();
+    let mut state = setup();
     let contract_address = test_address();
 
     let mut spy = spy_events();
-    state.mint(OWNER(), VALUE);
 
-    spy.assert_only_event_transfer(contract_address, ZERO(), OWNER(), VALUE);
-    assert_eq!(state.balance_of(OWNER()), VALUE);
-    assert_eq!(state.total_supply(), VALUE);
+    assert_state_before_mint(RECIPIENT());
+    state.mint(RECIPIENT(), VALUE);
+    assert_state_after_mint(RECIPIENT(), VALUE);
+
+    spy.assert_only_event_transfer(contract_address, ZERO(), RECIPIENT(), VALUE);
 }
 
 #[test]
@@ -432,11 +434,21 @@ fn test_burn() {
     let contract_address = test_address();
 
     let mut spy = spy_events();
+
+    assert_state_before_burn(OWNER());
     state.burn(OWNER(), VALUE);
+    assert_state_after_burn(OWNER(), VALUE);
 
     spy.assert_only_event_transfer(contract_address, OWNER(), ZERO(), VALUE);
-    assert_eq!(state.total_supply(), SUPPLY - VALUE);
-    assert_eq!(state.balance_of(OWNER()), SUPPLY - VALUE);
+}
+
+#[test]
+#[should_panic(expected: ('ERC20: insufficient balance',))]
+fn test_burn_insufficient_balance() {
+    let mut state = setup();
+    let overflow_amt = SUPPLY + 1;
+
+    state.burn(OWNER(), overflow_amt);
 }
 
 #[test]
@@ -444,4 +456,158 @@ fn test_burn() {
 fn test_burn_from_zero() {
     let mut state = setup();
     state.burn(ZERO(), VALUE);
+}
+
+//
+// update
+//
+
+#[test]
+fn test_update_from_non_zero_to_non_zero() {
+    let mut state = setup();
+
+    let mut spy = spy_events();
+    let contract_address = test_address();
+
+    start_cheat_caller_address(contract_address, OWNER());
+
+    assert_state_before_transfer(OWNER(), RECIPIENT());
+    state.update(OWNER(), RECIPIENT(), VALUE);
+    assert_state_after_transfer(OWNER(), RECIPIENT(), VALUE);
+
+    spy.assert_only_event_transfer(contract_address, OWNER(), RECIPIENT(), VALUE);
+}
+
+#[test]
+#[should_panic(expected: ('ERC20: insufficient balance',))]
+fn test_update_from_non_zero_to_non_zero_insufficient_balance() {
+    let mut state = setup();
+    let contract_address = test_address();
+    let overflow_amt = SUPPLY + 1;
+
+    start_cheat_caller_address(contract_address, OWNER());
+    state.update(OWNER(), RECIPIENT(), overflow_amt);
+}
+
+#[test]
+fn test_update_from_non_zero_to_zero() {
+    let mut state = setup();
+
+    let mut spy = spy_events();
+    let contract_address = test_address();
+
+    start_cheat_caller_address(contract_address, OWNER());
+
+    assert_state_before_burn(OWNER());
+    state.update(OWNER(), ZERO(), VALUE);
+    assert_state_after_burn(OWNER(), VALUE);
+
+    spy.assert_only_event_transfer(contract_address, OWNER(), ZERO(), VALUE);
+}
+
+#[test]
+#[should_panic(expected: ('ERC20: insufficient balance',))]
+fn test_update_from_non_zero_to_zero_insufficient_balance() {
+    let mut state = setup();
+    let contract_address = test_address();
+    let overflow_amt = SUPPLY + 1;
+
+    start_cheat_caller_address(contract_address, OWNER());
+    state.update(OWNER(), ZERO(), overflow_amt);
+}
+
+#[test]
+fn test_update_from_zero_to_non_zero() {
+    let mut state = setup();
+
+    let mut spy = spy_events();
+    let contract_address = test_address();
+
+    start_cheat_caller_address(contract_address, RECIPIENT());
+
+    assert_state_before_mint(RECIPIENT());
+    state.update(ZERO(), RECIPIENT(), VALUE);
+    assert_state_after_mint(RECIPIENT(), VALUE);
+
+    spy.assert_only_event_transfer(contract_address, ZERO(), RECIPIENT(), VALUE);
+}
+
+#[test]
+fn test_update_from_zero_to_zero() {
+    // The update function should not be called from zero to zero
+    // because this does nothing to the state.
+    let mut state = setup();
+
+    let mut spy = spy_events();
+    let contract_address = test_address();
+    let supply_before_update = state.total_supply();
+
+    start_cheat_caller_address(contract_address, RECIPIENT());
+
+    state.update(ZERO(), ZERO(), VALUE);
+
+    let supply_after_update = state.total_supply();
+    assert_eq!(supply_before_update, supply_after_update);
+
+    spy.assert_only_event_transfer(contract_address, ZERO(), ZERO(), VALUE);
+}
+
+//
+// Helpers
+//
+
+fn assert_state_before_transfer(sender: ContractAddress, recipient: ContractAddress) {
+    let state = COMPONENT_STATE();
+    let initial_supply = SUPPLY;
+    let current_supply = state.total_supply();
+
+    assert_eq!(initial_supply, current_supply);
+    assert_eq!(state.balance_of(sender), SUPPLY);
+    assert_eq!(state.balance_of(recipient), 0);
+}
+
+fn assert_state_after_transfer(sender: ContractAddress, recipient: ContractAddress, amount: u256) {
+    let state = COMPONENT_STATE();
+    let initial_supply = SUPPLY;
+    let current_supply = state.total_supply();
+
+    assert_eq!(initial_supply, current_supply);
+    assert_eq!(state.balance_of(sender), initial_supply - amount);
+    assert_eq!(state.balance_of(recipient), amount);
+}
+
+fn assert_state_before_mint(recipient: ContractAddress) {
+    let state = COMPONENT_STATE();
+    let initial_supply = SUPPLY;
+    let current_supply = state.total_supply();
+
+    assert_eq!(current_supply, initial_supply);
+    assert_eq!(state.balance_of(recipient), 0);
+}
+
+fn assert_state_after_mint(recipient: ContractAddress, amount: u256) {
+    let state = COMPONENT_STATE();
+    let initial_supply = SUPPLY;
+    let current_supply = state.total_supply();
+
+    assert_eq!(current_supply, initial_supply + amount);
+    assert_eq!(state.balance_of(recipient), amount);
+}
+
+fn assert_state_before_burn(account: ContractAddress) {
+    let state = COMPONENT_STATE();
+    let initial_supply = SUPPLY;
+    let current_supply = state.total_supply();
+
+    assert_eq!(initial_supply, current_supply);
+    assert_eq!(state.balance_of(account), SUPPLY);
+}
+
+fn assert_state_after_burn(account: ContractAddress, amount: u256) {
+    let state = COMPONENT_STATE();
+    let initial_supply = SUPPLY;
+    let current_supply = state.total_supply();
+
+    assert_eq!(current_supply, initial_supply - amount);
+    assert_eq!(state.balance_of(account), initial_supply - amount);
 }

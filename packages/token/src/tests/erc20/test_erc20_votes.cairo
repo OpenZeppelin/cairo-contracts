@@ -14,15 +14,15 @@ use openzeppelin_token::tests::mocks::erc20_votes_mocks::DualCaseERC20VotesMock:
 use openzeppelin_token::tests::mocks::erc20_votes_mocks::DualCaseERC20VotesMock;
 use openzeppelin_utils::cryptography::snip12::OffchainMessageHash;
 use openzeppelin_utils::structs::checkpoint::{Checkpoint, TraceTrait};
+use snforge_std::EventSpy;
 use snforge_std::signature::KeyPairTrait;
 use snforge_std::signature::stark_curve::{StarkCurveKeyPairImpl, StarkCurveSignerImpl};
 use snforge_std::{
-    cheat_block_timestamp_global, start_cheat_caller_address, spy_events, cheat_chain_id_global,
-    test_address
+    start_cheat_block_timestamp_global, start_cheat_caller_address, spy_events,
+    start_cheat_chain_id_global, test_address
 };
-use snforge_std::{EventSpy};
-use starknet::ContractAddress;
-use starknet::contract_address_const;
+use starknet::storage::{StorageMapReadAccess, StoragePointerReadAccess};
+use starknet::{ContractAddress, contract_address_const};
 
 //
 // Setup
@@ -59,7 +59,7 @@ fn test__delegate_checkpoints_unordered_insertion() {
     let mut state = setup();
     let mut trace = state.ERC20Votes_delegate_checkpoints.read(OWNER());
 
-    cheat_block_timestamp_global('ts10');
+    start_cheat_block_timestamp_global('ts10');
     trace.push('ts2', 0x222);
     trace.push('ts1', 0x111);
 }
@@ -70,7 +70,7 @@ fn test__total_checkpoints_unordered_insertion() {
     let mut state = setup();
     let mut trace = state.ERC20Votes_total_checkpoints.read();
 
-    cheat_block_timestamp_global('ts10');
+    start_cheat_block_timestamp_global('ts10');
     trace.push('ts2', 0x222);
     trace.push('ts1', 0x111);
 }
@@ -94,7 +94,7 @@ fn test_get_past_votes() {
     let mut trace = state.ERC20Votes_delegate_checkpoints.read(OWNER());
 
     // Future timestamp.
-    cheat_block_timestamp_global('ts10');
+    start_cheat_block_timestamp_global('ts10');
     trace.push('ts1', 0x111);
     trace.push('ts2', 0x222);
     trace.push('ts3', 0x333);
@@ -118,7 +118,7 @@ fn test_get_past_votes_future_lookup() {
     let state = setup();
 
     // Past timestamp.
-    cheat_block_timestamp_global('ts1');
+    start_cheat_block_timestamp_global('ts1');
     state.get_past_votes(OWNER(), 'ts2');
 }
 
@@ -128,7 +128,7 @@ fn test_get_past_total_supply() {
     let mut trace = state.ERC20Votes_total_checkpoints.read();
 
     // Future timestamp.
-    cheat_block_timestamp_global('ts10');
+    start_cheat_block_timestamp_global('ts10');
     trace.push('ts1', 0x111);
     trace.push('ts2', 0x222);
     trace.push('ts3', 0x333);
@@ -152,7 +152,7 @@ fn test_get_past_total_supply_future_lookup() {
     let state = setup();
 
     // Past timestamp.
-    cheat_block_timestamp_global('ts1');
+    start_cheat_block_timestamp_global('ts1');
     state.get_past_total_supply('ts2');
 }
 
@@ -213,7 +213,7 @@ fn test_delegates() {
 
 #[test]
 fn test_delegate_by_sig_hash_generation() {
-    cheat_chain_id_global('SN_TEST');
+    start_cheat_chain_id_global('SN_TEST');
 
     let nonce = 0;
     let expiry = 'ts2';
@@ -240,8 +240,8 @@ fn test_delegate_by_sig_hash_generation() {
 
 #[test]
 fn test_delegate_by_sig() {
-    cheat_chain_id_global('SN_TEST');
-    cheat_block_timestamp_global('ts1');
+    start_cheat_chain_id_global('SN_TEST');
+    start_cheat_block_timestamp_global('ts1');
 
     let mut state = setup();
     let contract_address = test_address();
@@ -268,7 +268,7 @@ fn test_delegate_by_sig() {
 #[test]
 #[should_panic(expected: ('Votes: expired signature',))]
 fn test_delegate_by_sig_past_expiry() {
-    cheat_block_timestamp_global('ts5');
+    start_cheat_block_timestamp_global('ts5');
 
     let mut state = setup();
     let expiry = 'ts4';

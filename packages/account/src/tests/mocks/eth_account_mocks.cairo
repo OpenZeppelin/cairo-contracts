@@ -1,7 +1,7 @@
 #[starknet::contract(account)]
 pub(crate) mod DualCaseEthAccountMock {
-    use openzeppelin_account::EthAccountComponent;
-    use openzeppelin_account::interface::EthPublicKey;
+    use crate::EthAccountComponent;
+    use crate::interface::EthPublicKey;
     use openzeppelin_introspection::src5::SRC5Component;
 
     component!(path: EthAccountComponent, storage: eth_account, event: EthAccountEvent);
@@ -20,11 +20,11 @@ pub(crate) mod DualCaseEthAccountMock {
     impl EthAccountInternalImpl = EthAccountComponent::InternalImpl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        eth_account: EthAccountComponent::Storage,
+        pub eth_account: EthAccountComponent::Storage,
         #[substorage(v0)]
-        src5: SRC5Component::Storage
+        pub src5: SRC5Component::Storage
     }
 
     #[event]
@@ -44,8 +44,8 @@ pub(crate) mod DualCaseEthAccountMock {
 
 #[starknet::contract(account)]
 pub(crate) mod SnakeEthAccountMock {
-    use openzeppelin_account::EthAccountComponent;
-    use openzeppelin_account::interface::EthPublicKey;
+    use crate::EthAccountComponent;
+    use crate::interface::EthPublicKey;
     use openzeppelin_introspection::src5::SRC5Component;
 
     component!(path: EthAccountComponent, storage: eth_account, event: EthAccountEvent);
@@ -60,11 +60,11 @@ pub(crate) mod SnakeEthAccountMock {
     impl EthAccountInternalImpl = EthAccountComponent::InternalImpl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        eth_account: EthAccountComponent::Storage,
+        pub eth_account: EthAccountComponent::Storage,
         #[substorage(v0)]
-        src5: SRC5Component::Storage
+        pub src5: SRC5Component::Storage
     }
 
     #[event]
@@ -84,8 +84,8 @@ pub(crate) mod SnakeEthAccountMock {
 
 #[starknet::contract(account)]
 pub(crate) mod CamelEthAccountMock {
-    use openzeppelin_account::EthAccountComponent;
-    use openzeppelin_account::interface::EthPublicKey;
+    use crate::EthAccountComponent;
+    use crate::interface::EthPublicKey;
     use openzeppelin_introspection::src5::SRC5Component;
     use starknet::account::Call;
 
@@ -103,11 +103,11 @@ pub(crate) mod CamelEthAccountMock {
     impl EthAccountInternalImpl = EthAccountComponent::InternalImpl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        eth_account: EthAccountComponent::Storage,
+        pub eth_account: EthAccountComponent::Storage,
         #[substorage(v0)]
-        src5: SRC5Component::Storage
+        pub src5: SRC5Component::Storage
     }
 
     #[event]
@@ -147,12 +147,12 @@ pub(crate) mod CamelEthAccountMock {
 
 #[starknet::contract]
 pub(crate) mod SnakeEthAccountPanicMock {
-    use openzeppelin_account::interface::EthPublicKey;
+    use crate::interface::EthPublicKey;
     use starknet::SyscallResultTrait;
     use starknet::secp256_trait::Secp256Trait;
 
     #[storage]
-    struct Storage {}
+    pub struct Storage {}
 
     #[abi(per_item)]
     #[generate_trait]
@@ -188,12 +188,12 @@ pub(crate) mod SnakeEthAccountPanicMock {
 
 #[starknet::contract]
 pub(crate) mod CamelEthAccountPanicMock {
-    use openzeppelin_account::interface::EthPublicKey;
+    use crate::interface::EthPublicKey;
     use starknet::SyscallResultTrait;
     use starknet::secp256_trait::Secp256Trait;
 
     #[storage]
-    struct Storage {}
+    pub struct Storage {}
 
     #[abi(per_item)]
     #[generate_trait]

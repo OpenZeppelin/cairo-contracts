@@ -1,10 +1,8 @@
 use core::num::traits::Zero;
+use crate::ERC721Upgradeable::InternalImpl;
+use crate::ERC721Upgradeable;
+use crate::interfaces::{ERC721UpgradeableABIDispatcher, ERC721UpgradeableABIDispatcherTrait};
 use openzeppelin_introspection::interface::ISRC5_ID;
-use openzeppelin_presets::ERC721Upgradeable::InternalImpl;
-use openzeppelin_presets::ERC721Upgradeable;
-use openzeppelin_presets::interfaces::{
-    ERC721UpgradeableABIDispatcher, ERC721UpgradeableABIDispatcherTrait
-};
 use openzeppelin_test_common::erc721::ERC721SpyHelpers;
 use openzeppelin_test_common::ownable::OwnableSpyHelpers;
 use openzeppelin_test_common::upgrades::UpgradeableSpyHelpers;
@@ -1123,15 +1121,10 @@ fn test_v2_missing_camel_selector() {
     v1.upgrade(v2_class_hash);
 
     let safe_dispatcher = IERC721CamelOnlySafeDispatcher { contract_address: v1.contract_address };
-    let mut panic_data = safe_dispatcher.ownerOf(TOKEN_1).unwrap_err();
-
+    let mut result = safe_dispatcher.ownerOf(TOKEN_1);
     let selector = selector!("ownerOf");
-    let expected_panic_message = format!(
-        "Entry point selector {} not found in contract {}",
-        selector.into_base_16_string(),
-        v1.contract_address.into_base_16_string()
-    );
-    assert_eq!(utils::panic_data_to_byte_array(panic_data), expected_panic_message);
+
+    utils::assert_entrypoint_not_found_error(result, selector, v1.contract_address);
 }
 
 #[test]

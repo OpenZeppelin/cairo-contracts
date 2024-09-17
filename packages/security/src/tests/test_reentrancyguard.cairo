@@ -1,9 +1,10 @@
-use openzeppelin_security::ReentrancyGuardComponent::InternalImpl;
-use openzeppelin_security::ReentrancyGuardComponent;
-use openzeppelin_security::tests::mocks::reentrancy_mocks::{
+use crate::ReentrancyGuardComponent::InternalImpl;
+use crate::ReentrancyGuardComponent;
+use crate::tests::mocks::reentrancy_mocks::{
     ReentrancyMock, IReentrancyMockDispatcher, IReentrancyMockDispatcherTrait
 };
 use openzeppelin_testing as utils;
+use starknet::storage::StoragePointerReadAccess;
 
 type ComponentState = ReentrancyGuardComponent::ComponentState<ReentrancyMock::ContractState>;
 

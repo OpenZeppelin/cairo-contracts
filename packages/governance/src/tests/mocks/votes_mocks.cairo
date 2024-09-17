@@ -26,15 +26,15 @@ pub(crate) mod ERC721VotesMock {
     impl NoncesImpl = NoncesComponent::NoncesImpl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        erc721_votes: VotesComponent::Storage,
+        pub erc721_votes: VotesComponent::Storage,
         #[substorage(v0)]
-        erc721: ERC721Component::Storage,
+        pub erc721: ERC721Component::Storage,
         #[substorage(v0)]
-        src5: SRC5Component::Storage,
+        pub src5: SRC5Component::Storage,
         #[substorage(v0)]
-        nonces: NoncesComponent::Storage
+        pub nonces: NoncesComponent::Storage
     }
 
     #[event]
@@ -94,15 +94,15 @@ pub(crate) mod ERC20VotesMock {
     impl NoncesImpl = NoncesComponent::NoncesImpl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        erc20_votes: VotesComponent::Storage,
+        pub erc20_votes: VotesComponent::Storage,
         #[substorage(v0)]
-        erc20: ERC20Component::Storage,
+        pub erc20: ERC20Component::Storage,
         #[substorage(v0)]
-        src5: SRC5Component::Storage,
+        pub src5: SRC5Component::Storage,
         #[substorage(v0)]
-        nonces: NoncesComponent::Storage
+        pub nonces: NoncesComponent::Storage
     }
 
     #[event]

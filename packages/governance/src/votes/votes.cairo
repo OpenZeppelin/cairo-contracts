@@ -32,14 +32,16 @@ pub mod VotesComponent {
     use openzeppelin_utils::nonces::NoncesComponent;
     use openzeppelin_utils::structs::checkpoint::{Trace, TraceTrait};
     use starknet::ContractAddress;
-    use starknet::storage::Map;
+    use starknet::storage::{
+        Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess
+    };
     use super::{OffchainMessageHash, SNIP12Metadata};
 
     #[storage]
-    struct Storage {
-        Votes_delegatee: Map::<ContractAddress, ContractAddress>,
-        Votes_delegate_checkpoints: Map::<ContractAddress, Trace>,
-        Votes_total_checkpoints: Trace,
+    pub struct Storage {
+        pub Votes_delegatee: Map::<ContractAddress, ContractAddress>,
+        pub Votes_delegate_checkpoints: Map::<ContractAddress, Trace>,
+        pub Votes_total_checkpoints: Trace,
     }
 
     #[event]

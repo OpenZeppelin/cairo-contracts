@@ -1,28 +1,24 @@
 use core::hash::{HashStateTrait, HashStateExTrait};
 use core::pedersen::PedersenTrait;
+use crate::tests::mocks::timelock_mocks::{IMockContractDispatcher, IMockContractDispatcherTrait};
+use crate::tests::mocks::timelock_mocks::{ITimelockAttackerDispatcher};
+use crate::tests::mocks::timelock_mocks::{TimelockControllerMock};
+use crate::timelock::OperationState;
+use crate::timelock::TimelockControllerComponent::{
+    CallScheduled, CallExecuted, CallSalt, CallCancelled, MinDelayChanged
+};
+use crate::timelock::TimelockControllerComponent::{
+    TimelockImpl, InternalImpl as TimelockInternalImpl
+};
+use crate::timelock::TimelockControllerComponent;
+use crate::timelock::interface::{TimelockABIDispatcher, TimelockABIDispatcherTrait};
+use crate::timelock::{PROPOSER_ROLE, EXECUTOR_ROLE, CANCELLER_ROLE};
 use openzeppelin_access::accesscontrol::AccessControlComponent::{
     AccessControlImpl, InternalImpl as AccessControlInternalImpl
 };
 use openzeppelin_access::accesscontrol::DEFAULT_ADMIN_ROLE;
 use openzeppelin_access::accesscontrol::interface::IACCESSCONTROL_ID;
 use openzeppelin_access::accesscontrol::interface::IAccessControl;
-use openzeppelin_governance::tests::mocks::timelock_mocks::{
-    IMockContractDispatcher, IMockContractDispatcherTrait
-};
-use openzeppelin_governance::tests::mocks::timelock_mocks::{ITimelockAttackerDispatcher};
-use openzeppelin_governance::tests::mocks::timelock_mocks::{TimelockControllerMock};
-use openzeppelin_governance::timelock::OperationState;
-use openzeppelin_governance::timelock::TimelockControllerComponent::{
-    CallScheduled, CallExecuted, CallSalt, CallCancelled, MinDelayChanged
-};
-use openzeppelin_governance::timelock::TimelockControllerComponent::{
-    TimelockImpl, InternalImpl as TimelockInternalImpl
-};
-use openzeppelin_governance::timelock::TimelockControllerComponent;
-use openzeppelin_governance::timelock::interface::{
-    TimelockABIDispatcher, TimelockABIDispatcherTrait
-};
-use openzeppelin_governance::timelock::{PROPOSER_ROLE, EXECUTOR_ROLE, CANCELLER_ROLE};
 use openzeppelin_introspection::interface::ISRC5_ID;
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin_testing as utils;
@@ -32,17 +28,18 @@ use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::EventSpy;
 use snforge_std::{
     spy_events, test_address, start_cheat_caller_address, cheat_caller_address,
-    cheat_block_timestamp_global, CheatSpan
+    start_cheat_block_timestamp_global, CheatSpan
 };
 use starknet::ContractAddress;
 use starknet::account::Call;
 use starknet::contract_address_const;
+use starknet::storage::{StorageMapReadAccess, StorageMapWriteAccess, StoragePointerWriteAccess};
 
 type ComponentState =
     TimelockControllerComponent::ComponentState<TimelockControllerMock::ContractState>;
 
-fn CONTRACT_STATE() -> TimelockControllerMock::ContractState {
-    TimelockControllerMock::contract_state_for_testing()
+fn CONTRACT_STATE() -> @TimelockControllerMock::ContractState {
+    @TimelockControllerMock::contract_state_for_testing()
 }
 
 fn COMPONENT_STATE() -> ComponentState {
@@ -468,7 +465,7 @@ fn test_execute_when_scheduled() {
     assert_operation_state(timelock, OperationState::Waiting, target_id);
 
     // Fast-forward
-    cheat_block_timestamp_global(delay);
+    start_cheat_block_timestamp_global(delay);
     assert_operation_state(timelock, OperationState::Ready, target_id);
 
     // Check initial target state
@@ -503,7 +500,7 @@ fn test_execute_early() {
 
     // Fast-forward
     let early_time = delay - 1;
-    cheat_block_timestamp_global(early_time);
+    start_cheat_block_timestamp_global(early_time);
 
     // Execute
     start_cheat_caller_address(timelock.contract_address, EXECUTOR());
@@ -525,7 +522,7 @@ fn test_execute_unauthorized() {
     timelock.schedule(call, predecessor, salt, delay);
 
     // Fast-forward
-    cheat_block_timestamp_global(delay);
+    start_cheat_block_timestamp_global(delay);
 
     // Execute
     start_cheat_caller_address(timelock.contract_address, OTHER());
@@ -549,7 +546,7 @@ fn test_execute_failing_tx() {
     timelock.schedule(call, predecessor, salt, delay);
 
     // Fast-forward
-    cheat_block_timestamp_global(delay);
+    start_cheat_block_timestamp_global(delay);
     assert_operation_state(timelock, OperationState::Ready, target_id);
 
     // Execute
@@ -575,7 +572,7 @@ fn test_execute_bad_selector() {
     timelock.schedule(call, predecessor, salt, delay);
 
     // Fast-forward
-    cheat_block_timestamp_global(delay);
+    start_cheat_block_timestamp_global(delay);
     assert_operation_state(timelock, OperationState::Ready, target_id);
 
     // Execute
@@ -601,7 +598,7 @@ fn test_execute_reentrant_call() {
     timelock.schedule(reentrant_call, predecessor, salt, delay);
 
     // Fast-forward
-    cheat_block_timestamp_global(delay);
+    start_cheat_block_timestamp_global(delay);
 
     // Grant executor role to attacker
     start_cheat_caller_address(timelock.contract_address, ADMIN());
@@ -637,7 +634,7 @@ fn test_execute_before_dependency() {
     timelock.schedule(call_2, predecessor_2, salt, delay);
 
     // Fast-forward
-    cheat_block_timestamp_global(delay);
+    start_cheat_block_timestamp_global(delay);
     assert_operation_state(timelock, OperationState::Ready, target_id_1);
     assert_operation_state(timelock, OperationState::Ready, target_id_2);
 
@@ -685,7 +682,7 @@ fn test_execute_after_dependency() {
         );
 
     // Fast-forward
-    cheat_block_timestamp_global(delay);
+    start_cheat_block_timestamp_global(delay);
     assert_operation_state(timelock, OperationState::Ready, target_id_1);
     assert_operation_state(timelock, OperationState::Ready, target_id_2);
 
@@ -745,7 +742,7 @@ fn test_execute_batch_when_scheduled() {
         );
 
     // Fast-forward
-    cheat_block_timestamp_global(delay);
+    start_cheat_block_timestamp_global(delay);
     assert_operation_state(timelock, OperationState::Ready, target_id);
 
     // Check initial target state
@@ -779,7 +776,7 @@ fn test_execute_batch_early() {
 
     // Fast-forward
     let early_time = delay - 1;
-    cheat_block_timestamp_global(early_time);
+    start_cheat_block_timestamp_global(early_time);
 
     // Execute
     start_cheat_caller_address(timelock.contract_address, EXECUTOR());
@@ -801,7 +798,7 @@ fn test_execute_batch_unauthorized() {
     timelock.schedule_batch(calls, predecessor, salt, delay);
 
     // Fast-forward
-    cheat_block_timestamp_global(delay);
+    start_cheat_block_timestamp_global(delay);
 
     // Execute
     start_cheat_caller_address(timelock.contract_address, OTHER());
@@ -829,7 +826,7 @@ fn test_execute_batch_reentrant_call() {
     timelock.schedule_batch(calls, predecessor, salt, delay);
 
     // Fast-forward
-    cheat_block_timestamp_global(delay);
+    start_cheat_block_timestamp_global(delay);
 
     // Grant executor role to attacker
     start_cheat_caller_address(timelock.contract_address, ADMIN());
@@ -857,7 +854,7 @@ fn test_execute_batch_partial_execution() {
     timelock.schedule_batch(calls, predecessor, salt, delay);
 
     // Fast-forward
-    cheat_block_timestamp_global(delay);
+    start_cheat_block_timestamp_global(delay);
 
     // Execute
     start_cheat_caller_address(timelock.contract_address, EXECUTOR());
@@ -888,7 +885,7 @@ fn test_execute_batch_before_dependency() {
     timelock.schedule_batch(calls_2, predecessor_2, salt, delay);
 
     // Fast-forward
-    cheat_block_timestamp_global(delay);
+    start_cheat_block_timestamp_global(delay);
 
     // Execute
     start_cheat_caller_address(timelock.contract_address, EXECUTOR());
@@ -934,7 +931,7 @@ fn test_execute_batch_after_dependency() {
         );
 
     // Fast-forward
-    cheat_block_timestamp_global(delay);
+    start_cheat_block_timestamp_global(delay);
     assert_operation_state(timelock, OperationState::Ready, target_id_1);
     assert_operation_state(timelock, OperationState::Ready, target_id_2);
 
@@ -980,7 +977,7 @@ fn cancel_from_canceller(operation_state: OperationState) {
 
     if operation_state == OperationState::Ready {
         // Fast-forward
-        cheat_block_timestamp_global(delay);
+        start_cheat_block_timestamp_global(delay);
         assert_operation_state(timelock, OperationState::Ready, target_id);
     }
 
@@ -1021,7 +1018,7 @@ fn test_cancel_when_done() {
     assert_operation_state(timelock, OperationState::Waiting, target_id);
 
     // Fast-forward
-    cheat_block_timestamp_global(delay);
+    start_cheat_block_timestamp_global(delay);
     assert_operation_state(timelock, OperationState::Ready, target_id);
 
     // Execute
@@ -1104,7 +1101,7 @@ fn test_update_delay_scheduled() {
         );
 
     // Fast-forward
-    cheat_block_timestamp_global(delay);
+    start_cheat_block_timestamp_global(delay);
 
     // Execute
     cheat_caller_address(timelock.contract_address, EXECUTOR(), CheatSpan::TargetCalls(1));
@@ -1326,7 +1323,7 @@ fn test__before_call() {
     state.TimelockController_timestamps.write(target_id, target_time);
 
     // Fast-forward
-    cheat_block_timestamp_global(target_time);
+    start_cheat_block_timestamp_global(target_time);
 
     state._before_call(target_id, predecessor);
 }
@@ -1361,7 +1358,7 @@ fn test__before_call_insufficient_time() {
     state.TimelockController_timestamps.write(target_id, target_time);
 
     // Fast-forward
-    cheat_block_timestamp_global(target_time - 1);
+    start_cheat_block_timestamp_global(target_time - 1);
 
     state._before_call(target_id, predecessor);
 }
@@ -1380,7 +1377,7 @@ fn test__before_call_when_already_done() {
     state.TimelockController_timestamps.write(target_id, done_time);
 
     // Fast-forward
-    cheat_block_timestamp_global(done_time);
+    start_cheat_block_timestamp_global(done_time);
 
     state._before_call(target_id, predecessor);
 }
@@ -1402,7 +1399,7 @@ fn test__before_call_with_predecessor_done() {
     state.TimelockController_timestamps.write(target_id, target_time);
 
     // Fast-forward
-    cheat_block_timestamp_global(target_time);
+    start_cheat_block_timestamp_global(target_time);
 
     state._before_call(target_id, predecessor_id);
 }
@@ -1425,7 +1422,7 @@ fn test__before_call_with_predecessor_not_done() {
     state.TimelockController_timestamps.write(target_id, target_time);
 
     // Fast-forward
-    cheat_block_timestamp_global(target_time);
+    start_cheat_block_timestamp_global(target_time);
 
     state._before_call(target_id, predecessor_id);
 }
@@ -1446,7 +1443,7 @@ fn test__after_call() {
     state.TimelockController_timestamps.write(target_id, target_time);
 
     // Fast-forward
-    cheat_block_timestamp_global(target_time);
+    start_cheat_block_timestamp_global(target_time);
 
     state._after_call(target_id);
 
@@ -1484,7 +1481,7 @@ fn test__after_call_insufficient_time() {
     state.TimelockController_timestamps.write(target_id, target_time);
 
     // Fast-forward
-    cheat_block_timestamp_global(target_time - 1);
+    start_cheat_block_timestamp_global(target_time - 1);
 
     state._after_call(target_id);
 }
@@ -1502,7 +1499,7 @@ fn test__after_call_already_done() {
     state.TimelockController_timestamps.write(target_id, done_time);
 
     // Fast-forward
-    cheat_block_timestamp_global(done_time);
+    start_cheat_block_timestamp_global(done_time);
 
     state._after_call(target_id);
 }

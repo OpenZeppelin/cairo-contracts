@@ -8,7 +8,7 @@
 
 = Governance
 
-Reference of interfaces and utilities related to Governance.
+This crate includes primitives for on-chain governance.
 
 == Timelock
 
@@ -16,7 +16,7 @@ In a governance system, `TimelockControllerComponent` is in charge of introducin
 
 [.contract]
 [[ITimelock]]
-=== `++ITimelock++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.15.1/packages/governance/src/timelock/interface.cairo[{github-icon},role=heading-link]
+=== `++ITimelock++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/governance/src/timelock/interface.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -240,7 +240,7 @@ Emitted when the minimum delay for future operations is modified.
 
 [.contract]
 [[TimelockControllerComponent]]
-=== `++TimelockControllerComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.15.1/packages/governance/src/timelock/timelock_controller.cairo[{github-icon},role=heading-link]
+=== `++TimelockControllerComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/governance/src/timelock/timelock_controller.cairo[{github-icon},role=heading-link]
 
 include::../utils/_common.adoc[]
 
@@ -600,7 +600,7 @@ Emitted when the minimum delay for future operations is modified.
 
 [.contract]
 [[IVotes]]
-=== `++IVotes++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.15.1/packages/governance/src/utils/interfaces/votes.cairo[{github-icon},role=heading-link]
+=== `++IVotes++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/governance/src/utils/interfaces/votes.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo

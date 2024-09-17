@@ -2,11 +2,9 @@
 
 :deploy_syscall: link:https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/system-calls-cairo1/#deploy[deploy_syscall]
 
-The following documentation provides reasoning and examples for functions and constants found in `openzeppelin::utils`.
+This crate provides miscellaneous components and libraries containing utility functions to handle common tasks.
 
-CAUTION: Expect this module to evolve (as it has already done).
-
-== Core utilities
+== Core
 
 [.contract]
 [[utils]]
@@ -260,7 +258,7 @@ NOTE: `T` is a generic value matching different numeric implementations.
 use openzeppelin::utils::selectors;
 ```
 
-:selectors: https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.15.1/packages/utils/src/selectors.cairo[selectors.cairo]
+:selectors: https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/utils/src/selectors.cairo[selectors.cairo]
 
 Module containing constants matching multiple selectors used through the library.
 To see the full list of selectors, see {selectors}.

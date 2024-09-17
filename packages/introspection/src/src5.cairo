@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.15.1 (introspection/src5.cairo)
+// OpenZeppelin Contracts for Cairo v0.16.0 (introspection/src5.cairo)
 
 /// # SRC5 Component
 ///
 /// The SRC5 component allows contracts to expose the interfaces they implement.
 #[starknet::component]
 pub mod SRC5Component {
-    use openzeppelin_introspection::interface;
-    use starknet::storage::Map;
+    use crate::interface;
+    use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
 
     #[storage]
-    struct Storage {
-        SRC5_supported_interfaces: Map<felt252, bool>
+    pub struct Storage {
+        pub SRC5_supported_interfaces: Map<felt252, bool>
     }
 
     pub mod Errors {

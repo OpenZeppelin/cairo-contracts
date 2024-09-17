@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.15.1 (presets/universal_deployer.cairo)
+// OpenZeppelin Contracts for Cairo v0.16.0 (presets/universal_deployer.cairo)
 
 /// # UniversalDeployerContract Preset
 ///
@@ -15,7 +15,7 @@ pub mod UniversalDeployer {
     use starknet::get_caller_address;
 
     #[storage]
-    struct Storage {}
+    pub struct Storage {}
 
     #[event]
     #[derive(Drop, PartialEq, starknet::Event)]

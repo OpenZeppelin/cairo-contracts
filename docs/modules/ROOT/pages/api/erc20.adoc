@@ -8,7 +8,7 @@
 
 include::../utils/_common.adoc[]
 
-Reference of interfaces and utilities related to ERC20 contracts.
+This module provides interfaces, presets, and utilities related to ERC20 contracts.
 
 TIP: For an overview of ERC20, read our {erc20-guide}.
 
@@ -16,7 +16,7 @@ TIP: For an overview of ERC20, read our {erc20-guide}.
 
 [.contract]
 [[IERC20]]
-=== `++IERC20++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.15.1/packages/token/src/erc20/interface.cairo[{github-icon},role=heading-link]
+=== `++IERC20++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/token/src/erc20/interface.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -114,7 +114,7 @@ Emitted when the allowance of a `spender` for an `owner` is set.
 
 [.contract]
 [[IERC20Metadata]]
-=== `++IERC20Metadata++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.15.1/packages/token/src/erc20/interface.cairo#L19[{github-icon},role=heading-link]
+=== `++IERC20Metadata++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/token/src/erc20/interface.cairo#L19[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -162,7 +162,7 @@ NOTE: This information is only used for _display_ purposes: it in no way affects
 
 [.contract]
 [[ERC20Component]]
-=== `++ERC20Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.15.1/packages/token/src/erc20/erc20.cairo[{github-icon},role=heading-link]
+=== `++ERC20Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/token/src/erc20/erc20.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -460,7 +460,7 @@ See <<IERC20-Approval,IERC20::Approval>>.
 
 [.contract]
 [[ERC20VotesComponent]]
-=== `++ERC20VotesComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.15.1/packages/token/src/erc20/extensions/erc20_votes.cairo[{github-icon},role=heading-link]
+=== `++ERC20VotesComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/token/src/erc20/extensions/erc20_votes.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin::token::extensions::ERC20VotesComponent;
@@ -476,7 +476,6 @@ NOTE: Implementing xref:#ERC20Component[ERC20Component] is a requirement for thi
 WARNING: To track voting units, this extension requires that the
 xref:#ERC20VotesComponent-transfer_voting_units[transfer_voting_units] function is called after every transfer,
 mint, or burn operation. For this, the xref:ERC20Component-ERC20HooksTrait[ERC20HooksTrait] must be used.
-
 
 This extension keeps a history (checkpoints) of each account’s vote power. Vote power can be delegated either by calling
 the xref:#ERC20VotesComponent-delegate[delegate] function directly, or by providing a signature to be used with
@@ -655,7 +654,7 @@ Emitted when `delegate` votes are updated from `previous_votes` to `new_votes`.
 
 [.contract]
 [[ERC20Upgradeable]]
-=== `++ERC20Upgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.15.1/packages/presets/src/erc20.cairo[{github-icon},role=heading-link]
+=== `++ERC20Upgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/presets/src/erc20.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin::presets::ERC20Upgradeable;

@@ -1,6 +1,6 @@
 #[starknet::contract]
 pub(crate) mod NoncesMock {
-    use openzeppelin_utils::cryptography::nonces::NoncesComponent;
+    use crate::cryptography::nonces::NoncesComponent;
 
     component!(path: NoncesComponent, storage: nonces, event: NoncesEvent);
 
@@ -9,9 +9,9 @@ pub(crate) mod NoncesMock {
     impl InternalImpl = NoncesComponent::InternalImpl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        nonces: NoncesComponent::Storage
+        pub nonces: NoncesComponent::Storage
     }
 
     #[event]

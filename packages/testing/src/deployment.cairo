@@ -1,11 +1,17 @@
-use openzeppelin_testing::panic_data_to_byte_array;
-use snforge_std::{ContractClass, ContractClassTrait};
+use crate::panic_data_to_byte_array;
+use snforge_std::{ContractClass, ContractClassTrait, DeclareResult};
 use starknet::ContractAddress;
 
-/// Declares a contract with a `snforge` `declare` call and unwraps the result.
+/// Declares a contract with a `snforge_std::declare` call and unwraps the result.
+/// This function will skip declaration and just return the `ContractClass` if the contract is
+/// already declared (the result of `snforge_std::declare` call is of type
+/// `DeclareResult::AlreadyDeclared`)
 pub fn declare_class(contract_name: ByteArray) -> ContractClass {
     match snforge_std::declare(contract_name) {
-        Result::Ok(contract_class) => contract_class,
+        Result::Ok(declare_result) => match declare_result {
+            DeclareResult::Success(contract_class) => contract_class,
+            DeclareResult::AlreadyDeclared(contract_class) => contract_class,
+        },
         Result::Err(panic_data) => panic!("{}", panic_data_to_byte_array(panic_data))
     }
 }
@@ -38,6 +44,9 @@ pub fn deploy_another_at(
 }
 
 /// Combines the declaration of a class and the deployment of a contract into one function call.
+/// This function will skip declaration if the contract is
+/// already declared (the result of `snforge_std::declare` call is of type
+/// `DeclareResult::AlreadyDeclared`)
 pub fn declare_and_deploy(contract_name: ByteArray, calldata: Array<felt252>) -> ContractAddress {
     let contract_class = declare_class(contract_name);
     deploy(contract_class, calldata)
@@ -45,6 +54,9 @@ pub fn declare_and_deploy(contract_name: ByteArray, calldata: Array<felt252>) ->
 
 /// Combines the declaration of a class and the deployment of a contract at the given address
 /// into one function call.
+/// This function will skip declaration if the contract is
+/// already declared (the result of `snforge_std::declare` call is of type
+/// `DeclareResult::AlreadyDeclared`)
 pub fn declare_and_deploy_at(
     contract_name: ByteArray, target_address: ContractAddress, calldata: Array<felt252>
 ) {

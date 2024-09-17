@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.15.1 (governance/timelock/utils/call_impls.cairo)
+// OpenZeppelin Contracts for Cairo v0.16.0 (governance/timelock/utils/call_impls.cairo)
 
 use core::hash::{HashStateTrait, HashStateExTrait, Hash};
 use starknet::account::Call;

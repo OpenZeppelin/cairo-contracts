@@ -1,7 +1,7 @@
 #[starknet::contract]
 pub(crate) mod DualCaseERC1155Mock {
+    use crate::erc1155::{ERC1155Component, ERC1155HooksEmptyImpl};
     use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_token::erc1155::{ERC1155Component, ERC1155HooksEmptyImpl};
     use starknet::ContractAddress;
 
     component!(path: ERC1155Component, storage: erc1155, event: ERC1155Event);
@@ -22,11 +22,11 @@ pub(crate) mod DualCaseERC1155Mock {
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        erc1155: ERC1155Component::Storage,
+        pub erc1155: ERC1155Component::Storage,
         #[substorage(v0)]
-        src5: SRC5Component::Storage
+        pub src5: SRC5Component::Storage
     }
 
     #[event]
@@ -53,8 +53,8 @@ pub(crate) mod DualCaseERC1155Mock {
 
 #[starknet::contract]
 pub(crate) mod SnakeERC1155Mock {
+    use crate::erc1155::{ERC1155Component, ERC1155HooksEmptyImpl};
     use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_token::erc1155::{ERC1155Component, ERC1155HooksEmptyImpl};
     use starknet::ContractAddress;
 
     component!(path: ERC1155Component, storage: erc1155, event: ERC1155Event);
@@ -73,11 +73,11 @@ pub(crate) mod SnakeERC1155Mock {
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        erc1155: ERC1155Component::Storage,
+        pub erc1155: ERC1155Component::Storage,
         #[substorage(v0)]
-        src5: SRC5Component::Storage
+        pub src5: SRC5Component::Storage
     }
 
     #[event]
@@ -104,8 +104,8 @@ pub(crate) mod SnakeERC1155Mock {
 
 #[starknet::contract]
 pub(crate) mod CamelERC1155Mock {
+    use crate::erc1155::{ERC1155Component, ERC1155HooksEmptyImpl};
     use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_token::erc1155::{ERC1155Component, ERC1155HooksEmptyImpl};
     use starknet::ContractAddress;
 
     component!(path: ERC1155Component, storage: erc1155, event: ERC1155Event);
@@ -124,11 +124,11 @@ pub(crate) mod CamelERC1155Mock {
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        erc1155: ERC1155Component::Storage,
+        pub erc1155: ERC1155Component::Storage,
         #[substorage(v0)]
-        src5: SRC5Component::Storage
+        pub src5: SRC5Component::Storage
     }
 
     #[event]
@@ -158,7 +158,7 @@ pub(crate) mod SnakeERC1155PanicMock {
     use starknet::ContractAddress;
 
     #[storage]
-    struct Storage {}
+    pub struct Storage {}
 
     #[abi(per_item)]
     #[generate_trait]
@@ -235,7 +235,7 @@ pub(crate) mod CamelERC1155PanicMock {
     use starknet::ContractAddress;
 
     #[storage]
-    struct Storage {}
+    pub struct Storage {}
 
     #[abi(per_item)]
     #[generate_trait]

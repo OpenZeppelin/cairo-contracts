@@ -1,6 +1,6 @@
 #[starknet::contract]
 pub(crate) mod SRC5Mock {
-    use openzeppelin_introspection::src5::SRC5Component;
+    use crate::src5::SRC5Component;
 
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
@@ -8,9 +8,9 @@ pub(crate) mod SRC5Mock {
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        src5: SRC5Component::Storage
+        pub src5: SRC5Component::Storage
     }
 
     #[event]

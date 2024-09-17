@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.15.1 (account/utils.cairo)
+// OpenZeppelin Contracts for Cairo v0.16.0 (account/utils.cairo)
 
 pub mod secp256k1;
 pub mod signature;

@@ -16,10 +16,11 @@ use openzeppelin_token::erc721::ERC721Component::{ERC721Impl, ERC721CamelOnlyImp
 use openzeppelin_utils::structs::checkpoint::TraceTrait;
 use snforge_std::signature::stark_curve::{StarkCurveKeyPairImpl, StarkCurveSignerImpl};
 use snforge_std::{
-    cheat_block_timestamp_global, start_cheat_caller_address, spy_events, test_address
+    start_cheat_block_timestamp_global, start_cheat_caller_address, spy_events, test_address
 };
 use snforge_std::{EventSpy};
 use starknet::ContractAddress;
+use starknet::storage::{StoragePointerReadAccess, StorageMapReadAccess};
 
 
 //
@@ -102,7 +103,7 @@ fn test_get_past_votes() {
     let mut state = setup_erc721_votes();
     let mut trace = state.Votes_delegate_checkpoints.read(OWNER());
 
-    cheat_block_timestamp_global('ts10');
+    start_cheat_block_timestamp_global('ts10');
 
     trace.push('ts1', 3);
     trace.push('ts2', 5);
@@ -116,7 +117,7 @@ fn test_get_past_votes() {
 #[should_panic(expected: ('Votes: future Lookup',))]
 fn test_get_past_votes_future_lookup() {
     let state = setup_erc721_votes();
-    cheat_block_timestamp_global('ts1');
+    start_cheat_block_timestamp_global('ts1');
     state.get_past_votes(OWNER(), 'ts2');
 }
 
@@ -125,7 +126,7 @@ fn test_get_past_total_supply() {
     let mut state = setup_erc721_votes();
     let mut trace = state.Votes_total_checkpoints.read();
 
-    cheat_block_timestamp_global('ts10');
+    start_cheat_block_timestamp_global('ts10');
     trace.push('ts1', 3);
     trace.push('ts2', 5);
     trace.push('ts3', 7);
@@ -138,7 +139,7 @@ fn test_get_past_total_supply() {
 #[should_panic(expected: ('Votes: future Lookup',))]
 fn test_get_past_total_supply_future_lookup() {
     let state = setup_erc721_votes();
-    cheat_block_timestamp_global('ts1');
+    start_cheat_block_timestamp_global('ts1');
     state.get_past_total_supply('ts2');
 }
 
@@ -182,7 +183,7 @@ fn test_delegate_to_recipient_updates_delegates() {
 // #[test]
 // fn test_delegate_by_sig() {
 //     cheat_chain_id_global('SN_TEST');
-//     cheat_block_timestamp_global('ts1');
+//     start_cheat_block_timestamp_global('ts1');
 //     let mut state = setup_erc721_votes();
 //     let contract_address = test_address();
 //     let key_pair = KeyPairTrait::generate();
@@ -203,7 +204,7 @@ fn test_delegate_to_recipient_updates_delegates() {
 #[test]
 #[should_panic(expected: ('Votes: expired signature',))]
 fn test_delegate_by_sig_past_expiry() {
-    cheat_block_timestamp_global('ts5');
+    start_cheat_block_timestamp_global('ts5');
 
     let mut state = setup_erc721_votes();
     let expiry = 'ts4';

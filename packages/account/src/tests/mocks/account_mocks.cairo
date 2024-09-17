@@ -1,6 +1,6 @@
 #[starknet::contract(account)]
 pub(crate) mod DualCaseAccountMock {
-    use openzeppelin_account::AccountComponent;
+    use crate::AccountComponent;
     use openzeppelin_introspection::src5::SRC5Component;
 
     component!(path: AccountComponent, storage: account, event: AccountEvent);
@@ -22,11 +22,11 @@ pub(crate) mod DualCaseAccountMock {
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        account: AccountComponent::Storage,
+        pub account: AccountComponent::Storage,
         #[substorage(v0)]
-        src5: SRC5Component::Storage
+        pub src5: SRC5Component::Storage
     }
 
     #[event]
@@ -46,7 +46,7 @@ pub(crate) mod DualCaseAccountMock {
 
 #[starknet::contract(account)]
 pub(crate) mod SnakeAccountMock {
-    use openzeppelin_account::AccountComponent;
+    use crate::AccountComponent;
     use openzeppelin_introspection::src5::SRC5Component;
 
     component!(path: AccountComponent, storage: account, event: AccountEvent);
@@ -64,11 +64,11 @@ pub(crate) mod SnakeAccountMock {
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        account: AccountComponent::Storage,
+        pub account: AccountComponent::Storage,
         #[substorage(v0)]
-        src5: SRC5Component::Storage
+        pub src5: SRC5Component::Storage
     }
 
     #[event]
@@ -88,7 +88,7 @@ pub(crate) mod SnakeAccountMock {
 
 #[starknet::contract(account)]
 pub(crate) mod CamelAccountMock {
-    use openzeppelin_account::AccountComponent;
+    use crate::AccountComponent;
     use openzeppelin_introspection::src5::SRC5Component;
     use starknet::account::Call;
 
@@ -108,11 +108,11 @@ pub(crate) mod CamelAccountMock {
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        account: AccountComponent::Storage,
+        pub account: AccountComponent::Storage,
         #[substorage(v0)]
-        src5: SRC5Component::Storage
+        pub src5: SRC5Component::Storage
     }
 
     #[event]
@@ -153,7 +153,7 @@ pub(crate) mod CamelAccountMock {
 #[starknet::contract]
 pub(crate) mod SnakeAccountPanicMock {
     #[storage]
-    struct Storage {}
+    pub struct Storage {}
 
     #[abi(per_item)]
     #[generate_trait]
@@ -190,7 +190,7 @@ pub(crate) mod SnakeAccountPanicMock {
 #[starknet::contract]
 pub(crate) mod CamelAccountPanicMock {
     #[storage]
-    struct Storage {}
+    pub struct Storage {}
 
     #[abi(per_item)]
     #[generate_trait]

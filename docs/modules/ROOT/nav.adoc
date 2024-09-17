@@ -24,6 +24,8 @@
 *** xref:/guides/src5-migration.adoc[Migrating ERC165 to SRC5]
 *** xref:/api/introspection.adoc[API Reference]
 
+** xref:/api/merkle-tree.adoc[Merkle Tree]
+
 ** xref:security.adoc[Security]
 *** xref:/api/security.adoc[API Reference]
 
@@ -35,6 +37,7 @@
 **** xref:/api/erc721.adoc[API Reference]
 *** xref:erc1155.adoc[ERC1155]
 **** xref:/api/erc1155.adoc[API Reference]
+*** xref:/api/token_common.adoc[Common]
 
 ** xref:udc.adoc[Universal Deployer Contract]
 *** xref:/api/udc.adoc[API Reference]

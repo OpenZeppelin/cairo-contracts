@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.15.1 (presets/account.cairo)
+// OpenZeppelin Contracts for Cairo v0.16.0 (presets/account.cairo)
 
 /// # Account Preset
 ///
@@ -27,13 +27,13 @@ pub mod AccountUpgradeable {
     impl UpgradeableInternalImpl = UpgradeableComponent::InternalImpl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        account: AccountComponent::Storage,
+        pub account: AccountComponent::Storage,
         #[substorage(v0)]
-        src5: SRC5Component::Storage,
+        pub src5: SRC5Component::Storage,
         #[substorage(v0)]
-        upgradeable: UpgradeableComponent::Storage
+        pub upgradeable: UpgradeableComponent::Storage
     }
 
     #[event]

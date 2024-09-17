@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.15.1 (access/accesscontrol/accesscontrol.cairo)
+// OpenZeppelin Contracts for Cairo v0.16.0 (access/accesscontrol/accesscontrol.cairo)
 
 /// # AccessControl Component
 ///
@@ -7,18 +7,18 @@
 /// Roles are referred to by their `felt252` identifier.
 #[starknet::component]
 pub mod AccessControlComponent {
-    use openzeppelin_access::accesscontrol::interface;
+    use crate::accesscontrol::interface;
     use openzeppelin_introspection::src5::SRC5Component::InternalImpl as SRC5InternalImpl;
     use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
     use openzeppelin_introspection::src5::SRC5Component;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
-    use starknet::storage::Map;
+    use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
 
     #[storage]
-    struct Storage {
-        AccessControl_role_admin: Map<felt252, felt252>,
-        AccessControl_role_member: Map<(felt252, ContractAddress), bool>,
+    pub struct Storage {
+        pub AccessControl_role_admin: Map<felt252, felt252>,
+        pub AccessControl_role_member: Map<(felt252, ContractAddress), bool>,
     }
 
     #[event]

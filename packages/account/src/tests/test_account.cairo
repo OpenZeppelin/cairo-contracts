@@ -1,29 +1,25 @@
 use core::num::traits::Zero;
-use core::starknet::SyscallResultTrait;
-use openzeppelin_account::AccountComponent::{InternalTrait, SRC6CamelOnlyImpl};
-use openzeppelin_account::AccountComponent::{PublicKeyCamelImpl, PublicKeyImpl};
-use openzeppelin_account::AccountComponent;
-use openzeppelin_account::interface::{AccountABIDispatcherTrait, AccountABIDispatcher};
-use openzeppelin_account::interface::{ISRC6, ISRC6_ID};
-use openzeppelin_account::tests::mocks::account_mocks::DualCaseAccountMock;
-use openzeppelin_account::tests::mocks::simple_mock::SimpleMock;
-use openzeppelin_account::tests::mocks::simple_mock::{
-    ISimpleMockDispatcher, ISimpleMockDispatcherTrait
-};
+use crate::AccountComponent::{InternalTrait, SRC6CamelOnlyImpl};
+use crate::AccountComponent::{PublicKeyCamelImpl, PublicKeyImpl};
+use crate::AccountComponent;
+use crate::interface::{AccountABIDispatcherTrait, AccountABIDispatcher};
+use crate::interface::{ISRC6, ISRC6_ID};
+use crate::tests::mocks::account_mocks::DualCaseAccountMock;
+use crate::tests::mocks::simple_mock::{ISimpleMockDispatcher, ISimpleMockDispatcherTrait};
 use openzeppelin_introspection::interface::{ISRC5, ISRC5_ID};
 use openzeppelin_test_common::account::{AccountSpyHelpers, SignedTransactionData};
 use openzeppelin_test_common::account::{SIGNED_TX_DATA, get_accept_ownership_signature};
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::stark::{KEY_PAIR, KEY_PAIR_2};
 use openzeppelin_testing::constants::{
-    SALT, ZERO, OTHER, CALLER, RECIPIENT, QUERY_OFFSET, QUERY_VERSION, MIN_TRANSACTION_VERSION
+    SALT, ZERO, OTHER, CALLER, QUERY_OFFSET, QUERY_VERSION, MIN_TRANSACTION_VERSION
 };
 use openzeppelin_testing::signing::StarkKeyPair;
-use openzeppelin_utils::selectors;
 use snforge_std::{
-    cheat_signature_global, cheat_transaction_version_global, cheat_transaction_hash_global
+    start_cheat_signature_global, start_cheat_transaction_version_global,
+    start_cheat_transaction_hash_global
 };
-use snforge_std::{spy_events, declare, test_address, start_cheat_caller_address};
+use snforge_std::{spy_events, test_address, start_cheat_caller_address};
 use starknet::account::Call;
 
 //
@@ -49,14 +45,15 @@ fn setup(key_pair: StarkKeyPair) -> ComponentState {
 fn setup_dispatcher(
     key_pair: StarkKeyPair, data: SignedTransactionData
 ) -> (AccountABIDispatcher, felt252) {
-    let contract_class = declare("DualCaseAccountMock").unwrap_syscall();
+    let contract_class = utils::declare_class("DualCaseAccountMock");
+
     let calldata = array![key_pair.public_key];
     let address = utils::deploy(contract_class, calldata);
     let dispatcher = AccountABIDispatcher { contract_address: address };
 
-    cheat_signature_global(array![data.r, data.s].span());
-    cheat_transaction_hash_global(data.tx_hash);
-    cheat_transaction_version_global(MIN_TRANSACTION_VERSION);
+    start_cheat_signature_global(array![data.r, data.s].span());
+    start_cheat_transaction_hash_global(data.tx_hash);
+    start_cheat_transaction_version_global(MIN_TRANSACTION_VERSION);
     start_cheat_caller_address(address, ZERO());
 
     (dispatcher, contract_class.class_hash.into())
@@ -133,7 +130,7 @@ fn test_validate_deploy_invalid_signature_length() {
     let key_pair = KEY_PAIR();
     let (account, class_hash) = setup_dispatcher(key_pair, SIGNED_TX_DATA(key_pair));
     let invalid_len_sig = array!['INVALID_LEN_SIG'];
-    cheat_signature_global(invalid_len_sig.span());
+    start_cheat_signature_global(invalid_len_sig.span());
 
     account.__validate_deploy__(class_hash, SALT, key_pair.public_key);
 }
@@ -145,7 +142,7 @@ fn test_validate_deploy_empty_signature() {
     let (account, class_hash) = setup_dispatcher(key_pair, SIGNED_TX_DATA(key_pair));
     let empty_sig = array![];
 
-    cheat_signature_global(empty_sig.span());
+    start_cheat_signature_global(empty_sig.span());
     account.__validate_deploy__(class_hash, SALT, key_pair.public_key);
 }
 
@@ -178,7 +175,7 @@ fn test_validate_declare_invalid_signature_length() {
     let key_pair = KEY_PAIR();
     let (account, class_hash) = setup_dispatcher(key_pair, SIGNED_TX_DATA(key_pair));
     let invalid_len_sig = array!['INVALID_LEN_SIG'];
-    cheat_signature_global(invalid_len_sig.span());
+    start_cheat_signature_global(invalid_len_sig.span());
 
     account.__validate_declare__(class_hash);
 }
@@ -189,7 +186,7 @@ fn test_validate_declare_empty_signature() {
     let key_pair = KEY_PAIR();
     let (account, class_hash) = setup_dispatcher(key_pair, SIGNED_TX_DATA(key_pair));
     let empty_sig = array![];
-    cheat_signature_global(empty_sig.span());
+    start_cheat_signature_global(empty_sig.span());
 
     account.__validate_declare__(class_hash);
 }
@@ -215,7 +212,7 @@ fn test_execute_with_version(version: Option<felt252>) {
 
     // Handle version for test
     if let Option::Some(version) = version {
-        cheat_transaction_version_global(version);
+        start_cheat_transaction_version_global(version);
     }
 
     // Execute

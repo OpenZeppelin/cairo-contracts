@@ -1,5 +1,5 @@
-use openzeppelin_account::dual_account::{DualCaseAccountTrait, DualCaseAccount};
-use openzeppelin_account::interface::{AccountABIDispatcherTrait, AccountABIDispatcher};
+use crate::dual_account::{DualCaseAccountTrait, DualCaseAccount};
+use crate::interface::{AccountABIDispatcherTrait, AccountABIDispatcher};
 use openzeppelin_introspection::interface::ISRC5_ID;
 
 use openzeppelin_test_common::account::{get_accept_ownership_signature};
@@ -69,7 +69,7 @@ fn test_dual_no_set_public_key() {
 }
 
 #[test]
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_set_public_key_exists_and_panics() {
     let (snake_dispatcher, _) = setup_account_panic();
     let new_public_key = KEY_PAIR_2().public_key;
@@ -93,7 +93,7 @@ fn test_dual_no_get_public_key() {
 }
 
 #[test]
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_get_public_key_exists_and_panics() {
     let (snake_dispatcher, _) = setup_account_panic();
     snake_dispatcher.get_public_key();
@@ -121,7 +121,7 @@ fn test_dual_no_is_valid_signature() {
 }
 
 #[test]
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_is_valid_signature_exists_and_panics() {
     let signature = array![];
     let (snake_dispatcher, _) = setup_account_panic();
@@ -145,7 +145,7 @@ fn test_dual_no_supports_interface() {
 }
 
 #[test]
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_supports_interface_exists_and_panics() {
     let (snake_dispatcher, _) = setup_account_panic();
     snake_dispatcher.supports_interface(ISRC5_ID);
@@ -173,7 +173,7 @@ fn test_dual_setPublicKey() {
 
 #[test]
 #[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_setPublicKey_exists_and_panics() {
     let (_, camel_dispatcher) = setup_account_panic();
     let new_public_key = KEY_PAIR_2().public_key;
@@ -191,7 +191,7 @@ fn test_dual_getPublicKey() {
 
 #[test]
 #[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_getPublicKey_exists_and_panics() {
     let (_, camel_dispatcher) = setup_account_panic();
     camel_dispatcher.get_public_key();
@@ -211,7 +211,7 @@ fn test_dual_isValidSignature() {
 
 #[test]
 #[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-#[should_panic(expected: ("Some error",))]
+#[should_panic(expected: "Some error")]
 fn test_dual_isValidSignature_exists_and_panics() {
     let signature = array![];
 

@@ -1,6 +1,6 @@
-## Governance
+## Finance
 
-This crate provides components for financial purposes.
+This crate includes primitives for financial systems.
 
 ### Interfaces
 

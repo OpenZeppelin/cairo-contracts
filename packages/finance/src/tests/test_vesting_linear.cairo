@@ -1,5 +1,5 @@
 use openzeppelin_access::ownable::interface::{IOwnableDispatcher, IOwnableDispatcherTrait};
-use openzeppelin_finance::tests::common::{VestingStrategy, TestData, setup};
+use openzeppelin_finance::tests::common::{VestingStrategy, TestData, setup, set_transfer_to_fail};
 use openzeppelin_finance::tests::mocks::vesting_mocks::LinearVestingMock;
 use openzeppelin_finance::vesting::VestingComponent::InternalImpl;
 use openzeppelin_finance::vesting::VestingComponent;
@@ -48,7 +48,7 @@ fn test_state_after_init() {
 }
 
 #[test]
-#[should_panic(expected: ('Vesting: Invalid cliff duration',))]
+#[should_panic(expected: 'Vesting: Invalid cliff duration')]
 fn test_init_invalid_cliff_value() {
     let mut component_state = COMPONENT_STATE();
     let mut data = TEST_DATA();
@@ -221,4 +221,17 @@ fn test_release_after_ownership_transferred() {
     assert_eq!(vesting.released(token), data.total_allocation);
     assert_eq!(token_dispatcher.balance_of(data.beneficiary), release_amount_1);
     assert_eq!(token_dispatcher.balance_of(new_owner), release_amount_2);
+}
+
+#[test]
+#[should_panic(expected: 'Vesting: Token transfer failed')]
+fn test_panics_when_transfer_fails() {
+    let data = TEST_DATA();
+    let (vesting, token) = setup(data);
+
+    let time_passed = 40;
+    start_cheat_block_timestamp_global(data.start + time_passed);
+    set_transfer_to_fail(token, true);
+
+    vesting.release(token);
 }

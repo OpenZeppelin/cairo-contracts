@@ -64,7 +64,7 @@ pub(crate) fn setup(data: TestData) -> (IVestingDispatcher, ContractAddress) {
 pub(crate) fn set_transfer_to_fail(token: ContractAddress, should_fail: bool) {
     let mut calldata = array![];
     calldata.append_serde(true);
-    starknet::syscall::call_contract_syscall(
+    starknet::syscalls::call_contract_syscall(
         token, selector!("set_transfer_should_fail"), calldata.span()
     )
         .unwrap_syscall();

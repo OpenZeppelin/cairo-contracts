@@ -78,7 +78,7 @@ fn test_execute_from_outside_v2_any_caller() {
     let msg_hash = outside_execution.get_message_hash(account);
     let (r, s) = key_pair.sign(msg_hash).unwrap();
 
-    // Use the dispatcher to simulate the appropiate context
+    // Use the dispatcher to simulate the appropriate context
     let dispatcher = IOutsideExecutionV2Dispatcher { contract_address: account };
     dispatcher.execute_from_outside_v2(outside_execution, array![r, s].span());
 
@@ -97,7 +97,7 @@ fn test_execute_from_outside_v2_specific_caller() {
 
     cheat_caller_address(account, OWNER(), CheatSpan::TargetCalls(1));
 
-    // Use the dispatcher to simulate the appropiate context
+    // Use the dispatcher to simulate the appropriate context
     let dispatcher = IOutsideExecutionV2Dispatcher { contract_address: account };
     dispatcher.execute_from_outside_v2(outside_execution, array![r, s].span());
 
@@ -110,7 +110,7 @@ fn test_execute_from_outside_v2_uses_nonce() {
     let account = setup_account(key_pair.public_key);
     let outside_execution = setup_outside_execution(account, false);
 
-    // Use the dispatcher to simulate the appropiate context
+    // Use the dispatcher to simulate the appropriate context
     let dispatcher = IOutsideExecutionV2Dispatcher { contract_address: account };
 
     let is_valid_nonce = dispatcher.is_valid_outside_execution_nonce(outside_execution.nonce);
@@ -205,7 +205,7 @@ fn test_execute_from_outside_v2_invalid_signature() {
     let (r, s) = key_pair.sign(msg_hash).unwrap();
     let invalid_signature = array![r, s + 1].span();
 
-    // Use the dispatcher to simulate the appropiate context
+    // Use the dispatcher to simulate the appropriate context
     let dispatcher = IOutsideExecutionV2Dispatcher { contract_address: account };
     dispatcher.execute_from_outside_v2(outside_execution, invalid_signature);
 }
@@ -220,7 +220,7 @@ fn test_execute_from_outside_v2_panics_when_inner_call_panic() {
     let msg_hash = outside_execution.get_message_hash(account);
     let (r, s) = key_pair.sign(msg_hash).unwrap();
 
-    // Use the dispatcher to simulate the appropiate context
+    // Use the dispatcher to simulate the appropriate context
     let dispatcher = IOutsideExecutionV2Dispatcher { contract_address: account };
     dispatcher.execute_from_outside_v2(outside_execution, array![r, s].span());
 }

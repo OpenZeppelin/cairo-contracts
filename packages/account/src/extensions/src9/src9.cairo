@@ -34,7 +34,7 @@ pub mod OutsideExecutionComponent {
     }
 
     // Name and version as defined in the SNIP-9
-    impl SNIP12MetadataImpl of SNIP12Metadata {
+    pub impl SNIP12MetadataImpl of SNIP12Metadata {
         fn name() -> felt252 {
             'Account.execute_from_outside'
         }

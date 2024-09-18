@@ -1,5 +1,5 @@
-use crate::extensions::src9::snip12_utils::{CallStructHash, OutsideExecutionStructHash};
 use crate::extensions::src9::interface::OutsideExecution;
+use crate::extensions::src9::snip12_utils::{CallStructHash, OutsideExecutionStructHash};
 use crate::extensions::src9::snip12_utils::{OUTSIDE_EXECUTION_TYPE_HASH, CALL_TYPE_HASH};
 use openzeppelin_testing::constants::{RECIPIENT, OWNER};
 use snforge_std::start_cheat_chain_id_global;
@@ -57,7 +57,9 @@ fn test_outside_execution_struct_hash_generation() {
     let execute_after = 10;
     let execute_before = 20;
     let calls = array![call].span();
-    let outside_execution = OutsideExecution { caller, nonce, execute_after, execute_before, calls };
+    let outside_execution = OutsideExecution {
+        caller, nonce, execute_after, execute_before, calls
+    };
 
     let hash = outside_execution.hash_struct();
     // This hash was computed using starknet js sdk from the following values:

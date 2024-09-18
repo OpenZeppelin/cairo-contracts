@@ -8,7 +8,7 @@
 /// component, so that the owner of the contract is the vesting beneficiary. It also means that
 /// ownership rights to the contract and to the vesting allocation can be assigned and transferred.
 ///
-/// Vesting schedule is specified through the `VestingScheduleTrait` trait implementation.
+/// Vesting schedule is specified through the `VestingScheduleTrait` implementation.
 /// This trait can be used to implement any custom vesting schedules.
 ///
 /// Any assets transferred to this contract will follow the vesting schedule as if they were locked
@@ -16,14 +16,14 @@
 /// to this contract may be immediately releasable.
 ///
 /// By setting the duration to 0, one can configure this contract to behave like an asset timelock
-/// that hold tokens for a beneficiary until a specified time.
+/// that holds tokens for a beneficiary until a specified time.
 ///
 /// NOTE:
 /// - A separate contract with a Vesting component must be deployed for each beneficiary.
 /// - Can be used to vest multiple tokens to a single beneficiary, provided that the core vesting
 ///   parameters (start, duration, and cliff_duration) are identical.
 /// - When using this contract with any token whose balance is adjusted automatically
-///   (i.e. a rebase token), make sure to account the supply/balance adjustment in the
+///   (i.e. a rebase token), make sure to account for the supply/balance adjustment in the
 ///   vesting schedule to ensure the vested amount is as intended.
 
 use starknet::ContractAddress;

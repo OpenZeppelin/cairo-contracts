@@ -5,7 +5,8 @@ keywords = [
     "openzeppelin",
     "starknet",
     "contracts",
-    "finance"
+    "finance",
+    "vesting"
 ]
 version.workspace = true
 edition.workspace = true

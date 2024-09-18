@@ -629,6 +629,9 @@ use openzeppelin::account::extensions::OutsideExecutionComponent;
 
 OutsideExecution component implementing xref:IOutsideExecutionV2[`IOutsideExecutionV2`].
 
+NOTE: This component is signature-agnostic, meaning it can be integrated into any account contract, as long as the
+account implements the ISRC6 interface.
+
 [.contract-index#OutsideExecutionComponent-Embeddable-Impls]
 .Embeddable Implementations
 --

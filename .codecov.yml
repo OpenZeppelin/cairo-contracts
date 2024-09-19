@@ -21,6 +21,8 @@ coverage:
 
 ignore:
   - "**/tests/"
+  - "docs/"
+  - "scripts/"
 
 github_checks:
   annotations: false

@@ -20,7 +20,7 @@ coverage:
         threshold: 2%
 
 ignore:
-  - "**/tests/**/*"
+  - "**/tests/**"
   - "docs/"
   - "scripts/"
 

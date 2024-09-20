@@ -1,0 +1,30 @@
+comment:
+  layout: "diff, files, header, footer"
+  behavior: default
+
+coverage:
+  # The value range where you want the value to be green
+  # Hold ourselves to a high bar.
+  range: 90..100
+  status:
+    project:
+      coverage:
+        # Use the coverage from the base commit (pull request base) coverage to compare against.
+        # Once we have a baseline we can be more strict.
+        target: auto
+        threshold: 2%
+    patch:
+      default:
+        # Require new code to have 90%+ coverage.
+        target: 90%
+        threshold: 2%
+
+ignore:
+  - "**/tests/**"
+  - "docs/"
+  - "scripts/"
+  - "packages/test_common/"
+
+github_checks:
+  annotations: false
+  

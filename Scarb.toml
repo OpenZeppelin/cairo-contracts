@@ -76,3 +76,8 @@ sort-module-level-items = true
 
 [tool]
 fmt.workspace = true
+
+[profile.dev.cairo]
+unstable-add-statements-functions-debug-info = true
+unstable-add-statements-code-locations-debug-info = true
+inlining-strategy= "avoid"

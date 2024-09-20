@@ -1,11 +1,7 @@
-use crate::extensions::OutsideExecutionComponent::{
-    InternalImpl, OutsideExecutionV2Impl, SNIP12MetadataImpl
-};
-use crate::extensions::OutsideExecutionComponent;
-use crate::extensions::src9::interface::{
-    IOutsideExecutionV2Dispatcher, IOutsideExecutionV2DispatcherTrait
-};
-use crate::extensions::src9::interface::{OutsideExecution, IOUTSIDE_EXECUTION_V2_ID};
+use crate::extensions::SRC9Component::{InternalImpl, OutsideExecutionV2Impl, SNIP12MetadataImpl};
+use crate::extensions::SRC9Component;
+use crate::extensions::src9::interface::{ISRC9_V2Dispatcher, ISRC9_V2DispatcherTrait};
+use crate::extensions::src9::interface::{OutsideExecution, ISRC9_V2_ID};
 use crate::extensions::src9::snip12_utils::OutsideExecutionStructHash;
 use crate::tests::mocks::src9_mocks::SRC9AccountMock;
 use openzeppelin_introspection::interface::{ISRC5, ISRC5_ID};
@@ -26,14 +22,14 @@ use starknet::{ContractAddress, contract_address_const};
 // Setup
 //
 
-type ComponentState = OutsideExecutionComponent::ComponentState<SRC9AccountMock::ContractState>;
+type ComponentState = SRC9Component::ComponentState<SRC9AccountMock::ContractState>;
 
 fn CONTRACT_STATE() -> SRC9AccountMock::ContractState {
     SRC9AccountMock::contract_state_for_testing()
 }
 
 fn COMPONENT_STATE() -> ComponentState {
-    OutsideExecutionComponent::component_state_for_testing()
+    SRC9Component::component_state_for_testing()
 }
 
 fn setup() -> ComponentState {
@@ -61,7 +57,7 @@ fn test_initializer() {
     let supports_isrc5 = mock_state.supports_interface(ISRC5_ID);
     assert!(supports_isrc5);
 
-    let supports_ioutside_execution_v2 = mock_state.supports_interface(IOUTSIDE_EXECUTION_V2_ID);
+    let supports_ioutside_execution_v2 = mock_state.supports_interface(ISRC9_V2_ID);
     assert!(supports_ioutside_execution_v2);
 }
 
@@ -79,7 +75,7 @@ fn test_execute_from_outside_v2_any_caller() {
     let (r, s) = key_pair.sign(msg_hash).unwrap();
 
     // Use the dispatcher to simulate the appropriate context
-    let dispatcher = IOutsideExecutionV2Dispatcher { contract_address: account };
+    let dispatcher = ISRC9_V2Dispatcher { contract_address: account };
     dispatcher.execute_from_outside_v2(outside_execution, array![r, s].span());
 
     assert_value(account, FELT_VALUE);
@@ -98,7 +94,7 @@ fn test_execute_from_outside_v2_specific_caller() {
     cheat_caller_address(account, OWNER(), CheatSpan::TargetCalls(1));
 
     // Use the dispatcher to simulate the appropriate context
-    let dispatcher = IOutsideExecutionV2Dispatcher { contract_address: account };
+    let dispatcher = ISRC9_V2Dispatcher { contract_address: account };
     dispatcher.execute_from_outside_v2(outside_execution, array![r, s].span());
 
     assert_value(account, FELT_VALUE);
@@ -111,7 +107,7 @@ fn test_execute_from_outside_v2_uses_nonce() {
     let outside_execution = setup_outside_execution(account, false);
 
     // Use the dispatcher to simulate the appropriate context
-    let dispatcher = IOutsideExecutionV2Dispatcher { contract_address: account };
+    let dispatcher = ISRC9_V2Dispatcher { contract_address: account };
 
     let is_valid_nonce = dispatcher.is_valid_outside_execution_nonce(outside_execution.nonce);
     assert!(is_valid_nonce);
@@ -206,7 +202,7 @@ fn test_execute_from_outside_v2_invalid_signature() {
     let invalid_signature = array![r, s + 1].span();
 
     // Use the dispatcher to simulate the appropriate context
-    let dispatcher = IOutsideExecutionV2Dispatcher { contract_address: account };
+    let dispatcher = ISRC9_V2Dispatcher { contract_address: account };
     dispatcher.execute_from_outside_v2(outside_execution, invalid_signature);
 }
 
@@ -221,7 +217,7 @@ fn test_execute_from_outside_v2_panics_when_inner_call_panic() {
     let (r, s) = key_pair.sign(msg_hash).unwrap();
 
     // Use the dispatcher to simulate the appropriate context
-    let dispatcher = IOutsideExecutionV2Dispatcher { contract_address: account };
+    let dispatcher = ISRC9_V2Dispatcher { contract_address: account };
     dispatcher.execute_from_outside_v2(outside_execution, array![r, s].span());
 }
 

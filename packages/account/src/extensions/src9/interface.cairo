@@ -4,8 +4,7 @@
 use starknet::ContractAddress;
 use starknet::account::Call;
 
-pub const IOUTSIDE_EXECUTION_V2_ID: felt252 =
-    0x1d1144bb2138366ff28d8e9ab57456b1d332ac42196230c3a602003c89872;
+pub const ISRC9_V2_ID: felt252 = 0x1d1144bb2138366ff28d8e9ab57456b1d332ac42196230c3a602003c89872;
 
 #[derive(Copy, Drop, Serde)]
 pub struct OutsideExecution {
@@ -17,14 +16,14 @@ pub struct OutsideExecution {
 }
 
 #[starknet::interface]
-pub trait IOutsideExecutionV2<TContractState> {
+pub trait ISRC9_V2<TContractState> {
     /// Allows anyone to submit a transaction on behalf of the account as long as they
     /// have the relevant signatures.
     ///
-    /// This method allows reentrancy. A call to `__execute__` or `execute_from_outside` can trigger
-    /// another nested transaction to `execute_from_outside` thus the implementation MUST verify
-    /// that the provided `signature` matches the hash of `outside_execution` and that `nonce` was
-    /// not already used.
+    /// This method allows reentrancy. A call to `__execute__` or `execute_from_outside_v2` can
+    /// trigger another nested transaction to `execute_from_outside_v2` thus the implementation MUST
+    /// verify that the provided `signature` matches the hash of `outside_execution` and that
+    /// `nonce` was not already used.
     ///
     /// The implementation should expect version to be set to 2 in the domain separator.
     ///

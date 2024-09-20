@@ -1,3 +1,3 @@
 pub mod src9;
 
-pub use src9::OutsideExecutionComponent;
+pub use src9::SRC9Component;

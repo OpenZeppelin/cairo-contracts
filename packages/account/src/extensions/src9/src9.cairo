@@ -4,12 +4,12 @@
 /// # SRC9 Component (Outside Execution)
 ///
 /// The SRC9 component allows a protocol to submit transactions on behalf of a user account,
-/// as long as they have the relevant signatures.
+/// as long as they provide the relevant signatures.
 ///
 /// This component is designed to be account agnostic, as long as the contract implements the ISRC6
-/// interface
+/// interface.
 #[starknet::component]
-pub mod OutsideExecutionComponent {
+pub mod SRC9Component {
     use crate::extensions::src9::OutsideExecution;
     use crate::extensions::src9::interface;
     use crate::extensions::src9::snip12_utils::OutsideExecutionStructHash;
@@ -53,12 +53,12 @@ pub mod OutsideExecutionComponent {
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
-    > of interface::IOutsideExecutionV2<ComponentState<TContractState>> {
+    > of interface::ISRC9_V2<ComponentState<TContractState>> {
         /// Allows anyone to submit a transaction on behalf of the account as long as they
-        /// have the relevant signatures.
+        /// provide the relevant signatures.
         ///
-        /// This method allows reentrancy. A call to `__execute__` or `execute_from_outside` can
-        /// trigger another nested transaction to `execute_from_outside`. This implementation
+        /// This method allows reentrancy. A call to `__execute__` or `execute_from_outside_v2` can
+        /// trigger another nested transaction to `execute_from_outside_v2`. This implementation
         /// verifies that the provided `signature` matches the hash of `outside_execution` and that
         /// `nonce` was not already used.
         ///
@@ -72,7 +72,7 @@ pub mod OutsideExecutionComponent {
         ///
         /// - The caller must be the `outside_execution.caller` unless 'ANY_CALLER' is used.
         /// - The current time must be within the `outside_execution.execute_after` and
-        /// `outside_execution.execute_before` span.
+        /// `outside_execution.execute_before` span, excluding boundaries.
         /// - The `outside_execution.nonce` must not be used before.
         /// - The `signature` must be valid.
         fn execute_from_outside_v2(
@@ -137,10 +137,10 @@ pub mod OutsideExecutionComponent {
         impl SRC5: SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
-        /// Initializes the account by registering the IOutsideExecutionV2 interface Id.
+        /// Initializes the account by registering the ISRC9_V2 interface Id.
         fn initializer(ref self: ComponentState<TContractState>) {
             let mut src5_component = get_dep_component_mut!(ref self, SRC5);
-            src5_component.register_interface(interface::IOUTSIDE_EXECUTION_V2_ID);
+            src5_component.register_interface(interface::ISRC9_V2_ID);
         }
     }
 }

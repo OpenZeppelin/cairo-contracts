@@ -7,10 +7,12 @@ use crate::extensions::src9::OutsideExecution;
 use openzeppelin_utils::cryptography::snip12::StructHash;
 use starknet::account::Call;
 
-// sn_keccak("\"OutsideExecution\"(\"Caller\":\"ContractAddress\",\"Nonce\":\"felt\",\"Execute
-// After\":\"u128\",\"Execute
-// Before\":\"u128\",\"Calls\":\"Call*\")\"Call\"(\"To\":\"ContractAddress\",
-// \"Selector\":\"selector\",\"Calldata\":\"felt*\")")
+// sn_keccak(
+//   "\"OutsideExecution\"(\"Caller\":\"ContractAddress\",\"Nonce\":\"felt\",
+//   \"Execute After\":\"u128\",\"Execute Before\":\"u128\",\"Calls\":\"Call*\")
+//   \"Call\"(\"To\":\"ContractAddress\",
+//   \"Selector\":\"selector\",\"Calldata\":\"felt*\")"
+// )
 pub const OUTSIDE_EXECUTION_TYPE_HASH: felt252 =
     0x312b56c05a7965066ddbda31c016d8d05afc305071c0ca3cdc2192c3c2f1f0f;
 
@@ -35,7 +37,7 @@ pub impl OutsideExecutionStructHash of StructHash<OutsideExecution> {
         let mut calls_span = *self.calls;
         let mut hashed_calls = array![];
 
-        while let Option::Some(call) = calls_span.pop_front() {
+        for call in calls_span {
             hashed_calls.append(call.hash_struct());
         };
 

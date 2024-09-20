@@ -1,13 +1,13 @@
 #[starknet::contract(account)]
 pub(crate) mod SRC9AccountMock {
     use crate::AccountComponent;
-    use crate::extensions::OutsideExecutionComponent;
+    use crate::extensions::SRC9Component;
     use openzeppelin_introspection::src5::SRC5Component;
     use starknet::storage::StoragePointerWriteAccess;
 
     component!(path: AccountComponent, storage: account, event: AccountEvent);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
-    component!(path: OutsideExecutionComponent, storage: src9, event: SRC9Event);
+    component!(path: SRC9Component, storage: src9, event: SRC9Event);
 
     // Account
     #[abi(embed_v0)]
@@ -19,8 +19,8 @@ pub(crate) mod SRC9AccountMock {
     // SRC9
     #[abi(embed_v0)]
     impl OutsideExecutionV2Impl =
-        OutsideExecutionComponent::OutsideExecutionV2Impl<ContractState>;
-    impl OutsideExecutionInternalImpl = OutsideExecutionComponent::InternalImpl<ContractState>;
+        SRC9Component::OutsideExecutionV2Impl<ContractState>;
+    impl OutsideExecutionInternalImpl = SRC9Component::InternalImpl<ContractState>;
 
     // SCR5
     #[abi(embed_v0)]
@@ -32,7 +32,7 @@ pub(crate) mod SRC9AccountMock {
         #[substorage(v0)]
         pub account: AccountComponent::Storage,
         #[substorage(v0)]
-        pub src9: OutsideExecutionComponent::Storage,
+        pub src9: SRC9Component::Storage,
         #[substorage(v0)]
         pub src5: SRC5Component::Storage
     }
@@ -43,7 +43,7 @@ pub(crate) mod SRC9AccountMock {
         #[flat]
         AccountEvent: AccountComponent::Event,
         #[flat]
-        SRC9Event: OutsideExecutionComponent::Event,
+        SRC9Event: SRC9Component::Event,
         #[flat]
         SRC5Event: SRC5Component::Event
     }

@@ -2,6 +2,6 @@ pub mod interface;
 pub mod snip12_utils;
 pub mod src9;
 
-pub use interface::{IOutsideExecutionV2, OutsideExecution};
-pub use interface::{IOutsideExecutionV2Dispatcher, IOutsideExecutionV2DispatcherTrait};
-pub use src9::OutsideExecutionComponent;
+pub use interface::{ISRC9_V2, OutsideExecution};
+pub use interface::{ISRC9_V2Dispatcher, ISRC9_V2DispatcherTrait};
+pub use src9::SRC9Component;

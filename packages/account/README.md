@@ -13,10 +13,10 @@ This crate provides components to implement account contracts that can be used f
 ### Interfaces
 
 - `ISRC6`
-- `IOutsideExecutionV2`
+- `ISRC9_V2`
 
 ### Components
 
 - `AccountComponent`
 - `EthAccountComponent`
-- `OutsideExecutionComponent`
+- `SRC9Component`

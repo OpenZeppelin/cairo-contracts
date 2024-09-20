@@ -1,3 +1,4 @@
+mod extensions;
 pub(crate) mod mocks;
 
 #[cfg(test)]

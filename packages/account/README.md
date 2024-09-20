@@ -13,8 +13,10 @@ This crate provides components to implement account contracts that can be used f
 ### Interfaces
 
 - `ISRC6`
+- `ISRC9_V2`
 
 ### Components
 
 - `AccountComponent`
 - `EthAccountComponent`
+- `SRC9Component`

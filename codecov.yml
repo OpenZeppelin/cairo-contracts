@@ -23,6 +23,7 @@ ignore:
   - "**/tests/**"
   - "docs/"
   - "scripts/"
+  - "packages/test_common/"
 
 github_checks:
   annotations: false

@@ -22,7 +22,7 @@ pub fn execute_calls(mut calls: Span<Call>) -> Array<Span<felt252>> {
                 let _res = execute_single_call(call);
                 res.append(_res);
             },
-            Option::None(_) => { break (); },
+            Option::None => { break (); },
         };
     };
     res

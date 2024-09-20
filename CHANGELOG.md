@@ -12,7 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `into_base_16_string_no_padding` function to the test helpers (#1137)
-- OutsideExecution component (#1150)
+- SRC9 (OutsideExecution) component (#1150)
+- Vesting component and VestingWallet preset (#1116)
 
 ### Changed (Breaking)
 

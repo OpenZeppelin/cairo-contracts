@@ -5,3 +5,4 @@ pub mod erc721;
 pub mod eth_account;
 pub mod ownable;
 pub mod upgrades;
+pub mod vesting;

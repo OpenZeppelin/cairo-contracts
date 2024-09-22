@@ -1,50 +1,45 @@
-use sncast_std::ErrorData;
-use sncast_std::ProviderError::{UnknownError};
-use sncast_std::StarknetError::{ClassAlreadyDeclared};
-use sncast_std::{ScriptCommandError, ProviderError, StarknetError};
-use sncast_std::{declare, DeclareResult, get_nonce, DisplayClassHash, FeeSettings, EthFeeSettings};
+use sncast_std::{declare, get_nonce, FeeSettings, EthFeeSettings};
+use openzeppelin_testing::common::IntoBase16String;
 
 fn main() {
-    let max_fee = 99999999999999999;
-    let nonce = get_nonce('latest');
-
-    let account_res = declare(
+    let contracts: Array<ByteArray> = array![
         "AccountUpgradeable",
-        FeeSettings::Eth(EthFeeSettings { max_fee: Option::Some(max_fee) }),
-        Option::Some(nonce)
-    )
-        .unwrap_err();
-    println!("{:?}", account_res);
-
-    let erc20_res = declare(
         "ERC20Upgradeable",
-        FeeSettings::Eth(EthFeeSettings { max_fee: Option::Some(max_fee) }),
-        Option::Some(nonce)
-    )
-        .unwrap_err();
-    println!("{:?}", erc20_res);
-
-    let erc721_res = declare(
         "ERC721Upgradeable",
-        FeeSettings::Eth(EthFeeSettings { max_fee: Option::Some(max_fee) }),
-        Option::Some(nonce)
-    )
-        .unwrap_err();
-    println!("{:?}", erc721_res);
-
-    let erc1155_res = declare(
         "ERC1155Upgradeable",
-        FeeSettings::Eth(EthFeeSettings { max_fee: Option::Some(max_fee) }),
-        Option::Some(nonce)
-    )
-        .unwrap_err();
-    println!("{:?}", erc1155_res);
+        "EthAccountUpgradeable"
+    ];
 
-    let eth_account_res = declare(
-        "EthAccountUpgradeable",
+    let mut consume_latest_nonce = false;
+    let mut nonce = get_nonce('latest');
+
+    for contract in contracts {
+        if (!consume_latest_nonce) {
+            consume_latest_nonce = true;
+        } else {
+            nonce = get_nonce('pending');
+        }
+
+        declare_preset(contract, nonce);
+    };
+
+    println!("");
+}
+
+fn declare_preset(contract: ByteArray, nonce: felt252) {
+    println!("\nDeclaring {contract}:");
+
+    let max_fee = 99999999999999999;
+    let declare_result = declare(
+        contract,
         FeeSettings::Eth(EthFeeSettings { max_fee: Option::Some(max_fee) }),
         Option::Some(nonce)
-    )
-        .unwrap_err();
-    println!("{:?}", eth_account_res);
+    );
+
+    // Print output
+    // Note that the tx hash will already display from the declaration
+    match declare_result {
+        Result::Ok(r) => println!("Class hash = {}", r.class_hash.into_base_16_string()),
+        Result::Err(r) => println!("{:?}", r)
+    }
 }

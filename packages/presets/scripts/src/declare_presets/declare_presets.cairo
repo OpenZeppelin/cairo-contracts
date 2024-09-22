@@ -1,5 +1,5 @@
-use sncast_std::{declare, get_nonce, FeeSettings, EthFeeSettings};
 use openzeppelin_testing::common::IntoBase16String;
+use sncast_std::{declare, get_nonce, FeeSettings, EthFeeSettings};
 
 fn main() {
     let contracts: Array<ByteArray> = array![

@@ -1,0 +1,236 @@
+:github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
+:AmountReleased: xref:IVesting-AmountReleased[AmountReleased]
+:vesting-schedule: xref:finance.adoc#vesting_schedule[Vesting Schedule Trait]
+
+= Finance
+
+Reference of interfaces and utilities related to Finance.
+
+== Vesting
+
+[.contract]
+[[IVesting]]
+=== `++IVesting++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/finance/src/vesting/interface.cairo[{github-icon},role=heading-link]
+
+[.hljs-theme-dark]
+```cairo
+use openzeppelin_finance::vesting::interface::IVesting;
+```
+
+[.contract-index]
+.Functions
+--
+* xref:#IVesting-start[`++start()++`]
+* xref:#IVesting-cliff[`++cliff()++`]
+* xref:#IVesting-duration[`++duration()++`]
+* xref:#IVesting-end[`++end()++`]
+* xref:#IVesting-released[`++released(token)++`]
+* xref:#IVesting-releasable[`++releasable(token)++`]
+* xref:#IVesting-vested_amount[`++vested_amount(token, timestamp)++`]
+* xref:#IVesting-release[`++release(token)++`]
+--
+
+[.contract-index]
+.Events
+--
+* xref:#IVesting-AmountReleased[`++AmountReleased(token, amount)++`]
+--
+
+[#IVesting-Functions]
+==== Functions
+
+[.contract-item]
+[[IVesting-start]]
+==== `[.contract-item-name]#++start++#++() → u64++` [.item-kind]#external#
+
+Returns the timestamp marking the beginning of the vesting period.
+
+[.contract-item]
+[[IVesting-cliff]]
+==== `[.contract-item-name]#++cliff++#++() → u64++` [.item-kind]#external#
+
+Returns the timestamp marking the end of the cliff period.
+
+[.contract-item]
+[[IVesting-duration]]
+==== `[.contract-item-name]#++duration++#++() → u64++` [.item-kind]#external#
+
+Returns the total duration of the vesting period.
+
+[.contract-item]
+[[IVesting-end]]
+==== `[.contract-item-name]#++end++#++() → u64++` [.item-kind]#external#
+
+Returns the timestamp marking the end of the vesting period.
+
+[.contract-item]
+[[IVesting-released]]
+==== `[.contract-item-name]#++released++#++(token: ContractAddress) → u256++` [.item-kind]#external#
+
+Returns the already released amount for a given `token`.
+
+[.contract-item]
+[[IVesting-releasable]]
+==== `[.contract-item-name]#++releasable++#++(token: ContractAddress) → u256++` [.item-kind]#external#
+
+Returns the amount of a given `token` that can be released at the time of the call.
+
+[.contract-item]
+[[IVesting-vested_amount]]
+==== `[.contract-item-name]#++vested_amount++#++(token: ContractAddress, timestamp: u64) → u256++` [.item-kind]#external#
+
+Returns the total vested amount of a specified `token` at a given `timestamp`.
+
+[.contract-item]
+[[IVesting-release]]
+==== `[.contract-item-name]#++release++#++(token: ContractAddress) → u256++` [.item-kind]#external#
+
+Releases the amount of a given `token` that has already vested and returns that amount.
+
+Emits {AmountReleased} event.
+
+[#IVesting-Events]
+==== Events
+
+[.contract-item]
+[[IVesting-AmountReleased]]
+==== `[.contract-item-name]#++AmountReleased++#++(token: ContractAddress, amount: u256)++` [.item-kind]#event#
+
+Emitted when vested tokens are released to the beneficiary.
+
+[.contract]
+[[VestingComponent]]
+=== `++VestingComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/finance/src/vesting/vesting.cairo[{github-icon},role=heading-link]
+
+[.hljs-theme-dark]
+```cairo
+use openzeppelin_finance::vesting::VestingComponent;
+```
+
+[.contract-index]
+.{vesting-schedule}
+--
+.functions
+* xref:#VestingComponent-calculate_vested_amount[`++calculate_vested_amount(self, token, total_allocation, 
+timestamp, start, duration, cliff)++`]
+--
+
+[.contract-index#VestingComponent-Embeddable-Impls]
+.Embeddable Implementations
+--
+[.sub-index#VestingComponent-Embeddable-Impls-VestingImpl]
+.VestingImpl
+* xref:#VestingComponent-start[`++start(self)++`]
+* xref:#VestingComponent-cliff[`++cliff(self)++`]
+* xref:#VestingComponent-duration[`++duration(self)++`]
+* xref:#VestingComponent-end[`++end(self)++`]
+* xref:#VestingComponent-released[`++released(self, token)++`]
+* xref:#VestingComponent-releasable[`++releasable(self, token)++`]
+* xref:#VestingComponent-vested_amount[`++vested_amount(self, token, timestamp)++`]
+* xref:#VestingComponent-release[`++release(self, token)++`]
+--
+
+[.contract-index]
+.Internal implementations
+--
+.InternalImpl
+* xref:#VestingComponent-initializer[`++initializer(self, start, duration, cliff_duration)++`]
+* xref:#VestingComponent-resolve_vested_amount[`++resolve_vested_amount(self, token, timestamp)++`]
+--
+
+[#VestingComponent-Vesting-Schedule]
+==== Vesting Schedule Trait
+
+A trait that defines the logic for calculating the vested amount based on a given timestamp.
+
+[.contract-item]
+[[VestingComponent-calculate_vested_amount]]
+==== `[.contract-item-name]#++calculate_vested_amount++#++(self: @ContractState, token: ContractAddress, total_allocation: u256, timestamp: u64, start: u64, duration: u64, cliff: u64) → u256++` [.item-kind]#internal#
+
+Calculates and returns the vested amount at a given `timestamp` based on the core vesting parameters.
+
+[#VestingComponent-Functions]
+==== Functions
+
+[.contract-item]
+[[VestingComponent-start]]
+==== `[.contract-item-name]#++start++#++(self: @ContractState) → u64++` [.item-kind]#external#
+
+Returns the timestamp marking the beginning of the vesting period.
+
+[.contract-item]
+[[VestingComponent-cliff]]
+==== `[.contract-item-name]#++cliff++#++(self: @ContractState) → u64++` [.item-kind]#external#
+
+Returns the timestamp marking the end of the cliff period.
+
+[.contract-item]
+[[VestingComponent-duration]]
+==== `[.contract-item-name]#++duration++#++(self: @ContractState) → u64++` [.item-kind]#external#
+
+Returns the total duration of the vesting period.
+
+[.contract-item]
+[[VestingComponent-end]]
+==== `[.contract-item-name]#++end++#++(self: @ContractState) → u64++` [.item-kind]#external#
+
+Returns the timestamp marking the end of the vesting period.
+
+[.contract-item]
+[[VestingComponent-released]]
+==== `[.contract-item-name]#++released++#++(self: @ContractState, token: ContractAddress) → u256++` [.item-kind]#external#
+
+Returns the already released amount for a given `token`.
+
+[.contract-item]
+[[VestingComponent-releasable]]
+==== `[.contract-item-name]#++releasable++#++(self: @ContractState, token: ContractAddress) → u256++` [.item-kind]#external#
+
+Returns the amount of a given `token` that can be released at the time of the call.
+
+[.contract-item]
+[[VestingComponent-vested_amount]]
+==== `[.contract-item-name]#++vested_amount++#++(self: @ContractState, token: ContractAddress, timestamp: u64) → u256++` [.item-kind]#external#
+
+Returns the total vested amount of a specified `token` at a given `timestamp`.
+
+[.contract-item]
+[[VestingComponent-release]]
+==== `[.contract-item-name]#++release++#++(ref self: ContractState, token: ContractAddress) → u256++` [.item-kind]#external#
+
+Releases the amount of a given `token` that has already vested and returns that amount.
+
+Emits {AmountReleased} event.
+
+[#VestingComponent-Internal-Functions]
+==== Internal functions
+
+[.contract-item]
+[[VestingComponent-initializer]]
+==== `[.contract-item-name]#++initializer++#++(ref self: ContractState, start: u64, duration: u64, cliff_duration: u64)++` [.item-kind]#internal#
+
+Initializes the component by setting the vesting start, duration and cliff. To prevent 
+reinitialization, this should only be used inside of a contract's constructor.
+
+Requirements:
+
+- `cliff_duration` must be less or equal to `duration`
+
+[.contract-item]
+[[VestingComponent-resolve_vested_amount]]
+==== `[.contract-item-name]#++resolve_vested_amount++#++(self: @ContractState, token: ContractAddress, timestamp: u64) → u256++` [.item-kind]#internal#
+
+Returns the vested amount that's calculated using the `VestingScheduleTrait` implementation.
+
+[.contract]
+[[LinearVestingSchedule]]
+=== `++LinearVestingSchedule++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/finance/src/vesting/vesting.cairo[{github-icon},role=heading-link]
+
+[.hljs-theme-dark]
+```cairo
+use openzeppelin_finance::vesting::LinearVestingSchedule;
+```
+
+Defines the logic for calculating the vested amount, incorporating a cliff period. 
+It returns 0 before the cliff ends. After the cliff period, the vested amount returned
+is directly proportional to the time passed since the start of the vesting schedule.

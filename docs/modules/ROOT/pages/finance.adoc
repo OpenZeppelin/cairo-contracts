@@ -1,0 +1,9 @@
+= Finance
+
+:vesting-component: xref:api/finance.adoc#VestingComponent[VestingComponent]
+
+== Vesting
+
+[[vesting_schedule]]
+== Vesting Schedule
+

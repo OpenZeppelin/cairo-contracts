@@ -1,6 +1,6 @@
 :github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
 :AmountReleased: xref:IVesting-AmountReleased[AmountReleased]
-:vesting-schedule: xref:finance.adoc#vesting_schedule[Vesting Schedule Trait]
+:vesting-schedule: xref:api/finance.adoc#VestingComponent-Vesting-Schedule[Vesting Schedule]
 
 = Finance
 
@@ -108,7 +108,7 @@ use openzeppelin_finance::vesting::VestingComponent;
 ```
 
 [.contract-index]
-.{vesting-schedule}
+.Vesting Schedule Trait
 --
 .functions
 * xref:#VestingComponent-calculate_vested_amount[`++calculate_vested_amount(self, token, total_allocation, 
@@ -220,7 +220,7 @@ Requirements:
 [[VestingComponent-resolve_vested_amount]]
 ==== `[.contract-item-name]#++resolve_vested_amount++#++(self: @ContractState, token: ContractAddress, timestamp: u64) → u256++` [.item-kind]#internal#
 
-Returns the vested amount that's calculated using the `VestingScheduleTrait` implementation.
+Returns the vested amount that's calculated using the {vesting-schedule} trait implementation.
 
 [.contract]
 [[LinearVestingSchedule]]

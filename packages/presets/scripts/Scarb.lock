@@ -27,6 +27,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "openzeppelin_finance"
+version = "0.16.0"
+dependencies = [
+ "openzeppelin_access",
+ "openzeppelin_token",
+]
+
+[[package]]
 name = "openzeppelin_governance"
 version = "0.16.0"
 dependencies = [
@@ -44,6 +52,7 @@ version = "0.16.0"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_account",
+ "openzeppelin_finance",
  "openzeppelin_introspection",
  "openzeppelin_token",
  "openzeppelin_upgrades",
@@ -76,7 +85,8 @@ version = "0.16.0"
 [[package]]
 name = "sncast_std"
 version = "0.30.0"
-source = "git+https://github.com/foundry-rs/starknet-foundry.git?tag=v0.30.0#196f06b251926697c3d66800f2a93ae595e76496"
+source = "registry+https://scarbs.xyz/"
+checksum = "sha256:cfd7c73a6f9984880249babfa8664b69c5f7209c737b1081156a284061ccd41a"
 
 [[package]]
 name = "snforge_scarb_plugin"

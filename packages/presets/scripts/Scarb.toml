@@ -4,7 +4,7 @@ version = "0.16.0"
 
 [dependencies]
 starknet = "2.8.2"
-sncast_std = { git = "https://github.com/foundry-rs/starknet-foundry.git", tag = "v0.30.0" }
+sncast_std = "0.30.0"
 openzeppelin_presets = { path = "../" }
 openzeppelin_testing = { path = "../" }
 

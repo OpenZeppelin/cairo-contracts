@@ -24,6 +24,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `execute_calls` function from account utils (#1150)
   - calls param type changed from `Array<Call>` to `Span<Call>`
 
+### Deprecated
+
+- DualCase dispatchers
+
 ## 0.16.0 (2024-08-30)
 
 ### Added

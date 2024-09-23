@@ -49,7 +49,8 @@ pub mod UpgradeableComponent {
 
         /// Replaces the contract's class hash with `new_class_hash` and then calls `selector`
         /// from the upgraded context.
-        /// This functions returns the value(s) from the `selector` call as a Span of felts.
+        /// This function returns the unwrapped `call_contract_syscall` return value(s), if available,
+        /// of the `selector` call.
         ///
         /// Requirements:
         ///

@@ -59,7 +59,7 @@ Interface for an upgradeable contract that couples an upgrade with a function ca
 
 [.contract-item]
 [[IUpgradeAndCall-upgrade_and_call]]
-==== `[.contract-item-name]#++upgrade_and_call++#++(new_class_hash: ClassHash, selector: felt252, calldata: Span<felt252>)++` [.item-kind]#external#
+==== `[.contract-item-name]#++upgrade_and_call++#++(new_class_hash: ClassHash, selector: felt252, calldata: Span<felt252>) → Span<felt252>++` [.item-kind]#external#
 
 Upgrades the contract code by updating its {class_hash} and calls `selector` with the upgraded context.
 
@@ -109,10 +109,11 @@ Emits an {Upgraded} event.
 
 [.contract-item]
 [[UpgradeableComponent-upgrade_and_call]]
-==== `[.contract-item-name]#++upgrade_and_call++#++(ref self: ContractState, new_class_hash: ClassHash, selector: felt252, calldata: Span<felt252>)++` [.item-kind]#internal#
+==== `[.contract-item-name]#++upgrade_and_call++#++(ref self: ContractState, new_class_hash: ClassHash, selector: felt252, calldata: Span<felt252>) → Span<felt252>++` [.item-kind]#internal#
 
 Replaces the contract's class hash with `new_class_hash` and then calls `selector`
 from the upgraded context.
+This function returns the unwrapped `call_contract_syscall` return value(s), if available, of the `selector` call.
 
 Requirements:
 

@@ -2,11 +2,9 @@
 
 :deploy_syscall: link:https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/system-calls-cairo1/#deploy[deploy_syscall]
 
-The following documentation provides reasoning and examples for functions and constants found in `openzeppelin::utils`.
+This crate provides miscellaneous components and libraries containing utility functions to handle common tasks.
 
-CAUTION: Expect this module to evolve (as it has already done).
-
-== Core utilities
+== Core
 
 [.contract]
 [[utils]]
@@ -319,7 +317,9 @@ that implements the `Serde` trait.
 use openzeppelin::utils::cryptography::nonces::NoncesComponent;
 ```
 
-Simple component for managing nonces.
+This component provides a simple mechanism for handling incremental
+nonces for a set of addresses. It is commonly used to prevent replay attacks
+when contracts accept signatures as input.
 
 [.contract-index#NoncesComponent-Embeddable-Impls]
 .Embeddable Implementations

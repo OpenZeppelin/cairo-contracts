@@ -3,7 +3,5 @@ pub mod erc20;
 pub mod extensions;
 pub mod interface;
 
-pub use erc20::ERC20Component;
-pub use erc20::ERC20HooksEmptyImpl;
-pub use interface::ERC20ABIDispatcher;
-pub use interface::ERC20ABIDispatcherTrait;
+pub use erc20::{ERC20Component, ERC20HooksEmptyImpl};
+pub use interface::{ERC20ABIDispatcher, ERC20ABIDispatcherTrait};

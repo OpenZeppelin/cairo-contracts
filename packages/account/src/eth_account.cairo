@@ -94,7 +94,7 @@ pub mod EthAccountComponent {
                 assert(MIN_TRANSACTION_VERSION <= tx_version, Errors::INVALID_TX_VERSION);
             }
 
-            execute_calls(calls)
+            execute_calls(calls.span())
         }
 
         /// Verifies the validity of the signature for the current transaction.

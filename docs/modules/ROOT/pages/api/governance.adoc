@@ -8,7 +8,7 @@
 
 = Governance
 
-Reference of interfaces and utilities related to Governance.
+This crate includes primitives for on-chain governance.
 
 == Timelock
 

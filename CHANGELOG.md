@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## 0.17.0 (2024-09-23)
+
 ### Added
 
 - `into_base_16_string_no_padding` function to the test helpers (#1137)

@@ -1,7 +1,7 @@
-use crate::tests::mocks::upgrades_mocks::{IUpgradesV1Dispatcher, IUpgradesV1DispatcherTrait};
 use crate::tests::mocks::upgrades_mocks::{
     IUpgradesV1SafeDispatcher, IUpgradesV1SafeDispatcherTrait
 };
+use crate::tests::mocks::upgrades_mocks::{IUpgradesV1Dispatcher, IUpgradesV1DispatcherTrait};
 use crate::tests::mocks::upgrades_mocks::{IUpgradesV2Dispatcher, IUpgradesV2DispatcherTrait};
 use openzeppelin_test_common::upgrades::UpgradeableSpyHelpers;
 use openzeppelin_testing as utils;

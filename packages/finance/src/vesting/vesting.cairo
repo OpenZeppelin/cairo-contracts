@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.15.1 (finance/vesting/vesting.cairo)
+// OpenZeppelin Contracts for Cairo v0.17.0 (finance/vesting/vesting.cairo)
+
+use starknet::ContractAddress;
 
 /// # Vesting Component
 ///
@@ -25,9 +27,6 @@
 /// - When using this contract with any token whose balance is adjusted automatically
 ///   (i.e. a rebase token), make sure to account for the supply/balance adjustment in the
 ///   vesting schedule to ensure the vested amount is as intended.
-
-use starknet::ContractAddress;
-
 #[starknet::component]
 pub mod VestingComponent {
     use openzeppelin_access::ownable::OwnableComponent::OwnableImpl;

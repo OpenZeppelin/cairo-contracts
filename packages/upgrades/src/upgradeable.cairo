@@ -49,6 +49,7 @@ pub mod UpgradeableComponent {
 
         /// Replaces the contract's class hash with `new_class_hash` and then calls `selector`
         /// from the upgraded context.
+        /// This functions returns the value(s) from the `selector` call as a Span of felts.
         ///
         /// Requirements:
         ///
@@ -60,13 +61,13 @@ pub mod UpgradeableComponent {
             new_class_hash: ClassHash,
             selector: felt252,
             calldata: Span<felt252>
-        ) {
+        ) -> Span<felt252> {
             self.upgrade(new_class_hash);
             let this = starknet::get_contract_address();
             // `call_contract_syscall` is used in order to call `selector` from the new class.
             // See:
             // https://docs.starknet.io/documentation/architecture_and_concepts/Contracts/system-calls-cairo1/#replace_class
-            call_contract_syscall(this, selector, calldata).unwrap_syscall();
+            call_contract_syscall(this, selector, calldata).unwrap_syscall()
         }
     }
 }

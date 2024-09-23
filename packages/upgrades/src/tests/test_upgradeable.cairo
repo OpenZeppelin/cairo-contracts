@@ -111,6 +111,32 @@ fn test_upgrade_and_call_with_new_selector() {
 }
 
 #[test]
+fn test_upgrade_and_call_with_return_value() {
+    let (v1, v2_class) = setup_test();
+
+    // Set value to get with upgrade_and_call
+    v1.set_value(VALUE);
+
+    let calldata = array![];
+    let selector = selector!("get_value");
+    let call_res = v1.upgrade_and_call(v2_class.class_hash, selector, calldata.span());
+
+    assert_eq!(call_res.len(), 1, "Return span should include one value");
+    assert_eq!(*call_res.at(0), VALUE);
+}
+
+#[test]
+fn test_upgrade_and_call_with_no_return_value() {
+    let (v1, v2_class) = setup_test();
+
+    let calldata = array![VALUE];
+    let selector = selector!("set_value");
+    let call_res = v1.upgrade_and_call(v2_class.class_hash, selector, calldata.span());
+
+    assert_eq!(call_res.len(), 0);
+}
+
+#[test]
 #[ignore] // REASON:
 #[feature("safe_dispatcher")]
 fn test_upgrade_and_call_with_removed_selector() {

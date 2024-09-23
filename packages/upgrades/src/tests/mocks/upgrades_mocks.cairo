@@ -9,7 +9,7 @@ pub(crate) trait IUpgradesV1<TState> {
     fn upgrade(ref self: TState, new_class_hash: ClassHash);
     fn upgrade_and_call(
         ref self: TState, new_class_hash: ClassHash, selector: felt252, calldata: Span<felt252>
-    );
+    ) -> Span<felt252>;
     fn set_value(ref self: TState, val: felt252);
     fn get_value(self: @TState) -> felt252;
     fn remove_selector(self: @TState);
@@ -50,8 +50,8 @@ pub(crate) mod UpgradesV1 {
             new_class_hash: ClassHash,
             selector: felt252,
             calldata: Span<felt252>
-        ) {
-            self.upgradeable.upgrade_and_call(new_class_hash, selector, calldata);
+        ) -> Span<felt252> {
+            self.upgradeable.upgrade_and_call(new_class_hash, selector, calldata)
         }
 
         fn set_value(ref self: ContractState, val: felt252) {
@@ -71,7 +71,7 @@ pub(crate) trait IUpgradesV2<TState> {
     fn upgrade(ref self: TState, new_class_hash: ClassHash);
     fn upgrade_and_call(
         ref self: TState, new_class_hash: ClassHash, selector: felt252, calldata: Span<felt252>
-    );
+    ) -> Span<felt252>;
     fn set_value(ref self: TState, val: felt252);
     fn set_value2(ref self: TState, val: felt252);
     fn get_value(self: @TState) -> felt252;
@@ -114,8 +114,8 @@ pub(crate) mod UpgradesV2 {
             new_class_hash: ClassHash,
             selector: felt252,
             calldata: Span<felt252>
-        ) {
-            self.upgradeable.upgrade_and_call(new_class_hash, selector, calldata);
+        ) -> Span<felt252> {
+            self.upgradeable.upgrade_and_call(new_class_hash, selector, calldata)
         }
 
         fn set_value(ref self: ContractState, val: felt252) {

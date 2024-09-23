@@ -1,9 +1,30 @@
 = Finance
 
-:vesting-component: xref:api/finance.adoc#VestingComponent[VestingComponent]
+:vesting-component: xref:api/finance.adoc#VestingComponent[Vesting Component]
+:vesting-schedule: xref:api/finance.adoc#VestingComponent-Vesting-Schedule[Vesting Schedule]
+:ownable-component: xref:api/access.adoc#OwnableComponent[Ownable Component]
+:linear-vesting-schedule: xref:api/finance.adoc#LinearVestingSchedule[LinearVestingSchedule]
 
-== Vesting
+[[vesting_component]]
+== Vesting Component
+
+The {vesting-component} manages the gradual release of ERC-20 tokens to a designated beneficiary based on a predefined vesting schedule. 
+The implementing contract must implement the {ownable-component}, where the contract owner is regarded as the vesting beneficiary. 
+This structure allows ownership rights of both the contract and the vested tokens to be assigned and transferred.
+
+NOTE: Any assets transferred to this contract will follow the vesting schedule as if they were locked from the beginning of the vesting period. 
+As a result, if the vesting has already started, a portion of the newly transferred tokens may become immediately releasable.
+
+NOTE: By setting the duration to 0, it's possible to configure this contract to behave like an asset timelock that holds tokens 
+for a beneficiary until a specified date.
 
 [[vesting_schedule]]
 == Vesting Schedule
 
+The {vesting-schedule} trait that defines the logic for calculating the vested amount based on a given timestamp. This 
+logic is not part of the {vesting-component}, so any contract implementing the {vesting-component} must provide its own 
+implementation of the {vesting-schedule} trait.
+
+NOTE: There's a ready-made implementation of the {vesting-schedule} trait available named {linear-vesting-schedule}. 
+It incorporates a cliff period by returning 0 vested amount until the cliff ends. After the cliff, the vested amount 
+is calculated as directly proportional to the time elapsed since the beginning of the vesting schedule.

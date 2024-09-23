@@ -1,4 +1,3 @@
-pub mod dual_ownable;
 pub mod interface;
 pub mod ownable;
 

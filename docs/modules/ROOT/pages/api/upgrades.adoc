@@ -113,6 +113,7 @@ Emits an {Upgraded} event.
 
 Replaces the contract's class hash with `new_class_hash` and then calls `selector`
 from the upgraded context.
+The caller of `selector` will be the upgraded contract.
 This function returns the unwrapped `call_contract_syscall` return value(s), if available, of the `selector` call.
 
 Requirements:

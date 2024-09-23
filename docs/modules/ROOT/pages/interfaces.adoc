@@ -152,6 +152,8 @@ pub trait IERC20Camel<TState> {
 
 == `DualCase` dispatchers
 
+WARNING: `DualCase` dispatchers are deprecated, and they will be removed from the library soon.
+
 WARNING: `DualCase` dispatchers won't work on live chains (`mainnet` or testnets) until they implement panic handling in their runtime. Dispatchers work fine in testing environments.
 
 In order to ease this transition, OpenZeppelin Contracts for Cairo offer what we call `DualCase` dispatchers such as `DualCaseERC721` or `DualCaseAccount`.

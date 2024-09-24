@@ -1,7 +1,7 @@
 use openzeppelin_testing::common::IntoBase16String;
 use sncast_std::{declare, get_nonce, FeeSettings, EthFeeSettings};
 
-const max_fee: felt252 = 99999999999999999;
+const MAX_FEE: felt252 = 99999999999999999;
 
 fn main() {
     let contracts: Array<ByteArray> = array![
@@ -33,7 +33,7 @@ fn declare_preset(contract: ByteArray, nonce: felt252) {
 
     let declare_result = declare(
         contract,
-        FeeSettings::Eth(EthFeeSettings { max_fee: Option::Some(max_fee) }),
+        FeeSettings::Eth(EthFeeSettings { max_fee: Option::Some(MAX_FEE) }),
         Option::Some(nonce)
     );
 

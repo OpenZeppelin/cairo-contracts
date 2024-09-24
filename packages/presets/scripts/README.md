@@ -4,7 +4,7 @@ This crate provides a script to declare all presets from the Contracts for Cairo
 
 ## Prerequisites
 
-This crate is meant to deploy on the sepolia network, so a deployed account contract with funds is required.
+This crate is meant to execute on the sepolia network, so a deployed account contract with funds is required.
 This crate can also be tested with [starknet-devnet](https://github.com/0xSpaceShard/starknet-devnet-rs).
 
 ## Usage

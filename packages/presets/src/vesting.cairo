@@ -37,7 +37,8 @@ pub mod VestingWallet {
         VestingEvent: VestingComponent::Event
     }
 
-    /// Initializes the vesting component by setting the vesting `start`, `duration` and `cliff_duration`. 
+    /// Initializes the vesting component by setting the vesting `start`, `duration` and
+    /// `cliff_duration`.
     /// Assigns `beneficiary` as the contract owner and the vesting beneficiary.
     ///
     /// Requirements:
@@ -45,7 +46,11 @@ pub mod VestingWallet {
     /// - `cliff_duration` must be less than or equal to `duration`.
     #[constructor]
     fn constructor(
-        ref self: ContractState, beneficiary: ContractAddress, start: u64, duration: u64, cliff_duration: u64
+        ref self: ContractState,
+        beneficiary: ContractAddress,
+        start: u64,
+        duration: u64,
+        cliff_duration: u64
     ) {
         self.ownable.initializer(beneficiary);
         self.vesting.initializer(start, duration, cliff_duration);

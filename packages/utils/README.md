@@ -1,4 +1,4 @@
-## Upgrades
+## Utils
 
 > **NOTE:** This document is better viewed at [https://docs.openzeppelin.com/contracts-cairo/api/utilities](https://docs.openzeppelin.com/contracts-cairo/api/utilities)
 

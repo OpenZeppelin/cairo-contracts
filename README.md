@@ -43,14 +43,14 @@ Edit `scarb.toml` and add:
 
 ```toml
 [dependencies]
-openzeppelin = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.17.0" }
+openzeppelin = "0.17.0"
 ```
 
-The previous example would import the entire library. we can also add each package as a separated dependency to improve the time for building by not including modules that won't be used:
+The previous example would import the entire library. We can also add each package as a separated dependency to improve the building time by not including modules that won't be used:
 
 ```toml
 [dependencies]
-openzeppelin_token = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.17.0" }
+openzeppelin_token = "0.17.0"
 ```
 
 Build the project to download it:
@@ -72,8 +72,7 @@ For example, this is how to write an ERC20-compliant contract:
 ```cairo
 #[starknet::contract]
 mod MyToken {
-    // If only the token package was added as a dependency, use `openzeppelin_token::` instead
-    use openzeppelin::token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
+    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);

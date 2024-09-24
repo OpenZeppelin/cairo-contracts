@@ -21,7 +21,7 @@ for a beneficiary until a specified date.
 [[vesting_schedule]]
 == Vesting Schedule
 
-The {vesting-schedule} trait that defines the logic for calculating the vested amount based on a given timestamp. This 
+The {vesting-schedule} trait defines the logic for calculating the vested amount based on a given timestamp. This 
 logic is not part of the {vesting-component}, so any contract implementing the {vesting-component} must provide its own 
 implementation of the {vesting-schedule} trait.
 

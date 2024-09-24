@@ -1,10 +1,12 @@
 :github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
-:AmountReleased: xref:IVesting-AmountReleased[AmountReleased]
+:vesting-component: xref:VestingComponent[Vesting Component]
+:ownable-component: xref:api/access.adoc#OwnableComponent[Ownable Component]
 :vesting-schedule: xref:api/finance.adoc#VestingComponent-Vesting-Schedule[Vesting Schedule]
+:AmountReleased: xref:IVesting-AmountReleased[AmountReleased]
 
 = Finance
 
-Reference of interfaces and utilities related to Finance.
+This crate includes primitives for financial systems.
 
 == Vesting
 
@@ -200,6 +202,10 @@ Returns the total vested amount of a specified `token` at a given `timestamp`.
 
 Releases the amount of a given `token` that has already vested and returns that amount.
 
+Requirements:
+
+- `transfer` call to the `token` must return `true` indicating a successful transfer.
+
 Emits {AmountReleased} event.
 
 [#VestingComponent-Internal-Functions]
@@ -209,12 +215,12 @@ Emits {AmountReleased} event.
 [[VestingComponent-initializer]]
 ==== `[.contract-item-name]#++initializer++#++(ref self: ContractState, start: u64, duration: u64, cliff_duration: u64)++` [.item-kind]#internal#
 
-Initializes the component by setting the vesting start, duration and cliff. To prevent 
+Initializes the component by setting the vesting `start`, `duration` and `cliff_duration`. To prevent 
 reinitialization, this should only be used inside of a contract's constructor.
 
 Requirements:
 
-- `cliff_duration` must be less or equal to `duration`
+- `cliff_duration` must be less than or equal to `duration`.
 
 [.contract-item]
 [[VestingComponent-resolve_vested_amount]]

@@ -240,3 +240,57 @@ use openzeppelin_finance::vesting::LinearVestingSchedule;
 Defines the logic for calculating the vested amount, incorporating a cliff period. 
 It returns 0 before the cliff ends. After the cliff period, the vested amount returned
 is directly proportional to the time passed since the start of the vesting schedule.
+
+== Presets
+
+[.contract]
+[[VestingWallet]]
+=== `++VestingWallet++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/presets/src/vesting.cairo[{github-icon},role=heading-link]
+
+```cairo
+use openzeppelin::presets::VestingWallet;
+```
+
+A non-upgradable contract leveraging {vesting-component} and {ownable-component}. 
+
+NOTE: The contract is intentionally designed to be non-upgradable to ensure that neither the vesting initiator 
+nor the vesting beneficiary can modify the vesting schedule without the consent of the other party.
+
+include::../utils/_class_hashes.adoc[]
+
+[.contract-index]
+.{presets-page}
+--
+{VestingWallet-class-hash}
+--
+
+[.contract-index]
+.Constructor
+--
+* xref:#VestingWallet-constructor[`++constructor(self, beneficiary, start, duration, cliff_duration)++`]
+--
+
+[.contract-index]
+.Embedded Implementations
+--
+.VestingComponent
+
+* xref:#VestingComponent-Embeddable-Impls-VestingImpl[`++VestingImpl++`]
+
+.OwnableComponent
+
+* xref:/api/access.adoc#OwnableComponent-Mixin-Impl[`++OwnableMixinImpl++`]
+--
+
+[#VestingWallet-constructor-section]
+==== Constructor
+
+[.contract-item]
+[[VestingWallet-constructor]]
+==== `[.contract-item-name]#++constructor++#++(ref self: ContractState, beneficiary: ContractAddress, start: u64, duration: u64, cliff_duration: u64)++` [.item-kind]#constructor#
+
+Initializes the vesting component by setting the vesting `start`, `duration` and `cliff_duration`. Assigns `beneficiary` as the contract owner and the vesting beneficiary.
+
+Requirements:
+
+- `cliff_duration` must be less than or equal to `duration`.

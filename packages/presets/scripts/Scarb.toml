@@ -1,6 +1,6 @@
 [package]
 name = "declare_presets"
-version = "0.16.0"
+version = "0.17.0"
 
 [dependencies]
 starknet = "2.8.2"

@@ -3,7 +3,7 @@ version = 1
 
 [[package]]
 name = "declare_presets"
-version = "0.16.0"
+version = "0.17.0"
 dependencies = [
  "openzeppelin_presets",
  "openzeppelin_testing",

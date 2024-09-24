@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.16.0 (utils/structs/checkpoint.cairo)
+// OpenZeppelin Contracts for Cairo v0.17.0 (utils/structs/checkpoint.cairo)
 
 use core::num::traits::Sqrt;
 use crate::math;

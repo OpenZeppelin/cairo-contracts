@@ -3,6 +3,7 @@ use core::poseidon::PoseidonTrait;
 use crate::erc20::ERC20Component::{ERC20MixinImpl, InternalImpl};
 use crate::erc20::extensions::erc20_permit::{Permit, PERMIT_TYPE_HASH};
 use crate::erc20::interface::{ERC20PermitABIDispatcher, ERC20PermitABIDispatcherTrait};
+use crate::tests::mocks::erc20_permit_mocks::DualCaseERC20PermitMock;
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants;
 use openzeppelin_testing::signing::{StarkKeyPair, StarkSerializedSigning};
@@ -46,8 +47,8 @@ fn TEST_DATA() -> TestData {
         token_supply: constants::SUPPLY,
         name: @constants::NAME(),
         symbol: @constants::SYMBOL(),
-        metadata_name: constants::DAPP_NAME, // As in DualCaseERC20PermitMock
-        metadata_version: constants::DAPP_VERSION, // As in DualCaseERC20PermitMock
+        metadata_name: DualCaseERC20PermitMock::SNIP12MetadataImpl::name(),
+        metadata_version: DualCaseERC20PermitMock::SNIP12MetadataImpl::version(),
         chain_id: constants::CHAIN_ID,
         revision: 1 // As in the current SNIP-12 implementation
     }
@@ -195,7 +196,7 @@ fn test_subsequent_permits() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC20Permit: invalid signature',))]
+#[should_panic(expected: 'ERC20: invalid permit signature')]
 fn test_replay_attack() {
     let data = TEST_DATA();
     let (owner, spender, amount, deadline) = (data.owner, data.spender, data.amount, data.deadline);
@@ -246,8 +247,8 @@ fn test_snip12_metadata() {
     let mock = setup(data);
 
     let (metadata_name, metadata_version) = mock.snip12_metadata();
-    assert_eq!(metadata_name, data.metadata_name, "Invalid metadata name");
-    assert_eq!(metadata_version, data.metadata_version, "Invalid metadata version");
+    assert_eq!(metadata_name, data.metadata_name);
+    assert_eq!(metadata_version, data.metadata_version);
 }
 
 //
@@ -255,7 +256,7 @@ fn test_snip12_metadata() {
 //
 
 #[test]
-#[should_panic(expected: ('ERC20Permit: invalid signature',))]
+#[should_panic(expected: 'ERC20: invalid permit signature')]
 fn test_invalid_sig_bad_owner() {
     let data = TEST_DATA();
     let (spender, amount, deadline) = (data.spender, data.amount, data.deadline);
@@ -269,7 +270,7 @@ fn test_invalid_sig_bad_owner() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC20Permit: invalid signature',))]
+#[should_panic(expected: 'ERC20: invalid permit signature')]
 fn test_invalid_sig_bad_token_address() {
     let data = TEST_DATA();
     let (owner, spender, amount, deadline) = (data.owner, data.spender, data.amount, data.deadline);
@@ -287,7 +288,7 @@ fn test_invalid_sig_bad_token_address() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC20Permit: invalid signature',))]
+#[should_panic(expected: 'ERC20: invalid permit signature')]
 fn test_invalid_sig_bad_spender() {
     let data = TEST_DATA();
     let (owner, spender, amount, deadline) = (data.owner, data.spender, data.amount, data.deadline);
@@ -301,7 +302,7 @@ fn test_invalid_sig_bad_spender() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC20Permit: invalid signature',))]
+#[should_panic(expected: 'ERC20: invalid permit signature')]
 fn test_invalid_sig_bad_amount() {
     let data = TEST_DATA();
     let (owner, spender, amount, deadline) = (data.owner, data.spender, data.amount, data.deadline);
@@ -315,7 +316,7 @@ fn test_invalid_sig_bad_amount() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC20Permit: invalid signature',))]
+#[should_panic(expected: 'ERC20: invalid permit signature')]
 fn test_invalid_sig_bad_nonce() {
     let data = TEST_DATA();
     let (owner, spender, amount, deadline) = (data.owner, data.spender, data.amount, data.deadline);
@@ -327,7 +328,7 @@ fn test_invalid_sig_bad_nonce() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC20Permit: invalid signature',))]
+#[should_panic(expected: 'ERC20: invalid permit signature')]
 fn test_invalid_sig_bad_sig_r() {
     let data = TEST_DATA();
     let (owner, spender, amount, deadline) = (data.owner, data.spender, data.amount, data.deadline);
@@ -341,7 +342,7 @@ fn test_invalid_sig_bad_sig_r() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC20Permit: invalid signature',))]
+#[should_panic(expected: 'ERC20: invalid permit signature')]
 fn test_invalid_sig_bad_sig_s() {
     let data = TEST_DATA();
     let (owner, spender, amount, deadline) = (data.owner, data.spender, data.amount, data.deadline);
@@ -355,7 +356,7 @@ fn test_invalid_sig_bad_sig_s() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC20Permit: invalid signature',))]
+#[should_panic(expected: 'ERC20: invalid permit signature')]
 fn test_invalid_sig_bad_metadata_name() {
     let data = TEST_DATA();
     let (owner, spender, amount, deadline) = (data.owner, data.spender, data.amount, data.deadline);
@@ -369,7 +370,7 @@ fn test_invalid_sig_bad_metadata_name() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC20Permit: invalid signature',))]
+#[should_panic(expected: 'ERC20: invalid permit signature')]
 fn test_invalid_sig_bad_metadata_version() {
     let data = TEST_DATA();
     let (owner, spender, amount, deadline) = (data.owner, data.spender, data.amount, data.deadline);
@@ -383,7 +384,7 @@ fn test_invalid_sig_bad_metadata_version() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC20Permit: invalid signature',))]
+#[should_panic(expected: 'ERC20: invalid permit signature')]
 fn test_invalid_sig_bad_signing_key() {
     let data = TEST_DATA();
     let (owner, spender, amount, deadline) = (data.owner, data.spender, data.amount, data.deadline);
@@ -397,7 +398,7 @@ fn test_invalid_sig_bad_signing_key() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC20Permit: invalid signature',))]
+#[should_panic(expected: 'ERC20: invalid permit signature')]
 fn test_invalid_sig_bad_chain_id() {
     let data = TEST_DATA();
     let (owner, spender, amount, deadline) = (data.owner, data.spender, data.amount, data.deadline);
@@ -411,7 +412,7 @@ fn test_invalid_sig_bad_chain_id() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC20Permit: invalid signature',))]
+#[should_panic(expected: 'ERC20: invalid permit signature')]
 fn test_invalid_sig_bad_revision() {
     let data = TEST_DATA();
     let (owner, spender, amount, deadline) = (data.owner, data.spender, data.amount, data.deadline);
@@ -429,7 +430,7 @@ fn test_invalid_sig_bad_revision() {
 //
 
 #[test]
-#[should_panic(expected: ('ERC20Permit: expired signature',))]
+#[should_panic(expected: 'ERC20: expired permit signature')]
 fn test_invalid_sig_bad_deadline() {
     let data = TEST_DATA();
     let (owner, spender, amount, deadline) = (data.owner, data.spender, data.amount, data.deadline);

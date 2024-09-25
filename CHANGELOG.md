@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- ERC20Permit component and preset
+- ERC20Permit component and preset (#1140)
 
 ## 0.17.0 (2024-09-23)
 

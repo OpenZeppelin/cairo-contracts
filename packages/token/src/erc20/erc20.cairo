@@ -14,13 +14,19 @@
 pub mod ERC20Component {
     use core::num::traits::Bounded;
     use core::num::traits::Zero;
+    use crate::erc20::extensions::erc20_permit::Permit;
     use crate::erc20::interface;
-    use starknet::ContractAddress;
-    use starknet::get_caller_address;
-    use starknet::storage::{
-        Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
-        StoragePointerWriteAccess
+    use openzeppelin_account::interface::{ISRC6Dispatcher, ISRC6DispatcherTrait};
+    use openzeppelin_utils::cryptography::interface::{INonces, ISNIP12Metadata};
+    use openzeppelin_utils::cryptography::snip12::{
+        StructHash, OffchainMessageHash, SNIP12Metadata, StarknetDomain
     };
+    use openzeppelin_utils::nonces::NoncesComponent::InternalTrait as NoncesInternalTrait;
+    use openzeppelin_utils::nonces::NoncesComponent;
+    use starknet::ContractAddress;
+    use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
+    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use starknet::{get_block_timestamp, get_caller_address, get_contract_address, get_tx_info};
 
     #[storage]
     pub struct Storage {
@@ -68,6 +74,8 @@ pub mod ERC20Component {
         pub const MINT_TO_ZERO: felt252 = 'ERC20: mint to 0';
         pub const INSUFFICIENT_BALANCE: felt252 = 'ERC20: insufficient balance';
         pub const INSUFFICIENT_ALLOWANCE: felt252 = 'ERC20: insufficient allowance';
+        pub const EXPIRED_PERMIT_SIGNATURE: felt252 = 'ERC20: expired permit signature';
+        pub const INVALID_PERMIT_SIGNATURE: felt252 = 'ERC20: invalid permit signature';
     }
 
     //
@@ -288,6 +296,104 @@ pub mod ERC20Component {
         }
     }
 
+    /// The ERC20Permit trait implements the EIP-2612 standard, facilitating token approvals via
+    /// off-chain signatures. This approach allows token holders to delegate their approval to spend
+    /// tokens without executing an on-chain transaction, reducing gas costs and enhancing
+    /// usability.
+    /// The message signed and the signature must follow the SNIP-12 standard for hashing and
+    /// signing typed structured data.
+    ///
+    /// To safeguard against replay attacks and ensure the uniqueness of each approval via `permit`,
+    /// the data signed includes:
+    ///   - The address of the owner
+    ///   - The parameters specified in the `approve` function (spender and amount)
+    ///   - The address of the token contract itself
+    ///   - A nonce, which must be unique for each operation, incrementing after each use to prevent
+    ///   reuse of the signature - The chain ID, which protects against cross-chain replay attacks
+    ///
+    /// EIP-2612: https://eips.ethereum.org/EIPS/eip-2612
+    /// SNIP-12:  https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-12.md
+    #[embeddable_as(ERC20PermitImpl)]
+    impl ERC20Permit<
+        TContractState,
+        impl ERC20: HasComponent<TContractState>,
+        +ERC20HooksTrait<TContractState>,
+        impl Nonces: NoncesComponent::HasComponent<TContractState>,
+        impl Metadata: SNIP12Metadata,
+        +Drop<TContractState>
+    > of interface::IERC20Permit<ComponentState<TContractState>> {
+        /// Sets the allowance of the `spender` over `owner`'s tokens after validating the signature
+        /// generated off-chain and signed by the `owner`.
+        ///
+        /// Requirements:
+        ///
+        /// - `owner` is a deployed account contract.
+        /// - `spender` is not the zero address.
+        /// - `deadline` is a timestamp in the future.
+        /// - `signature` is a valid signature that can be validated with a call to `owner` account.
+        /// - `signature` must use the current nonce of the `owner`.
+        ///
+        /// Emits an `Approval` event.
+        fn permit(
+            ref self: ComponentState<TContractState>,
+            owner: ContractAddress,
+            spender: ContractAddress,
+            amount: u256,
+            deadline: u64,
+            signature: Array<felt252>
+        ) {
+            // 1. Ensure the deadline is not missed
+            assert(get_block_timestamp() <= deadline, Errors::EXPIRED_PERMIT_SIGNATURE);
+
+            // 2. Get the current nonce and increment it
+            let mut nonces_component = get_dep_component_mut!(ref self, Nonces);
+            let nonce = nonces_component.use_nonce(owner);
+
+            // 3. Make a call to the account to validate permit signature
+            let permit = Permit { token: get_contract_address(), spender, amount, nonce, deadline };
+            let permit_hash = permit.get_message_hash(owner);
+            let is_valid_sig_felt = ISRC6Dispatcher { contract_address: owner }
+                .is_valid_signature(permit_hash, signature);
+
+            // 4. Check the response is either 'VALID' or True (for backwards compatibility)
+            let is_valid_sig = is_valid_sig_felt == starknet::VALIDATED || is_valid_sig_felt == 1;
+            assert(is_valid_sig, Errors::INVALID_PERMIT_SIGNATURE);
+
+            // 5. Approve
+            let mut erc20_component = get_dep_component_mut!(ref self, ERC20);
+            erc20_component._approve(owner, spender, amount);
+        }
+
+        /// Returns the current nonce of the `owner`. A nonce value must be
+        /// included whenever a signature for `permit` is generated.
+        fn nonces(self: @ComponentState<TContractState>, owner: ContractAddress) -> felt252 {
+            let nonces_component = get_dep_component!(self, Nonces);
+            nonces_component.nonces(owner)
+        }
+
+        /// Returns the domain separator used in generating a message hash for `permit` signature.
+        /// The domain hashing logic follows SNIP-12 standard.
+        fn DOMAIN_SEPARATOR(self: @ComponentState<TContractState>) -> felt252 {
+            let domain = StarknetDomain {
+                name: Metadata::name(),
+                version: Metadata::version(),
+                chain_id: get_tx_info().unbox().chain_id,
+                revision: 1
+            };
+            domain.hash_struct()
+        }
+    }
+
+    #[embeddable_as(SNIP12MetadataExternalImpl)]
+    impl SNIP12MetadataExternal<
+        TContractState, +HasComponent<TContractState>, impl Metadata: SNIP12Metadata
+    > of ISNIP12Metadata<ComponentState<TContractState>> {
+        /// Returns domain name and version used for generating a message hash for permit signature.
+        fn snip12_metadata(self: @ComponentState<TContractState>) -> (felt252, felt252) {
+            (Metadata::name(), Metadata::version())
+        }
+    }
+
     //
     // Internal
     //
@@ -332,7 +438,6 @@ pub mod ERC20Component {
             assert(!account.is_zero(), Errors::BURN_FROM_ZERO);
             self.update(account, Zero::zero(), amount);
         }
-
 
         /// Transfers an `amount` of tokens from `from` to `to`, or alternatively mints (or burns)
         /// if `from` (or `to`) is the zero address.

@@ -1,10 +1,10 @@
 use openzeppelin_testing::common::IntoBase16String;
 use sncast_std::{declare, get_nonce, FeeSettings, EthFeeSettings};
 
-const MAX_FEE: felt252 = 99999999999999999;
+const MAX_FEE: felt252 = 99_999_999_999_999_999;
 
 fn main() {
-    let contracts: Array<ByteArray> = array![
+    let contracts = array![
         "AccountUpgradeable",
         "ERC20Upgradeable",
         "ERC721Upgradeable",
@@ -13,7 +13,7 @@ fn main() {
         "VestingWallet"
     ];
 
-    let mut consume_latest_nonce = false;
+    let mut consumed_latest_nonce = false;
     let mut nonce = get_nonce('latest');
 
     for contract in contracts {

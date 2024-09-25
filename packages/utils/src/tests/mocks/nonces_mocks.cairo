@@ -9,9 +9,9 @@ pub(crate) mod NoncesMock {
     impl InternalImpl = NoncesComponent::InternalImpl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        nonces: NoncesComponent::Storage
+        pub nonces: NoncesComponent::Storage
     }
 
     #[event]

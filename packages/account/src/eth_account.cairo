@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.16.0 (account/eth_account.cairo)
+// OpenZeppelin Contracts for Cairo v0.17.0 (account/eth_account.cairo)
 
 /// # EthAccount Component
 ///
@@ -23,10 +23,11 @@ pub mod EthAccountComponent {
     use starknet::get_caller_address;
     use starknet::get_contract_address;
     use starknet::get_tx_info;
+    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 
     #[storage]
-    struct Storage {
-        EthAccount_public_key: EthPublicKey
+    pub struct Storage {
+        pub EthAccount_public_key: EthPublicKey
     }
 
     #[event]
@@ -93,7 +94,7 @@ pub mod EthAccountComponent {
                 assert(MIN_TRANSACTION_VERSION <= tx_version, Errors::INVALID_TX_VERSION);
             }
 
-            execute_calls(calls)
+            execute_calls(calls.span())
         }
 
         /// Verifies the validity of the signature for the current transaction.

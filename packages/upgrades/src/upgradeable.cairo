@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.16.0 (upgrades/upgradeable.cairo)
+// OpenZeppelin Contracts for Cairo v0.17.0 (upgrades/upgradeable.cairo)
 
 /// # Upgradeable Component
 ///
@@ -11,7 +11,7 @@ pub mod UpgradeableComponent {
     use starknet::SyscallResultTrait;
 
     #[storage]
-    struct Storage {}
+    pub struct Storage {}
 
     #[event]
     #[derive(Drop, PartialEq, starknet::Event)]

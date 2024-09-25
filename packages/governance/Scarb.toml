@@ -1,5 +1,13 @@
 [package]
 name = "openzeppelin_governance"
+readme = "README.md"
+keywords = [
+    "openzeppelin",
+    "starknet",
+    "contracts",
+    "standards",
+    "governance"
+]
 version.workspace = true
 edition.workspace = true
 cairo-version.workspace = true
@@ -7,10 +15,8 @@ scarb-version.workspace = true
 authors.workspace = true
 description.workspace = true
 documentation.workspace = true
-readme.workspace = true
 repository.workspace = true
 license-file.workspace = true
-keywords.workspace = true
 
 [tool]
 fmt.workspace = true
@@ -21,6 +27,7 @@ openzeppelin_access = { path = "../access" }
 openzeppelin_introspection = { path = "../introspection" }
 
 [dev-dependencies]
+assert_macros.workspace = true
 snforge_std.workspace = true
 openzeppelin_testing = { path = "../testing" }
 

@@ -1,38 +1,57 @@
 name: Lint and test
+# This workflow runs linting and tests on all pull requests and pushes to the main branch.
+# It includes Markdown linting, Cairo formatting checks, running tests with coverage,
+# and uploading the coverage report to Codecov.
 
 on:
   pull_request:
   push:
     branches:
-    - main
+      - main
 
 jobs:
   lint_and_test:
     name: Lint and test
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - name: Extract scarb version
-      run: |
-        SCARB_VERSION=$(grep 'scarb-version = ' Scarb.toml | sed 's/scarb-version = "\(.*\)"/\1/')
-        echo "SCARB_VERSION=$SCARB_VERSION" >> "$GITHUB_ENV"
-    - uses: software-mansion/setup-scarb@v1
-      with:
-        scarb-version: ${{ env.SCARB_VERSION }}
-    - name: Extract foundry version
-      run: |
-        FOUNDRY_VERSION=$(grep 'snforge_std = ' Scarb.toml | sed 's/snforge_std = .\+ tag = "v\(.*\)".*/\1/')
-        echo "FOUNDRY_VERSION=$FOUNDRY_VERSION" >> "$GITHUB_ENV"
-    - uses: foundry-rs/setup-snfoundry@v3
-      with:
-        starknet-foundry-version: ${{ env.FOUNDRY_VERSION }}
-    - name: Markdown lint
-      uses: DavidAnson/markdownlint-cli2-action@b4c9feab76d8025d1e83c653fa3990936df0e6c8 # v16
-      with:
-        globs: |
-          *.md
-          !PULL_REQUEST_TEMPLATE.md
-    - name: Cairo lint
-      run: scarb fmt --check --workspace
-    - name: Cairo test
-      run: snforge test --workspace
+      - uses: actions/checkout@v4
+
+      - name: Extract scarb version
+        run: |
+          SCARB_VERSION=$(grep 'scarb-version = ' Scarb.toml | sed 's/scarb-version = "\(.*\)"/\1/')
+          echo "SCARB_VERSION=$SCARB_VERSION" >> "$GITHUB_ENV"
+
+      - uses: software-mansion/setup-scarb@v1
+        with:
+          scarb-version: ${{ env.SCARB_VERSION }}
+
+      - name: Extract foundry version
+        run: |
+          FOUNDRY_VERSION=$(grep 'snforge_std = ' Scarb.toml | sed 's/snforge_std = "\(.*\)"/\1/')
+          echo "FOUNDRY_VERSION=$FOUNDRY_VERSION" >> "$GITHUB_ENV"
+
+      - uses: foundry-rs/setup-snfoundry@v3
+        with:
+          starknet-foundry-version: ${{ env.FOUNDRY_VERSION }}
+
+      - name: Install cairo-coverage
+        run: curl -L https://raw.githubusercontent.com/software-mansion/cairo-coverage/main/scripts/install.sh | sh
+
+      - name: Markdown lint
+        uses: DavidAnson/markdownlint-cli2-action@db43aef879112c3119a410d69f66701e0d530809 # v16
+        with:
+          globs: |
+            *.md
+            !PULL_REQUEST_TEMPLATE.md
+
+      - name: Cairo lint
+        run: scarb fmt --check --workspace
+
+      - name: Run tests and generate coverage report
+        run: snforge test --workspace --coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.lcov
+          token: ${{ secrets.CODECOV_TOKEN }}

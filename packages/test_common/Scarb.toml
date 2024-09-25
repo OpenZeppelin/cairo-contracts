@@ -1,5 +1,6 @@
 [package]
 name = "openzeppelin_test_common"
+readme = "README.md"
 version.workspace = true
 edition.workspace = true
 cairo-version.workspace = true
@@ -7,7 +8,6 @@ scarb-version.workspace = true
 authors.workspace = true
 description.workspace = true
 documentation.workspace = true
-readme.workspace = true
 repository.workspace = true
 license-file.workspace = true
 keywords.workspace = true
@@ -16,11 +16,13 @@ keywords.workspace = true
 fmt.workspace = true
 
 [dependencies]
+assert_macros.workspace = true
 starknet.workspace = true
 snforge_std.workspace = true
 openzeppelin_upgrades = { path = "../upgrades" }
 openzeppelin_access = { path = "../access" }
 openzeppelin_account = { path = "../account" }
+openzeppelin_finance = { path = "../finance" }
 openzeppelin_token = { path = "../token" }
 openzeppelin_testing = { path = "../testing" }
 openzeppelin_utils = { path = "../utils" }

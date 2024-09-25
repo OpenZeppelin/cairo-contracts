@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.16.0 (governance/timelock/timelock_controller.cairo)
+// OpenZeppelin Contracts for Cairo v0.17.0 (governance/timelock/timelock_controller.cairo)
 
 /// # TimelockController Component
 ///
@@ -30,7 +30,10 @@ pub mod TimelockControllerComponent {
     use starknet::ContractAddress;
     use starknet::SyscallResultTrait;
     use starknet::account::Call;
-    use starknet::storage::Map;
+    use starknet::storage::{
+        Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
+        StoragePointerWriteAccess
+    };
     use super::OperationState;
 
     // Constants
@@ -40,9 +43,9 @@ pub mod TimelockControllerComponent {
     const DONE_TIMESTAMP: u64 = 1;
 
     #[storage]
-    struct Storage {
-        TimelockController_timestamps: Map<felt252, u64>,
-        TimelockController_min_delay: u64
+    pub struct Storage {
+        pub TimelockController_timestamps: Map<felt252, u64>,
+        pub TimelockController_min_delay: u64
     }
 
     #[event]

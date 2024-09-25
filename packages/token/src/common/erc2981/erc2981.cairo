@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.16.0 (token/common/erc2981/erc2981.cairo)
+// OpenZeppelin Contracts for Cairo v0.17.0 (token/common/erc2981/erc2981.cairo)
 
 /// # ERC2981 Component
 ///
@@ -25,7 +25,10 @@ pub mod ERC2981Component {
     use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
     use openzeppelin_introspection::src5::SRC5Component;
     use starknet::ContractAddress;
-    use starknet::storage::Map;
+    use starknet::storage::{
+        Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
+        StoragePointerWriteAccess
+    };
 
     // This default denominator is only used when the DefaultConfig
     // is in scope in the implementing contract.
@@ -38,9 +41,9 @@ pub mod ERC2981Component {
     }
 
     #[storage]
-    struct Storage {
-        ERC2981_default_royalty_info: RoyaltyInfo,
-        ERC2981_token_royalty_info: Map<u256, RoyaltyInfo>,
+    pub struct Storage {
+        pub ERC2981_default_royalty_info: RoyaltyInfo,
+        pub ERC2981_token_royalty_info: Map<u256, RoyaltyInfo>,
     }
 
     mod Errors {

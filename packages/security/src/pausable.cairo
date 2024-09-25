@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.16.0 (security/pausable.cairo)
+// OpenZeppelin Contracts for Cairo v0.17.0 (security/pausable.cairo)
 
 /// # Pausable Component
 ///
@@ -12,10 +12,11 @@ pub mod PausableComponent {
 
     use starknet::ContractAddress;
     use starknet::get_caller_address;
+    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 
     #[storage]
-    struct Storage {
-        Pausable_paused: bool
+    pub struct Storage {
+        pub Pausable_paused: bool
     }
 
     #[event]

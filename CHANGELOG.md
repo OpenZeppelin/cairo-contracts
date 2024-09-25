@@ -13,6 +13,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - ERC20Permit component and preset
 
+## 0.17.0 (2024-09-23)
+
+### Added
+
+- `into_base_16_string_no_padding` function to the test helpers (#1137)
+- SRC9 (OutsideExecution) component (#1150)
+- Vesting component and VestingWallet preset (#1116)
+
+### Changed (Breaking)
+
+- Bump scarb to v2.8.2 (#1137)
+- Bump snforge to 0.30.0 (#1137)
+- `declare_class`, `declare_and_deploy`, and `declare_and_deploy_at` will skip declaration if the contract is already declared (#1137)
+- Bump edition to 2024_07 (#1138)
+- `execute_calls` function from account utils (#1150)
+  - calls param type changed from `Array<Call>` to `Span<Call>`
+
+### Deprecated
+
+- DualCase dispatchers
+
 ## 0.16.0 (2024-08-30)
 
 ### Added

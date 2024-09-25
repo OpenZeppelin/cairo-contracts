@@ -8,6 +8,7 @@ use openzeppelin_testing::constants::{ZERO, OWNER, OTHER, NEW_OWNER};
 use openzeppelin_testing::events::EventSpyExt;
 use snforge_std::{EventSpy, spy_events, start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
+use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 
 //
 // Setup

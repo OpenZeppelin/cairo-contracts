@@ -1,6 +1,13 @@
 
 [package]
 name = "openzeppelin_security"
+readme = "README.md"
+keywords = [
+    "openzeppelin",
+    "starknet",
+    "contracts",
+    "security"
+]
 version.workspace = true
 edition.workspace = true
 cairo-version.workspace = true
@@ -8,10 +15,8 @@ scarb-version.workspace = true
 authors.workspace = true
 description.workspace = true
 documentation.workspace = true
-readme.workspace = true
 repository.workspace = true
 license-file.workspace = true
-keywords.workspace = true
 
 [tool]
 fmt.workspace = true
@@ -20,6 +25,7 @@ fmt.workspace = true
 starknet.workspace = true
 
 [dev-dependencies]
+assert_macros.workspace = true
 snforge_std.workspace = true
 openzeppelin_testing = { path = "../testing" }
 

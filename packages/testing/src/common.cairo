@@ -29,12 +29,25 @@ pub fn to_base_16_string(value: felt252) -> ByteArray {
     format!("0x{}", string)
 }
 
+/// Converts a `felt252` to a `base16` (hexadecimal) string without padding, but including the `0x`
+/// prefix.
+/// We need this because Starknet Foundry has a way of representing addresses and selectors that
+/// does not include 0's after `Ox`.
+pub fn to_base_16_string_no_padding(value: felt252) -> ByteArray {
+    let string = value.format_as_byte_array(16);
+    format!("0x{}", string)
+}
+
 /// A helper trait that enables any value that can be converted to `felt252` to be represented
-/// as a `base16` string padded to 66 characters (including the `0x` prefix).
+/// as a `base16` string(including the `0x` prefix).
 #[generate_trait]
 pub impl IntoBase16String<T, +Into<T, felt252>> of IntoBase16StringTrait<T> {
     fn into_base_16_string(self: T) -> ByteArray {
         to_base_16_string(self.into())
+    }
+
+    fn into_base_16_string_no_padding(self: T) -> ByteArray {
+        to_base_16_string_no_padding(self.into())
     }
 }
 
@@ -46,15 +59,15 @@ pub fn assert_entrypoint_not_found_error<T, +Drop<T>>(
     if let Result::Err(panic_data) = result {
         let expected_panic_message = format!(
             "Entry point selector {} not found in contract {}",
-            selector.into_base_16_string(),
-            contract_address.into_base_16_string()
+            selector.into_base_16_string_no_padding(),
+            contract_address.into_base_16_string_no_padding()
         );
         let actual_panic_message = panic_data_to_byte_array(panic_data);
         assert!(
             actual_panic_message == expected_panic_message,
-            "Got unexpected panic message: ${actual_panic_message}"
+            "Got unexpected panic message: {actual_panic_message}"
         );
     } else {
-        panic!("${selector} call was expected to fail, but succeeded");
+        panic!("{selector} call was expected to fail, but succeeded");
     }
 }

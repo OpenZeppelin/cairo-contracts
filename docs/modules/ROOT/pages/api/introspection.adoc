@@ -13,7 +13,7 @@ This crate handles https://en.wikipedia.org/wiki/Type_introspection[type introsp
 === `++ISRC5++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.17.0/packages/introspection/src/interface.cairo#L7[{github-icon},role=heading-link]
 
 ```cairo
-use openzeppelin::introspection::interface::ISRC5;
+use openzeppelin_introspection::interface::ISRC5;
 ```
 
 Interface of the SRC5 Introspection Standard as defined in {snip5}.
@@ -47,7 +47,7 @@ on how to compute this ID.
 === `++SRC5Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.17.0/packages/introspection/src/src5.cairo[{github-icon},role=heading-link]
 
 ```cairo
-use openzeppelin::introspection::src5::SRC5Component;
+use openzeppelin_introspection::src5::SRC5Component;
 ```
 
 SRC5 component extending xref:ISRC5[`ISRC5`].

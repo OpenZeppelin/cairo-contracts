@@ -7,13 +7,13 @@ This section describes the interfaces OpenZeppelin Contracts for Cairo offer, an
 Interfaces can be found in the module tree under the `interface` submodule, such as `token::erc20::interface`. For example:
 
 ```cairo
-use openzeppelin::token::erc20::interface::IERC20;
+use openzeppelin_token::erc20::interface::IERC20;
 ```
 
 or
 
 ```cairo
-use openzeppelin::token::erc20::dual20::DualCaseERC20;
+use openzeppelin_token::erc20::dual20::DualCaseERC20;
 ```
 
 NOTE: For simplicity, we'll use ERC20 as example but the same concepts apply to other modules.

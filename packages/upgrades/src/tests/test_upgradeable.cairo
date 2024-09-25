@@ -93,7 +93,7 @@ fn test_remove_selector_fails_in_v2() {
 //
 
 #[test]
-#[should_panic(expected: ('Class hash cannot be zero',))]
+#[should_panic(expected: 'Class hash cannot be zero')]
 fn test_upgrade_and_call_with_class_hash_zero() {
     let (v1, _) = setup_test();
     let calldata = array![VALUE];

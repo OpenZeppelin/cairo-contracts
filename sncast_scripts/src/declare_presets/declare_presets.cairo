@@ -9,7 +9,8 @@ fn main() {
         "ERC20Upgradeable",
         "ERC721Upgradeable",
         "ERC1155Upgradeable",
-        "EthAccountUpgradeable"
+        "EthAccountUpgradeable",
+        "VestingWallet"
     ];
 
     let mut consume_latest_nonce = false;

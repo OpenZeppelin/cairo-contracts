@@ -1,11 +1,8 @@
 use core::hash::{HashStateTrait, HashStateExTrait};
 use core::poseidon::PoseidonTrait;
 use crate::erc20::ERC20Component::{ERC20MixinImpl, InternalImpl};
-use crate::erc20::extensions::ERC20PermitComponent::{ERC20PermitImpl, SNIP12MetadataExternalImpl};
-use crate::erc20::extensions::erc20_permit::erc20_permit::{Permit, PERMIT_TYPE_HASH};
-use crate::erc20::extensions::erc20_permit::interface::{
-    ERC20PermitABIDispatcher, ERC20PermitABIDispatcherTrait
-};
+use crate::erc20::extensions::erc20_permit::{Permit, PERMIT_TYPE_HASH};
+use crate::erc20::interface::{ERC20PermitABIDispatcher, ERC20PermitABIDispatcherTrait};
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants;
 use openzeppelin_testing::signing::{StarkKeyPair, StarkSerializedSigning};

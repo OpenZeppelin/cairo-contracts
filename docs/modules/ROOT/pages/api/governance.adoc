@@ -20,7 +20,7 @@ In a governance system, `TimelockControllerComponent` is in charge of introducin
 
 [.hljs-theme-dark]
 ```cairo
-use openzeppelin::governance::timelock::interface::ITimelock;
+use openzeppelin_governance::timelock::interface::ITimelock;
 ```
 
 [.contract-index]
@@ -246,7 +246,7 @@ include::../utils/_common.adoc[]
 
 [.hljs-theme-dark]
 ```cairo
-use openzeppelin::governance::timelock::TimelockControllerComponent;
+use openzeppelin_governance::timelock::TimelockControllerComponent;
 ```
 
 [.contract-index#TimelockControllerComponent-Embeddable-Mixin-Impl]
@@ -604,7 +604,7 @@ Emitted when the minimum delay for future operations is modified.
 
 [.hljs-theme-dark]
 ```cairo
-use openzeppelin::governance::utils::interfaces::IVotes;
+use openzeppelin_governance::utils::interfaces::IVotes;
 ```
 
 Common interface for Votes-enabled contracts. For an implementation example see

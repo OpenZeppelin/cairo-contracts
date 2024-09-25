@@ -46,7 +46,7 @@ Edit `scarb.toml` and add:
 openzeppelin = "0.17.0"
 ```
 
-The previous example would import the entire library. We can also add each package as a separated dependency to improve the building time by not including modules that won't be used:
+The previous example would import the entire library. We can also add each package as a separate dependency to improve the building time by not including modules that won't be used:
 
 ```toml
 [dependencies]

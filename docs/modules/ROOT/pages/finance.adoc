@@ -32,8 +32,8 @@ is calculated as directly proportional to the time elapsed since the beginning o
 
 === Usage
 
-Integrating vesting functionality into a contract requires integrating {vesting-component} and {ownable-component} as dependencies.
-The contract's constructor should initialize both components. Core vesting parameters, such as `beneficiary`, `start`, `duration` 
+The contract must integrate {vesting-component} and {ownable-component} as dependencies. The contract's constructor 
+should initialize both components. Core vesting parameters, such as `beneficiary`, `start`, `duration` 
 and `cliff_duration`, are passed as arguments to the constructor and set at the time of deployment.
 
 The implementing contract must provide an implementation of the {vesting-schedule} trait. This can be achieved either by importing 
@@ -93,7 +93,7 @@ mod LinearVestingWallet {
 ----
 
 A vesting schedule will often follow a custom formula. In such cases, the {vesting-schedule} trait is useful. 
-To support a custom vesting schedule, the implementing contract must provide an implementation of the 
+To support a custom vesting schedule, the contract must provide an implementation of the 
 {calculate_vested_amount} function based on the desired formula.
 
 Here’s an example of a vesting wallet contract with a custom {vesting-schedule} implementation, where tokens 

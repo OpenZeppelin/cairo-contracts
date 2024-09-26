@@ -75,7 +75,7 @@ version = "0.16.0"
 
 [[package]]
 name = "sncast_scripts"
-version = "0.17.0"
+version = "0.1.0"
 dependencies = [
  "openzeppelin_presets",
  "openzeppelin_testing",

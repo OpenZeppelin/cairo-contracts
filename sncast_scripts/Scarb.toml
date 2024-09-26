@@ -1,6 +1,6 @@
 [package]
 name = "sncast_scripts"
-version = "0.17.0"
+version = "0.1.0"
 
 [dependencies]
 starknet = "2.8.2"

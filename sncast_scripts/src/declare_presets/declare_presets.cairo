@@ -17,8 +17,8 @@ fn main() {
     let mut nonce = get_nonce('latest');
 
     for contract in contracts {
-        if (!consume_latest_nonce) {
-            consume_latest_nonce = true;
+        if (!consumed_latest_nonce) {
+            consumed_latest_nonce = true;
         } else {
             nonce = get_nonce('pending');
         }

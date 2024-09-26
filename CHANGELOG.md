@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## 0.17.0 (2024-09-23)
+
 ### Added
 
 - `into_base_16_string_no_padding` function to the test helpers (#1137)
@@ -23,6 +25,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bump edition to 2024_07 (#1138)
 - `execute_calls` function from account utils (#1150)
   - calls param type changed from `Array<Call>` to `Span<Call>`
+
+### Deprecated
+
+- DualCase dispatchers
 
 ## 0.16.0 (2024-08-30)
 

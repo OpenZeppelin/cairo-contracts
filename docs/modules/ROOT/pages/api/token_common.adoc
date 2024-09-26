@@ -12,11 +12,11 @@ This module provides extensions and utilities that are common to multiple token 
 
 [.contract]
 [[IERC2981]]
-=== `++IERC2981++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/token/src/common/erc2981/interface.cairo[{github-icon},role=heading-link]
+=== `++IERC2981++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.17.0/packages/token/src/common/erc2981/interface.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
-use openzeppelin::token::common::erc2981::IERC2981;
+use openzeppelin_token::common::erc2981::IERC2981;
 ```
 
 [.contract-index]
@@ -46,10 +46,10 @@ unit of exchange.
 
 [.contract]
 [[ERC2981Component]]
-=== `++ERC2981Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/token/src/common/erc2981/erc2981.cairo[{github-icon},role=heading-link]
+=== `++ERC2981Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.17.0/packages/token/src/common/erc2981/erc2981.cairo[{github-icon},role=heading-link]
 
 ```cairo
-use openzeppelin::token::common::erc2981::ERC2981Component;
+use openzeppelin_token::common::erc2981::ERC2981Component;
 ```
 
 ERC2981 component extending <<IERC2981,IERC2981>>.

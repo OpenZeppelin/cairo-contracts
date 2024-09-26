@@ -15,7 +15,7 @@ be added as a separate dependency in `Scarb.toml`:
 
 ```
 [dev-dependencies]
-openzeppelin_testing = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.16.0" }
+openzeppelin_testing = "0.17.0"
 ```
 
 == Test Utilities

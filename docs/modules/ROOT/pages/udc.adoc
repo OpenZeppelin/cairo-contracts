@@ -41,7 +41,7 @@ Here's an implementation example in Cairo:
 
 [,cairo]
 ----
-use openzeppelin::utils::interfaces::{IUniversalDeployerDispatcher, IUniversalDeployerDispatcherTrait};
+use openzeppelin_utils::interfaces::{IUniversalDeployerDispatcher, IUniversalDeployerDispatcherTrait};
 
 const UDC_ADDRESS: felt252 = 0x04a64cd09a853868621d94cae9952b106f2c36a3f81260f85de6696c6b050221;
 

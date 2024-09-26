@@ -8,7 +8,7 @@
 
 include::../utils/_common.adoc[]
 
-Reference of interfaces and utilities related to ERC20 contracts.
+This module provides interfaces, presets, and utilities related to ERC20 contracts.
 
 TIP: For an overview of ERC20, read our {erc20-guide}.
 
@@ -16,11 +16,11 @@ TIP: For an overview of ERC20, read our {erc20-guide}.
 
 [.contract]
 [[IERC20]]
-=== `++IERC20++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/token/src/erc20/interface.cairo[{github-icon},role=heading-link]
+=== `++IERC20++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.17.0/packages/token/src/erc20/interface.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
-use openzeppelin::token::erc20::interface::IERC20;
+use openzeppelin_token::erc20::interface::IERC20;
 ```
 
 Interface of the IERC20 standard as defined in {eip20}.
@@ -114,11 +114,11 @@ Emitted when the allowance of a `spender` for an `owner` is set.
 
 [.contract]
 [[IERC20Metadata]]
-=== `++IERC20Metadata++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/token/src/erc20/interface.cairo#L19[{github-icon},role=heading-link]
+=== `++IERC20Metadata++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.17.0/packages/token/src/erc20/interface.cairo#L19[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
-use openzeppelin::token::erc20::interface::IERC20Metadata;
+use openzeppelin_token::erc20::interface::IERC20Metadata;
 ```
 
 Interface for the optional metadata functions in {eip20}.
@@ -162,11 +162,11 @@ NOTE: This information is only used for _display_ purposes: it in no way affects
 
 [.contract]
 [[ERC20Component]]
-=== `++ERC20Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/token/src/erc20/erc20.cairo[{github-icon},role=heading-link]
+=== `++ERC20Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.17.0/packages/token/src/erc20/erc20.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
-use openzeppelin::token::erc20::ERC20Component;
+use openzeppelin_token::erc20::ERC20Component;
 ```
 ERC20 component extending <<IERC20,IERC20>> and <<IERC20Metadata,IERC20Metadata>>.
 
@@ -242,7 +242,7 @@ Hooks are functions which implementations can extend the functionality of the co
 using ERC20Component is expected to provide an implementation of the ERC20HooksTrait. For basic token contracts, an
 empty implementation with no logic must be provided.
 
-TIP: You can use `openzeppelin::token::erc20::ERC20HooksEmptyImpl` which is already available as part of the library
+TIP: You can use `openzeppelin_token::erc20::ERC20HooksEmptyImpl` which is already available as part of the library
 for this purpose.
 
 [.contract-item]
@@ -460,10 +460,10 @@ See <<IERC20-Approval,IERC20::Approval>>.
 
 [.contract]
 [[ERC20VotesComponent]]
-=== `++ERC20VotesComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/token/src/erc20/extensions/erc20_votes.cairo[{github-icon},role=heading-link]
+=== `++ERC20VotesComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.17.0/packages/token/src/erc20/extensions/erc20_votes.cairo[{github-icon},role=heading-link]
 
 ```cairo
-use openzeppelin::token::extensions::ERC20VotesComponent;
+use openzeppelin_token::extensions::ERC20VotesComponent;
 ```
 
 :DelegateChanged: xref:ERC20VotesComponent-DelegateChanged[DelegateChanged]
@@ -654,10 +654,10 @@ Emitted when `delegate` votes are updated from `previous_votes` to `new_votes`.
 
 [.contract]
 [[ERC20Upgradeable]]
-=== `++ERC20Upgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/presets/src/erc20.cairo[{github-icon},role=heading-link]
+=== `++ERC20Upgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.17.0/packages/presets/src/erc20.cairo[{github-icon},role=heading-link]
 
 ```cairo
-use openzeppelin::presets::ERC20Upgradeable;
+use openzeppelin_presets::ERC20Upgradeable;
 ```
 
 Upgradeable ERC20 contract leveraging xref:#ERC20Component[ERC20Component] with a fixed-supply mechanism for token distribution.

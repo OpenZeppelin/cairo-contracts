@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.16.0 (token/erc1155/erc1155_receiver.cairo)
+// OpenZeppelin Contracts for Cairo v0.17.0 (token/erc1155/erc1155_receiver.cairo)
 
 /// # ERC1155Receiver Component
 ///
@@ -16,7 +16,7 @@ pub mod ERC1155ReceiverComponent {
     use starknet::ContractAddress;
 
     #[storage]
-    struct Storage {}
+    pub struct Storage {}
 
     #[embeddable_as(ERC1155ReceiverImpl)]
     impl ERC1155Receiver<

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.16.0 (token/erc1155/erc1155.cairo)
+// OpenZeppelin Contracts for Cairo v0.17.0 (token/erc1155/erc1155.cairo)
 
 /// # ERC1155 Component
 ///
@@ -17,13 +17,16 @@ pub mod ERC1155Component {
     use openzeppelin_introspection::src5::SRC5Component;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
-    use starknet::storage::Map;
+    use starknet::storage::{
+        Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
+        StoragePointerWriteAccess
+    };
 
     #[storage]
-    struct Storage {
-        ERC1155_balances: Map<(u256, ContractAddress), u256>,
-        ERC1155_operator_approvals: Map<(ContractAddress, ContractAddress), bool>,
-        ERC1155_uri: ByteArray,
+    pub struct Storage {
+        pub ERC1155_balances: Map<(u256, ContractAddress), u256>,
+        pub ERC1155_operator_approvals: Map<(ContractAddress, ContractAddress), bool>,
+        pub ERC1155_uri: ByteArray,
     }
 
     #[event]

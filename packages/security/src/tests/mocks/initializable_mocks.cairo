@@ -9,9 +9,9 @@ pub(crate) mod InitializableMock {
         InitializableComponent::InitializableImpl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        initializable: InitializableComponent::Storage
+        pub initializable: InitializableComponent::Storage
     }
 
     #[event]

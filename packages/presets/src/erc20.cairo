@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.16.0 (presets/erc20.cairo)
+// OpenZeppelin Contracts for Cairo v0.17.0 (presets/erc20.cairo)
 
 /// # ERC20 Preset
 ///
@@ -35,13 +35,13 @@ pub mod ERC20Upgradeable {
     impl UpgradeableInternalImpl = UpgradeableComponent::InternalImpl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        ownable: OwnableComponent::Storage,
+        pub ownable: OwnableComponent::Storage,
         #[substorage(v0)]
-        erc20: ERC20Component::Storage,
+        pub erc20: ERC20Component::Storage,
         #[substorage(v0)]
-        upgradeable: UpgradeableComponent::Storage
+        pub upgradeable: UpgradeableComponent::Storage
     }
 
     #[event]

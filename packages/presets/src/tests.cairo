@@ -12,3 +12,5 @@ mod test_erc721;
 mod test_eth_account;
 #[cfg(test)]
 mod test_universal_deployer;
+#[cfg(test)]
+mod test_vesting;

@@ -3,10 +3,11 @@ version = 1
 
 [[package]]
 name = "openzeppelin"
-version = "0.16.0"
+version = "0.17.0"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_account",
+ "openzeppelin_finance",
  "openzeppelin_governance",
  "openzeppelin_introspection",
  "openzeppelin_merkle_tree",
@@ -22,7 +23,7 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_access"
-version = "0.16.0"
+version = "0.17.0"
 dependencies = [
  "openzeppelin_introspection",
  "openzeppelin_test_common",
@@ -33,7 +34,7 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_account"
-version = "0.16.0"
+version = "0.17.0"
 dependencies = [
  "openzeppelin_introspection",
  "openzeppelin_test_common",
@@ -43,8 +44,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "openzeppelin_finance"
+version = "0.17.0"
+dependencies = [
+ "openzeppelin_access",
+ "openzeppelin_test_common",
+ "openzeppelin_testing",
+ "openzeppelin_token",
+ "snforge_std",
+]
+
+[[package]]
 name = "openzeppelin_governance"
-version = "0.16.0"
+version = "0.17.0"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_introspection",
@@ -54,24 +66,25 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_introspection"
-version = "0.16.0"
+version = "0.17.0"
 dependencies = [
  "snforge_std",
 ]
 
 [[package]]
 name = "openzeppelin_merkle_tree"
-version = "0.16.0"
+version = "0.17.0"
 dependencies = [
  "snforge_std",
 ]
 
 [[package]]
 name = "openzeppelin_presets"
-version = "0.16.0"
+version = "0.17.0"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_account",
+ "openzeppelin_finance",
  "openzeppelin_introspection",
  "openzeppelin_test_common",
  "openzeppelin_testing",
@@ -82,7 +95,7 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_security"
-version = "0.16.0"
+version = "0.17.0"
 dependencies = [
  "openzeppelin_testing",
  "snforge_std",
@@ -90,10 +103,11 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_test_common"
-version = "0.16.0"
+version = "0.17.0"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_account",
+ "openzeppelin_finance",
  "openzeppelin_testing",
  "openzeppelin_token",
  "openzeppelin_upgrades",
@@ -103,14 +117,14 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_testing"
-version = "0.16.0"
+version = "0.17.0"
 dependencies = [
  "snforge_std",
 ]
 
 [[package]]
 name = "openzeppelin_token"
-version = "0.16.0"
+version = "0.17.0"
 dependencies = [
  "openzeppelin_account",
  "openzeppelin_governance",
@@ -122,7 +136,7 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_upgrades"
-version = "0.16.0"
+version = "0.17.0"
 dependencies = [
  "openzeppelin_test_common",
  "openzeppelin_testing",
@@ -131,7 +145,7 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_utils"
-version = "0.16.0"
+version = "0.17.0"
 dependencies = [
  "openzeppelin_testing",
  "snforge_std",

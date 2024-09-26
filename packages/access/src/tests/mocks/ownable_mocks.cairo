@@ -10,9 +10,9 @@ pub(crate) mod DualCaseOwnableMock {
     impl InternalImpl = OwnableComponent::InternalImpl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        ownable: OwnableComponent::Storage
+        pub ownable: OwnableComponent::Storage
     }
 
     #[event]
@@ -40,9 +40,9 @@ pub(crate) mod SnakeOwnableMock {
     impl InternalImpl = OwnableComponent::InternalImpl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        ownable: OwnableComponent::Storage
+        pub ownable: OwnableComponent::Storage
     }
 
     #[event]
@@ -61,6 +61,7 @@ pub(crate) mod SnakeOwnableMock {
 #[starknet::contract]
 pub(crate) mod CamelOwnableMock {
     use crate::ownable::OwnableComponent;
+    use crate::ownable::interface::IOwnable;
     use starknet::ContractAddress;
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
@@ -71,9 +72,9 @@ pub(crate) mod CamelOwnableMock {
     impl InternalImpl = OwnableComponent::InternalImpl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        ownable: OwnableComponent::Storage
+        pub ownable: OwnableComponent::Storage
     }
 
     #[event]
@@ -93,7 +94,7 @@ pub(crate) mod CamelOwnableMock {
     impl ExternalImpl of ExternalTrait {
         #[external(v0)]
         fn owner(self: @ContractState) -> ContractAddress {
-            self.ownable.Ownable_owner.read()
+            self.ownable.owner()
         }
     }
 }
@@ -104,7 +105,7 @@ pub(crate) mod SnakeOwnablePanicMock {
     use starknet::ContractAddress;
 
     #[storage]
-    struct Storage {}
+    pub struct Storage {}
 
     #[abi(per_item)]
     #[generate_trait]
@@ -133,7 +134,7 @@ pub(crate) mod CamelOwnablePanicMock {
     use starknet::ContractAddress;
 
     #[storage]
-    struct Storage {}
+    pub struct Storage {}
 
     #[abi(per_item)]
     #[generate_trait]
@@ -169,7 +170,7 @@ pub(crate) mod DualCaseTwoStepOwnableMock {
     impl InternalImpl = OwnableComponent::InternalImpl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
         ownable: OwnableComponent::Storage
     }

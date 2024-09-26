@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.16.0 (token/erc20/extensions/erc20_votes.cairo)
+// OpenZeppelin Contracts for Cairo v0.17.0 (token/erc20/extensions/erc20_votes.cairo)
 
 use core::hash::{HashStateTrait, HashStateExTrait};
 use core::poseidon::PoseidonTrait;
@@ -25,14 +25,16 @@ pub mod ERC20VotesComponent {
     use openzeppelin_utils::nonces::NoncesComponent;
     use openzeppelin_utils::structs::checkpoint::{Checkpoint, Trace, TraceTrait};
     use starknet::ContractAddress;
-    use starknet::storage::Map;
+    use starknet::storage::{
+        Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess
+    };
     use super::{Delegation, OffchainMessageHash, SNIP12Metadata};
 
     #[storage]
-    struct Storage {
-        ERC20Votes_delegatee: Map<ContractAddress, ContractAddress>,
-        ERC20Votes_delegate_checkpoints: Map<ContractAddress, Trace>,
-        ERC20Votes_total_checkpoints: Trace
+    pub struct Storage {
+        pub ERC20Votes_delegatee: Map<ContractAddress, ContractAddress>,
+        pub ERC20Votes_delegate_checkpoints: Map<ContractAddress, Trace>,
+        pub ERC20Votes_total_checkpoints: Trace
     }
 
     #[event]

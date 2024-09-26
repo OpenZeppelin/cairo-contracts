@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.16.0 (token/erc20/erc20.cairo)
+// OpenZeppelin Contracts for Cairo v0.17.0 (token/erc20/erc20.cairo)
 
 /// # ERC20 Component
 ///
@@ -8,7 +8,7 @@
 /// component is agnostic regarding how tokens are created, which means that developers
 /// must create their own token distribution mechanism.
 /// See [the documentation]
-/// (https://docs.openzeppelin.com/contracts-cairo/0.16.0/guides/erc20-supply)
+/// (https://docs.openzeppelin.com/contracts-cairo/0.17.0/guides/erc20-supply)
 /// for examples.
 #[starknet::component]
 pub mod ERC20Component {
@@ -17,15 +17,18 @@ pub mod ERC20Component {
     use crate::erc20::interface;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
-    use starknet::storage::Map;
+    use starknet::storage::{
+        Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
+        StoragePointerWriteAccess
+    };
 
     #[storage]
-    struct Storage {
-        ERC20_name: ByteArray,
-        ERC20_symbol: ByteArray,
-        ERC20_total_supply: u256,
-        ERC20_balances: Map<ContractAddress, u256>,
-        ERC20_allowances: Map<(ContractAddress, ContractAddress), u256>,
+    pub struct Storage {
+        pub ERC20_name: ByteArray,
+        pub ERC20_symbol: ByteArray,
+        pub ERC20_total_supply: u256,
+        pub ERC20_balances: Map<ContractAddress, u256>,
+        pub ERC20_allowances: Map<(ContractAddress, ContractAddress), u256>,
     }
 
     #[event]

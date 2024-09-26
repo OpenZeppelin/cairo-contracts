@@ -20,11 +20,11 @@ pub(crate) mod SnakeERC1155Mock {
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        erc1155: ERC1155Component::Storage,
+        pub erc1155: ERC1155Component::Storage,
         #[substorage(v0)]
-        src5: SRC5Component::Storage
+        pub src5: SRC5Component::Storage
     }
 
     #[event]
@@ -71,11 +71,11 @@ pub(crate) mod CamelERC1155Mock {
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         #[substorage(v0)]
-        erc1155: ERC1155Component::Storage,
+        pub erc1155: ERC1155Component::Storage,
         #[substorage(v0)]
-        src5: SRC5Component::Storage
+        pub src5: SRC5Component::Storage
     }
 
     #[event]

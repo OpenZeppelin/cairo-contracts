@@ -9,7 +9,7 @@
 
 include::../utils/_common.adoc[]
 
-This directory provides ways to restrict who can access the functions of a contract or when they can do it.
+This crate provides ways to restrict who can access the functions of a contract or when they can do it.
 
 - {Ownable} is a simple mechanism with a single "owner" role that can be assigned to a single account.
 This mechanism can be useful in simple scenarios, but fine grained access needs are likely to outgrow it.
@@ -20,10 +20,10 @@ assigned each to multiple accounts.
 
 [.contract]
 [[OwnableComponent]]
-=== `++OwnableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/access/src/ownable/ownable.cairo[{github-icon},role=heading-link]
+=== `++OwnableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.17.0/packages/access/src/ownable/ownable.cairo[{github-icon},role=heading-link]
 
 ```cairo
-use openzeppelin::access::ownable::OwnableComponent;
+use openzeppelin_access::ownable::OwnableComponent;
 ```
 
 `Ownable` provides a basic access control mechanism where an account
@@ -255,7 +255,7 @@ Emitted when the ownership is transferred.
 
 [.contract]
 [[IAccessControl]]
-=== `++IAccessControl++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/access/src/accesscontrol/interface.cairo[{github-icon},role=heading-link]
+=== `++IAccessControl++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.17.0/packages/access/src/accesscontrol/interface.cairo[{github-icon},role=heading-link]
 
 :grant_role: xref:#IAccessControl-grant_role[grant_role]
 :revoke_role: xref:#IAccessControl-revoke_role[revoke_role]
@@ -264,7 +264,7 @@ Emitted when the ownership is transferred.
 :RoleAdminChanged: xref:#IAccessControl-RoleAdminChanged[RoleAdminChanged]
 
 ```cairo
-use openzeppelin::access::accesscontrol::interface::IAccessControl;
+use openzeppelin_access::accesscontrol::interface::IAccessControl;
 ```
 
 External interface of AccessControl.
@@ -388,14 +388,14 @@ Emitted when `account` is revoked `role`.
 
 [.contract]
 [[AccessControlComponent]]
-=== `++AccessControlComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/access/src/accesscontrol/accesscontrol.cairo[{github-icon},role=heading-link]
+=== `++AccessControlComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.17.0/packages/access/src/accesscontrol/accesscontrol.cairo[{github-icon},role=heading-link]
 
 :assert_only_role: xref:#AccessControlComponent-assert_only_role
 :grant_role: xref:#AccessControlComponent-grant_role[grant_role]
 :revoke_role: xref:#AccessControlComponent-revoke_role[revoke_role]
 
 ```cairo
-use openzeppelin::access::accesscontrol::AccessControlComponent;
+use openzeppelin_access::accesscontrol::AccessControlComponent;
 ```
 
 Component that allows contracts to implement role-based access control mechanisms.

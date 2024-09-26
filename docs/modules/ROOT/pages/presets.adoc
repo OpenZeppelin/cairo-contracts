@@ -53,7 +53,7 @@ TIP: {starkli} class-hash command can be used to compute the class hash from a S
 
 :setup_project: xref:index.adoc#set_up_your_project[setting up a project]
 :install_lib: xref:index.adoc#install the_library[installing the Contracts for Cairo library]
-:presets_dir: link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/presets/src[presets directory]
+:presets_dir: link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.17.0/packages/presets/src[presets directory]
 
 These preset contracts are ready-to-deploy which means they should already be declared on the Sepolia network.
 Simply deploy the preset class hash and add the appropriate constructor arguments.
@@ -76,10 +76,10 @@ Copy the target preset contract from the {presets_dir} and paste it in the new p
 
 #[starknet::contract]
 mod ERC20Upgradeable {
-    use openzeppelin::access::ownable::OwnableComponent;
-    use openzeppelin::token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
-    use openzeppelin::upgrades::UpgradeableComponent;
-    use openzeppelin::upgrades::interface::IUpgradeable;
+    use openzeppelin_access::ownable::OwnableComponent;
+    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
+    use openzeppelin_upgrades::UpgradeableComponent;
+    use openzeppelin_upgrades::interface::IUpgradeable;
     use starknet::{ContractAddress, ClassHash};
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);

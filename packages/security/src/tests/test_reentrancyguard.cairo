@@ -4,6 +4,7 @@ use crate::tests::mocks::reentrancy_mocks::{
     ReentrancyMock, IReentrancyMockDispatcher, IReentrancyMockDispatcherTrait
 };
 use openzeppelin_testing as utils;
+use starknet::storage::StoragePointerReadAccess;
 
 type ComponentState = ReentrancyGuardComponent::ComponentState<ReentrancyMock::ContractState>;
 

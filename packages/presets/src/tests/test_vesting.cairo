@@ -1,6 +1,5 @@
-use openzeppelin_access::ownable::interface::{IOwnableDispatcher, IOwnableDispatcherTrait};
+use crate::interfaces::{VestingWalletABIDispatcher, VestingWalletABIDispatcherTrait};
 use openzeppelin_finance::vesting::VestingComponent::InternalImpl;
-use openzeppelin_finance::vesting::interface::{IVestingDispatcher, IVestingDispatcherTrait};
 use openzeppelin_test_common::erc20::deploy_erc20;
 use openzeppelin_test_common::vesting::VestingSpyHelpers;
 use openzeppelin_testing as utils;
@@ -29,7 +28,7 @@ fn TEST_DATA() -> TestData {
     }
 }
 
-fn setup(data: TestData) -> (IVestingDispatcher, ContractAddress) {
+fn setup(data: TestData) -> (VestingWalletABIDispatcher, ContractAddress) {
     let mut calldata = array![];
     calldata.append_serde(data.beneficiary);
     calldata.append_serde(data.start);
@@ -37,7 +36,7 @@ fn setup(data: TestData) -> (IVestingDispatcher, ContractAddress) {
     calldata.append_serde(data.cliff_duration);
     let contract_address = utils::declare_and_deploy("VestingWallet", calldata);
     let token = deploy_erc20(contract_address, data.total_allocation);
-    let vesting = IVestingDispatcher { contract_address };
+    let vesting = VestingWalletABIDispatcher { contract_address };
     (vesting, token.contract_address)
 }
 
@@ -54,8 +53,7 @@ fn test_state_after_init() {
     assert_eq!(vesting.duration(), data.duration);
     assert_eq!(vesting.cliff(), data.start + data.cliff_duration);
     assert_eq!(vesting.end(), data.start + data.duration);
-    let beneficiary = IOwnableDispatcher { contract_address: vesting.contract_address }.owner();
-    assert_eq!(beneficiary, data.beneficiary);
+    assert_eq!(vesting.owner(), data.beneficiary);
 }
 
 #[test]
@@ -199,7 +197,6 @@ fn test_release_multiple_calls() {
 fn test_release_after_ownership_transferred() {
     let data = TEST_DATA();
     let (vesting, token) = setup(data);
-    let ownable_vesting = IOwnableDispatcher { contract_address: vesting.contract_address };
     let token_dispatcher = IERC20Dispatcher { contract_address: token };
 
     // 1. Release to initial owner
@@ -213,7 +210,7 @@ fn test_release_after_ownership_transferred() {
     // 2. Transfer ownership
     let new_owner = OTHER();
     start_cheat_caller_address(vesting.contract_address, data.beneficiary);
-    ownable_vesting.transfer_ownership(new_owner);
+    vesting.transfer_ownership(new_owner);
 
     // 3. Release to new owner
     let release_amount_2 = data.total_allocation - release_amount_1;

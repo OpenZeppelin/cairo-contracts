@@ -329,7 +329,7 @@ pub mod ERC20Component {
         ///
         /// - `owner` is a deployed account contract.
         /// - `spender` is not the zero address.
-        /// - `deadline` is a timestamp in the future.
+        /// - `deadline` is not a timestamp in the past.
         /// - `signature` is a valid signature that can be validated with a call to `owner` account.
         /// - `signature` must use the current nonce of the `owner`.
         ///
@@ -365,7 +365,7 @@ pub mod ERC20Component {
         }
 
         /// Returns the current nonce of the `owner`. A nonce value must be
-        /// included whenever a signature for `permit` is generated.
+        /// included whenever a signature for `permit` call is generated.
         fn nonces(self: @ComponentState<TContractState>, owner: ContractAddress) -> felt252 {
             let nonces_component = get_dep_component!(self, Nonces);
             nonces_component.nonces(owner)

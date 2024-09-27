@@ -1,7 +1,7 @@
 :github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
-:vesting-component: xref:VestingComponent[Vesting Component]
-:ownable-component: xref:api/access.adoc#OwnableComponent[Ownable Component]
-:vesting-schedule: xref:api/finance.adoc#VestingComponent-Vesting-Schedule[Vesting Schedule]
+:vesting-component: xref:VestingComponent[VestingComponent]
+:ownable-component: xref:api/access.adoc#OwnableComponent[OwnableComponent]
+:vesting-schedule: xref:api/finance.adoc#VestingComponent-Vesting-Schedule[VestingSchedule]
 :AmountReleased: xref:IVesting-AmountReleased[AmountReleased]
 
 = Finance
@@ -18,6 +18,8 @@ This crate includes primitives for financial systems.
 ```cairo
 use openzeppelin_finance::vesting::interface::IVesting;
 ```
+
+Common interface for contracts implementing the vesting functionality.
 
 [.contract-index]
 .Functions
@@ -109,6 +111,8 @@ Emitted when vested tokens are released to the beneficiary.
 use openzeppelin_finance::vesting::VestingComponent;
 ```
 
+Vesting component implementing the xref:IVesting[`IVesting`] interface.
+
 [.contract-index]
 .Vesting Schedule Trait
 --
@@ -141,9 +145,11 @@ timestamp, start, duration, cliff)++`]
 --
 
 [#VestingComponent-Vesting-Schedule]
-==== Vesting Schedule Trait
+==== VestingSchedule trait
 
 A trait that defines the logic for calculating the vested amount based on a given timestamp.
+
+NOTE: You can read more about the trait's purpose and how to use it xref:finance.adoc#vesting_schedule[here].
 
 [.contract-item]
 [[VestingComponent-calculate_vested_amount]]

@@ -1,13 +1,15 @@
 = Finance
 
-:vesting-component: xref:api/finance.adoc#VestingComponent[Vesting Component]
-:vesting-schedule: xref:api/finance.adoc#VestingComponent-Vesting-Schedule[Vesting Schedule]
-:ownable-component: xref:api/access.adoc#OwnableComponent[Ownable Component]
+:vesting-component: xref:api/finance.adoc#VestingComponent[VestingComponent]
+:vesting-schedule: xref:api/finance.adoc#VestingComponent-Vesting-Schedule[VestingSchedule]
+:ownable-component: xref:api/access.adoc#OwnableComponent[OwnableComponent]
 :linear-vesting-schedule: xref:api/finance.adoc#LinearVestingSchedule[LinearVestingSchedule]
 :calculate_vested_amount: xref:api/finance.adoc#VestingComponent-calculate_vested_amount[calculate_vested_amount]
 
+This module includes primitives for financial systems.
+
 [[vesting_component]]
-== Vesting Component
+== Vesting component
 
 The {vesting-component} manages the gradual release of ERC-20 tokens to a designated beneficiary based on a predefined vesting schedule. 
 The implementing contract must implement the {ownable-component}, where the contract owner is regarded as the vesting beneficiary. 
@@ -20,7 +22,7 @@ NOTE: By setting the duration to 0, it's possible to configure this contract to 
 for a beneficiary until a specified date.
 
 [[vesting_schedule]]
-=== Vesting Schedule
+=== Vesting schedule
 
 The {vesting-schedule} trait defines the logic for calculating the vested amount based on a given timestamp. This 
 logic is not part of the {vesting-component}, so any contract implementing the {vesting-component} must provide its own 
@@ -96,12 +98,12 @@ A vesting schedule will often follow a custom formula. In such cases, the {vesti
 To support a custom vesting schedule, the contract must provide an implementation of the 
 {calculate_vested_amount} function based on the desired formula.
 
-Here’s an example of a vesting wallet contract with a custom {vesting-schedule} implementation, where tokens 
-are vested in a number of steps.
-
 NOTE: When using a custom {vesting-schedule} implementation, the {linear-vesting-schedule} must be excluded from the imports.
 
 NOTE: If there are additional parameters required for calculations, which are stored in the contract's storage, you can access them using `self.get_contract()`.
+
+Here’s an example of a vesting wallet contract with a custom {vesting-schedule} implementation, where tokens 
+are vested in a number of steps.
 
 [,cairo]
 ----
@@ -181,6 +183,7 @@ mod StepsVestingWallet {
         }
     }
 }
+----
 
 === Interface
 

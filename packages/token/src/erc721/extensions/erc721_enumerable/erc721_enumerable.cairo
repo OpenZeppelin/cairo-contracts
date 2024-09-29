@@ -20,7 +20,6 @@ pub mod ERC721EnumerableComponent {
     use crate::erc721::ERC721Component::ERC721Impl;
     use crate::erc721::ERC721Component::InternalImpl as ERC721InternalImpl;
     use crate::erc721::ERC721Component;
-    use crate::erc721::extensions::erc721_enumerable::interface::IERC721Enumerable;
     use crate::erc721::extensions::erc721_enumerable::interface;
     use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin_introspection::src5::SRC5Component;
@@ -51,7 +50,7 @@ pub mod ERC721EnumerableComponent {
         +ERC721Component::ERC721HooksTrait<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
-    > of IERC721Enumerable<ComponentState<TContractState>> {
+    > of interface::IERC721Enumerable<ComponentState<TContractState>> {
         /// Returns the total amount of tokens stored by the contract.
         fn total_supply(self: @ComponentState<TContractState>) -> u256 {
             self.ERC721Enumerable_all_tokens_len.read()
@@ -81,6 +80,29 @@ pub mod ERC721EnumerableComponent {
             let erc721_component = get_dep_component!(self, ERC721);
             assert(index < erc721_component.balance_of(owner), Errors::OUT_OF_BOUNDS_INDEX);
             self.ERC721Enumerable_owned_tokens.read((owner, index))
+        }
+    }
+
+    #[embeddable_as(ERC721EnumerableExtendedImpl)]
+    impl ERC721EnumerableExtended<
+        TContractState,
+        +HasComponent<TContractState>,
+        impl ERC721: ERC721Component::HasComponent<TContractState>,
+        +ERC721Component::ERC721HooksTrait<TContractState>,
+        +SRC5Component::HasComponent<TContractState>,
+        +Drop<TContractState>
+    > of interface::IERC721EnumerableExtended<ComponentState<TContractState>> {
+        fn all_tokens_by_owner(
+            self: @ComponentState<TContractState>, owner: ContractAddress
+        ) -> Span<u256> {
+            let erc721_component = get_dep_component!(self, ERC721);
+            let balance = erc721_component.balance_of(owner);
+            let mut result = array![];
+            for index in 0
+                ..balance {
+                    result.append(self.ERC721Enumerable_owned_tokens.read((owner, index)));
+                };
+            result.span()
         }
     }
 

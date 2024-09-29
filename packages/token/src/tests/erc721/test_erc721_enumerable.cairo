@@ -1,6 +1,6 @@
 use crate::erc721::ERC721Component::{ERC721Impl, InternalImpl as ERC721InternalImpl};
 use crate::erc721::extensions::erc721_enumerable::ERC721EnumerableComponent::{
-    ERC721EnumerableImpl, InternalImpl
+    ERC721EnumerableImpl, ERC721EnumerableExtendedImpl, InternalImpl
 };
 use crate::erc721::extensions::erc721_enumerable::ERC721EnumerableComponent;
 use crate::erc721::extensions::erc721_enumerable::interface;
@@ -504,6 +504,27 @@ fn test__remove_token_from_all_tokens_enumeration_with_first_token() {
 }
 
 //
+// all_tokens_by_owner
+//
+
+#[test]
+fn test_all_tokens_by_owner() {
+    let (state, tokens_list) = setup();
+    assert_all_tokens_by_owner(OWNER(), tokens_list);
+}
+
+#[test]
+fn test_all_tokens_by_owner_after_transfer() {
+    let _ = setup();
+    let mut contract_state = CONTRACT_STATE();
+
+    contract_state.erc721.transfer(OWNER(), RECIPIENT(), TOKEN_2);
+
+    assert_all_tokens_by_owner(OWNER(), array![TOKEN_1, TOKEN_3].span());
+    assert_all_tokens_by_owner(RECIPIENT(), array![TOKEN_2].span());
+}
+
+//
 // Helpers
 //
 
@@ -585,4 +606,10 @@ fn assert_owner_tokens_id_to_index(token_id: u256, exp_index: u256) {
 
     let id_to_index = state.ERC721Enumerable_owned_tokens_index.read(token_id);
     assert_eq!(id_to_index, exp_index);
+}
+
+fn assert_all_tokens_by_owner(owner: ContractAddress, exp_tokens: Span<u256>) {
+    let state = @COMPONENT_STATE();
+    let tokens = state.all_tokens_by_owner(owner);
+    assert_eq!(tokens, exp_tokens);
 }

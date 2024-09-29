@@ -22,6 +22,10 @@ pub(crate) mod ERC721EnumerableMock {
         ERC721EnumerableComponent::ERC721EnumerableImpl<ContractState>;
     impl ERC721EnumerableInternalImpl = ERC721EnumerableComponent::InternalImpl<ContractState>;
 
+    // ERC721EnumerableExtended
+    #[abi(embed_v0)]
+    impl ERC721EnumerableExtendedImpl = ERC721EnumerableComponent::ERC721EnumerableExtendedImpl<ContractState>;
+
     // SRC5
     #[abi(embed_v0)]
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;

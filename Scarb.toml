@@ -81,6 +81,3 @@ fmt.workspace = true
 unstable-add-statements-functions-debug-info = true
 unstable-add-statements-code-locations-debug-info = true
 inlining-strategy= "avoid"
-
-[features]
-mock_contract = []

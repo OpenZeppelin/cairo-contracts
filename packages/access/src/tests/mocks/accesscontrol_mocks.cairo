@@ -1,4 +1,5 @@
 #[starknet::contract]
+#[cfg(feature: 'mock_contract')]
 pub(crate) mod DualCaseAccessControlMock {
     use crate::accesscontrol::AccessControlComponent;
     use crate::accesscontrol::DEFAULT_ADMIN_ROLE;

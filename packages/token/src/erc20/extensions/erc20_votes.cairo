@@ -19,7 +19,7 @@ pub mod ERC20VotesComponent {
     use core::num::traits::Zero;
     use crate::erc20::ERC20Component;
     use crate::erc20::interface::IERC20;
-    use openzeppelin_account::dual_account::{DualCaseAccount, DualCaseAccountTrait};
+    use openzeppelin_account::interface::{ISRC6Dispatcher, ISRC6DispatcherTrait};
     use openzeppelin_governance::utils::interfaces::IVotes;
     use openzeppelin_utils::nonces::NoncesComponent::InternalTrait as NoncesInternalTrait;
     use openzeppelin_utils::nonces::NoncesComponent;
@@ -162,7 +162,7 @@ pub mod ERC20VotesComponent {
             let delegation = Delegation { delegatee, nonce, expiry };
             let hash = delegation.get_message_hash(delegator);
 
-            let is_valid_signature_felt = DualCaseAccount { contract_address: delegator }
+            let is_valid_signature_felt = ISRC6Dispatcher { contract_address: delegator }
                 .is_valid_signature(hash, signature);
 
             // Check either 'VALID' or true for backwards compatibility.

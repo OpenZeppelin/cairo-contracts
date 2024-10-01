@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.17.0 (utils/math.cairo)
 
-use core::integer::{u512_safe_div_rem_by_u256};
-use core::math::u256_mul_mod_n;
+use core::integer::u512_safe_div_rem_by_u256;
 use core::num::traits::WideMul;
 use core::traits::{Into, BitAnd, BitXor};
 
@@ -46,21 +45,21 @@ fn round_up(rounding: Rounding) -> bool {
 }
 
 pub fn u256_mul_div(x: u256, y: u256, denominator: u256, rounding: Rounding) -> u256 {
-    let q = _raw_u256_mul_div(x, y, denominator);
+    let (q, r) = _raw_u256_mul_div(x, y, denominator);
 
     // Prepare vars for bitwise op
-    let felt_is_rounded: felt252 = round_up(rounding).into();
-    let mm = u256_mul_mod_n(x, y, denominator.try_into().unwrap());
-    let mm_gt_0: felt252 = (mm > 0).into();
+    let felt_is_round_up: felt252 = round_up(rounding).into();
+    let has_remainder: felt252 = (r > 0).into();
 
-    q + BitAnd::bitand(felt_is_rounded.into(), mm_gt_0.into())
+    q + BitAnd::bitand(felt_is_round_up.into(), has_remainder.into())
 }
 
-pub fn _raw_u256_mul_div(x: u256, y: u256, denominator: u256) -> u256 {
+pub fn _raw_u256_mul_div(x: u256, y: u256, denominator: u256) -> (u256, u256) {
     assert(denominator != 0, 'Math: division by zero');
     let p = x.wide_mul(y);
-    let (q, _) = u512_safe_div_rem_by_u256(p, denominator.try_into().unwrap());
-    q.try_into().expect('Math: quotient > u256')
+    let (mut q, r) = u512_safe_div_rem_by_u256(p, denominator.try_into().unwrap());
+    let q = q.try_into().expect('Math: quotient > u256');
+    (q, r)
 }
 
 #[cfg(test)]
@@ -146,7 +145,7 @@ mod Test {
 
     #[test]
     fn test_mul_div_round_up_large_values() {
-        let round_up = array![Rounding::Floor, Rounding::Trunc];
+        let round_up = array![Rounding::Ceil, Rounding::Expand];
         let u256_max: u256 = Bounded::MAX;
         let args_list = array![
             // (x, y, denominator, expected result)

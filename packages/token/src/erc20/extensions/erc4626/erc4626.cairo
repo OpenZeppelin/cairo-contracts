@@ -13,9 +13,6 @@ pub mod ERC4626Component {
     use crate::erc20::interface::IERC20;
     use crate::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
     use starknet::ContractAddress;
-    //use starknet::storage::{
-    //    Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess
-    //};
 
     // This default decimals is only used when the DefaultConfig
     // is in scope in the implementing contract.
@@ -64,7 +61,7 @@ pub mod ERC4626Component {
     /// Constants expected to be defined at the contract level used to configure the component
     /// behaviour.
     ///
-    ///
+    /// ADD ME...
     pub trait ImmutableConfig {
         const ASSET: ContractAddress;
         const UNDERLYING_DECIMALS: u128;
@@ -92,11 +89,13 @@ pub mod ERC4626Component {
         }
 
         fn convert_to_shares(self: @ComponentState<TContractState>, assets: u256) -> u256 {
+            // FIX ME
             //self._convert_to_shares(assets)
             1
         }
 
         fn convert_to_assets(self: @ComponentState<TContractState>, shares: u256) -> u256 {
+            // FIX ME
             //self._convert_to_assets(shares)
             1
         }
@@ -106,6 +105,7 @@ pub mod ERC4626Component {
         }
 
         fn preview_deposit(self: @ComponentState<TContractState>, assets: u256) -> u256 {
+            // FIX ME
             //self._convertToShares(assets, Math.Rounding.Floor);
             1
         }
@@ -125,6 +125,7 @@ pub mod ERC4626Component {
         }
 
         fn preview_mint(self: @ComponentState<TContractState>, shares: u256) -> u256 {
+            // FIX ME
             //return _convertToAssets(shares, Math.Rounding.Ceil);
             1
         }
@@ -142,6 +143,7 @@ pub mod ERC4626Component {
         }
 
         fn max_withdrawal(self: @ComponentState<TContractState>, owner: ContractAddress) -> u256 {
+            // FIX ME
             //return _convertToAssets(balanceOf(owner), Math.Rounding.Floor);
 
             //let erc20_component = get_dep_component!(self, ERC20);
@@ -151,8 +153,8 @@ pub mod ERC4626Component {
         }
 
         fn preview_withdrawal(self: @ComponentState<TContractState>, assets: u256) -> u256 {
+            // FIX ME
             //return _convertToShares(assets, Math.Rounding.Ceil);
-
             // self._convert_to_shares(assets);
             1
         }
@@ -165,6 +167,7 @@ pub mod ERC4626Component {
 
             let shares = self.preview_withdrawal(assets);
             let _caller = starknet::get_caller_address();
+            // FIX ME
             //self._withdraw(_caller, receiver, owner, assets, shares);
             shares
         }
@@ -175,6 +178,7 @@ pub mod ERC4626Component {
         }
 
         fn preview_redeem(self: @ComponentState<TContractState>, shares: u256) -> u256 {
+            // FIX ME
             //self._convert_to_assets(shares)
             1
         }
@@ -187,6 +191,7 @@ pub mod ERC4626Component {
 
             let assets = self.preview_redeem(shares);
             let _caller = starknet::get_caller_address();
+            // FIX ME
             //self._withdraw(_caller, receiver, owner, assets, shares);
             assets
         }

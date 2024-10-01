@@ -17,12 +17,12 @@ pub trait IERC4626<TState> {
     fn mint(ref self: TState, shares: u256, receiver: ContractAddress) -> u256;
     fn max_withdrawal(self: @TState, owner: ContractAddress) -> u256;
     fn preview_withdrawal(self: @TState, assets: u256) -> u256;
-    //fn withdraw(
-    //    ref self: TState, assets: u256, receiver: ContractAddress, owner: ContractAddress
-    //) -> u256;
-    //fn max_redeem(self: @TState, owner: ContractAddress) -> u256;
-    //fn preview_redeem(self: @TState, shares: u256) -> u256;
-    //fn redeem(
-    //    ref self: TState, shares: u256, receiver: ContractAddress, owner: ContractAddress
-    //) -> u256;
+    fn withdraw(
+        ref self: TState, assets: u256, receiver: ContractAddress, owner: ContractAddress
+    ) -> u256;
+    fn max_redeem(self: @TState, owner: ContractAddress) -> u256;
+    fn preview_redeem(self: @TState, shares: u256) -> u256;
+    fn redeem(
+        ref self: TState, shares: u256, receiver: ContractAddress, owner: ContractAddress
+    ) -> u256;
 }

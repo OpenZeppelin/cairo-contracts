@@ -214,7 +214,7 @@ pub mod ERC4626Component {
         +ERC20Component::ERC20HooksTrait<TContractState>,
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
-        fn initializer(ref self: ComponentState<TContractState>) {//ImmutableConfig::validate();
+        fn initializer(ref self: ComponentState<TContractState>) { //ImmutableConfig::validate();
         }
 
         fn _deposit(
@@ -269,4 +269,5 @@ pub mod ERC4626Component {
 //pub impl DefaultConfig of ERC2981Component::ImmutableConfig {
 //    const UNDERLYING_DECIMALS: u8 = ERC4626::DEFAULT_DECIMALS;
 //}
+
 

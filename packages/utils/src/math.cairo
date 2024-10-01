@@ -64,9 +64,9 @@ pub fn _raw_u256_mul_div(x: u256, y: u256, denominator: u256) -> (u256, u256) {
 
 #[cfg(test)]
 mod Test {
-    use super::u256_mul_div;
-    use super::Rounding;
     use core::num::traits::Bounded;
+    use super::Rounding;
+    use super::u256_mul_div;
 
     #[test]
     #[should_panic(expected: 'Math: division by zero')]
@@ -91,11 +91,8 @@ mod Test {
     #[test]
     fn test_mul_div_round_down_small_values() {
         let round_down = array![Rounding::Floor, Rounding::Trunc];
-        let args_list = array![
-            // (x, y, denominator, expected result)
-            (3, 4, 5, 2),
-            (3, 5, 5, 3)
-        ].span();
+        let args_list = array![// (x, y, denominator, expected result)
+        (3, 4, 5, 2), (3, 5, 5, 3)].span();
 
         for round in round_down {
             for args in args_list {
@@ -116,7 +113,8 @@ mod Test {
             (u256_max - 1, u256_max - 1, u256_max, u256_max - 2),
             (u256_max, u256_max - 1, u256_max, u256_max - 1),
             (u256_max, u256_max, u256_max, u256_max)
-        ].span();
+        ]
+            .span();
 
         for round in round_down {
             for args in args_list {
@@ -129,11 +127,8 @@ mod Test {
     #[test]
     fn test_mul_div_round_up_small_values() {
         let round_up = array![Rounding::Ceil, Rounding::Expand];
-        let args_list = array![
-            // (x, y, denominator, expected result)
-            (3, 4, 5, 3),
-            (3, 5, 5, 3)
-        ].span();
+        let args_list = array![// (x, y, denominator, expected result)
+        (3, 4, 5, 3), (3, 5, 5, 3)].span();
 
         for round in round_up {
             for args in args_list {
@@ -154,7 +149,8 @@ mod Test {
             (u256_max - 1, u256_max - 1, u256_max, u256_max - 1),
             (u256_max, u256_max - 1, u256_max, u256_max - 1),
             (u256_max, u256_max, u256_max, u256_max)
-        ].span();
+        ]
+            .span();
 
         for round in round_up {
             for args in args_list {

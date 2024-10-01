@@ -7,9 +7,9 @@
 #[starknet::component]
 pub mod ERC4626Component {
     use core::num::traits::Bounded;
-    use crate::erc20::extensions::erc4626::interface::IERC4626;
-    use crate::erc20::ERC20Component;
     use crate::erc20::ERC20Component::InternalImpl as ERC20InternalImpl;
+    use crate::erc20::ERC20Component;
+    use crate::erc20::extensions::erc4626::interface::IERC4626;
     use crate::erc20::interface::IERC20;
     use crate::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
     use starknet::ContractAddress;
@@ -85,7 +85,7 @@ pub mod ERC4626Component {
 
         fn total_assets(self: @ComponentState<TContractState>) -> u256 {
             let this = starknet::get_contract_address();
-            IERC20Dispatcher{ contract_address: Immutable::ASSET }.balance_of(this)
+            IERC20Dispatcher { contract_address: Immutable::ASSET }.balance_of(this)
         }
 
         fn convert_to_shares(self: @ComponentState<TContractState>, assets: u256) -> u256 {
@@ -110,7 +110,9 @@ pub mod ERC4626Component {
             1
         }
 
-        fn deposit(ref self: ComponentState<TContractState>, assets: u256, receiver: ContractAddress) -> u256 {
+        fn deposit(
+            ref self: ComponentState<TContractState>, assets: u256, receiver: ContractAddress
+        ) -> u256 {
             let max_assets = self.max_deposit(receiver);
             assert(assets < max_assets, Errors::EXCEEDED_MAX_DEPOSIT);
 
@@ -160,7 +162,10 @@ pub mod ERC4626Component {
         }
 
         fn withdraw(
-            ref self: ComponentState<TContractState>, assets: u256, receiver: ContractAddress, owner: ContractAddress
+            ref self: ComponentState<TContractState>,
+            assets: u256,
+            receiver: ContractAddress,
+            owner: ContractAddress
         ) -> u256 {
             let max_assets = self.max_withdrawal(owner);
             assert(assets < max_assets, Errors::EXCEEDED_MAX_WITHDRAWAL);
@@ -184,7 +189,10 @@ pub mod ERC4626Component {
         }
 
         fn redeem(
-            ref self: ComponentState<TContractState>, shares: u256, receiver: ContractAddress, owner: ContractAddress
+            ref self: ComponentState<TContractState>,
+            shares: u256,
+            receiver: ContractAddress,
+            owner: ContractAddress
         ) -> u256 {
             let max_shares = self.max_redeem(owner);
             assert(shares < max_shares, Errors::EXCEEDED_MAX_REDEEM);
@@ -195,7 +203,6 @@ pub mod ERC4626Component {
             //self._withdraw(_caller, receiver, owner, assets, shares);
             assets
         }
-
     }
 
     #[generate_trait]
@@ -207,9 +214,7 @@ pub mod ERC4626Component {
         +ERC20Component::ERC20HooksTrait<TContractState>,
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
-        fn initializer(
-            ref self: ComponentState<TContractState>) {
-            //ImmutableConfig::validate();
+        fn initializer(ref self: ComponentState<TContractState>) {//ImmutableConfig::validate();
         }
 
         fn _deposit(
@@ -222,7 +227,9 @@ pub mod ERC4626Component {
             // Transfer assets first
             let this = starknet::get_contract_address();
             let asset_dispatcher = IERC20Dispatcher { contract_address: Immutable::ASSET };
-            assert(asset_dispatcher.transfer_from(caller, this, assets), Errors::TOKEN_TRANSFER_FAILED);
+            assert(
+                asset_dispatcher.transfer_from(caller, this, assets), Errors::TOKEN_TRANSFER_FAILED
+            );
 
             // Mint shares after transferring assets
             let mut erc20_component = get_dep_component_mut!(ref self, ERC20);
@@ -253,7 +260,6 @@ pub mod ERC4626Component {
         }
     }
 }
-
 /// Implementation of the default ERC2981Component ImmutableConfig.
 ///
 /// See
@@ -263,3 +269,4 @@ pub mod ERC4626Component {
 //pub impl DefaultConfig of ERC2981Component::ImmutableConfig {
 //    const UNDERLYING_DECIMALS: u8 = ERC4626::DEFAULT_DECIMALS;
 //}
+

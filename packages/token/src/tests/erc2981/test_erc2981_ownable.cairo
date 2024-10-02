@@ -49,6 +49,7 @@ fn test_royalty_info_token_royalty_set() {
     assert_eq!(receiver, DEFAULT_RECEIVER());
     assert_eq!(amount, 5_000);
 
+    start_cheat_caller_address(dispatcher.contract_address, OWNER());
     dispatcher.set_token_royalty(token_id, RECIPIENT(), FEE_NUMERATOR);
 
     let (receiver, amount) = dispatcher.royalty_info(token_id, sale_price);

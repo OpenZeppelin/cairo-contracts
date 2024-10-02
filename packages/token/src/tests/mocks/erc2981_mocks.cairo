@@ -133,6 +133,11 @@ pub(crate) mod ERC2981AccessControlMock {
     #[abi(embed_v0)]
     impl IERC2981AdminAccessControlImpl =
         ERC2981Component::IERC2981AdminAccessControlImpl<ContractState>;
+
+    // AccessControl
+    #[abi(embed_v0)]
+    impl AccessControlImpl =
+        AccessControlComponent::AccessControlImpl<ContractState>;
     impl AccessControlInternalImpl = AccessControlComponent::InternalImpl<ContractState>;
 
     // SRC5

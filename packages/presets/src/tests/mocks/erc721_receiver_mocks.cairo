@@ -2,7 +2,7 @@ const SUCCESS: felt252 = 'SUCCESS';
 
 #[starknet::contract]
 pub(crate) mod DualCaseERC721ReceiverMock {
-    use crate::erc721::ERC721ReceiverComponent;
+    use openzeppelin_token::erc721::ERC721ReceiverComponent;
     use openzeppelin_introspection::src5::SRC5Component;
     use starknet::ContractAddress;
 

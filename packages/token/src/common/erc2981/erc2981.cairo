@@ -119,8 +119,8 @@ pub mod ERC2981Component {
     impl ERC2981StateInfo<
         TContractState,
         +HasComponent<TContractState>,
-        impl Immutable: ImmutableConfig,
-        impl SRC5: SRC5Component::HasComponent<TContractState>,
+        +ImmutableConfig,
+        +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>,
     > of interface::IERC2981StateInfo<ComponentState<TContractState>> {
         fn default_royalty(self: @ComponentState<TContractState>) -> (ContractAddress, u128, u128) {
@@ -142,8 +142,8 @@ pub mod ERC2981Component {
     impl ERC2981AdminOwnable<
         TContractState,
         +HasComponent<TContractState>,
-        impl Immutable: ImmutableConfig,
-        impl SRC5: SRC5Component::HasComponent<TContractState>,
+        +ImmutableConfig,
+        +SRC5Component::HasComponent<TContractState>,
         impl Ownable: OwnableComponent::HasComponent<TContractState>,
         +Drop<TContractState>,
     > of interface::IERC2981Admin<ComponentState<TContractState>> {
@@ -178,19 +178,19 @@ pub mod ERC2981Component {
     }
 
     //
-    // Admin with AccessConrol
+    // Admin with AccessControl
     //
 
     // Role for the admin responsible for managing royalty settings.
-    pub const ROYALTY_ADMIN_ROLE: felt252 = 'ROYALTY_ADMIN_ROLE';
+    pub const ROYALTY_ADMIN_ROLE: felt252 = selector!("ROYALTY_ADMIN_ROLE");
 
     #[embeddable_as(IERC2981AdminAccessControlImpl)]
     impl ERC2981AdminAccessControl<
         TContractState,
         +HasComponent<TContractState>,
-        impl Immutable: ImmutableConfig,
-        impl SRC5: SRC5Component::HasComponent<TContractState>,
-        impl AccessConrol: AccessControlComponent::HasComponent<TContractState>,
+        +ImmutableConfig,
+        +SRC5Component::HasComponent<TContractState>,
+        impl AccessControl: AccessControlComponent::HasComponent<TContractState>,
         +Drop<TContractState>,
     > of interface::IERC2981Admin<ComponentState<TContractState>> {
         fn set_default_royalty(
@@ -198,12 +198,12 @@ pub mod ERC2981Component {
             receiver: ContractAddress,
             fee_numerator: u128,
         ) {
-            get_dep_component!(@self, AccessConrol).assert_only_role(ROYALTY_ADMIN_ROLE);
+            get_dep_component!(@self, AccessControl).assert_only_role(ROYALTY_ADMIN_ROLE);
             InternalImpl::set_default_royalty(ref self, receiver, fee_numerator)
         }
 
         fn delete_default_royalty(ref self: ComponentState<TContractState>) {
-            get_dep_component!(@self, AccessConrol).assert_only_role(ROYALTY_ADMIN_ROLE);
+            get_dep_component!(@self, AccessControl).assert_only_role(ROYALTY_ADMIN_ROLE);
             InternalImpl::delete_default_royalty(ref self)
         }
 
@@ -213,12 +213,12 @@ pub mod ERC2981Component {
             receiver: ContractAddress,
             fee_numerator: u128
         ) {
-            get_dep_component!(@self, AccessConrol).assert_only_role(ROYALTY_ADMIN_ROLE);
+            get_dep_component!(@self, AccessControl).assert_only_role(ROYALTY_ADMIN_ROLE);
             InternalImpl::set_token_royalty(ref self, token_id, receiver, fee_numerator)
         }
 
         fn reset_token_royalty(ref self: ComponentState<TContractState>, token_id: u256) {
-            get_dep_component!(@self, AccessConrol).assert_only_role(ROYALTY_ADMIN_ROLE);
+            get_dep_component!(@self, AccessControl).assert_only_role(ROYALTY_ADMIN_ROLE);
             InternalImpl::reset_token_royalty(ref self, token_id)
         }
     }
@@ -249,7 +249,7 @@ pub mod ERC2981Component {
             default_receiver: ContractAddress,
             default_royalty_fraction: u128
         ) {
-            ImmutableConfig::validate();
+            Immutable::validate();
 
             let mut src5_component = get_dep_component_mut!(ref self, SRC5);
             src5_component.register_interface(IERC2981_ID);
@@ -378,7 +378,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected: ('Invalid fee denominator',))]
+    #[should_panic(expected: 'Invalid fee denominator')]
     fn test_initializer_invalid_config_panics() {
         let mut state = COMPONENT_STATE();
         let receiver = contract_address_const::<'DEFAULT_RECEIVER'>();

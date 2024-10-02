@@ -12,3 +12,32 @@ pub trait IERC2981<TState> {
     /// unit of exchange.
     fn royalty_info(self: @TState, token_id: u256, sale_price: u256) -> (ContractAddress, u256);
 }
+
+#[starknet::interface]
+pub trait IERC2981StateInfo<TState> {
+    fn default_royalty(self: @TState) -> (ContractAddress, u128, u128);
+    fn token_royalty(self: @TState, token_id: u256) -> (ContractAddress, u128, u128);
+}
+
+#[starknet::interface]
+pub trait IERC2981Admin<TState> {
+    fn set_default_royalty(ref self: TState, receiver: ContractAddress, fee_numerator: u128,);
+    fn delete_default_royalty(ref self: TState);
+    fn set_token_royalty(
+        ref self: TState, token_id: u256, receiver: ContractAddress, fee_numerator: u128
+    );
+    fn reset_token_royalty(ref self: TState, token_id: u256);
+}
+
+#[starknet::interface]
+pub trait IERC2981ABI<TState> {
+    fn royalty_info(self: @TState, token_id: u256, sale_price: u256) -> (ContractAddress, u256);
+    fn default_royalty(self: @TState) -> (ContractAddress, u128, u128);
+    fn token_royalty(self: @TState, token_id: u256) -> (ContractAddress, u128, u128);
+    fn set_default_royalty(ref self: TState, receiver: ContractAddress, fee_numerator: u128,);
+    fn delete_default_royalty(ref self: TState);
+    fn set_token_royalty(
+        ref self: TState, token_id: u256, receiver: ContractAddress, fee_numerator: u128
+    );
+    fn reset_token_royalty(ref self: TState, token_id: u256);
+}

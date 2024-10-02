@@ -16,11 +16,11 @@ In a governance system, `TimelockControllerComponent` is in charge of introducin
 
 [.contract]
 [[ITimelock]]
-=== `++ITimelock++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/governance/src/timelock/interface.cairo[{github-icon},role=heading-link]
+=== `++ITimelock++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.17.0/packages/governance/src/timelock/interface.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
-use openzeppelin::governance::timelock::interface::ITimelock;
+use openzeppelin_governance::timelock::interface::ITimelock;
 ```
 
 [.contract-index]
@@ -240,13 +240,13 @@ Emitted when the minimum delay for future operations is modified.
 
 [.contract]
 [[TimelockControllerComponent]]
-=== `++TimelockControllerComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/governance/src/timelock/timelock_controller.cairo[{github-icon},role=heading-link]
+=== `++TimelockControllerComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.17.0/packages/governance/src/timelock/timelock_controller.cairo[{github-icon},role=heading-link]
 
 include::../utils/_common.adoc[]
 
 [.hljs-theme-dark]
 ```cairo
-use openzeppelin::governance::timelock::TimelockControllerComponent;
+use openzeppelin_governance::timelock::TimelockControllerComponent;
 ```
 
 [.contract-index#TimelockControllerComponent-Embeddable-Mixin-Impl]
@@ -600,11 +600,11 @@ Emitted when the minimum delay for future operations is modified.
 
 [.contract]
 [[IVotes]]
-=== `++IVotes++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/governance/src/utils/interfaces/votes.cairo[{github-icon},role=heading-link]
+=== `++IVotes++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.17.0/packages/governance/src/utils/interfaces/votes.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
-use openzeppelin::governance::utils::interfaces::IVotes;
+use openzeppelin_governance::utils::interfaces::IVotes;
 ```
 
 Common interface for Votes-enabled contracts. For an implementation example see

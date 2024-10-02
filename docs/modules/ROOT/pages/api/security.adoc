@@ -8,10 +8,10 @@ This crate provides components to handle common security-related tasks.
 
 [.contract]
 [[InitializableComponent]]
-=== `++InitializableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/security/src/initializable.cairo[{github-icon},role=heading-link]
+=== `++InitializableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.17.0/packages/security/src/initializable.cairo[{github-icon},role=heading-link]
 
 ```cairo
-use openzeppelin::security::InitializableComponent;
+use openzeppelin_security::InitializableComponent;
 ```
 
 Component enabling one-time initialization for contracts.
@@ -58,13 +58,13 @@ Requirements:
 
 [.contract]
 [[PausableComponent]]
-=== `++PausableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/security/src/pausable.cairo[{github-icon},role=heading-link]
+=== `++PausableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.17.0/packages/security/src/pausable.cairo[{github-icon},role=heading-link]
 
 :Paused: xref:PausableComponent-Paused[Paused]
 :Unpaused: xref:PausableComponent-Unpaused[Unpaused]
 
 ```cairo
-use openzeppelin::security::PausableComponent;
+use openzeppelin_security::PausableComponent;
 ```
 
 Component to implement an emergency stop mechanism.
@@ -163,10 +163,10 @@ Emitted when the contract is unpaused by `account`.
 
 [.contract]
 [[ReentrancyGuardComponent]]
-=== `++ReentrancyGuardComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/security/src/reentrancyguard.cairo[{github-icon},role=heading-link]
+=== `++ReentrancyGuardComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.17.0/packages/security/src/reentrancyguard.cairo[{github-icon},role=heading-link]
 
 ```cairo
-use openzeppelin::security::ReentrancyGuardComponent;
+use openzeppelin_security::ReentrancyGuardComponent;
 ```
 
 Component to help prevent reentrant calls.

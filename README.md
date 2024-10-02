@@ -43,14 +43,14 @@ Edit `scarb.toml` and add:
 
 ```toml
 [dependencies]
-openzeppelin = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.16.0" }
+openzeppelin = "0.17.0"
 ```
 
-The previous example would import the entire library. we can also add each package as a separated dependency to improve the time for building by not including modules that won't be used:
+The previous example would import the entire library. We can also add each package as a separate dependency to improve the building time by not including modules that won't be used:
 
 ```toml
 [dependencies]
-openzeppelin_token = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.16.0" }
+openzeppelin_token = "0.17.0"
 ```
 
 Build the project to download it:
@@ -72,8 +72,7 @@ For example, this is how to write an ERC20-compliant contract:
 ```cairo
 #[starknet::contract]
 mod MyToken {
-    // If only the token package was added as a dependency, use `openzeppelin_token::` instead
-    use openzeppelin::token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
+    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
@@ -113,22 +112,13 @@ mod MyToken {
 
 ### Unsupported
 
-[`DualCase` dispatchers](https://docs.openzeppelin.com/contracts-cairo/0.16.0/interfaces#dualcase_dispatchers) rely on Sierra's ability to catch a revert to resume execution. Currently, Starknet live chains (testnets and mainnet) don't implement that behavior. Starknet's testing framework does support it.
+[`DualCase` dispatchers](https://docs.openzeppelin.com/contracts-cairo/0.17.0/interfaces#dualcase_dispatchers) rely on Sierra's ability to catch a revert to resume execution. Currently, Starknet live chains (testnets and mainnet) don't implement that behavior. Starknet's testing framework does support it.
 
 ## Learn
 
-<!-- ### Documentation
+### Documentation
 
-Check out the [full documentation site](https://docs.openzeppelin.com/contracts-cairo)! Featuring:
-
-- [Accounts](https://docs.openzeppelin.com/contracts-cairo/0.6.1/accounts)
-- [ERC20](https://docs.openzeppelin.com/contracts-cairo/0.6.1/erc20)
-- [ERC721](https://docs.openzeppelin.com/contracts-cairo/0.6.1/erc721)
-- [ERC1155](https://docs.openzeppelin.com/contracts-cairo/0.6.1/erc1155)
-- [Contract extensibility pattern](https://docs.openzeppelin.com/contracts-cairo/0.6.1/extensibility)
-- [Proxies and upgrades](https://docs.openzeppelin.com/contracts-cairo/0.6.1/proxies)
-- [Security](https://docs.openzeppelin.com/contracts-cairo/0.6.1/security)
-- [Utilities](https://docs.openzeppelin.com/contracts-cairo/0.6.1/utilities) -->
+Check out the [full documentation site](https://docs.openzeppelin.com/contracts-cairo)!
 
 ### Cairo
 

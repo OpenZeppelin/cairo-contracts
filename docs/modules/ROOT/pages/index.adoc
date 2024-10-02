@@ -21,8 +21,8 @@ before proceeding, and run the following command to check that the installation 
 ----
 $ scarb --version
 
-scarb 2.8.0 (09590f5fc 2024-08-27)
-cairo: 2.8.0 (https://crates.io/crates/cairo-lang-compiler/2.8.0)
+scarb 2.8.2 (a37b4cbfc 2024-09-09)
+cairo: 2.8.2 (https://crates.io/crates/cairo-lang-compiler/2.8.2)
 sierra: 1.6.0
 ----
 
@@ -58,7 +58,7 @@ Install the library by declaring it as a dependency in the project's `Scarb.toml
 [,text]
 ----
 [dependencies]
-openzeppelin = { git = "https://github.com/OpenZeppelin/cairo-contracts.git", tag = "v0.16.0" }
+openzeppelin = "0.17.0"
 ----
 
 WARNING: Make sure the tag matches the target release.
@@ -72,7 +72,7 @@ Copy the code into `src/lib.cairo`.
 ----
 #[starknet::contract]
 mod MyERC20Token {
-    use openzeppelin::token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
+    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);

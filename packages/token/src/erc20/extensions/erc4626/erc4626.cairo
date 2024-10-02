@@ -6,20 +6,26 @@
 /// ADD MEEEEEEEEEEEEEEEEE AHHHH
 #[starknet::component]
 pub mod ERC4626Component {
-    use core::num::traits::Bounded;
+    use core::num::traits::{Bounded, Zero};
     use crate::erc20::ERC20Component::InternalImpl as ERC20InternalImpl;
     use crate::erc20::ERC20Component;
     use crate::erc20::extensions::erc4626::interface::IERC4626;
-    use crate::erc20::interface::IERC20;
+    use crate::erc20::interface::{IERC20, IERC20Metadata};
     use crate::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
     use starknet::ContractAddress;
+    use openzeppelin_utils::math;
+    use openzeppelin_utils::math::Rounding;
+    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 
-    // This default decimals is only used when the DefaultConfig
+    // The defualt values are only used when the DefaultConfig
     // is in scope in the implementing contract.
-    pub const DEFAULT_DECIMALS: u8 = 18;
+    pub const DEFAULT_UNDERLYING_DECIMALS: u8 = 18;
+    pub const DEFAULT_DECIMALS_OFFSET: u8 = 0;
 
     #[storage]
-    pub struct Storage {}
+    pub struct Storage {
+        ERC4626_asset: ContractAddress
+    }
 
     #[event]
     #[derive(Drop, PartialEq, starknet::Event)]
@@ -55,7 +61,8 @@ pub mod ERC4626Component {
         pub const EXCEEDED_MAX_MINT: felt252 = 'ERC4626: exceeds max mint';
         pub const EXCEEDED_MAX_WITHDRAWAL: felt252 = 'ERC4626: exceeds max withdrawal';
         pub const EXCEEDED_MAX_REDEEM: felt252 = 'ERC4626: exceeds max redeem';
-        pub const TOKEN_TRANSFER_FAILED: felt252 = 'ERC4626: Token transfer failed';
+        pub const TOKEN_TRANSFER_FAILED: felt252 = 'ERC4626: token transfer failed';
+        pub const INVALID_ASSET_ADDRESS: felt252 = 'ERC4626: asset address set to 0';
     }
 
     /// Constants expected to be defined at the contract level used to configure the component
@@ -63,8 +70,7 @@ pub mod ERC4626Component {
     ///
     /// ADD ME...
     pub trait ImmutableConfig {
-        const ASSET: ContractAddress;
-        const UNDERLYING_DECIMALS: u128;
+        const UNDERLYING_DECIMALS: u8;
         const DECIMALS_OFFSET: u8;
 
         fn validate() {}
@@ -80,24 +86,20 @@ pub mod ERC4626Component {
         +Drop<TContractState>
     > of IERC4626<ComponentState<TContractState>> {
         fn asset(self: @ComponentState<TContractState>) -> ContractAddress {
-            Immutable::ASSET
+            self.ERC4626_asset.read()
         }
 
         fn total_assets(self: @ComponentState<TContractState>) -> u256 {
             let this = starknet::get_contract_address();
-            IERC20Dispatcher { contract_address: Immutable::ASSET }.balance_of(this)
+            IERC20Dispatcher { contract_address: self.ERC4626_asset.read() }.balance_of(this)
         }
 
         fn convert_to_shares(self: @ComponentState<TContractState>, assets: u256) -> u256 {
-            // FIX ME
-            //self._convert_to_shares(assets)
-            1
+            self._convert_to_shares(assets, Rounding::Floor)
         }
 
         fn convert_to_assets(self: @ComponentState<TContractState>, shares: u256) -> u256 {
-            // FIX ME
-            //self._convert_to_assets(shares)
-            1
+            self._convert_to_assets(shares, Rounding::Floor)
         }
 
         fn max_deposit(self: @ComponentState<TContractState>, receiver: ContractAddress) -> u256 {
@@ -105,9 +107,7 @@ pub mod ERC4626Component {
         }
 
         fn preview_deposit(self: @ComponentState<TContractState>, assets: u256) -> u256 {
-            // FIX ME
-            //self._convertToShares(assets, Math.Rounding.Floor);
-            1
+            self._convert_to_shares(assets, Rounding::Floor)
         }
 
         fn deposit(
@@ -127,9 +127,7 @@ pub mod ERC4626Component {
         }
 
         fn preview_mint(self: @ComponentState<TContractState>, shares: u256) -> u256 {
-            // FIX ME
-            //return _convertToAssets(shares, Math.Rounding.Ceil);
-            1
+            self._convert_to_assets(shares, Rounding::Ceil)
         }
 
         fn mint(
@@ -145,20 +143,13 @@ pub mod ERC4626Component {
         }
 
         fn max_withdrawal(self: @ComponentState<TContractState>, owner: ContractAddress) -> u256 {
-            // FIX ME
-            //return _convertToAssets(balanceOf(owner), Math.Rounding.Floor);
-
-            //let erc20_component = get_dep_component!(self, ERC20);
-            //let owner_bal = erc20_component.balance_of(owner);
-            //self._convert_to_assets(owner_bal);
-            1
+            let erc20_component = get_dep_component!(self, ERC20);
+            let owner_bal = erc20_component.balance_of(owner);
+            self._convert_to_assets(owner_bal, Rounding::Floor)
         }
 
         fn preview_withdrawal(self: @ComponentState<TContractState>, assets: u256) -> u256 {
-            // FIX ME
-            //return _convertToShares(assets, Math.Rounding.Ceil);
-            // self._convert_to_shares(assets);
-            1
+            self._convert_to_shares(assets, Rounding::Ceil)
         }
 
         fn withdraw(
@@ -171,9 +162,9 @@ pub mod ERC4626Component {
             assert(assets < max_assets, Errors::EXCEEDED_MAX_WITHDRAWAL);
 
             let shares = self.preview_withdrawal(assets);
-            let _caller = starknet::get_caller_address();
-            // FIX ME
-            //self._withdraw(_caller, receiver, owner, assets, shares);
+            let caller = starknet::get_caller_address();
+            self._withdraw(caller, receiver, owner, assets, shares);
+
             shares
         }
 
@@ -183,9 +174,7 @@ pub mod ERC4626Component {
         }
 
         fn preview_redeem(self: @ComponentState<TContractState>, shares: u256) -> u256 {
-            // FIX ME
-            //self._convert_to_assets(shares)
-            1
+            self._convert_to_assets(shares, Rounding::Floor)
         }
 
         fn redeem(
@@ -198,10 +187,35 @@ pub mod ERC4626Component {
             assert(shares < max_shares, Errors::EXCEEDED_MAX_REDEEM);
 
             let assets = self.preview_redeem(shares);
-            let _caller = starknet::get_caller_address();
-            // FIX ME
-            //self._withdraw(_caller, receiver, owner, assets, shares);
+            let caller = starknet::get_caller_address();
+            self._withdraw(caller, receiver, owner, assets, shares);
+
             assets
+        }
+    }
+
+    #[embeddable_as(ERC4626MetadataImpl)]
+    impl ERC4626Metadata<
+        TContractState,
+        +HasComponent<TContractState>,
+        impl Immutable: ImmutableConfig,
+        impl ERC20: ERC20Component::HasComponent<TContractState>,
+    > of IERC20Metadata<ComponentState<TContractState>> {
+        /// Returns the name of the token.
+        fn name(self: @ComponentState<TContractState>) -> ByteArray {
+            let erc20_component = get_dep_component!(self, ERC20);
+            erc20_component.ERC20_name.read()
+        }
+
+        /// Returns the ticker symbol of the token, usually a shorter version of the name.
+        fn symbol(self: @ComponentState<TContractState>) -> ByteArray {
+            let erc20_component = get_dep_component!(self, ERC20);
+            erc20_component.ERC20_symbol.read()
+        }
+
+        /// Returns the number of decimals used to get its user representation.
+        fn decimals(self: @ComponentState<TContractState>) -> u8 {
+            Immutable::UNDERLYING_DECIMALS + Immutable::DECIMALS_OFFSET
         }
     }
 
@@ -214,7 +228,10 @@ pub mod ERC4626Component {
         +ERC20Component::ERC20HooksTrait<TContractState>,
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
-        fn initializer(ref self: ComponentState<TContractState>) { //ImmutableConfig::validate();
+        fn initializer(ref self: ComponentState<TContractState>, asset_address: ContractAddress) {
+            //ImmutableConfig::validate();
+            assert(!asset_address.is_zero(), Errors::INVALID_ASSET_ADDRESS);
+            self.ERC4626_asset.write(asset_address);
         }
 
         fn _deposit(
@@ -226,7 +243,7 @@ pub mod ERC4626Component {
         ) {
             // Transfer assets first
             let this = starknet::get_contract_address();
-            let asset_dispatcher = IERC20Dispatcher { contract_address: Immutable::ASSET };
+            let asset_dispatcher = IERC20Dispatcher { contract_address: self.ERC4626_asset.read() };
             assert(
                 asset_dispatcher.transfer_from(caller, this, assets), Errors::TOKEN_TRANSFER_FAILED
             );
@@ -253,21 +270,41 @@ pub mod ERC4626Component {
             erc20_component.burn(owner, shares);
 
             // Transfer assets after burn
-            let asset_dispatcher = IERC20Dispatcher { contract_address: Immutable::ASSET };
+            let asset_dispatcher = IERC20Dispatcher { contract_address: self.ERC4626_asset.read() };
             asset_dispatcher.transfer(receiver, assets);
 
             self.emit(Withdraw { sender: caller, receiver, owner, assets, shares });
         }
+
+        fn _convert_to_shares(self: @ComponentState<TContractState>, assets: u256, rounding: Rounding) -> u256 {
+            let IERC20 = IERC20Dispatcher { contract_address: self.ERC4626_asset.read() };
+            let total_supply = IERC20.total_supply();
+            math::u256_mul_div(assets, total_supply + 10 ^ Immutable::DECIMALS_OFFSET.into(), self.total_assets() + 1, rounding)
+        }
+
+        fn _convert_to_assets(self: @ComponentState<TContractState>, shares: u256, rounding: Rounding) -> u256 {
+            let IERC20 = IERC20Dispatcher { contract_address: self.ERC4626_asset.read() };
+            let total_supply = IERC20.total_supply();
+            math::u256_mul_div(
+                shares,
+                self.total_assets() + 1,
+                total_supply + 10 ^ Immutable::DECIMALS_OFFSET.into(),
+                rounding
+            )
+        }
     }
 }
+
 /// Implementation of the default ERC2981Component ImmutableConfig.
 ///
 /// See
 /// https://github.com/starknet-io/SNIPs/blob/963848f0752bde75c7087c2446d83b7da8118b25/SNIPS/snip-107.md#defaultconfig-implementation
 ///
-/// The default decimals is set to `DEFAULT_DECIMALS`.
-//pub impl DefaultConfig of ERC2981Component::ImmutableConfig {
-//    const UNDERLYING_DECIMALS: u8 = ERC4626::DEFAULT_DECIMALS;
-//}
+/// The default underlying decimals is set to `18`.
+/// The default decimals offset is set to `0`.
+pub impl DefaultConfig of ERC4626Component::ImmutableConfig {
+    const UNDERLYING_DECIMALS: u8 = ERC4626Component::DEFAULT_UNDERLYING_DECIMALS;
+    const DECIMALS_OFFSET: u8 = ERC4626Component::DEFAULT_DECIMALS_OFFSET;
+}
 
 

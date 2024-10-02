@@ -7,16 +7,12 @@ use snforge_std::EventSpy;
 use starknet::ContractAddress;
 
 pub fn setup_receiver() -> ContractAddress {
-    utils::declare_and_deploy("SnakeERC1155ReceiverMock", array![])
-}
-
-pub fn setup_camel_receiver() -> ContractAddress {
-    utils::declare_and_deploy("CamelERC1155ReceiverMock", array![])
+    utils::declare_and_deploy("DualCaseERC1155ReceiverMock", array![])
 }
 
 pub fn setup_account() -> ContractAddress {
     let calldata = array![PUBKEY];
-    utils::declare_and_deploy("SnakeAccountMock", calldata)
+    utils::declare_and_deploy("DualCaseAccountMock", calldata)
 }
 
 pub fn deploy_another_account_at(existing: ContractAddress, target_address: ContractAddress) {

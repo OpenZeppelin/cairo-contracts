@@ -95,9 +95,9 @@ Here's an example of a simple timelock contract:
 ----
 #[starknet::contract]
 mod TimelockControllerContract {
-    use openzeppelin::access::accesscontrol::AccessControlComponent;
-    use openzeppelin::governance::timelock::TimelockControllerComponent;
-    use openzeppelin::introspection::src5::SRC5Component;
+    use openzeppelin_access::accesscontrol::AccessControlComponent;
+    use openzeppelin_governance::timelock::TimelockControllerComponent;
+    use openzeppelin_introspection::src5::SRC5Component;
     use starknet::ContractAddress;
 
     component!(path: AccessControlComponent, storage: access_control, event: AccessControlEvent);

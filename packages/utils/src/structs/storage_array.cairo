@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.16.0 (utils/structs/storage_array.cairo)
+// OpenZeppelin Contracts for Cairo v0.17.0 (utils/structs/storage_array.cairo)
 
 use core::hash::{HashStateExTrait, HashStateTrait};
 use core::poseidon::PoseidonTrait;

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.16.0 (finance/vesting/vesting.cairo)
+// OpenZeppelin Contracts for Cairo v0.17.0 (finance/vesting/vesting.cairo)
 
 use starknet::ContractAddress;
 
@@ -132,6 +132,11 @@ pub mod VestingComponent {
 
         /// Releases the amount of a given `token` that has already vested.
         ///
+        ///
+        /// Requirements:
+        ///
+        /// - `transfer` call to the `token` must return `true` indicating a successful transfer.
+        ///
         /// Emits an `AmountReleased` event.
         fn release(ref self: ComponentState<TContractState>, token: ContractAddress) -> u256 {
             let amount = self.releasable(token);
@@ -152,9 +157,15 @@ pub mod VestingComponent {
         +HasComponent<TContractState>,
         impl VestingSchedule: VestingScheduleTrait<TContractState>
     > of InternalTrait<TContractState> {
-        /// Initializes the component by setting the vesting start, duration and cliff.
+        /// Initializes the component by setting the vesting `start`, `duration` and
+        /// `cliff_duration`.
         /// To prevent reinitialization, this should only be used inside of a contract's
         /// constructor.
+        ///
+        /// Requirements:
+        ///
+        /// - `cliff_duration` must be less than or equal to `duration`.
+        ///
         fn initializer(
             ref self: ComponentState<TContractState>, start: u64, duration: u64, cliff_duration: u64
         ) {

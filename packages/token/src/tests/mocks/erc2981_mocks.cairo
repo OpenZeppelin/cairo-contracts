@@ -112,8 +112,9 @@ pub(crate) mod ERC2981OwnableMock {
 #[starknet::contract]
 pub(crate) mod ERC2981AccessControlMock {
     use AccessControlComponent::InternalTrait;
+    use crate::common::erc2981::ERC2981Component::ROYALTY_ADMIN_ROLE;
     use crate::common::erc2981::{ERC2981Component, DefaultConfig};
-    use openzeppelin_access::accesscontrol::AccessControlComponent;
+    use openzeppelin_access::accesscontrol::{AccessControlComponent, DEFAULT_ADMIN_ROLE};
     use openzeppelin_introspection::src5::SRC5Component;
     use starknet::ContractAddress;
 
@@ -174,6 +175,7 @@ pub(crate) mod ERC2981AccessControlMock {
     ) {
         self.erc2981.initializer(default_receiver, default_royalty_fraction);
         self.accesscontrol.initializer();
-        self.accesscontrol._grant_role(ERC2981Component::ROYALTY_ADMIN_ROLE, owner);
+        self.accesscontrol._grant_role(DEFAULT_ADMIN_ROLE, owner);
+        self.accesscontrol._grant_role(ROYALTY_ADMIN_ROLE, owner);
     }
 }

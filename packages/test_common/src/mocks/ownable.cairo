@@ -1,6 +1,6 @@
 #[starknet::contract]
-pub(crate) mod DualCaseOwnableMock {
-    use crate::ownable::OwnableComponent;
+pub mod DualCaseOwnableMock {
+    use openzeppelin_access::ownable::OwnableComponent;
     use starknet::ContractAddress;
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
@@ -29,8 +29,8 @@ pub(crate) mod DualCaseOwnableMock {
 }
 
 #[starknet::contract]
-pub(crate) mod SnakeOwnableMock {
-    use crate::ownable::OwnableComponent;
+pub mod SnakeOwnableMock {
+    use openzeppelin_access::ownable::OwnableComponent;
     use starknet::ContractAddress;
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
@@ -59,9 +59,9 @@ pub(crate) mod SnakeOwnableMock {
 }
 
 #[starknet::contract]
-pub(crate) mod CamelOwnableMock {
-    use crate::ownable::OwnableComponent;
-    use crate::ownable::interface::IOwnable;
+pub mod CamelOwnableMock {
+    use openzeppelin_access::ownable::OwnableComponent;
+    use openzeppelin_access::ownable::interface::IOwnable;
     use starknet::ContractAddress;
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
@@ -100,7 +100,7 @@ pub(crate) mod CamelOwnableMock {
 }
 
 #[starknet::contract]
-pub(crate) mod SnakeOwnablePanicMock {
+pub mod SnakeOwnablePanicMock {
     use core::num::traits::Zero;
     use starknet::ContractAddress;
 
@@ -129,7 +129,7 @@ pub(crate) mod SnakeOwnablePanicMock {
 }
 
 #[starknet::contract]
-pub(crate) mod CamelOwnablePanicMock {
+pub mod CamelOwnablePanicMock {
     use core::num::traits::Zero;
     use starknet::ContractAddress;
 
@@ -158,8 +158,8 @@ pub(crate) mod CamelOwnablePanicMock {
 }
 
 #[starknet::contract]
-pub(crate) mod DualCaseTwoStepOwnableMock {
-    use crate::ownable::OwnableComponent;
+pub mod DualCaseTwoStepOwnableMock {
+    use openzeppelin_access::ownable::OwnableComponent;
     use starknet::ContractAddress;
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);

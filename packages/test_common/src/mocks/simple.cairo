@@ -1,12 +1,13 @@
 #[starknet::interface]
-pub(crate) trait ISimpleMock<TContractState> {
+pub trait ISimpleMock<TContractState> {
     fn increase_balance(ref self: TContractState, amount: felt252) -> bool;
     fn get_balance(self: @TContractState) -> felt252;
 }
 
 #[starknet::contract]
-pub(crate) mod SimpleMock {
+pub mod SimpleMock {
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+
     #[storage]
     pub struct Storage {
         pub balance: felt252,

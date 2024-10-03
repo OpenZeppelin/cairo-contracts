@@ -1,5 +1,5 @@
 #[starknet::contract]
-pub(crate) mod NonImplementingMock {
+pub mod NonImplementingMock {
     #[storage]
     pub struct Storage {}
 

@@ -42,7 +42,7 @@ keywords = [
 [workspace.dependencies]
 assert_macros = "2.8.2"
 starknet = "2.8.2"
-snforge_std = "0.30.0"
+snforge_std = "0.31.0"
 
 [dependencies]
 starknet.workspace = true

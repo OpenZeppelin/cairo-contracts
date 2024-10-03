@@ -1,28 +1,30 @@
 #[starknet::contract(account)]
-pub(crate) mod DualCaseEthAccountMock {
-    use crate::EthAccountComponent;
-    use crate::interface::EthPublicKey;
+pub mod DualCaseAccountMock {
+    use openzeppelin_account::AccountComponent;
     use openzeppelin_introspection::src5::SRC5Component;
 
-    component!(path: EthAccountComponent, storage: eth_account, event: EthAccountEvent);
+    component!(path: AccountComponent, storage: account, event: AccountEvent);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
+    // Account
     #[abi(embed_v0)]
-    impl SRC6Impl = EthAccountComponent::SRC6Impl<ContractState>;
+    impl SRC6Impl = AccountComponent::SRC6Impl<ContractState>;
     #[abi(embed_v0)]
-    impl SRC6CamelOnlyImpl = EthAccountComponent::SRC6CamelOnlyImpl<ContractState>;
+    impl SRC6CamelOnlyImpl = AccountComponent::SRC6CamelOnlyImpl<ContractState>;
     #[abi(embed_v0)]
-    impl DeclarerImpl = EthAccountComponent::DeclarerImpl<ContractState>;
+    impl DeclarerImpl = AccountComponent::DeclarerImpl<ContractState>;
     #[abi(embed_v0)]
-    impl DeployableImpl = EthAccountComponent::DeployableImpl<ContractState>;
+    impl DeployableImpl = AccountComponent::DeployableImpl<ContractState>;
+    impl AccountInternalImpl = AccountComponent::InternalImpl<ContractState>;
+
+    // SCR5
     #[abi(embed_v0)]
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
-    impl EthAccountInternalImpl = EthAccountComponent::InternalImpl<ContractState>;
 
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        pub eth_account: EthAccountComponent::Storage,
+        pub account: AccountComponent::Storage,
         #[substorage(v0)]
         pub src5: SRC5Component::Storage
     }
@@ -31,38 +33,40 @@ pub(crate) mod DualCaseEthAccountMock {
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        EthAccountEvent: EthAccountComponent::Event,
+        AccountEvent: AccountComponent::Event,
         #[flat]
         SRC5Event: SRC5Component::Event
     }
 
     #[constructor]
-    fn constructor(ref self: ContractState, public_key: EthPublicKey) {
-        self.eth_account.initializer(public_key);
+    fn constructor(ref self: ContractState, public_key: felt252) {
+        self.account.initializer(public_key);
     }
 }
 
 #[starknet::contract(account)]
-pub(crate) mod SnakeEthAccountMock {
-    use crate::EthAccountComponent;
-    use crate::interface::EthPublicKey;
+pub mod SnakeAccountMock {
+    use openzeppelin_account::AccountComponent;
     use openzeppelin_introspection::src5::SRC5Component;
 
-    component!(path: EthAccountComponent, storage: eth_account, event: EthAccountEvent);
+    component!(path: AccountComponent, storage: account, event: AccountEvent);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
+    // Account
     #[abi(embed_v0)]
-    impl SRC6Impl = EthAccountComponent::SRC6Impl<ContractState>;
+    impl SRC6Impl = AccountComponent::SRC6Impl<ContractState>;
     #[abi(embed_v0)]
-    impl PublicKeyImpl = EthAccountComponent::PublicKeyImpl<ContractState>;
+    impl PublicKeyImpl = AccountComponent::PublicKeyImpl<ContractState>;
+    impl AccountInternalImpl = AccountComponent::InternalImpl<ContractState>;
+
+    // SCR5
     #[abi(embed_v0)]
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
-    impl EthAccountInternalImpl = EthAccountComponent::InternalImpl<ContractState>;
 
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        pub eth_account: EthAccountComponent::Storage,
+        pub account: AccountComponent::Storage,
         #[substorage(v0)]
         pub src5: SRC5Component::Storage
     }
@@ -71,41 +75,42 @@ pub(crate) mod SnakeEthAccountMock {
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        EthAccountEvent: EthAccountComponent::Event,
+        AccountEvent: AccountComponent::Event,
         #[flat]
         SRC5Event: SRC5Component::Event
     }
 
     #[constructor]
-    fn constructor(ref self: ContractState, public_key: EthPublicKey) {
-        self.eth_account.initializer(public_key);
+    fn constructor(ref self: ContractState, public_key: felt252) {
+        self.account.initializer(public_key);
     }
 }
 
 #[starknet::contract(account)]
-pub(crate) mod CamelEthAccountMock {
-    use crate::EthAccountComponent;
-    use crate::interface::EthPublicKey;
+pub mod CamelAccountMock {
+    use openzeppelin_account::AccountComponent;
     use openzeppelin_introspection::src5::SRC5Component;
     use starknet::account::Call;
 
-    component!(path: EthAccountComponent, storage: eth_account, event: EthAccountEvent);
+    component!(path: AccountComponent, storage: account, event: AccountEvent);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
+    // Account
     #[abi(embed_v0)]
-    impl SRC6CamelOnlyImpl = EthAccountComponent::SRC6CamelOnlyImpl<ContractState>;
+    impl SRC6CamelOnlyImpl = AccountComponent::SRC6CamelOnlyImpl<ContractState>;
     #[abi(embed_v0)]
-    impl PublicKeyCamelImpl =
-        EthAccountComponent::PublicKeyCamelImpl<ContractState>;
+    impl PublicKeyCamelImpl = AccountComponent::PublicKeyCamelImpl<ContractState>;
+    impl SRC6Impl = AccountComponent::SRC6Impl<ContractState>;
+    impl AccountInternalImpl = AccountComponent::InternalImpl<ContractState>;
+
+    // SCR5
     #[abi(embed_v0)]
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
-    impl SRC6Impl = EthAccountComponent::SRC6Impl<ContractState>;
-    impl EthAccountInternalImpl = EthAccountComponent::InternalImpl<ContractState>;
 
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        pub eth_account: EthAccountComponent::Storage,
+        pub account: AccountComponent::Storage,
         #[substorage(v0)]
         pub src5: SRC5Component::Storage
     }
@@ -114,14 +119,14 @@ pub(crate) mod CamelEthAccountMock {
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        EthAccountEvent: EthAccountComponent::Event,
+        AccountEvent: AccountComponent::Event,
         #[flat]
         SRC5Event: SRC5Component::Event
     }
 
     #[constructor]
-    fn constructor(ref self: ContractState, publicKey: EthPublicKey) {
-        self.eth_account.initializer(publicKey);
+    fn constructor(ref self: ContractState, publicKey: felt252) {
+        self.account.initializer(publicKey);
     }
 
     #[abi(per_item)]
@@ -129,12 +134,12 @@ pub(crate) mod CamelEthAccountMock {
     impl ExternalImpl of ExternalTrait {
         #[external(v0)]
         fn __execute__(self: @ContractState, mut calls: Array<Call>) -> Array<Span<felt252>> {
-            self.eth_account.__execute__(calls)
+            self.account.__execute__(calls)
         }
 
         #[external(v0)]
         fn __validate__(self: @ContractState, mut calls: Array<Call>) -> felt252 {
-            self.eth_account.__validate__(calls)
+            self.account.__validate__(calls)
         }
     }
 }
@@ -146,11 +151,7 @@ pub(crate) mod CamelEthAccountMock {
 // false for bool
 
 #[starknet::contract]
-pub(crate) mod SnakeEthAccountPanicMock {
-    use crate::interface::EthPublicKey;
-    use starknet::SyscallResultTrait;
-    use starknet::secp256_trait::Secp256Trait;
-
+pub mod SnakeAccountPanicMock {
     #[storage]
     pub struct Storage {}
 
@@ -159,15 +160,15 @@ pub(crate) mod SnakeEthAccountPanicMock {
     impl ExternalImpl of ExternalTrait {
         #[external(v0)]
         fn set_public_key(
-            ref self: ContractState, new_public_key: EthPublicKey, signature: Span<felt252>
+            ref self: ContractState, new_public_key: felt252, signature: Span<felt252>
         ) {
             panic!("Some error");
         }
 
         #[external(v0)]
-        fn get_public_key(self: @ContractState) -> EthPublicKey {
+        fn get_public_key(self: @ContractState) -> felt252 {
             panic!("Some error");
-            Secp256Trait::secp256_ec_new_syscall(3, 3).unwrap_syscall().unwrap()
+            3
         }
 
         #[external(v0)]
@@ -187,11 +188,7 @@ pub(crate) mod SnakeEthAccountPanicMock {
 }
 
 #[starknet::contract]
-pub(crate) mod CamelEthAccountPanicMock {
-    use crate::interface::EthPublicKey;
-    use starknet::SyscallResultTrait;
-    use starknet::secp256_trait::Secp256Trait;
-
+pub mod CamelAccountPanicMock {
     #[storage]
     pub struct Storage {}
 
@@ -199,16 +196,14 @@ pub(crate) mod CamelEthAccountPanicMock {
     #[generate_trait]
     impl ExternalImpl of ExternalTrait {
         #[external(v0)]
-        fn setPublicKey(
-            ref self: ContractState, newPublicKey: EthPublicKey, signature: Span<felt252>
-        ) {
+        fn setPublicKey(ref self: ContractState, newPublicKey: felt252, signature: Span<felt252>) {
             panic!("Some error");
         }
 
         #[external(v0)]
-        fn getPublicKey(self: @ContractState) -> EthPublicKey {
+        fn getPublicKey(self: @ContractState) -> felt252 {
             panic!("Some error");
-            Secp256Trait::secp256_ec_new_syscall(3, 3).unwrap_syscall().unwrap()
+            3
         }
 
         #[external(v0)]

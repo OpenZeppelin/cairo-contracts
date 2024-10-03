@@ -1,8 +1,7 @@
 #[starknet::contract]
-#[cfg(feature: 'mock_contract')]
-pub(crate) mod DualCaseAccessControlMock {
-    use crate::accesscontrol::AccessControlComponent;
-    use crate::accesscontrol::DEFAULT_ADMIN_ROLE;
+pub mod DualCaseAccessControlMock {
+    use openzeppelin_access::accesscontrol::AccessControlComponent;
+    use openzeppelin_access::accesscontrol::DEFAULT_ADMIN_ROLE;
     use openzeppelin_introspection::src5::SRC5Component;
     use starknet::ContractAddress;
 
@@ -40,9 +39,9 @@ pub(crate) mod DualCaseAccessControlMock {
 }
 
 #[starknet::contract]
-pub(crate) mod SnakeAccessControlMock {
-    use crate::accesscontrol::AccessControlComponent;
-    use crate::accesscontrol::DEFAULT_ADMIN_ROLE;
+pub mod SnakeAccessControlMock {
+    use openzeppelin_access::accesscontrol::AccessControlComponent;
+    use openzeppelin_access::accesscontrol::DEFAULT_ADMIN_ROLE;
     use openzeppelin_introspection::src5::SRC5Component;
     use starknet::ContractAddress;
 
@@ -84,9 +83,9 @@ pub(crate) mod SnakeAccessControlMock {
 }
 
 #[starknet::contract]
-pub(crate) mod CamelAccessControlMock {
-    use crate::accesscontrol::AccessControlComponent;
-    use crate::accesscontrol::DEFAULT_ADMIN_ROLE;
+pub mod CamelAccessControlMock {
+    use openzeppelin_access::accesscontrol::AccessControlComponent;
+    use openzeppelin_access::accesscontrol::DEFAULT_ADMIN_ROLE;
     use openzeppelin_introspection::src5::SRC5Component;
     use starknet::ContractAddress;
 
@@ -135,7 +134,7 @@ pub(crate) mod CamelAccessControlMock {
 // false for bool
 
 #[starknet::contract]
-pub(crate) mod SnakeAccessControlPanicMock {
+pub mod SnakeAccessControlPanicMock {
     use starknet::ContractAddress;
 
     #[storage]
@@ -180,7 +179,7 @@ pub(crate) mod SnakeAccessControlPanicMock {
 }
 
 #[starknet::contract]
-pub(crate) mod CamelAccessControlPanicMock {
+pub mod CamelAccessControlPanicMock {
     use starknet::ContractAddress;
 
     #[storage]

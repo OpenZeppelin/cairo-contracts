@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Bump scarb to v2.8.3 (#1166)
 
+### Changed (Breaking)
+
+- Bump snforge to 0.31.0
+
 ## 0.17.0 (2024-09-23)
 
 ### Added

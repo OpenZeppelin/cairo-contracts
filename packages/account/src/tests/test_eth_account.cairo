@@ -3,8 +3,6 @@ use crate::EthAccountComponent::{PublicKeyCamelImpl, PublicKeyImpl};
 use crate::EthAccountComponent;
 use crate::interface::{EthAccountABIDispatcherTrait, EthAccountABIDispatcher};
 use crate::interface::{ISRC6, ISRC6_ID};
-use crate::tests::mocks::eth_account_mocks::DualCaseEthAccountMock;
-use crate::tests::mocks::simple_mock::{ISimpleMockDispatcher, ISimpleMockDispatcherTrait};
 use crate::utils::secp256k1::{DebugSecp256k1Point, Secp256k1PointPartialEq};
 use crate::utils::signature::EthSignature;
 use openzeppelin_introspection::interface::{ISRC5, ISRC5_ID};
@@ -12,6 +10,8 @@ use openzeppelin_test_common::eth_account::EthAccountSpyHelpers;
 use openzeppelin_test_common::eth_account::{
     SIGNED_TX_DATA, SignedTransactionData, get_accept_ownership_signature
 };
+use openzeppelin_test_common::mocks::eth_account::DualCaseEthAccountMock;
+use openzeppelin_test_common::mocks::simple::{ISimpleMockDispatcher, ISimpleMockDispatcherTrait};
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::secp256k1::{KEY_PAIR, KEY_PAIR_2};
 use openzeppelin_testing::constants::{

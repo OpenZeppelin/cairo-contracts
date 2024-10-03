@@ -63,6 +63,7 @@ pub mod ERC4626Component {
         pub const EXCEEDED_MAX_REDEEM: felt252 = 'ERC4626: exceeds max redeem';
         pub const TOKEN_TRANSFER_FAILED: felt252 = 'ERC4626: token transfer failed';
         pub const INVALID_ASSET_ADDRESS: felt252 = 'ERC4626: asset address set to 0';
+        pub const DECIMALS_OVERFLOW: felt252 = 'ERC4626: decimals overflow';
     }
 
     /// Constants expected to be defined at the contract level used to configure the component
@@ -73,7 +74,9 @@ pub mod ERC4626Component {
         const UNDERLYING_DECIMALS: u8;
         const DECIMALS_OFFSET: u8;
 
-        fn validate() {}
+        fn validate() {
+            assert(Bounded::MAX - Self::UNDERLYING_DECIMALS >= Self::DECIMALS_OFFSET, Errors::DECIMALS_OVERFLOW)
+        }
     }
 
     #[embeddable_as(ERC4626Impl)]
@@ -229,7 +232,7 @@ pub mod ERC4626Component {
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
         fn initializer(ref self: ComponentState<TContractState>, asset_address: ContractAddress) {
-            //ImmutableConfig::validate();
+            ImmutableConfig::validate();
             assert(!asset_address.is_zero(), Errors::INVALID_ASSET_ADDRESS);
             self.ERC4626_asset.write(asset_address);
         }
@@ -307,4 +310,32 @@ pub impl DefaultConfig of ERC4626Component::ImmutableConfig {
     const DECIMALS_OFFSET: u8 = ERC4626Component::DEFAULT_DECIMALS_OFFSET;
 }
 
+#[cfg(test)]
+mod Test {
+    use crate::tests::mocks::erc4626_mocks::ERC4626Mock;
+    use starknet::contract_address_const;
+    use super::ERC4626Component::InternalImpl;
+    use super::ERC4626Component;
+
+    type ComponentState = ERC4626Component::ComponentState<ERC4626Mock::ContractState>;
+
+    fn COMPONENT_STATE() -> ComponentState {
+        ERC4626Component::component_state_for_testing()
+    }
+
+    // Invalid fee denominator
+    impl InvalidImmutableConfig of ERC4626Component::ImmutableConfig {
+        const UNDERLYING_DECIMALS: u8 = 255;
+        const DECIMALS_OFFSET: u8 = 1;
+    }
+
+    #[test]
+    #[should_panic(expected: 'ERC4626: decimals overflow')]
+    fn test_initializer_invalid_config_panics() {
+        let mut state = COMPONENT_STATE();
+        let asset = contract_address_const::<'ASSET'>();
+
+        state.initializer(asset);
+    }
+}
 

@@ -5,7 +5,7 @@ pub mod erc721;
 pub mod eth_account;
 pub mod interfaces;
 
-pub mod tests;
+mod tests;
 pub mod universal_deployer;
 pub mod vesting;
 

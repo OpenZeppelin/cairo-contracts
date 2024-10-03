@@ -1,5 +1,3 @@
-const SUCCESS: felt252 = 'SUCCESS';
-
 #[starknet::contract]
 pub(crate) mod DualCaseERC1155ReceiverMock {
     use openzeppelin_introspection::src5::SRC5Component;

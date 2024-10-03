@@ -1,7 +1,6 @@
 #[starknet::contract]
 pub(crate) mod ERC4626Mock {
     use crate::erc20::{ERC20Component, ERC20HooksEmptyImpl};
-    use crate::erc20::extensions::erc4626::DefaultConfig;
     use crate::erc20::extensions::erc4626::ERC4626Component;
     use crate::erc20::extensions::erc4626::ERC4626Component::InternalTrait as ERC4626InternalTrait;
     use starknet::ContractAddress;
@@ -40,6 +39,11 @@ pub(crate) mod ERC4626Mock {
         ERC4626Event: ERC4626Component::Event,
         #[flat]
         ERC20Event: ERC20Component::Event
+    }
+
+    pub impl OffsetConfig of ERC4626Component::ImmutableConfig {
+        const UNDERLYING_DECIMALS: u8 = ERC4626Component::DEFAULT_UNDERLYING_DECIMALS;
+        const DECIMALS_OFFSET: u8 = 1;
     }
 
     #[constructor]

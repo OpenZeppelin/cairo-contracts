@@ -2,7 +2,7 @@ use core::num::traits::Zero;
 use crate::interfaces::{ERC1155UpgradeableABIDispatcher, ERC1155UpgradeableABIDispatcherTrait};
 use openzeppelin_test_common::erc1155::ERC1155SpyHelpers;
 use openzeppelin_test_common::erc1155::{
-    setup_account, setup_receiver, setup_camel_receiver, deploy_another_account_at, setup_src5
+    setup_account, setup_receiver, deploy_another_account_at, setup_src5
 };
 use openzeppelin_test_common::erc1155::{get_ids_and_values, get_ids_and_split_values};
 use openzeppelin_test_common::ownable::OwnableSpyHelpers;
@@ -169,40 +169,10 @@ fn test_safe_transfer_from_to_receiver() {
 }
 
 #[test]
-#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-fn test_safe_transfer_from_to_camel_receiver() {
-    let (mut spy, dispatcher, owner) = setup_dispatcher();
-    let contract = dispatcher.contract_address;
-    let recipient = setup_camel_receiver();
-
-    assert_state_before_transfer_single(dispatcher, owner, recipient, TOKEN_ID);
-
-    dispatcher.safe_transfer_from(owner, recipient, TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
-    spy.assert_only_event_transfer_single(contract, owner, owner, recipient, TOKEN_ID, TOKEN_VALUE);
-
-    assert_state_after_transfer_single(dispatcher, owner, recipient, TOKEN_ID);
-}
-
-#[test]
 fn test_safeTransferFrom_to_receiver() {
     let (mut spy, dispatcher, owner) = setup_dispatcher();
     let contract = dispatcher.contract_address;
     let recipient = setup_receiver();
-
-    assert_state_before_transfer_single(dispatcher, owner, recipient, TOKEN_ID);
-
-    dispatcher.safeTransferFrom(owner, recipient, TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
-    spy.assert_only_event_transfer_single(contract, owner, owner, recipient, TOKEN_ID, TOKEN_VALUE);
-
-    assert_state_after_transfer_single(dispatcher, owner, recipient, TOKEN_ID);
-}
-
-#[test]
-#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-fn test_safeTransferFrom_to_camel_receiver() {
-    let (mut spy, dispatcher, owner) = setup_dispatcher();
-    let contract = dispatcher.contract_address;
-    let recipient = setup_camel_receiver();
 
     assert_state_before_transfer_single(dispatcher, owner, recipient, TOKEN_ID);
 
@@ -394,42 +364,10 @@ fn test_safe_batch_transfer_from_to_receiver() {
 }
 
 #[test]
-#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-fn test_safe_batch_transfer_from_to_camel_receiver() {
-    let (mut spy, dispatcher, owner) = setup_dispatcher();
-    let contract = dispatcher.contract_address;
-    let recipient = setup_camel_receiver();
-    let (token_ids, values) = get_ids_and_values();
-
-    assert_state_before_transfer_batch(dispatcher, owner, recipient, token_ids, values);
-
-    dispatcher.safe_batch_transfer_from(owner, recipient, token_ids, values, EMPTY_DATA());
-    spy.assert_only_event_transfer_batch(contract, owner, owner, recipient, token_ids, values);
-
-    assert_state_after_transfer_batch(dispatcher, owner, recipient, token_ids, values);
-}
-
-#[test]
 fn test_safeBatchTransferFrom_to_receiver() {
     let (mut spy, dispatcher, owner) = setup_dispatcher();
     let contract = dispatcher.contract_address;
     let recipient = setup_receiver();
-    let (token_ids, values) = get_ids_and_values();
-
-    assert_state_before_transfer_batch(dispatcher, owner, recipient, token_ids, values);
-
-    dispatcher.safeBatchTransferFrom(owner, recipient, token_ids, values, EMPTY_DATA());
-    spy.assert_only_event_transfer_batch(contract, owner, owner, recipient, token_ids, values);
-
-    assert_state_after_transfer_batch(dispatcher, owner, recipient, token_ids, values);
-}
-
-#[test]
-#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-fn test_safeBatchTransferFrom_to_camel_receiver() {
-    let (mut spy, dispatcher, owner) = setup_dispatcher();
-    let contract = dispatcher.contract_address;
-    let recipient = setup_camel_receiver();
     let (token_ids, values) = get_ids_and_values();
 
     assert_state_before_transfer_batch(dispatcher, owner, recipient, token_ids, values);

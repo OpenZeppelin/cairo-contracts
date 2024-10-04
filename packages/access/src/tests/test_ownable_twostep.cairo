@@ -2,7 +2,7 @@ use core::num::traits::Zero;
 use crate::ownable::OwnableComponent::{InternalTrait, OwnershipTransferStarted};
 use crate::ownable::OwnableComponent;
 use crate::ownable::interface::{IOwnableTwoStep, IOwnableTwoStepCamelOnly};
-use openzeppelin_test_common::mocks::ownable::DualCaseTwoStepOwnableMock;
+use openzeppelin_test_common::mocks::access::DualCaseTwoStepOwnableMock;
 use openzeppelin_test_common::ownable::OwnableSpyHelpers;
 use openzeppelin_testing::constants::{ZERO, OWNER, OTHER, NEW_OWNER};
 use openzeppelin_testing::events::EventSpyExt;

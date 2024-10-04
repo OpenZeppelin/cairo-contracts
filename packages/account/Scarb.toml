@@ -40,14 +40,7 @@ sierra = true
 casm = false
 build-external-contracts = [
     "openzeppelin_test_common::mocks::account::DualCaseAccountMock",
-    "openzeppelin_test_common::mocks::account::SnakeAccountMock",
-    "openzeppelin_test_common::mocks::account::SnakeAccountPanicMock",
-    "openzeppelin_test_common::mocks::account::CamelAccountPanicMock",
-    "openzeppelin_test_common::mocks::eth_account::SnakeEthAccountMock",
-    "openzeppelin_test_common::mocks::eth_account::SnakeEthAccountPanicMock",
-    "openzeppelin_test_common::mocks::eth_account::CamelEthAccountPanicMock",
-    "openzeppelin_test_common::mocks::eth_account::DualCaseEthAccountMock",
+    "openzeppelin_test_common::mocks::account::DualCaseEthAccountMock",
     "openzeppelin_test_common::mocks::src9::SRC9AccountMock",
     "openzeppelin_test_common::mocks::simple::SimpleMock",
-    "openzeppelin_test_common::mocks::non_implementing::NonImplementingMock",
 ]

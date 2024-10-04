@@ -3,9 +3,9 @@ use crate::erc721::ERC721Component::{ERC721Impl, ERC721CamelOnlyImpl};
 use crate::erc721::ERC721Component::{ERC721MetadataImpl, InternalImpl};
 use crate::erc721::ERC721Component;
 use crate::erc721;
-use crate::tests::mocks::erc721_mocks::DualCaseERC721Mock;
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin_test_common::erc721::ERC721SpyHelpers;
+use openzeppelin_test_common::mocks::erc721::DualCaseERC721Mock;
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{
     DATA, ZERO, OWNER, CALLER, RECIPIENT, SPENDER, OPERATOR, OTHER, NAME, SYMBOL, TOKEN_ID,

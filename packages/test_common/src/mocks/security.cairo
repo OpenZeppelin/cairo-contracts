@@ -1,4 +1,51 @@
 use starknet::ContractAddress;
+#[starknet::contract]
+pub mod InitializableMock {
+    use openzeppelin_security::initializable::InitializableComponent;
+
+    component!(path: InitializableComponent, storage: initializable, event: InitializableEvent);
+
+    #[abi(embed_v0)]
+    impl InitializableImpl =
+        InitializableComponent::InitializableImpl<ContractState>;
+
+    #[storage]
+    pub struct Storage {
+        #[substorage(v0)]
+        pub initializable: InitializableComponent::Storage
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        InitializableEvent: InitializableComponent::Event
+    }
+}
+
+#[starknet::contract]
+pub mod PausableMock {
+    use openzeppelin_security::pausable::PausableComponent;
+
+    component!(path: PausableComponent, storage: pausable, event: PausableEvent);
+
+    #[abi(embed_v0)]
+    impl PausableImpl = PausableComponent::PausableImpl<ContractState>;
+    impl InternalImpl = PausableComponent::InternalImpl<ContractState>;
+
+    #[storage]
+    pub struct Storage {
+        #[substorage(v0)]
+        pub pausable: PausableComponent::Storage
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        PausableEvent: PausableComponent::Event
+    }
+}
 
 #[starknet::interface]
 trait IReentrancyGuarded<TState> {
@@ -6,7 +53,7 @@ trait IReentrancyGuarded<TState> {
 }
 
 #[starknet::interface]
-pub(crate) trait IReentrancyMock<TState> {
+pub trait IReentrancyMock<TState> {
     fn count(ref self: TState);
     fn current_count(self: @TState) -> felt252;
     fn callback(ref self: TState);
@@ -16,8 +63,8 @@ pub(crate) trait IReentrancyMock<TState> {
 }
 
 #[starknet::contract]
-pub(crate) mod ReentrancyMock {
-    use crate::reentrancyguard::ReentrancyGuardComponent;
+pub mod ReentrancyMock {
+    use openzeppelin_security::reentrancyguard::ReentrancyGuardComponent;
     use starknet::ContractAddress;
     use starknet::get_contract_address;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
@@ -107,7 +154,7 @@ trait IAttacker<TState> {
 }
 
 #[starknet::contract]
-pub(crate) mod Attacker {
+pub mod Attacker {
     use starknet::ContractAddress;
     use starknet::get_caller_address;
     use super::IReentrancyMockDispatcher;

@@ -4,7 +4,7 @@ use crate::accesscontrol::AccessControlComponent::{
 use crate::accesscontrol::interface::{IAccessControl, IAccessControlCamel, IACCESSCONTROL_ID};
 use crate::accesscontrol::{AccessControlComponent, DEFAULT_ADMIN_ROLE};
 use openzeppelin_introspection::interface::ISRC5;
-use openzeppelin_test_common::mocks::accesscontrol::DualCaseAccessControlMock;
+use openzeppelin_test_common::mocks::access::DualCaseAccessControlMock;
 use openzeppelin_testing::constants::{
     ADMIN, AUTHORIZED, OTHER, OTHER_ADMIN, ROLE, OTHER_ROLE, ZERO
 };

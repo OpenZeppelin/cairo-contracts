@@ -1,11 +1,7 @@
-// These contracts are mocks used to test the core functionality of the upgrade functions.
-// The functions are NOT PROTECTED.
-// DO NOT USE IN PRODUCTION.
-
 use starknet::ClassHash;
 
 #[starknet::interface]
-pub(crate) trait IUpgradesV1<TState> {
+pub trait IUpgradesV1<TState> {
     fn upgrade(ref self: TState, new_class_hash: ClassHash);
     fn set_value(ref self: TState, val: felt252);
     fn get_value(self: @TState) -> felt252;
@@ -13,8 +9,8 @@ pub(crate) trait IUpgradesV1<TState> {
 }
 
 #[starknet::contract]
-pub(crate) mod UpgradesV1 {
-    use crate::UpgradeableComponent;
+pub mod UpgradesV1 {
+    use openzeppelin_upgrades::UpgradeableComponent;
     use starknet::ClassHash;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 
@@ -55,7 +51,7 @@ pub(crate) mod UpgradesV1 {
 }
 
 #[starknet::interface]
-pub(crate) trait IUpgradesV2<TState> {
+pub trait IUpgradesV2<TState> {
     fn upgrade(ref self: TState, new_class_hash: ClassHash);
     fn set_value(ref self: TState, val: felt252);
     fn set_value2(ref self: TState, val: felt252);
@@ -64,8 +60,8 @@ pub(crate) trait IUpgradesV2<TState> {
 }
 
 #[starknet::contract]
-pub(crate) mod UpgradesV2 {
-    use crate::UpgradeableComponent;
+pub mod UpgradesV2 {
+    use openzeppelin_upgrades::UpgradeableComponent;
     use starknet::ClassHash;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 

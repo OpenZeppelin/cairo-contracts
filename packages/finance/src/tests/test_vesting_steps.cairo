@@ -1,9 +1,9 @@
 use openzeppelin_access::ownable::interface::{IOwnableDispatcher, IOwnableDispatcherTrait};
 use openzeppelin_finance::tests::common::{VestingStrategy, TestData, setup, set_transfer_to_fail};
-use openzeppelin_finance::tests::mocks::vesting_mocks::StepsVestingMock;
 use openzeppelin_finance::vesting::VestingComponent::InternalImpl;
 use openzeppelin_finance::vesting::VestingComponent;
 use openzeppelin_finance::vesting::interface::IVestingDispatcherTrait;
+use openzeppelin_test_common::mocks::vesting::StepsVestingMock;
 use openzeppelin_test_common::vesting::VestingSpyHelpers;
 use openzeppelin_testing::constants::{OWNER, OTHER};
 use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};

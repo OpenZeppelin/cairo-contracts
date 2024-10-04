@@ -38,14 +38,3 @@ openzeppelin_test_common = { path = "../test_common" }
 allowed-libfuncs-list.name = "experimental"
 sierra = true
 casm = false
-build-external-contracts = [
-    "openzeppelin_test_common::mocks::accesscontrol::SnakeAccessControlMock",
-    "openzeppelin_test_common::mocks::accesscontrol::CamelAccessControlMock",
-    "openzeppelin_test_common::mocks::accesscontrol::SnakeAccessControlPanicMock",
-    "openzeppelin_test_common::mocks::accesscontrol::CamelAccessControlPanicMock",
-    "openzeppelin_test_common::mocks::ownable::SnakeOwnableMock",
-    "openzeppelin_test_common::mocks::ownable::CamelOwnableMock",
-    "openzeppelin_test_common::mocks::ownable::SnakeOwnablePanicMock",
-    "openzeppelin_test_common::mocks::ownable::CamelOwnablePanicMock",
-    "openzeppelin_test_common::mocks::non_implementing::NonImplementingMock",
-]

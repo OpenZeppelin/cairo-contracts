@@ -1,7 +1,7 @@
 #[starknet::contract]
-pub(crate) mod TimelockControllerMock {
-    use crate::timelock::TimelockControllerComponent;
+pub mod TimelockControllerMock {
     use openzeppelin_access::accesscontrol::AccessControlComponent;
+    use openzeppelin_governance::timelock::TimelockControllerComponent;
     use openzeppelin_introspection::src5::SRC5Component;
     use starknet::ContractAddress;
 
@@ -49,14 +49,14 @@ pub(crate) mod TimelockControllerMock {
 }
 
 #[starknet::interface]
-pub(crate) trait IMockContract<TState> {
+pub trait IMockContract<TState> {
     fn set_number(ref self: TState, new_number: felt252);
     fn get_number(self: @TState) -> felt252;
     fn failing_function(self: @TState);
 }
 
 #[starknet::contract]
-pub(crate) mod MockContract {
+pub mod MockContract {
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
     use super::IMockContract;
 
@@ -82,14 +82,16 @@ pub(crate) mod MockContract {
 }
 
 #[starknet::interface]
-pub(crate) trait ITimelockAttacker<TState> {
+pub trait ITimelockAttacker<TState> {
     fn reenter(ref self: TState);
     fn reenter_batch(ref self: TState);
 }
 
 #[starknet::contract]
-pub(crate) mod TimelockAttackerMock {
-    use crate::timelock::interface::{ITimelockDispatcher, ITimelockDispatcherTrait};
+pub mod TimelockAttackerMock {
+    use openzeppelin_governance::timelock::interface::{
+        ITimelockDispatcher, ITimelockDispatcherTrait
+    };
     use starknet::account::Call;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
     use super::ITimelockAttacker;

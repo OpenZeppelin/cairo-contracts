@@ -88,7 +88,7 @@ NOTE: In the example, the `IERC20Dispatcher` is the one used to interact with co
 
 == Dual interfaces
 
-WARNING: `camelCase` functions are deprecated and maintained only for Backwards Compatibilty. We recommend to
+WARNING: `camelCase` functions are deprecated and maintained only for Backwards Compatibility. We recommend to
 integrate you contracts and components with the `snake_case` interfaces. The `camelCase` functions will be removed in
 future versions.
 

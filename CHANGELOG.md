@@ -13,6 +13,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Bump scarb to v2.8.3 (#1166)
 
+### Changed (Breaking)
+
+- Remove `DualCase dispatchers`
+  - Remove `try_selector_with_fallback` from `openzeppelin_utils`
+  - Remove `unwrap_and_cast` module from `openzeppelin_utils`
+  - Remove `openzeppelin_access::accesscontrol::dual_accesscontrol`
+  - Remove `openzeppelin_access::ownable::dual_ownable`
+  - Remove `openzeppelin_account::dual_account`
+  - Remove `openzeppelin_account::dual_eth_account`
+  - Remove `openzeppelin_token::erc20::dual20`
+  - Remove `openzeppelin_token::erc721::dual721`
+  - Remove `openzeppelin_token::erc721::dual721_receiver`
+  - Remove `openzeppelin_token::erc1155::dual1155`
+  - Remove `openzeppelin_token::erc1155::dual1155_receiver`
+- `SRC9Component` now uses `ISRC6Dispatcher` instead of `DualCaseAccount`
+- `ERC20VotesComponent` now uses `ISRC6Dispatcher` instead of `DualCaseAccount`
+- `ERC721Component` now uses `IERC721ReceiverDispatcher` instead of `DualCaseERC721Receiver`
+- `ERC1155Component` now uses `IERC1155ReceiverDispatcher` instead of `DualCaseERC1155Receiver`
+
 ## 0.17.0 (2024-09-23)
 
 ### Added

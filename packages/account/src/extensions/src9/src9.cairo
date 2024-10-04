@@ -10,11 +10,11 @@
 /// interface.
 #[starknet::component]
 pub mod SRC9Component {
+    use crate::dual_account::{DualCaseAccount, DualCaseAccountTrait};
     use crate::extensions::src9::OutsideExecution;
     use crate::extensions::src9::interface;
     use crate::extensions::src9::snip12_utils::OutsideExecutionStructHash;
     use crate::utils::execute_calls;
-    use openzeppelin_account::dual_account::{DualCaseAccount, DualCaseAccountTrait};
     use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_utils::cryptography::snip12::{OffchainMessageHash, SNIP12Metadata};

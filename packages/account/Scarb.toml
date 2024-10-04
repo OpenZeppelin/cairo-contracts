@@ -38,6 +38,8 @@ openzeppelin_test_common = { path = "../test_common" }
 allowed-libfuncs-list.name = "experimental"
 sierra = true
 casm = false
+
+[[test]]
 build-external-contracts = [
     "openzeppelin_test_common::mocks::account::DualCaseAccountMock",
     "openzeppelin_test_common::mocks::account::DualCaseEthAccountMock",

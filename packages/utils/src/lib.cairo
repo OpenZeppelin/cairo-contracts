@@ -12,8 +12,6 @@ pub mod structs;
 #[cfg(test)]
 mod tests;
 
-pub mod unwrap_and_cast;
-
 pub use cryptography::{nonces, snip12};
 use starknet::syscalls::call_contract_syscall;
 

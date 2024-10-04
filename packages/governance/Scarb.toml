@@ -32,6 +32,7 @@ openzeppelin_token = {path= "../token"}
 assert_macros.workspace = true
 snforge_std.workspace = true
 openzeppelin_testing = { path = "../testing" }
+openzeppelin_utils = { path = "../utils" }
 
 [lib]
 

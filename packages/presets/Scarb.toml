@@ -1,4 +1,3 @@
-
 [package]
 name = "openzeppelin_presets"
 readme = "README.md"
@@ -25,9 +24,11 @@ fmt.workspace = true
 starknet.workspace = true
 openzeppelin_access = { path = "../access" }
 openzeppelin_account = { path = "../account" }
+openzeppelin_finance = { path = "../finance" }
 openzeppelin_introspection = { path = "../introspection" }
 openzeppelin_token = { path = "../token" }
 openzeppelin_upgrades = { path = "../upgrades" }
+openzeppelin_utils = { path = "../utils" }
 
 [dev-dependencies]
 assert_macros.workspace = true

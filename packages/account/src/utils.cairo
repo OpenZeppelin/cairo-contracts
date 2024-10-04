@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.16.0 (account/utils.cairo)
+// OpenZeppelin Contracts for Cairo v0.17.0 (account/utils.cairo)
 
 pub mod secp256k1;
 pub mod signature;
@@ -14,7 +14,7 @@ pub const QUERY_OFFSET: u256 = 0x100000000000000000000000000000000;
 // QUERY_OFFSET + TRANSACTION_VERSION
 pub const QUERY_VERSION: u256 = 0x100000000000000000000000000000001;
 
-pub fn execute_calls(mut calls: Array<Call>) -> Array<Span<felt252>> {
+pub fn execute_calls(mut calls: Span<Call>) -> Array<Span<felt252>> {
     let mut res = array![];
     loop {
         match calls.pop_front() {
@@ -22,13 +22,13 @@ pub fn execute_calls(mut calls: Array<Call>) -> Array<Span<felt252>> {
                 let _res = execute_single_call(call);
                 res.append(_res);
             },
-            Option::None(_) => { break (); },
+            Option::None => { break (); },
         };
     };
     res
 }
 
-fn execute_single_call(call: Call) -> Span<felt252> {
-    let Call { to, selector, calldata } = call;
+fn execute_single_call(call: @Call) -> Span<felt252> {
+    let Call { to, selector, calldata } = *call;
     starknet::syscalls::call_contract_syscall(to, selector, calldata).unwrap_syscall()
 }

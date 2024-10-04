@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.16.0 (account/account.cairo)
+// OpenZeppelin Contracts for Cairo v0.17.0 (account/account.cairo)
 
 /// # Account Component
 ///
@@ -90,7 +90,7 @@ pub mod AccountComponent {
                 assert(MIN_TRANSACTION_VERSION <= tx_version, Errors::INVALID_TX_VERSION);
             }
 
-            execute_calls(calls)
+            execute_calls(calls.span())
         }
 
         /// Verifies the validity of the signature for the current transaction.

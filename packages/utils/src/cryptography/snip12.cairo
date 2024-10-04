@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.16.0 (utils/cryptography/snip12.cairo)
+// OpenZeppelin Contracts for Cairo v0.17.0 (utils/cryptography/snip12.cairo)
 
 use core::hash::{HashStateTrait, HashStateExTrait};
 use core::poseidon::PoseidonTrait;

@@ -1,6 +1,11 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.16.0 (utils/cryptography/nonces.cairo)
+// OpenZeppelin Contracts for Cairo v0.17.0 (utils/cryptography/nonces.cairo)
 
+/// # Nonces Component
+///
+/// The Nonces component provides a simple mechanism for handling incremental
+/// nonces for a set of addresses. It is commonly used to prevent replay attacks
+/// when contracts accept signatures as input.
 #[starknet::component]
 pub mod NoncesComponent {
     use crate::interfaces::INonces;

@@ -1,8 +1,8 @@
 name: contracts-cairo
 title: Contracts for Cairo
-version: 0.16.0
+version: 0.17.0
 nav:
   - modules/ROOT/nav.adoc
 asciidoc:
   attributes:
-    page-sidebar-collapse-default: 'Access,Accounts,Governance,Introspection,Security,ERC20,ERC721,ERC1155,Upgrades,Universal Deployer Contract'
+    page-sidebar-collapse-default: 'Access,Accounts,Finance,Governance,Introspection,Security,ERC20,ERC721,ERC1155,Upgrades,Universal Deployer Contract'

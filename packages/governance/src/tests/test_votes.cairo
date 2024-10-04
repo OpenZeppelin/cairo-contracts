@@ -1,12 +1,12 @@
 use openzeppelin_governance::tests::mocks::votes_mocks::ERC721VotesMock::SNIP12MetadataImpl;
 use openzeppelin_governance::tests::mocks::votes_mocks::{ERC721VotesMock, ERC20VotesMock};
-use openzeppelin_governance::votes::interface::TokenVotesTrait;
+use openzeppelin_governance::votes::votes::TokenVotesTrait;
 use openzeppelin_governance::votes::votes::VotesComponent::{
     DelegateChanged, DelegateVotesChanged, VotesImpl, InternalImpl,
 };
 use openzeppelin_governance::votes::votes::VotesComponent;
 use openzeppelin_testing as utils;
-use openzeppelin_testing::constants::{SUPPLY, ZERO, OWNER, RECIPIENT};
+use openzeppelin_testing::constants::{SUPPLY, ZERO, OWNER, RECIPIENT, OTHER};
 use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_token::erc20::ERC20Component::InternalTrait;
 use openzeppelin_token::erc721::ERC721Component::{
@@ -51,10 +51,7 @@ fn setup_erc721_votes() -> ComponentState {
     let mut mock_state = ERC721VOTES_CONTRACT_STATE();
     // Mint 10 NFTs to OWNER
     let mut i: u256 = 0;
-    loop {
-        if i >= 10 {
-            break;
-        }
+    while i < 10 {
         mock_state.erc721.mint(OWNER(), i);
         // We manually transfer voting units here, since this is usually implemented in the hook
         state.transfer_voting_units(ZERO(), OWNER(), 1);
@@ -70,7 +67,7 @@ fn setup_erc20_votes() -> ERC20ComponentState {
     // Mint SUPPLY tokens to owner
     mock_state.erc20.mint(OWNER(), SUPPLY);
     // We manually transfer voting units here, since this is usually implemented in the hook
-    state.transfer_voting_units(ZERO(), OWNER(), 1);
+    state.transfer_voting_units(ZERO(), OWNER(), SUPPLY);
 
     state
 }
@@ -242,7 +239,7 @@ fn test_erc721_get_voting_units() {
     let state = setup_erc721_votes();
 
     assert_eq!(state.get_voting_units(OWNER()), 10);
-    assert_eq!(state.get_voting_units(RECIPIENT()), 0);
+    assert_eq!(state.get_voting_units(OTHER()), 0);
 }
 
 #[test]
@@ -250,7 +247,7 @@ fn test_erc20_get_voting_units() {
     let mut state = setup_erc20_votes();
 
     assert_eq!(state.get_voting_units(OWNER()), SUPPLY);
-    assert_eq!(state.get_voting_units(RECIPIENT()), 0);
+    assert_eq!(state.get_voting_units(OTHER()), 0);
 }
 
 //

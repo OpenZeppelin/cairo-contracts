@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.15.1 (governance/votes/votes.cairo)
 
-use openzeppelin_utils::cryptography::snip12::{OffchainMessageHash, SNIP12Metadata};
+use starknet::ContractAddress;
+
 
 /// # Votes Component
 ///
@@ -21,21 +22,21 @@ pub mod VotesComponent {
     // Instead we can rely on Vec
     use core::num::traits::Zero;
     use openzeppelin_account::dual_account::{DualCaseAccount, DualCaseAccountTrait};
-    use openzeppelin_governance::votes::interface::{IVotes, TokenVotesTrait};
+    use openzeppelin_governance::votes::interface::IVotes;
     use openzeppelin_governance::votes::utils::Delegation;
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_token::erc20::ERC20Component;
     use openzeppelin_token::erc20::interface::IERC20;
     use openzeppelin_token::erc721::ERC721Component;
     use openzeppelin_token::erc721::interface::IERC721;
+    use openzeppelin_utils::cryptography::snip12::{OffchainMessageHash, SNIP12Metadata};
     use openzeppelin_utils::nonces::NoncesComponent::InternalTrait as NoncesInternalTrait;
     use openzeppelin_utils::nonces::NoncesComponent;
     use openzeppelin_utils::structs::checkpoint::{Trace, TraceTrait};
-    use starknet::ContractAddress;
     use starknet::storage::{
         Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess
     };
-    use super::{OffchainMessageHash, SNIP12Metadata};
+    use super::{TokenVotesTrait, ContractAddress};
 
     #[storage]
     pub struct Storage {
@@ -193,7 +194,7 @@ pub mod VotesComponent {
         fn get_voting_units(
             self: @ComponentState<TContractState>, account: ContractAddress
         ) -> u256 {
-            let mut erc721_component = get_dep_component!(self, ERC721);
+            let erc721_component = get_dep_component!(self, ERC721);
             erc721_component.balance_of(account).into()
         }
     }
@@ -201,10 +202,8 @@ pub mod VotesComponent {
     impl ERC20VotesImpl<
         TContractState,
         +HasComponent<TContractState>,
-        +SRC5Component::HasComponent<TContractState>,
         impl ERC20: ERC20Component::HasComponent<TContractState>,
-        +ERC20Component::ERC20HooksTrait<TContractState>,
-        +Drop<TContractState>
+        +ERC20Component::ERC20HooksTrait<TContractState>
     > of TokenVotesTrait<ComponentState<TContractState>> {
         /// Returns the number of voting units for a given account.
         ///
@@ -213,7 +212,7 @@ pub mod VotesComponent {
         fn get_voting_units(
             self: @ComponentState<TContractState>, account: ContractAddress
         ) -> u256 {
-            let mut erc20_component = get_dep_component!(self, ERC20);
+            let erc20_component = get_dep_component!(self, ERC20);
             erc20_component.balance_of(account)
         }
     }
@@ -257,16 +256,15 @@ pub mod VotesComponent {
             to: ContractAddress,
             amount: u256
         ) {
-            let zero_address = Zero::zero();
             let block_timestamp = starknet::get_block_timestamp();
-            if (from != to && amount > 0) {
-                if (from != zero_address) {
+            if from != to && amount > 0 {
+                if from.is_non_zero() {
                     let mut trace = self.Votes_delegate_checkpoints.read(from);
                     let (previous_votes, new_votes) = trace
                         .push(block_timestamp, trace.latest() - amount);
                     self.emit(DelegateVotesChanged { delegate: from, previous_votes, new_votes });
                 }
-                if (to != zero_address) {
+                if to.is_non_zero() {
                     let mut trace = self.Votes_delegate_checkpoints.read(to);
                     let (previous_votes, new_votes) = trace
                         .push(block_timestamp, trace.latest() + amount);
@@ -300,4 +298,9 @@ pub mod VotesComponent {
             self.move_delegate_votes(self.delegates(from), self.delegates(to), amount);
         }
     }
+}
+
+/// Common trait for tokens used for voting(e.g. `ERC721Votes` or `ERC20Votes`)
+pub trait TokenVotesTrait<TState> {
+    fn get_voting_units(self: @TState, account: ContractAddress) -> u256;
 }

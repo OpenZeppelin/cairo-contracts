@@ -34,7 +34,3 @@ pub trait IVotes<TState> {
     );
 }
 
-/// Common interface for tokens used for voting(e.g. `ERC721Votes` or `ERC20Votes`)
-pub trait TokenVotesTrait<TState> {
-    fn get_voting_units(self: @TState, account: ContractAddress) -> u256;
-}

@@ -69,7 +69,6 @@ pub(crate) mod ERC721VotesMock {
 #[starknet::contract]
 pub(crate) mod ERC20VotesMock {
     use openzeppelin_governance::votes::votes::VotesComponent;
-    use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_token::erc20::ERC20Component;
     use openzeppelin_token::erc20::ERC20HooksEmptyImpl;
     use openzeppelin_utils::cryptography::nonces::NoncesComponent;
@@ -77,7 +76,6 @@ pub(crate) mod ERC20VotesMock {
 
     component!(path: VotesComponent, storage: erc20_votes, event: ERC20VotesEvent);
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
-    component!(path: SRC5Component, storage: src5, event: SRC5Event);
     component!(path: NoncesComponent, storage: nonces, event: NoncesEvent);
 
     // Votes and ERC20Votes
@@ -100,8 +98,6 @@ pub(crate) mod ERC20VotesMock {
         #[substorage(v0)]
         pub erc20: ERC20Component::Storage,
         #[substorage(v0)]
-        pub src5: SRC5Component::Storage,
-        #[substorage(v0)]
         pub nonces: NoncesComponent::Storage
     }
 
@@ -112,8 +108,6 @@ pub(crate) mod ERC20VotesMock {
         ERC20VotesEvent: VotesComponent::Event,
         #[flat]
         ERC20Event: ERC20Component::Event,
-        #[flat]
-        SRC5Event: SRC5Component::Event,
         #[flat]
         NoncesEvent: NoncesComponent::Event
     }

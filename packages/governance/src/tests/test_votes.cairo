@@ -5,6 +5,7 @@ use openzeppelin_governance::votes::votes::VotesComponent::{
     DelegateChanged, DelegateVotesChanged, VotesImpl, InternalImpl,
 };
 use openzeppelin_governance::votes::votes::VotesComponent;
+use openzeppelin_governance::votes::utils::Delegation;
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{SUPPLY, ZERO, OWNER, RECIPIENT, OTHER};
 use openzeppelin_testing::events::EventSpyExt;
@@ -14,6 +15,7 @@ use openzeppelin_token::erc721::ERC721Component::{
 };
 use openzeppelin_token::erc721::ERC721Component::{ERC721Impl, ERC721CamelOnlyImpl};
 use openzeppelin_utils::structs::checkpoint::TraceTrait;
+use openzeppelin_utils::cryptography::snip12::OffchainMessageHash;
 use snforge_std::signature::stark_curve::{StarkCurveKeyPairImpl, StarkCurveSignerImpl};
 use snforge_std::{
     start_cheat_block_timestamp_global, start_cheat_caller_address, spy_events, test_address
@@ -22,6 +24,7 @@ use snforge_std::{EventSpy};
 use starknet::ContractAddress;
 use starknet::storage::{StoragePointerReadAccess, StorageMapReadAccess};
 
+const ERC_721_INITIAL_MINT: u256 = 10;
 
 //
 // Setup
@@ -49,9 +52,9 @@ fn ERC20VOTES_CONTRACT_STATE() -> ERC20VotesMock::ContractState {
 fn setup_erc721_votes() -> ComponentState {
     let mut state = COMPONENT_STATE();
     let mut mock_state = ERC721VOTES_CONTRACT_STATE();
-    // Mint 10 NFTs to OWNER
+    // Mint ERC_721_INITIAL_MINT NFTs to OWNER
     let mut i: u256 = 0;
-    while i < 10 {
+    while i < ERC_721_INITIAL_MINT {
         mock_state.erc721.mint(OWNER(), i);
         // We manually transfer voting units here, since this is usually implemented in the hook
         state.transfer_voting_units(ZERO(), OWNER(), 1);
@@ -74,7 +77,7 @@ fn setup_erc20_votes() -> ERC20ComponentState {
 
 fn setup_account(public_key: felt252) -> ContractAddress {
     let mut calldata = array![public_key];
-    utils::declare_and_deploy("DualCaseAccountMock", calldata)
+    utils::declare_and_deploy("SnakeAccountMock", calldata)
 }
 
 //
@@ -89,7 +92,7 @@ fn test_get_votes() {
     assert_eq!(state.get_votes(OWNER()), 0);
     state.delegate(OWNER());
 
-    assert_eq!(state.get_votes(OWNER()), 10);
+    assert_eq!(state.get_votes(OWNER()), ERC_721_INITIAL_MINT);
 }
 
 // This test can be improved by using the api of the component
@@ -114,6 +117,7 @@ fn test_get_past_votes() {
 #[should_panic(expected: ('Votes: future Lookup',))]
 fn test_get_past_votes_future_lookup() {
     let state = setup_erc721_votes();
+    
     start_cheat_block_timestamp_global('ts1');
     state.get_past_votes(OWNER(), 'ts2');
 }
@@ -149,8 +153,8 @@ fn test_self_delegate() {
 
     state.delegate(OWNER());
     spy.assert_event_delegate_changed(contract_address, OWNER(), ZERO(), OWNER());
-    spy.assert_only_event_delegate_votes_changed(contract_address, OWNER(), 0, 10);
-    assert_eq!(state.get_votes(OWNER()), 10);
+    spy.assert_only_event_delegate_votes_changed(contract_address, OWNER(), 0, ERC_721_INITIAL_MINT);
+    assert_eq!(state.get_votes(OWNER()), ERC_721_INITIAL_MINT);
 }
 
 #[test]
@@ -162,8 +166,8 @@ fn test_delegate_to_recipient_updates_votes() {
 
     state.delegate(RECIPIENT());
     spy.assert_event_delegate_changed(contract_address, OWNER(), ZERO(), RECIPIENT());
-    spy.assert_only_event_delegate_votes_changed(contract_address, RECIPIENT(), 0, 10);
-    assert_eq!(state.get_votes(RECIPIENT()), 10);
+    spy.assert_only_event_delegate_votes_changed(contract_address, RECIPIENT(), 0, ERC_721_INITIAL_MINT);
+    assert_eq!(state.get_votes(RECIPIENT()), ERC_721_INITIAL_MINT);
     assert_eq!(state.get_votes(OWNER()), 0);
 }
 
@@ -177,26 +181,36 @@ fn test_delegate_to_recipient_updates_delegates() {
     assert_eq!(state.delegates(OWNER()), RECIPIENT());
 }
 
-// #[test]
-// fn test_delegate_by_sig() {
-//     cheat_chain_id_global('SN_TEST');
-//     start_cheat_block_timestamp_global('ts1');
-//     let mut state = setup_erc721_votes();
-//     let contract_address = test_address();
-//     let key_pair = KeyPairTrait::generate();
-//     let account = setup_account(key_pair.public_key);
-//     let nonce = 0;
-//     let expiry = 'ts2';
-//     let delegator = account;
-//     let delegatee = RECIPIENT();
-//     let delegation = Delegation { delegatee, nonce, expiry };
-//     let msg_hash = delegation.get_message_hash(delegator);
-//     let (r, s) = key_pair.sign(msg_hash).unwrap();
-//     let mut spy = spy_events();
-//     state.delegate_by_sig(delegator, delegatee, nonce, expiry, array![r, s]);
-//     spy.assert_only_event_delegate_changed(contract_address, delegator, ZERO(), delegatee);
-//     assert_eq!(state.delegates(account), delegatee);
-// }
+#[test]
+fn test_delegate_by_sig() {
+    // Set up the state
+    // start_cheat_chain_id_global('SN_TEST');
+    let mut state = setup_erc721_votes();
+    let contract_address = test_address();
+    start_cheat_block_timestamp_global('ts1');
+    
+    // Generate a key pair and set up an account
+    let key_pair = StarkCurveKeyPairImpl::generate();
+    let account = setup_account(key_pair.public_key);
+    
+    // Set up delegation parameters
+    let nonce = 0;
+    let expiry = 'ts2';
+    let delegator = account;
+    let delegatee = RECIPIENT();
+    
+    // Create and sign the delegation message
+    let delegation = Delegation { delegatee, nonce, expiry };
+    let msg_hash = delegation.get_message_hash(delegator);
+    let (r, s) = key_pair.sign(msg_hash).unwrap();
+    
+    // Set up event spy and execute delegation
+    let mut spy = spy_events();
+    state.delegate_by_sig(delegator, delegatee, nonce, expiry, array![r, s]);
+    
+    spy.assert_only_event_delegate_changed(contract_address, delegator, ZERO(), delegatee);
+    assert_eq!(state.delegates(account), delegatee);
+}
 
 #[test]
 #[should_panic(expected: ('Votes: expired signature',))]
@@ -219,16 +233,25 @@ fn test_delegate_by_sig_invalid_nonce() {
     state.delegate_by_sig(OWNER(), RECIPIENT(), 1, 0, signature);
 }
 
-// #[test]
-// #[should_panic(expected: ('Votes: invalid signature',))]
-// fn test_delegate_by_sig_invalid_signature() {
-//     let mut state = setup_erc721_votes();
-//     // For some reason this is panicking before we get to delegate_by_sig
-//     let account = setup_account(0x123);
-//     let signature = array![0, 0];
+#[test]
+#[should_panic(expected: ('Votes: invalid signature',))]
+fn test_delegate_by_sig_invalid_signature() {
+    let mut state = setup_erc721_votes();
+    let key_pair = StarkCurveKeyPairImpl::generate();
+    let account = setup_account(key_pair.public_key);
 
-//     state.delegate_by_sig(account, RECIPIENT(), 0, 0, signature);
-// }
+    let nonce = 0;
+    let expiry = 'ts2';
+    let delegator = account;
+    let delegatee = RECIPIENT();
+    let delegation = Delegation { delegatee, nonce, expiry };
+    let msg_hash = delegation.get_message_hash(delegator);
+    let (r, s) = key_pair.sign(msg_hash).unwrap();
+    
+    start_cheat_block_timestamp_global('ts1');
+    // Use an invalid signature
+    state.delegate_by_sig(delegator, delegatee, nonce, expiry, array![r + 1, s]);
+}
 
 //
 // Tests specific to ERC721Votes and
@@ -238,7 +261,7 @@ fn test_delegate_by_sig_invalid_nonce() {
 fn test_erc721_get_voting_units() {
     let state = setup_erc721_votes();
 
-    assert_eq!(state.get_voting_units(OWNER()), 10);
+    assert_eq!(state.get_voting_units(OWNER()), ERC_721_INITIAL_MINT);
     assert_eq!(state.get_voting_units(OTHER()), 0);
 }
 
@@ -304,4 +327,3 @@ impl VotesSpyHelpersImpl of VotesSpyHelpers {
         self.assert_no_events_left_from(contract);
     }
 }
-

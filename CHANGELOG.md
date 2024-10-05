@@ -11,7 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- ERC20Permit component and preset (#1140)
+- `ISNIP12Metadata` interface to discover name and version of a SNIP-12 impl (#1140)
+- `ERC20Permit` impl facilitating token approvals via off-chain signatures (#1140)
+- `SNIP12MetadataExternal` impl for `ERC20Component` exposing external function for reading SNIP-12 metadata (#1140)
 
 ## 0.17.0 (2024-09-23)
 

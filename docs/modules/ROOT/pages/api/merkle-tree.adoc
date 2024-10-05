@@ -23,7 +23,7 @@ NOTE: `openzeppelin_merkle_tree` doesn't have dependencies outside of `corelib`,
 ====
 To use it as a standalone package, you can add it in your `Scarb.toml` as follows:
 
-`openzeppelin_merkle_tree = { git = "https://github.com/openzeppelin/cairo-contracts.git", tag = "v0.X.X" }`
+`openzeppelin_merkle_tree = "0.17.0"`
 ====
 
 == Modules

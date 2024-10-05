@@ -12,8 +12,7 @@
 /// for examples.
 #[starknet::component]
 pub mod ERC20Component {
-    use core::num::traits::Bounded;
-    use core::num::traits::Zero;
+    use core::num::traits::{Bounded, Zero};
     use crate::erc20::extensions::erc20_permit::Permit;
     use crate::erc20::interface;
     use openzeppelin_account::interface::{ISRC6Dispatcher, ISRC6DispatcherTrait};
@@ -296,12 +295,15 @@ pub mod ERC20Component {
         }
     }
 
-    /// The ERC20Permit trait implements the EIP-2612 standard, facilitating token approvals via
+    /// The ERC20Permit impl implements the EIP-2612 standard, facilitating token approvals via
     /// off-chain signatures. This approach allows token holders to delegate their approval to spend
     /// tokens without executing an on-chain transaction, reducing gas costs and enhancing
     /// usability.
+    /// See  https://eips.ethereum.org/EIPS/eip-2612.
+    ///
     /// The message signed and the signature must follow the SNIP-12 standard for hashing and
     /// signing typed structured data.
+    /// See https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-12.md.
     ///
     /// To safeguard against replay attacks and ensure the uniqueness of each approval via `permit`,
     /// the data signed includes:
@@ -309,21 +311,19 @@ pub mod ERC20Component {
     ///   - The parameters specified in the `approve` function (spender and amount)
     ///   - The address of the token contract itself
     ///   - A nonce, which must be unique for each operation, incrementing after each use to prevent
-    ///   reuse of the signature - The chain ID, which protects against cross-chain replay attacks
-    ///
-    /// EIP-2612: https://eips.ethereum.org/EIPS/eip-2612
-    /// SNIP-12:  https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-12.md
+    ///   reuse of the signature
+    ///   - The chain ID, which protects against cross-chain replay attacks
     #[embeddable_as(ERC20PermitImpl)]
     impl ERC20Permit<
         TContractState,
-        impl ERC20: HasComponent<TContractState>,
+        +HasComponent<TContractState>,
         +ERC20HooksTrait<TContractState>,
         impl Nonces: NoncesComponent::HasComponent<TContractState>,
         impl Metadata: SNIP12Metadata,
         +Drop<TContractState>
     > of interface::IERC20Permit<ComponentState<TContractState>> {
-        /// Sets the allowance of the `spender` over `owner`'s tokens after validating the signature
-        /// generated off-chain and signed by the `owner`.
+        /// Sets `amount` as the allowance of `spender` over `owner`'s tokens after validating the
+        /// signature.
         ///
         /// Requirements:
         ///
@@ -360,11 +360,10 @@ pub mod ERC20Component {
             assert(is_valid_sig, Errors::INVALID_PERMIT_SIGNATURE);
 
             // 5. Approve
-            let mut erc20_component = get_dep_component_mut!(ref self, ERC20);
-            erc20_component._approve(owner, spender, amount);
+            self._approve(owner, spender, amount);
         }
 
-        /// Returns the current nonce of the `owner`. A nonce value must be
+        /// Returns the current nonce of `owner`. A nonce value must be
         /// included whenever a signature for `permit` call is generated.
         fn nonces(self: @ComponentState<TContractState>, owner: ContractAddress) -> felt252 {
             let nonces_component = get_dep_component!(self, Nonces);

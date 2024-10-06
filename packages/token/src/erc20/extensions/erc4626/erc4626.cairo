@@ -59,7 +59,7 @@ pub mod ERC4626Component {
     pub mod Errors {
         pub const EXCEEDED_MAX_DEPOSIT: felt252 = 'ERC4626: exceeds max deposit';
         pub const EXCEEDED_MAX_MINT: felt252 = 'ERC4626: exceeds max mint';
-        pub const EXCEEDED_MAX_WITHDRAWAL: felt252 = 'ERC4626: exceeds max withdrawal';
+        pub const EXCEEDED_MAX_WITHDRAW: felt252 = 'ERC4626: exceeds max withdraw';
         pub const EXCEEDED_MAX_REDEEM: felt252 = 'ERC4626: exceeds max redeem';
         pub const TOKEN_TRANSFER_FAILED: felt252 = 'ERC4626: token transfer failed';
         pub const INVALID_ASSET_ADDRESS: felt252 = 'ERC4626: asset address set to 0';
@@ -145,13 +145,13 @@ pub mod ERC4626Component {
             assets
         }
 
-        fn max_withdrawal(self: @ComponentState<TContractState>, owner: ContractAddress) -> u256 {
+        fn max_withdraw(self: @ComponentState<TContractState>, owner: ContractAddress) -> u256 {
             let erc20_component = get_dep_component!(self, ERC20);
             let owner_bal = erc20_component.balance_of(owner);
             self._convert_to_assets(owner_bal, Rounding::Floor)
         }
 
-        fn preview_withdrawal(self: @ComponentState<TContractState>, assets: u256) -> u256 {
+        fn preview_withdraw(self: @ComponentState<TContractState>, assets: u256) -> u256 {
             self._convert_to_shares(assets, Rounding::Ceil)
         }
 
@@ -161,10 +161,10 @@ pub mod ERC4626Component {
             receiver: ContractAddress,
             owner: ContractAddress
         ) -> u256 {
-            let max_assets = self.max_withdrawal(owner);
-            assert(assets < max_assets, Errors::EXCEEDED_MAX_WITHDRAWAL);
+            let max_assets = self.max_withdraw(owner);
+            assert(assets <= max_assets, Errors::EXCEEDED_MAX_WITHDRAW);
 
-            let shares = self.preview_withdrawal(assets);
+            let shares = self.preview_withdraw(assets);
             let caller = starknet::get_caller_address();
             self._withdraw(caller, receiver, owner, assets, shares);
 
@@ -187,7 +187,7 @@ pub mod ERC4626Component {
             owner: ContractAddress
         ) -> u256 {
             let max_shares = self.max_redeem(owner);
-            assert(shares < max_shares, Errors::EXCEEDED_MAX_REDEEM);
+            assert(shares <= max_shares, Errors::EXCEEDED_MAX_REDEEM);
 
             let assets = self.preview_redeem(shares);
             let caller = starknet::get_caller_address();
@@ -280,18 +280,25 @@ pub mod ERC4626Component {
         }
 
         fn _convert_to_shares(self: @ComponentState<TContractState>, assets: u256, rounding: Rounding) -> u256 {
-            let IERC20 = IERC20Dispatcher { contract_address: self.ERC4626_asset.read() };
-            let total_supply = IERC20.total_supply();
-            math::u256_mul_div(assets, total_supply + 10 ^ Immutable::DECIMALS_OFFSET.into(), self.total_assets() + 1, rounding)
+            let mut erc20_component = get_dep_component!(self, ERC20);
+            let total_supply = erc20_component.total_supply();
+
+            math::u256_mul_div(
+                assets,
+                total_supply + math::power(10, Immutable::DECIMALS_OFFSET.into()),
+                self.total_assets() + 1,
+                rounding
+            )
         }
 
         fn _convert_to_assets(self: @ComponentState<TContractState>, shares: u256, rounding: Rounding) -> u256 {
-            let IERC20 = IERC20Dispatcher { contract_address: self.ERC4626_asset.read() };
-            let total_supply = IERC20.total_supply();
+            let mut erc20_component = get_dep_component!(self, ERC20);
+            let total_supply = erc20_component.total_supply();
+
             math::u256_mul_div(
                 shares,
                 self.total_assets() + 1,
-                total_supply + 10 ^ Immutable::DECIMALS_OFFSET.into(),
+                total_supply + math::power(10, Immutable::DECIMALS_OFFSET.into()),
                 rounding
             )
         }

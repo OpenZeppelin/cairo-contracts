@@ -9,14 +9,12 @@ pub fn power<T, +Drop<T>, +PartialEq<T>, +TryInto<u256, T>, +Into<T, u256>, +Int
     base: T, exp: T
 ) -> T {
     assert!(base != 0_u8.into(), "Math: base cannot be zero");
-    let mut base: u256 = base.into();
-    let mut exp: u256 = exp.into();
+    let base: u256 = base.into();
+    let exp: u256 = exp.into();
     let mut result: u256 = 1;
-    let mut i: u256 = 0;
 
-    while (i < exp) {
+    for _ in 0..exp {
         result *= base;
-        i += 1;
     };
 
     result.try_into().unwrap()

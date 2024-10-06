@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+- `VotesComponent` with implementation for ERC721 and ERC20 tokens (#1114)
+
+### Changed (Breaking)
+
+- Remove `ERC20Votes` component in favor of `VotesComponent` (#1114)
+
 ### Changed
 
 - Bump scarb to v2.8.3 (#1166)

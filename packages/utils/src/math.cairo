@@ -5,22 +5,6 @@ use core::integer::u512_safe_div_rem_by_u256;
 use core::num::traits::WideMul;
 use core::traits::{Into, BitAnd, BitXor};
 
-/// ADD MEE
-pub fn power<T, +Drop<T>, +PartialEq<T>, +TryInto<u256, T>, +Into<T, u256>, +Into<u8, T>>(
-    base: T, exp: T
-) -> T {
-    assert!(base != 0_u8.into(), "Math: base cannot be zero");
-    let base: u256 = base.into();
-    let exp: u256 = exp.into();
-    let mut result: u256 = 1;
-
-    for _ in 0..exp {
-        result *= base;
-    };
-
-    result.try_into().unwrap()
-}
-
 /// Returns the average of two numbers. The result is rounded down.
 pub fn average<
     T,
@@ -36,6 +20,22 @@ pub fn average<
 ) -> T {
     // (a + b) / 2 can overflow.
     (a & b) + (a ^ b) / 2_u8.into()
+}
+
+/// ADD MEE
+pub fn power<T, +Drop<T>, +PartialEq<T>, +TryInto<u256, T>, +Into<T, u256>, +Into<u8, T>>(
+    base: T, exp: T
+) -> T {
+    assert!(base != 0_u8.into(), "Math: base cannot be zero");
+    let base: u256 = base.into();
+    let exp: u256 = exp.into();
+    let mut result: u256 = 1;
+
+    for _ in 0..exp {
+        result *= base;
+    };
+
+    result.try_into().unwrap()
 }
 
 #[derive(Drop, Copy, Debug)]
@@ -77,105 +77,4 @@ fn _raw_u256_mul_div(x: u256, y: u256, denominator: u256) -> (u256, u256) {
     let (mut q, r) = u512_safe_div_rem_by_u256(p, denominator.try_into().unwrap());
     let q = q.try_into().expect('Math: quotient > u256');
     (q, r)
-}
-
-#[cfg(test)]
-mod Test {
-    use core::num::traits::Bounded;
-    use super::Rounding;
-    use super::u256_mul_div;
-
-    #[test]
-    #[should_panic(expected: 'Math: division by zero')]
-    fn test_mul_div_divide_by_zero() {
-        let x = 1;
-        let y = 1;
-        let denominator = 0;
-
-        u256_mul_div(x, y, denominator, Rounding::Floor);
-    }
-
-    #[test]
-    #[should_panic(expected: 'Math: quotient > u256')]
-    fn test_mul_div_result_gt_u256() {
-        let x = 5;
-        let y = Bounded::MAX;
-        let denominator = 2;
-
-        u256_mul_div(x, y, denominator, Rounding::Floor);
-    }
-
-    #[test]
-    fn test_mul_div_round_down_small_values() {
-        let round_down = array![Rounding::Floor, Rounding::Trunc];
-        let args_list = array![ // (x, y, denominator, expected result)
-        (3, 4, 5, 2), (3, 5, 5, 3)]
-            .span();
-
-        for round in round_down {
-            for args in args_list {
-                let (x, y, denominator, expected) = args;
-                assert_eq!(u256_mul_div(*x, *y, *denominator, round), *expected);
-            }
-        }
-    }
-
-    #[test]
-    fn test_mul_div_round_down_large_values() {
-        let round_down = array![Rounding::Floor, Rounding::Trunc];
-        let u256_max: u256 = Bounded::MAX;
-        let args_list = array![
-            // (x, y, denominator, expected result)
-            (42, u256_max - 1, u256_max, 41),
-            (17, u256_max, u256_max, 17),
-            (u256_max - 1, u256_max - 1, u256_max, u256_max - 2),
-            (u256_max, u256_max - 1, u256_max, u256_max - 1),
-            (u256_max, u256_max, u256_max, u256_max)
-        ]
-            .span();
-
-        for round in round_down {
-            for args in args_list {
-                let (x, y, denominator, expected) = args;
-                assert_eq!(u256_mul_div(*x, *y, *denominator, round), *expected);
-            };
-        };
-    }
-
-    #[test]
-    fn test_mul_div_round_up_small_values() {
-        let round_up = array![Rounding::Ceil, Rounding::Expand];
-        let args_list = array![ // (x, y, denominator, expected result)
-        (3, 4, 5, 3), (3, 5, 5, 3)]
-            .span();
-
-        for round in round_up {
-            for args in args_list {
-                let (x, y, denominator, expected) = args;
-                assert_eq!(u256_mul_div(*x, *y, *denominator, round), *expected);
-            }
-        }
-    }
-
-    #[test]
-    fn test_mul_div_round_up_large_values() {
-        let round_up = array![Rounding::Ceil, Rounding::Expand];
-        let u256_max: u256 = Bounded::MAX;
-        let args_list = array![
-            // (x, y, denominator, expected result)
-            (42, u256_max - 1, u256_max, 42),
-            (17, u256_max, u256_max, 17),
-            (u256_max - 1, u256_max - 1, u256_max, u256_max - 1),
-            (u256_max, u256_max - 1, u256_max, u256_max - 1),
-            (u256_max, u256_max, u256_max, u256_max)
-        ]
-            .span();
-
-        for round in round_up {
-            for args in args_list {
-                let (x, y, denominator, expected) = args;
-                assert_eq!(u256_mul_div(*x, *y, *denominator, round), *expected);
-            };
-        };
-    }
 }

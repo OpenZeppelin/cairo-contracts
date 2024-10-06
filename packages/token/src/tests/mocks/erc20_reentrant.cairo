@@ -47,8 +47,8 @@ pub(crate) trait IERC20Reentrant<TState> {
 pub(crate) mod ERC20ReentrantMock {
     use crate::erc20::ERC20Component;
     use starknet::ContractAddress;
-    use starknet::storage::{Vec, MutableVecTrait};
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use starknet::storage::{Vec, MutableVecTrait};
     use starknet::syscalls::call_contract_syscall;
     use super::Type;
 
@@ -133,9 +133,12 @@ pub(crate) mod ERC20ReentrantMock {
             let target = self.reenter_target.read();
             let selector = self.reenter_selector.read();
             let mut calldata = array![];
-            for i in 0..self.reenter_calldata.len() {
-                calldata.append(self.reenter_calldata.at(i).read());
-            };
+            for i in 0
+                ..self
+                    .reenter_calldata
+                    .len() {
+                        calldata.append(self.reenter_calldata.at(i).read());
+                    };
 
             call_contract_syscall(target, selector, calldata.span()).unwrap();
         }
@@ -146,13 +149,8 @@ pub(crate) mod ERC20ReentrantMock {
     }
 
     #[constructor]
-    fn constructor(
-        ref self: ContractState,
-        name: ByteArray,
-        symbol: ByteArray
-    ) {
+    fn constructor(ref self: ContractState, name: ByteArray, symbol: ByteArray) {
         self.erc20.initializer(name, symbol);
         self.reenter_type.write(Type::No);
     }
-
 }

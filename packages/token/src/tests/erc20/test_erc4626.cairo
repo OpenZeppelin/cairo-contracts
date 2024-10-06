@@ -1,22 +1,28 @@
 use core::num::traits::Bounded;
 //use crate::erc20::ERC20Component;
 use crate::erc20::ERC20Component::InternalImpl as ERC20InternalImpl;
-use crate::erc20::extensions::erc4626::interface::{ERC4626ABIDispatcher, ERC4626ABIDispatcherTrait};
-use crate::erc20::extensions::erc4626::ERC4626Component::{ERC4626Impl, ERC4626MetadataImpl, InternalImpl};
-use crate::erc20::extensions::erc4626::ERC4626Component;
-use crate::erc20::extensions::erc4626::ERC4626Component::{Deposit, Withdraw};
 use crate::erc20::extensions::erc4626::DefaultConfig;
-//use crate::tests::mocks::erc4626_mocks::ERC4626Mock;
-use openzeppelin_testing::events::EventSpyExt;
+use crate::erc20::extensions::erc4626::ERC4626Component::{Deposit, Withdraw};
+use crate::erc20::extensions::erc4626::ERC4626Component::{
+    ERC4626Impl, ERC4626MetadataImpl, InternalImpl
+};
+use crate::erc20::extensions::erc4626::ERC4626Component;
+use crate::erc20::extensions::erc4626::interface::{ERC4626ABIDispatcher, ERC4626ABIDispatcherTrait};
 use crate::tests::mocks::erc20_reentrant::Type;
-use crate::tests::mocks::erc20_reentrant::{IERC20ReentrantDispatcher, IERC20ReentrantDispatcherTrait};
+use crate::tests::mocks::erc20_reentrant::{
+    IERC20ReentrantDispatcher, IERC20ReentrantDispatcherTrait
+};
+use openzeppelin_test_common::erc20::ERC20SpyHelpers;
 //use crate::tests::mocks::erc20_reentrant::ERC20ReentrantMock;
 use openzeppelin_testing as utils;
-use openzeppelin_utils::serde::SerializedAppend;
-use openzeppelin_utils::math;
-use openzeppelin_test_common::erc20::ERC20SpyHelpers;
 use openzeppelin_testing::constants::{NAME, SYMBOL, OTHER, RECIPIENT, ZERO};
-use snforge_std::{start_cheat_caller_address, cheat_caller_address, CheatSpan, spy_events, EventSpy};
+//use crate::tests::mocks::erc4626_mocks::ERC4626Mock;
+use openzeppelin_testing::events::EventSpyExt;
+use openzeppelin_utils::math;
+use openzeppelin_utils::serde::SerializedAppend;
+use snforge_std::{
+    start_cheat_caller_address, cheat_caller_address, CheatSpan, spy_events, EventSpy
+};
 use starknet::{ContractAddress, contract_address_const};
 
 fn ASSET_ADDRESS() -> ContractAddress {
@@ -119,12 +125,10 @@ fn test_share_price_with_reentrancy_before() {
     calldata.append_serde(reenter_amt);
     calldata.append_serde(HOLDER());
 
-    asset.schedule_reenter(
-        Type::Before,
-        vault.contract_address,
-        selector!("deposit"),
-        calldata.span()
-    );
+    asset
+        .schedule_reenter(
+            Type::Before, vault.contract_address, selector!("deposit"), calldata.span()
+        );
 
     // Initial share price
     start_cheat_caller_address(vault.contract_address, HOLDER());
@@ -226,9 +230,15 @@ fn test_mint() {
     vault.mint(parse_share(1), RECIPIENT());
 
     // Check events
-    spy.assert_event_transfer(asset.contract_address, HOLDER(), vault.contract_address, parse_token(1));
+    spy
+        .assert_event_transfer(
+            asset.contract_address, HOLDER(), vault.contract_address, parse_token(1)
+        );
     spy.assert_event_transfer(vault.contract_address, ZERO(), RECIPIENT(), parse_share(1));
-    spy.assert_only_event_deposit(vault.contract_address, HOLDER(), RECIPIENT(), parse_token(1), parse_share(1));
+    spy
+        .assert_only_event_deposit(
+            vault.contract_address, HOLDER(), RECIPIENT(), parse_token(1), parse_share(1)
+        );
 }
 
 #[test]
@@ -301,7 +311,7 @@ pub impl ERC4626SpyHelpersImpl of ERC4626SpyHelpers {
         sender: ContractAddress,
         owner: ContractAddress,
         assets: u256,
-        shares:u256
+        shares: u256
     ) {
         let expected = ERC4626Component::Event::Deposit(Deposit { sender, owner, assets, shares });
         self.assert_emitted_single(contract, expected);
@@ -313,7 +323,7 @@ pub impl ERC4626SpyHelpersImpl of ERC4626SpyHelpers {
         sender: ContractAddress,
         owner: ContractAddress,
         assets: u256,
-        shares:u256
+        shares: u256
     ) {
         self.assert_event_deposit(contract, sender, owner, assets, shares);
         self.assert_no_events_left_from(contract);
@@ -326,9 +336,11 @@ pub impl ERC4626SpyHelpersImpl of ERC4626SpyHelpers {
         receiver: ContractAddress,
         owner: ContractAddress,
         assets: u256,
-        shares:u256
+        shares: u256
     ) {
-        let expected = ERC4626Component::Event::Withdraw(Withdraw { sender, receiver, owner, assets, shares });
+        let expected = ERC4626Component::Event::Withdraw(
+            Withdraw { sender, receiver, owner, assets, shares }
+        );
         self.assert_emitted_single(contract, expected);
     }
 
@@ -339,7 +351,7 @@ pub impl ERC4626SpyHelpersImpl of ERC4626SpyHelpers {
         receiver: ContractAddress,
         owner: ContractAddress,
         assets: u256,
-        shares:u256
+        shares: u256
     ) {
         self.assert_event_withdraw(contract, sender, receiver, owner, assets, shares);
         self.assert_no_events_left_from(contract);

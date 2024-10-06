@@ -12,9 +12,9 @@ pub mod ERC4626Component {
     use crate::erc20::extensions::erc4626::interface::IERC4626;
     use crate::erc20::interface::{IERC20, IERC20Metadata};
     use crate::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-    use starknet::ContractAddress;
-    use openzeppelin_utils::math;
     use openzeppelin_utils::math::Rounding;
+    use openzeppelin_utils::math;
+    use starknet::ContractAddress;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 
     // The defualt values are only used when the DefaultConfig
@@ -75,7 +75,10 @@ pub mod ERC4626Component {
         const DECIMALS_OFFSET: u8;
 
         fn validate() {
-            assert(Bounded::MAX - Self::UNDERLYING_DECIMALS >= Self::DECIMALS_OFFSET, Errors::DECIMALS_OVERFLOW)
+            assert(
+                Bounded::MAX - Self::UNDERLYING_DECIMALS >= Self::DECIMALS_OFFSET,
+                Errors::DECIMALS_OVERFLOW
+            )
         }
     }
 
@@ -279,7 +282,9 @@ pub mod ERC4626Component {
             self.emit(Withdraw { sender: caller, receiver, owner, assets, shares });
         }
 
-        fn _convert_to_shares(self: @ComponentState<TContractState>, assets: u256, rounding: Rounding) -> u256 {
+        fn _convert_to_shares(
+            self: @ComponentState<TContractState>, assets: u256, rounding: Rounding
+        ) -> u256 {
             let mut erc20_component = get_dep_component!(self, ERC20);
             let total_supply = erc20_component.total_supply();
 
@@ -291,7 +296,9 @@ pub mod ERC4626Component {
             )
         }
 
-        fn _convert_to_assets(self: @ComponentState<TContractState>, shares: u256, rounding: Rounding) -> u256 {
+        fn _convert_to_assets(
+            self: @ComponentState<TContractState>, shares: u256, rounding: Rounding
+        ) -> u256 {
             let mut erc20_component = get_dep_component!(self, ERC20);
             let total_supply = erc20_component.total_supply();
 

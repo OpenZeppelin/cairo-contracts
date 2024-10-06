@@ -1,8 +1,8 @@
 #[starknet::contract]
 pub(crate) mod ERC4626Mock {
-    use crate::erc20::{ERC20Component, ERC20HooksEmptyImpl};
-    use crate::erc20::extensions::erc4626::ERC4626Component;
     use crate::erc20::extensions::erc4626::ERC4626Component::InternalTrait as ERC4626InternalTrait;
+    use crate::erc20::extensions::erc4626::ERC4626Component;
+    use crate::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
 
     component!(path: ERC4626Component, storage: erc4626, event: ERC4626Event);

@@ -1,11 +1,11 @@
 use openzeppelin_governance::tests::mocks::votes_mocks::ERC721VotesMock::SNIP12MetadataImpl;
 use openzeppelin_governance::tests::mocks::votes_mocks::{ERC721VotesMock, ERC20VotesMock};
+use openzeppelin_governance::votes::utils::Delegation;
 use openzeppelin_governance::votes::votes::TokenVotesTrait;
 use openzeppelin_governance::votes::votes::VotesComponent::{
     DelegateChanged, DelegateVotesChanged, VotesImpl, InternalImpl,
 };
 use openzeppelin_governance::votes::votes::VotesComponent;
-use openzeppelin_governance::votes::utils::Delegation;
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{SUPPLY, ZERO, OWNER, RECIPIENT, OTHER};
 use openzeppelin_testing::events::EventSpyExt;
@@ -14,8 +14,8 @@ use openzeppelin_token::erc721::ERC721Component::{
     ERC721MetadataImpl, InternalImpl as ERC721InternalImpl,
 };
 use openzeppelin_token::erc721::ERC721Component::{ERC721Impl, ERC721CamelOnlyImpl};
-use openzeppelin_utils::structs::checkpoint::TraceTrait;
 use openzeppelin_utils::cryptography::snip12::OffchainMessageHash;
+use openzeppelin_utils::structs::checkpoint::TraceTrait;
 use snforge_std::signature::stark_curve::{StarkCurveKeyPairImpl, StarkCurveSignerImpl};
 use snforge_std::{
     start_cheat_block_timestamp_global, start_cheat_caller_address, spy_events, test_address
@@ -117,7 +117,7 @@ fn test_get_past_votes() {
 #[should_panic(expected: ('Votes: future Lookup',))]
 fn test_get_past_votes_future_lookup() {
     let state = setup_erc721_votes();
-    
+
     start_cheat_block_timestamp_global('ts1');
     state.get_past_votes(OWNER(), 'ts2');
 }
@@ -153,7 +153,10 @@ fn test_self_delegate() {
 
     state.delegate(OWNER());
     spy.assert_event_delegate_changed(contract_address, OWNER(), ZERO(), OWNER());
-    spy.assert_only_event_delegate_votes_changed(contract_address, OWNER(), 0, ERC_721_INITIAL_MINT);
+    spy
+        .assert_only_event_delegate_votes_changed(
+            contract_address, OWNER(), 0, ERC_721_INITIAL_MINT
+        );
     assert_eq!(state.get_votes(OWNER()), ERC_721_INITIAL_MINT);
 }
 
@@ -166,7 +169,10 @@ fn test_delegate_to_recipient_updates_votes() {
 
     state.delegate(RECIPIENT());
     spy.assert_event_delegate_changed(contract_address, OWNER(), ZERO(), RECIPIENT());
-    spy.assert_only_event_delegate_votes_changed(contract_address, RECIPIENT(), 0, ERC_721_INITIAL_MINT);
+    spy
+        .assert_only_event_delegate_votes_changed(
+            contract_address, RECIPIENT(), 0, ERC_721_INITIAL_MINT
+        );
     assert_eq!(state.get_votes(RECIPIENT()), ERC_721_INITIAL_MINT);
     assert_eq!(state.get_votes(OWNER()), 0);
 }
@@ -188,26 +194,26 @@ fn test_delegate_by_sig() {
     let mut state = setup_erc721_votes();
     let contract_address = test_address();
     start_cheat_block_timestamp_global('ts1');
-    
+
     // Generate a key pair and set up an account
     let key_pair = StarkCurveKeyPairImpl::generate();
     let account = setup_account(key_pair.public_key);
-    
+
     // Set up delegation parameters
     let nonce = 0;
     let expiry = 'ts2';
     let delegator = account;
     let delegatee = RECIPIENT();
-    
+
     // Create and sign the delegation message
     let delegation = Delegation { delegatee, nonce, expiry };
     let msg_hash = delegation.get_message_hash(delegator);
     let (r, s) = key_pair.sign(msg_hash).unwrap();
-    
+
     // Set up event spy and execute delegation
     let mut spy = spy_events();
     state.delegate_by_sig(delegator, delegatee, nonce, expiry, array![r, s]);
-    
+
     spy.assert_only_event_delegate_changed(contract_address, delegator, ZERO(), delegatee);
     assert_eq!(state.delegates(account), delegatee);
 }
@@ -247,7 +253,7 @@ fn test_delegate_by_sig_invalid_signature() {
     let delegation = Delegation { delegatee, nonce, expiry };
     let msg_hash = delegation.get_message_hash(delegator);
     let (r, s) = key_pair.sign(msg_hash).unwrap();
-    
+
     start_cheat_block_timestamp_global('ts1');
     // Use an invalid signature
     state.delegate_by_sig(delegator, delegatee, nonce, expiry, array![r + 1, s]);

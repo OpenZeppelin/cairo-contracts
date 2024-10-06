@@ -10,6 +10,7 @@
 /// interface.
 #[starknet::component]
 pub mod SRC9Component {
+    use crate::dual_account::{DualCaseAccount, DualCaseAccountTrait};
     use crate::extensions::src9::OutsideExecution;
     use crate::extensions::src9::interface;
     use crate::extensions::src9::snip12_utils::OutsideExecutionStructHash;

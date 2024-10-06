@@ -66,7 +66,7 @@ pub fn u256_mul_div(x: u256, y: u256, denominator: u256, rounding: Rounding) -> 
     let felt_is_round_up: felt252 = round_up(rounding).into();
     let has_remainder: felt252 = (r > 0).into();
 
-    q + BitAnd::bitand(felt_is_round_up.into(), has_remainder.into())
+    q + (felt_is_round_up.into() & has_remainder.into())
 }
 
 pub fn _raw_u256_mul_div(x: u256, y: u256, denominator: u256) -> (u256, u256) {

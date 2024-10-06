@@ -5,6 +5,7 @@ use core::integer::u512_safe_div_rem_by_u256;
 use core::num::traits::WideMul;
 use core::traits::{Into, BitAnd, BitXor};
 
+/// ADD MEE
 pub fn power<T, +Drop<T>, +PartialEq<T>, +TryInto<u256, T>, +Into<T, u256>, +Into<u8, T>>(
     base: T, exp: T
 ) -> T {
@@ -59,6 +60,7 @@ fn round_up(rounding: Rounding) -> bool {
     u8_rounding % 2 == 1
 }
 
+/// ADD MEEE
 pub fn u256_mul_div(x: u256, y: u256, denominator: u256, rounding: Rounding) -> u256 {
     let (q, r) = _raw_u256_mul_div(x, y, denominator);
 
@@ -69,7 +71,7 @@ pub fn u256_mul_div(x: u256, y: u256, denominator: u256, rounding: Rounding) -> 
     q + (felt_is_round_up.into() & has_remainder.into())
 }
 
-pub fn _raw_u256_mul_div(x: u256, y: u256, denominator: u256) -> (u256, u256) {
+fn _raw_u256_mul_div(x: u256, y: u256, denominator: u256) -> (u256, u256) {
     assert(denominator != 0, 'Math: division by zero');
     let p = x.wide_mul(y);
     let (mut q, r) = u512_safe_div_rem_by_u256(p, denominator.try_into().unwrap());

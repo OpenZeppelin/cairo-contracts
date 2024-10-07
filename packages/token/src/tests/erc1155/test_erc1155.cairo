@@ -9,7 +9,7 @@ use openzeppelin_test_common::erc1155::{
     ERC1155SpyHelpers, get_ids_and_values, get_ids_and_split_values
 };
 use openzeppelin_test_common::erc1155::{
-    setup_account, deploy_another_account_at, setup_src5, setup_receiver, setup_camel_receiver
+    setup_account, deploy_another_account_at, setup_src5, setup_receiver
 };
 use openzeppelin_testing::constants::{
     EMPTY_DATA, ZERO, OWNER, RECIPIENT, OPERATOR, OTHER, TOKEN_ID, TOKEN_ID_2, TOKEN_VALUE,
@@ -159,49 +159,9 @@ fn test_safe_transfer_from_owner_to_receiver() {
 }
 
 #[test]
-#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-fn test_safe_transfer_from_owner_to_camel_receiver() {
-    let (mut state, owner) = setup();
-    let recipient = setup_camel_receiver();
-    let mut spy = spy_events();
-    let contract_address = test_address();
-
-    start_cheat_caller_address(contract_address, owner);
-
-    assert_state_before_transfer_single(owner, recipient, TOKEN_ID);
-    state.safe_transfer_from(owner, recipient, TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
-    spy
-        .assert_only_event_transfer_single(
-            contract_address, owner, owner, recipient, TOKEN_ID, TOKEN_VALUE
-        );
-
-    assert_state_after_transfer_single(owner, recipient, TOKEN_ID);
-}
-
-#[test]
 fn test_safeTransferFrom_owner_to_receiver() {
     let (mut state, owner) = setup();
     let recipient = setup_receiver();
-    let mut spy = spy_events();
-    let contract_address = test_address();
-
-    start_cheat_caller_address(contract_address, owner);
-
-    assert_state_before_transfer_single(owner, recipient, TOKEN_ID);
-    state.safeTransferFrom(owner, recipient, TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
-    spy
-        .assert_only_event_transfer_single(
-            contract_address, owner, owner, recipient, TOKEN_ID, TOKEN_VALUE
-        );
-
-    assert_state_after_transfer_single(owner, recipient, TOKEN_ID);
-}
-
-#[test]
-#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-fn test_safeTransferFrom_owner_to_camel_receiver() {
-    let (mut state, owner) = setup();
-    let recipient = setup_camel_receiver();
     let mut spy = spy_events();
     let contract_address = test_address();
 
@@ -424,51 +384,9 @@ fn test_safe_batch_transfer_from_owner_to_receiver() {
 }
 
 #[test]
-#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-fn test_safe_batch_transfer_from_owner_to_camel_receiver() {
-    let (mut state, owner) = setup();
-    let recipient = setup_camel_receiver();
-    let (token_ids, values) = get_ids_and_values();
-    let mut spy = spy_events();
-    let contract_address = test_address();
-
-    start_cheat_caller_address(contract_address, owner);
-
-    assert_state_before_transfer_batch(owner, recipient, token_ids, values);
-    state.safe_batch_transfer_from(owner, recipient, token_ids, values, EMPTY_DATA());
-    spy
-        .assert_only_event_transfer_batch(
-            contract_address, owner, owner, recipient, token_ids, values
-        );
-
-    assert_state_after_transfer_batch(owner, recipient, token_ids, values);
-}
-
-#[test]
 fn test_safeBatchTransferFrom_owner_to_receiver() {
     let (mut state, owner) = setup();
     let recipient = setup_receiver();
-    let (token_ids, values) = get_ids_and_values();
-    let mut spy = spy_events();
-    let contract_address = test_address();
-
-    start_cheat_caller_address(contract_address, owner);
-
-    assert_state_before_transfer_batch(owner, recipient, token_ids, values);
-    state.safeBatchTransferFrom(owner, recipient, token_ids, values, EMPTY_DATA());
-    spy
-        .assert_only_event_transfer_batch(
-            contract_address, owner, owner, recipient, token_ids, values
-        );
-
-    assert_state_after_transfer_batch(owner, recipient, token_ids, values);
-}
-
-#[test]
-#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-fn test_safeBatchTransferFrom_owner_to_camel_receiver() {
-    let (mut state, owner) = setup();
-    let recipient = setup_camel_receiver();
     let (token_ids, values) = get_ids_and_values();
     let mut spy = spy_events();
     let contract_address = test_address();
@@ -920,28 +838,6 @@ fn test_update_wac_single_from_non_zero_to_non_zero() {
 }
 
 #[test]
-#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-fn test_update_wac_single_from_non_zero_to_non_zero_camel_receiver() {
-    let (mut state, owner) = setup();
-    let recipient = setup_camel_receiver();
-    let token_ids = array![TOKEN_ID].span();
-    let values = array![TOKEN_VALUE].span();
-    let mut spy = spy_events();
-    let contract_address = test_address();
-
-    start_cheat_caller_address(contract_address, owner);
-
-    assert_state_before_transfer_single(owner, recipient, TOKEN_ID);
-    state.update_with_acceptance_check(owner, recipient, token_ids, values, EMPTY_DATA());
-    spy
-        .assert_only_event_transfer_single(
-            contract_address, owner, owner, recipient, TOKEN_ID, TOKEN_VALUE
-        );
-
-    assert_state_after_transfer_single(owner, recipient, TOKEN_ID);
-}
-
-#[test]
 fn test_update_wac_single_from_non_zero_to_non_zero_account() {
     let (mut state, owner) = setup();
     let recipient = RECIPIENT();
@@ -967,27 +863,6 @@ fn test_update_wac_single_from_non_zero_to_non_zero_account() {
 fn test_update_wac_batch_from_non_zero_to_non_zero() {
     let (mut state, owner) = setup();
     let recipient = setup_receiver();
-    let (token_ids, values) = get_ids_and_values();
-    let mut spy = spy_events();
-    let contract_address = test_address();
-
-    start_cheat_caller_address(contract_address, owner);
-
-    assert_state_before_transfer_batch(owner, recipient, token_ids, values);
-    state.update_with_acceptance_check(owner, recipient, token_ids, values, EMPTY_DATA());
-    spy
-        .assert_only_event_transfer_batch(
-            contract_address, owner, owner, recipient, token_ids, values
-        );
-
-    assert_state_after_transfer_batch(owner, recipient, token_ids, values);
-}
-
-#[test]
-#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-fn test_update_wac_batch_from_non_zero_to_non_zero_camel_receiver() {
-    let (mut state, owner) = setup();
-    let recipient = setup_camel_receiver();
     let (token_ids, values) = get_ids_and_values();
     let mut spy = spy_events();
     let contract_address = test_address();
@@ -1040,28 +915,6 @@ fn test_update_wac_from_non_zero_to_zero() {
 fn test_update_wac_from_zero_to_non_zero() {
     let (mut state, owner) = setup();
     let recipient = setup_receiver();
-    let sender = ZERO();
-    let (token_ids, values) = get_ids_and_values();
-    let mut spy = spy_events();
-    let contract_address = test_address();
-
-    start_cheat_caller_address(contract_address, owner);
-
-    assert_state_before_transfer_from_zero_batch(sender, recipient, token_ids);
-    state.update_with_acceptance_check(sender, recipient, token_ids, values, EMPTY_DATA());
-    spy
-        .assert_only_event_transfer_batch(
-            contract_address, owner, sender, recipient, token_ids, values
-        );
-
-    assert_state_after_transfer_from_zero_batch(sender, recipient, token_ids, values);
-}
-
-#[test]
-#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-fn test_update_wac_from_zero_to_non_zero_camel_receiver() {
-    let (mut state, owner) = setup();
-    let recipient = setup_camel_receiver();
     let sender = ZERO();
     let (token_ids, values) = get_ids_and_values();
     let mut spy = spy_events();

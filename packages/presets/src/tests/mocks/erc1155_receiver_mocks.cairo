@@ -1,5 +1,5 @@
 #[starknet::contract]
-pub(crate) mod SnakeERC1155ReceiverMock {
+pub(crate) mod DualCaseERC1155ReceiverMock {
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_token::erc1155::ERC1155ReceiverComponent;
 
@@ -8,15 +8,11 @@ pub(crate) mod SnakeERC1155ReceiverMock {
         path: ERC1155ReceiverComponent, storage: erc1155_receiver, event: ERC1155ReceiverEvent
     );
 
-    // ERC1155Receiver
+    // ERC1155Receiver Mixin
     #[abi(embed_v0)]
-    impl ERC1155ReceiverImpl =
-        ERC1155ReceiverComponent::ERC1155ReceiverImpl<ContractState>;
+    impl ERC1155ReceiverMixinImpl =
+        ERC1155ReceiverComponent::ERC1155ReceiverMixinImpl<ContractState>;
     impl ERC1155ReceiverInternalImpl = ERC1155ReceiverComponent::InternalImpl<ContractState>;
-
-    // SRC5
-    #[abi(embed_v0)]
-    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[storage]
     pub struct Storage {

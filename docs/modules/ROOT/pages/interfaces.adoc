@@ -13,7 +13,7 @@ use openzeppelin_token::erc20::interface::IERC20;
 or
 
 ```cairo
-use openzeppelin_account::interface::ISRC6;
+use openzeppelin_token::erc20::interface::ERC20ABI;
 ```
 
 NOTE: For simplicity, we'll use ERC20 as example but the same concepts apply to other modules.
@@ -77,11 +77,16 @@ pub trait ERC20ABI<TState> {
 
 === Dispatcher traits
 
-Traits decorated with `#[starknet::interface]` automatically generate a dispatcher that can be used to interact with contracts that implement the given interface. They can be imported by appending the `Dispatcher` and `DispatcherTrait` suffixes to the trait name, like this:
+:interacting-with-another-contract: https://book.cairo-lang.org/ch15-02-interacting-with-another-contract.html[Interacting with another contract]
+
+Traits annotated with `#[starknet::interface]` automatically generate a dispatcher that can be used to interact with contracts that implement the given interface. They can be imported by appending the `Dispatcher` and `DispatcherTrait` suffixes to the trait name, like this:
 
 ```cairo
 use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 ```
+
+Other types of dispatchers are also auto-generated from the annotated trait. See the
+{interacting-with-another-contract} section of the Cairo book for more information.
 
 NOTE: In the example, the `IERC20Dispatcher` is the one used to interact with contracts, but the
 `IERC20DispatcherTrait` needs to be in scope for the functions to be available.

@@ -93,8 +93,8 @@ NOTE: In the example, the `IERC20Dispatcher` is the one used to interact with co
 
 == Dual interfaces
 
-WARNING: `camelCase` functions are deprecated and maintained only for Backwards Compatibility. We recommend to
-integrate you contracts and components with the `snake_case` interfaces. The `camelCase` functions will be removed in
+WARNING: `camelCase` functions are deprecated and maintained only for Backwards Compatibility.
+It's recommended to only use `snake_case` interfaces with contracts and components. The `camelCase` functions will be removed in
 future versions.
 
 Following the {great-interface-migration} plan, we added `snake_case` functions to all of our preexisting `camelCase` contracts with the goal of eventually dropping support for the latter.

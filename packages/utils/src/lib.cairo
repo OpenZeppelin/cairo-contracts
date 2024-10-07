@@ -5,7 +5,6 @@ pub mod cryptography;
 pub mod deployments;
 pub mod interfaces;
 pub mod math;
-pub mod selectors;
 pub mod serde;
 pub mod structs;
 

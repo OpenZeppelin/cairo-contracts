@@ -23,7 +23,6 @@ Module containing core utilities of the library.
 * xref:#utils-cryptography[`++cryptography++`]
 * xref:#utils-deployments[`++deployments++`]
 * xref:#utils-math[`++math++`]
-* xref:#utils-selectors[`++selectors++`]
 * xref:#utils-serde[`++serde++`]
 --
 
@@ -47,12 +46,6 @@ See xref:#deployments[`openzeppelin_utils::deployments`].
 ==== `[.contract-item-name]#++math++#` [.item-kind]#module#
 
 See xref:#math[`openzeppelin_utils::math`].
-
-[.contract-item]
-[[utils-selectors]]
-==== `[.contract-item-name]#++selectors++#` [.item-kind]#module#
-
-See xref:#selectors[`openzeppelin_utils::selectors`].
 
 [.contract-item]
 [[utils-serde]]
@@ -184,19 +177,6 @@ Module containing math utilities.
 Returns the average of two values. The result is rounded down.
 
 NOTE: `T` is a generic value matching different numeric implementations.
-
-[.contract]
-[[selectors]]
-=== `++selectors++`
-
-```cairo
-use openzeppelin_utils::selectors;
-```
-
-:selectors: https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.17.0/packages/utils/src/selectors.cairo[selectors.cairo]
-
-Module containing constants matching multiple selectors used through the library.
-To see the full list of selectors, see {selectors}.
 
 [.contract]
 [[serde]]

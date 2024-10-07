@@ -13,7 +13,7 @@ use openzeppelin_token::erc20::interface::IERC20;
 or
 
 ```cairo
-use openzeppelin_account::interface::ISRC6;
+use openzeppelin_token::erc20::interface::ERC20ABI;
 ```
 
 NOTE: For simplicity, we'll use ERC20 as example but the same concepts apply to other modules.
@@ -45,7 +45,7 @@ pub trait IERC20<TState> {
 
 They describe a contract's complete interface. This is useful to interface with a preset contract offered by this library, such as the ERC20 preset that includes functions from different traits such as `IERC20` and `IERC20Camel`.
 
-NOTE: The library offers an ABI trait per component as well, exposing all the external functions
+NOTE: The library offers an ABI trait for most components, providing all external function signatures
 even when most of the time all of them don't need to be implemented at the same time. This can be helpful when interacting with a contract implementing the component, instead of defining a new dispatcher.
 
 ```cairo
@@ -77,19 +77,24 @@ pub trait ERC20ABI<TState> {
 
 === Dispatcher traits
 
-Traits decorated with `#[starknet::interface]` automatically generate a dispatcher that can be used to interact with contracts that implement the given interface. They can be imported by appending the `Dispatcher` and `DispatcherTrait` suffixes to the trait name, like this:
+:interacting-with-another-contract: https://book.cairo-lang.org/ch15-02-interacting-with-another-contract.html[Interacting with another contract]
+
+Traits annotated with `#[starknet::interface]` automatically generate a dispatcher that can be used to interact with contracts that implement the given interface. They can be imported by appending the `Dispatcher` and `DispatcherTrait` suffixes to the trait name, like this:
 
 ```cairo
 use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 ```
+
+Other types of dispatchers are also auto-generated from the annotated trait. See the
+{interacting-with-another-contract} section of the Cairo book for more information.
 
 NOTE: In the example, the `IERC20Dispatcher` is the one used to interact with contracts, but the
 `IERC20DispatcherTrait` needs to be in scope for the functions to be available.
 
 == Dual interfaces
 
-WARNING: `camelCase` functions are deprecated and maintained only for Backwards Compatibility. We recommend to
-integrate you contracts and components with the `snake_case` interfaces. The `camelCase` functions will be removed in
+WARNING: `camelCase` functions are deprecated and maintained only for Backwards Compatibility.
+It's recommended to only use `snake_case` interfaces with contracts and components. The `camelCase` functions will be removed in
 future versions.
 
 Following the {great-interface-migration} plan, we added `snake_case` functions to all of our preexisting `camelCase` contracts with the goal of eventually dropping support for the latter.

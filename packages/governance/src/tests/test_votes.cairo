@@ -95,9 +95,6 @@ fn test_get_votes() {
     assert_eq!(state.get_votes(OWNER()), ERC_721_INITIAL_MINT);
 }
 
-// This test can be improved by using the api of the component
-// to add checkpoints and thus verify the internal state of the component
-// instead of using the trace directly.
 #[test]
 fn test_get_past_votes() {
     let mut state = setup_erc721_votes();
@@ -260,7 +257,7 @@ fn test_delegate_by_sig_invalid_signature() {
 }
 
 //
-// Tests specific to ERC721Votes and
+// Tests specific to ERC721Votes and ERC20Votes
 //
 
 #[test]
@@ -277,6 +274,55 @@ fn test_erc20_get_voting_units() {
 
     assert_eq!(state.get_voting_units(OWNER()), SUPPLY);
     assert_eq!(state.get_voting_units(OTHER()), 0);
+}
+
+#[test]
+fn test_erc20_burn_updates_votes() {
+    let mut state = setup_erc20_votes();
+    let mut mock_state = ERC20VOTES_CONTRACT_STATE();
+    let contract_address = test_address();
+    start_cheat_caller_address(contract_address, OWNER());
+    start_cheat_block_timestamp_global('ts1');
+
+    state.delegate(OWNER());
+
+    // Burnsome tokens
+    let burn_amount = 1000;
+    mock_state.erc20.burn(OWNER(), burn_amount);
+
+    // Manually update voting units (this would typically be done in a hook)
+    state.transfer_voting_units(OWNER(), ZERO(), burn_amount);
+
+    // We need to move the timestamp forward to be able to call get_past_total_supply
+    start_cheat_block_timestamp_global('ts2');
+    assert_eq!(state.get_votes(OWNER()), SUPPLY - burn_amount);
+    assert_eq!(state.get_past_total_supply('ts1'), SUPPLY - burn_amount);
+}
+
+#[test]
+fn test_erc721_burn_updates_votes() {
+    let mut state = setup_erc721_votes();
+    let mut mock_state = ERC721VOTES_CONTRACT_STATE();
+    let contract_address = test_address();
+    start_cheat_caller_address(contract_address, OWNER());
+    start_cheat_block_timestamp_global('ts1');
+
+    state.delegate(OWNER());
+
+    // Burn some tokens
+    let burn_amount = 3;
+    let mut i: u256 = 0;
+    while i < burn_amount {
+        mock_state.erc721.burn(i);
+        // Manually update voting units (this would typically be done in a hook)
+        state.transfer_voting_units(OWNER(), ZERO(), 1);
+        i += 1;
+    };
+
+    // We need to move the timestamp forward to be able to call get_past_total_supply
+    start_cheat_block_timestamp_global('ts2');
+    assert_eq!(state.get_votes(OWNER()), ERC_721_INITIAL_MINT - burn_amount);
+    assert_eq!(state.get_past_total_supply('ts1'), ERC_721_INITIAL_MINT - burn_amount);
 }
 
 //
@@ -333,3 +379,4 @@ impl VotesSpyHelpersImpl of VotesSpyHelpers {
         self.assert_no_events_left_from(contract);
     }
 }
+

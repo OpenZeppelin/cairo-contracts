@@ -285,13 +285,12 @@ pub mod VotesComponent {
             to: ContractAddress,
             amount: u256
         ) {
-            let zero_address = Zero::zero();
             let block_timestamp = starknet::get_block_timestamp();
-            if (from == zero_address) {
+            if from.is_zero() {
                 let mut trace = self.Votes_total_checkpoints.read();
                 trace.push(block_timestamp, trace.latest() + amount);
             }
-            if (to == zero_address) {
+            if to.is_zero() {
                 let mut trace = self.Votes_total_checkpoints.read();
                 trace.push(block_timestamp, trace.latest() - amount);
             }

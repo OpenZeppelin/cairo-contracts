@@ -116,11 +116,12 @@ pub mod ERC4626Component {
             self._convert_to_shares(assets, Rounding::Floor)
         }
 
+
         fn deposit(
             ref self: ComponentState<TContractState>, assets: u256, receiver: ContractAddress
         ) -> u256 {
             let max_assets = self.max_deposit(receiver);
-            assert(assets < max_assets, Errors::EXCEEDED_MAX_DEPOSIT);
+            assert(assets <= max_assets, Errors::EXCEEDED_MAX_DEPOSIT);
 
             let shares = self.preview_deposit(assets);
             let caller = starknet::get_caller_address();
@@ -140,7 +141,7 @@ pub mod ERC4626Component {
             ref self: ComponentState<TContractState>, shares: u256, receiver: ContractAddress
         ) -> u256 {
             let max_shares = self.max_mint(receiver);
-            assert(shares < max_shares, Errors::EXCEEDED_MAX_MINT);
+            assert(shares <= max_shares, Errors::EXCEEDED_MAX_MINT);
 
             let assets = self.preview_mint(shares);
             let caller = starknet::get_caller_address();

@@ -3,7 +3,8 @@ pub mod eth_account;
 pub mod extensions;
 pub mod interface;
 
-pub mod tests;
+#[cfg(test)]
+mod tests;
 pub mod utils;
 
 pub use account::AccountComponent;

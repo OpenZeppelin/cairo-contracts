@@ -1,8 +1,88 @@
 #[starknet::contract]
-pub(crate) mod DualCaseERC20VotesMock {
-    use crate::erc20::ERC20Component;
-    use crate::erc20::extensions::ERC20VotesComponent::InternalTrait as ERC20VotesInternalTrait;
-    use crate::erc20::extensions::ERC20VotesComponent;
+pub mod DualCaseERC20Mock {
+    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
+    use starknet::ContractAddress;
+
+    component!(path: ERC20Component, storage: erc20, event: ERC20Event);
+
+    #[abi(embed_v0)]
+    impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC20MetadataImpl = ERC20Component::ERC20MetadataImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC20CamelOnlyImpl = ERC20Component::ERC20CamelOnlyImpl<ContractState>;
+    impl InternalImpl = ERC20Component::InternalImpl<ContractState>;
+
+    #[storage]
+    pub struct Storage {
+        #[substorage(v0)]
+        pub erc20: ERC20Component::Storage
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        ERC20Event: ERC20Component::Event
+    }
+
+    #[constructor]
+    fn constructor(
+        ref self: ContractState,
+        name: ByteArray,
+        symbol: ByteArray,
+        initial_supply: u256,
+        recipient: ContractAddress
+    ) {
+        self.erc20.initializer(name, symbol);
+        self.erc20.mint(recipient, initial_supply);
+    }
+}
+
+#[starknet::contract]
+pub mod SnakeERC20Mock {
+    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
+    use starknet::ContractAddress;
+
+    component!(path: ERC20Component, storage: erc20, event: ERC20Event);
+
+    #[abi(embed_v0)]
+    impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC20MetadataImpl = ERC20Component::ERC20MetadataImpl<ContractState>;
+    impl InternalImpl = ERC20Component::InternalImpl<ContractState>;
+
+    #[storage]
+    pub struct Storage {
+        #[substorage(v0)]
+        pub erc20: ERC20Component::Storage
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        ERC20Event: ERC20Component::Event
+    }
+
+    #[constructor]
+    fn constructor(
+        ref self: ContractState,
+        name: ByteArray,
+        symbol: ByteArray,
+        initial_supply: u256,
+        recipient: ContractAddress
+    ) {
+        self.erc20.initializer(name, symbol);
+        self.erc20.mint(recipient, initial_supply);
+    }
+}
+
+#[starknet::contract]
+pub mod DualCaseERC20VotesMock {
+    use openzeppelin_token::erc20::ERC20Component;
+    use openzeppelin_token::erc20::extensions::ERC20VotesComponent::InternalTrait as ERC20VotesInternalTrait;
+    use openzeppelin_token::erc20::extensions::ERC20VotesComponent;
     use openzeppelin_utils::cryptography::nonces::NoncesComponent;
     use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
     use starknet::ContractAddress;
@@ -47,7 +127,7 @@ pub(crate) mod DualCaseERC20VotesMock {
     }
 
     /// Required for hash computation.
-    pub(crate) impl SNIP12MetadataImpl of SNIP12Metadata {
+    pub impl SNIP12MetadataImpl of SNIP12Metadata {
         fn name() -> felt252 {
             'DAPP_NAME'
         }

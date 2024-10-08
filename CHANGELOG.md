@@ -11,10 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Bump scarb to v2.8.3 (#1166)
+- Bump scarb to v2.8.4 (#1146)
 
 ### Changed (Breaking)
 
+- Bump snforge to 0.31.0
 - Remove openzeppelin_utils::selectors (#1163)
 - Remove `DualCase dispatchers` (#1163)
   - Remove `try_selector_with_fallback` from `openzeppelin_utils`

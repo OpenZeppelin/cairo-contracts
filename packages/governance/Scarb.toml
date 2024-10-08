@@ -41,6 +41,7 @@ sierra = true
 casm = false
 
 [[test]]
+name = "openzeppelin_governance_unittest"
 build-external-contracts = [
     "openzeppelin_test_common::mocks::timelock::TimelockControllerMock",
     "openzeppelin_test_common::mocks::timelock::MockContract",

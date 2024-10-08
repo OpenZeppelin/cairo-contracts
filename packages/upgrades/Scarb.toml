@@ -38,6 +38,7 @@ sierra = true
 casm = false
 
 [[test]]
+name = "openzeppelin_upgrades_unittest"
 build-external-contracts = [
     "openzeppelin_test_common::mocks::upgrades::UpgradesV1",
     "openzeppelin_test_common::mocks::upgrades::UpgradesV2",

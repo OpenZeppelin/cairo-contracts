@@ -1,5 +1,3 @@
-pub mod dual721;
-pub mod dual721_receiver;
 pub mod erc721;
 pub mod erc721_receiver;
 pub mod extensions;

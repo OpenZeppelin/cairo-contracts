@@ -1,5 +1,3 @@
-pub mod dual1155;
-pub mod dual1155_receiver;
 pub mod erc1155;
 pub mod erc1155_receiver;
 pub mod interface;

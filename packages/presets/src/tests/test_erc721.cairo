@@ -64,21 +64,12 @@ fn setup_dispatcher() -> (EventSpy, ERC721UpgradeableABIDispatcher) {
 }
 
 fn setup_receiver() -> ContractAddress {
-    utils::declare_and_deploy("SnakeERC721ReceiverMock", array![])
-}
-
-fn setup_camel_receiver() -> ContractAddress {
-    utils::declare_and_deploy("CamelERC721ReceiverMock", array![])
+    utils::declare_and_deploy("DualCaseERC721ReceiverMock", array![])
 }
 
 fn setup_account() -> ContractAddress {
     let mut calldata = array![PUBKEY];
     utils::declare_and_deploy("DualCaseAccountMock", calldata)
-}
-
-fn setup_camel_account() -> ContractAddress {
-    let mut calldata = array![PUBKEY];
-    utils::declare_and_deploy("CamelAccountMock", calldata)
 }
 
 //
@@ -514,38 +505,6 @@ fn test_safeTransferFrom_to_account() {
 }
 
 #[test]
-fn test_safe_transfer_from_to_account_camel() {
-    let (mut spy, dispatcher) = setup_dispatcher();
-    let account = setup_camel_account();
-    let token_id = TOKEN_1;
-    let owner = OWNER();
-    spy.drop_all_events();
-
-    assert_state_before_transfer(dispatcher, owner, account, token_id);
-
-    dispatcher.safe_transfer_from(owner, account, token_id, DATA(true));
-    spy.assert_only_event_transfer(dispatcher.contract_address, owner, account, token_id);
-
-    assert_state_after_transfer(dispatcher, owner, account, token_id);
-}
-
-#[test]
-fn test_safeTransferFrom_to_account_camel() {
-    let (mut spy, dispatcher) = setup_dispatcher();
-    let account = setup_camel_account();
-    let token_id = TOKEN_1;
-    let owner = OWNER();
-    spy.drop_all_events();
-
-    assert_state_before_transfer(dispatcher, owner, account, token_id);
-
-    dispatcher.safeTransferFrom(owner, account, token_id, DATA(true));
-    spy.assert_only_event_transfer(dispatcher.contract_address, owner, account, token_id);
-
-    assert_state_after_transfer(dispatcher, owner, account, token_id);
-}
-
-#[test]
 fn test_safe_transfer_from_to_receiver() {
     let (mut spy, dispatcher) = setup_dispatcher();
     let receiver = setup_receiver();
@@ -576,38 +535,6 @@ fn test_safeTransferFrom_to_receiver() {
 }
 
 #[test]
-#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-fn test_safe_transfer_from_to_receiver_camel() {
-    let (mut spy, dispatcher) = setup_dispatcher();
-    let receiver = setup_camel_receiver();
-    let token_id = TOKEN_1;
-    let owner = OWNER();
-
-    assert_state_before_transfer(dispatcher, owner, receiver, token_id);
-
-    dispatcher.safe_transfer_from(owner, receiver, token_id, DATA(true));
-    spy.assert_only_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
-
-    assert_state_after_transfer(dispatcher, owner, receiver, token_id);
-}
-
-#[test]
-#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-fn test_safeTransferFrom_to_receiver_camel() {
-    let (mut spy, dispatcher) = setup_dispatcher();
-    let receiver = setup_camel_receiver();
-    let token_id = TOKEN_1;
-    let owner = OWNER();
-
-    assert_state_before_transfer(dispatcher, owner, receiver, token_id);
-
-    dispatcher.safeTransferFrom(owner, receiver, token_id, DATA(true));
-    spy.assert_only_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
-
-    assert_state_after_transfer(dispatcher, owner, receiver, token_id);
-}
-
-#[test]
 #[should_panic(expected: ('ERC721: safe transfer failed',))]
 fn test_safe_transfer_from_to_receiver_failure() {
     let (_, dispatcher) = setup_dispatcher();
@@ -623,30 +550,6 @@ fn test_safe_transfer_from_to_receiver_failure() {
 fn test_safeTransferFrom_to_receiver_failure() {
     let (_, dispatcher) = setup_dispatcher();
     let receiver = setup_receiver();
-    let token_id = TOKEN_1;
-    let owner = OWNER();
-
-    dispatcher.safeTransferFrom(owner, receiver, token_id, DATA(false));
-}
-
-#[test]
-#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-#[should_panic(expected: ('ERC721: safe transfer failed',))]
-fn test_safe_transfer_from_to_receiver_failure_camel() {
-    let (_, dispatcher) = setup_dispatcher();
-    let receiver = setup_camel_receiver();
-    let token_id = TOKEN_1;
-    let owner = OWNER();
-
-    dispatcher.safe_transfer_from(owner, receiver, token_id, DATA(false));
-}
-
-#[test]
-#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-#[should_panic(expected: ('ERC721: safe transfer failed',))]
-fn test_safeTransferFrom_to_receiver_failure_camel() {
-    let (_, dispatcher) = setup_dispatcher();
-    let receiver = setup_camel_receiver();
     let token_id = TOKEN_1;
     let owner = OWNER();
 
@@ -742,44 +645,6 @@ fn test_safeTransferFrom_to_owner() {
 }
 
 #[test]
-#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-fn test_safe_transfer_from_to_owner_camel() {
-    let (mut spy, dispatcher) = setup_dispatcher();
-    let token_id = TOKEN_1;
-    let receiver = setup_camel_receiver();
-
-    dispatcher.transfer_from(OWNER(), receiver, token_id);
-    spy.drop_event();
-
-    assert_state_transfer_to_self(dispatcher, receiver, token_id, 1);
-
-    start_cheat_caller_address(dispatcher.contract_address, receiver);
-    dispatcher.safe_transfer_from(receiver, receiver, token_id, DATA(true));
-    spy.assert_only_event_transfer(dispatcher.contract_address, receiver, receiver, token_id);
-
-    assert_state_transfer_to_self(dispatcher, receiver, token_id, 1);
-}
-
-#[test]
-#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-fn test_safeTransferFrom_to_owner_camel() {
-    let (mut spy, dispatcher) = setup_dispatcher();
-    let token_id = TOKEN_1;
-    let receiver = setup_camel_receiver();
-
-    dispatcher.transfer_from(OWNER(), receiver, token_id);
-    spy.drop_event();
-
-    assert_state_transfer_to_self(dispatcher, receiver, token_id, 1);
-
-    start_cheat_caller_address(dispatcher.contract_address, receiver);
-    dispatcher.safeTransferFrom(receiver, receiver, token_id, DATA(true));
-    spy.assert_only_event_transfer(dispatcher.contract_address, receiver, receiver, token_id);
-
-    assert_state_transfer_to_self(dispatcher, receiver, token_id, 1);
-}
-
-#[test]
 fn test_safe_transfer_from_approved() {
     let (mut spy, dispatcher) = setup_dispatcher();
     let receiver = setup_receiver();
@@ -818,46 +683,6 @@ fn test_safeTransferFrom_approved() {
 }
 
 #[test]
-#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-fn test_safe_transfer_from_approved_camel() {
-    let (mut spy, dispatcher) = setup_dispatcher();
-    let receiver = setup_camel_receiver();
-    let token_id = TOKEN_1;
-    let owner = OWNER();
-
-    assert_state_before_transfer(dispatcher, owner, receiver, token_id);
-
-    dispatcher.approve(OPERATOR(), token_id);
-    spy.drop_event();
-
-    start_cheat_caller_address(dispatcher.contract_address, OPERATOR());
-    dispatcher.safe_transfer_from(owner, receiver, token_id, DATA(true));
-    spy.assert_only_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
-
-    assert_state_after_transfer(dispatcher, owner, receiver, token_id);
-}
-
-#[test]
-#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-fn test_safeTransferFrom_approved_camel() {
-    let (mut spy, dispatcher) = setup_dispatcher();
-    let receiver = setup_camel_receiver();
-    let token_id = TOKEN_1;
-    let owner = OWNER();
-
-    assert_state_before_transfer(dispatcher, owner, receiver, token_id);
-
-    dispatcher.approve(OPERATOR(), token_id);
-    spy.drop_event();
-
-    start_cheat_caller_address(dispatcher.contract_address, OPERATOR());
-    dispatcher.safeTransferFrom(owner, receiver, token_id, DATA(true));
-    spy.assert_only_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
-
-    assert_state_after_transfer(dispatcher, owner, receiver, token_id);
-}
-
-#[test]
 fn test_safe_transfer_from_approved_for_all() {
     let (mut spy, dispatcher) = setup_dispatcher();
     let receiver = setup_receiver();
@@ -880,46 +705,6 @@ fn test_safe_transfer_from_approved_for_all() {
 fn test_safeTransferFrom_approved_for_all() {
     let (mut spy, dispatcher) = setup_dispatcher();
     let receiver = setup_receiver();
-    let token_id = TOKEN_1;
-    let owner = OWNER();
-
-    assert_state_before_transfer(dispatcher, owner, receiver, token_id);
-
-    dispatcher.set_approval_for_all(OPERATOR(), true);
-    spy.drop_event();
-
-    start_cheat_caller_address(dispatcher.contract_address, OPERATOR());
-    dispatcher.safeTransferFrom(owner, receiver, token_id, DATA(true));
-    spy.assert_only_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
-
-    assert_state_after_transfer(dispatcher, owner, receiver, token_id);
-}
-
-#[test]
-#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-fn test_safe_transfer_from_approved_for_all_camel() {
-    let (mut spy, dispatcher) = setup_dispatcher();
-    let receiver = setup_camel_receiver();
-    let token_id = TOKEN_1;
-    let owner = OWNER();
-
-    assert_state_before_transfer(dispatcher, owner, receiver, token_id);
-
-    dispatcher.set_approval_for_all(OPERATOR(), true);
-    spy.drop_event();
-
-    start_cheat_caller_address(dispatcher.contract_address, OPERATOR());
-    dispatcher.safe_transfer_from(owner, receiver, token_id, DATA(true));
-    spy.assert_only_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
-
-    assert_state_after_transfer(dispatcher, owner, receiver, token_id);
-}
-
-#[test]
-#[ignore] // REASON: foundry entrypoint_not_found error message inconsistent with mainnet.
-fn test_safeTransferFrom_approved_for_all_camel() {
-    let (mut spy, dispatcher) = setup_dispatcher();
-    let receiver = setup_camel_receiver();
     let token_id = TOKEN_1;
     let owner = OWNER();
 

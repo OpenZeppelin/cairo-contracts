@@ -27,6 +27,7 @@ starknet.workspace = true
 openzeppelin_account = { path = "../account" }
 openzeppelin_introspection = { path = "../introspection" }
 openzeppelin_governance = { path = "../governance" }
+openzeppelin_utils = { path = "../utils" }
 
 [dev-dependencies]
 assert_macros.workspace = true
@@ -40,3 +41,15 @@ openzeppelin_test_common = { path = "../test_common" }
 allowed-libfuncs-list.name = "experimental"
 sierra = true
 casm = false
+
+[[test]]
+name = "openzeppelin_token_unittest"
+build-external-contracts = [
+    "openzeppelin_test_common::mocks::account::DualCaseAccountMock",
+    "openzeppelin_test_common::mocks::erc20::ERC20ReentrantMock",
+    "openzeppelin_test_common::mocks::erc4626::ERC4626Mock",
+    "openzeppelin_test_common::mocks::erc721::DualCaseERC721ReceiverMock",
+    "openzeppelin_test_common::mocks::erc1155::DualCaseERC1155ReceiverMock",
+    "openzeppelin_test_common::mocks::non_implementing::NonImplementingMock",
+    "openzeppelin_test_common::mocks::src5::SRC5Mock",
+]

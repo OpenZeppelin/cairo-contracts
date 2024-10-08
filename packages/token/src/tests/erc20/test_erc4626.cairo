@@ -7,8 +7,8 @@ use crate::erc20::extensions::erc4626::ERC4626Component::{
 use crate::erc20::extensions::erc4626::ERC4626Component::{Deposit, Withdraw};
 use crate::erc20::extensions::erc4626::ERC4626Component;
 use crate::erc20::extensions::erc4626::interface::{ERC4626ABIDispatcher, ERC4626ABIDispatcherTrait};
-use crate::tests::mocks::erc20_reentrant::Type;
-use crate::tests::mocks::erc20_reentrant::{
+use openzeppelin_test_common::mocks::erc20::Type;
+use openzeppelin_test_common::mocks::erc20::{
     IERC20ReentrantDispatcher, IERC20ReentrantDispatcherTrait
 };
 use openzeppelin_test_common::erc20::ERC20SpyHelpers;

@@ -28,6 +28,7 @@ openzeppelin_finance = { path = "../finance" }
 openzeppelin_introspection = { path = "../introspection" }
 openzeppelin_token = { path = "../token" }
 openzeppelin_upgrades = { path = "../upgrades" }
+openzeppelin_utils = { path = "../utils" }
 
 [dev-dependencies]
 assert_macros.workspace = true
@@ -41,3 +42,19 @@ openzeppelin_test_common = { path = "../test_common" }
 allowed-libfuncs-list.name = "experimental"
 sierra = true
 casm = false
+
+[[test]]
+name = "openzeppelin_presets_unittest"
+build-external-contracts = [
+    "openzeppelin_test_common::mocks::account::DualCaseAccountMock",
+    "openzeppelin_test_common::mocks::account::SnakeAccountMock",
+    "openzeppelin_test_common::mocks::account::SnakeEthAccountMock",
+    "openzeppelin_test_common::mocks::erc20::DualCaseERC20Mock",
+    "openzeppelin_test_common::mocks::erc20::SnakeERC20Mock",
+    "openzeppelin_test_common::mocks::erc721::SnakeERC721Mock",
+    "openzeppelin_test_common::mocks::erc721::DualCaseERC721ReceiverMock",
+    "openzeppelin_test_common::mocks::erc1155::DualCaseERC1155ReceiverMock",
+    "openzeppelin_test_common::mocks::erc1155::SnakeERC1155Mock",
+    "openzeppelin_test_common::mocks::src5::SRC5Mock",
+    "openzeppelin_test_common::mocks::non_implementing::NonImplementingMock",
+]

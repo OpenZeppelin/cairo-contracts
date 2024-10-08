@@ -26,7 +26,7 @@ Note that some declarations are omitted for brevity. The full example will be av
 ----
 #[starknet::contract]
 mod CustomERC20 {
-    use openzeppelin::token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
+    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
@@ -117,12 +117,12 @@ NOTE: In practice it's better to compute the type hash off-chain and hardcode it
 
 === 3. Implement the `StructHash` trait for the struct.
 
-You can import the trait from: `openzeppelin::utils::snip12::StructHash`. And this implementation
+You can import the trait from: `openzeppelin_utils::snip12::StructHash`. And this implementation
 is nothing more than the encoding of the message as defined in the {snip}.
 
 [,cairo]
 ----
-use openzeppelin::utils::snip12::StructHash;
+use openzeppelin_utils::snip12::StructHash;
 
 use core::hash::HashStateExTrait;
 use hash::{HashStateTrait, Hash};
@@ -155,7 +155,7 @@ because the `chain_id` is obtained on-chain, and the `revision` is hardcoded to 
 
 [,cairo]
 ----
-use openzeppelin::utils::snip12::SNIP12Metadata;
+use openzeppelin_utils::snip12::SNIP12Metadata;
 
 impl SNIP12MetadataImpl of SNIP12Metadata {
     fn name() -> felt252 { 'DAPP_NAME' }
@@ -169,7 +169,7 @@ the trait is not bounded to the ContractState, like this:
 
 [,cairo]
 ----
-use openzeppelin::utils::snip12::SNIP12Metadata;
+use openzeppelin_utils::snip12::SNIP12Metadata;
 
 impl SNIP12MetadataImpl of SNIP12Metadata {
     fn name() -> felt252 {
@@ -190,7 +190,7 @@ using the `get_message_hash` function. The implementation is already available a
 
 [,cairo]
 ----
-use openzeppelin::utils::snip12::{SNIP12Metadata, StructHash, OffchainMessageHashImpl};
+use openzeppelin_utils::snip12::{SNIP12Metadata, StructHash, OffchainMessageHashImpl};
 
 use core::hash::HashStateExTrait;
 use hash::{HashStateTrait, Hash};
@@ -241,17 +241,17 @@ TIP: The expected parameter for the `get_message_hash` function is the address o
 
 == Full Implementation
 
-:dualcase_dispatchers: xref:/interfaces#dualcase_dispatchers
+:isrc6_dispatcher: xref:/api/account#ISRC6
 :nonces: xref:/api/utilities#NoncesComponent
 
 Finally, the full implementation of the `CustomERC20` contract looks like this:
 
-NOTE: We are using the {dualcase_dispatchers}[`DualCaseAccount`] to verify the signature,
+NOTE: We are using the {isrc6_dispatcher}[`ISRC6Dispatcher`] to verify the signature,
 and the {nonces}[`NoncesComponent`] to handle nonces to prevent replay attacks.
 
 [,cairo]
 ----
-use openzeppelin::utils::snip12::{SNIP12Metadata, StructHash, OffchainMessageHashImpl};
+use openzeppelin_utils::snip12::{SNIP12Metadata, StructHash, OffchainMessageHashImpl};
 
 use core::hash::HashStateExTrait;
 use hash::{HashStateTrait, Hash};
@@ -278,9 +278,9 @@ impl StructHashImpl of StructHash<Message> {
 
 #[starknet::contract]
 mod CustomERC20 {
-    use openzeppelin::account::dual_account::{DualCaseAccount, DualCaseAccountTrait};
-    use openzeppelin::token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
-    use openzeppelin::utils::cryptography::nonces::NoncesComponent;
+    use openzeppelin_account::interface::{ISRC6Dispatcher, ISRC6DispatcherTrait};
+    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
+    use openzeppelin_utils::cryptography::nonces::NoncesComponent;
     use starknet::ContractAddress;
 
     use super::{Message, OffchainMessageHashImpl, SNIP12Metadata};
@@ -348,7 +348,7 @@ mod CustomERC20 {
         let message = Message { recipient, amount, nonce, expiry };
         let hash = message.get_message_hash(owner);
 
-        let is_valid_signature_felt = DualCaseAccount { contract_address: owner }
+        let is_valid_signature_felt = ISRC6Dispatcher { contract_address: owner }
             .is_valid_signature(hash, signature);
 
         // Check either 'VALID' or true for backwards compatibility

@@ -4,6 +4,12 @@
 :accesscontrol-component: xref:api/access.adoc#AccessControlComponent[AccessControlComponent]
 :src5-component: xref:api/introspection.adoc#SRC5Component[SRC5Component]
 
+Decentralized protocols are in constant evolution from the moment they are publicly released.
+Often, the initial team retains control of this evolution in the first stages, but eventually delegates it to a community of stakeholders.
+The process by which this community makes decisions is called on-chain governance, and it has become a central component of decentralized protocols, fueling varied decisions such as parameter tweaking, smart contract upgrades, integrations with other protocols, treasury management, grants, etc.
+
+The Contracts for Cairo library aims to build a modular system of governance components for users to easily integrate and customize in their contracts.
+
 == Timelock Controller
 
 The Timelock Controller provides a means of enforcing time delays on the execution of transactions. This is considered good practice regarding governance systems because it allows users the opportunity to exit the system if they disagree with a decision before it is executed.
@@ -95,9 +101,9 @@ Here's an example of a simple timelock contract:
 ----
 #[starknet::contract]
 mod TimelockControllerContract {
-    use openzeppelin::access::accesscontrol::AccessControlComponent;
-    use openzeppelin::governance::timelock::TimelockControllerComponent;
-    use openzeppelin::introspection::src5::SRC5Component;
+    use openzeppelin_access::accesscontrol::AccessControlComponent;
+    use openzeppelin_governance::timelock::TimelockControllerComponent;
+    use openzeppelin_introspection::src5::SRC5Component;
     use starknet::ContractAddress;
 
     component!(path: AccessControlComponent, storage: access_control, event: AccessControlEvent);

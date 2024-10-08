@@ -8,7 +8,7 @@
 :AccountUpgradeable-class-hash: 0x06d4b80c0f3c3ea9e98252403a83f8a6bacf7f7362e9ac0a8824854dca31f8a8
 :EthAccountUpgradeable-class-hash: 0x06cc43e9a4a0036cd09d8a997c61df18d7e4fa9459c907a4664b4e56b679d187
 :UniversalDeployer-class-hash: 0x042b05f5d6e6359415b3da6902e8be480e695db0990826e107f1f45fabd03a78
-:VestingWallet-class-hash: 0x05d9f7e20bf1f917d5bcbe3990a54f73e8869bb8ee2dc8e3fefc8e22587967e4
+:VestingWallet-class-hash: 0x07e018b5ddc3fe3452060aad622545a6b30564049998ceab9f0783c12926eab6
 
 // Presets page
 :presets-page: xref:presets.adoc[Sierra class hash]

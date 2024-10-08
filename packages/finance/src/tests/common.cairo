@@ -51,7 +51,7 @@ fn deploy_erc20_mock(recipient: ContractAddress, initial_supply: u256) -> IERC20
     calldata.append_serde(initial_supply);
     calldata.append_serde(recipient);
 
-    let contract_address = utils::declare_and_deploy("ERC20Mock", calldata);
+    let contract_address = utils::declare_and_deploy("ERC20OptionalTransferPanicMock", calldata);
     IERC20Dispatcher { contract_address }
 }
 

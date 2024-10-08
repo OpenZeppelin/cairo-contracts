@@ -5,8 +5,8 @@ use crate::erc20::extensions::ERC20VotesComponent::{DelegateChanged, DelegateVot
 use crate::erc20::extensions::ERC20VotesComponent::{ERC20VotesImpl, InternalImpl};
 use crate::erc20::extensions::ERC20VotesComponent;
 use crate::erc20::extensions::erc20_votes::Delegation;
-use crate::tests::mocks::erc20_votes_mocks::DualCaseERC20VotesMock::SNIP12MetadataImpl;
-use crate::tests::mocks::erc20_votes_mocks::DualCaseERC20VotesMock;
+use openzeppelin_test_common::mocks::erc20::DualCaseERC20VotesMock::SNIP12MetadataImpl;
+use openzeppelin_test_common::mocks::erc20::DualCaseERC20VotesMock;
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{SUPPLY, ZERO, OWNER, RECIPIENT};
 use openzeppelin_testing::events::EventSpyExt;

@@ -7,18 +7,19 @@ This section describes the interfaces OpenZeppelin Contracts for Cairo offer, an
 Interfaces can be found in the module tree under the `interface` submodule, such as `token::erc20::interface`. For example:
 
 ```cairo
-use openzeppelin::token::erc20::interface::IERC20;
+use openzeppelin_token::erc20::interface::IERC20;
 ```
 
 or
 
 ```cairo
-use openzeppelin::token::erc20::dual20::DualCaseERC20;
+use openzeppelin_token::erc20::interface::ERC20ABI;
 ```
 
 NOTE: For simplicity, we'll use ERC20 as example but the same concepts apply to other modules.
 
 == Interface traits
+
 The library offers three types of traits to implement or interact with contracts:
 
 === Standard traits
@@ -43,6 +44,9 @@ pub trait IERC20<TState> {
 === ABI traits
 
 They describe a contract's complete interface. This is useful to interface with a preset contract offered by this library, such as the ERC20 preset that includes functions from different traits such as `IERC20` and `IERC20Camel`.
+
+NOTE: The library offers an ABI trait for most components, providing all external function signatures
+even when most of the time all of them don't need to be implemented at the same time. This can be helpful when interacting with a contract implementing the component, instead of defining a new dispatcher.
 
 ```cairo
 #[starknet::interface]
@@ -72,34 +76,30 @@ pub trait ERC20ABI<TState> {
 ```
 
 === Dispatcher traits
-This is a utility trait to interface with contracts whose interface is unknown. Read more in the xref:#dualcase_dispatchers[DualCase Dispatchers] section.
+
+:interacting-with-another-contract: https://book.cairo-lang.org/ch15-02-interacting-with-another-contract.html[Interacting with another contract]
+
+Traits annotated with `#[starknet::interface]` automatically generate a dispatcher that can be used to interact with contracts that implement the given interface. They can be imported by appending the `Dispatcher` and `DispatcherTrait` suffixes to the trait name, like this:
 
 ```cairo
-#[derive(Copy, Drop)]
-pub struct DualCaseERC20 {
-    contract_address: ContractAddress
-}
-
-pub trait DualCaseERC20Trait {
-    fn name(self: @DualCaseERC20) -> ByteArray;
-    fn symbol(self: @DualCaseERC20) -> ByteArray;
-    fn decimals(self: @DualCaseERC20) -> u8;
-    fn total_supply(self: @DualCaseERC20) -> u256;
-    fn balance_of(self: @DualCaseERC20, account: ContractAddress) -> u256;
-    fn allowance(self: @DualCaseERC20, owner: ContractAddress, spender: ContractAddress) -> u256;
-    fn transfer(self: @DualCaseERC20, recipient: ContractAddress, amount: u256) -> bool;
-    fn transfer_from(
-        self: @DualCaseERC20, sender: ContractAddress, recipient: ContractAddress, amount: u256
-    ) -> bool;
-    fn approve(self: @DualCaseERC20, spender: ContractAddress, amount: u256) -> bool;
-}
+use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 ```
+
+Other types of dispatchers are also auto-generated from the annotated trait. See the
+{interacting-with-another-contract} section of the Cairo book for more information.
+
+NOTE: In the example, the `IERC20Dispatcher` is the one used to interact with contracts, but the
+`IERC20DispatcherTrait` needs to be in scope for the functions to be available.
 
 == Dual interfaces
 
+WARNING: `camelCase` functions are deprecated and maintained only for Backwards Compatibility.
+It's recommended to only use `snake_case` interfaces with contracts and components. The `camelCase` functions will be removed in
+future versions.
+
 Following the {great-interface-migration} plan, we added `snake_case` functions to all of our preexisting `camelCase` contracts with the goal of eventually dropping support for the latter.
 
-In short, we offer two types of interfaces and utilities to handle them:
+In short, the library offers two types of interfaces and utilities to handle them:
 
 1. `camelCase` interfaces, which are the ones we've been using so far.
 2. `snake_case` interfaces, which are the ones we're migrating to.
@@ -131,7 +131,7 @@ pub trait IERC20<TState> {
 
 === `IERC20Camel`
 
-On top of that, we also offer a `camelCase` version of the same interface:
+On top of that, the library also offers a `camelCase` version of the same interface:
 
 ```cairo
 #[starknet::interface]
@@ -149,42 +149,3 @@ pub trait IERC20Camel<TState> {
     fn approve(ref self: TState, spender: ContractAddress, amount: u256) -> bool;
 }
 ```
-
-== `DualCase` dispatchers
-
-WARNING: `DualCase` dispatchers are deprecated, and they will be removed from the library soon.
-
-WARNING: `DualCase` dispatchers won't work on live chains (`mainnet` or testnets) until they implement panic handling in their runtime. Dispatchers work fine in testing environments.
-
-In order to ease this transition, OpenZeppelin Contracts for Cairo offer what we call `DualCase` dispatchers such as `DualCaseERC721` or `DualCaseAccount`.
-
-These modules wrap a target contract with a compatibility layer to expose a `snake_case` interface no matter what casing the underlying contract uses.
-This way, an AMM wouldn't have problems integrating tokens independently of their interface.
-
-For example:
-
-```cairo
-let token = DualCaseERC20 { contract_address: target };
-token.transfer_from(OWNER(), RECIPIENT(), VALUE);
-```
-
-This is done by simply executing the `snake_case` version of the function (e.g. `transfer_from`) and falling back to the `camelCase` one (e.g. `transferFrom`) in case it reverts with `ENTRYPOINT_NOT_FOUND`, like this:
-
-```cairo
-fn try_selector_with_fallback(
-    target: ContractAddress, selector: felt252, fallback: felt252, args: Span<felt252>
-) -> SyscallResult<Span<felt252>> {
-    match call_contract_syscall(target, selector, args) {
-        Result::Ok(ret) => Result::Ok(ret),
-        Result::Err(errors) => {
-            if *errors.at(0) == 'ENTRYPOINT_NOT_FOUND' {
-                return call_contract_syscall(target, fallback, args);
-            } else {
-                Result::Err(errors)
-            }
-        }
-    }
-}
-```
-
-Trying the `snake_case` interface first renders `camelCase` calls a bit more expensive since a failed `snake_case` call will always happen before. This is a design choice to incentivize casing adoption/transition as per the {great-interface-migration}.

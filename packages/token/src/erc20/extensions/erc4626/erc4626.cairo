@@ -326,7 +326,7 @@ pub impl DefaultConfig of ERC4626Component::ImmutableConfig {
 
 #[cfg(test)]
 mod Test {
-    use crate::tests::mocks::erc4626_mocks::ERC4626Mock;
+    use openzeppelin_test_common::mocks::erc4626::ERC4626Mock;
     use starknet::contract_address_const;
     use super::ERC4626Component::InternalImpl;
     use super::ERC4626Component;

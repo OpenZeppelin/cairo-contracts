@@ -20,10 +20,16 @@
 #[starknet::component]
 pub mod ERC2981Component {
     use core::num::traits::Zero;
-    use crate::common::erc2981::interface::{IERC2981, IERC2981_ID};
+    use crate::common::erc2981::interface::IERC2981_ID;
+    use crate::common::erc2981::interface;
+    use openzeppelin_access::accesscontrol::AccessControlComponent::InternalTrait as AccessControlInternalTrait;
+    use openzeppelin_access::accesscontrol::AccessControlComponent;
+    use openzeppelin_access::ownable::OwnableComponent::InternalTrait as OwnableInternalTrait;
+    use openzeppelin_access::ownable::OwnableComponent;
     use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
     use openzeppelin_introspection::src5::SRC5Component;
+
     use starknet::ContractAddress;
     use starknet::storage::{
         Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
@@ -80,7 +86,7 @@ pub mod ERC2981Component {
         impl Immutable: ImmutableConfig,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>,
-    > of IERC2981<ComponentState<TContractState>> {
+    > of interface::IERC2981<ComponentState<TContractState>> {
         /// Returns how much royalty is owed and to whom, based on a sale price that may be
         /// denominated in any unit of exchange. The royalty amount is denominated and should be
         /// paid in that same unit of exchange.
@@ -106,6 +112,114 @@ pub mod ERC2981Component {
                 / Immutable::FEE_DENOMINATOR.into();
 
             (royalty_info.receiver, royalty_amount)
+        }
+    }
+
+    #[embeddable_as(ERC2981StateInfoImpl)]
+    impl ERC2981StateInfo<
+        TContractState,
+        +HasComponent<TContractState>,
+        +ImmutableConfig,
+        +SRC5Component::HasComponent<TContractState>,
+        +Drop<TContractState>,
+    > of interface::IERC2981StateInfo<ComponentState<TContractState>> {
+        fn default_royalty(self: @ComponentState<TContractState>) -> (ContractAddress, u128, u128) {
+            InternalImpl::default_royalty(self)
+        }
+
+        fn token_royalty(
+            self: @ComponentState<TContractState>, token_id: u256
+        ) -> (ContractAddress, u128, u128) {
+            InternalImpl::token_royalty(self, token_id)
+        }
+    }
+
+    //
+    // Admin with Ownable
+    //
+
+    #[embeddable_as(IERC2981AdminOwnableImpl)]
+    impl ERC2981AdminOwnable<
+        TContractState,
+        +HasComponent<TContractState>,
+        +ImmutableConfig,
+        +SRC5Component::HasComponent<TContractState>,
+        impl Ownable: OwnableComponent::HasComponent<TContractState>,
+        +Drop<TContractState>,
+    > of interface::IERC2981Admin<ComponentState<TContractState>> {
+        fn set_default_royalty(
+            ref self: ComponentState<TContractState>,
+            receiver: ContractAddress,
+            fee_numerator: u128,
+        ) {
+            get_dep_component!(@self, Ownable).assert_only_owner();
+            InternalImpl::set_default_royalty(ref self, receiver, fee_numerator)
+        }
+
+        fn delete_default_royalty(ref self: ComponentState<TContractState>) {
+            get_dep_component!(@self, Ownable).assert_only_owner();
+            InternalImpl::delete_default_royalty(ref self)
+        }
+
+        fn set_token_royalty(
+            ref self: ComponentState<TContractState>,
+            token_id: u256,
+            receiver: ContractAddress,
+            fee_numerator: u128
+        ) {
+            get_dep_component!(@self, Ownable).assert_only_owner();
+            InternalImpl::set_token_royalty(ref self, token_id, receiver, fee_numerator)
+        }
+
+        fn reset_token_royalty(ref self: ComponentState<TContractState>, token_id: u256) {
+            get_dep_component!(@self, Ownable).assert_only_owner();
+            InternalImpl::reset_token_royalty(ref self, token_id)
+        }
+    }
+
+    //
+    // Admin with AccessControl
+    //
+
+    // Role for the admin responsible for managing royalty settings.
+    pub const ROYALTY_ADMIN_ROLE: felt252 = selector!("ROYALTY_ADMIN_ROLE");
+
+    #[embeddable_as(IERC2981AdminAccessControlImpl)]
+    impl ERC2981AdminAccessControl<
+        TContractState,
+        +HasComponent<TContractState>,
+        +ImmutableConfig,
+        +SRC5Component::HasComponent<TContractState>,
+        impl AccessControl: AccessControlComponent::HasComponent<TContractState>,
+        +Drop<TContractState>,
+    > of interface::IERC2981Admin<ComponentState<TContractState>> {
+        fn set_default_royalty(
+            ref self: ComponentState<TContractState>,
+            receiver: ContractAddress,
+            fee_numerator: u128,
+        ) {
+            get_dep_component!(@self, AccessControl).assert_only_role(ROYALTY_ADMIN_ROLE);
+            InternalImpl::set_default_royalty(ref self, receiver, fee_numerator)
+        }
+
+        fn delete_default_royalty(ref self: ComponentState<TContractState>) {
+            get_dep_component!(@self, AccessControl).assert_only_role(ROYALTY_ADMIN_ROLE);
+            InternalImpl::delete_default_royalty(ref self)
+        }
+
+        fn set_token_royalty(
+            ref self: ComponentState<TContractState>,
+            token_id: u256,
+            receiver: ContractAddress,
+            fee_numerator: u128
+        ) {
+            get_dep_component!(@self, AccessControl).assert_only_role(ROYALTY_ADMIN_ROLE);
+            InternalImpl::set_token_royalty(ref self, token_id, receiver, fee_numerator)
+        }
+
+        fn reset_token_royalty(ref self: ComponentState<TContractState>, token_id: u256) {
+            get_dep_component!(@self, AccessControl).assert_only_role(ROYALTY_ADMIN_ROLE);
+            InternalImpl::reset_token_royalty(ref self, token_id)
         }
     }
 
@@ -135,7 +249,7 @@ pub mod ERC2981Component {
             default_receiver: ContractAddress,
             default_royalty_fraction: u128
         ) {
-            ImmutableConfig::validate();
+            Immutable::validate();
 
             let mut src5_component = get_dep_component_mut!(ref self, SRC5);
             src5_component.register_interface(IERC2981_ID);
@@ -264,7 +378,7 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected: ('Invalid fee denominator',))]
+    #[should_panic(expected: 'Invalid fee denominator')]
     fn test_initializer_invalid_config_panics() {
         let mut state = COMPONENT_STATE();
         let receiver = contract_address_const::<'DEFAULT_RECEIVER'>();

@@ -2,10 +2,10 @@ use core::num::traits::Bounded;
 //use crate::erc20::ERC20Component;
 use crate::erc20::ERC20Component::InternalImpl as ERC20InternalImpl;
 use crate::erc20::extensions::erc4626::DefaultConfig;
-use crate::erc20::extensions::erc4626::ERC4626Component::{Deposit, Withdraw};
 use crate::erc20::extensions::erc4626::ERC4626Component::{
     ERC4626Impl, ERC4626MetadataImpl, InternalImpl
 };
+use crate::erc20::extensions::erc4626::ERC4626Component::{Deposit, Withdraw};
 use crate::erc20::extensions::erc4626::ERC4626Component;
 use crate::erc20::extensions::erc4626::interface::{ERC4626ABIDispatcher, ERC4626ABIDispatcherTrait};
 use crate::tests::mocks::erc20_reentrant::Type;
@@ -69,26 +69,33 @@ fn deploy_asset() -> IERC20ReentrantDispatcher {
     IERC20ReentrantDispatcher { contract_address }
 }
 
-fn deploy_vault(asset_address: ContractAddress) -> ERC4626ABIDispatcher {
+fn deploy_vault(
+    asset_address: ContractAddress, initial_supply: u256, recipient: ContractAddress
+) -> ERC4626ABIDispatcher {
     let mut vault_calldata: Array<felt252> = array![];
     vault_calldata.append_serde(VAULT_NAME());
     vault_calldata.append_serde(VAULT_SYMBOL());
     vault_calldata.append_serde(asset_address);
+    vault_calldata.append_serde(initial_supply);
+    vault_calldata.append_serde(recipient);
 
     let contract_address = utils::declare_and_deploy("ERC4626Mock", vault_calldata);
     ERC4626ABIDispatcher { contract_address }
 }
 
-fn setup() -> (IERC20ReentrantDispatcher, ERC4626ABIDispatcher) {
+fn setup_empty() -> (IERC20ReentrantDispatcher, ERC4626ABIDispatcher) {
     let mut asset = deploy_asset();
-    let mut vault = deploy_vault(asset.contract_address);
+
+    let no_amount = 0;
+    let recipient = HOLDER();
+    let mut vault = deploy_vault(asset.contract_address, no_amount, recipient);
     (asset, vault)
 }
 
 // Further testing required for decimals once design is finalized
 #[test]
 fn test_offset_decimals() {
-    let (_, vault) = setup();
+    let (_, vault) = setup_empty();
 
     let decimals = vault.decimals();
     assert_eq!(decimals, 19);
@@ -101,7 +108,7 @@ fn test_offset_decimals() {
 #[test]
 #[ignore]
 fn test_share_price_with_reentrancy_before() {
-    let (asset, vault) = setup();
+    let (asset, vault) = setup_empty();
 
     let amount = 1_000_000_000_000_000_000;
     let reenter_amt = 1_000_000_000;
@@ -146,7 +153,7 @@ fn test_share_price_with_reentrancy_before() {
 
 #[test]
 fn test_metadata() {
-    let (asset, vault) = setup();
+    let (asset, vault) = setup_empty();
     let name = vault.name();
     let symbol = vault.symbol();
     let decimals = vault.decimals();
@@ -164,7 +171,7 @@ fn test_metadata() {
 
 #[test]
 fn test_init_vault_status() {
-    let (_, vault) = setup();
+    let (_, vault) = setup_empty();
     let total_assets = vault.total_assets();
 
     assert_eq!(total_assets, 0);
@@ -172,7 +179,7 @@ fn test_init_vault_status() {
 
 #[test]
 fn test_deposit() {
-    let (asset, vault) = setup();
+    let (asset, vault) = setup_empty();
     let amount = parse_token(1);
 
     // Setup
@@ -207,7 +214,7 @@ fn test_deposit() {
 
 #[test]
 fn test_mint() {
-    let (asset, vault) = setup();
+    let (asset, vault) = setup_empty();
 
     // Setup
     asset.unsafe_mint(HOLDER(), Bounded::MAX / 2);
@@ -243,7 +250,7 @@ fn test_mint() {
 
 #[test]
 fn test_withdraw() {
-    let (asset, vault) = setup();
+    let (asset, vault) = setup_empty();
 
     // Setup
     asset.unsafe_mint(HOLDER(), Bounded::MAX / 2);
@@ -272,7 +279,7 @@ fn test_withdraw() {
 
 #[test]
 fn test_redeem() {
-    let (asset, vault) = setup();
+    let (asset, vault) = setup_empty();
 
     // Setup
     asset.unsafe_mint(HOLDER(), Bounded::MAX / 2);

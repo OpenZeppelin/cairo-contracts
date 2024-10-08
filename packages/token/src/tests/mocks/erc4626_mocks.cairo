@@ -51,9 +51,12 @@ pub(crate) mod ERC4626Mock {
         ref self: ContractState,
         name: ByteArray,
         symbol: ByteArray,
-        underlying_asset: ContractAddress
+        underlying_asset: ContractAddress,
+        initial_supply: u256,
+        recipient: ContractAddress
     ) {
         self.erc20.initializer(name, symbol);
+        self.erc20.mint(recipient, initial_supply);
         self.erc4626.initializer(underlying_asset);
     }
 }

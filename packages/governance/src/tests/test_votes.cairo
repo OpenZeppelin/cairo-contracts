@@ -7,7 +7,7 @@ use crate::votes::votes::VotesComponent::{
 };
 use crate::votes::votes::VotesComponent;
 use openzeppelin_testing as utils;
-use openzeppelin_testing::constants::{SUPPLY, ZERO, OWNER, RECIPIENT, OTHER};
+use openzeppelin_testing::constants::{SUPPLY, ZERO, DELEGATOR, DELEGATEE, OTHER};
 use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_token::erc20::ERC20Component::InternalTrait;
 use openzeppelin_token::erc721::ERC721Component::{
@@ -52,10 +52,10 @@ fn ERC20VOTES_CONTRACT_STATE() -> ERC20VotesMock::ContractState {
 fn setup_erc721_votes() -> ComponentState {
     let mut state = COMPONENT_STATE();
     let mut mock_state = ERC721VOTES_CONTRACT_STATE();
-    // Mint ERC_721_INITIAL_MINT NFTs to OWNER
+    // Mint ERC_721_INITIAL_MINT NFTs to DELEGATOR
     let mut i: u256 = 0;
     while i < ERC_721_INITIAL_MINT {
-        mock_state.erc721.mint(OWNER(), i);
+        mock_state.erc721.mint(DELEGATOR(), i);
         i += 1;
     };
     state
@@ -65,8 +65,8 @@ fn setup_erc20_votes() -> ERC20ComponentState {
     let mut state = ERC20_COMPONENT_STATE();
     let mut mock_state = ERC20VOTES_CONTRACT_STATE();
 
-    // Mint SUPPLY tokens to owner
-    mock_state.erc20.mint(OWNER(), SUPPLY);
+    // Mint SUPPLY tokens to DELEGATOR
+    mock_state.erc20.mint(DELEGATOR(), SUPPLY);
     state
 }
 
@@ -82,18 +82,18 @@ fn setup_account(public_key: felt252) -> ContractAddress {
 #[test]
 fn test_get_votes() {
     let mut state = setup_erc721_votes();
-    start_cheat_caller_address(test_address(), OWNER());
-    // Before delegating, the owner has 0 votes
-    assert_eq!(state.get_votes(OWNER()), 0);
-    state.delegate(OWNER());
+    start_cheat_caller_address(test_address(), DELEGATOR());
+    // Before delegating, the DELEGATOR has 0 votes
+    assert_eq!(state.get_votes(DELEGATOR()), 0);
+    state.delegate(DELEGATOR());
 
-    assert_eq!(state.get_votes(OWNER()), ERC_721_INITIAL_MINT);
+    assert_eq!(state.get_votes(DELEGATOR()), ERC_721_INITIAL_MINT);
 }
 
 #[test]
 fn test_get_past_votes() {
     let mut state = setup_erc721_votes();
-    let mut trace = state.Votes_delegate_checkpoints.read(OWNER());
+    let mut trace = state.Votes_delegate_checkpoints.read(DELEGATOR());
 
     start_cheat_block_timestamp_global('ts10');
 
@@ -101,8 +101,8 @@ fn test_get_past_votes() {
     trace.push('ts2', 5);
     trace.push('ts3', 7);
 
-    assert_eq!(state.get_past_votes(OWNER(), 'ts2'), 5);
-    assert_eq!(state.get_past_votes(OWNER(), 'ts5'), 7);
+    assert_eq!(state.get_past_votes(DELEGATOR(), 'ts2'), 5);
+    assert_eq!(state.get_past_votes(DELEGATOR(), 'ts5'), 7);
 }
 
 #[test]
@@ -111,7 +111,7 @@ fn test_get_past_votes_future_lookup() {
     let state = setup_erc721_votes();
 
     start_cheat_block_timestamp_global('ts1');
-    state.get_past_votes(OWNER(), 'ts2');
+    state.get_past_votes(DELEGATOR(), 'ts2');
 }
 
 #[test]
@@ -141,15 +141,15 @@ fn test_self_delegate() {
     let mut state = setup_erc721_votes();
     let contract_address = test_address();
     let mut spy = spy_events();
-    start_cheat_caller_address(contract_address, OWNER());
+    start_cheat_caller_address(contract_address, DELEGATOR());
 
-    state.delegate(OWNER());
-    spy.assert_event_delegate_changed(contract_address, OWNER(), ZERO(), OWNER());
+    state.delegate(DELEGATOR());
+    spy.assert_event_delegate_changed(contract_address, DELEGATOR(), ZERO(), DELEGATOR());
     spy
         .assert_only_event_delegate_votes_changed(
-            contract_address, OWNER(), 0, ERC_721_INITIAL_MINT
+            contract_address, DELEGATOR(), 0, ERC_721_INITIAL_MINT
         );
-    assert_eq!(state.get_votes(OWNER()), ERC_721_INITIAL_MINT);
+    assert_eq!(state.get_votes(DELEGATOR()), ERC_721_INITIAL_MINT);
 }
 
 #[test]
@@ -157,26 +157,26 @@ fn test_delegate_to_recipient_updates_votes() {
     let mut state = setup_erc721_votes();
     let contract_address = test_address();
     let mut spy = spy_events();
-    start_cheat_caller_address(contract_address, OWNER());
+    start_cheat_caller_address(contract_address, DELEGATOR());
 
-    state.delegate(RECIPIENT());
-    spy.assert_event_delegate_changed(contract_address, OWNER(), ZERO(), RECIPIENT());
+    state.delegate(DELEGATEE());
+    spy.assert_event_delegate_changed(contract_address, DELEGATOR(), ZERO(), DELEGATEE());
     spy
         .assert_only_event_delegate_votes_changed(
-            contract_address, RECIPIENT(), 0, ERC_721_INITIAL_MINT
+            contract_address, DELEGATEE(), 0, ERC_721_INITIAL_MINT
         );
-    assert_eq!(state.get_votes(RECIPIENT()), ERC_721_INITIAL_MINT);
-    assert_eq!(state.get_votes(OWNER()), 0);
+    assert_eq!(state.get_votes(DELEGATEE()), ERC_721_INITIAL_MINT);
+    assert_eq!(state.get_votes(DELEGATOR()), 0);
 }
 
 #[test]
 fn test_delegate_to_recipient_updates_delegates() {
     let mut state = setup_erc721_votes();
-    start_cheat_caller_address(test_address(), OWNER());
-    state.delegate(OWNER());
-    assert_eq!(state.delegates(OWNER()), OWNER());
-    state.delegate(RECIPIENT());
-    assert_eq!(state.delegates(OWNER()), RECIPIENT());
+    start_cheat_caller_address(test_address(), DELEGATOR());
+    state.delegate(DELEGATOR());
+    assert_eq!(state.delegates(DELEGATOR()), DELEGATOR());
+    state.delegate(DELEGATEE());
+    assert_eq!(state.delegates(DELEGATOR()), DELEGATEE());
 }
 
 #[test]
@@ -195,7 +195,7 @@ fn test_delegate_by_sig() {
     let nonce = 0;
     let expiry = 'ts2';
     let delegator = account;
-    let delegatee = RECIPIENT();
+    let delegatee = DELEGATEE();
 
     // Create and sign the delegation message
     let delegation = Delegation { delegatee, nonce, expiry };
@@ -219,7 +219,7 @@ fn test_delegate_by_sig_past_expiry() {
     let expiry = 'ts4';
     let signature = array![0, 0];
 
-    state.delegate_by_sig(OWNER(), RECIPIENT(), 0, expiry, signature);
+    state.delegate_by_sig(DELEGATOR(), DELEGATEE(), 0, expiry, signature);
 }
 
 #[test]
@@ -228,7 +228,7 @@ fn test_delegate_by_sig_invalid_nonce() {
     let mut state = setup_erc721_votes();
     let signature = array![0, 0];
 
-    state.delegate_by_sig(OWNER(), RECIPIENT(), 1, 0, signature);
+    state.delegate_by_sig(DELEGATOR(), DELEGATEE(), 1, 0, signature);
 }
 
 #[test]
@@ -241,7 +241,7 @@ fn test_delegate_by_sig_invalid_signature() {
     let nonce = 0;
     let expiry = 'ts2';
     let delegator = account;
-    let delegatee = RECIPIENT();
+    let delegatee = DELEGATEE();
     let delegation = Delegation { delegatee, nonce, expiry };
     let msg_hash = delegation.get_message_hash(delegator);
     let (r, s) = key_pair.sign(msg_hash).unwrap();
@@ -259,7 +259,7 @@ fn test_delegate_by_sig_invalid_signature() {
 fn test_erc721_get_voting_units() {
     let state = setup_erc721_votes();
 
-    assert_eq!(state.get_voting_units(OWNER()), ERC_721_INITIAL_MINT);
+    assert_eq!(state.get_voting_units(DELEGATOR()), ERC_721_INITIAL_MINT);
     assert_eq!(state.get_voting_units(OTHER()), 0);
 }
 
@@ -267,7 +267,7 @@ fn test_erc721_get_voting_units() {
 fn test_erc20_get_voting_units() {
     let mut state = setup_erc20_votes();
 
-    assert_eq!(state.get_voting_units(OWNER()), SUPPLY);
+    assert_eq!(state.get_voting_units(DELEGATOR()), SUPPLY);
     assert_eq!(state.get_voting_units(OTHER()), 0);
 }
 
@@ -276,18 +276,18 @@ fn test_erc20_burn_updates_votes() {
     let mut state = setup_erc20_votes();
     let mut mock_state = ERC20VOTES_CONTRACT_STATE();
     let contract_address = test_address();
-    start_cheat_caller_address(contract_address, OWNER());
+    start_cheat_caller_address(contract_address, DELEGATOR());
     start_cheat_block_timestamp_global('ts1');
 
-    state.delegate(OWNER());
+    state.delegate(DELEGATOR());
 
     // Burn some tokens
     let burn_amount = 1000;
-    mock_state.erc20.burn(OWNER(), burn_amount);
+    mock_state.erc20.burn(DELEGATOR(), burn_amount);
 
     // We need to move the timestamp forward to be able to call get_past_total_supply
     start_cheat_block_timestamp_global('ts2');
-    assert_eq!(state.get_votes(OWNER()), SUPPLY - burn_amount);
+    assert_eq!(state.get_votes(DELEGATOR()), SUPPLY - burn_amount);
     assert_eq!(state.get_past_total_supply('ts1'), SUPPLY - burn_amount);
 }
 
@@ -296,10 +296,10 @@ fn test_erc721_burn_updates_votes() {
     let mut state = setup_erc721_votes();
     let mut mock_state = ERC721VOTES_CONTRACT_STATE();
     let contract_address = test_address();
-    start_cheat_caller_address(contract_address, OWNER());
+    start_cheat_caller_address(contract_address, DELEGATOR());
     start_cheat_block_timestamp_global('ts1');
 
-    state.delegate(OWNER());
+    state.delegate(DELEGATOR());
 
     // Burn some tokens
     let burn_amount = 3;
@@ -311,7 +311,7 @@ fn test_erc721_burn_updates_votes() {
 
     // We need to move the timestamp forward to be able to call get_past_total_supply
     start_cheat_block_timestamp_global('ts2');
-    assert_eq!(state.get_votes(OWNER()), ERC_721_INITIAL_MINT - burn_amount);
+    assert_eq!(state.get_votes(DELEGATOR()), ERC_721_INITIAL_MINT - burn_amount);
     assert_eq!(state.get_past_total_supply('ts1'), ERC_721_INITIAL_MINT - burn_amount);
 }
 

@@ -1,11 +1,10 @@
 use core::num::traits::Bounded;
-//use crate::erc20::ERC20Component;
 use crate::erc20::ERC20Component::InternalImpl as ERC20InternalImpl;
 use crate::erc20::extensions::erc4626::DefaultConfig;
+use crate::erc20::extensions::erc4626::ERC4626Component::{Deposit, Withdraw};
 use crate::erc20::extensions::erc4626::ERC4626Component::{
     ERC4626Impl, ERC4626MetadataImpl, InternalImpl
 };
-use crate::erc20::extensions::erc4626::ERC4626Component::{Deposit, Withdraw};
 use crate::erc20::extensions::erc4626::ERC4626Component;
 use crate::erc20::extensions::erc4626::interface::{ERC4626ABIDispatcher, ERC4626ABIDispatcherTrait};
 use crate::tests::mocks::erc20_reentrant::Type;
@@ -13,10 +12,8 @@ use crate::tests::mocks::erc20_reentrant::{
     IERC20ReentrantDispatcher, IERC20ReentrantDispatcherTrait
 };
 use openzeppelin_test_common::erc20::ERC20SpyHelpers;
-//use crate::tests::mocks::erc20_reentrant::ERC20ReentrantMock;
 use openzeppelin_testing as utils;
-use openzeppelin_testing::constants::{NAME, SYMBOL, OTHER, RECIPIENT, ZERO};
-//use crate::tests::mocks::erc4626_mocks::ERC4626Mock;
+use openzeppelin_testing::constants::{NAME, SYMBOL, OTHER, RECIPIENT, ZERO, SPENDER};
 use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_utils::math;
 use openzeppelin_utils::serde::SerializedAppend;
@@ -24,10 +21,6 @@ use snforge_std::{
     start_cheat_caller_address, cheat_caller_address, CheatSpan, spy_events, EventSpy
 };
 use starknet::{ContractAddress, contract_address_const};
-
-fn ASSET_ADDRESS() -> ContractAddress {
-    contract_address_const::<'ASSET_ADDRESS'>()
-}
 
 fn HOLDER() -> ContractAddress {
     contract_address_const::<'HOLDER'>()
@@ -43,10 +36,6 @@ fn VAULT_SYMBOL() -> ByteArray {
 
 const DEFAULT_DECIMALS: u8 = 18;
 const OFFSET_DECIMALS: u8 = 1;
-
-//
-// Helpers
-//
 
 fn parse_token(token: u256) -> u256 {
     token * math::power(10, DEFAULT_DECIMALS.into())
@@ -83,7 +72,7 @@ fn deploy_vault(
     ERC4626ABIDispatcher { contract_address }
 }
 
-fn setup_empty() -> (IERC20ReentrantDispatcher, ERC4626ABIDispatcher) {
+fn setup_initial_state() -> (IERC20ReentrantDispatcher, ERC4626ABIDispatcher) {
     let mut asset = deploy_asset();
 
     let no_amount = 0;
@@ -95,7 +84,7 @@ fn setup_empty() -> (IERC20ReentrantDispatcher, ERC4626ABIDispatcher) {
 // Further testing required for decimals once design is finalized
 #[test]
 fn test_offset_decimals() {
-    let (_, vault) = setup_empty();
+    let (_, vault) = setup_initial_state();
 
     let decimals = vault.decimals();
     assert_eq!(decimals, 19);
@@ -153,7 +142,7 @@ fn test_share_price_with_reentrancy_before() {
 
 #[test]
 fn test_metadata() {
-    let (asset, vault) = setup_empty();
+    let (asset, vault) = setup_initial_state();
     let name = vault.name();
     let symbol = vault.symbol();
     let decimals = vault.decimals();
@@ -169,6 +158,21 @@ fn test_metadata() {
 // Empty vault: no assets, no shares
 //
 
+fn setup_empty() -> (IERC20ReentrantDispatcher, ERC4626ABIDispatcher) {
+    let mut asset = deploy_asset();
+
+    let no_amount = 0;
+    let recipient = HOLDER();
+    let mut vault = deploy_vault(asset.contract_address, no_amount, recipient);
+
+    // Mint assets to HOLDER and approve vault
+    asset.unsafe_mint(HOLDER(), Bounded::MAX / 2); // 50% of max
+    cheat_caller_address(asset.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
+    asset.approve(vault.contract_address, Bounded::MAX);
+
+    (asset, vault)
+}
+
 #[test]
 fn test_init_vault_status() {
     let (_, vault) = setup_empty();
@@ -181,11 +185,6 @@ fn test_init_vault_status() {
 fn test_deposit() {
     let (asset, vault) = setup_empty();
     let amount = parse_token(1);
-
-    // Setup
-    asset.unsafe_mint(HOLDER(), Bounded::MAX / 2);
-    cheat_caller_address(asset.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
-    asset.approve(vault.contract_address, Bounded::MAX);
 
     // Check max deposit
     let max_deposit = vault.max_deposit(HOLDER());
@@ -203,23 +202,22 @@ fn test_deposit() {
     cheat_caller_address(vault.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
     let shares = vault.deposit(amount, RECIPIENT());
 
+    // Check balances
+    let holder_balance_after = asset.balance_of(HOLDER());
+    assert_eq!(holder_balance_after, holder_balance_before - amount);
+
+    let recipient_shares = vault.balance_of(RECIPIENT());
+    assert_eq!(recipient_shares, exp_shares);
+
     // Check events
     spy.assert_event_transfer(asset.contract_address, HOLDER(), vault.contract_address, amount);
     spy.assert_event_transfer(vault.contract_address, ZERO(), RECIPIENT(), shares);
     spy.assert_only_event_deposit(vault.contract_address, HOLDER(), RECIPIENT(), amount, shares);
-
-    let holder_balance_after = asset.balance_of(HOLDER());
-    assert_eq!(holder_balance_after, holder_balance_before - amount);
 }
 
 #[test]
 fn test_mint() {
     let (asset, vault) = setup_empty();
-
-    // Setup
-    asset.unsafe_mint(HOLDER(), Bounded::MAX / 2);
-    cheat_caller_address(asset.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
-    asset.approve(vault.contract_address, Bounded::MAX);
 
     // Check max mint
     let max_mint = vault.max_mint(HOLDER());
@@ -231,10 +229,18 @@ fn test_mint() {
     assert_eq!(preview_mint, exp_assets);
 
     let mut spy = spy_events();
+    let holder_balance_before = asset.balance_of(HOLDER());
 
     // Mint
     cheat_caller_address(vault.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
     vault.mint(parse_share(1), RECIPIENT());
+
+    // Check balances
+    let holder_balance_after = asset.balance_of(HOLDER());
+    assert_eq!(holder_balance_after, holder_balance_before - parse_token(1));
+
+    let recipient_shares = vault.balance_of(RECIPIENT());
+    assert_eq!(recipient_shares, parse_share(1));
 
     // Check events
     spy
@@ -251,11 +257,6 @@ fn test_mint() {
 #[test]
 fn test_withdraw() {
     let (asset, vault) = setup_empty();
-
-    // Setup
-    asset.unsafe_mint(HOLDER(), Bounded::MAX / 2);
-    cheat_caller_address(asset.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
-    asset.approve(vault.contract_address, Bounded::MAX);
 
     // Check max mint
     let max_withdraw = vault.max_withdraw(HOLDER());
@@ -281,11 +282,6 @@ fn test_withdraw() {
 fn test_redeem() {
     let (asset, vault) = setup_empty();
 
-    // Setup
-    asset.unsafe_mint(HOLDER(), Bounded::MAX / 2);
-    cheat_caller_address(asset.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
-    asset.approve(vault.contract_address, Bounded::MAX);
-
     // Check max redeem
     let max_redeem = vault.max_redeem(HOLDER());
     assert_eq!(max_redeem, 0);
@@ -307,8 +303,399 @@ fn test_redeem() {
 }
 
 //
-// Helpers
+// Inflation attack: Offset price by direct deposit of assets
 //
+
+fn setup_inflation_attack() -> (IERC20ReentrantDispatcher, ERC4626ABIDispatcher) {
+    let mut asset = deploy_asset();
+
+    let no_amount = 0;
+    let recipient = HOLDER();
+    let mut vault = deploy_vault(asset.contract_address, no_amount, recipient);
+
+    // Mint assets to HOLDER and approve vault
+    asset.unsafe_mint(HOLDER(), Bounded::MAX / 2); // 50% of max
+    cheat_caller_address(asset.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
+    asset.approve(vault.contract_address, Bounded::MAX);
+
+    // Donate 1 token to the vault to offset the price
+    asset.unsafe_mint(vault.contract_address, parse_token(1));
+
+    (asset, vault)
+}
+
+#[test]
+fn test_inflation_attack_status() {
+    let (_, vault) = setup_inflation_attack();
+
+    let total_supply = vault.total_supply();
+    assert_eq!(total_supply, 0);
+
+    let total_assets = vault.total_assets();
+    assert_eq!(total_assets, parse_token(1));
+}
+
+#[test]
+fn test_inflation_attack_deposit() {
+    let (asset, vault) = setup_inflation_attack();
+    let virtual_assets = 1;
+    let offset = 1;
+    let virtual_shares = math::power(10, offset);
+
+    let effective_assets = vault.total_assets() + virtual_assets;
+    let effective_shares = vault.total_supply() + virtual_shares;
+
+    let deposit_assets = parse_token(1);
+    let expected_shares = (deposit_assets * effective_shares) / effective_assets;
+
+    // Check max deposit
+    let max_deposit = vault.max_deposit(HOLDER());
+    assert_eq!(max_deposit, Bounded::MAX);
+
+    // Check preview deposit
+    let preview_deposit = vault.preview_deposit(deposit_assets);
+    assert_eq!(preview_deposit, expected_shares);
+
+    // Before deposit
+    let holder_balance_before = asset.balance_of(HOLDER());
+    let mut spy = spy_events();
+
+    // Deposit
+    cheat_caller_address(vault.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
+    let shares = vault.deposit(deposit_assets, RECIPIENT());
+
+    // After deposit
+    let holder_balance_after = asset.balance_of(HOLDER());
+    assert_eq!(holder_balance_after, holder_balance_before - deposit_assets);
+
+    // Check recipient shares
+    let recipient_balance = vault.balance_of(RECIPIENT());
+    assert_eq!(recipient_balance, expected_shares);
+
+    // Check events
+    spy.assert_event_transfer(asset.contract_address, HOLDER(), vault.contract_address, deposit_assets);
+    spy.assert_event_transfer(vault.contract_address, ZERO(), RECIPIENT(), shares);
+    spy.assert_only_event_deposit(vault.contract_address, HOLDER(), RECIPIENT(), deposit_assets, expected_shares);
+}
+
+#[test]
+fn test_inflation_attack_mint() {
+    let (asset, vault) = setup_inflation_attack();
+    let virtual_assets = 1;
+    let offset = 1;
+    let virtual_shares = math::power(10, offset);
+
+    let effective_assets = vault.total_assets() + virtual_assets;
+    let effective_shares = vault.total_supply() + virtual_shares;
+
+    let mint_shares = parse_share(1);
+    let expected_assets = (mint_shares * effective_assets) / effective_shares;
+
+    // Check max mint
+    let max_mint = vault.max_mint(HOLDER());
+    assert_eq!(max_mint, Bounded::MAX);
+
+    // Check preview mint
+    let preview_mint = vault.preview_mint(mint_shares);
+    assert_eq!(preview_mint, expected_assets);
+
+    // Capture initial balances
+    let holder_balance_before = asset.balance_of(HOLDER());
+    let vault_balance_before = asset.balance_of(vault.contract_address);
+
+    // Mint
+    let mut spy = spy_events();
+    cheat_caller_address(vault.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
+    vault.mint(mint_shares, RECIPIENT());
+
+    // Check balances
+    assert_assets_of(asset, HOLDER(), holder_balance_before - expected_assets);
+    assert_assets_of(asset, vault.contract_address, vault_balance_before + expected_assets);
+    assert_shares_of(vault, RECIPIENT(), parse_share(1));
+
+    // Check events
+    spy
+        .assert_event_transfer(
+            asset.contract_address, HOLDER(), vault.contract_address, expected_assets
+        );
+    spy.assert_event_transfer(vault.contract_address, ZERO(), RECIPIENT(), mint_shares);
+    spy
+        .assert_only_event_deposit(
+            vault.contract_address, HOLDER(), RECIPIENT(), expected_assets, mint_shares
+        );
+}
+
+#[test]
+fn test_inflation_attack_withdraw() {
+    let (asset, vault) = setup_inflation_attack();
+
+    // Check max withdraw
+    let max_withdraw = vault.max_withdraw(HOLDER());
+    assert_eq!(max_withdraw, 0);
+
+    // Check preview withdraw
+    let preview_withdraw = vault.preview_withdraw(0);
+    assert_eq!(preview_withdraw, 0);
+
+    // Capture initial balances
+    let holder_balance_before = asset.balance_of(HOLDER());
+    let vault_balance_before = asset.balance_of(vault.contract_address);
+
+    // Withdraw
+    let mut spy = spy_events();
+    cheat_caller_address(vault.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
+    vault.withdraw(0, RECIPIENT(), HOLDER());
+
+    // Check balances and events
+    assert_assets_of(asset, HOLDER(), holder_balance_before);
+    assert_assets_of(asset, vault.contract_address, vault_balance_before);
+
+    spy.assert_event_transfer(vault.contract_address, HOLDER(), ZERO(), 0);
+    spy.assert_event_transfer(asset.contract_address, vault.contract_address, RECIPIENT(), 0);
+    spy.assert_only_event_withdraw(vault.contract_address, HOLDER(), RECIPIENT(), HOLDER(), 0, 0);
+}
+
+#[test]
+fn test_inflation_attack_redeem() {
+    let (asset, vault) = setup_inflation_attack();
+
+    // Check max redeem
+    let max_redeem = vault.max_redeem(HOLDER());
+    assert_eq!(max_redeem, 0);
+
+    // Check preview redeem
+    let preview_redeem = vault.preview_redeem(0);
+    assert_eq!(preview_redeem, 0);
+
+    // Redeem
+    let mut spy = spy_events();
+    cheat_caller_address(vault.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
+    vault.redeem(0, RECIPIENT(), HOLDER());
+
+    // Check events
+    spy.assert_event_transfer(vault.contract_address, HOLDER(), ZERO(), 0);
+    spy.assert_event_transfer(asset.contract_address, vault.contract_address, RECIPIENT(), 0);
+    spy.assert_only_event_withdraw(vault.contract_address, HOLDER(), RECIPIENT(), HOLDER(), 0, 0);
+}
+
+//
+// Full vault: Assets and shares
+//
+
+fn setup_full_vault() -> (IERC20ReentrantDispatcher, ERC4626ABIDispatcher) {
+    let mut asset = deploy_asset();
+
+    let shares = parse_share(100);
+    let recipient = HOLDER();
+
+    // Add 1 token of underlying asset and 100 shares to the vault
+    let mut vault = deploy_vault(asset.contract_address, shares, recipient);
+    asset.unsafe_mint(vault.contract_address, parse_token(1));
+
+    // Approve SPENDER
+    cheat_caller_address(vault.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
+    vault.approve(SPENDER(), Bounded::MAX);
+
+    // Mint assets to HOLDER, approve vault
+    asset.unsafe_mint(HOLDER(), Bounded::MAX / 2); // 50% of max
+    cheat_caller_address(asset.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
+    asset.approve(vault.contract_address, Bounded::MAX);
+
+    (asset, vault)
+}
+
+#[test]
+fn test_full_vault_status() {
+    let (_, vault) = setup_full_vault();
+
+    let total_supply = vault.total_supply();
+    assert_eq!(total_supply, parse_share(100));
+
+    let total_assets = vault.total_assets();
+    assert_eq!(total_assets, parse_token(1));
+}
+
+#[test]
+fn test_full_vault_deposit() {
+    let (asset, vault) = setup_full_vault();
+
+    let virtual_assets = 1;
+    let offset = 1;
+    let virtual_shares = math::power(10, offset);
+
+    let effective_assets = vault.total_assets() + virtual_assets;
+    let effective_shares = vault.total_supply() + virtual_shares;
+
+    let deposit_assets = parse_token(1);
+    let expected_shares = (deposit_assets * effective_shares) / effective_assets;
+
+    // Check max deposit
+    let max_deposit = vault.max_deposit(HOLDER());
+    assert_eq!(max_deposit, Bounded::MAX);
+
+    // Check preview deposit
+    let preview_deposit = vault.preview_deposit(deposit_assets);
+    assert_eq!(preview_deposit, expected_shares);
+
+    // Before deposit
+    let holder_balance_before = asset.balance_of(HOLDER());
+
+    // Deposit
+    let mut spy = spy_events();
+    cheat_caller_address(vault.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
+    let shares = vault.deposit(deposit_assets, RECIPIENT());
+
+    // After deposit
+    let holder_balance_after = asset.balance_of(HOLDER());
+    assert_eq!(holder_balance_after, holder_balance_before - deposit_assets);
+
+    // Check recipient shares
+    let recipient_balance = vault.balance_of(RECIPIENT());
+    assert_eq!(recipient_balance, expected_shares);
+
+    // Check events
+    spy.assert_event_transfer(asset.contract_address, HOLDER(), vault.contract_address, deposit_assets);
+    spy.assert_event_transfer(vault.contract_address, ZERO(), RECIPIENT(), shares);
+    spy.assert_only_event_deposit(vault.contract_address, HOLDER(), RECIPIENT(), deposit_assets, expected_shares);
+}
+
+#[test]
+fn test_full_vault_mint() {
+    let (asset, vault) = setup_full_vault();
+
+    let virtual_assets = 1;
+    let offset = 1;
+    let virtual_shares = math::power(10, offset);
+
+    let effective_assets = vault.total_assets() + virtual_assets;
+    let effective_shares = vault.total_supply() + virtual_shares;
+
+    let mint_shares = parse_share(1);
+    let expected_assets = (mint_shares * effective_assets) / effective_shares + 1; // add `1` for the rounding
+
+    // Check max mint
+    let max_mint = vault.max_mint(HOLDER());
+    assert_eq!(max_mint, Bounded::MAX);
+
+    // Check preview mint
+    let preview_mint = vault.preview_mint(mint_shares);
+    assert_eq!(preview_mint, expected_assets);
+
+    // Capture initial balances
+    let holder_balance_before = asset.balance_of(HOLDER());
+    let vault_balance_before = asset.balance_of(vault.contract_address);
+
+    // Mint
+    let mut spy = spy_events();
+    cheat_caller_address(vault.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
+    vault.mint(mint_shares, RECIPIENT());
+
+    // Check balances
+    assert_assets_of(asset, HOLDER(), holder_balance_before - expected_assets);
+    assert_assets_of(asset, vault.contract_address, vault_balance_before + expected_assets);
+    assert_shares_of(vault, RECIPIENT(), parse_share(1));
+
+    // Check events
+    spy
+        .assert_event_transfer(
+            asset.contract_address, HOLDER(), vault.contract_address, expected_assets
+        );
+    spy.assert_event_transfer(vault.contract_address, ZERO(), RECIPIENT(), mint_shares);
+    spy
+        .assert_only_event_deposit(
+            vault.contract_address, HOLDER(), RECIPIENT(), expected_assets, mint_shares
+        );
+}
+
+#[test]
+fn test_full_vault_withdraw() {
+    let (asset, vault) = setup_full_vault();
+
+    let virtual_assets = 1;
+    let offset = 1;
+    let virtual_shares = math::power(10, offset);
+
+    let effective_assets = vault.total_assets() + virtual_assets;
+    let effective_shares = vault.total_supply() + virtual_shares;
+
+    let withdraw_assets = parse_token(1);
+    let expected_shares = (withdraw_assets * effective_shares) / effective_assets + 1; // add `1` for the rounding
+
+    // Check max withdraw
+    let max_withdraw = vault.max_withdraw(HOLDER());
+    assert_eq!(max_withdraw, withdraw_assets);
+
+    // Check preview withdraw
+    let preview_withdraw = vault.preview_withdraw(withdraw_assets);
+    assert_eq!(preview_withdraw, expected_shares);
+
+    // Capture initial balances
+    let holder_balance_before = asset.balance_of(HOLDER());
+    let vault_balance_before = asset.balance_of(vault.contract_address);
+
+    // Withdraw
+    let mut spy = spy_events();
+    cheat_caller_address(vault.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
+    vault.withdraw(withdraw_assets, RECIPIENT(), HOLDER());
+
+    // Check balances and events
+    assert_assets_of(asset, HOLDER(), holder_balance_before);
+    assert_assets_of(asset, RECIPIENT(), withdraw_assets);
+    assert_assets_of(asset, vault.contract_address, vault_balance_before - withdraw_assets);
+
+    spy.assert_event_transfer(vault.contract_address, HOLDER(), ZERO(), expected_shares);
+    spy.assert_event_transfer(asset.contract_address, vault.contract_address, RECIPIENT(), withdraw_assets);
+    spy.assert_only_event_withdraw(vault.contract_address, HOLDER(), RECIPIENT(), HOLDER(), withdraw_assets, expected_shares);
+}
+
+#[test]
+fn test_full_vault_withdraw_with_approval() {
+    let (asset, vault) = setup_full_vault();
+
+    let virtual_assets = 1;
+    let offset = 1;
+    let virtual_shares = math::power(10, offset);
+
+    let effective_assets = vault.total_assets() + virtual_assets;
+    let effective_shares = vault.total_supply() + virtual_shares;
+
+    let withdraw_assets = parse_token(1);
+    let expected_shares = (withdraw_assets * effective_shares) / effective_assets + 1; // add `1` for the rounding
+
+    // Withdraw
+    let mut spy = spy_events();
+    cheat_caller_address(vault.contract_address, SPENDER(), CheatSpan::TargetCalls(1));
+    vault.withdraw(withdraw_assets, RECIPIENT(), HOLDER());
+
+    // Check events
+    spy.assert_event_transfer(vault.contract_address, HOLDER(), ZERO(), expected_shares);
+    spy.assert_event_transfer(asset.contract_address, vault.contract_address, RECIPIENT(), withdraw_assets);
+    spy.assert_only_event_withdraw(vault.contract_address, SPENDER(), RECIPIENT(), HOLDER(), withdraw_assets, expected_shares);
+}
+
+#[test]
+#[should_panic(expected: 'ERC20: insufficient allowance')]
+fn test_full_vault_withdraw_unauthorized() {
+    let (_, vault) = setup_full_vault();
+    let withdraw_assets = parse_token(1);
+
+    cheat_caller_address(vault.contract_address, OTHER(), CheatSpan::TargetCalls(1));
+    vault.withdraw(withdraw_assets, RECIPIENT(), HOLDER());
+}
+
+//
+// Assertions/Helpers
+//
+
+fn assert_shares_of(vault: ERC4626ABIDispatcher, account: ContractAddress, expected_shares: u256) {
+    let actual_shares = vault.balance_of(account);
+    assert_eq!(actual_shares, expected_shares);
+}
+
+fn assert_assets_of(asset: IERC20ReentrantDispatcher, account: ContractAddress, expected_assets: u256) {
+    let actual_assets = asset.balance_of(account);
+    assert_eq!(actual_assets, expected_assets);
+}
 
 #[generate_trait]
 pub impl ERC4626SpyHelpersImpl of ERC4626SpyHelpers {

@@ -1,11 +1,11 @@
-use openzeppelin_governance::tests::mocks::votes_mocks::ERC721VotesMock::SNIP12MetadataImpl;
-use openzeppelin_governance::tests::mocks::votes_mocks::{ERC721VotesMock, ERC20VotesMock};
-use openzeppelin_governance::votes::utils::Delegation;
-use openzeppelin_governance::votes::votes::TokenVotesTrait;
-use openzeppelin_governance::votes::votes::VotesComponent::{
+use crate::tests::mocks::votes_mocks::ERC721VotesMock::SNIP12MetadataImpl;
+use crate::tests::mocks::votes_mocks::{ERC721VotesMock, ERC20VotesMock};
+use crate::votes::utils::Delegation;
+use crate::votes::votes::TokenVotesTrait;
+use crate::votes::votes::VotesComponent::{
     DelegateChanged, DelegateVotesChanged, VotesImpl, InternalImpl,
 };
-use openzeppelin_governance::votes::votes::VotesComponent;
+use crate::votes::votes::VotesComponent;
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{SUPPLY, ZERO, OWNER, RECIPIENT, OTHER};
 use openzeppelin_testing::events::EventSpyExt;

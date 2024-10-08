@@ -1,6 +1,6 @@
 #[starknet::contract]
 pub(crate) mod ERC721VotesMock {
-    use openzeppelin_governance::votes::votes::VotesComponent;
+    use crate::votes::votes::VotesComponent;
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_token::erc721::ERC721Component;
     use openzeppelin_utils::cryptography::nonces::NoncesComponent;
@@ -92,7 +92,7 @@ pub(crate) mod ERC721VotesMock {
 
 #[starknet::contract]
 pub(crate) mod ERC20VotesMock {
-    use openzeppelin_governance::votes::votes::VotesComponent;
+    use crate::votes::votes::VotesComponent;
     use openzeppelin_token::erc20::ERC20Component;
     use openzeppelin_utils::cryptography::nonces::NoncesComponent;
     use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;

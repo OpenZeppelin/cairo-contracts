@@ -21,9 +21,9 @@ pub mod VotesComponent {
     // We should not use Checkpoints or StorageArray as they are for ERC721Vote
     // Instead we can rely on Vec
     use core::num::traits::Zero;
+    use crate::votes::interface::IVotes;
+    use crate::votes::utils::Delegation;
     use openzeppelin_account::dual_account::{DualCaseAccount, DualCaseAccountTrait};
-    use openzeppelin_governance::votes::interface::IVotes;
-    use openzeppelin_governance::votes::utils::Delegation;
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_token::erc20::ERC20Component;
     use openzeppelin_token::erc20::interface::IERC20;

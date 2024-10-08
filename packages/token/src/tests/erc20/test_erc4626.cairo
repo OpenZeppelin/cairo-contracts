@@ -764,12 +764,7 @@ fn test_full_vault_redeem() {
         );
     spy
         .assert_only_event_withdraw(
-            vault.contract_address,
-            HOLDER(),
-            RECIPIENT(),
-            HOLDER(),
-            expected_assets,
-            redeem_shares
+            vault.contract_address, HOLDER(), RECIPIENT(), HOLDER(), expected_assets, redeem_shares
         );
 }
 
@@ -817,12 +812,7 @@ fn test_full_vault_redeem_with_approval() {
         );
     spy
         .assert_only_event_withdraw(
-            vault.contract_address,
-            SPENDER(),
-            RECIPIENT(),
-            HOLDER(),
-            expected_assets,
-            redeem_shares
+            vault.contract_address, SPENDER(), RECIPIENT(), HOLDER(), expected_assets, redeem_shares
         );
 }
 
@@ -841,7 +831,9 @@ fn test_full_vault_redeem_unauthorized() {
 // Assertions/Helpers
 //
 
-fn assert_expected_shares(vault: ERC4626ABIDispatcher, account: ContractAddress, expected_shares: u256) {
+fn assert_expected_shares(
+    vault: ERC4626ABIDispatcher, account: ContractAddress, expected_shares: u256
+) {
     let actual_shares = vault.balance_of(account);
     assert_eq!(actual_shares, expected_shares);
 }

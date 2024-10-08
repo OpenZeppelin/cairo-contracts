@@ -116,7 +116,6 @@ pub mod ERC4626Component {
             self._convert_to_shares(assets, Rounding::Floor)
         }
 
-
         fn deposit(
             ref self: ComponentState<TContractState>, assets: u256, receiver: ContractAddress
         ) -> u256 {

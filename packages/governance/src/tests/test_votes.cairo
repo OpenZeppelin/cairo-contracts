@@ -56,8 +56,6 @@ fn setup_erc721_votes() -> ComponentState {
     let mut i: u256 = 0;
     while i < ERC_721_INITIAL_MINT {
         mock_state.erc721.mint(OWNER(), i);
-        // We manually transfer voting units here, since this is usually implemented in the hook
-        state.transfer_voting_units(ZERO(), OWNER(), 1);
         i += 1;
     };
     state
@@ -69,9 +67,6 @@ fn setup_erc20_votes() -> ERC20ComponentState {
 
     // Mint SUPPLY tokens to owner
     mock_state.erc20.mint(OWNER(), SUPPLY);
-    // We manually transfer voting units here, since this is usually implemented in the hook
-    state.transfer_voting_units(ZERO(), OWNER(), SUPPLY);
-
     state
 }
 
@@ -286,12 +281,9 @@ fn test_erc20_burn_updates_votes() {
 
     state.delegate(OWNER());
 
-    // Burnsome tokens
+    // Burn some tokens
     let burn_amount = 1000;
     mock_state.erc20.burn(OWNER(), burn_amount);
-
-    // Manually update voting units (this would typically be done in a hook)
-    state.transfer_voting_units(OWNER(), ZERO(), burn_amount);
 
     // We need to move the timestamp forward to be able to call get_past_total_supply
     start_cheat_block_timestamp_global('ts2');
@@ -314,8 +306,6 @@ fn test_erc721_burn_updates_votes() {
     let mut i: u256 = 0;
     while i < burn_amount {
         mock_state.erc721.burn(i);
-        // Manually update voting units (this would typically be done in a hook)
-        state.transfer_voting_units(OWNER(), ZERO(), 1);
         i += 1;
     };
 

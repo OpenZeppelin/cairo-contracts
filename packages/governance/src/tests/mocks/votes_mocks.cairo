@@ -3,18 +3,19 @@ pub(crate) mod ERC721VotesMock {
     use openzeppelin_governance::votes::votes::VotesComponent;
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_token::erc721::ERC721Component;
-    use openzeppelin_token::erc721::ERC721HooksEmptyImpl;
     use openzeppelin_utils::cryptography::nonces::NoncesComponent;
     use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
+    use starknet::ContractAddress;
 
     component!(path: VotesComponent, storage: erc721_votes, event: ERC721VotesEvent);
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
     component!(path: NoncesComponent, storage: nonces, event: NoncesEvent);
 
-    //Votes and ERC721Votes
+    //Votes
     #[abi(embed_v0)]
     impl VotesImpl = VotesComponent::VotesImpl<ContractState>;
+    impl VotesInternalImpl = VotesComponent::InternalImpl<ContractState>;
 
     // ERC721
     #[abi(embed_v0)]
@@ -60,6 +61,29 @@ pub(crate) mod ERC721VotesMock {
         }
     }
 
+    impl ERC721VotesHooksImpl<
+        TContractState,
+        impl Votes: VotesComponent::HasComponent<TContractState>,
+        impl HasComponent: ERC721Component::HasComponent<TContractState>,
+        +NoncesComponent::HasComponent<TContractState>,
+        +SRC5Component::HasComponent<TContractState>,
+        +Drop<TContractState>
+    > of ERC721Component::ERC721HooksTrait<TContractState> {
+        fn before_update(
+            ref self: ERC721Component::ComponentState<TContractState>,
+            to: ContractAddress,
+            token_id: u256,
+            auth: ContractAddress
+        ) {
+            let mut votes_component = get_dep_component_mut!(ref self, Votes);
+
+            // We use the internal function here since it does not check if the token id exists
+            // which is necessary for mints
+            let previous_owner = self._owner_of(token_id);
+            votes_component.transfer_voting_units(previous_owner, to, 1);
+        }
+    }
+
     #[constructor]
     fn constructor(ref self: ContractState) {
         self.erc721.initializer("MyToken", "MTK", "");
@@ -70,9 +94,9 @@ pub(crate) mod ERC721VotesMock {
 pub(crate) mod ERC20VotesMock {
     use openzeppelin_governance::votes::votes::VotesComponent;
     use openzeppelin_token::erc20::ERC20Component;
-    use openzeppelin_token::erc20::ERC20HooksEmptyImpl;
     use openzeppelin_utils::cryptography::nonces::NoncesComponent;
     use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
+    use starknet::ContractAddress;
 
     component!(path: VotesComponent, storage: erc20_votes, event: ERC20VotesEvent);
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
@@ -81,6 +105,7 @@ pub(crate) mod ERC20VotesMock {
     // Votes and ERC20Votes
     #[abi(embed_v0)]
     impl VotesImpl = VotesComponent::VotesImpl<ContractState>;
+    impl VotesInternalImpl = VotesComponent::InternalImpl<ContractState>;
 
     // ERC20
     #[abi(embed_v0)]
@@ -119,6 +144,24 @@ pub(crate) mod ERC20VotesMock {
         }
         fn version() -> felt252 {
             'DAPP_VERSION'
+        }
+    }
+
+    impl ERC20VotesHooksImpl<
+        TContractState,
+        impl Votes: VotesComponent::HasComponent<TContractState>,
+        impl HasComponent: ERC20Component::HasComponent<TContractState>,
+        +NoncesComponent::HasComponent<TContractState>,
+        +Drop<TContractState>
+    > of ERC20Component::ERC20HooksTrait<TContractState> {
+        fn after_update(
+            ref self: ERC20Component::ComponentState<TContractState>,
+            from: ContractAddress,
+            recipient: ContractAddress,
+            amount: u256
+        ) {
+            let mut votes_component = get_dep_component_mut!(ref self, Votes);
+            votes_component.transfer_voting_units(from, recipient, amount);
         }
     }
 

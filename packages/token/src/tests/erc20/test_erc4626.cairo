@@ -7,11 +7,11 @@ use crate::erc20::extensions::erc4626::ERC4626Component::{
 use crate::erc20::extensions::erc4626::ERC4626Component::{Deposit, Withdraw};
 use crate::erc20::extensions::erc4626::ERC4626Component;
 use crate::erc20::extensions::erc4626::interface::{ERC4626ABIDispatcher, ERC4626ABIDispatcherTrait};
+use openzeppelin_test_common::erc20::ERC20SpyHelpers;
 use openzeppelin_test_common::mocks::erc20::Type;
 use openzeppelin_test_common::mocks::erc20::{
     IERC20ReentrantDispatcher, IERC20ReentrantDispatcherTrait
 };
-use openzeppelin_test_common::erc20::ERC20SpyHelpers;
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{NAME, SYMBOL, OTHER, RECIPIENT, ZERO, SPENDER};
 use openzeppelin_testing::events::EventSpyExt;

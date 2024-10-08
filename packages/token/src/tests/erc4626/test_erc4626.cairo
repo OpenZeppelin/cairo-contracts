@@ -743,7 +743,6 @@ fn test_full_vault_redeem() {
     assert_eq!(preview_redeem, expected_assets);
 
     // Capture initial balances
-    let holder_balance_before = asset.balance_of(HOLDER());
     let vault_balance_before = asset.balance_of(vault.contract_address);
     let holder_shares_before = vault.balance_of(HOLDER());
 
@@ -791,7 +790,6 @@ fn test_full_vault_redeem_with_approval() {
     assert_eq!(preview_redeem, expected_assets);
 
     // Capture initial balances
-    let holder_balance_before = asset.balance_of(HOLDER());
     let vault_balance_before = asset.balance_of(vault.contract_address);
     let holder_shares_before = vault.balance_of(HOLDER());
 
@@ -819,7 +817,7 @@ fn test_full_vault_redeem_with_approval() {
 #[test]
 #[should_panic(expected: 'ERC20: insufficient allowance')]
 fn test_full_vault_redeem_unauthorized() {
-    let (asset, vault) = setup_full_vault();
+    let (_, vault) = setup_full_vault();
     let redeem_shares = parse_share(100);
 
     // Unauthorized redeem

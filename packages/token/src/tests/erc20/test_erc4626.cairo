@@ -1,10 +1,10 @@
 use core::num::traits::Bounded;
 use crate::erc20::ERC20Component::InternalImpl as ERC20InternalImpl;
 use crate::erc20::extensions::erc4626::DefaultConfig;
-use crate::erc20::extensions::erc4626::ERC4626Component::{Deposit, Withdraw};
 use crate::erc20::extensions::erc4626::ERC4626Component::{
     ERC4626Impl, ERC4626MetadataImpl, InternalImpl
 };
+use crate::erc20::extensions::erc4626::ERC4626Component::{Deposit, Withdraw};
 use crate::erc20::extensions::erc4626::ERC4626Component;
 use crate::erc20::extensions::erc4626::interface::{ERC4626ABIDispatcher, ERC4626ABIDispatcherTrait};
 use crate::tests::mocks::erc20_reentrant::Type;
@@ -373,9 +373,15 @@ fn test_inflation_attack_deposit() {
     assert_eq!(recipient_balance, expected_shares);
 
     // Check events
-    spy.assert_event_transfer(asset.contract_address, HOLDER(), vault.contract_address, deposit_assets);
+    spy
+        .assert_event_transfer(
+            asset.contract_address, HOLDER(), vault.contract_address, deposit_assets
+        );
     spy.assert_event_transfer(vault.contract_address, ZERO(), RECIPIENT(), shares);
-    spy.assert_only_event_deposit(vault.contract_address, HOLDER(), RECIPIENT(), deposit_assets, expected_shares);
+    spy
+        .assert_only_event_deposit(
+            vault.contract_address, HOLDER(), RECIPIENT(), deposit_assets, expected_shares
+        );
 }
 
 #[test]
@@ -554,9 +560,15 @@ fn test_full_vault_deposit() {
     assert_eq!(recipient_balance, expected_shares);
 
     // Check events
-    spy.assert_event_transfer(asset.contract_address, HOLDER(), vault.contract_address, deposit_assets);
+    spy
+        .assert_event_transfer(
+            asset.contract_address, HOLDER(), vault.contract_address, deposit_assets
+        );
     spy.assert_event_transfer(vault.contract_address, ZERO(), RECIPIENT(), shares);
-    spy.assert_only_event_deposit(vault.contract_address, HOLDER(), RECIPIENT(), deposit_assets, expected_shares);
+    spy
+        .assert_only_event_deposit(
+            vault.contract_address, HOLDER(), RECIPIENT(), deposit_assets, expected_shares
+        );
 }
 
 #[test]
@@ -571,7 +583,8 @@ fn test_full_vault_mint() {
     let effective_shares = vault.total_supply() + virtual_shares;
 
     let mint_shares = parse_share(1);
-    let expected_assets = (mint_shares * effective_assets) / effective_shares + 1; // add `1` for the rounding
+    let expected_assets = (mint_shares * effective_assets) / effective_shares
+        + 1; // add `1` for the rounding
 
     // Check max mint
     let max_mint = vault.max_mint(HOLDER());
@@ -619,7 +632,8 @@ fn test_full_vault_withdraw() {
     let effective_shares = vault.total_supply() + virtual_shares;
 
     let withdraw_assets = parse_token(1);
-    let expected_shares = (withdraw_assets * effective_shares) / effective_assets + 1; // add `1` for the rounding
+    let expected_shares = (withdraw_assets * effective_shares) / effective_assets
+        + 1; // add `1` for the rounding
 
     // Check max withdraw
     let max_withdraw = vault.max_withdraw(HOLDER());
@@ -644,8 +658,19 @@ fn test_full_vault_withdraw() {
     assert_assets_of(asset, vault.contract_address, vault_balance_before - withdraw_assets);
 
     spy.assert_event_transfer(vault.contract_address, HOLDER(), ZERO(), expected_shares);
-    spy.assert_event_transfer(asset.contract_address, vault.contract_address, RECIPIENT(), withdraw_assets);
-    spy.assert_only_event_withdraw(vault.contract_address, HOLDER(), RECIPIENT(), HOLDER(), withdraw_assets, expected_shares);
+    spy
+        .assert_event_transfer(
+            asset.contract_address, vault.contract_address, RECIPIENT(), withdraw_assets
+        );
+    spy
+        .assert_only_event_withdraw(
+            vault.contract_address,
+            HOLDER(),
+            RECIPIENT(),
+            HOLDER(),
+            withdraw_assets,
+            expected_shares
+        );
 }
 
 #[test]
@@ -660,7 +685,8 @@ fn test_full_vault_withdraw_with_approval() {
     let effective_shares = vault.total_supply() + virtual_shares;
 
     let withdraw_assets = parse_token(1);
-    let expected_shares = (withdraw_assets * effective_shares) / effective_assets + 1; // add `1` for the rounding
+    let expected_shares = (withdraw_assets * effective_shares) / effective_assets
+        + 1; // add `1` for the rounding
 
     // Withdraw
     let mut spy = spy_events();
@@ -669,8 +695,19 @@ fn test_full_vault_withdraw_with_approval() {
 
     // Check events
     spy.assert_event_transfer(vault.contract_address, HOLDER(), ZERO(), expected_shares);
-    spy.assert_event_transfer(asset.contract_address, vault.contract_address, RECIPIENT(), withdraw_assets);
-    spy.assert_only_event_withdraw(vault.contract_address, SPENDER(), RECIPIENT(), HOLDER(), withdraw_assets, expected_shares);
+    spy
+        .assert_event_transfer(
+            asset.contract_address, vault.contract_address, RECIPIENT(), withdraw_assets
+        );
+    spy
+        .assert_only_event_withdraw(
+            vault.contract_address,
+            SPENDER(),
+            RECIPIENT(),
+            HOLDER(),
+            withdraw_assets,
+            expected_shares
+        );
 }
 
 #[test]
@@ -692,7 +729,9 @@ fn assert_shares_of(vault: ERC4626ABIDispatcher, account: ContractAddress, expec
     assert_eq!(actual_shares, expected_shares);
 }
 
-fn assert_assets_of(asset: IERC20ReentrantDispatcher, account: ContractAddress, expected_assets: u256) {
+fn assert_assets_of(
+    asset: IERC20ReentrantDispatcher, account: ContractAddress, expected_assets: u256
+) {
     let actual_assets = asset.balance_of(account);
     assert_eq!(actual_assets, expected_assets);
 }

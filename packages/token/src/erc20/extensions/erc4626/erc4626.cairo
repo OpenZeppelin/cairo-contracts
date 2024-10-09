@@ -277,7 +277,7 @@ pub mod ERC4626Component {
 
             // Transfer assets after burn
             let asset_dispatcher = IERC20Dispatcher { contract_address: self.ERC4626_asset.read() };
-            asset_dispatcher.transfer(receiver, assets);
+            assert(asset_dispatcher.transfer(receiver, assets), Errors::TOKEN_TRANSFER_FAILED);
 
             self.emit(Withdraw { sender: caller, receiver, owner, assets, shares });
         }

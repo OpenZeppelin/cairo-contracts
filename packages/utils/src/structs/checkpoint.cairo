@@ -7,6 +7,8 @@ use starknet::storage::{StoragePath, StorageAsPath, Vec, VecTrait, Mutable, Muta
 use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 use starknet::storage_access::StorePacking;
 
+const _2_POW_184: felt252 = 0x10000000000000000000000000000000000000000000000;
+
 /// `Trace` struct, for checkpointing values as they change at different points in
 /// time, and later looking up past values by block timestamp.
 #[starknet::storage_node]
@@ -158,8 +160,6 @@ impl CheckpointImpl of CheckpointTrait {
         _high
     }
 }
-
-const _2_POW_184: felt252 = 0x10000000000000000000000000000000000000000000000;
 
 /// Packs a Checkpoint into a (felt252, felt252).
 ///

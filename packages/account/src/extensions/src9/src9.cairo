@@ -10,11 +10,11 @@
 /// interface.
 #[starknet::component]
 pub mod SRC9Component {
-    use crate::dual_account::{DualCaseAccount, DualCaseAccountTrait};
     use crate::extensions::src9::OutsideExecution;
     use crate::extensions::src9::interface;
     use crate::extensions::src9::snip12_utils::OutsideExecutionStructHash;
     use crate::utils::execute_calls;
+    use openzeppelin_account::interface::{ISRC6Dispatcher, ISRC6DispatcherTrait};
     use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_utils::cryptography::snip12::{OffchainMessageHash, SNIP12Metadata};
@@ -105,7 +105,7 @@ pub mod SRC9Component {
 
             // Make this component agnostic to the account implementation, as long
             // as the contract implements the SRC6 interface.
-            let is_valid_signature_felt = DualCaseAccount { contract_address: this }
+            let is_valid_signature_felt = ISRC6Dispatcher { contract_address: this }
                 .is_valid_signature(outside_tx_hash, signature.into());
 
             // Check either 'VALID' or true for backwards compatibility.

@@ -241,12 +241,12 @@ TIP: The expected parameter for the `get_message_hash` function is the address o
 
 == Full Implementation
 
-:dualcase_dispatchers: xref:/interfaces#dualcase_dispatchers
+:isrc6_dispatcher: xref:/api/account#ISRC6
 :nonces: xref:/api/utilities#NoncesComponent
 
 Finally, the full implementation of the `CustomERC20` contract looks like this:
 
-NOTE: We are using the {dualcase_dispatchers}[`DualCaseAccount`] to verify the signature,
+NOTE: We are using the {isrc6_dispatcher}[`ISRC6Dispatcher`] to verify the signature,
 and the {nonces}[`NoncesComponent`] to handle nonces to prevent replay attacks.
 
 [,cairo]
@@ -278,7 +278,7 @@ impl StructHashImpl of StructHash<Message> {
 
 #[starknet::contract]
 mod CustomERC20 {
-    use openzeppelin_account::dual_account::{DualCaseAccount, DualCaseAccountTrait};
+    use openzeppelin_account::interface::{ISRC6Dispatcher, ISRC6DispatcherTrait};
     use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     use openzeppelin_utils::cryptography::nonces::NoncesComponent;
     use starknet::ContractAddress;
@@ -348,7 +348,7 @@ mod CustomERC20 {
         let message = Message { recipient, amount, nonce, expiry };
         let hash = message.get_message_hash(owner);
 
-        let is_valid_signature_felt = DualCaseAccount { contract_address: owner }
+        let is_valid_signature_felt = ISRC6Dispatcher { contract_address: owner }
             .is_valid_signature(hash, signature);
 
         // Check either 'VALID' or true for backwards compatibility

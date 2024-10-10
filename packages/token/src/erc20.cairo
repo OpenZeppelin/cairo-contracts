@@ -1,4 +1,3 @@
-pub mod dual20;
 pub mod erc20;
 pub mod interface;
 

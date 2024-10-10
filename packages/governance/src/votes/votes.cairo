@@ -1,40 +1,48 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.17.0 (token/erc20/extensions/erc20_votes.cairo)
+// OpenZeppelin Contracts for Cairo v0.17.0 (governance/votes/votes.cairo)
 
-use core::hash::{HashStateTrait, HashStateExTrait};
-use core::poseidon::PoseidonTrait;
-use openzeppelin_utils::cryptography::snip12::{OffchainMessageHash, StructHash, SNIP12Metadata};
 use starknet::ContractAddress;
 
-/// # ERC20Votes Component
+
+/// # Votes Component
 ///
-/// The ERC20Votes component tracks voting units from ERC20 balances, which are a measure of voting
-/// power that can be transferred, and provides a system of vote delegation, where an account can
-/// delegate its voting units to a sort of "representative" that will pool delegated voting units
-/// from different accounts and can then use it to vote in decisions. In fact, voting units MUST be
-/// delegated in order to count as actual votes, and an account has to delegate those votes to
-/// itself if it wishes to participate in decisions and does not have a trusted representative.
+/// The Votes component provides a flexible system for tracking voting power and delegation
+/// that is currently implemented for ERC20 and ERC721 tokens. It allows accounts to delegate
+/// their voting power to a representative, who can then use the pooled voting power in
+/// governance decisions. Voting power must be delegated to be counted, and an account can
+/// delegate to itself if it wishes to vote directly.
+///
+/// This component offers a unified interface for voting mechanisms across ERC20 and ERC721
+/// token standards, with the potential to be extended to other token standards in the future.
+/// It's important to note that only one token implementation (either ERC20 or ERC721) should
+/// be used at a time to ensure consistent voting power calculations.
 #[starknet::component]
-pub mod ERC20VotesComponent {
+pub mod VotesComponent {
+    // We should not use Checkpoints or StorageArray as they are for ERC721Vote
+    // Instead we can rely on Vec
     use core::num::traits::Zero;
-    use crate::erc20::ERC20Component;
-    use crate::erc20::interface::IERC20;
+    use crate::votes::interface::IVotes;
+    use crate::votes::utils::Delegation;
     use openzeppelin_account::interface::{ISRC6Dispatcher, ISRC6DispatcherTrait};
-    use openzeppelin_governance::utils::interfaces::IVotes;
+    use openzeppelin_introspection::src5::SRC5Component;
+    use openzeppelin_token::erc20::ERC20Component;
+    use openzeppelin_token::erc20::interface::IERC20;
+    use openzeppelin_token::erc721::ERC721Component;
+    use openzeppelin_token::erc721::interface::IERC721;
+    use openzeppelin_utils::cryptography::snip12::{OffchainMessageHash, SNIP12Metadata};
     use openzeppelin_utils::nonces::NoncesComponent::InternalTrait as NoncesInternalTrait;
     use openzeppelin_utils::nonces::NoncesComponent;
-    use openzeppelin_utils::structs::checkpoint::{Checkpoint, Trace, TraceTrait};
-    use starknet::ContractAddress;
+    use openzeppelin_utils::structs::checkpoint::{Trace, TraceTrait};
     use starknet::storage::{
         Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess
     };
-    use super::{Delegation, OffchainMessageHash, SNIP12Metadata};
+    use super::{TokenVotesTrait, ContractAddress};
 
     #[storage]
     pub struct Storage {
-        pub ERC20Votes_delegatee: Map<ContractAddress, ContractAddress>,
-        pub ERC20Votes_delegate_checkpoints: Map<ContractAddress, Trace>,
-        pub ERC20Votes_total_checkpoints: Trace
+        pub Votes_delegatee: Map::<ContractAddress, ContractAddress>,
+        pub Votes_delegate_checkpoints: Map::<ContractAddress, Trace>,
+        pub Votes_total_checkpoints: Trace,
     }
 
     #[event]
@@ -44,7 +52,6 @@ pub mod ERC20VotesComponent {
         DelegateVotesChanged: DelegateVotesChanged,
     }
 
-    /// Emitted when `delegator` delegates their votes from `from_delegate` to `to_delegate`.
     #[derive(Drop, PartialEq, starknet::Event)]
     pub struct DelegateChanged {
         #[key]
@@ -55,7 +62,6 @@ pub mod ERC20VotesComponent {
         pub to_delegate: ContractAddress
     }
 
-    /// Emitted when `delegate` votes are updated from `previous_votes` to `new_votes`.
     #[derive(Drop, PartialEq, starknet::Event)]
     pub struct DelegateVotesChanged {
         #[key]
@@ -70,19 +76,18 @@ pub mod ERC20VotesComponent {
         pub const INVALID_SIGNATURE: felt252 = 'Votes: invalid signature';
     }
 
-    #[embeddable_as(ERC20VotesImpl)]
-    impl ERC20Votes<
+    #[embeddable_as(VotesImpl)]
+    impl Votes<
         TContractState,
         +HasComponent<TContractState>,
-        +ERC20Component::HasComponent<TContractState>,
-        +ERC20Component::ERC20HooksTrait<TContractState>,
         impl Nonces: NoncesComponent::HasComponent<TContractState>,
+        +TokenVotesTrait<ComponentState<TContractState>>,
         +SNIP12Metadata,
         +Drop<TContractState>
     > of IVotes<ComponentState<TContractState>> {
         /// Returns the current amount of votes that `account` has.
         fn get_votes(self: @ComponentState<TContractState>, account: ContractAddress) -> u256 {
-            self.ERC20Votes_delegate_checkpoints.read(account).latest()
+            self.Votes_delegate_checkpoints.read(account).latest()
         }
 
         /// Returns the amount of votes that `account` had at a specific moment in the past.
@@ -95,8 +100,7 @@ pub mod ERC20VotesComponent {
         ) -> u256 {
             let current_timepoint = starknet::get_block_timestamp();
             assert(timepoint < current_timepoint, Errors::FUTURE_LOOKUP);
-
-            self.ERC20Votes_delegate_checkpoints.read(account).upper_lookup_recent(timepoint)
+            self.Votes_delegate_checkpoints.read(account).upper_lookup_recent(timepoint)
         }
 
         /// Returns the total supply of votes available at a specific moment in the past.
@@ -104,23 +108,17 @@ pub mod ERC20VotesComponent {
         /// Requirements:
         ///
         /// - `timepoint` must be in the past.
-        ///
-        /// NOTE: This value is the sum of all available votes, which is not necessarily the sum of
-        /// all delegated votes.
-        /// Votes that have not been delegated are still part of total supply, even though they
-        /// would not participate in a vote.
         fn get_past_total_supply(self: @ComponentState<TContractState>, timepoint: u64) -> u256 {
             let current_timepoint = starknet::get_block_timestamp();
             assert(timepoint < current_timepoint, Errors::FUTURE_LOOKUP);
-
-            self.ERC20Votes_total_checkpoints.read().upper_lookup_recent(timepoint)
+            self.Votes_total_checkpoints.read().upper_lookup_recent(timepoint)
         }
 
         /// Returns the delegate that `account` has chosen.
         fn delegates(
             self: @ComponentState<TContractState>, account: ContractAddress
         ) -> ContractAddress {
-            self.ERC20Votes_delegatee.read(account)
+            self.Votes_delegatee.read(account)
         }
 
         /// Delegates votes from the sender to `delegatee`.
@@ -165,7 +163,7 @@ pub mod ERC20VotesComponent {
             let is_valid_signature_felt = ISRC6Dispatcher { contract_address: delegator }
                 .is_valid_signature(hash, signature);
 
-            // Check either 'VALID' or true for backwards compatibility.
+            // Check either 'VALID' or True for backwards compatibility.
             let is_valid_signature = is_valid_signature_felt == starknet::VALIDATED
                 || is_valid_signature_felt == 1;
 
@@ -180,21 +178,54 @@ pub mod ERC20VotesComponent {
     // Internal
     //
 
+    impl ERC721VotesImpl<
+        TContractState,
+        +HasComponent<TContractState>,
+        +SRC5Component::HasComponent<TContractState>,
+        impl ERC721: ERC721Component::HasComponent<TContractState>,
+        +ERC721Component::ERC721HooksTrait<TContractState>,
+        +Drop<TContractState>
+    > of TokenVotesTrait<ComponentState<TContractState>> {
+        /// Returns the number of voting units for a given account.
+        ///
+        /// This implementation is specific to ERC721 tokens, where each token
+        /// represents one voting unit. The function returns the balance of
+        /// ERC721 tokens for the specified account.
+        fn get_voting_units(
+            self: @ComponentState<TContractState>, account: ContractAddress
+        ) -> u256 {
+            let erc721_component = get_dep_component!(self, ERC721);
+            erc721_component.balance_of(account).into()
+        }
+    }
+
+    impl ERC20VotesImpl<
+        TContractState,
+        +HasComponent<TContractState>,
+        impl ERC20: ERC20Component::HasComponent<TContractState>,
+        +ERC20Component::ERC20HooksTrait<TContractState>
+    > of TokenVotesTrait<ComponentState<TContractState>> {
+        /// Returns the number of voting units for a given account.
+        ///
+        /// This implementation is specific to ERC20 tokens, where the balance
+        /// of tokens directly represents the number of voting units.
+        fn get_voting_units(
+            self: @ComponentState<TContractState>, account: ContractAddress
+        ) -> u256 {
+            let erc20_component = get_dep_component!(self, ERC20);
+            erc20_component.balance_of(account)
+        }
+    }
+
     #[generate_trait]
     pub impl InternalImpl<
         TContractState,
         +HasComponent<TContractState>,
-        impl ERC20: ERC20Component::HasComponent<TContractState>,
-        +ERC20Component::ERC20HooksTrait<TContractState>,
+        impl TokenTrait: TokenVotesTrait<ComponentState<TContractState>>,
         +NoncesComponent::HasComponent<TContractState>,
         +SNIP12Metadata,
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
-        /// Returns the current total supply of votes.
-        fn get_total_supply(self: @ComponentState<TContractState>) -> u256 {
-            self.ERC20Votes_total_checkpoints.read().latest()
-        }
-
         /// Delegates all of `account`'s voting units to `delegatee`.
         ///
         /// Emits a `DelegateChanged` event.
@@ -205,13 +236,15 @@ pub mod ERC20VotesComponent {
             delegatee: ContractAddress
         ) {
             let from_delegate = self.delegates(account);
-            self.ERC20Votes_delegatee.write(account, delegatee);
-
+            self.Votes_delegatee.write(account, delegatee);
             self
                 .emit(
                     DelegateChanged { delegator: account, from_delegate, to_delegate: delegatee }
                 );
-            self.move_delegate_votes(from_delegate, delegatee, self.get_voting_units(account));
+            self
+                .move_delegate_votes(
+                    from_delegate, delegatee, TokenTrait::get_voting_units(@self, account)
+                );
         }
 
         /// Moves delegated votes from one delegate to another.
@@ -223,17 +256,16 @@ pub mod ERC20VotesComponent {
             to: ContractAddress,
             amount: u256
         ) {
-            let zero_address = Zero::zero();
             let block_timestamp = starknet::get_block_timestamp();
-            if (from != to && amount > 0) {
-                if (from != zero_address) {
-                    let mut trace = self.ERC20Votes_delegate_checkpoints.read(from);
+            if from != to && amount > 0 {
+                if from.is_non_zero() {
+                    let mut trace = self.Votes_delegate_checkpoints.read(from);
                     let (previous_votes, new_votes) = trace
                         .push(block_timestamp, trace.latest() - amount);
                     self.emit(DelegateVotesChanged { delegate: from, previous_votes, new_votes });
                 }
-                if (to != zero_address) {
-                    let mut trace = self.ERC20Votes_delegate_checkpoints.read(to);
+                if to.is_non_zero() {
+                    let mut trace = self.Votes_delegate_checkpoints.read(to);
                     let (previous_votes, new_votes) = trace
                         .push(block_timestamp, trace.latest() + amount);
                     self.emit(DelegateVotesChanged { delegate: to, previous_votes, new_votes });
@@ -253,61 +285,21 @@ pub mod ERC20VotesComponent {
             to: ContractAddress,
             amount: u256
         ) {
-            let zero_address = Zero::zero();
             let block_timestamp = starknet::get_block_timestamp();
-            if (from == zero_address) {
-                let mut trace = self.ERC20Votes_total_checkpoints.read();
+            if from.is_zero() {
+                let mut trace = self.Votes_total_checkpoints.read();
                 trace.push(block_timestamp, trace.latest() + amount);
             }
-            if (to == zero_address) {
-                let mut trace = self.ERC20Votes_total_checkpoints.read();
+            if to.is_zero() {
+                let mut trace = self.Votes_total_checkpoints.read();
                 trace.push(block_timestamp, trace.latest() - amount);
             }
             self.move_delegate_votes(self.delegates(from), self.delegates(to), amount);
         }
-
-        /// Returns the number of checkpoints for `account`.
-        fn num_checkpoints(self: @ComponentState<TContractState>, account: ContractAddress) -> u32 {
-            self.ERC20Votes_delegate_checkpoints.read(account).length()
-        }
-
-        /// Returns the `pos`-th checkpoint for `account`.
-        fn checkpoints(
-            self: @ComponentState<TContractState>, account: ContractAddress, pos: u32
-        ) -> Checkpoint {
-            self.ERC20Votes_delegate_checkpoints.read(account).at(pos)
-        }
-
-        /// Returns the voting units of an `account`.
-        fn get_voting_units(
-            self: @ComponentState<TContractState>, account: ContractAddress
-        ) -> u256 {
-            let mut erc20_component = get_dep_component!(self, ERC20);
-            erc20_component.balance_of(account)
-        }
     }
 }
 
-//
-// Offchain message hash generation helpers.
-//
-
-// sn_keccak("\"Delegation\"(\"delegatee\":\"ContractAddress\",\"nonce\":\"felt\",\"expiry\":\"u128\")")
-//
-// Since there's no u64 type in SNIP-12, we use u128 for `expiry` in the type hash generation.
-pub const DELEGATION_TYPE_HASH: felt252 =
-    0x241244ac7acec849adc6df9848262c651eb035a3add56e7f6c7bcda6649e837;
-
-#[derive(Copy, Drop, Hash)]
-pub struct Delegation {
-    pub delegatee: ContractAddress,
-    pub nonce: felt252,
-    pub expiry: u64
-}
-
-impl StructHashImpl of StructHash<Delegation> {
-    fn hash_struct(self: @Delegation) -> felt252 {
-        let hash_state = PoseidonTrait::new();
-        hash_state.update_with(DELEGATION_TYPE_HASH).update_with(*self).finalize()
-    }
+/// Common trait for tokens used for voting(e.g. `ERC721Votes` or `ERC20Votes`)
+pub trait TokenVotesTrait<TState> {
+    fn get_voting_units(self: @TState, account: ContractAddress) -> u256;
 }

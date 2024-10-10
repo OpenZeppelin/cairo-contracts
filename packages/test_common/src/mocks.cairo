@@ -13,3 +13,4 @@ pub mod src9;
 pub mod timelock;
 pub mod upgrades;
 pub mod vesting;
+pub mod votes;

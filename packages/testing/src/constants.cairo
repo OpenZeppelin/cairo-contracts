@@ -91,6 +91,14 @@ pub fn OPERATOR() -> ContractAddress {
     contract_address_const::<'OPERATOR'>()
 }
 
+pub fn DELEGATOR() -> ContractAddress {
+    contract_address_const::<'DELEGATOR'>()
+}
+
+pub fn DELEGATEE() -> ContractAddress {
+    contract_address_const::<'DELEGATEE'>()
+}
+
 pub fn DATA(success: bool) -> Span<felt252> {
     let value = if success {
         SUCCESS

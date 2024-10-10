@@ -15,7 +15,6 @@ standards.
 #### Components
 
 - [`ERC20Component`](https://docs.openzeppelin.com/contracts-cairo/0.17.0/api/erc20#ERC20Component)
-- [`ERC20VotesComponent`](https://docs.openzeppelin.com/contracts-cairo/0.17.0/api/erc20#ERC20VotesComponent)
 
 ### ERC721
 

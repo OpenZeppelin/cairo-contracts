@@ -33,3 +33,4 @@ pub trait IVotes<TState> {
         signature: Array<felt252>
     );
 }
+

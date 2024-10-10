@@ -115,6 +115,7 @@ dependencies = [
  "openzeppelin_access",
  "openzeppelin_account",
  "openzeppelin_finance",
+ "openzeppelin_governance",
  "openzeppelin_introspection",
  "openzeppelin_security",
  "openzeppelin_testing",

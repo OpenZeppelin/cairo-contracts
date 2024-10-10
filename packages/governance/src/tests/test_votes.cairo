@@ -22,7 +22,7 @@ use snforge_std::{
 };
 use snforge_std::{EventSpy};
 use starknet::ContractAddress;
-use starknet::storage::{StoragePointerReadAccess, StorageMapReadAccess};
+use starknet::storage::StoragePathEntry;
 
 const ERC_721_INITIAL_MINT: u256 = 10;
 
@@ -93,7 +93,7 @@ fn test_get_votes() {
 #[test]
 fn test_get_past_votes() {
     let mut state = setup_erc721_votes();
-    let mut trace = state.Votes_delegate_checkpoints.read(DELEGATOR());
+    let mut trace = state.Votes_delegate_checkpoints.entry(DELEGATOR());
 
     start_cheat_block_timestamp_global('ts10');
 
@@ -117,7 +117,7 @@ fn test_get_past_votes_future_lookup() {
 #[test]
 fn test_get_past_total_supply() {
     let mut state = setup_erc721_votes();
-    let mut trace = state.Votes_total_checkpoints.read();
+    let mut trace = state.Votes_total_checkpoints.deref();
 
     start_cheat_block_timestamp_global('ts10');
     trace.push('ts1', 3);

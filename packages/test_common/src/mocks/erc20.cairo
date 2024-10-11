@@ -194,6 +194,7 @@ pub trait IERC20ReentrantHelpers<TState> {
     );
     fn function_call(ref self: TState);
     fn unsafe_mint(ref self: TState, recipient: ContractAddress, amount: u256);
+    fn unsafe_burn(ref self: TState, account: ContractAddress, amount: u256);
 }
 
 #[starknet::interface]
@@ -207,6 +208,7 @@ pub trait IERC20Reentrant<TState> {
     );
     fn function_call(ref self: TState);
     fn unsafe_mint(ref self: TState, recipient: ContractAddress, amount: u256);
+    fn unsafe_burn(ref self: TState, account: ContractAddress, amount: u256);
 
     // IERC20
     fn total_supply(self: @TState) -> u256;
@@ -226,6 +228,7 @@ pub mod ERC20ReentrantMock {
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
     use starknet::storage::{Vec, MutableVecTrait};
     use starknet::syscalls::call_contract_syscall;
+    use starknet::SyscallResultTrait;
     use super::Type;
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
@@ -259,7 +262,7 @@ pub mod ERC20ReentrantMock {
     // Hooks
     //
 
-    impl ERC20VotesHooksImpl of ERC20Component::ERC20HooksTrait<ContractState> {
+    impl ERC20ReentrantImpl of ERC20Component::ERC20HooksTrait<ContractState> {
         fn before_update(
             ref self: ERC20Component::ComponentState<ContractState>,
             from: ContractAddress,
@@ -298,6 +301,7 @@ pub mod ERC20ReentrantMock {
             selector: felt252,
             calldata: Span<felt252>
         ) {
+            self.reenter_type.write(when);
             self.reenter_target.write(target);
             self.reenter_selector.write(selector);
             for elem in calldata {
@@ -315,12 +319,15 @@ pub mod ERC20ReentrantMock {
                     .len() {
                         calldata.append(self.reenter_calldata.at(i).read());
                     };
-
-            call_contract_syscall(target, selector, calldata.span()).unwrap();
+            call_contract_syscall(target, selector, calldata.span()).unwrap_syscall();
         }
 
         fn unsafe_mint(ref self: ContractState, recipient: ContractAddress, amount: u256) {
             self.erc20.mint(recipient, amount);
+        }
+
+        fn unsafe_burn(ref self: ContractState, account: ContractAddress, amount: u256) {
+            self.erc20.burn(account, amount);
         }
     }
 

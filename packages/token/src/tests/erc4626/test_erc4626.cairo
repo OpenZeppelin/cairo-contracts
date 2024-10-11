@@ -35,6 +35,7 @@ fn VAULT_SYMBOL() -> ByteArray {
 }
 
 const DEFAULT_DECIMALS: u8 = 18;
+const NO_OFFSET_DECIMALS: u8 = 0;
 const OFFSET_DECIMALS: u8 = 1;
 
 fn parse_token(token: u256) -> u256 {
@@ -58,54 +59,67 @@ fn deploy_asset() -> IERC20ReentrantDispatcher {
     IERC20ReentrantDispatcher { contract_address }
 }
 
-fn deploy_vault(
-    asset_address: ContractAddress, initial_supply: u256, recipient: ContractAddress
-) -> ERC4626ABIDispatcher {
+fn deploy_vault_no_offset(asset_address: ContractAddress) -> ERC4626ABIDispatcher {
+    let no_shares = 0_u256;
+
     let mut vault_calldata: Array<felt252> = array![];
     vault_calldata.append_serde(VAULT_NAME());
     vault_calldata.append_serde(VAULT_SYMBOL());
     vault_calldata.append_serde(asset_address);
-    vault_calldata.append_serde(initial_supply);
-    vault_calldata.append_serde(recipient);
+    vault_calldata.append_serde(no_shares);
+    vault_calldata.append_serde(HOLDER());
 
     let contract_address = utils::declare_and_deploy("ERC4626Mock", vault_calldata);
     ERC4626ABIDispatcher { contract_address }
 }
 
-fn setup_initial_state() -> (IERC20ReentrantDispatcher, ERC4626ABIDispatcher) {
-    let mut asset = deploy_asset();
+fn deploy_vault_minted_shares(
+    asset_address: ContractAddress, shares: u256, recipient: ContractAddress
+) -> ERC4626ABIDispatcher {
+    let mut vault_calldata: Array<felt252> = array![];
+    vault_calldata.append_serde(VAULT_NAME());
+    vault_calldata.append_serde(VAULT_SYMBOL());
+    vault_calldata.append_serde(asset_address);
+    vault_calldata.append_serde(shares);
+    vault_calldata.append_serde(recipient);
 
-    let no_amount = 0;
-    let recipient = HOLDER();
-    let mut vault = deploy_vault(asset.contract_address, no_amount, recipient);
-    (asset, vault)
+    let contract_address = utils::declare_and_deploy("ERC4626OffsetMock", vault_calldata);
+    ERC4626ABIDispatcher { contract_address }
 }
 
-// Further testing required for decimals once design is finalized
-#[test]
-fn test_offset_decimals() {
-    let (_, vault) = setup_initial_state();
-
-    let decimals = vault.decimals();
-    assert_eq!(decimals, 19);
+fn deploy_vault(asset_address: ContractAddress) -> ERC4626ABIDispatcher {
+    deploy_vault_minted_shares(asset_address, 0, HOLDER())
 }
 
 //
-// Initial state
+// Metadata
 //
 
 #[test]
 fn test_metadata() {
-    let (asset, vault) = setup_initial_state();
-    let name = vault.name();
-    let symbol = vault.symbol();
-    let decimals = vault.decimals();
-    let asset_address = vault.asset();
+    let asset = deploy_asset();
+    let vault = deploy_vault_no_offset(asset.contract_address);
 
+    let name = vault.name();
     assert_eq!(name, VAULT_NAME());
+
+    let symbol = vault.symbol();
     assert_eq!(symbol, VAULT_SYMBOL());
-    assert_eq!(decimals, DEFAULT_DECIMALS + OFFSET_DECIMALS);
+
+    let decimals = vault.decimals();
+    assert_eq!(decimals, DEFAULT_DECIMALS + NO_OFFSET_DECIMALS);
+
+    let asset_address = vault.asset();
     assert_eq!(asset_address, asset.contract_address);
+}
+
+#[test]
+fn test_decimals_offset() {
+    let asset = deploy_asset();
+    let vault = deploy_vault(asset.contract_address);
+
+    let decimals = vault.decimals();
+    assert_eq!(decimals, DEFAULT_DECIMALS + OFFSET_DECIMALS);
 }
 
 //
@@ -114,10 +128,7 @@ fn test_metadata() {
 
 fn setup_empty() -> (IERC20ReentrantDispatcher, ERC4626ABIDispatcher) {
     let mut asset = deploy_asset();
-
-    let no_amount = 0;
-    let recipient = HOLDER();
-    let mut vault = deploy_vault(asset.contract_address, no_amount, recipient);
+    let mut vault = deploy_vault(asset.contract_address);
 
     // Mint assets to HOLDER and approve vault
     asset.unsafe_mint(HOLDER(), Bounded::MAX / 2); // 50% of max
@@ -262,10 +273,7 @@ fn test_redeem() {
 
 fn setup_inflation_attack() -> (IERC20ReentrantDispatcher, ERC4626ABIDispatcher) {
     let mut asset = deploy_asset();
-
-    let no_amount = 0;
-    let recipient = HOLDER();
-    let mut vault = deploy_vault(asset.contract_address, no_amount, recipient);
+    let mut vault = deploy_vault(asset.contract_address);
 
     // Mint assets to HOLDER and approve vault
     asset.unsafe_mint(HOLDER(), Bounded::MAX / 2); // 50% of max
@@ -449,7 +457,7 @@ fn setup_full_vault() -> (IERC20ReentrantDispatcher, ERC4626ABIDispatcher) {
     let recipient = HOLDER();
 
     // Add 1 token of underlying asset and 100 shares to the vault
-    let mut vault = deploy_vault(asset.contract_address, shares, recipient);
+    let mut vault = deploy_vault_minted_shares(asset.contract_address, shares, recipient);
     asset.unsafe_mint(vault.contract_address, parse_token(1));
 
     // Approve SPENDER
@@ -785,10 +793,7 @@ fn test_full_vault_redeem_unauthorized() {
 
 fn setup_reentrancy() -> (IERC20ReentrantDispatcher, ERC4626ABIDispatcher) {
     let mut asset = deploy_asset();
-
-    let no_shares = 0;
-    let recipient = HOLDER();
-    let mut vault = deploy_vault(asset.contract_address, no_shares, recipient);
+    let mut vault = deploy_vault(asset.contract_address);
 
     let value: u256 = 1_000_000_000_000_000_000;
     asset.unsafe_mint(HOLDER(), value);

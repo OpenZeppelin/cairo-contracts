@@ -1,3 +1,5 @@
+pub mod governor;
+
 #[cfg(test)]
 mod tests;
 

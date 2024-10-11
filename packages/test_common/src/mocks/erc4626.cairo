@@ -1,8 +1,8 @@
 #[starknet::contract]
 pub mod ERC4626Mock {
+    use openzeppelin_token::erc20::extensions::erc4626::DefaultConfig;
     use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component::InternalTrait as ERC4626InternalTrait;
     use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component;
-    use openzeppelin_token::erc20::extensions::erc4626::DefaultConfig;
     use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
 

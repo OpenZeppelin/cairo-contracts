@@ -17,9 +17,7 @@ use openzeppelin_testing::constants::{NAME, SYMBOL, OTHER, RECIPIENT, ZERO, SPEN
 use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_utils::math;
 use openzeppelin_utils::serde::SerializedAppend;
-use snforge_std::{
-    cheat_caller_address, CheatSpan, spy_events, EventSpy
-};
+use snforge_std::{cheat_caller_address, CheatSpan, spy_events, EventSpy};
 use starknet::{ContractAddress, contract_address_const};
 
 fn HOLDER() -> ContractAddress {
@@ -841,13 +839,26 @@ fn test_share_price_with_reentrancy_before_deposit() {
 
     // Check events
     // Reentered events come first because they're called in mock ERC20 `before_update` hook
-    spy.assert_event_transfer(asset.contract_address, asset.contract_address, vault.contract_address, reenter_value);
+    spy
+        .assert_event_transfer(
+            asset.contract_address, asset.contract_address, vault.contract_address, reenter_value
+        );
     spy.assert_event_transfer(vault.contract_address, ZERO(), HOLDER(), shares_for_reenter);
-    spy.assert_event_deposit(vault.contract_address, asset.contract_address, HOLDER(), reenter_value, shares_for_reenter);
+    spy
+        .assert_event_deposit(
+            vault.contract_address,
+            asset.contract_address,
+            HOLDER(),
+            reenter_value,
+            shares_for_reenter
+        );
 
     spy.assert_event_transfer(asset.contract_address, HOLDER(), vault.contract_address, value);
     spy.assert_event_transfer(vault.contract_address, ZERO(), HOLDER(), shares_for_deposit);
-    spy.assert_only_event_deposit(vault.contract_address, HOLDER(), HOLDER(), value, shares_for_deposit);
+    spy
+        .assert_only_event_deposit(
+            vault.contract_address, HOLDER(), HOLDER(), value, shares_for_deposit
+        );
 }
 
 #[test]
@@ -894,7 +905,12 @@ fn test_share_price_with_reentrancy_after_withdraw() {
     // Reentrant withdraw event → uses same price
     spy
         .assert_event_withdraw(
-            vault.contract_address, asset.contract_address, HOLDER(), asset.contract_address, reenter_value, shares_for_reenter
+            vault.contract_address,
+            asset.contract_address,
+            HOLDER(),
+            asset.contract_address,
+            reenter_value,
+            shares_for_reenter
         );
 }
 
@@ -961,7 +977,7 @@ fn test_price_change_during_reentrancy_doesnt_affect_withdraw() {
     spy
         .assert_event_withdraw(
             vault.contract_address, HOLDER(), HOLDER(), HOLDER(), value, shares_before
-    );
+        );
 
     // Check that price is modified after reentrant tx
     let shares_after = vault.preview_withdraw(value);

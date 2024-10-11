@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+- DoubleEndedQueue struct to `openzeppelin_utils` (#)
+
 ### Changed
 
 - Bump scarb to v2.8.4 (#1146)

@@ -181,8 +181,7 @@ pub mod ERC1155Component {
         /// - `from` is not the zero address.
         /// - `to` is not the zero address.
         /// - If `to` refers to a non-account contract, it must implement
-        /// `IERC1155Receiver::on_ERC1155_received`
-        ///   and return the required magic value.
+        /// `IERC1155Receiver::on_ERC1155_received` and return the required magic value.
         ///
         /// Emits a `TransferSingle` event.
         fn safe_transfer_from(
@@ -213,8 +212,7 @@ pub mod ERC1155Component {
         /// - `to` is not the zero address.
         /// - `token_ids` and `values` must have the same length.
         /// - If `to` refers to a non-account contract, it must implement
-        /// `IERC1155Receiver::on_ERC1155_batch_received`
-        ///   and return the acceptance magic value.
+        /// `IERC1155Receiver::on_ERC1155_batch_received` and return the acceptance magic value.
         ///
         /// Emits either a `TransferSingle` or a `TransferBatch` event, depending on the length of
         /// the array arguments.

@@ -11,7 +11,7 @@ This crate provides miscellaneous components and libraries containing utility fu
 === `++utils++`
 
 ```cairo
-use openzeppelin::utils;
+use openzeppelin_utils;
 ```
 
 Module containing core utilities of the library.
@@ -19,78 +19,12 @@ Module containing core utilities of the library.
 [.contract-index]
 .Members
 --
-.Functions
-* xref:#utils-try_selector_with_fallback[`++try_selector_with_fallback(target, selector, fallback, args)++`]
-
-.Traits
-* xref:#utils-UnwrapAndCast[`++UnwrapAndCast++`]
-
 .Inner modules
 * xref:#utils-cryptography[`++cryptography++`]
 * xref:#utils-deployments[`++deployments++`]
 * xref:#utils-math[`++math++`]
-* xref:#utils-selectors[`++selectors++`]
 * xref:#utils-serde[`++serde++`]
 --
-
-[#utils-Functions]
-==== Functions
-
-[.contract-item]
-[[utils-try_selector_with_fallback]]
-==== `[.contract-item-name]#++try_selector_with_fallback++#++(target: ContractAddress, selector: felt252, fallback: felt252, args: Span<felt252>) → SyscallResult<Span<felt252>>++` [.item-kind]#function#
-
-Tries to call a given selector on a given contract, and if it fails, tries to call a fallback selector.
-
-It was designed for falling back to the `camelCase` selector for backward compatibility in the
-case of a failure of the `snake_case` selector.
-
-Returns a `SyscallResult` with the result of the successful call.
-
-Note that:
-
-- If the first call succeeds, the second call is not attempted.
-
-- If the first call fails with an error different than `ENTRYPOINT_NOT_FOUND`, the error is returned
-without falling back to the second selector.
-
-- If the first call fails with `ENTRYPOINT_NOT_FOUND`, the second call is attempted, and if it fails its
-error is returned.
-
-WARNING: The fallback mechanism won't work on live chains (mainnet or testnets) until
-they implement panic handling in their runtime.
-
-[#utils-Traits]
-==== Traits
-
-[.contract-item]
-[[utils-UnwrapAndCast]]
-==== `[.contract-item-name]#++UnwrapAndCast++#` [.item-kind]#trait#
-
-Trait for exposing an `unwrap_and_cast` function to `SyscallResult` objects. This may be useful
-when unwrapping a syscall result to a type implementing the `Serde` trait, and you want to avoid the boilerplate of
-casting and unwrapping the result multiple times.
-
-Usage example:
-
-```cairo
-use openzeppelin::utils::selectors;
-use openzeppelin::utils::UnwrapAndCast;
-
-fn call_and_cast_to_bool(target: ContractAddress, args: Span<felt252>) -> bool {
-    try_selector_with_fallback(
-        target, selectors::has_role, selectors::hasRole, args
-    ).unwrap_and_cast()
-}
-
-fn call_and_cast_to_felt252(target: ContractAddress, args: Span<felt252>) -> felt252 {
-    try_selector_with_fallback(
-        target, selectors::get_role_admin, selectors::getRoleAdmin, args
-    ).unwrap_and_cast()
-}
-```
-
-Note that it can be automatically casted to any type implementing the `Serde` trait.
 
 [#utils-Inner-Modules]
 ==== Inner modules
@@ -99,31 +33,25 @@ Note that it can be automatically casted to any type implementing the `Serde` tr
 [[utils-cryptography]]
 ==== `[.contract-item-name]#++cryptography++#` [.item-kind]#module#
 
-See xref:#cryptography[`openzeppelin::utils::cryptography`].
+See xref:#cryptography[`openzeppelin_utils::cryptography`].
 
 [.contract-item]
 [[utils-deployments]]
 ==== `[.contract-item-name]#++deployments++#` [.item-kind]#module#
 
-See xref:#deployments[`openzeppelin::utils::deployments`].
+See xref:#deployments[`openzeppelin_utils::deployments`].
 
 [.contract-item]
 [[utils-math]]
 ==== `[.contract-item-name]#++math++#` [.item-kind]#module#
 
-See xref:#math[`openzeppelin::utils::math`].
-
-[.contract-item]
-[[utils-selectors]]
-==== `[.contract-item-name]#++selectors++#` [.item-kind]#module#
-
-See xref:#selectors[`openzeppelin::utils::selectors`].
+See xref:#math[`openzeppelin_utils::math`].
 
 [.contract-item]
 [[utils-serde]]
 ==== `[.contract-item-name]#++serde++#` [.item-kind]#module#
 
-See xref:#serde[`openzeppelin::utils::serde`].
+See xref:#serde[`openzeppelin_utils::serde`].
 
 [.contract]
 [[cryptography]]
@@ -132,7 +60,7 @@ See xref:#serde[`openzeppelin::utils::serde`].
 :snip12: https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-12.md[SNIP12]
 
 ```cairo
-use openzeppelin::utils::cryptography;
+use openzeppelin_utils::cryptography;
 ```
 
 Module containing utilities related to cryptography.
@@ -152,13 +80,13 @@ Module containing utilities related to cryptography.
 [[cryptography-nonces]]
 ==== `[.contract-item-name]#++nonces++#` [.item-kind]#module#
 
-See xref:#NoncesComponent[`openzeppelin::utils::cryptography::nonces::NoncesComponent`].
+See xref:#NoncesComponent[`openzeppelin_utils::cryptography::nonces::NoncesComponent`].
 
 [.contract-item]
 [[cryptography-snip12]]
 ==== `[.contract-item-name]#++snip12++#` [.item-kind]#module#
 
-See xref:#snip12[`openzeppelin::utils::cryptography::snip12`].
+See xref:#snip12[`openzeppelin_utils::cryptography::snip12`].
 
 [.contract]
 [[deployments]]
@@ -167,7 +95,7 @@ See xref:#snip12[`openzeppelin::utils::cryptography::snip12`].
 :udc-doc: xref:/udc.adoc[Universal Deployer Contract]
 
 ```cairo
-use openzeppelin::utils::deployments;
+use openzeppelin_utils::deployments;
 ```
 
 Module containing utility functions for calculating contract addresses through {deploy_syscall} and the {udc-doc} (UDC).
@@ -227,7 +155,7 @@ Origin-dependent deployments hash `salt` with `caller_address` (member of {deplo
 === `++math++`
 
 ```cairo
-use openzeppelin::utils::math;
+use openzeppelin_utils::math;
 ```
 
 Module containing math utilities.
@@ -251,24 +179,11 @@ Returns the average of two values. The result is rounded down.
 NOTE: `T` is a generic value matching different numeric implementations.
 
 [.contract]
-[[selectors]]
-=== `++selectors++`
-
-```cairo
-use openzeppelin::utils::selectors;
-```
-
-:selectors: https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.17.0/packages/utils/src/selectors.cairo[selectors.cairo]
-
-Module containing constants matching multiple selectors used through the library.
-To see the full list of selectors, see {selectors}.
-
-[.contract]
 [[serde]]
 === `++serde++`
 
 ```cairo
-use openzeppelin::utils::serde;
+use openzeppelin_utils::serde;
 ```
 
 Module containing utilities related to serialization and deserialization of Cairo data structures.
@@ -293,7 +208,7 @@ implementing the `Serde` trait to a `felt252` buffer.
 Usage example:
 
 ```cairo
-use openzeppelin::utils::serde::SerializedAppend;
+use openzeppelin_utils::serde::SerializedAppend;
 use starknet::ContractAddress;
 
 fn to_calldata(recipient: ContractAddress, amount: u256) -> Array<felt252> {
@@ -314,7 +229,7 @@ that implements the `Serde` trait.
 === `++NoncesComponent++`
 
 ```cairo
-use openzeppelin::utils::cryptography::nonces::NoncesComponent;
+use openzeppelin_utils::cryptography::nonces::NoncesComponent;
 ```
 
 This component provides a simple mechanism for handling incremental
@@ -371,7 +286,7 @@ Same as `use_nonce` but checking that `nonce` is the next valid one for `owner`.
 === `++snip12++`
 
 ```cairo
-use openzeppelin::utils::snip12;
+use openzeppelin_utils::snip12;
 ```
 
 Supports on-chain generation of message hashes compliant with {snip12}.

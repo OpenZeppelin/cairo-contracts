@@ -17,7 +17,7 @@ include::../utils/_common.adoc[]
 === `++ISRC6++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.17.0/packages/account/src/interface.cairo[{github-icon},role=heading-link]
 
 ```cairo
-use openzeppelin::account::interface::ISRC6;
+use openzeppelin_account::interface::ISRC6;
 ```
 
 Interface of the SRC6 Standard Account as defined in the {snip6}.
@@ -74,7 +74,7 @@ Returns the short string `'VALID'` if valid, otherwise it reverts.
 :starknet-curve: https://docs.starknet.io/documentation/architecture_and_concepts/Cryptography/stark-curve/[Starknet curve]
 
 ```cairo
-use openzeppelin::account::AccountComponent;
+use openzeppelin_account::AccountComponent;
 ```
 Account component implementing xref:ISRC6[`ISRC6`] for signatures over the {starknet-curve}.
 
@@ -324,7 +324,7 @@ Emitted when a `public_key` is removed.
 :secp256k1-curve: https://en.bitcoin.it/wiki/Secp256k1[Secp256k1 curve]
 
 ```cairo
-use openzeppelin::account::eth_account::EthAccountComponent;
+use openzeppelin_account::eth_account::EthAccountComponent;
 ```
 Account component implementing xref:ISRC6[`ISRC6`] for signatures over the {secp256k1-curve}.
 
@@ -575,7 +575,7 @@ Emitted when a `public_key` is removed.
 === `++ISRC9_V2++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.17.0/packages/account/src/extensions/src9/interface.cairo[{github-icon},role=heading-link]
 
 ```cairo
-use openzeppelin::account::extensions::src9::ISRC9_V2;
+use openzeppelin_account::extensions::src9::ISRC9_V2;
 ```
 
 Interface of the SRC9 Standard as defined in the {snip9}.
@@ -625,7 +625,7 @@ Get the status of a given nonce. `true` if the nonce is available to use.
 === `++SRC9Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.17.0/packages/account/src/extensions/src9/src9.cairo[{github-icon},role=heading-link]
 
 ```cairo
-use openzeppelin::account::extensions::SRC9Component;
+use openzeppelin_account::extensions::SRC9Component;
 ```
 
 OutsideExecution component implementing xref:ISRC9_V2[`ISRC9_V2`].
@@ -701,7 +701,7 @@ Initializes the account by registering the `ISRC9_V2` interface Id.
 === `++AccountUpgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.17.0/packages/presets/src/account.cairo[{github-icon},role=heading-link]
 
 ```cairo
-use openzeppelin::presets::AccountUpgradeable;
+use openzeppelin_presets::AccountUpgradeable;
 ```
 
 Upgradeable account contract leveraging xref:#AccountComponent[AccountComponent].
@@ -762,7 +762,7 @@ Requirements:
 === `++EthAccountUpgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.17.0/packages/presets/src/eth_account.cairo[{github-icon},role=heading-link]
 
 ```cairo
-use openzeppelin::presets::EthAccountUpgradeable;
+use openzeppelin_presets::EthAccountUpgradeable;
 ```
 
 Upgradeable account contract leveraging xref:#EthAccountComponent[EthAccountComponent].

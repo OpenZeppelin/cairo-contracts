@@ -18,7 +18,7 @@ use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_utils::math;
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{
-    start_cheat_caller_address, cheat_caller_address, CheatSpan, spy_events, EventSpy
+    cheat_caller_address, CheatSpan, spy_events, EventSpy
 };
 use starknet::{ContractAddress, contract_address_const};
 
@@ -91,54 +91,8 @@ fn test_offset_decimals() {
 }
 
 //
-// Reentrancy
+// Initial state
 //
-
-#[test]
-#[ignore]
-fn test_share_price_with_reentrancy_before() {
-    let (asset, vault) = setup_empty();
-
-    let amount = 1_000_000_000_000_000_000;
-    let reenter_amt = 1_000_000_000;
-
-    asset.unsafe_mint(HOLDER(), amount);
-    asset.unsafe_mint(OTHER(), amount);
-
-    let approvers: Span<ContractAddress> = array![HOLDER(), OTHER(), asset.contract_address].span();
-
-    for approver in approvers {
-        cheat_caller_address(asset.contract_address, *approver, CheatSpan::TargetCalls(1));
-        asset.approve(vault.contract_address, Bounded::MAX);
-    };
-    //stop_cheat_caller_address(asset.contract_address);
-
-    // Mint token for deposit
-    asset.unsafe_mint(asset.contract_address, reenter_amt);
-
-    // Schedule reentrancy
-    let mut calldata: Array<felt252> = array![];
-    calldata.append_serde(reenter_amt);
-    calldata.append_serde(HOLDER());
-
-    asset
-        .schedule_reenter(
-            Type::Before, vault.contract_address, selector!("deposit"), calldata.span()
-        );
-
-    // Initial share price
-    start_cheat_caller_address(vault.contract_address, HOLDER());
-
-    let shares_for_deposit = vault.preview_deposit(amount);
-    let _shares_for_reenter = vault.preview_deposit(reenter_amt);
-
-    // Do deposit normally, triggering the hook
-    vault.deposit(amount, HOLDER());
-
-    // Assert prices are kept
-    let shares_after = vault.preview_deposit(amount);
-    assert_eq!(shares_for_deposit, shares_after, "ahhh");
-}
 
 #[test]
 fn test_metadata() {
@@ -823,6 +777,190 @@ fn test_full_vault_redeem_unauthorized() {
     // Unauthorized redeem
     cheat_caller_address(vault.contract_address, OTHER(), CheatSpan::TargetCalls(1));
     vault.redeem(redeem_shares, RECIPIENT(), HOLDER());
+}
+
+//
+// Reentrancy
+//
+
+fn setup_reentrancy() -> (IERC20ReentrantDispatcher, ERC4626ABIDispatcher) {
+    let mut asset = deploy_asset();
+
+    let no_shares = 0;
+    let recipient = HOLDER();
+    let mut vault = deploy_vault(asset.contract_address, no_shares, recipient);
+
+    let value: u256 = 1_000_000_000_000_000_000;
+    asset.unsafe_mint(HOLDER(), value);
+    asset.unsafe_mint(OTHER(), value);
+
+    // Set infinite approvals from HOLDER, OTHER, and asset to vault
+    let approvers: Span<ContractAddress> = array![HOLDER(), OTHER(), asset.contract_address].span();
+    for addr in approvers {
+        cheat_caller_address(asset.contract_address, *addr, CheatSpan::TargetCalls(1));
+        asset.approve(vault.contract_address, Bounded::MAX);
+    };
+
+    (asset, vault)
+}
+
+#[test]
+fn test_share_price_with_reentrancy_before_deposit() {
+    let (asset, vault) = setup_reentrancy();
+
+    let value = 1_000_000_000_000_000_000;
+    let reenter_value = 1_000_000_000;
+
+    asset.unsafe_mint(asset.contract_address, reenter_value);
+
+    // Schedule reentrancy
+    let mut calldata: Array<felt252> = array![];
+    calldata.append_serde(reenter_value);
+    calldata.append_serde(HOLDER());
+    asset
+        .schedule_reenter(
+            Type::Before, vault.contract_address, selector!("deposit"), calldata.span()
+        );
+
+    let shares_for_deposit = vault.preview_deposit(value);
+    let shares_for_reenter = vault.preview_deposit(reenter_value);
+
+    // Deposit
+    let mut spy = spy_events();
+    cheat_caller_address(vault.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
+    vault.deposit(value, HOLDER());
+
+    // Check price is kept
+    let after_deposit = vault.preview_deposit(value);
+    assert_eq!(shares_for_deposit, after_deposit);
+
+    // Check events
+    // Reentered events come first because they're called in mock ERC20 `before_update` hook
+    spy.assert_event_transfer(asset.contract_address, asset.contract_address, vault.contract_address, reenter_value);
+    spy.assert_event_transfer(vault.contract_address, ZERO(), HOLDER(), shares_for_reenter);
+    spy.assert_event_deposit(vault.contract_address, asset.contract_address, HOLDER(), reenter_value, shares_for_reenter);
+
+    spy.assert_event_transfer(asset.contract_address, HOLDER(), vault.contract_address, value);
+    spy.assert_event_transfer(vault.contract_address, ZERO(), HOLDER(), shares_for_deposit);
+    spy.assert_only_event_deposit(vault.contract_address, HOLDER(), HOLDER(), value, shares_for_deposit);
+}
+
+#[test]
+fn test_share_price_with_reentrancy_after_withdraw() {
+    let (asset, vault) = setup_reentrancy();
+
+    let value = 1_000_000_000_000_000_000;
+    let reenter_value = 1_000_000_000;
+
+    // Deposit from HOLDER and OTHER
+    cheat_caller_address(vault.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
+    vault.deposit(value, HOLDER());
+
+    cheat_caller_address(vault.contract_address, OTHER(), CheatSpan::TargetCalls(1));
+    vault.deposit(reenter_value, asset.contract_address);
+
+    // Schedule reentrancy
+    let mut calldata: Array<felt252> = array![];
+    calldata.append_serde(reenter_value);
+    calldata.append_serde(HOLDER());
+    calldata.append_serde(asset.contract_address);
+    asset
+        .schedule_reenter(
+            Type::After, vault.contract_address, selector!("withdraw"), calldata.span()
+        );
+
+    let shares_for_withdraw = vault.preview_withdraw(value);
+    let shares_for_reenter = vault.preview_withdraw(reenter_value);
+
+    // Withdraw
+    let mut spy = spy_events();
+    cheat_caller_address(vault.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
+    vault.withdraw(value, HOLDER(), HOLDER());
+
+    // Check price is kept
+    let after_withdraw = vault.preview_withdraw(value);
+    assert_eq!(shares_for_withdraw, after_withdraw);
+
+    // Main withdraw event
+    spy
+        .assert_event_withdraw(
+            vault.contract_address, HOLDER(), HOLDER(), HOLDER(), value, shares_for_withdraw
+        );
+    // Reentrant withdraw event → uses same price
+    spy
+        .assert_event_withdraw(
+            vault.contract_address, asset.contract_address, HOLDER(), asset.contract_address, reenter_value, shares_for_reenter
+        );
+}
+
+#[test]
+fn test_price_change_during_reentrancy_doesnt_affect_deposit() {
+    let (asset, vault) = setup_reentrancy();
+
+    let value: u256 = 1_000_000_000_000_000_000;
+    let reenter_value: u256 = 1_000_000_000;
+
+    // Schedules a reentrancy from the token contract that messes up the share price
+    let mut calldata: Array<felt252> = array![];
+    calldata.append_serde(vault.contract_address);
+    calldata.append_serde(reenter_value);
+    asset
+        .schedule_reenter(
+            Type::Before, asset.contract_address, selector!("unsafe_mint"), calldata.span()
+        );
+
+    let shares_before = vault.preview_deposit(value);
+
+    // Deposit
+    let mut spy = spy_events();
+    cheat_caller_address(vault.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
+    vault.deposit(value, HOLDER());
+
+    // Check main event to ensure price is as previewed
+    spy.assert_event_deposit(vault.contract_address, HOLDER(), HOLDER(), value, shares_before);
+
+    // Check that price is modified after reentrant tx
+    let shares_after = vault.preview_deposit(value);
+    assert(shares_after < shares_before, 'Mint should change share price');
+}
+
+#[test]
+fn test_price_change_during_reentrancy_doesnt_affect_withdraw() {
+    let (asset, vault) = setup_reentrancy();
+
+    let value: u256 = 1_000_000_000_000_000_000;
+    let reenter_value: u256 = 1_000_000_000;
+
+    cheat_caller_address(vault.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
+    vault.deposit(value, HOLDER());
+    cheat_caller_address(vault.contract_address, OTHER(), CheatSpan::TargetCalls(1));
+    vault.deposit(value, OTHER());
+
+    // Schedules a reentrancy from the token contract that messes up the share price
+    let mut calldata: Array<felt252> = array![];
+    calldata.append_serde(vault.contract_address);
+    calldata.append_serde(reenter_value);
+    asset
+        .schedule_reenter(
+            Type::After, asset.contract_address, selector!("unsafe_burn"), calldata.span()
+        );
+
+    let shares_before = vault.preview_withdraw(value);
+
+    // Withdraw, triggering ERC20 `after_update` hook
+    let mut spy = spy_events();
+    cheat_caller_address(vault.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
+    vault.withdraw(value, HOLDER(), HOLDER());
+
+    // Check main event to ensure price is as previewed
+    spy
+        .assert_event_withdraw(
+            vault.contract_address, HOLDER(), HOLDER(), HOLDER(), value, shares_before
+    );
+
+    // Check that price is modified after reentrant tx
+    let shares_after = vault.preview_withdraw(value);
+    assert(shares_after > shares_before, 'Burn should change share price');
 }
 
 //

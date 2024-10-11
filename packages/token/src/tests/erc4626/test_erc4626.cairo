@@ -42,7 +42,7 @@ fn parse_token(token: u256) -> u256 {
     token * math::power(10, DEFAULT_DECIMALS.into())
 }
 
-fn parse_share(share: u256) -> u256 {
+fn parse_share_offset(share: u256) -> u256 {
     share * math::power(10, DEFAULT_DECIMALS.into() + OFFSET_DECIMALS.into())
 }
 
@@ -157,7 +157,7 @@ fn test_deposit() {
 
     // Check preview == expected shares
     let preview_deposit = vault.preview_deposit(amount);
-    let exp_shares = parse_share(1);
+    let exp_shares = parse_share_offset(1);
     assert_eq!(preview_deposit, exp_shares);
 
     let holder_balance_before = asset.balance_of(HOLDER());
@@ -189,7 +189,7 @@ fn test_mint() {
     assert_eq!(max_mint, Bounded::MAX);
 
     // Check preview mint
-    let preview_mint = vault.preview_mint(parse_share(1));
+    let preview_mint = vault.preview_mint(parse_share_offset(1));
     let exp_assets = parse_token(1);
     assert_eq!(preview_mint, exp_assets);
 
@@ -198,24 +198,24 @@ fn test_mint() {
 
     // Mint
     cheat_caller_address(vault.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
-    vault.mint(parse_share(1), RECIPIENT());
+    vault.mint(parse_share_offset(1), RECIPIENT());
 
     // Check balances
     let holder_balance_after = asset.balance_of(HOLDER());
     assert_eq!(holder_balance_after, holder_balance_before - parse_token(1));
 
     let recipient_shares = vault.balance_of(RECIPIENT());
-    assert_eq!(recipient_shares, parse_share(1));
+    assert_eq!(recipient_shares, parse_share_offset(1));
 
     // Check events
     spy
         .assert_event_transfer(
             asset.contract_address, HOLDER(), vault.contract_address, parse_token(1)
         );
-    spy.assert_event_transfer(vault.contract_address, ZERO(), RECIPIENT(), parse_share(1));
+    spy.assert_event_transfer(vault.contract_address, ZERO(), RECIPIENT(), parse_share_offset(1));
     spy
         .assert_only_event_deposit(
-            vault.contract_address, HOLDER(), RECIPIENT(), parse_token(1), parse_share(1)
+            vault.contract_address, HOLDER(), RECIPIENT(), parse_token(1), parse_share_offset(1)
         );
 }
 
@@ -356,7 +356,7 @@ fn test_inflation_attack_mint() {
     let effective_assets = vault.total_assets() + virtual_assets;
     let effective_shares = vault.total_supply() + virtual_shares;
 
-    let mint_shares = parse_share(1);
+    let mint_shares = parse_share_offset(1);
     let expected_assets = (mint_shares * effective_assets) / effective_shares;
 
     // Check max mint
@@ -379,7 +379,7 @@ fn test_inflation_attack_mint() {
     // Check balances
     assert_expected_assets(asset, HOLDER(), holder_balance_before - expected_assets);
     assert_expected_assets(asset, vault.contract_address, vault_balance_before + expected_assets);
-    assert_expected_shares(vault, RECIPIENT(), parse_share(1));
+    assert_expected_shares(vault, RECIPIENT(), parse_share_offset(1));
 
     // Check events
     spy
@@ -453,7 +453,7 @@ fn test_inflation_attack_redeem() {
 fn setup_full_vault() -> (IERC20ReentrantDispatcher, ERC4626ABIDispatcher) {
     let mut asset = deploy_asset();
 
-    let shares = parse_share(100);
+    let shares = parse_share_offset(100);
     let recipient = HOLDER();
 
     // Add 1 token of underlying asset and 100 shares to the vault
@@ -477,7 +477,7 @@ fn test_full_vault_status() {
     let (_, vault) = setup_full_vault();
 
     let total_supply = vault.total_supply();
-    assert_eq!(total_supply, parse_share(100));
+    assert_eq!(total_supply, parse_share_offset(100));
 
     let total_assets = vault.total_assets();
     assert_eq!(total_assets, parse_token(1));
@@ -544,7 +544,7 @@ fn test_full_vault_mint() {
     let effective_assets = vault.total_assets() + virtual_assets;
     let effective_shares = vault.total_supply() + virtual_shares;
 
-    let mint_shares = parse_share(1);
+    let mint_shares = parse_share_offset(1);
     let expected_assets = (mint_shares * effective_assets) / effective_shares
         + 1; // add `1` for the rounding
 
@@ -568,7 +568,7 @@ fn test_full_vault_mint() {
     // Check balances
     assert_expected_assets(asset, HOLDER(), holder_balance_before - expected_assets);
     assert_expected_assets(asset, vault.contract_address, vault_balance_before + expected_assets);
-    assert_expected_shares(vault, RECIPIENT(), parse_share(1));
+    assert_expected_shares(vault, RECIPIENT(), parse_share_offset(1));
 
     // Check events
     spy
@@ -693,7 +693,7 @@ fn test_full_vault_redeem() {
     let effective_assets = vault.total_assets() + virtual_assets;
     let effective_shares = vault.total_supply() + virtual_shares;
 
-    let redeem_shares = parse_share(100);
+    let redeem_shares = parse_share_offset(100);
     let expected_assets = (redeem_shares * effective_assets) / effective_shares;
 
     // Check max redeem
@@ -740,7 +740,7 @@ fn test_full_vault_redeem_with_approval() {
     let effective_assets = vault.total_assets() + virtual_assets;
     let effective_shares = vault.total_supply() + virtual_shares;
 
-    let redeem_shares = parse_share(100);
+    let redeem_shares = parse_share_offset(100);
     let expected_assets = (redeem_shares * effective_assets) / effective_shares;
 
     // Check max redeem
@@ -780,7 +780,7 @@ fn test_full_vault_redeem_with_approval() {
 #[should_panic(expected: 'ERC20: insufficient allowance')]
 fn test_full_vault_redeem_unauthorized() {
     let (_, vault) = setup_full_vault();
-    let redeem_shares = parse_share(100);
+    let redeem_shares = parse_share_offset(100);
 
     // Unauthorized redeem
     cheat_caller_address(vault.contract_address, OTHER(), CheatSpan::TargetCalls(1));

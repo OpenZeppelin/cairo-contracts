@@ -1,9 +1,9 @@
 use crate::votes::delegation::Delegation;
-use crate::votes::votes::VotingUnitsTrait;
 use crate::votes::votes::VotesComponent::{
     DelegateChanged, DelegateVotesChanged, VotesImpl, InternalImpl,
 };
 use crate::votes::votes::VotesComponent;
+use crate::votes::votes::VotingUnitsTrait;
 use openzeppelin_test_common::mocks::votes::ERC721VotesMock::SNIP12MetadataImpl;
 use openzeppelin_test_common::mocks::votes::{ERC721VotesMock, ERC20VotesMock};
 use openzeppelin_testing as utils;
@@ -141,7 +141,7 @@ fn test_get_past_total_supply_before_checkpoints() {
     start_cheat_block_timestamp_global('ts10');
     trace.push('ts1', 3);
     trace.push('ts2', 5);
-    
+
     assert_eq!(state.get_past_total_supply('ts0'), 0);
 }
 

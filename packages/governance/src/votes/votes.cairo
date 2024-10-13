@@ -9,18 +9,18 @@ use starknet::ContractAddress;
 /// The Votes component provides a flexible system for tracking and delegating voting power.
 /// that is currently implemented for ERC20 and ERC721 tokens. An account can delegate
 /// their voting power to a representative, that will pool delegated voting units from different
-/// delegators and can then use it to vote in decisions. Voting power must be delegated to be counted,
-/// and an account must delegate to itself if it wishes to vote directly without a trusted
+/// delegators and can then use it to vote in decisions. Voting power must be delegated to be
+/// counted, and an account must delegate to itself if it wishes to vote directly without a trusted
 /// representative.
 ///
-/// When integrating the Votes component, the ´VotingUnitsTrait´ must be implemented to get the voting
-/// units for a given account as a function of the implementing contract. For simplicity, this module
-/// already provides two implementations for ERC20 and ERC721 tokens, which will work out of the box
-/// if the respective components are integrated.
+/// When integrating the Votes component, the ´VotingUnitsTrait´ must be implemented to get the
+/// voting units for a given account as a function of the implementing contract. For simplicity,
+/// this module already provides two implementations for ERC20 and ERC721 tokens, which will work
+/// out of the box if the respective components are integrated.
 ///
 /// NOTE: ERC20 and ERC721 tokens implementing this component must call ´transfer_voting_units´
-/// whenever a transfer, mint, or burn operation is performed. Hooks can be leveraged for this purpose,
-/// as shown in the following ERC20 example:
+/// whenever a transfer, mint, or burn operation is performed. Hooks can be leveraged for this
+/// purpose, as shown in the following ERC20 example:
 ///
 /// ```cairo
 /// #[starknet::contract]
@@ -102,8 +102,8 @@ use starknet::ContractAddress;
 #[starknet::component]
 pub mod VotesComponent {
     use core::num::traits::Zero;
-    use crate::votes::interface::IVotes;
     use crate::votes::delegation::Delegation;
+    use crate::votes::interface::IVotes;
     use openzeppelin_account::interface::{ISRC6Dispatcher, ISRC6DispatcherTrait};
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_token::erc20::ERC20Component;
@@ -322,10 +322,7 @@ pub mod VotesComponent {
                 .emit(
                     DelegateChanged { delegator: account, from_delegate, to_delegate: delegatee }
                 );
-            self
-                .move_delegate_votes(
-                    from_delegate, delegatee, self.get_voting_units(account)
-                );
+            self.move_delegate_votes(from_delegate, delegatee, self.get_voting_units(account));
         }
 
         /// Moves delegated votes from one delegate to another.

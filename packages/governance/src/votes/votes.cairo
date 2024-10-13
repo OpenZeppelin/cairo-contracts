@@ -7,7 +7,7 @@ use starknet::ContractAddress;
 /// # Votes Component
 ///
 /// The Votes component provides a flexible system for tracking and delegating voting power.
-/// that is currently implemented for ERC20 and ERC721 tokens. An account can delegate
+/// It is currently implemented for ERC20 and ERC721 tokens. An account can delegate
 /// their voting power to a representative, that will pool delegated voting units from different
 /// delegators and can then use it to vote in decisions. Voting power must be delegated to be
 /// counted, and an account must delegate to itself if it wishes to vote directly without a trusted

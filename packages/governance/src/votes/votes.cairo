@@ -99,6 +99,7 @@ use starknet::ContractAddress;
 ///         self.erc20.initializer("MyToken", "MTK");
 ///     }
 /// }
+/// ```
 #[starknet::component]
 pub mod VotesComponent {
     use core::num::traits::Zero;

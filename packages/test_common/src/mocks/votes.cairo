@@ -12,7 +12,7 @@ pub mod ERC721VotesMock {
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
     component!(path: NoncesComponent, storage: nonces, event: NoncesEvent);
 
-    //Votes
+    // Votes
     #[abi(embed_v0)]
     impl VotesImpl = VotesComponent::VotesImpl<ContractState>;
     impl VotesInternalImpl = VotesComponent::InternalImpl<ContractState>;

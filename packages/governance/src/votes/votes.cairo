@@ -6,21 +6,104 @@ use starknet::ContractAddress;
 
 /// # Votes Component
 ///
-/// The Votes component provides a flexible system for tracking voting power and delegation
-/// that is currently implemented for ERC20 and ERC721 tokens. It allows accounts to delegate
-/// their voting power to a representative, who can then use the pooled voting power in
-/// governance decisions. Voting power must be delegated to be counted, and an account can
-/// delegate to itself if it wishes to vote directly.
+/// The Votes component provides a flexible system for tracking and delegating voting power.
+/// that is currently implemented for ERC20 and ERC721 tokens. An account can delegate
+/// their voting power to a representative, that will pool delegated voting units from different
+/// delegators and can then use it to vote in decisions. Voting power must be delegated to be counted,
+/// and an account must delegate to itself if it wishes to vote directly without a trusted
+/// representative.
 ///
-/// This component offers a unified interface for voting mechanisms across ERC20 and ERC721
-/// token standards, with the potential to be extended to other token standards in the future.
-/// It's important to note that only one token implementation (either ERC20 or ERC721) should
-/// be used at a time to ensure consistent voting power calculations.
+/// When integrating the Votes component, the ´VotingUnitsTrait´ must be implemented to get the voting
+/// units for a given account as a function of the implementing contract. For simplicity, this module
+/// already provides two implementations for ERC20 and ERC721 tokens, which will work out of the box
+/// if the respective components are integrated.
+///
+/// NOTE: ERC20 and ERC721 tokens implementing this component must call ´transfer_voting_units´
+/// whenever a transfer, mint, or burn operation is performed. Hooks can be leveraged for this purpose,
+/// as shown in the following ERC20 example:
+///
+/// ```cairo
+/// #[starknet::contract]
+/// pub mod ERC20VotesContract {
+///     use openzeppelin_governance::votes::VotesComponent;
+///     use openzeppelin_token::erc20::ERC20Component;
+///     use openzeppelin_utils::cryptography::nonces::NoncesComponent;
+///     use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
+///     use starknet::ContractAddress;
+///
+///     component!(path: VotesComponent, storage: erc20_votes, event: ERC20VotesEvent);
+///     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
+///     component!(path: NoncesComponent, storage: nonces, event: NoncesEvent);
+///
+///     #[abi(embed_v0)]
+///     impl VotesImpl = VotesComponent::VotesImpl<ContractState>;
+///     impl VotesInternalImpl = VotesComponent::InternalImpl<ContractState>;
+///
+///     #[abi(embed_v0)]
+///     impl ERC20MixinImpl = ERC20Component::ERC20MixinImpl<ContractState>;
+///     impl ERC20InternalImpl = ERC20Component::InternalImpl<ContractState>;
+///
+///     #[abi(embed_v0)]
+///     impl NoncesImpl = NoncesComponent::NoncesImpl<ContractState>;
+///
+///     #[storage]
+///     pub struct Storage {
+///         #[substorage(v0)]
+///         pub erc20_votes: VotesComponent::Storage,
+///         #[substorage(v0)]
+///         pub erc20: ERC20Component::Storage,
+///         #[substorage(v0)]
+///         pub nonces: NoncesComponent::Storage
+///     }
+///
+///     #[event]
+///     #[derive(Drop, starknet::Event)]
+///     enum Event {
+///         #[flat]
+///         ERC20VotesEvent: VotesComponent::Event,
+///         #[flat]
+///         ERC20Event: ERC20Component::Event,
+///         #[flat]
+///         NoncesEvent: NoncesComponent::Event
+///     }
+///
+///     pub impl SNIP12MetadataImpl of SNIP12Metadata {
+///         fn name() -> felt252 {
+///             'DAPP_NAME'
+///         }
+///         fn version() -> felt252 {
+///             'DAPP_VERSION'
+///         }
+///     }
+///
+///     impl ERC20VotesHooksImpl<
+///         TContractState,
+///         impl Votes: VotesComponent::HasComponent<TContractState>,
+///         impl HasComponent: ERC20Component::HasComponent<TContractState>,
+///         +NoncesComponent::HasComponent<TContractState>,
+///         +Drop<TContractState>
+///     > of ERC20Component::ERC20HooksTrait<TContractState> {
+///         fn after_update(
+///             ref self: ERC20Component::ComponentState<TContractState>,
+///             from: ContractAddress,
+///             recipient: ContractAddress,
+///             amount: u256
+///         ) {
+///             let mut votes_component = get_dep_component_mut!(ref self, Votes);
+///             votes_component.transfer_voting_units(from, recipient, amount);
+///         }
+///     }
+///
+///     #[constructor]
+///     fn constructor(ref self: ContractState) {
+///         self.erc20.initializer("MyToken", "MTK");
+///     }
+/// }
 #[starknet::component]
 pub mod VotesComponent {
     use core::num::traits::Zero;
     use crate::votes::interface::IVotes;
-    use crate::votes::utils::Delegation;
+    use crate::votes::delegation::Delegation;
     use openzeppelin_account::interface::{ISRC6Dispatcher, ISRC6DispatcherTrait};
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_token::erc20::ERC20Component;
@@ -32,12 +115,12 @@ pub mod VotesComponent {
     use openzeppelin_utils::nonces::NoncesComponent;
     use openzeppelin_utils::structs::checkpoint::{Trace, TraceTrait};
     use starknet::storage::{Map, StoragePathEntry, StorageMapReadAccess, StorageMapWriteAccess};
-    use super::{TokenVotesTrait, ContractAddress};
+    use super::{VotingUnitsTrait, ContractAddress};
 
     #[storage]
     pub struct Storage {
-        pub Votes_delegatee: Map::<ContractAddress, ContractAddress>,
-        pub Votes_delegate_checkpoints: Map::<ContractAddress, Trace>,
+        pub Votes_delegatee: Map<ContractAddress, ContractAddress>,
+        pub Votes_delegate_checkpoints: Map<ContractAddress, Trace>,
         pub Votes_total_checkpoints: Trace,
     }
 
@@ -49,6 +132,7 @@ pub mod VotesComponent {
     }
 
     #[derive(Drop, PartialEq, starknet::Event)]
+    /// Emitted when `delegator` delegates their votes from `from_delegate` to `to_delegate`.
     pub struct DelegateChanged {
         #[key]
         pub delegator: ContractAddress,
@@ -58,6 +142,7 @@ pub mod VotesComponent {
         pub to_delegate: ContractAddress
     }
 
+    /// Emitted when `delegate` votes are updated from `previous_votes` to `new_votes`.
     #[derive(Drop, PartialEq, starknet::Event)]
     pub struct DelegateVotesChanged {
         #[key]
@@ -77,7 +162,7 @@ pub mod VotesComponent {
         TContractState,
         +HasComponent<TContractState>,
         impl Nonces: NoncesComponent::HasComponent<TContractState>,
-        +TokenVotesTrait<ComponentState<TContractState>>,
+        +VotingUnitsTrait<ComponentState<TContractState>>,
         +SNIP12Metadata,
         +Drop<TContractState>
     > of IVotes<ComponentState<TContractState>> {
@@ -159,7 +244,7 @@ pub mod VotesComponent {
             let is_valid_signature_felt = ISRC6Dispatcher { contract_address: delegator }
                 .is_valid_signature(hash, signature);
 
-            // Check either 'VALID' or True for backwards compatibility.
+            // Check either 'VALID' or true for backwards compatibility.
             let is_valid_signature = is_valid_signature_felt == starknet::VALIDATED
                 || is_valid_signature_felt == 1;
 
@@ -181,7 +266,7 @@ pub mod VotesComponent {
         impl ERC721: ERC721Component::HasComponent<TContractState>,
         +ERC721Component::ERC721HooksTrait<TContractState>,
         +Drop<TContractState>
-    > of TokenVotesTrait<ComponentState<TContractState>> {
+    > of VotingUnitsTrait<ComponentState<TContractState>> {
         /// Returns the number of voting units for a given account.
         ///
         /// This implementation is specific to ERC721 tokens, where each token
@@ -200,7 +285,7 @@ pub mod VotesComponent {
         +HasComponent<TContractState>,
         impl ERC20: ERC20Component::HasComponent<TContractState>,
         +ERC20Component::ERC20HooksTrait<TContractState>
-    > of TokenVotesTrait<ComponentState<TContractState>> {
+    > of VotingUnitsTrait<ComponentState<TContractState>> {
         /// Returns the number of voting units for a given account.
         ///
         /// This implementation is specific to ERC20 tokens, where the balance
@@ -217,7 +302,7 @@ pub mod VotesComponent {
     pub impl InternalImpl<
         TContractState,
         +HasComponent<TContractState>,
-        impl TokenTrait: TokenVotesTrait<ComponentState<TContractState>>,
+        +VotingUnitsTrait<ComponentState<TContractState>>,
         +NoncesComponent::HasComponent<TContractState>,
         +SNIP12Metadata,
         +Drop<TContractState>
@@ -239,7 +324,7 @@ pub mod VotesComponent {
                 );
             self
                 .move_delegate_votes(
-                    from_delegate, delegatee, TokenTrait::get_voting_units(@self, account)
+                    from_delegate, delegatee, self.get_voting_units(account)
                 );
         }
 
@@ -296,6 +381,6 @@ pub mod VotesComponent {
 }
 
 /// Common trait for tokens used for voting(e.g. `ERC721Votes` or `ERC20Votes`)
-pub trait TokenVotesTrait<TState> {
+pub trait VotingUnitsTrait<TState> {
     fn get_voting_units(self: @TState, account: ContractAddress) -> u256;
 }

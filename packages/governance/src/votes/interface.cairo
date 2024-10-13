@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts for Cairo v0.17.0 (governance/votes/interface.cairo)
+
 use starknet::ContractAddress;
 
 /// Common interface for Votes-enabled contracts.
@@ -33,4 +36,3 @@ pub trait IVotes<TState> {
         signature: Array<felt252>
     );
 }
-

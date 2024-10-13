@@ -272,6 +272,10 @@ pub mod VotesComponent {
         /// This implementation is specific to ERC721 tokens, where each token
         /// represents one voting unit. The function returns the balance of
         /// ERC721 tokens for the specified account.
+        /// ///
+        /// WARNING: This implementation assumes tokens map to voting units 1:1.
+        /// Any deviation from this formula when transferring voting units (e.g. by using hooks)
+        /// may compromise the internal vote accounting.
         fn get_voting_units(
             self: @ComponentState<TContractState>, account: ContractAddress
         ) -> u256 {
@@ -290,6 +294,10 @@ pub mod VotesComponent {
         ///
         /// This implementation is specific to ERC20 tokens, where the balance
         /// of tokens directly represents the number of voting units.
+        ///
+        /// WARNING: This implementation assumes tokens map to voting units 1:1.
+        /// Any deviation from this formula when transferring voting units (e.g. by using hooks)
+        /// may compromise the internal vote accounting.
         fn get_voting_units(
             self: @ComponentState<TContractState>, account: ContractAddress
         ) -> u256 {
@@ -377,7 +385,17 @@ pub mod VotesComponent {
     }
 }
 
-/// Common trait for tokens used for voting(e.g. `ERC721Votes` or `ERC20Votes`)
+/// A trait that must be implemented when integrating {VotesComponent} into a contract. It
+/// offers a mechanism to retrieve the number of voting units for a given account at the current
+/// time.
 pub trait VotingUnitsTrait<TState> {
+    /// Returns the number of voting units for a given account. For ERC20, this is typically the
+    /// token balance. For ERC721, this is typically the number of tokens owned.
+    ///
+    /// WARNING: While any formula can be used as a measure of voting units, the internal vote
+    /// accounting of the contract may be compromised if voting units are transferred in any
+    /// external flow by following a different formula. For example, when implementing the hook for
+    /// ERC20, the number of voting units transferred should match the formula given by the
+    /// `get_voting_units` implementation.
     fn get_voting_units(self: @TState, account: ContractAddress) -> u256;
 }

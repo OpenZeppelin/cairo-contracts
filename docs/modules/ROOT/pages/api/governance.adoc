@@ -672,7 +672,6 @@ Delegates votes from the sender to `delegatee`.
 
 Delegates votes from `delegator` to `delegatee`.
 
-
 [.contract]
 [[VotesComponent]]
 === `++VotesComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.17.0/packages/governance/src/votes/votes.cairo[{github-icon},role=heading-link]
@@ -840,7 +839,7 @@ pub trait VotingUnitsTrait<TState> {
 }
 ```
 
-This trait must be implemented for tokens that want to use the VotesComponent. It is already implemented for ERC20 and ERC721.
+A trait that must be implemented when integrating {VotesComponent} into a contract. It offers a mechanism to retrieve the number of voting units for a given account at the current time.
 
 [.contract-index]
 .Functions
@@ -848,7 +847,7 @@ This trait must be implemented for tokens that want to use the VotesComponent. I
 * xref:#VotingUnitsTrait-get_voting_units[`++get_voting_units(self, account)++`]
 --
 
-[#TokenVotesTrait-Functions]
+[#VotingUnitsTrait-Functions]
 ==== Functions
 
 [.contract-item]
@@ -856,3 +855,8 @@ This trait must be implemented for tokens that want to use the VotesComponent. I
 ==== `[.contract-item-name]#++get_voting_units++#++(self: @TState, account: ContractAddress) → u256++` [.item-kind]#external#
 
 Returns the number of voting units for a given account. For ERC20, this is typically the token balance. For ERC721, this is typically the number of tokens owned.
+
+WARNING: While any formula can be used as a measure of voting units, the internal vote accounting of the contract may be
+compromised if voting units are transferred in any external flow by following a different formula. +
+For example, when implementing the hook for ERC20, the number of voting units transferred should match the formula given by the
+`get_voting_units` implementation.

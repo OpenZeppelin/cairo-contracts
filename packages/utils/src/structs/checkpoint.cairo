@@ -17,7 +17,7 @@ pub struct Trace {
 }
 
 /// Generic checkpoint representation.
-#[derive(Copy, Drop, Serde)]
+#[derive(Copy, Drop, Serde, Debug, PartialEq)]
 pub struct Checkpoint {
     pub key: u64,
     pub value: u256
@@ -106,7 +106,7 @@ pub impl TraceImpl of TraceTrait {
 
     /// Returns the checkpoint at given position.
     fn at(self: StoragePath<Trace>, pos: u64) -> Checkpoint {
-        assert(pos < self.length(), 'Array overflow');
+        assert(pos < self.length(), 'Vec overflow');
         self.checkpoints[pos].read()
     }
 }

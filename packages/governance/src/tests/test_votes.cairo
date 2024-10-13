@@ -15,7 +15,7 @@ use openzeppelin_token::erc721::ERC721Component::{
 };
 use openzeppelin_token::erc721::ERC721Component::{ERC721Impl, ERC721CamelOnlyImpl};
 use openzeppelin_utils::cryptography::snip12::OffchainMessageHash;
-use openzeppelin_utils::structs::checkpoint::TraceTrait;
+use openzeppelin_utils::structs::checkpoint::{Checkpoint, TraceTrait};
 use snforge_std::signature::stark_curve::{StarkCurveKeyPairImpl, StarkCurveSignerImpl};
 use snforge_std::{
     start_cheat_block_timestamp_global, start_cheat_caller_address, spy_events, test_address,
@@ -340,6 +340,37 @@ fn test_delegate_by_sig_reused_signature() {
     state.delegate_by_sig(delegator, delegatee, nonce, expiry, array![r, s]);
 }
 
+#[test]
+fn test_num_checkpoints() {
+    let mut state = setup_erc721_votes();
+    let mut trace = state.Votes_delegate_checkpoints.entry(DELEGATOR());
+
+    start_cheat_block_timestamp_global('ts10');
+
+    trace.push('ts1', 3);
+    trace.push('ts2', 5);
+    trace.push('ts3', 7);
+
+    assert_eq!(state.num_checkpoints(DELEGATOR()), 3);
+    assert_eq!(state.num_checkpoints(OTHER()), 0);
+}
+
+#[test]
+fn test_checkpoints() {
+    let mut state = setup_erc721_votes();
+    let mut trace = state.Votes_delegate_checkpoints.entry(DELEGATOR());
+
+    start_cheat_block_timestamp_global('ts10');
+
+    trace.push('ts1', 3);
+    trace.push('ts2', 5);
+    trace.push('ts3', 7);
+
+    assert_eq!(state.checkpoints(DELEGATOR(), 0), Checkpoint { key: 'ts1', value: 3 });
+    assert_eq!(state.checkpoints(DELEGATOR(), 1), Checkpoint { key: 'ts2', value: 5 });
+    assert_eq!(state.checkpoints(DELEGATOR(), 2), Checkpoint { key: 'ts3', value: 7 });
+}
+
 //
 // Tests specific to ERC721Votes and ERC20Votes
 //
@@ -414,6 +445,18 @@ fn test_erc721_burn_updates_votes() {
     start_cheat_block_timestamp_global('ts2');
     assert_eq!(state.get_votes(DELEGATOR()), ERC721_INITIAL_MINT - burn_amount);
     assert_eq!(state.get_past_total_supply('ts1'), ERC721_INITIAL_MINT - burn_amount);
+}
+
+#[test]
+fn test_erc_721_get_total_supply() {
+    let state = setup_erc721_votes();
+    assert_eq!(state.get_total_supply(), ERC721_INITIAL_MINT);
+}
+
+#[test]
+fn test_erc_20_get_total_supply() {
+    let state = setup_erc20_votes();
+    assert_eq!(state.get_total_supply(), SUPPLY);
 }
 
 //

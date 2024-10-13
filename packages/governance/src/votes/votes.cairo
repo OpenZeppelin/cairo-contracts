@@ -114,7 +114,7 @@ pub mod VotesComponent {
     use openzeppelin_utils::cryptography::snip12::{OffchainMessageHash, SNIP12Metadata};
     use openzeppelin_utils::nonces::NoncesComponent::InternalTrait as NoncesInternalTrait;
     use openzeppelin_utils::nonces::NoncesComponent;
-    use openzeppelin_utils::structs::checkpoint::{Trace, TraceTrait};
+    use openzeppelin_utils::structs::checkpoint::{Checkpoint, Trace, TraceTrait};
     use starknet::storage::{Map, StoragePathEntry, StorageMapReadAccess, StorageMapWriteAccess};
     use super::{VotingUnitsTrait, ContractAddress};
 
@@ -316,6 +316,11 @@ pub mod VotesComponent {
         +SNIP12Metadata,
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
+        /// Returns the current total supply of votes.
+        fn get_total_supply(self: @ComponentState<TContractState>) -> u256 {
+            self.Votes_total_checkpoints.deref().latest()
+        }
+
         /// Delegates all of `account`'s voting units to `delegatee`.
         ///
         /// Emits a `DelegateChanged` event.
@@ -382,6 +387,18 @@ pub mod VotesComponent {
                 trace.push(block_timestamp, trace.into().latest() - amount);
             }
             self.move_delegate_votes(self.delegates(from), self.delegates(to), amount);
+        }
+
+        /// Returns the number of checkpoints for `account`.
+        fn num_checkpoints(self: @ComponentState<TContractState>, account: ContractAddress) -> u64 {
+            self.Votes_delegate_checkpoints.entry(account).length()
+        }
+
+        /// Returns the `pos`-th checkpoint for `account`.
+        fn checkpoints(
+            self: @ComponentState<TContractState>, account: ContractAddress, pos: u64
+        ) -> Checkpoint {
+            self.Votes_delegate_checkpoints.entry(account).at(pos)
         }
     }
 }

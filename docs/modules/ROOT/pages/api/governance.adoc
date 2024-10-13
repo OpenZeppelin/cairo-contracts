@@ -606,7 +606,7 @@ Emitted when the minimum delay for future operations is modified.
 
 == Votes
 
-The `VotesComponent` provides a flexible system for tracking voting power and delegation. This system allows users to delegate their voting power to other addresses, enabling more active participation in governance.
+The `VotesComponent` provides a flexible system for tracking and delegating voting power. This system allows users to delegate their voting power to other addresses, enabling more active participation in governance.
 
 [.contract]
 [[IVotes]]
@@ -707,6 +707,18 @@ NOTE: When using this module, your contract must implement the {VotingUnitsTrait
 * xref:#VotesComponent-move_delegate_votes[`++move_delegate_votes(self, from, to, amount)++`]
 * xref:#VotesComponent-transfer_voting_units[`++transfer_voting_units(self, from, to, amount)++`]
 --
+
+[.contract-index]
+.VotingUnitsTrait implementations
+--
+.ERC20VotesImpl
+* xref:#VotesComponent-get_voting_units[`++get_voting_units(self, account)++`]
+
+.ERC721VotesImpl
+* xref:#VotesComponent-get_voting_units[`++get_voting_units(self, account)++`]
+--
+NOTE: For simplicity, this module already provides two implementations for `ERC20` and `ERC721` tokens, which will work out of the box if the respective components are integrated. +
+You can read more about the `VotingUnitsTrait` in the {VotingUnitsTrait} section.
 
 [.contract-index]
 .Events

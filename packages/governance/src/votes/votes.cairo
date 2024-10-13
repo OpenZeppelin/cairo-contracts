@@ -260,6 +260,28 @@ pub mod VotesComponent {
     // Internal
     //
 
+    impl ERC20VotesImpl<
+        TContractState,
+        +HasComponent<TContractState>,
+        impl ERC20: ERC20Component::HasComponent<TContractState>,
+        +ERC20Component::ERC20HooksTrait<TContractState>
+    > of VotingUnitsTrait<ComponentState<TContractState>> {
+        /// Returns the number of voting units for a given account.
+        ///
+        /// This implementation is specific to ERC20 tokens, where the balance
+        /// of tokens directly represents the number of voting units.
+        ///
+        /// WARNING: This implementation assumes tokens map to voting units 1:1.
+        /// Any deviation from this formula when transferring voting units (e.g. by using hooks)
+        /// may compromise the internal vote accounting.
+        fn get_voting_units(
+            self: @ComponentState<TContractState>, account: ContractAddress
+        ) -> u256 {
+            let erc20_component = get_dep_component!(self, ERC20);
+            erc20_component.balance_of(account)
+        }
+    }
+
     impl ERC721VotesImpl<
         TContractState,
         +HasComponent<TContractState>,
@@ -282,28 +304,6 @@ pub mod VotesComponent {
         ) -> u256 {
             let erc721_component = get_dep_component!(self, ERC721);
             erc721_component.balance_of(account).into()
-        }
-    }
-
-    impl ERC20VotesImpl<
-        TContractState,
-        +HasComponent<TContractState>,
-        impl ERC20: ERC20Component::HasComponent<TContractState>,
-        +ERC20Component::ERC20HooksTrait<TContractState>
-    > of VotingUnitsTrait<ComponentState<TContractState>> {
-        /// Returns the number of voting units for a given account.
-        ///
-        /// This implementation is specific to ERC20 tokens, where the balance
-        /// of tokens directly represents the number of voting units.
-        ///
-        /// WARNING: This implementation assumes tokens map to voting units 1:1.
-        /// Any deviation from this formula when transferring voting units (e.g. by using hooks)
-        /// may compromise the internal vote accounting.
-        fn get_voting_units(
-            self: @ComponentState<TContractState>, account: ContractAddress
-        ) -> u256 {
-            let erc20_component = get_dep_component!(self, ERC20);
-            erc20_component.balance_of(account)
         }
     }
 

@@ -7,7 +7,7 @@ use crate::votes::votes::VotingUnitsTrait;
 use openzeppelin_test_common::mocks::votes::ERC721VotesMock::SNIP12MetadataImpl;
 use openzeppelin_test_common::mocks::votes::{ERC721VotesMock, ERC20VotesMock};
 use openzeppelin_testing as utils;
-use openzeppelin_testing::constants::{SUPPLY, ZERO, DELEGATOR, DELEGATEE, OTHER};
+use openzeppelin_testing::constants::{SUPPLY, ZERO, DELEGATOR, DELEGATEE, OTHER, RECIPIENT};
 use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_token::erc20::ERC20Component::InternalTrait;
 use openzeppelin_token::erc721::ERC721Component::{
@@ -18,11 +18,12 @@ use openzeppelin_utils::cryptography::snip12::OffchainMessageHash;
 use openzeppelin_utils::structs::checkpoint::TraceTrait;
 use snforge_std::signature::stark_curve::{StarkCurveKeyPairImpl, StarkCurveSignerImpl};
 use snforge_std::{
-    start_cheat_block_timestamp_global, start_cheat_caller_address, spy_events, test_address
+    start_cheat_block_timestamp_global, start_cheat_caller_address, spy_events, test_address,
+    start_cheat_chain_id_global
 };
 use snforge_std::{EventSpy};
-use starknet::ContractAddress;
 use starknet::storage::StoragePathEntry;
+use starknet::{ContractAddress, contract_address_const};
 
 const ERC721_INITIAL_MINT: u256 = 10;
 
@@ -228,6 +229,33 @@ fn test_delegate_by_sig() {
 }
 
 #[test]
+fn test_delegate_by_sig_hash_generation() {
+    start_cheat_chain_id_global('SN_TEST');
+
+    let nonce = 0;
+    let expiry = 'ts2';
+    let delegator = contract_address_const::<
+        0x70b0526a4bfbc9ca717c96aeb5a8afac85181f4585662273668928585a0d628
+    >();
+    let delegatee = RECIPIENT();
+    let delegation = Delegation { delegatee, nonce, expiry };
+
+    let hash = delegation.get_message_hash(delegator);
+
+    // This hash was computed using starknet js sdk from the following values:
+    // - name: 'DAPP_NAME'
+    // - version: 'DAPP_VERSION'
+    // - chainId: 'SN_TEST'
+    // - account: 0x70b0526a4bfbc9ca717c96aeb5a8afac85181f4585662273668928585a0d628
+    // - delegatee: 'RECIPIENT'
+    // - nonce: 0
+    // - expiry: 'ts2'
+    // - revision: '1'
+    let expected_hash = 0x314bd38b22b62d576691d8dafd9f8ea0601329ebe686bc64ca28e4d8821d5a0;
+    assert_eq!(hash, expected_hash);
+}
+
+#[test]
 #[should_panic(expected: ('Votes: expired signature',))]
 fn test_delegate_by_sig_past_expiry() {
     start_cheat_block_timestamp_global('ts5');
@@ -268,6 +296,50 @@ fn test_delegate_by_sig_invalid_signature() {
     state.delegate_by_sig(delegator, delegatee, nonce, expiry, array![r + 1, s]);
 }
 
+#[test]
+#[should_panic(expected: ('Votes: invalid signature',))]
+fn test_delegate_by_sig_bad_delegatee() {
+    let mut state = setup_erc721_votes();
+    let key_pair = StarkCurveKeyPairImpl::generate();
+    let account = setup_account(key_pair.public_key);
+
+    let nonce = 0;
+    let expiry = 'ts2';
+    let delegator = account;
+    let delegatee = DELEGATEE();
+    let bad_delegatee = contract_address_const::<0x1234>();
+    let delegation = Delegation { delegatee, nonce, expiry };
+    let msg_hash = delegation.get_message_hash(delegator);
+    let (r, s) = key_pair.sign(msg_hash).unwrap();
+
+    start_cheat_block_timestamp_global('ts1');
+    // Use a different delegatee than the one signed for
+    state.delegate_by_sig(delegator, bad_delegatee, nonce, expiry, array![r, s]);
+}
+
+#[test]
+#[should_panic(expected: ('Nonces: invalid nonce',))]
+fn test_delegate_by_sig_reused_signature() {
+    let mut state = setup_erc721_votes();
+    let key_pair = StarkCurveKeyPairImpl::generate();
+    let account = setup_account(key_pair.public_key);
+
+    let nonce = 0;
+    let expiry = 'ts2';
+    let delegator = account;
+    let delegatee = DELEGATEE();
+    let delegation = Delegation { delegatee, nonce, expiry };
+    let msg_hash = delegation.get_message_hash(delegator);
+    let (r, s) = key_pair.sign(msg_hash).unwrap();
+
+    start_cheat_block_timestamp_global('ts1');
+    // First delegation (should succeed)
+    state.delegate_by_sig(delegator, delegatee, nonce, expiry, array![r, s]);
+
+    // Attempt to reuse the same signature (should fail)
+    state.delegate_by_sig(delegator, delegatee, nonce, expiry, array![r, s]);
+}
+
 //
 // Tests specific to ERC721Votes and ERC20Votes
 //
@@ -298,12 +370,17 @@ fn test_erc20_burn_updates_votes() {
 
     state.delegate(DELEGATOR());
 
-    // Burn some tokens
+    // Set spy and burn some tokens
+    let mut spy = spy_events();
     let burn_amount = 1000;
     mock_state.erc20.burn(DELEGATOR(), burn_amount);
 
     // We need to move the timestamp forward to be able to call get_past_total_supply
     start_cheat_block_timestamp_global('ts2');
+    spy
+        .assert_event_delegate_votes_changed(
+            contract_address, DELEGATOR(), SUPPLY, SUPPLY - burn_amount
+        );
     assert_eq!(state.get_votes(DELEGATOR()), SUPPLY - burn_amount);
     assert_eq!(state.get_past_total_supply('ts1'), SUPPLY - burn_amount);
 }
@@ -318,11 +395,20 @@ fn test_erc721_burn_updates_votes() {
 
     state.delegate(DELEGATOR());
 
-    // Burn some tokens
+    // Set spy and burn some tokens
+    let mut spy = spy_events();
     let burn_amount = 3;
-    for i in 0..burn_amount {
-        mock_state.erc721.burn(i);
-    };
+    for i in 0
+        ..burn_amount {
+            mock_state.erc721.burn(i);
+            spy
+                .assert_event_delegate_votes_changed(
+                    contract_address,
+                    DELEGATOR(),
+                    ERC721_INITIAL_MINT - i,
+                    ERC721_INITIAL_MINT - i - 1
+                );
+        };
 
     // We need to move the timestamp forward to be able to call get_past_total_supply
     start_cheat_block_timestamp_global('ts2');
@@ -384,4 +470,3 @@ impl VotesSpyHelpersImpl of VotesSpyHelpers {
         self.assert_no_events_left_from(contract);
     }
 }
-

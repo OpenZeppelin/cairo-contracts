@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed (Breaking)
 
 - Remove `ERC20Votes` component in favor of `VotesComponent` (#1114)
-  - `Trace` now uses `Vec`instead of `StorageArray`and because of that it is now a `Storage Node` struct
+  - `Trace` is now declared as a `storage_node` and now uses `Vec` instead of `StorageArray`.
 - Remove `StorageArray` from `openzeppelin_utils` (#1114)
 - Bump snforge to 0.31.0
 - Remove openzeppelin_utils::selectors (#1163)

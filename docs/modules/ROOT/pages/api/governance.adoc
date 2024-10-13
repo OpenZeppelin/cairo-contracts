@@ -8,6 +8,7 @@
 :DelegateChanged: xref:VotesComponent-DelegateChanged[DelegateChanged]
 :DelegateVotesChanged: xref:VotesComponent-DelegateVotesChanged[DelegateVotesChanged]
 :VotingUnitsTrait: xref:VotingUnitsTrait[VotingUnitsTrait]
+:VotesComponent: xref:VotesComponent[VotesComponent]
 
 = Governance
 

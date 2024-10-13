@@ -222,7 +222,8 @@ the {delegate} function directly, or by providing a signature to be used with
 
 === Usage
 
-When integrating the Votes component, the `VotingUnitsTrait` must be implemented to get the voting units for a given account as a function of the implementing contract. For simplicity, this module already provides two implementations for ERC20 and ERC721 tokens, which will work out of the box if the respective components are integrated. 
+When integrating the Votes component, the `VotingUnitsTrait` must be implemented to get the voting units for a given account as a function of the implementing contract. +
+For simplicity, this module already provides two implementations for ERC20 and ERC721 tokens, which will work out of the box if the respective components are integrated. +
 Additionally, you must implement the {nonces-component} and the {snip12-metadata} trait to enable delegation by signatures.
 
 Here's an example of how to structure a simple ERC20Votes contract:

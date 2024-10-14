@@ -8,8 +8,8 @@
 :delegate_by_sig: xref:api/governance.adoc#VotesComponent-delegate_by_sig[delegate_by_sig]
 :voting_units_trait: xref:api/governance.adoc#VotingUnitsTrait[VotingUnitsTrait]
 :votes-usage: xref:../governance.adoc#usage_2[usage]
-:nonces-component: xref:api/utils.adoc#NoncesComponent[NoncesComponent]
-:snip12-metadata: xref:api/utils.adoc#SNIP12Metadata[SNIP12Metadata]
+:nonces-component: xref:api/utilities.adoc#NoncesComponent[NoncesComponent]
+:snip12-metadata: xref:api/utilities.adoc#snip12[SNIP12Metadata]
 
 Decentralized protocols are in constant evolution from the moment they are publicly released.
 Often, the initial team retains control of this evolution in the first stages, but eventually delegates it to a community of stakeholders.
@@ -215,15 +215,13 @@ IMPORTANT: The transferring of voting units must be handled by the implementing 
 
 === Key Features
 
-1. *Delegation*: Users can delegate their voting power to any address, including themselves. Vote power can be delegated either by calling
-the {delegate} function directly, or by providing a signature to be used with
-{delegate_by_sig}.
-2. *Historical lookups*: The system keeps track of voting power at different points in time, allowing for accurate voting in proposals that span multiple blocks.
+1. *Delegation*: Users can delegate their voting power to any address, including themselves. Vote power can be delegated either by calling the {delegate} function directly, or by providing a signature to be used with {delegate_by_sig}.
+2. *Historical lookups*: The system keeps track of historical snapshots for each account, allowing to query the voting power of an account at a specific block timestamp. This can be used for example to determine the voting power of an account when a proposal was created, rather than using the current balance.
 
 === Usage
 
-When integrating the Votes component, the `VotingUnitsTrait` must be implemented to get the voting units for a given account as a function of the implementing contract. +
-For simplicity, this module already provides two implementations for ERC20 and ERC721 tokens, which will work out of the box if the respective components are integrated. +
+When integrating the `VotesComponent`, the {voting_units_trait} must be implemented to get the voting units for a given account as a function of the implementing contract. +
+For simplicity, this module already provides two implementations for `ERC20` and `ERC721` tokens, which will work out of the box if the respective components are integrated. +
 Additionally, you must implement the {nonces-component} and the {snip12-metadata} trait to enable delegation by signatures.
 
 Here's an example of how to structure a simple ERC20Votes contract:
@@ -288,24 +286,18 @@ mod ERC20VotesContract {
         }
     }
 
-    // We need to call the VotesComponent::transfer_voting_units function 
-    // after every mint, burn and transfer.
-    // For this, we use the ERC20Component::ERC20HooksTrait.
-    impl ERC20VotesHooksImpl<
-        TContractState,
-        impl Votes: VotesComponent::HasComponent<TContractState>,
-        impl HasComponent: ERC20Component::HasComponent<TContractState>,
-        +NoncesComponent::HasComponent<TContractState>,
-        +Drop<TContractState>
-    > of ERC20Component::ERC20HooksTrait<TContractState> {
+    // We need to call the `transfer_voting_units` function after 
+    // every mint, burn and transfer.
+    // For this, we use the `after_update` hook of the `ERC20Component::ERC20HooksTrait`.
+    impl ERC20VotesHooksImpl of ERC20Component::ERC20HooksTrait<ContractState> {
         fn after_update(
-            ref self: ERC20Component::ComponentState<TContractState>,
+            ref self: ERC20Component::ComponentState<ContractState>,
             from: ContractAddress,
             recipient: ContractAddress,
             amount: u256
         ) {
-            let mut votes_component = get_dep_component_mut!(ref self, Votes);
-            votes_component.transfer_voting_units(from, recipient, amount);
+            let mut contract_state = ERC20Component::HasComponent::get_contract_mut(ref self);
+            contract_state.erc20_votes.transfer_voting_units(from, recipient, amount);
         }
     }
 
@@ -384,26 +376,25 @@ pub mod ERC721VotesContract {
         }
     }
 
-    impl ERC721VotesHooksImpl<
-        TContractState,
-        impl Votes: VotesComponent::HasComponent<TContractState>,
-        impl HasComponent: ERC721Component::HasComponent<TContractState>,
-        +NoncesComponent::HasComponent<TContractState>,
-        +SRC5Component::HasComponent<TContractState>,
-        +Drop<TContractState>
-    > of ERC721Component::ERC721HooksTrait<TContractState> {
+    // We need to call the `transfer_voting_units` function after 
+    // every mint, burn and transfer.
+    // For this, we use the `before_update` hook of the
+    //`ERC721Component::ERC721HooksTrait`.
+    // This hook is called before the transfer is executed.
+    // This  gives us access to the previous owner.
+    impl ERC721VotesHooksImpl of ERC721Component::ERC721HooksTrait<ContractState> {
         fn before_update(
-            ref self: ERC721Component::ComponentState<TContractState>,
+            ref self: ERC721Component::ComponentState<ContractState>,
             to: ContractAddress,
             token_id: u256,
             auth: ContractAddress
         ) {
-            let mut votes_component = get_dep_component_mut!(ref self, Votes);
+            let mut contract_state = ERC721Component::HasComponent::get_contract_mut(ref self);
 
-            // We use the internal function here since it does not check if the token id exists
-            // which is necessary for mints
+            // We use the internal function here since it does not check if the token
+            // id exists which is necessary for mints
             let previous_owner = self._owner_of(token_id);
-            votes_component.transfer_voting_units(previous_owner, to, 1);
+            contract_state.erc721_votes.transfer_voting_units(previous_owner, to, 1);
         }
     }
 
@@ -421,7 +412,7 @@ This is the full interface of the `VotesImpl` implementation:
 ----
 #[starknet::interface]
 pub trait VotesABI<TState> {
-    // Votes
+    // IVotes
     fn get_votes(self: @TState, account: ContractAddress) -> u256;
     fn get_past_votes(self: @TState, account: ContractAddress, timepoint: u64) -> u256;
     fn get_past_total_supply(self: @TState, timepoint: u64) -> u256;

@@ -61,26 +61,21 @@ pub mod ERC721VotesMock {
         }
     }
 
-    impl ERC721VotesHooksImpl<
-        TContractState,
-        impl Votes: VotesComponent::HasComponent<TContractState>,
-        impl HasComponent: ERC721Component::HasComponent<TContractState>,
-        +NoncesComponent::HasComponent<TContractState>,
-        +SRC5Component::HasComponent<TContractState>,
-        +Drop<TContractState>
-    > of ERC721Component::ERC721HooksTrait<TContractState> {
+    impl ERC721VotesHooksImpl of ERC721Component::ERC721HooksTrait<ContractState> {
+        // We need to use the `before_update` hook to check the previous owner
+        // before the transfer is executed.
         fn before_update(
-            ref self: ERC721Component::ComponentState<TContractState>,
+            ref self: ERC721Component::ComponentState<ContractState>,
             to: ContractAddress,
             token_id: u256,
             auth: ContractAddress
         ) {
-            let mut votes_component = get_dep_component_mut!(ref self, Votes);
+            let mut contract_state = ERC721Component::HasComponent::get_contract_mut(ref self);
 
             // We use the internal function here since it does not check if the token id exists
             // which is necessary for mints
             let previous_owner = self._owner_of(token_id);
-            votes_component.transfer_voting_units(previous_owner, to, 1);
+            contract_state.erc721_votes.transfer_voting_units(previous_owner, to, 1);
         }
     }
 
@@ -147,21 +142,15 @@ pub mod ERC20VotesMock {
         }
     }
 
-    impl ERC20VotesHooksImpl<
-        TContractState,
-        impl Votes: VotesComponent::HasComponent<TContractState>,
-        impl HasComponent: ERC20Component::HasComponent<TContractState>,
-        +NoncesComponent::HasComponent<TContractState>,
-        +Drop<TContractState>
-    > of ERC20Component::ERC20HooksTrait<TContractState> {
+    impl ERC20VotesHooksImpl of ERC20Component::ERC20HooksTrait<ContractState> {
         fn after_update(
-            ref self: ERC20Component::ComponentState<TContractState>,
+            ref self: ERC20Component::ComponentState<ContractState>,
             from: ContractAddress,
             recipient: ContractAddress,
             amount: u256
         ) {
-            let mut votes_component = get_dep_component_mut!(ref self, Votes);
-            votes_component.transfer_voting_units(from, recipient, amount);
+            let mut contract_state = ERC20Component::HasComponent::get_contract_mut(ref self);
+            contract_state.erc20_votes.transfer_voting_units(from, recipient, amount);
         }
     }
 

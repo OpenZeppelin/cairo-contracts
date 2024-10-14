@@ -75,21 +75,15 @@ use starknet::ContractAddress;
 ///         }
 ///     }
 ///
-///     impl ERC20VotesHooksImpl<
-///         TContractState,
-///         impl Votes: VotesComponent::HasComponent<TContractState>,
-///         impl HasComponent: ERC20Component::HasComponent<TContractState>,
-///         +NoncesComponent::HasComponent<TContractState>,
-///         +Drop<TContractState>
-///     > of ERC20Component::ERC20HooksTrait<TContractState> {
+///     impl ERC20VotesHooksImpl of ERC20Component::ERC20HooksTrait<ContractState> {
 ///         fn after_update(
-///             ref self: ERC20Component::ComponentState<TContractState>,
+///             ref self: ERC20Component::ComponentState<ContractState>,
 ///             from: ContractAddress,
 ///             recipient: ContractAddress,
 ///             amount: u256
 ///         ) {
-///             let mut votes_component = get_dep_component_mut!(ref self, Votes);
-///             votes_component.transfer_voting_units(from, recipient, amount);
+///             let mut contract_state = ERC20Component::HasComponent::get_contract_mut(ref self);
+///             contract_state.erc20_votes.transfer_voting_units(from, recipient, amount);
 ///         }
 ///     }
 ///

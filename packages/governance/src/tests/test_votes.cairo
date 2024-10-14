@@ -376,7 +376,7 @@ fn test_checkpoints() {
 
     let checkpoint2 = state.checkpoints(DELEGATOR(), 2);
     assert_eq!(checkpoint2.key, 'ts3');
-    assert_eq!(checkpoint2.value, 7);   
+    assert_eq!(checkpoint2.value, 7);
 }
 
 //

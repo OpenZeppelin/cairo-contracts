@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `VotesComponent` with implementation for ERC721 and ERC20 tokens (#1114)
+- `IUpgradeAndCall` interface (#1148)
+- `upgrade_and_call` function in UpgradeableComponent's InternalImpl (#1148)
 
 ### Changed
 

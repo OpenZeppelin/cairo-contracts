@@ -65,10 +65,6 @@ pub fn CALLER() -> ContractAddress {
     contract_address_const::<'CALLER'>()
 }
 
-pub fn CONTRACT_ADDRESS() -> ContractAddress {
-    contract_address_const::<'CONTRACT_ADDRESS'>()
-}
-
 pub fn OWNER() -> ContractAddress {
     contract_address_const::<'OWNER'>()
 }

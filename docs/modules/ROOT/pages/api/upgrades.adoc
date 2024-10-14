@@ -38,7 +38,7 @@ NOTE: This function is usually protected by an xref:access.adoc[Access Control] 
 
 [.contract]
 [[IUpgradeAndCall]]
-=== `++IUpgradeAndCall++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.16.0/packages/upgrades/src/interface.cairo[{github-icon},role=heading-link]
+=== `++IUpgradeAndCall++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.17.0/packages/upgrades/src/interface.cairo[{github-icon},role=heading-link]
 
 :Upgraded: xref:UpgradeableComponent-Upgraded[Upgraded]
 

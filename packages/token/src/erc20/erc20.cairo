@@ -307,12 +307,12 @@ pub mod ERC20Component {
     ///
     /// To safeguard against replay attacks and ensure the uniqueness of each approval via `permit`,
     /// the data signed includes:
-    ///   - The address of the owner
-    ///   - The parameters specified in the `approve` function (spender and amount)
-    ///   - The address of the token contract itself
+    ///   - The address of the owner.
+    ///   - The parameters specified in the `approve` function (spender and amount).
+    ///   - The address of the token contract itself.
     ///   - A nonce, which must be unique for each operation, incrementing after each use to prevent
-    ///   reuse of the signature
-    ///   - The chain ID, which protects against cross-chain replay attacks
+    ///   reuse of the signature.
+    ///   - The chain ID, which protects against cross-chain replay attacks.
     #[embeddable_as(ERC20PermitImpl)]
     impl ERC20Permit<
         TContractState,

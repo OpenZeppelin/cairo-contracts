@@ -21,7 +21,6 @@ use openzeppelin_testing::constants::{CLASS_HASH_ZERO, ZERO, RECIPIENT, CALLER, 
 use openzeppelin_testing::constants::{SALT, QUERY_VERSION, MIN_TRANSACTION_VERSION};
 use openzeppelin_testing::signing::Secp256k1KeyPair;
 use openzeppelin_token::erc20::interface::IERC20DispatcherTrait;
-use openzeppelin_utils::selectors;
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{
     start_cheat_signature_global, start_cheat_transaction_version_global,
@@ -328,7 +327,7 @@ fn test_execute_with_version(version: Option<felt252>) {
     calldata.append_serde(amount);
 
     let call = Call {
-        to: erc20.contract_address, selector: selectors::transfer, calldata: calldata.span()
+        to: erc20.contract_address, selector: selector!("transfer"), calldata: calldata.span()
     };
     let calls = array![call];
 
@@ -398,7 +397,7 @@ fn test_multicall() {
     calldata1.append_serde(recipient1);
     calldata1.append_serde(amount1);
     let call1 = Call {
-        to: erc20.contract_address, selector: selectors::transfer, calldata: calldata1.span()
+        to: erc20.contract_address, selector: selector!("transfer"), calldata: calldata1.span()
     };
 
     // Craft 2nd call
@@ -407,7 +406,7 @@ fn test_multicall() {
     calldata2.append_serde(recipient2);
     calldata2.append_serde(amount2);
     let call2 = Call {
-        to: erc20.contract_address, selector: selectors::transfer, calldata: calldata2.span()
+        to: erc20.contract_address, selector: selector!("transfer"), calldata: calldata2.span()
     };
 
     let calls = array![call1, call2];

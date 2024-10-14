@@ -60,7 +60,9 @@ version = "0.17.0"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_introspection",
+ "openzeppelin_test_common",
  "openzeppelin_testing",
+ "openzeppelin_utils",
  "snforge_std",
 ]
 
@@ -68,6 +70,7 @@ dependencies = [
 name = "openzeppelin_introspection"
 version = "0.17.0"
 dependencies = [
+ "openzeppelin_test_common",
  "snforge_std",
 ]
 
@@ -90,6 +93,7 @@ dependencies = [
  "openzeppelin_testing",
  "openzeppelin_token",
  "openzeppelin_upgrades",
+ "openzeppelin_utils",
  "snforge_std",
 ]
 
@@ -97,6 +101,7 @@ dependencies = [
 name = "openzeppelin_security"
 version = "0.17.0"
 dependencies = [
+ "openzeppelin_test_common",
  "openzeppelin_testing",
  "snforge_std",
 ]
@@ -108,6 +113,8 @@ dependencies = [
  "openzeppelin_access",
  "openzeppelin_account",
  "openzeppelin_finance",
+ "openzeppelin_introspection",
+ "openzeppelin_security",
  "openzeppelin_testing",
  "openzeppelin_token",
  "openzeppelin_upgrades",
@@ -132,6 +139,7 @@ dependencies = [
  "openzeppelin_introspection",
  "openzeppelin_test_common",
  "openzeppelin_testing",
+ "openzeppelin_utils",
  "snforge_std",
 ]
 
@@ -148,21 +156,22 @@ dependencies = [
 name = "openzeppelin_utils"
 version = "0.17.0"
 dependencies = [
+ "openzeppelin_test_common",
  "openzeppelin_testing",
  "snforge_std",
 ]
 
 [[package]]
 name = "snforge_scarb_plugin"
-version = "0.2.0"
+version = "0.31.0"
 source = "registry+https://scarbs.xyz/"
-checksum = "sha256:2e4ce3ebe3f49548bd26908391b5d78537a765d827df0d96c32aeb88941d0d67"
+checksum = "sha256:1fce075fcbf7fce1b0935f6f9a034549704837fb221da212d3b6e9134cebfdaa"
 
 [[package]]
 name = "snforge_std"
-version = "0.30.0"
+version = "0.31.0"
 source = "registry+https://scarbs.xyz/"
-checksum = "sha256:2f3c4846881813ac0f5d1460981249c9f5e2a6831e752beedf9b70975495b4ec"
+checksum = "sha256:60ac980b297281f9a59a5f1668cb56bdea1b28fd2f8008008270f9a3c91ad3ba"
 dependencies = [
  "snforge_scarb_plugin",
 ]

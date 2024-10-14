@@ -337,7 +337,7 @@ fn test_invalid_sig_bad_sig_r() {
     let nonce = mock.nonces(owner);
     let signature = prepare_permit_signature(data, nonce);
     let (sig_r, sig_s) = (*signature.at(0), *signature.at(1));
-    let modified_signature = array![sig_r + 1, sig_s];
+    let modified_signature = array![sig_r + 1, sig_s].span();
     mock.permit(owner, spender, amount, deadline, modified_signature);
 }
 
@@ -351,7 +351,7 @@ fn test_invalid_sig_bad_sig_s() {
     let nonce = mock.nonces(owner);
     let signature = prepare_permit_signature(data, nonce);
     let (sig_r, sig_s) = (*signature.at(0), *signature.at(1));
-    let modified_signature = array![sig_r, sig_s + 1];
+    let modified_signature = array![sig_r, sig_s + 1].span();
     mock.permit(owner, spender, amount, deadline, modified_signature);
 }
 

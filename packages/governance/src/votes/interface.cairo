@@ -36,3 +36,25 @@ pub trait IVotes<TState> {
         signature: Array<felt252>
     );
 }
+
+/// Common interface to interact with the `Votes` component.
+#[starknet::interface]
+pub trait VotesABI<TState> {
+    // Votes
+    fn get_votes(self: @TState, account: ContractAddress) -> u256;
+    fn get_past_votes(self: @TState, account: ContractAddress, timepoint: u64) -> u256;
+    fn get_past_total_supply(self: @TState, timepoint: u64) -> u256;
+    fn delegates(self: @TState, account: ContractAddress) -> ContractAddress;
+    fn delegate(ref self: TState, delegatee: ContractAddress);
+    fn delegate_by_sig(
+        ref self: TState,
+        delegator: ContractAddress,
+        delegatee: ContractAddress,
+        nonce: felt252,
+        expiry: u64,
+        signature: Array<felt252>
+    );
+
+    // Nonces
+    fn nonces(self: @TState, owner: ContractAddress) -> felt252;
+}

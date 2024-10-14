@@ -3,7 +3,6 @@
 
 use starknet::ContractAddress;
 
-
 /// # Votes Component
 ///
 /// The Votes component provides a flexible system for tracking and delegating voting power.
@@ -271,6 +270,9 @@ pub mod VotesComponent {
         /// This implementation is specific to ERC20 tokens, where the balance
         /// of tokens directly represents the number of voting units.
         ///
+        /// NOTE: This implementation will work out of the box if the ERC20 component
+        /// is implemented in the final contract.
+        ///
         /// WARNING: This implementation assumes tokens map to voting units 1:1.
         /// Any deviation from this formula when transferring voting units (e.g. by using hooks)
         /// may compromise the internal vote accounting.
@@ -295,7 +297,10 @@ pub mod VotesComponent {
         /// This implementation is specific to ERC721 tokens, where each token
         /// represents one voting unit. The function returns the balance of
         /// ERC721 tokens for the specified account.
-        /// ///
+        ///
+        /// NOTE: This implementation will work out of the box if the ERC721 component
+        /// is implemented in the final contract.
+        ///
         /// WARNING: This implementation assumes tokens map to voting units 1:1.
         /// Any deviation from this formula when transferring voting units (e.g. by using hooks)
         /// may compromise the internal vote accounting.
@@ -369,6 +374,11 @@ pub mod VotesComponent {
         ///
         /// To register a mint, `from` should be zero. To register a burn, `to`
         /// should be zero. Total supply of voting units will be adjusted with mints and burns.
+        ///
+        /// WARNING: If voting units are a function of an underlying transferrable asset (like a
+        /// token), this function should be called every time the underlying asset is transferred to
+        /// keep the internal accounting of voting power in sync. For ERC20 and ERC721 tokens, this
+        /// is usually done using hooks.
         ///
         /// May emit one or two `DelegateVotesChanged` events.
         fn transfer_voting_units(

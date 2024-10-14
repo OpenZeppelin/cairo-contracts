@@ -171,7 +171,7 @@ impl CheckpointImpl of CheckpointTrait {
 /// - `key` is stored at range [4,67] bits (0-indexed), taking the most significant usable bits.
 /// - `value.low` is stored at range [124, 251], taking the less significant bits (at the end).
 /// - `value.high` is stored as the second tuple element.
-pub impl CheckpointStorePacking of StorePacking<Checkpoint, (felt252, felt252)> {
+pub(crate) impl CheckpointStorePacking of StorePacking<Checkpoint, (felt252, felt252)> {
     fn pack(value: Checkpoint) -> (felt252, felt252) {
         let checkpoint = value;
         // shift-left by 184 bits

@@ -420,8 +420,8 @@ This is the full interface of the `VotesImpl` implementation:
 [source,cairo]
 ----
 #[starknet::interface]
-pub trait IVotes<TState> {
-    // IVotes
+pub trait VotesABI<TState> {
+    // Votes
     fn get_votes(self: @TState, account: ContractAddress) -> u256;
     fn get_past_votes(self: @TState, account: ContractAddress, timepoint: u64) -> u256;
     fn get_past_total_supply(self: @TState, timepoint: u64) -> u256;

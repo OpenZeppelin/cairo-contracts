@@ -688,6 +688,16 @@ By default, token balance does not account for voting power. This makes transfer
 
 NOTE: When using this module, your contract must implement the {VotingUnitsTrait}. For convenience, this is done automatically for `ERC20` and `ERC721` tokens.
 
+[.contract-index]
+.Voting Units Trait Implementations
+--
+.ERC20VotesImpl
+* xref:#VotingUnitsTrait-get_voting_units[`++get_voting_units(self, account)++`]
+
+.ERC721VotesImpl
+* xref:#VotingUnitsTrait-get_voting_units[`++get_voting_units(self, account)++`]
+--
+
 [.contract-index#VotesComponent-Embeddable-Impls]
 .Embeddable Implementations
 --
@@ -709,18 +719,6 @@ NOTE: When using this module, your contract must implement the {VotingUnitsTrait
 * xref:#VotesComponent-move_delegate_votes[`++move_delegate_votes(self, from, to, amount)++`]
 * xref:#VotesComponent-transfer_voting_units[`++transfer_voting_units(self, from, to, amount)++`]
 --
-
-[.contract-index]
-.VotingUnitsTrait implementations
---
-.ERC20VotesImpl
-* xref:#VotesComponent-get_voting_units[`++get_voting_units(self, account)++`]
-
-.ERC721VotesImpl
-* xref:#VotesComponent-get_voting_units[`++get_voting_units(self, account)++`]
---
-NOTE: For simplicity, this module already provides two implementations for `ERC20` and `ERC721` tokens, which will work out of the box if the respective components are integrated. +
-You can read more about the `VotingUnitsTrait` in the {VotingUnitsTrait} section.
 
 [.contract-index]
 .Events

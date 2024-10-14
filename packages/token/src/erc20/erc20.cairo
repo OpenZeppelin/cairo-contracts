@@ -226,7 +226,7 @@ pub mod ERC20Component {
     #[embeddable_as(ERC20MixinImpl)]
     impl ERC20Mixin<
         TContractState, +HasComponent<TContractState>, +ERC20HooksTrait<TContractState>
-    > of interface::ERC20ABI<ComponentState<TContractState>> {
+    > of interface::IERC20Mixin<ComponentState<TContractState>> {
         // IERC20
         fn total_supply(self: @ComponentState<TContractState>) -> u256 {
             ERC20::total_supply(self)

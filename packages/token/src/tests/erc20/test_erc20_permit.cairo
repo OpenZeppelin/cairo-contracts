@@ -447,7 +447,7 @@ fn test_invalid_sig_bad_deadline() {
 // Helpers
 //
 
-fn prepare_permit_signature(data: TestData, nonce: felt252) -> Array<felt252> {
+fn prepare_permit_signature(data: TestData, nonce: felt252) -> Span<felt252> {
     let sn_domain = StarknetDomain {
         name: data.metadata_name,
         version: data.metadata_version,
@@ -468,7 +468,7 @@ fn prepare_permit_signature(data: TestData, nonce: felt252) -> Array<felt252> {
         .update_with(permit.hash_struct())
         .finalize();
 
-    data.key_pair.serialized_sign(msg_hash)
+    data.key_pair.serialized_sign(msg_hash).span()
 }
 
 fn assert_valid_nonce(account: ContractAddress, expected: felt252) {

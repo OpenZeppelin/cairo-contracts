@@ -340,7 +340,7 @@ pub mod ERC20Component {
             spender: ContractAddress,
             amount: u256,
             deadline: u64,
-            signature: Array<felt252>
+            signature: Span<felt252>
         ) {
             // 1. Ensure the deadline is not missed
             assert(get_block_timestamp() <= deadline, Errors::EXPIRED_PERMIT_SIGNATURE);
@@ -353,7 +353,7 @@ pub mod ERC20Component {
             let permit = Permit { token: get_contract_address(), spender, amount, nonce, deadline };
             let permit_hash = permit.get_message_hash(owner);
             let is_valid_sig_felt = ISRC6Dispatcher { contract_address: owner }
-                .is_valid_signature(permit_hash, signature);
+                .is_valid_signature(permit_hash, signature.into());
 
             // 4. Check the response is either 'VALID' or True (for backwards compatibility)
             let is_valid_sig = is_valid_sig_felt == starknet::VALIDATED || is_valid_sig_felt == 1;

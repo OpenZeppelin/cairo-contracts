@@ -51,7 +51,7 @@ pub trait IERC20Permit<TState> {
         spender: ContractAddress,
         amount: u256,
         deadline: u64,
-        signature: Array<felt252>
+        signature: Span<felt252>
     );
     fn nonces(self: @TState, owner: ContractAddress) -> felt252;
     fn DOMAIN_SEPARATOR(self: @TState) -> felt252;
@@ -153,7 +153,7 @@ pub trait ERC20PermitABI<TState> {
         spender: ContractAddress,
         amount: u256,
         deadline: u64,
-        signature: Array<felt252>
+        signature: Span<felt252>
     );
     fn nonces(self: @TState, owner: ContractAddress) -> felt252;
     fn DOMAIN_SEPARATOR(self: @TState) -> felt252;

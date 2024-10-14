@@ -17,7 +17,7 @@ pub struct Trace {
 }
 
 /// Generic checkpoint representation.
-#[derive(Copy, Drop, Serde, Debug, PartialEq)]
+#[derive(Copy, Drop, Serde)]
 pub struct Checkpoint {
     pub key: u64,
     pub value: u256

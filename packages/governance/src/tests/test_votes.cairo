@@ -15,7 +15,7 @@ use openzeppelin_token::erc721::ERC721Component::{
 };
 use openzeppelin_token::erc721::ERC721Component::{ERC721Impl, ERC721CamelOnlyImpl};
 use openzeppelin_utils::cryptography::snip12::OffchainMessageHash;
-use openzeppelin_utils::structs::checkpoint::{Checkpoint, TraceTrait};
+use openzeppelin_utils::structs::checkpoint::TraceTrait;
 use snforge_std::signature::stark_curve::{StarkCurveKeyPairImpl, StarkCurveSignerImpl};
 use snforge_std::{
     start_cheat_block_timestamp_global, start_cheat_caller_address, spy_events, test_address,
@@ -366,9 +366,17 @@ fn test_checkpoints() {
     trace.push('ts2', 5);
     trace.push('ts3', 7);
 
-    assert_eq!(state.checkpoints(DELEGATOR(), 0), Checkpoint { key: 'ts1', value: 3 });
-    assert_eq!(state.checkpoints(DELEGATOR(), 1), Checkpoint { key: 'ts2', value: 5 });
-    assert_eq!(state.checkpoints(DELEGATOR(), 2), Checkpoint { key: 'ts3', value: 7 });
+    let checkpoint0 = state.checkpoints(DELEGATOR(), 0);
+    assert_eq!(checkpoint0.key, 'ts1');
+    assert_eq!(checkpoint0.value, 3);
+
+    let checkpoint1 = state.checkpoints(DELEGATOR(), 1);
+    assert_eq!(checkpoint1.key, 'ts2');
+    assert_eq!(checkpoint1.value, 5);
+
+    let checkpoint2 = state.checkpoints(DELEGATOR(), 2);
+    assert_eq!(checkpoint2.key, 'ts3');
+    assert_eq!(checkpoint2.value, 7);   
 }
 
 //

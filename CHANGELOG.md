@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+- `IUpgradeAndCall` interface (#1148)
+- `upgrade_and_call` function in UpgradeableComponent's InternalImpl (#1148)
+
 ### Changed
 
 - Bump scarb to v2.8.4 (#1146)

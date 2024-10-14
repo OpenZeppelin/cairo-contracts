@@ -1,18 +1,18 @@
 use core::hash::{HashStateTrait, HashStateExTrait};
 use core::poseidon::PoseidonTrait;
 use crate::erc20::ERC20Component::{ERC20MixinImpl, InternalImpl};
-use crate::erc20::interface::{ERC20PermitABIDispatcher, ERC20PermitABIDispatcherTrait};
+use crate::erc20::ERC20Component::{ERC20PermitImpl, SNIP12MetadataExternalImpl};
+use crate::erc20::ERC20Component;
 use crate::erc20::snip12_utils::permit::{Permit, PERMIT_TYPE_HASH};
+use openzeppelin_test_common::mocks::erc20::DualCaseERC20PermitMock::SNIP12MetadataImpl;
 use openzeppelin_test_common::mocks::erc20::DualCaseERC20PermitMock;
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants;
 use openzeppelin_testing::signing::{StarkKeyPair, StarkSerializedSigning};
 use openzeppelin_utils::cryptography::snip12::{StarknetDomain, StructHashStarknetDomainImpl};
-use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::signature::stark_curve::StarkCurveSignerImpl;
-use snforge_std::{
-    start_cheat_caller_address, start_cheat_block_timestamp, start_cheat_chain_id_global
-};
+use snforge_std::{start_cheat_block_timestamp, start_cheat_chain_id_global};
+use snforge_std::{start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
 
 //
@@ -21,7 +21,7 @@ use starknet::ContractAddress;
 
 #[derive(Copy, Drop)]
 struct TestData {
-    contract_address: ContractAddress,
+    token_address: ContractAddress,
     owner: ContractAddress,
     key_pair: StarkKeyPair,
     spender: ContractAddress,
@@ -38,7 +38,7 @@ struct TestData {
 
 fn TEST_DATA() -> TestData {
     TestData {
-        contract_address: constants::CONTRACT_ADDRESS(),
+        token_address: test_address(),
         owner: constants::OWNER(),
         key_pair: constants::stark::KEY_PAIR(),
         spender: constants::SPENDER(),
@@ -58,21 +58,24 @@ fn TEST_DATA() -> TestData {
 // Setup
 //
 
-fn setup(data: TestData) -> ERC20PermitABIDispatcher {
+type ComponentState = ERC20Component::ComponentState<DualCaseERC20PermitMock::ContractState>;
+
+fn COMPONENT_STATE() -> ComponentState {
+    ERC20Component::component_state_for_testing()
+}
+
+fn setup(data: TestData) -> ComponentState {
     start_cheat_chain_id_global(data.chain_id);
 
     utils::declare_and_deploy_at(
         "DualCaseAccountMock", data.owner, array![data.key_pair.public_key]
     );
 
-    let mut calldata = array![];
-    calldata.append_serde(data.name.clone());
-    calldata.append_serde(data.symbol.clone());
-    calldata.append_serde(data.token_supply);
-    calldata.append_serde(data.owner);
-    utils::declare_and_deploy_at("DualCaseERC20PermitMock", data.contract_address, calldata);
+    let mut state = COMPONENT_STATE();
+    state.initializer(data.name.clone(), data.symbol.clone());
+    state.mint(data.owner, data.token_supply);
 
-    ERC20PermitABIDispatcher { contract_address: data.contract_address }
+    state
 }
 
 //
@@ -83,13 +86,13 @@ fn setup(data: TestData) -> ERC20PermitABIDispatcher {
 fn test_valid_permit_default_data() {
     let data = TEST_DATA();
     let (owner, spender, amount, deadline) = (data.owner, data.spender, data.amount, data.deadline);
-    let mock = setup(data);
+    let mut state = setup(data);
 
     assert_valid_allowance(owner, spender, 0);
 
-    let nonce = mock.nonces(owner);
+    let nonce = state.nonces(owner);
     let signature = prepare_permit_signature(data, nonce);
-    mock.permit(owner, spender, amount, deadline, signature);
+    state.permit(owner, spender, amount, deadline, signature);
 
     assert_valid_allowance(owner, spender, amount);
     assert_valid_nonce(owner, nonce + 1);
@@ -101,13 +104,13 @@ fn test_valid_permit_other_data() {
     data.spender = constants::OTHER();
     data.amount = constants::TOKEN_VALUE_2;
     let (owner, spender, amount, deadline) = (data.owner, data.spender, data.amount, data.deadline);
-    let mock = setup(data);
+    let mut state = setup(data);
 
     assert_valid_allowance(owner, spender, 0);
 
-    let nonce = mock.nonces(owner);
+    let nonce = state.nonces(owner);
     let signature = prepare_permit_signature(data, nonce);
-    mock.permit(owner, spender, amount, deadline, signature);
+    state.permit(owner, spender, amount, deadline, signature);
 
     assert_valid_allowance(owner, spender, amount);
     assert_valid_nonce(owner, nonce + 1);
@@ -117,14 +120,14 @@ fn test_valid_permit_other_data() {
 fn test_spend_permit() {
     let data = TEST_DATA();
     let (owner, spender, amount, deadline) = (data.owner, data.spender, data.amount, data.deadline);
-    let mock = setup(data);
+    let mut state = setup(data);
 
-    let nonce = mock.nonces(owner);
+    let nonce = state.nonces(owner);
     let signature = prepare_permit_signature(data, nonce);
-    start_cheat_caller_address(mock.contract_address, spender);
+    start_cheat_caller_address(data.token_address, spender);
 
-    mock.permit(owner, spender, amount, deadline, signature);
-    mock.transfer_from(owner, spender, amount);
+    state.permit(owner, spender, amount, deadline, signature);
+    state.transfer_from(owner, spender, amount);
 
     assert_valid_balance(spender, amount);
     assert_valid_balance(owner, data.token_supply - amount);
@@ -136,15 +139,15 @@ fn test_spend_permit() {
 fn test_spend_half_permit() {
     let data = TEST_DATA();
     let (owner, spender, amount, deadline) = (data.owner, data.spender, data.amount, data.deadline);
-    let mock = setup(data);
+    let mut state = setup(data);
 
-    let nonce = mock.nonces(owner);
+    let nonce = state.nonces(owner);
     let signature = prepare_permit_signature(data, nonce);
-    start_cheat_caller_address(mock.contract_address, spender);
+    start_cheat_caller_address(data.token_address, spender);
 
-    mock.permit(owner, spender, amount, deadline, signature);
+    state.permit(owner, spender, amount, deadline, signature);
     let transfer_amount = amount / 2;
-    mock.transfer_from(owner, spender, transfer_amount);
+    state.transfer_from(owner, spender, transfer_amount);
 
     assert_valid_balance(spender, transfer_amount);
     assert_valid_balance(owner, data.token_supply - transfer_amount);
@@ -158,18 +161,18 @@ fn test_subsequent_permits() {
     let (owner, spender, amount_1, deadline) = (
         data.owner, data.spender, data.amount, data.deadline
     );
-    let mock = setup(data);
+    let mut state = setup(data);
 
     let mut expected_owner_balance = data.token_supply;
     let mut expected_spender_balance = 0;
-    start_cheat_caller_address(mock.contract_address, spender);
+    start_cheat_caller_address(data.token_address, spender);
 
     // Permit 1
-    let nonce_1 = mock.nonces(owner);
+    let nonce_1 = state.nonces(owner);
     let signature_1 = prepare_permit_signature(data, nonce_1);
 
-    mock.permit(owner, spender, amount_1, deadline, signature_1);
-    mock.transfer_from(owner, spender, amount_1);
+    state.permit(owner, spender, amount_1, deadline, signature_1);
+    state.transfer_from(owner, spender, amount_1);
 
     expected_owner_balance -= amount_1;
     expected_spender_balance += amount_1;
@@ -181,11 +184,11 @@ fn test_subsequent_permits() {
     // Permit 2
     data.amount = constants::TOKEN_VALUE_2;
     let amount_2 = data.amount;
-    let nonce_2 = mock.nonces(owner);
+    let nonce_2 = 1;
     let signature_2 = prepare_permit_signature(data, nonce_2);
 
-    mock.permit(owner, spender, amount_2, deadline, signature_2);
-    mock.transfer_from(owner, spender, amount_2);
+    state.permit(owner, spender, amount_2, deadline, signature_2);
+    state.transfer_from(owner, spender, amount_2);
 
     expected_owner_balance -= amount_2;
     expected_spender_balance += amount_2;
@@ -200,24 +203,24 @@ fn test_subsequent_permits() {
 fn test_replay_attack() {
     let data = TEST_DATA();
     let (owner, spender, amount, deadline) = (data.owner, data.spender, data.amount, data.deadline);
-    let mock = setup(data);
+    let mut state = setup(data);
 
-    let nonce = mock.nonces(owner);
-    start_cheat_caller_address(mock.contract_address, spender);
+    let nonce = state.nonces(owner);
+    start_cheat_caller_address(data.token_address, spender);
 
     // 1st call is fine
     let signature = prepare_permit_signature(data, nonce);
-    mock.permit(owner, spender, amount, deadline, signature);
+    state.permit(owner, spender, amount, deadline, signature);
 
     // 2nd call must fail (nonce already used)
     let signature = prepare_permit_signature(data, nonce);
-    mock.permit(owner, spender, amount, deadline, signature);
+    state.permit(owner, spender, amount, deadline, signature);
 }
 
 #[test]
 fn test_domain_separator() {
     let data = TEST_DATA();
-    let mock = setup(data);
+    let state = setup(data);
 
     let sn_domain = StarknetDomain {
         name: data.metadata_name,
@@ -226,7 +229,7 @@ fn test_domain_separator() {
         revision: data.revision
     };
     let expected_domain_separator = sn_domain.hash_struct();
-    assert_eq!(mock.DOMAIN_SEPARATOR(), expected_domain_separator);
+    assert_eq!(state.DOMAIN_SEPARATOR(), expected_domain_separator);
 }
 
 //
@@ -244,9 +247,9 @@ fn test_permit_type_hash() {
 #[test]
 fn test_snip12_metadata() {
     let data = TEST_DATA();
-    let mock = setup(data);
+    let state = setup(data);
 
-    let (metadata_name, metadata_version) = mock.snip12_metadata();
+    let (metadata_name, metadata_version) = state.snip12_metadata();
     assert_eq!(metadata_name, data.metadata_name);
     assert_eq!(metadata_version, data.metadata_version);
 }
@@ -260,13 +263,13 @@ fn test_snip12_metadata() {
 fn test_invalid_sig_bad_owner() {
     let data = TEST_DATA();
     let (spender, amount, deadline) = (data.spender, data.amount, data.deadline);
-    let mock = setup(data);
+    let mut state = setup(data);
 
     let another_account = constants::OTHER();
     utils::deploy_another_at(data.owner, another_account, array![data.key_pair.public_key]);
-    let nonce = mock.nonces(another_account);
+    let nonce = state.nonces(another_account);
     let signature = prepare_permit_signature(data, nonce);
-    mock.permit(another_account, spender, amount, deadline, signature);
+    state.permit(another_account, spender, amount, deadline, signature);
 }
 
 #[test]
@@ -274,17 +277,13 @@ fn test_invalid_sig_bad_owner() {
 fn test_invalid_sig_bad_token_address() {
     let data = TEST_DATA();
     let (owner, spender, amount, deadline) = (data.owner, data.spender, data.amount, data.deadline);
-    let mock = setup(data);
-
-    let nonce = mock.nonces(owner);
-    let signature = prepare_permit_signature(data, nonce);
-    mock.permit(owner, spender, amount, deadline, signature);
+    let mut state = setup(data);
 
     let mut modified_data = data;
-    modified_data.contract_address = constants::OTHER();
-    let nonce = mock.nonces(owner);
+    modified_data.token_address = constants::OTHER();
+    let nonce = state.nonces(owner);
     let signature = prepare_permit_signature(modified_data, nonce);
-    mock.permit(owner, spender, amount, deadline, signature);
+    state.permit(owner, spender, amount, deadline, signature);
 }
 
 #[test]
@@ -292,13 +291,13 @@ fn test_invalid_sig_bad_token_address() {
 fn test_invalid_sig_bad_spender() {
     let data = TEST_DATA();
     let (owner, spender, amount, deadline) = (data.owner, data.spender, data.amount, data.deadline);
-    let mock = setup(data);
+    let mut state = setup(data);
 
     let mut modified_data = data;
     modified_data.spender = constants::OTHER();
-    let nonce = mock.nonces(owner);
+    let nonce = state.nonces(owner);
     let signature = prepare_permit_signature(modified_data, nonce);
-    mock.permit(owner, spender, amount, deadline, signature);
+    state.permit(owner, spender, amount, deadline, signature);
 }
 
 #[test]
@@ -306,13 +305,13 @@ fn test_invalid_sig_bad_spender() {
 fn test_invalid_sig_bad_amount() {
     let data = TEST_DATA();
     let (owner, spender, amount, deadline) = (data.owner, data.spender, data.amount, data.deadline);
-    let mock = setup(data);
+    let mut state = setup(data);
 
     let mut modified_data = data;
     modified_data.amount = constants::TOKEN_VALUE_2;
-    let nonce = mock.nonces(owner);
+    let nonce = state.nonces(owner);
     let signature = prepare_permit_signature(modified_data, nonce);
-    mock.permit(owner, spender, amount, deadline, signature);
+    state.permit(owner, spender, amount, deadline, signature);
 }
 
 #[test]
@@ -320,11 +319,11 @@ fn test_invalid_sig_bad_amount() {
 fn test_invalid_sig_bad_nonce() {
     let data = TEST_DATA();
     let (owner, spender, amount, deadline) = (data.owner, data.spender, data.amount, data.deadline);
-    let mock = setup(data);
+    let mut state = setup(data);
 
-    let another_nonce = mock.nonces(owner) + 1;
+    let another_nonce = 1 + state.nonces(owner);
     let signature = prepare_permit_signature(data, another_nonce);
-    mock.permit(owner, spender, amount, deadline, signature);
+    state.permit(owner, spender, amount, deadline, signature);
 }
 
 #[test]
@@ -332,13 +331,13 @@ fn test_invalid_sig_bad_nonce() {
 fn test_invalid_sig_bad_sig_r() {
     let data = TEST_DATA();
     let (owner, spender, amount, deadline) = (data.owner, data.spender, data.amount, data.deadline);
-    let mock = setup(data);
+    let mut state = setup(data);
 
-    let nonce = mock.nonces(owner);
+    let nonce = state.nonces(owner);
     let signature = prepare_permit_signature(data, nonce);
     let (sig_r, sig_s) = (*signature.at(0), *signature.at(1));
     let modified_signature = array![sig_r + 1, sig_s].span();
-    mock.permit(owner, spender, amount, deadline, modified_signature);
+    state.permit(owner, spender, amount, deadline, modified_signature);
 }
 
 #[test]
@@ -346,13 +345,13 @@ fn test_invalid_sig_bad_sig_r() {
 fn test_invalid_sig_bad_sig_s() {
     let data = TEST_DATA();
     let (owner, spender, amount, deadline) = (data.owner, data.spender, data.amount, data.deadline);
-    let mock = setup(data);
+    let mut state = setup(data);
 
-    let nonce = mock.nonces(owner);
+    let nonce = state.nonces(owner);
     let signature = prepare_permit_signature(data, nonce);
     let (sig_r, sig_s) = (*signature.at(0), *signature.at(1));
     let modified_signature = array![sig_r, sig_s + 1].span();
-    mock.permit(owner, spender, amount, deadline, modified_signature);
+    state.permit(owner, spender, amount, deadline, modified_signature);
 }
 
 #[test]
@@ -360,13 +359,13 @@ fn test_invalid_sig_bad_sig_s() {
 fn test_invalid_sig_bad_metadata_name() {
     let data = TEST_DATA();
     let (owner, spender, amount, deadline) = (data.owner, data.spender, data.amount, data.deadline);
-    let mock = setup(data);
+    let mut state = setup(data);
 
     let mut modified_data = data;
     modified_data.metadata_name = 'ANOTHER_NAME';
-    let nonce = mock.nonces(owner);
+    let nonce = state.nonces(owner);
     let signature = prepare_permit_signature(modified_data, nonce);
-    mock.permit(owner, spender, amount, deadline, signature);
+    state.permit(owner, spender, amount, deadline, signature);
 }
 
 #[test]
@@ -374,13 +373,13 @@ fn test_invalid_sig_bad_metadata_name() {
 fn test_invalid_sig_bad_metadata_version() {
     let data = TEST_DATA();
     let (owner, spender, amount, deadline) = (data.owner, data.spender, data.amount, data.deadline);
-    let mock = setup(data);
+    let mut state = setup(data);
 
     let mut modified_data = data;
     modified_data.metadata_version = 'ANOTHER_VERSION';
-    let nonce = mock.nonces(owner);
+    let nonce = state.nonces(owner);
     let signature = prepare_permit_signature(modified_data, nonce);
-    mock.permit(owner, spender, amount, deadline, signature);
+    state.permit(owner, spender, amount, deadline, signature);
 }
 
 #[test]
@@ -388,13 +387,13 @@ fn test_invalid_sig_bad_metadata_version() {
 fn test_invalid_sig_bad_signing_key() {
     let data = TEST_DATA();
     let (owner, spender, amount, deadline) = (data.owner, data.spender, data.amount, data.deadline);
-    let mock = setup(data);
+    let mut state = setup(data);
 
     let mut modified_data = data;
     modified_data.key_pair = constants::stark::KEY_PAIR_2();
-    let nonce = mock.nonces(owner);
+    let nonce = state.nonces(owner);
     let signature = prepare_permit_signature(modified_data, nonce);
-    mock.permit(owner, spender, amount, deadline, signature);
+    state.permit(owner, spender, amount, deadline, signature);
 }
 
 #[test]
@@ -402,13 +401,13 @@ fn test_invalid_sig_bad_signing_key() {
 fn test_invalid_sig_bad_chain_id() {
     let data = TEST_DATA();
     let (owner, spender, amount, deadline) = (data.owner, data.spender, data.amount, data.deadline);
-    let mock = setup(data);
+    let mut state = setup(data);
 
     let mut modified_data = data;
     modified_data.chain_id = 'ANOTHER_CHAIN_ID';
-    let nonce = mock.nonces(owner);
+    let nonce = state.nonces(owner);
     let signature = prepare_permit_signature(modified_data, nonce);
-    mock.permit(owner, spender, amount, deadline, signature);
+    state.permit(owner, spender, amount, deadline, signature);
 }
 
 #[test]
@@ -416,13 +415,13 @@ fn test_invalid_sig_bad_chain_id() {
 fn test_invalid_sig_bad_revision() {
     let data = TEST_DATA();
     let (owner, spender, amount, deadline) = (data.owner, data.spender, data.amount, data.deadline);
-    let mock = setup(data);
+    let mut state = setup(data);
 
     let mut modified_data = data;
     modified_data.revision = 'ANOTHER_REVISION';
-    let nonce = mock.nonces(owner);
+    let nonce = state.nonces(owner);
     let signature = prepare_permit_signature(modified_data, nonce);
-    mock.permit(owner, spender, amount, deadline, signature);
+    state.permit(owner, spender, amount, deadline, signature);
 }
 
 //
@@ -434,13 +433,13 @@ fn test_invalid_sig_bad_revision() {
 fn test_invalid_sig_bad_deadline() {
     let data = TEST_DATA();
     let (owner, spender, amount, deadline) = (data.owner, data.spender, data.amount, data.deadline);
-    let mock = setup(data);
+    let mut state = setup(data);
 
     let timestamp_after_deadline = deadline + 1;
-    start_cheat_block_timestamp(mock.contract_address, timestamp_after_deadline);
-    let nonce = mock.nonces(owner);
+    start_cheat_block_timestamp(data.token_address, timestamp_after_deadline);
+    let nonce = state.nonces(owner);
     let signature = prepare_permit_signature(data, nonce);
-    mock.permit(owner, spender, amount, deadline, signature);
+    state.permit(owner, spender, amount, deadline, signature);
 }
 
 //
@@ -455,7 +454,7 @@ fn prepare_permit_signature(data: TestData, nonce: felt252) -> Span<felt252> {
         revision: data.revision
     };
     let permit = Permit {
-        token: data.contract_address,
+        token: data.token_address,
         spender: data.spender,
         amount: data.amount,
         nonce,
@@ -472,16 +471,13 @@ fn prepare_permit_signature(data: TestData, nonce: felt252) -> Span<felt252> {
 }
 
 fn assert_valid_nonce(account: ContractAddress, expected: felt252) {
-    let mock = ERC20PermitABIDispatcher { contract_address: constants::CONTRACT_ADDRESS() };
-    assert_eq!(mock.nonces(account), expected);
+    assert_eq!(COMPONENT_STATE().nonces(account), expected);
 }
 
 fn assert_valid_allowance(owner: ContractAddress, spender: ContractAddress, expected: u256) {
-    let mock = ERC20PermitABIDispatcher { contract_address: constants::CONTRACT_ADDRESS() };
-    assert_eq!(mock.allowance(owner, spender), expected);
+    assert_eq!(COMPONENT_STATE().allowance(owner, spender), expected);
 }
 
 fn assert_valid_balance(account: ContractAddress, expected: u256) {
-    let mock = ERC20PermitABIDispatcher { contract_address: constants::CONTRACT_ADDRESS() };
-    assert_eq!(mock.balance_of(account), expected);
+    assert_eq!(COMPONENT_STATE().balance_of(account), expected);
 }

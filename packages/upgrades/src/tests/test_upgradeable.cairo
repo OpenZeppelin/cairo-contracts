@@ -141,7 +141,7 @@ fn test_upgrade_and_call_with_no_return_value() {
 }
 
 #[test]
-#[ignore] // REASON:
+#[ignore] // REASON: safe dispatcher does not catch syscall error in SN Forge
 #[feature("safe_dispatcher")]
 fn test_upgrade_and_call_with_removed_selector() {
     let (v1, v2_class) = setup_test();

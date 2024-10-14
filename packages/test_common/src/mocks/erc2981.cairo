@@ -49,9 +49,9 @@ pub mod ERC2981Mock {
 
 #[starknet::contract]
 pub(crate) mod ERC2981OwnableMock {
-    use crate::common::erc2981::{ERC2981Component, DefaultConfig};
     use openzeppelin_access::ownable::OwnableComponent;
     use openzeppelin_introspection::src5::SRC5Component;
+    use openzeppelin_token::common::erc2981::{ERC2981Component, DefaultConfig};
     use starknet::ContractAddress;
 
     component!(path: ERC2981Component, storage: erc2981, event: ERC2981Event);
@@ -112,10 +112,10 @@ pub(crate) mod ERC2981OwnableMock {
 #[starknet::contract]
 pub(crate) mod ERC2981AccessControlMock {
     use AccessControlComponent::InternalTrait;
-    use crate::common::erc2981::ERC2981Component::ROYALTY_ADMIN_ROLE;
-    use crate::common::erc2981::{ERC2981Component, DefaultConfig};
     use openzeppelin_access::accesscontrol::{AccessControlComponent, DEFAULT_ADMIN_ROLE};
     use openzeppelin_introspection::src5::SRC5Component;
+    use openzeppelin_token::common::erc2981::ERC2981Component::ROYALTY_ADMIN_ROLE;
+    use openzeppelin_token::common::erc2981::{ERC2981Component, DefaultConfig};
     use starknet::ContractAddress;
 
     component!(path: ERC2981Component, storage: erc2981, event: ERC2981Event);

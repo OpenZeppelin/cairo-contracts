@@ -3,7 +3,7 @@ use core::poseidon::PoseidonTrait;
 use crate::erc20::ERC20Component::{ERC20MixinImpl, InternalImpl};
 use crate::erc20::interface::{ERC20PermitABIDispatcher, ERC20PermitABIDispatcherTrait};
 use crate::erc20::snip12_utils::permit::{Permit, PERMIT_TYPE_HASH};
-use crate::tests::mocks::erc20_permit_mocks::DualCaseERC20PermitMock;
+use openzeppelin_test_common::mocks::erc20::DualCaseERC20PermitMock;
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants;
 use openzeppelin_testing::signing::{StarkKeyPair, StarkSerializedSigning};

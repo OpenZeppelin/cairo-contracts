@@ -7,6 +7,7 @@ This crate provides an interface and component used for upgradeability.
 ### Interfaces
 
 - [`IUpgradeable`](https://docs.openzeppelin.com/contracts-cairo/0.17.0/api/upgrades#IUpgradeable)
+- [`IUpgradeAndCall`](https://docs.openzeppelin.com/contracts-cairo/0.17.0/api/upgrades#IUpgradeAndCall)
 
 ### Components
 

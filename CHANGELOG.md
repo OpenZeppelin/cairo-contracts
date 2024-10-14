@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `IUpgradeAndCall` interface (#1148)
+- `upgrade_and_call` function in UpgradeableComponent's InternalImpl (#1148)
 - `ERC20Permit` impl for `ERC20Component` facilitating token approvals via off-chain signatures (#1140)
 - `ISNIP12Metadata` interface for discovering name and version of a SNIP-12 impl (#1140)
 - `SNIP12MetadataExternal` impl of `ISNIP12Metadata` interface for `ERC20Component` (#1140)

@@ -10,10 +10,12 @@ use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{SUPPLY, ZERO, DELEGATOR, DELEGATEE, OTHER, RECIPIENT};
 use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_token::erc20::ERC20Component::InternalTrait;
+use openzeppelin_token::erc20::interface::IERC20;
 use openzeppelin_token::erc721::ERC721Component::{
     ERC721MetadataImpl, InternalImpl as ERC721InternalImpl,
 };
 use openzeppelin_token::erc721::ERC721Component::{ERC721Impl, ERC721CamelOnlyImpl};
+use openzeppelin_token::erc721::interface::IERC721;
 use openzeppelin_utils::cryptography::snip12::OffchainMessageHash;
 use openzeppelin_utils::structs::checkpoint::TraceTrait;
 use snforge_std::signature::stark_curve::{StarkCurveKeyPairImpl, StarkCurveSignerImpl};
@@ -78,6 +80,10 @@ fn setup_account(public_key: felt252) -> ContractAddress {
 // Common tests for Votes
 //
 
+//
+// get_votes
+//
+
 #[test]
 fn test_get_votes() {
     let mut state = setup_erc721_votes();
@@ -88,6 +94,10 @@ fn test_get_votes() {
 
     assert_eq!(state.get_votes(DELEGATOR()), ERC721_INITIAL_MINT);
 }
+
+//
+// get_past_votes
+//
 
 #[test]
 fn test_get_past_votes() {
@@ -115,6 +125,10 @@ fn test_get_past_votes_future_lookup() {
     start_cheat_block_timestamp_global('ts1');
     state.get_past_votes(DELEGATOR(), 'ts2');
 }
+
+//
+// get_past_total_supply
+//
 
 #[test]
 fn test_get_past_total_supply() {
@@ -154,6 +168,21 @@ fn test_get_past_total_supply_future_lookup() {
     state.get_past_total_supply('ts2');
 }
 
+//
+// delegates
+//
+
+#[test]
+fn test_delegates() {
+    let mut state = setup_erc721_votes();
+    state.delegate(DELEGATOR());
+    assert_eq!(state.delegates(DELEGATOR()), DELEGATOR());
+}
+
+//
+// delegate
+//
+
 #[test]
 fn test_self_delegate() {
     let mut state = setup_erc721_votes();
@@ -171,7 +200,7 @@ fn test_self_delegate() {
 }
 
 #[test]
-fn test_delegate_to_recipient_updates_votes() {
+fn test_delegate_to_delegatee_updates_votes() {
     let mut state = setup_erc721_votes();
     let contract_address = test_address();
     let mut spy = spy_events();
@@ -188,7 +217,7 @@ fn test_delegate_to_recipient_updates_votes() {
 }
 
 #[test]
-fn test_delegate_to_recipient_updates_delegates() {
+fn test_delegate_to_delegatee_updates_delegates() {
     let mut state = setup_erc721_votes();
     start_cheat_caller_address(test_address(), DELEGATOR());
     state.delegate(DELEGATOR());
@@ -196,6 +225,29 @@ fn test_delegate_to_recipient_updates_delegates() {
     state.delegate(DELEGATEE());
     assert_eq!(state.delegates(DELEGATOR()), DELEGATEE());
 }
+
+#[test]
+fn test_delegate_with_no_balance() {
+    let mut state = setup_erc721_votes();
+    let contract_address = test_address();
+    let mut spy = spy_events();
+    start_cheat_caller_address(contract_address, OTHER());
+
+    // OTHER has no balance, so delegating should not change any votes
+    state.delegate(DELEGATEE());
+
+    spy.assert_event_delegate_changed(contract_address, OTHER(), ZERO(), DELEGATEE());
+    // No DelegateVotesChanged event should be emitted
+    spy.assert_no_events_left_from(contract_address);
+
+    assert_eq!(state.get_votes(DELEGATEE()), 0);
+    assert_eq!(state.get_votes(OTHER()), 0);
+    assert_eq!(state.delegates(OTHER()), DELEGATEE());
+}
+
+//
+// delegate_by_sig
+//
 
 #[test]
 fn test_delegate_by_sig() {
@@ -340,6 +392,10 @@ fn test_delegate_by_sig_reused_signature() {
     state.delegate_by_sig(delegator, delegatee, nonce, expiry, array![r, s].span());
 }
 
+//
+// num_checkpoints
+//
+
 #[test]
 fn test_num_checkpoints() {
     let mut state = setup_erc721_votes();
@@ -354,6 +410,10 @@ fn test_num_checkpoints() {
     assert_eq!(state.num_checkpoints(DELEGATOR()), 3);
     assert_eq!(state.num_checkpoints(OTHER()), 0);
 }
+
+//
+// checkpoints
+//
 
 #[test]
 fn test_checkpoints() {
@@ -465,6 +525,99 @@ fn test_erc_721_get_total_supply() {
 fn test_erc_20_get_total_supply() {
     let state = setup_erc20_votes();
     assert_eq!(state.get_total_supply(), SUPPLY);
+}
+
+#[test]
+fn test_erc_20_voting_units_update_with_full_balance_transfer() {
+    let mut state = setup_erc20_votes();
+    let mut mock_state = ERC20VOTES_CONTRACT_STATE();
+    let contract_address = test_address();
+    start_cheat_caller_address(contract_address, DELEGATOR());
+
+    // DELEGATOR self-delegates
+    state.delegate(DELEGATOR());
+    assert_eq!(state.get_votes(DELEGATOR()), SUPPLY);
+
+    let mut spy = spy_events();
+
+    // Full balance transfer
+    mock_state.erc20.transfer(RECIPIENT(), SUPPLY);
+
+    spy.assert_event_delegate_votes_changed(contract_address, DELEGATOR(), SUPPLY, 0);
+    assert_eq!(state.get_votes(DELEGATOR()), 0);
+    assert_eq!(state.get_votes(RECIPIENT()), 0); // RECIPIENT hasn't delegated yet
+
+    // RECIPIENT delegates to themselves
+    start_cheat_caller_address(contract_address, RECIPIENT());
+    state.delegate(RECIPIENT());
+
+    spy.assert_event_delegate_votes_changed(contract_address, RECIPIENT(), 0, SUPPLY);
+    assert_eq!(state.get_votes(RECIPIENT()), SUPPLY);
+}
+
+#[test]
+fn test_erc_20_voting_units_update_with_partial_balance_transfer() {
+    let mut state = setup_erc20_votes();
+    let mut mock_state = ERC20VOTES_CONTRACT_STATE();
+    let contract_address = test_address();
+    start_cheat_caller_address(contract_address, DELEGATOR());
+
+    // DELEGATOR self-delegates
+    state.delegate(DELEGATOR());
+    assert_eq!(state.get_votes(DELEGATOR()), SUPPLY);
+
+    let mut spy = spy_events();
+
+    // Partial transfer
+    let partial_amount = SUPPLY / 2;
+    mock_state.erc20.transfer(RECIPIENT(), partial_amount);
+
+    spy
+        .assert_event_delegate_votes_changed(
+            contract_address, DELEGATOR(), SUPPLY, SUPPLY - partial_amount
+        );
+    assert_eq!(state.get_votes(DELEGATOR()), SUPPLY - partial_amount);
+    assert_eq!(state.get_votes(RECIPIENT()), 0); // RECIPIENT hasn't delegated yet
+
+    // RECIPIENT delegates to themselves
+    start_cheat_caller_address(contract_address, RECIPIENT());
+    state.delegate(RECIPIENT());
+
+    spy.assert_event_delegate_votes_changed(contract_address, RECIPIENT(), 0, partial_amount);
+    assert_eq!(state.get_votes(RECIPIENT()), partial_amount);
+}
+
+#[test]
+fn test_erc721_voting_units_update_with_single_token_transfer() {
+    let mut state = setup_erc721_votes();
+    let mut mock_state = ERC721VOTES_CONTRACT_STATE();
+    let contract_address = test_address();
+    start_cheat_caller_address(contract_address, DELEGATOR());
+
+    // DELEGATOR self-delegates
+    state.delegate(DELEGATOR());
+    assert_eq!(state.get_votes(DELEGATOR()), ERC721_INITIAL_MINT);
+
+    let mut spy = spy_events();
+
+    // Transfer a single token
+    let token_id = 0;
+    mock_state.erc721.transfer_from(DELEGATOR(), RECIPIENT(), token_id);
+
+    spy
+        .assert_event_delegate_votes_changed(
+            contract_address, DELEGATOR(), ERC721_INITIAL_MINT, ERC721_INITIAL_MINT - 1
+        );
+
+    assert_eq!(state.get_votes(DELEGATOR()), ERC721_INITIAL_MINT - 1);
+    assert_eq!(state.get_votes(RECIPIENT()), 0); // RECIPIENT hasn't delegated yet
+
+    // RECIPIENT delegates to themselves
+    start_cheat_caller_address(contract_address, RECIPIENT());
+    state.delegate(RECIPIENT());
+
+    spy.assert_event_delegate_votes_changed(contract_address, RECIPIENT(), 0, 1);
+    assert_eq!(state.get_votes(RECIPIENT()), 1);
 }
 
 //

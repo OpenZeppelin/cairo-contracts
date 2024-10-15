@@ -716,11 +716,11 @@ NOTE: When using this module, your contract must implement the {VotingUnitsTrait
 --
 .InternalImpl
 * xref:#VotesComponent-get_total_supply[`++get_total_supply(self)++`]
-* xref:#VotesComponent-_delegate[`++_delegate(self, account, delegatee)++`]
 * xref:#VotesComponent-move_delegate_votes[`++move_delegate_votes(self, from, to, amount)++`]
 * xref:#VotesComponent-transfer_voting_units[`++transfer_voting_units(self, from, to, amount)++`]
 * xref:#VotesComponent-num_checkpoints[`++num_checkpoints(self, account)++`]
 * xref:#VotesComponent-checkpoints[`++checkpoints(self, account, pos)++`]
+* xref:#VotesComponent-_delegate[`++_delegate(self, account, delegatee)++`]
 --
 
 [.contract-index]
@@ -845,16 +845,6 @@ May emit one or two {DelegateVotesChanged} events.
 Returns the current total supply of votes.
 
 [.contract-item]
-[[VotesComponent-_delegate]]
-==== `[.contract-item-name]#++_delegate++#++(ref self: ComponentState<TContractState>, account: ContractAddress, delegatee: ContractAddress)++` [.item-kind]#internal#
-
-Delegates all of ``account``'s voting units to `delegatee`.
-
-Emits a {DelegateChanged} event.
-
-May emit one or two {DelegateVotesChanged} events.
-
-[.contract-item]
 [[VotesComponent-move_delegate_votes]]
 ==== `[.contract-item-name]#++move_delegate_votes++#++(ref self: ComponentState<TContractState>, from: ContractAddress, to: ContractAddress, amount: u256)++` [.item-kind]#internal#
 
@@ -886,6 +876,16 @@ Returns the number of checkpoints for `account`.
 ==== `[.contract-item-name]#++checkpoints++#++(self: @ComponentState<TContractState>, account: ContractAddress, pos: u64) → Checkpoint++` [.item-kind]#internal#
 
 Returns the `pos`-th checkpoint for `account`.
+
+[.contract-item]
+[[VotesComponent-_delegate]]
+==== `[.contract-item-name]#++_delegate++#++(ref self: ComponentState<TContractState>, account: ContractAddress, delegatee: ContractAddress)++` [.item-kind]#internal#
+
+Delegates all of ``account``'s voting units to `delegatee`.
+
+Emits a {DelegateChanged} event.
+
+May emit one or two {DelegateVotesChanged} events.
 
 [#VotesComponent-Events]
 ==== Events

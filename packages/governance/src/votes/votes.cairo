@@ -251,24 +251,6 @@ pub mod VotesComponent {
             self.Votes_total_checkpoints.deref().latest()
         }
 
-        /// Delegates all of `account`'s voting units to `delegatee`.
-        ///
-        /// Emits a `DelegateChanged` event.
-        /// May emit one or two `DelegateVotesChanged` events.
-        fn _delegate(
-            ref self: ComponentState<TContractState>,
-            account: ContractAddress,
-            delegatee: ContractAddress
-        ) {
-            let from_delegate = self.delegates(account);
-            self.Votes_delegatee.write(account, delegatee);
-            self
-                .emit(
-                    DelegateChanged { delegator: account, from_delegate, to_delegate: delegatee }
-                );
-            self.move_delegate_votes(from_delegate, delegatee, self.get_voting_units(account));
-        }
-
         /// Moves delegated votes from one delegate to another.
         ///
         /// May emit one or two `DelegateVotesChanged` events.
@@ -334,6 +316,24 @@ pub mod VotesComponent {
             self: @ComponentState<TContractState>, account: ContractAddress, pos: u64
         ) -> Checkpoint {
             self.Votes_delegate_checkpoints.entry(account).at(pos)
+        }
+
+        /// Delegates all of `account`'s voting units to `delegatee`.
+        ///
+        /// Emits a `DelegateChanged` event.
+        /// May emit one or two `DelegateVotesChanged` events.
+        fn _delegate(
+            ref self: ComponentState<TContractState>,
+            account: ContractAddress,
+            delegatee: ContractAddress
+        ) {
+            let from_delegate = self.delegates(account);
+            self.Votes_delegatee.write(account, delegatee);
+            self
+                .emit(
+                    DelegateChanged { delegator: account, from_delegate, to_delegate: delegatee }
+                );
+            self.move_delegate_votes(from_delegate, delegatee, self.get_voting_units(account));
         }
     }
 }

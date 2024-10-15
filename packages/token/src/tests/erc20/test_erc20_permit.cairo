@@ -9,7 +9,7 @@ use openzeppelin_test_common::mocks::erc20::DualCaseERC20PermitMock;
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants;
 use openzeppelin_testing::signing::{StarkKeyPair, StarkSerializedSigning};
-use openzeppelin_utils::cryptography::snip12::{StarknetDomain, StructHashStarknetDomainImpl};
+use openzeppelin_utils::cryptography::snip12::{StructHash, StarknetDomain};
 use snforge_std::signature::stark_curve::StarkCurveSignerImpl;
 use snforge_std::{start_cheat_block_timestamp, start_cheat_chain_id_global};
 use snforge_std::{start_cheat_caller_address, test_address};

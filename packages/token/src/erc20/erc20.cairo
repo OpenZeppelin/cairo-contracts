@@ -388,6 +388,11 @@ pub mod ERC20Component {
         TContractState, +HasComponent<TContractState>, impl Metadata: SNIP12Metadata
     > of ISNIP12Metadata<ComponentState<TContractState>> {
         /// Returns domain name and version used for generating a message hash for permit signature.
+        ///
+        /// The returned tuple contains:
+        ///
+        /// - `t.0`: The name used in the SNIP12Metadata implementation.
+        /// - `t.1`: The version used in the SNIP12Metadata implementation.
         fn snip12_metadata(self: @ComponentState<TContractState>) -> (felt252, felt252) {
             (Metadata::name(), Metadata::version())
         }

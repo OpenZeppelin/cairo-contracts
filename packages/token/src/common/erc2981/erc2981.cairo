@@ -148,9 +148,7 @@ pub mod ERC2981Component {
         +Drop<TContractState>,
     > of interface::IERC2981Admin<ComponentState<TContractState>> {
         fn set_default_royalty(
-            ref self: ComponentState<TContractState>,
-            receiver: ContractAddress,
-            fee_numerator: u128,
+            ref self: ComponentState<TContractState>, receiver: ContractAddress, fee_numerator: u128
         ) {
             get_dep_component!(@self, Ownable).assert_only_owner();
             InternalImpl::set_default_royalty(ref self, receiver, fee_numerator)
@@ -194,9 +192,7 @@ pub mod ERC2981Component {
         +Drop<TContractState>,
     > of interface::IERC2981Admin<ComponentState<TContractState>> {
         fn set_default_royalty(
-            ref self: ComponentState<TContractState>,
-            receiver: ContractAddress,
-            fee_numerator: u128,
+            ref self: ComponentState<TContractState>, receiver: ContractAddress, fee_numerator: u128
         ) {
             get_dep_component!(@self, AccessControl).assert_only_role(ROYALTY_ADMIN_ROLE);
             InternalImpl::set_default_royalty(ref self, receiver, fee_numerator)
@@ -276,9 +272,7 @@ pub mod ERC2981Component {
         /// - `receiver` cannot be the zero address.
         /// - `fee_numerator` cannot be greater than the fee denominator.
         fn set_default_royalty(
-            ref self: ComponentState<TContractState>,
-            receiver: ContractAddress,
-            fee_numerator: u128,
+            ref self: ComponentState<TContractState>, receiver: ContractAddress, fee_numerator: u128
         ) {
             let fee_denominator = Immutable::FEE_DENOMINATOR;
             assert(fee_numerator <= fee_denominator, Errors::INVALID_ROYALTY);
@@ -318,7 +312,8 @@ pub mod ERC2981Component {
             (royalty_info.receiver, royalty_info.royalty_fraction, Immutable::FEE_DENOMINATOR)
         }
 
-        /// Sets the royalty information for a specific token id, overriding the global default.
+        /// Sets the royalty information for a specific token id that takes precedence over the
+        /// global default.
         ///
         /// Requirements:
         ///

@@ -418,7 +418,7 @@ pub trait VotesABI<TState> {
     fn get_past_total_supply(self: @TState, timepoint: u64) -> u256;
     fn delegates(self: @TState, account: ContractAddress) -> ContractAddress;
     fn delegate(ref self: TState, delegatee: ContractAddress);
-    fn delegate_by_sig(ref self: TState, delegator: ContractAddress, delegatee: ContractAddress, nonce: felt252, expiry: u64, signature: Array<felt252>);
+    fn delegate_by_sig(ref self: TState, delegator: ContractAddress, delegatee: ContractAddress, nonce: felt252, expiry: u64, signature: Span<felt252>);
 
     // INonces
     fn nonces(self: @TState, owner: ContractAddress) -> felt252;

@@ -222,7 +222,7 @@ fn test_delegate_by_sig() {
 
     // Set up event spy and execute delegation
     let mut spy = spy_events();
-    state.delegate_by_sig(delegator, delegatee, nonce, expiry, array![r, s]);
+    state.delegate_by_sig(delegator, delegatee, nonce, expiry, array![r, s].span());
 
     spy.assert_only_event_delegate_changed(contract_address, delegator, ZERO(), delegatee);
     assert_eq!(state.delegates(account), delegatee);
@@ -264,7 +264,7 @@ fn test_delegate_by_sig_past_expiry() {
     let expiry = 'ts4';
     let signature = array![0, 0];
 
-    state.delegate_by_sig(DELEGATOR(), DELEGATEE(), 0, expiry, signature);
+    state.delegate_by_sig(DELEGATOR(), DELEGATEE(), 0, expiry, signature.span());
 }
 
 #[test]
@@ -273,7 +273,7 @@ fn test_delegate_by_sig_invalid_nonce() {
     let mut state = setup_erc721_votes();
     let signature = array![0, 0];
 
-    state.delegate_by_sig(DELEGATOR(), DELEGATEE(), 1, 0, signature);
+    state.delegate_by_sig(DELEGATOR(), DELEGATEE(), 1, 0, signature.span());
 }
 
 #[test]
@@ -293,7 +293,7 @@ fn test_delegate_by_sig_invalid_signature() {
 
     start_cheat_block_timestamp_global('ts1');
     // Use an invalid signature
-    state.delegate_by_sig(delegator, delegatee, nonce, expiry, array![r + 1, s]);
+    state.delegate_by_sig(delegator, delegatee, nonce, expiry, array![r + 1, s].span());
 }
 
 #[test]
@@ -314,7 +314,7 @@ fn test_delegate_by_sig_bad_delegatee() {
 
     start_cheat_block_timestamp_global('ts1');
     // Use a different delegatee than the one signed for
-    state.delegate_by_sig(delegator, bad_delegatee, nonce, expiry, array![r, s]);
+    state.delegate_by_sig(delegator, bad_delegatee, nonce, expiry, array![r, s].span());
 }
 
 #[test]
@@ -334,10 +334,10 @@ fn test_delegate_by_sig_reused_signature() {
 
     start_cheat_block_timestamp_global('ts1');
     // First delegation (should succeed)
-    state.delegate_by_sig(delegator, delegatee, nonce, expiry, array![r, s]);
+    state.delegate_by_sig(delegator, delegatee, nonce, expiry, array![r, s].span());
 
     // Attempt to reuse the same signature (should fail)
-    state.delegate_by_sig(delegator, delegatee, nonce, expiry, array![r, s]);
+    state.delegate_by_sig(delegator, delegatee, nonce, expiry, array![r, s].span());
 }
 
 #[test]

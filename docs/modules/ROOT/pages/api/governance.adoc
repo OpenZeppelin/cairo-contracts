@@ -670,7 +670,7 @@ Delegates votes from the sender to `delegatee`.
 
 [.contract-item]
 [[IVotes-delegate_by_sig]]
-==== `[.contract-item-name]#++delegate_by_sig++#++(delegator: ContractAddress, delegatee: ContractAddress, nonce: felt252, expiry: u64, signature: Array<felt252>)++` [.item-kind]#external#
+==== `[.contract-item-name]#++delegate_by_sig++#++(delegator: ContractAddress, delegatee: ContractAddress, nonce: felt252, expiry: u64, signature: Span<felt252>)++` [.item-kind]#external#
 
 Delegates votes from `delegator` to `delegatee`.
 
@@ -692,10 +692,10 @@ NOTE: When using this module, your contract must implement the {VotingUnitsTrait
 .Voting Units Trait Implementations
 --
 .ERC20VotesImpl
-* xref:#VotingUnitsTrait-get_voting_units[`++get_voting_units(self, account)++`]
+* xref:#VotesComponent-ERC20VotesImpl-get_voting_units[`++get_voting_units(self, account)++`]
 
 .ERC721VotesImpl
-* xref:#VotingUnitsTrait-get_voting_units[`++get_voting_units(self, account)++`]
+* xref:#VotesComponent-ERC721VotesImpl-get_voting_units[`++get_voting_units(self, account)++`]
 --
 
 [.contract-index#VotesComponent-Embeddable-Impls]
@@ -726,6 +726,44 @@ NOTE: When using this module, your contract must implement the {VotingUnitsTrait
 * xref:#VotesComponent-DelegateChanged[`++DelegateChanged(delegator, from_delegate, to_delegate)++`]
 * xref:#VotesComponent-DelegateVotesChanged[`++DelegateVotesChanged(delegate, previous_votes, new_votes)++`]
 --
+
+[#VotesComponent-VotingUnitsTrait-Implementations]
+==== ERC20VotesImpl
+
+[.contract-item]
+[[VotesComponent-ERC20VotesImpl-get_voting_units]]
+==== `[.contract-item-name]#++get_voting_units++#++(self: @ComponentState<TContractState>, account: ContractAddress) → u256++` [.item-kind]#internal#
+
+Returns the number of voting units for a given account.
+
+This implementation is specific to ERC20 tokens, where the balance
+of tokens directly represents the number of voting units.
+
+NOTE: This implementation will work out of the box if the ERC20 component
+is implemented in the final contract.
+
+WARNING: This implementation assumes tokens map to voting units 1:1.
+Any deviation from this formula when transferring voting units (e.g. by using hooks)
+may compromise the internal vote accounting.
+
+==== ERC721VotesImpl
+
+[.contract-item]
+[[VotesComponent-ERC721VotesImpl-get_voting_units]]
+==== `[.contract-item-name]#++get_voting_units++#++(self: @ComponentState<TContractState>, account: ContractAddress) → u256++` [.item-kind]#internal#
+
+Returns the number of voting units for a given account.
+
+This implementation is specific to ERC721 tokens, where each token
+represents one voting unit. The function returns the balance of
+ERC721 tokens for the specified account.
+
+NOTE: This implementation will work out of the box if the ERC721 component
+is implemented in the final contract.
+
+WARNING: This implementation assumes tokens map to voting units 1:1.
+Any deviation from this formula when transferring voting units (e.g. by using hooks)
+may compromise the internal vote accounting.
 
 [#VotesComponent-Functions]
 ==== Functions
@@ -778,7 +816,7 @@ May emit one or two {DelegateVotesChanged} events.
 
 [.contract-item]
 [[VotesComponent-delegate_by_sig]]
-==== `[.contract-item-name]#++delegate_by_sig++#++(ref self: ComponentState<TContractState>, delegator: ContractAddress, delegatee: ContractAddress, nonce: felt252, expiry: u64, signature: Array<felt252>)++` [.item-kind]#external#
+==== `[.contract-item-name]#++delegate_by_sig++#++(ref self: ComponentState<TContractState>, delegator: ContractAddress, delegatee: ContractAddress, nonce: felt252, expiry: u64, signature: Span<felt252>)++` [.item-kind]#external#
 
 Delegates votes from `delegator` to `delegatee` through a SNIP12 message signature validation.
 

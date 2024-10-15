@@ -33,7 +33,7 @@ pub trait IVotes<TState> {
         delegatee: ContractAddress,
         nonce: felt252,
         expiry: u64,
-        signature: Array<felt252>
+        signature: Span<felt252>
     );
 }
 
@@ -52,7 +52,7 @@ pub trait VotesABI<TState> {
         delegatee: ContractAddress,
         nonce: felt252,
         expiry: u64,
-        signature: Array<felt252>
+        signature: Span<felt252>
     );
 
     // Nonces

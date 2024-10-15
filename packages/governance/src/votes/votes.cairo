@@ -21,78 +21,9 @@ use starknet::ContractAddress;
 /// whenever a transfer, mint, or burn operation is performed. Hooks can be leveraged for this
 /// purpose, as shown in the following ERC20 example:
 ///
-/// ```cairo
-/// #[starknet::contract]
-/// pub mod ERC20VotesContract {
-///     use openzeppelin_governance::votes::VotesComponent;
-///     use openzeppelin_token::erc20::ERC20Component;
-///     use openzeppelin_utils::cryptography::nonces::NoncesComponent;
-///     use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
-///     use starknet::ContractAddress;
-///
-///     component!(path: VotesComponent, storage: erc20_votes, event: ERC20VotesEvent);
-///     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
-///     component!(path: NoncesComponent, storage: nonces, event: NoncesEvent);
-///
-///     #[abi(embed_v0)]
-///     impl VotesImpl = VotesComponent::VotesImpl<ContractState>;
-///     impl VotesInternalImpl = VotesComponent::InternalImpl<ContractState>;
-///
-///     #[abi(embed_v0)]
-///     impl ERC20MixinImpl = ERC20Component::ERC20MixinImpl<ContractState>;
-///     impl ERC20InternalImpl = ERC20Component::InternalImpl<ContractState>;
-///
-///     #[abi(embed_v0)]
-///     impl NoncesImpl = NoncesComponent::NoncesImpl<ContractState>;
-///
-///     #[storage]
-///     pub struct Storage {
-///         #[substorage(v0)]
-///         pub erc20_votes: VotesComponent::Storage,
-///         #[substorage(v0)]
-///         pub erc20: ERC20Component::Storage,
-///         #[substorage(v0)]
-///         pub nonces: NoncesComponent::Storage
-///     }
-///
-///     #[event]
-///     #[derive(Drop, starknet::Event)]
-///     enum Event {
-///         #[flat]
-///         ERC20VotesEvent: VotesComponent::Event,
-///         #[flat]
-///         ERC20Event: ERC20Component::Event,
-///         #[flat]
-///         NoncesEvent: NoncesComponent::Event
-///     }
-///
-///     pub impl SNIP12MetadataImpl of SNIP12Metadata {
-///         fn name() -> felt252 {
-///             'DAPP_NAME'
-///         }
-///         fn version() -> felt252 {
-///             'DAPP_VERSION'
-///         }
-///     }
-///
-///     impl ERC20VotesHooksImpl of ERC20Component::ERC20HooksTrait<ContractState> {
-///         fn after_update(
-///             ref self: ERC20Component::ComponentState<ContractState>,
-///             from: ContractAddress,
-///             recipient: ContractAddress,
-///             amount: u256
-///         ) {
-///             let mut contract_state = ERC20Component::HasComponent::get_contract_mut(ref self);
-///             contract_state.erc20_votes.transfer_voting_units(from, recipient, amount);
-///         }
-///     }
-///
-///     #[constructor]
-///     fn constructor(ref self: ContractState) {
-///         self.erc20.initializer("MyToken", "MTK");
-///     }
-/// }
-/// ```
+/// See [the documentation]
+/// (https://docs.openzeppelin.com/contracts-cairo/0.17.0/governance.html#usage_2)
+/// for examples and more details.
 #[starknet::component]
 pub mod VotesComponent {
     use core::num::traits::Zero;
@@ -223,7 +154,7 @@ pub mod VotesComponent {
             delegatee: ContractAddress,
             nonce: felt252,
             expiry: u64,
-            signature: Array<felt252>
+            signature: Span<felt252>
         ) {
             assert(starknet::get_block_timestamp() <= expiry, Errors::EXPIRED_SIGNATURE);
 
@@ -236,7 +167,7 @@ pub mod VotesComponent {
             let hash = delegation.get_message_hash(delegator);
 
             let is_valid_signature_felt = ISRC6Dispatcher { contract_address: delegator }
-                .is_valid_signature(hash, signature);
+                .is_valid_signature(hash, signature.into());
 
             // Check either 'VALID' or true for backwards compatibility.
             let is_valid_signature = is_valid_signature_felt == starknet::VALIDATED

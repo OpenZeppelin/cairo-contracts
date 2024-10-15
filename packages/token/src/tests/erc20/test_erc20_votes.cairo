@@ -4,7 +4,7 @@ use crate::erc20::ERC20Component::InternalImpl as ERC20Impl;
 use crate::erc20::extensions::ERC20VotesComponent::{DelegateChanged, DelegateVotesChanged};
 use crate::erc20::extensions::ERC20VotesComponent::{ERC20VotesImpl, InternalImpl};
 use crate::erc20::extensions::ERC20VotesComponent;
-use crate::erc20::extensions::erc20_votes::Delegation;
+use crate::erc20::snip12_utils::votes::Delegation;
 use openzeppelin_test_common::mocks::erc20::DualCaseERC20VotesMock::SNIP12MetadataImpl;
 use openzeppelin_test_common::mocks::erc20::DualCaseERC20VotesMock;
 use openzeppelin_testing as utils;
@@ -52,7 +52,7 @@ fn setup_account(public_key: felt252) -> ContractAddress {
 // Checkpoints unordered insertion
 
 #[test]
-#[should_panic(expected: ('Unordered insertion',))]
+#[should_panic(expected: 'Unordered insertion')]
 fn test__delegate_checkpoints_unordered_insertion() {
     let mut state = setup();
     let mut trace = state.ERC20Votes_delegate_checkpoints.read(OWNER());
@@ -63,7 +63,7 @@ fn test__delegate_checkpoints_unordered_insertion() {
 }
 
 #[test]
-#[should_panic(expected: ('Unordered insertion',))]
+#[should_panic(expected: 'Unordered insertion')]
 fn test__total_checkpoints_unordered_insertion() {
     let mut state = setup();
     let mut trace = state.ERC20Votes_total_checkpoints.read();
@@ -111,7 +111,7 @@ fn test_get_past_votes() {
 }
 
 #[test]
-#[should_panic(expected: ('Votes: future Lookup',))]
+#[should_panic(expected: 'Votes: future Lookup')]
 fn test_get_past_votes_future_lookup() {
     let state = setup();
 
@@ -145,7 +145,7 @@ fn test_get_past_total_supply() {
 }
 
 #[test]
-#[should_panic(expected: ('Votes: future Lookup',))]
+#[should_panic(expected: 'Votes: future Lookup')]
 fn test_get_past_total_supply_future_lookup() {
     let state = setup();
 
@@ -264,7 +264,7 @@ fn test_delegate_by_sig() {
 }
 
 #[test]
-#[should_panic(expected: ('Votes: expired signature',))]
+#[should_panic(expected: 'Votes: expired signature')]
 fn test_delegate_by_sig_past_expiry() {
     start_cheat_block_timestamp_global('ts5');
 
@@ -276,7 +276,7 @@ fn test_delegate_by_sig_past_expiry() {
 }
 
 #[test]
-#[should_panic(expected: ('Nonces: invalid nonce',))]
+#[should_panic(expected: 'Nonces: invalid nonce')]
 fn test_delegate_by_sig_invalid_nonce() {
     let mut state = setup();
     let signature = array![0, 0];
@@ -285,7 +285,7 @@ fn test_delegate_by_sig_invalid_nonce() {
 }
 
 #[test]
-#[should_panic(expected: ('Votes: invalid signature',))]
+#[should_panic(expected: 'Votes: invalid signature')]
 fn test_delegate_by_sig_invalid_signature() {
     let mut state = setup();
     let account = setup_account(0x123);
@@ -332,7 +332,7 @@ fn test_checkpoints() {
 }
 
 #[test]
-#[should_panic(expected: ('Array overflow',))]
+#[should_panic(expected: 'Array overflow')]
 fn test__checkpoints_array_overflow() {
     let state = setup();
     state.checkpoints(OWNER(), 1);

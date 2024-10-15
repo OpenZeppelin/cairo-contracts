@@ -216,7 +216,8 @@ IMPORTANT: The transferring of voting units must be handled by the implementing 
 === Key Features
 
 1. *Delegation*: Users can delegate their voting power to any address, including themselves. Vote power can be delegated either by calling the {delegate} function directly, or by providing a signature to be used with {delegate_by_sig}.
-2. *Historical lookups*: The system keeps track of historical snapshots for each account, allowing to query the voting power of an account at a specific block timestamp. This can be used for example to determine the voting power of an account when a proposal was created, rather than using the current balance.
+2. *Historical lookups*: The system keeps track of historical snapshots for each account, which allows the voting power of an account to be queried at a specific timestamp. +
+This can be used for example to determine the voting power of an account when a proposal was created, rather than using the current balance.
 
 === Usage
 

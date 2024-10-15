@@ -672,7 +672,7 @@ Delegates votes from the sender to `delegatee`.
 [[IVotes-delegate_by_sig]]
 ==== `[.contract-item-name]#++delegate_by_sig++#++(delegator: ContractAddress, delegatee: ContractAddress, nonce: felt252, expiry: u64, signature: Span<felt252>)++` [.item-kind]#external#
 
-Delegates votes from `delegator` to `delegatee`.
+Delegates votes from `delegator` to `delegatee` through a SNIP12 message signature validation.
 
 [.contract]
 [[VotesComponent]]
@@ -715,9 +715,12 @@ NOTE: When using this module, your contract must implement the {VotingUnitsTrait
 .Internal implementations
 --
 .InternalImpl
+* xref:#VotesComponent-get_total_supply[`++get_total_supply(self)++`]
 * xref:#VotesComponent-_delegate[`++_delegate(self, account, delegatee)++`]
 * xref:#VotesComponent-move_delegate_votes[`++move_delegate_votes(self, from, to, amount)++`]
 * xref:#VotesComponent-transfer_voting_units[`++transfer_voting_units(self, from, to, amount)++`]
+* xref:#VotesComponent-num_checkpoints[`++num_checkpoints(self, account)++`]
+* xref:#VotesComponent-checkpoints[`++checkpoints(self, account, pos)++`]
 --
 
 [.contract-index]
@@ -727,7 +730,7 @@ NOTE: When using this module, your contract must implement the {VotingUnitsTrait
 * xref:#VotesComponent-DelegateVotesChanged[`++DelegateVotesChanged(delegate, previous_votes, new_votes)++`]
 --
 
-[#VotesComponent-VotingUnitsTrait-Implementations]
+[#VotesComponent-ERC20VotesImpl]
 ==== ERC20VotesImpl
 
 [.contract-item]
@@ -746,6 +749,7 @@ WARNING: This implementation assumes tokens map to voting units 1:1.
 Any deviation from this formula when transferring voting units (e.g. by using hooks)
 may compromise the internal vote accounting.
 
+[#VotesComponent-ERC721VotesImpl]
 ==== ERC721VotesImpl
 
 [.contract-item]
@@ -835,6 +839,12 @@ May emit one or two {DelegateVotesChanged} events.
 ==== Internal functions
 
 [.contract-item]
+[[VotesComponent-get_total_supply]]
+==== `[.contract-item-name]#++get_total_supply++#++(self: @ComponentState<TContractState>) → u256++` [.item-kind]#internal#
+
+Returns the current total supply of votes.
+
+[.contract-item]
 [[VotesComponent-_delegate]]
 ==== `[.contract-item-name]#++_delegate++#++(ref self: ComponentState<TContractState>, account: ContractAddress, delegatee: ContractAddress)++` [.item-kind]#internal#
 
@@ -861,11 +871,21 @@ Transfers, mints, or burns voting units.
 To register a mint, `from` should be zero. To register a burn, `to`
 should be zero. Total supply of voting units will be adjusted with mints and burns.
 
-CAUTION: If voting units are a function of an underlying transferrable asset (like a token), this function should be
-called every time the underlying asset is transferred to keep the internal accounting of voting power in sync. For
-`ERC20` and `ERC721` tokens, this is usually done using hooks.
+WARNING: If voting units are based on an underlying transferable asset (like a token), you must call this function every time the asset is transferred to keep the internal voting power accounting in sync. For ERC20 and ERC721 tokens, this is typically handled using hooks.
 
 May emit one or two {DelegateVotesChanged} events.
+
+[.contract-item]
+[[VotesComponent-num_checkpoints]]
+==== `[.contract-item-name]#++num_checkpoints++#++(self: @ComponentState<TContractState>, account: ContractAddress) → u64++` [.item-kind]#internal#
+
+Returns the number of checkpoints for `account`.
+
+[.contract-item]
+[[VotesComponent-checkpoints]]
+==== `[.contract-item-name]#++checkpoints++#++(self: @ComponentState<TContractState>, account: ContractAddress, pos: u64) → Checkpoint++` [.item-kind]#internal#
+
+Returns the `pos`-th checkpoint for `account`.
 
 [#VotesComponent-Events]
 ==== Events

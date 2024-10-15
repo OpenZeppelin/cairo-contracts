@@ -300,10 +300,10 @@ pub mod VotesComponent {
         /// To register a mint, `from` should be zero. To register a burn, `to`
         /// should be zero. Total supply of voting units will be adjusted with mints and burns.
         ///
-        /// WARNING: If voting units are a function of an underlying transferrable asset (like a
-        /// token), this function should be called every time the underlying asset is transferred to
-        /// keep the internal accounting of voting power in sync. For ERC20 and ERC721 tokens, this
-        /// is usually done using hooks.
+        /// WARNING: If voting units are based on an underlying transferable asset (like a token),
+        /// you must call this function every time the asset is transferred to keep the internal
+        /// voting power accounting in sync. For ERC20 and ERC721 tokens, this is typically handled
+        /// using hooks.
         ///
         /// May emit one or two `DelegateVotesChanged` events.
         fn transfer_voting_units(

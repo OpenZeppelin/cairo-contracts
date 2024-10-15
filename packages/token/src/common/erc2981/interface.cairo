@@ -31,9 +31,14 @@ pub trait IERC2981Admin<TState> {
 
 #[starknet::interface]
 pub trait IERC2981ABI<TState> {
+    // IERC2981
     fn royalty_info(self: @TState, token_id: u256, sale_price: u256) -> (ContractAddress, u256);
+
+    // IERC2981StateInfo
     fn default_royalty(self: @TState) -> (ContractAddress, u128, u128);
     fn token_royalty(self: @TState, token_id: u256) -> (ContractAddress, u128, u128);
+
+    // IERC2981Admin
     fn set_default_royalty(ref self: TState, receiver: ContractAddress, fee_numerator: u128,);
     fn delete_default_royalty(ref self: TState);
     fn set_token_royalty(

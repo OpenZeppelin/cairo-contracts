@@ -135,7 +135,7 @@ pub mod ERC2981Component {
     }
 
     //
-    // Admin with Ownable
+    // Ownable-based admin functions
     //
 
     #[embeddable_as(IERC2981AdminOwnableImpl)]
@@ -178,7 +178,7 @@ pub mod ERC2981Component {
     }
 
     //
-    // Admin with AccessControl
+    // AccessControl-based admin functions
     //
 
     // Role for the admin responsible for managing royalty settings.

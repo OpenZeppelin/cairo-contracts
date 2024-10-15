@@ -17,7 +17,6 @@ pub mod ERC2981Mock {
     // SRC5
     #[abi(embed_v0)]
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
-    impl SRC5InternalImpl = SRC5Component::InternalImpl<ContractState>;
 
     #[storage]
     pub struct Storage {
@@ -64,12 +63,14 @@ pub mod ERC2981OwnableMock {
     #[abi(embed_v0)]
     impl ERC2981StateInfoImpl =
         ERC2981Component::ERC2981StateInfoImpl<ContractState>;
-    impl ERC2981InternalImpl = ERC2981Component::InternalImpl<ContractState>;
-
-    // ERC2981Admin
     #[abi(embed_v0)]
     impl IERC2981AdminOwnableImpl =
         ERC2981Component::IERC2981AdminOwnableImpl<ContractState>;
+    impl ERC2981InternalImpl = ERC2981Component::InternalImpl<ContractState>;
+
+    // Ownable
+    #[abi(embed_v0)]
+    impl OwnableImpl = OwnableComponent::OwnableImpl<ContractState>;
     impl OwnableInternalImpl = OwnableComponent::InternalImpl<ContractState>;
 
     // SRC5
@@ -128,12 +129,10 @@ pub mod ERC2981AccessControlMock {
     #[abi(embed_v0)]
     impl ERC2981StateInfoImpl =
         ERC2981Component::ERC2981StateInfoImpl<ContractState>;
-    impl ERC2981InternalImpl = ERC2981Component::InternalImpl<ContractState>;
-
-    // ERC2981Admin
     #[abi(embed_v0)]
     impl IERC2981AdminAccessControlImpl =
         ERC2981Component::IERC2981AdminAccessControlImpl<ContractState>;
+    impl ERC2981InternalImpl = ERC2981Component::InternalImpl<ContractState>;
 
     // AccessControl
     #[abi(embed_v0)]

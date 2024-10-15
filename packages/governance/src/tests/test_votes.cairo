@@ -177,7 +177,7 @@ fn test_delegates() {
     let mut state = setup_erc721_votes();
     let contract_address = test_address();
     start_cheat_caller_address(contract_address, DELEGATOR());
-    
+
     state.delegate(DELEGATOR());
     assert_eq!(state.delegates(DELEGATOR()), DELEGATOR());
 }

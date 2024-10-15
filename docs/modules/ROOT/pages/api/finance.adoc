@@ -114,7 +114,7 @@ use openzeppelin_finance::vesting::VestingComponent;
 Vesting component implementing the xref:IVesting[`IVesting`] interface.
 
 [.contract-index]
-.Vesting Schedule Trait
+.Vesting Schedule Trait Implementations
 --
 .functions
 * xref:#VestingComponent-calculate_vested_amount[`++calculate_vested_amount(self, token, total_allocation, 

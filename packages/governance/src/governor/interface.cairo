@@ -4,6 +4,8 @@
 use starknet::ContractAddress;
 use starknet::account::Call;
 
+pub const IGOVERNOR_ID: felt252 = 0x1f; // TODO: Update this value.
+
 #[starknet::interface]
 pub trait IERC6372<TState> {
     /// Clock used for flagging checkpoints.

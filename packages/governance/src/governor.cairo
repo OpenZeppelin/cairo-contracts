@@ -1,3 +1,4 @@
+pub mod extensions;
 pub mod governor;
 pub mod interface;
 pub mod proposal_core;

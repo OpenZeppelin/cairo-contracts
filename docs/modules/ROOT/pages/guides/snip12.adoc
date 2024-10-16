@@ -122,11 +122,9 @@ is nothing more than the encoding of the message as defined in the {snip}.
 
 [,cairo]
 ----
+use core::hash::{HashStateExTrait, HashStateTrait};
+use core::poseidon::PoseidonTrait;
 use openzeppelin_utils::snip12::StructHash;
-
-use core::hash::HashStateExTrait;
-use hash::{HashStateTrait, Hash};
-use poseidon::PoseidonTrait;
 use starknet::ContractAddress;
 
 const MESSAGE_TYPE_HASH: felt252 =
@@ -190,11 +188,9 @@ using the `get_message_hash` function. The implementation is already available a
 
 [,cairo]
 ----
-use openzeppelin_utils::snip12::{SNIP12Metadata, StructHash, OffchainMessageHashImpl};
-
-use core::hash::HashStateExTrait;
-use hash::{HashStateTrait, Hash};
-use poseidon::PoseidonTrait;
+use core::hash::{HashStateExTrait, HashStateTrait};
+use core::poseidon::PoseidonTrait;
+use openzeppelin_utils::snip12::{SNIP12Metadata, StructHash, OffchainMessageHash};
 use starknet::ContractAddress;
 
 const MESSAGE_TYPE_HASH: felt252 =
@@ -216,23 +212,18 @@ impl StructHashImpl of StructHash<Message> {
 }
 
 impl SNIP12MetadataImpl of SNIP12Metadata {
-    fn name() -> felt252 { 'DAPP_NAME' }
-    fn version() -> felt252 { 'v1' }
+    fn name() -> felt252 {
+        'DAPP_NAME'
+    }
+    fn version() -> felt252 {
+        'v1'
+    }
 }
 
 fn get_hash(
-    account: ContractAddress,
-    recipient: ContractAddress,
-    amount: u256,
-    nonce: felt252,
-    expiry: u64
+    account: ContractAddress, recipient: ContractAddress, amount: u256, nonce: felt252, expiry: u64
 ) -> felt252 {
-    let message = Message {
-        recipient,
-        amount,
-        nonce,
-        expiry
-    };
+    let message = Message { recipient, amount, nonce, expiry };
     message.get_message_hash(account)
 }
 ----
@@ -251,11 +242,9 @@ and the {nonces}[`NoncesComponent`] to handle nonces to prevent replay attacks.
 
 [,cairo]
 ----
-use openzeppelin_utils::snip12::{SNIP12Metadata, StructHash, OffchainMessageHashImpl};
-
-use core::hash::HashStateExTrait;
-use hash::{HashStateTrait, Hash};
-use poseidon::PoseidonTrait;
+use core::hash::{HashStateExTrait, HashStateTrait};
+use core::poseidon::PoseidonTrait;
+use openzeppelin_utils::snip12::{SNIP12Metadata, StructHash, OffchainMessageHash};
 use starknet::ContractAddress;
 
 const MESSAGE_TYPE_HASH: felt252 =
@@ -283,7 +272,7 @@ mod CustomERC20 {
     use openzeppelin_utils::cryptography::nonces::NoncesComponent;
     use starknet::ContractAddress;
 
-    use super::{Message, OffchainMessageHashImpl, SNIP12Metadata};
+    use super::{Message, OffchainMessageHash, SNIP12Metadata};
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
     component!(path: NoncesComponent, storage: nonces, event: NoncesEvent);

@@ -27,6 +27,7 @@ openzeppelin_security = { path = "../security" }
 openzeppelin_token = { path = "../token" }
 openzeppelin_testing = { path = "../testing" }
 openzeppelin_utils = { path = "../utils" }
+openzeppelin_governance = { path = "../governance" }
 
 [lib]
 

@@ -12,3 +12,4 @@ This crate includes primitives for on-chain governance.
 ### Components
 
 - [`TimelockControllerComponent`](https://docs.openzeppelin.com/contracts-cairo/0.17.0/api/governance#TimelockControllerComponent)
+- [`VotesComponent`](https://docs.openzeppelin.com/contracts-cairo/0.17.0/api/governance#VotesComponent)

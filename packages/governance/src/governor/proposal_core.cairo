@@ -6,12 +6,12 @@ use starknet::storage_access::StorePacking;
 
 #[derive(Copy, Drop, Serde)]
 pub struct ProposalCore {
-    proposer: ContractAddress,
-    vote_start: u64,
-    vote_duration: u64,
-    executed: bool,
-    canceled: bool,
-    eta_seconds: u64
+    pub proposer: ContractAddress,
+    pub vote_start: u64,
+    pub vote_duration: u64,
+    pub executed: bool,
+    pub canceled: bool,
+    pub eta_seconds: u64
 }
 
 const _2_POW_184: felt252 = 0x10000000000000000000000000000000000000000000000;

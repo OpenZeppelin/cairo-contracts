@@ -18,7 +18,7 @@ pub trait IERC6372<TState> {
 }
 
 #[derive(Copy, Drop, Serde)]
-enum ProposalState {
+pub enum ProposalState {
     Pending,
     Active,
     Canceled,

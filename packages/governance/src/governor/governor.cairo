@@ -6,16 +6,18 @@
 /// Core of the governance system.
 #[starknet::component]
 pub mod GovernorComponent {
+    use core::hash::{HashStateTrait, HashStateExTrait};
+    use core::poseidon::{PoseidonTrait, poseidon_hash_span};
     use crate::governor::ProposalCore;
     use crate::governor::interface::IGOVERNOR_ID;
-    use openzeppelin_utils::structs::DoubleEndedQueue;
     use openzeppelin_introspection::src5::SRC5Component::InternalImpl as SRC5InternalImpl;
     use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_token::erc721::interface::IERC721_RECEIVER_ID;
     use openzeppelin_token::erc1155::interface::IERC1155_RECEIVER_ID;
+    use openzeppelin_token::erc721::interface::IERC721_RECEIVER_ID;
+    use openzeppelin_utils::structs::DoubleEndedQueue;
     use starknet::ContractAddress;
-    use starknet::storage::Map;
     use starknet::account::Call;
+    use starknet::storage::Map;
 
     #[storage]
     pub struct Storage {
@@ -86,12 +88,23 @@ pub mod GovernorComponent {
 
         /// Hashing function used to (re)build the proposal id from the proposal details.
         fn hash_proposal(
-            ref self: ComponentState<TContractState>,
-            calls: Span<Call>, description_hash: felt252
+            ref self: ComponentState<TContractState>, calls: Span<Call>, description_hash: felt252
         ) -> felt252 {
-            let proposal_hash = proposal.get_hash();
-            let proposal_id = starknet::hash(&proposal_hash);
-            proposal_id
+            let mut hashed_calls = array![];
+
+            for call in calls {
+                let hash_state = PoseidonTrait::new();
+                let hash = hash_state
+                    .update_with(*call.to)
+                    .update_with(*call.selector)
+                    .update_with(poseidon_hash_span(*call.calldata))
+                    .finalize();
+
+                hashed_calls.append(hash);
+            };
+            hashed_calls.append(description_hash);
+
+            poseidon_hash_span(hashed_calls.span())
         }
     }
 }

@@ -9,6 +9,7 @@
 pub mod AccessControlComponent {
     use crate::accesscontrol::interface;
     use openzeppelin_introspection::src5::SRC5Component::InternalImpl as SRC5InternalImpl;
+    use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
     use openzeppelin_introspection::src5::SRC5Component;
     use starknet::ContractAddress;
     use starknet::get_caller_address;

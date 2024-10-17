@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.17.0 (token/erc20/snip12_utils/votes.cairo)
+// OpenZeppelin Contracts for Cairo v0.17.0 (governance/votes/delegation.cairo)
 
 use core::hash::{HashStateTrait, HashStateExTrait};
 use core::poseidon::PoseidonTrait;
-use openzeppelin_utils::cryptography::snip12::StructHash;
+use openzeppelin_utils::cryptography::snip12::{StructHash};
 use starknet::ContractAddress;
 
 // sn_keccak("\"Delegation\"(\"delegatee\":\"ContractAddress\",\"nonce\":\"felt\",\"expiry\":\"u128\")")
@@ -21,6 +21,7 @@ pub struct Delegation {
 
 impl StructHashImpl of StructHash<Delegation> {
     fn hash_struct(self: @Delegation) -> felt252 {
-        PoseidonTrait::new().update_with(DELEGATION_TYPE_HASH).update_with(*self).finalize()
+        let hash_state = PoseidonTrait::new();
+        hash_state.update_with(DELEGATION_TYPE_HASH).update_with(*self).finalize()
     }
 }

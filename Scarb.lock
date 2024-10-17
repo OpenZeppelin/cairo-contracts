@@ -59,9 +59,11 @@ name = "openzeppelin_governance"
 version = "0.17.0"
 dependencies = [
  "openzeppelin_access",
+ "openzeppelin_account",
  "openzeppelin_introspection",
  "openzeppelin_test_common",
  "openzeppelin_testing",
+ "openzeppelin_token",
  "openzeppelin_utils",
  "snforge_std",
 ]
@@ -113,6 +115,7 @@ dependencies = [
  "openzeppelin_access",
  "openzeppelin_account",
  "openzeppelin_finance",
+ "openzeppelin_governance",
  "openzeppelin_introspection",
  "openzeppelin_security",
  "openzeppelin_testing",
@@ -134,7 +137,6 @@ name = "openzeppelin_token"
 version = "0.17.0"
 dependencies = [
  "openzeppelin_account",
- "openzeppelin_governance",
  "openzeppelin_introspection",
  "openzeppelin_test_common",
  "openzeppelin_testing",

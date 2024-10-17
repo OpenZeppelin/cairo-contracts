@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.17.0 (utils/deployments/interface.cairo)
+// OpenZeppelin Contracts for Cairo v0.18.0 (utils/deployments/interface.cairo)
 
 use starknet::{ClassHash, ContractAddress};
 

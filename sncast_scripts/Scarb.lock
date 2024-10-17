@@ -3,7 +3,7 @@ version = 1
 
 [[package]]
 name = "openzeppelin_access"
-version = "0.17.0"
+version = "0.18.0"
 dependencies = [
  "openzeppelin_introspection",
  "openzeppelin_utils",
@@ -11,7 +11,7 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_account"
-version = "0.17.0"
+version = "0.18.0"
 dependencies = [
  "openzeppelin_introspection",
  "openzeppelin_utils",
@@ -19,7 +19,7 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_finance"
-version = "0.17.0"
+version = "0.18.0"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_token",
@@ -27,7 +27,7 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_governance"
-version = "0.17.0"
+version = "0.18.0"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_introspection",
@@ -35,11 +35,11 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_introspection"
-version = "0.17.0"
+version = "0.18.0"
 
 [[package]]
 name = "openzeppelin_presets"
-version = "0.17.0"
+version = "0.18.0"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_account",
@@ -51,14 +51,14 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_testing"
-version = "0.17.0"
+version = "0.18.0"
 dependencies = [
  "snforge_std",
 ]
 
 [[package]]
 name = "openzeppelin_token"
-version = "0.17.0"
+version = "0.18.0"
 dependencies = [
  "openzeppelin_account",
  "openzeppelin_governance",
@@ -67,11 +67,11 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_upgrades"
-version = "0.17.0"
+version = "0.18.0"
 
 [[package]]
 name = "openzeppelin_utils"
-version = "0.17.0"
+version = "0.18.0"
 
 [[package]]
 name = "sncast_scripts"

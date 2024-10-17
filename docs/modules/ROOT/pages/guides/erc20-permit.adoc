@@ -1,0 +1,53 @@
+= ERC20Permit
+
+:permit: xref:/api/erc20.adoc#ERC20Component-permit[permit]
+:snip-12: https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-12.md[SNIP12]
+:snip-12-guide: xref:/guides/snip12.adoc[SNIP12 guide]
+:eip-2612: https://eips.ethereum.org/EIPS/eip-2612[EIP-2612]
+:erc20-component: xref:#ERC20Component[ERC20Component]
+:nonces-component: xref:/api/utilities.adoc#NoncesComponent[NoncesComponent]
+
+Extension of ERC20 to support gasless token approvals. This is achieved with an off-chain signature following the {snip-12} standard, 
+rather than with an on-chain transaction. The {permit} function verifies the signature and sets the spender's allowance if the signature 
+is valid. This approach improves user experience and reduces gas costs.
+
+Although this extension is mostly similar to the Solidity implementation of {eip-2612}, there are some notable differences in the parameters of the {permit} function:
+
+- The `deadline` parameter is represented by `u64` rather than `u256`
+- The `signature` parameter is represented by an array of felts
+
+NOTE: Unlike Solidity, there is no enforced format for signatures on Starknet. A signature is represented by an array of felts, 
+and there is no universal method to validate a signature of an unknown format. Consequently, a signature provided to the {permit} function 
+is validated through an external `is_valid_signature` call to the contract at the `owner` address.
+
+A contract implementing the ERC20Permit trait must meet the following requirements:
+
+- Implement {erc20-component}.
+- Implement {nonces-component}.
+- Implement `SNIP12Metadata` trait.
+
+[#ERC20PermitComponent-Typed-Message]
+=== Typed message
+
+To safeguard against replay attacks and ensure the uniqueness of each approval via `permit`, the data signed includes:
+
+- The address of the `owner`.
+- The parameters specified in the <<IERC20-approve,approve>> function (`spender` and `amount`)
+- The address of the `token` contract itself.
+- A `nonce`, which must be unique for each operation.
+- The `chain_id`, which protects against cross-chain replay attacks.
+
+The format of the `Permit` structure in a signed permit message is as follows:
+```cairo
+struct Permit {
+    token: ContractAddress,
+    spender: ContractAddress,
+    amount: u256,
+    nonce: felt252,
+    deadline: u64,
+}
+```
+
+NOTE: The owner of the tokens is also part of the signed message. It is used as the `signer` parameter in the `get_message_hash` call.
+
+Further details on preparing and signing a typed message can be found in the {snip-12-guide}.

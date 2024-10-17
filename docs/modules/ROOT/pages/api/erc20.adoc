@@ -173,7 +173,7 @@ NOTE: This information is only used for _display_ purposes: it in no way affects
 use openzeppelin_token::erc20::interface::IERC20Permit;
 ```
 
-Interface of the ERC20Permit standard as defined in {eip-2612}.
+Interface of the ERC20Permit standard to support gasless token approvals as defined in {eip-2612}. 
 
 [.contract-index]
 .Functions
@@ -426,6 +426,7 @@ Requirements:
 - `signature` must use the current nonce of the `owner`.
 
 Emits an <<ERC20-Approval,Approval>> event.
+Every successful call increases `owner`'s nonce by one.
 
 [.contract-item]
 [[ERC20Component-nonces]]

@@ -334,6 +334,7 @@ pub mod ERC20Component {
         /// - `signature` must use the current nonce of the `owner`.
         ///
         /// Emits an `Approval` event.
+        /// Every successful call increases `owner`'s nonce by one.
         fn permit(
             ref self: ComponentState<TContractState>,
             owner: ContractAddress,

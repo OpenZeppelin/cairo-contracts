@@ -56,8 +56,8 @@ pub mod VotesComponent {
         DelegateVotesChanged: DelegateVotesChanged,
     }
 
-    #[derive(Drop, PartialEq, starknet::Event)]
     /// Emitted when `delegator` delegates their votes from `from_delegate` to `to_delegate`.
+    #[derive(Drop, PartialEq, starknet::Event)]
     pub struct DelegateChanged {
         #[key]
         pub delegator: ContractAddress,

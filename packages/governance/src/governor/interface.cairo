@@ -139,7 +139,7 @@ pub trait IGovernor<TState> {
     /// multiple transfers).
     ///
     /// Returns the id of the proposal.
-    fn propose(self: @TState, calls: Span<Call>, description: ByteArray) -> felt252;
+    fn propose(ref self: TState, calls: Span<Call>, description: ByteArray) -> felt252;
 
     /// Queue a proposal. Some governors require this step to be performed before execution can
     /// happen. If queuing is not necessary, this function may revert.
@@ -147,7 +147,7 @@ pub trait IGovernor<TState> {
     /// deadline to be reached.
     ///
     /// Returns the id of the proposal.
-    fn queue(self: @TState, calls: Span<Call>, description_hash: felt252) -> felt252;
+    fn queue(ref self: TState, calls: Span<Call>, description_hash: felt252) -> felt252;
 
     /// Execute a successful proposal. This requires the quorum to be reached, the vote to be
     /// successful, and the deadline to be reached. Depending on the governor it might also be
@@ -157,30 +157,34 @@ pub trait IGovernor<TState> {
     /// additional timelock (See `timelock_controller`).
     ///
     /// Returns the id of the proposal.
-    fn execute(self: @TState, calls: Span<Call>, description_hash: felt252) -> felt252;
+    fn execute(ref self: TState, calls: Span<Call>, description_hash: felt252) -> felt252;
 
     /// Cancel a proposal. A proposal is cancellable by the proposer, but only while it is Pending
     /// state, i.e. before the vote starts.
     ///
     /// Returns the id of the proposal.
-    fn cancel(self: @TState, calls: Span<Call>, description_hash: felt252) -> felt252;
+    fn cancel(ref self: TState, calls: Span<Call>, description_hash: felt252) -> felt252;
 
     /// Cast a vote.
-    fn cast_vote(self: @TState, proposal_id: felt252, support: u8) -> u256;
+    fn cast_vote(ref self: TState, proposal_id: felt252, support: u8) -> u256;
 
     /// Cast a vote with a reason.
     fn cast_vote_with_reason(
-        self: @TState, proposal_id: felt252, support: u8, reason: ByteArray
+        ref self: TState, proposal_id: felt252, support: u8, reason: ByteArray
     ) -> u256;
 
     /// Cast a vote with a reason and additional serialized parameters.
     fn cast_vote_with_reason_and_params(
-        self: @TState, proposal_id: felt252, support: u8, reason: ByteArray, params: Span<felt252>
+        ref self: TState,
+        proposal_id: felt252,
+        support: u8,
+        reason: ByteArray,
+        params: Span<felt252>
     ) -> u256;
 
     /// Cast a vote using the voter's signature.
     fn cast_vote_by_sig(
-        self: @TState,
+        ref self: TState,
         proposal_id: felt252,
         support: u8,
         voter: ContractAddress,
@@ -189,7 +193,7 @@ pub trait IGovernor<TState> {
 
     /// Cast a vote with a reason and additional serialized parameters using the voter's signature
     fn cast_vote_with_reason_and_params_by_sig(
-        self: @TState,
+        ref self: TState,
         proposal_id: felt252,
         support: u8,
         voter: ContractAddress,

@@ -31,6 +31,8 @@ pub mod GovernorComponent {
     mod Errors {
         pub const EXECUTOR_ONLY: felt252 = 'Governor: executor only';
         pub const NONEXISTENT_PROPOSAL: felt252 = 'Governor: nonexistent proposal';
+        pub const RESTRICTED_PROPOSER: felt252 = 'Governor: restricted proposer';
+        pub const INSUFFICIENT_PROPOSER_VOTES: felt252 = 'Governor: insufficient votes';
     }
 
     //
@@ -62,6 +64,11 @@ pub mod GovernorComponent {
         fn clock(self: @ComponentState<TContractState>) -> u64;
         fn CLOCK_MODE(self: @ComponentState<TContractState>) -> ByteArray;
         fn get_votes(
+            self: @ComponentState<TContractState>,
+            account: ContractAddress,
+            timepoint: u64
+        ) -> u256;
+        fn get_votes_with_params(
             self: @ComponentState<TContractState>,
             account: ContractAddress,
             timepoint: u64,
@@ -158,7 +165,7 @@ pub mod GovernorComponent {
         }
 
         /// The number of votes required in order for a voter to become a proposer.
-        fn proposal_threshold(self: @ComponentState<TContractState>, proposal_id: felt252) -> u256 {
+        fn proposal_threshold(self: @ComponentState<TContractState>) -> u256 {
             0
         }
 
@@ -200,6 +207,8 @@ pub mod GovernorComponent {
         /// Creates a new proposal. Vote start after a delay specified by `voting_delay` and
         /// lasts for a duration specified by `voting_period`.
         ///
+        /// This function has opt-in frontrunning protection, described in `is_valid_description_for_proposer`.
+        ///
         /// NOTE: The state of the Governor and `targets` may change between the proposal creation
         /// and its execution. This may be the result of third party actions on the targeted
         /// contracts, or other governor proposals. For example, the balance of this contract could
@@ -212,6 +221,26 @@ pub mod GovernorComponent {
             ref self: ComponentState<TContractState>, calls: Span<Call>, description: ByteArray
         ) -> felt252 {
             let proposer = starknet::get_caller_address();
+
+            // Check descrption for restricted proposer
+            assert(
+                self.is_valid_description_for_proposer(proposer, @description),
+                Errors::RESTRICTED_PROPOSER
+            );
+
+            // Check proposal threshold
+            let vote_threshold = self.proposal_threshold();
+            if vote_threshold > 0 {
+                let votes = self.get_votes(proposer, self.clock() - 1);
+                assert(votes >= vote_threshold, Errors::INSUFFICIENT_PROPOSER_VOTES);
+            }
+
+            self._propose(calls, @description, proposer)
+        }
+
+        fn _propose(
+            ref self: ComponentState<TContractState>, calls: Span<Call>, description: @ByteArray, proposer: ContractAddress
+        ) -> felt252 {
             1
         }
 
@@ -234,7 +263,7 @@ pub mod GovernorComponent {
         /// - If it ends with some other similar suffix, e.g. `#other=abc`.
         /// - If it does not end with any such suffix.
         fn is_valid_description_for_proposer(
-            self: @ComponentState<TContractState>, proposer: ContractAddress, description: ByteArray
+            self: @ComponentState<TContractState>, proposer: ContractAddress, description: @ByteArray
         ) -> bool {
             let length = description.len();
 
@@ -252,7 +281,6 @@ pub mod GovernorComponent {
             }
 
             let expected_address = description.read_n_bytes(length - 42, 42);
-            let proposer: felt252 = proposer.into();
             proposer.to_byte_array(16, 64) == expected_address
         }
     }

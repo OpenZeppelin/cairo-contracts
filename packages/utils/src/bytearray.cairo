@@ -25,7 +25,7 @@ pub fn read_n_bytes(data: @ByteArray, start: u32, n: u32) -> ByteArray {
 ///
 /// - `base` can not be zero.
 pub fn to_byte_array<
-    T, +FormatAsByteArray<T>, +Into<T, felt252>, +Copy<T>
+    T, +Into<T, felt252>, +Copy<T>
 >(
     value: @T, base: u8, padding: u16
 ) -> ByteArray {
@@ -46,12 +46,22 @@ pub fn to_byte_array<
 /// ByteArray extension trait.
 #[generate_trait]
 pub impl ByteArrayExtImpl of ByteArrayExtTrait {
+    // Reads n bytes from a byte array starting from a given index.
+    ///
+    /// Requirements:
+    ///
+    /// - `start + n` must be less than or equal to the length of the byte array.
     fn read_n_bytes(self: @ByteArray, start: u32, n: u32) -> ByteArray {
         read_n_bytes(self, start, n)
     }
 
+    /// Converts a value to a byte array with a given base and padding.
+    ///
+    /// Requirements:
+    ///
+    /// - `base` can not be zero.
     fn to_byte_array<
-    T, +FormatAsByteArray<T>, +Into<T, felt252>, +Copy<T>
+    T, +Into<T, felt252>, +Copy<T>
     >(
         self: @T, base: u8, padding: u16
     ) -> ByteArray {

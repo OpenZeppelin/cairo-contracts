@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.17.0 (account/utils/secp256k1.cairo)
+// OpenZeppelin Contracts for Cairo v0.18.0 (account/utils/secp256k1.cairo)
 
 use core::fmt::{Formatter, Error};
 use starknet::SyscallResultTrait;

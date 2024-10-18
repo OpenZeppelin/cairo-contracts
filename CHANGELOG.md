@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## 0.18.0 (2024-10-17)
+
 ### Added
 
 - `VotesComponent` with implementation for ERC721 and ERC20 tokens (#1114)

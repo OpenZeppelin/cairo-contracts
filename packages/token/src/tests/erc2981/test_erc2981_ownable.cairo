@@ -1,5 +1,5 @@
-use crate::common::erc2981::ERC2981Component::{ERC2981InfoImpl, ERC2981AdminOwnableImpl};
 use crate::common::erc2981::ERC2981Component::{ERC2981Impl, InternalImpl};
+use crate::common::erc2981::ERC2981Component::{ERC2981InfoImpl, ERC2981AdminOwnableImpl};
 use crate::common::erc2981::{DefaultConfig, ERC2981Component};
 use openzeppelin_access::ownable::OwnableComponent::InternalImpl as OwnableInternalImpl;
 use openzeppelin_access::ownable::OwnableComponent;

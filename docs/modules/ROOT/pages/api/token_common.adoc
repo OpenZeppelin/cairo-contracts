@@ -248,7 +248,7 @@ The returned tuple contains:
 
 [.contract-item]
 [[ERC2981InfoImpl-token_royalty]]
-==== `[.contract-item-name]#++token_royalty++#++(self: @TState, token_id: u256) → (ContractAddress, u128, u128)++` [.item-kind]#external#
+==== `[.contract-item-name]#++token_royalty++#++(self: @ContractState, token_id: u256) → (ContractAddress, u128, u128)++` [.item-kind]#external#
 
 Returns the royalty information specific to a token.
 If no specific royalty information is set for the token, the default is returned.
@@ -269,7 +269,7 @@ Requires the contract to implement {ownable-component}.
 
 [.contract-item]
 [[ERC2981AdminOwnableImpl-set_default_royalty]]
-==== `[.contract-item-name]#++set_default_royalty++#++(ref self: TState, receiver: ContractAddress, fee_numerator: u128)++` [.item-kind]#external#
+==== `[.contract-item-name]#++set_default_royalty++#++(ref self: ContractState, receiver: ContractAddress, fee_numerator: u128)++` [.item-kind]#external#
 
 Sets the royalty information that all ids in this contract will default to.
 
@@ -281,7 +281,7 @@ Requirements:
 
 [.contract-item]
 [[ERC2981AdminOwnableImpl-delete_default_royalty]]
-==== `[.contract-item-name]#++delete_default_royalty++#++(ref self: TState)++` [.item-kind]#external#
+==== `[.contract-item-name]#++delete_default_royalty++#++(ref self: ContractState)++` [.item-kind]#external#
 
 Removes default royalty information.
 
@@ -291,7 +291,7 @@ Requirements:
 
 [.contract-item]
 [[ERC2981AdminOwnableImpl-set_token_royalty]]
-==== `[.contract-item-name]#++set_token_royalty++#++(ref self: TState, token_id: u256, receiver: ContractAddress, fee_numerator: u128)++` [.item-kind]#external#
+==== `[.contract-item-name]#++set_token_royalty++#++(ref self: ContractState, token_id: u256, receiver: ContractAddress, fee_numerator: u128)++` [.item-kind]#external#
 
 Sets the royalty information for a specific token id that takes precedence over the global default.
 
@@ -303,7 +303,7 @@ Requirements:
 
 [.contract-item]
 [[ERC2981AdminOwnableImpl-reset_token_royalty]]
-==== `[.contract-item-name]#++reset_token_royalty++#++(ref self: TState, token_id: u256)++` [.item-kind]#external#
+==== `[.contract-item-name]#++reset_token_royalty++#++(ref self: ContractState, token_id: u256)++` [.item-kind]#external#
 
 Resets royalty information for the token id back to unset.
 
@@ -327,7 +327,7 @@ Role for the admin responsible for managing royalty settings.
 
 [.contract-item]
 [[ERC2981AdminAccessControlImpl-set_default_royalty]]
-==== `[.contract-item-name]#++set_default_royalty++#++(ref self: TState, receiver: ContractAddress, fee_numerator: u128)++` [.item-kind]#external#
+==== `[.contract-item-name]#++set_default_royalty++#++(ref self: ContractState, receiver: ContractAddress, fee_numerator: u128)++` [.item-kind]#external#
 
 Sets the royalty information that all ids in this contract will default to.
 
@@ -339,7 +339,7 @@ Requirements:
 
 [.contract-item]
 [[ERC2981AdminAccessControlImpl-delete_default_royalty]]
-==== `[.contract-item-name]#++delete_default_royalty++#++(ref self: TState)++` [.item-kind]#external#
+==== `[.contract-item-name]#++delete_default_royalty++#++(ref self: ContractState)++` [.item-kind]#external#
 
 Removes default royalty information.
 
@@ -349,7 +349,7 @@ Requirements:
 
 [.contract-item]
 [[ERC2981AdminAccessControlImpl-set_token_royalty]]
-==== `[.contract-item-name]#++set_token_royalty++#++(ref self: TState, token_id: u256, receiver: ContractAddress, fee_numerator: u128)++` [.item-kind]#external#
+==== `[.contract-item-name]#++set_token_royalty++#++(ref self: ContractState, token_id: u256, receiver: ContractAddress, fee_numerator: u128)++` [.item-kind]#external#
 
 Sets the royalty information for a specific token id that takes precedence over the global default.
 
@@ -361,7 +361,7 @@ Requirements:
 
 [.contract-item]
 [[ERC2981AdminAccessControlImpl-reset_token_royalty]]
-==== `[.contract-item-name]#++reset_token_royalty++#++(ref self: TState, token_id: u256)++` [.item-kind]#external#
+==== `[.contract-item-name]#++reset_token_royalty++#++(ref self: ContractState, token_id: u256)++` [.item-kind]#external#
 
 Resets royalty information for the token id back to unset.
 

@@ -19,6 +19,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ERC20Permit` impl for `ERC20Component` facilitating token approvals via off-chain signatures (#1140)
 - `ISNIP12Metadata` interface for discovering name and version of a SNIP-12 impl (#1140)
 - `SNIP12MetadataExternal` impl of `ISNIP12Metadata` interface for `ERC20Component` (#1140)
+- Embeddable impls for ERC2981 component (#1173)
+  - `ERC2981Info` with read functions for discovering the component's state
+  - `ERC2981AdminOwnable` providing admin functions for a token that implements Ownable component
+  - `ERC2981AdminAccessControl` providing admin functions for a token that implements AccessControl component
 
 ### Changed
 

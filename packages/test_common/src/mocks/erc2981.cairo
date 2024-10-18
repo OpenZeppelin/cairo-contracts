@@ -64,8 +64,8 @@ pub mod ERC2981OwnableMock {
     impl ERC2981InfoImpl =
         ERC2981Component::ERC2981InfoImpl<ContractState>;
     #[abi(embed_v0)]
-    impl IERC2981AdminOwnableImpl =
-        ERC2981Component::IERC2981AdminOwnableImpl<ContractState>;
+    impl ERC2981AdminOwnableImpl =
+        ERC2981Component::ERC2981AdminOwnableImpl<ContractState>;
     impl ERC2981InternalImpl = ERC2981Component::InternalImpl<ContractState>;
 
     // Ownable

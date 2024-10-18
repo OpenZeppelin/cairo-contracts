@@ -153,7 +153,7 @@ pub mod ERC2981Component {
     // Ownable-based admin functions
     //
 
-    #[embeddable_as(IERC2981AdminOwnableImpl)]
+    #[embeddable_as(ERC2981AdminOwnableImpl)]
     impl ERC2981AdminOwnable<
         TContractState,
         +HasComponent<TContractState>,

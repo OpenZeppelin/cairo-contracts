@@ -4,9 +4,8 @@
 :casing-discussion: https://github.com/OpenZeppelin/cairo-contracts/discussions/34[here]
 :custom-decimals: xref:/erc20.adoc#customizing_decimals[Customizing decimals]
 :snip-12: https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-12.md[SNIP12]
-:snip-12-guide: xref:/guides/snip12.adoc[SNIP12 guide]
+:snip12-metadata: xref:api/utilities.adoc#snip12[SNIP12Metadata]
 :eip-2612: https://eips.ethereum.org/EIPS/eip-2612[EIP-2612]
-:nonces-component: xref:/api/utilities.adoc#NoncesComponent[NoncesComponent]
 
 = ERC20
 
@@ -204,7 +203,7 @@ whenever a signature for `permit` call is generated.
 ==== `[.contract-item-name]#++DOMAIN_SEPARATOR++#++() → felt252++` [.item-kind]#external#
 
 Returns the domain separator used in generating a message hash for `permit` signature. 
-The domain hashing logic follows SNIP-12 standard.
+The domain hashing logic follows the {snip-12} standard.
 
 [.contract]
 [[ERC20Component]]
@@ -440,7 +439,7 @@ whenever a signature for `permit` call is generated.
 ==== `[.contract-item-name]#++DOMAIN_SEPARATOR++#++(self: @ContractState) → felt252++` [.item-kind]#external#
 
 Returns the domain separator used in generating a message hash for `permit` signature. 
-The domain hashing logic follows {snip-12} standard.
+The domain hashing logic follows the {snip-12} standard.
 
 [.contract-item]
 [[ERC20Component-snip12_metadata]]
@@ -450,8 +449,8 @@ Returns domain name and version used for generating a message hash for permit si
 
 The returned tuple contains:
 
-- `t.0`: The name used in the SNIP12Metadata implementation.
-- `t.1`: The version used in the SNIP12Metadata implementation.
+- `t.0`: The name used in the {snip12-metadata} implementation.
+- `t.1`: The version used in the {snip12-metadata} implementation.
 
 [#ERC20Component-Internal-functions]
 ==== Internal functions

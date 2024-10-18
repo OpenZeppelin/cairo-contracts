@@ -115,14 +115,14 @@ pub mod ERC2981Component {
         }
     }
 
-    #[embeddable_as(ERC2981StateInfoImpl)]
-    impl ERC2981StateInfo<
+    #[embeddable_as(ERC2981InfoImpl)]
+    impl ERC2981Info<
         TContractState,
         +HasComponent<TContractState>,
         +ImmutableConfig,
         +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>,
-    > of interface::IERC2981StateInfo<ComponentState<TContractState>> {
+    > of interface::IERC2981Info<ComponentState<TContractState>> {
         /// Returns the royalty information that all ids in this contract will default to.
         ///
         /// The returned tuple contains:

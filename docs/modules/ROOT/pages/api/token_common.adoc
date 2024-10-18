@@ -45,12 +45,12 @@ in any unit of exchange. The royalty amount is denominated and must be paid in t
 unit of exchange.
 
 [.contract]
-[[IERC2981StateInfo]]
-=== `++IERC2981StateInfo++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.17.0/packages/token/src/common/erc2981/interface.cairo[{github-icon},role=heading-link]
+[[IERC2981Info]]
+=== `++IERC2981Info++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.17.0/packages/token/src/common/erc2981/interface.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
-use openzeppelin_token::common::erc2981::interface::IERC2981StateInfo;
+use openzeppelin_token::common::erc2981::interface::IERC2981Info;
 ```
 
 Interface providing external read functions for discovering the state of ERC2981 component.
@@ -58,15 +58,15 @@ Interface providing external read functions for discovering the state of ERC2981
 [.contract-index]
 .Functions
 --
-* xref:#IERC2981StateInfo-default_royalty[`++default_royalty()++`]
-* xref:#IERC2981StateInfo-token_royalty[`++token_royalty(token_id)++`]
+* xref:#IERC2981Info-default_royalty[`++default_royalty()++`]
+* xref:#IERC2981Info-token_royalty[`++token_royalty(token_id)++`]
 --
 
-[#IERC2981StateInfo-Functions]
+[#IERC2981Info-Functions]
 ==== Functions
 
 [.contract-item]
-[[IERC2981StateInfo-default_royalty]]
+[[IERC2981Info-default_royalty]]
 ==== `[.contract-item-name]#++default_royalty++#++() → (ContractAddress, u128, u128)++` [.item-kind]#external#
 
 Returns the royalty information that all ids in this contract will default to.
@@ -78,7 +78,7 @@ The returned tuple contains:
 - `t.2`: The denominator of the royalty fraction.
 
 [.contract-item]
-[[IERC2981StateInfo-token_royalty]]
+[[IERC2981Info-token_royalty]]
 ==== `[.contract-item-name]#++token_royalty++#++(token_id: u256) → (ContractAddress, u128, u128)++` [.item-kind]#external#
 
 Returns the royalty information specific to a token.
@@ -163,10 +163,10 @@ ERC2981 component extending <<IERC2981,IERC2981>>.
 .ERC2981Impl
 * xref:#ERC2981Component-royalty_info[`++royalty_info(self, token_id, sale_price)++`]
 
-[.sub-index#ERC2981Component-Embeddable-Impls-ERC2981StateInfoImpl]
-.ERC2981StateInfoImpl
-* xref:#ERC2981StateInfoImpl-default_royalty[`++default_royalty(self)++`]
-* xref:#ERC2981StateInfoImpl-token_royalty[`++token_royalty(self, token_id)++`]
+[.sub-index#ERC2981Component-Embeddable-Impls-ERC2981InfoImpl]
+.ERC2981InfoImpl
+* xref:#ERC2981InfoImpl-default_royalty[`++default_royalty(self)++`]
+* xref:#ERC2981InfoImpl-token_royalty[`++token_royalty(self, token_id)++`]
 
 [.sub-index#ERC2981Component-Embeddable-Impls-IERC2981AdminOwnableImpl]
 .IERC2981AdminOwnableImpl
@@ -235,7 +235,7 @@ The returned tuple contains:
 - `t.1`: The amount of royalty payment.
 
 [.contract-item]
-[[ERC2981StateInfoImpl-default_royalty]]
+[[ERC2981InfoImpl-default_royalty]]
 ==== `[.contract-item-name]#++default_royalty++#++(@self: ContractState) → (ContractAddress, u128, u128)++` [.item-kind]#external#
 
 Returns the royalty information that all ids in this contract will default to.
@@ -247,7 +247,7 @@ The returned tuple contains:
 - `t.2`: The denominator of the royalty fraction.
 
 [.contract-item]
-[[ERC2981StateInfoImpl-token_royalty]]
+[[ERC2981InfoImpl-token_royalty]]
 ==== `[.contract-item-name]#++token_royalty++#++(self: @TState, token_id: u256) → (ContractAddress, u128, u128)++` [.item-kind]#external#
 
 Returns the royalty information specific to a token.

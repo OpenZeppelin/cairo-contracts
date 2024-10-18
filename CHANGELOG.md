@@ -14,7 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `IUpgradeAndCall` interface (#1148)
 - `upgrade_and_call` function in UpgradeableComponent's InternalImpl (#1148)
 - Embeddable impls for ERC2981 component (#1173)
-  - `ERC2981StateInfo` with read functions for discovering the component's state
+  - `ERC2981Info` with read functions for discovering the component's state
   - `ERC2981AdminOwnable` providing admin functions for a token that implements Ownable component
   - `ERC2981AdminAccessControl` providing admin functions for a token that implements AccessControl component
 

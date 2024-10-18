@@ -16,7 +16,7 @@ pub trait IERC2981<TState> {
 
 /// Interface providing external read functions for discovering the state of ERC2981 component.
 #[starknet::interface]
-pub trait IERC2981StateInfo<TState> {
+pub trait IERC2981Info<TState> {
     /// Returns the royalty information that all ids in this contract will default to.
     ///
     /// The returned tuple contains:
@@ -62,7 +62,7 @@ pub trait IERC2981ABI<TState> {
     // IERC2981
     fn royalty_info(self: @TState, token_id: u256, sale_price: u256) -> (ContractAddress, u256);
 
-    // IERC2981StateInfo
+    // IERC2981Info
     fn default_royalty(self: @TState) -> (ContractAddress, u128, u128);
     fn token_royalty(self: @TState, token_id: u256) -> (ContractAddress, u128, u128);
 

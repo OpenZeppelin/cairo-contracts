@@ -131,7 +131,7 @@ pub mod ERC2981Component {
         /// - `t.1`: The numerator of the royalty fraction.
         /// - `t.2`: The denominator of the royalty fraction.
         fn default_royalty(self: @ComponentState<TContractState>) -> (ContractAddress, u128, u128) {
-            InternalImpl::default_royalty(self)
+            self._default_royalty()
         }
 
         /// Returns the royalty information specific to a token.
@@ -145,7 +145,7 @@ pub mod ERC2981Component {
         fn token_royalty(
             self: @ComponentState<TContractState>, token_id: u256
         ) -> (ContractAddress, u128, u128) {
-            InternalImpl::token_royalty(self, token_id)
+            self._token_royalty(token_id)
         }
     }
 
@@ -173,7 +173,7 @@ pub mod ERC2981Component {
             ref self: ComponentState<TContractState>, receiver: ContractAddress, fee_numerator: u128
         ) {
             get_dep_component!(@self, Ownable).assert_only_owner();
-            InternalImpl::set_default_royalty(ref self, receiver, fee_numerator)
+            self.set_default_royalty(receiver, fee_numerator)
         }
 
         /// Removes default royalty information.
@@ -183,7 +183,7 @@ pub mod ERC2981Component {
         /// - The caller is the contract owner.
         fn delete_default_royalty(ref self: ComponentState<TContractState>) {
             get_dep_component!(@self, Ownable).assert_only_owner();
-            InternalImpl::delete_default_royalty(ref self)
+            self._delete_default_royalty()
         }
 
         /// Sets the royalty information for a specific token id that takes precedence over the
@@ -201,7 +201,7 @@ pub mod ERC2981Component {
             fee_numerator: u128
         ) {
             get_dep_component!(@self, Ownable).assert_only_owner();
-            InternalImpl::set_token_royalty(ref self, token_id, receiver, fee_numerator)
+            self.set_token_royalty(token_id, receiver, fee_numerator)
         }
 
         /// Resets royalty information for the token id back to unset.
@@ -211,7 +211,7 @@ pub mod ERC2981Component {
         /// - The caller is the contract owner.
         fn reset_token_royalty(ref self: ComponentState<TContractState>, token_id: u256) {
             get_dep_component!(@self, Ownable).assert_only_owner();
-            InternalImpl::reset_token_royalty(ref self, token_id)
+            self._reset_token_royalty(token_id)
         }
     }
 
@@ -242,7 +242,7 @@ pub mod ERC2981Component {
             ref self: ComponentState<TContractState>, receiver: ContractAddress, fee_numerator: u128
         ) {
             get_dep_component!(@self, AccessControl).assert_only_role(ROYALTY_ADMIN_ROLE);
-            InternalImpl::set_default_royalty(ref self, receiver, fee_numerator)
+            self.set_default_royalty(receiver, fee_numerator)
         }
 
         /// Removes default royalty information.
@@ -252,7 +252,7 @@ pub mod ERC2981Component {
         /// - The caller must have `ROYALTY_ADMIN_ROLE` role.
         fn delete_default_royalty(ref self: ComponentState<TContractState>) {
             get_dep_component!(@self, AccessControl).assert_only_role(ROYALTY_ADMIN_ROLE);
-            InternalImpl::delete_default_royalty(ref self)
+            self._delete_default_royalty()
         }
 
         /// Sets the royalty information for a specific token id that takes precedence over the
@@ -270,7 +270,7 @@ pub mod ERC2981Component {
             fee_numerator: u128
         ) {
             get_dep_component!(@self, AccessControl).assert_only_role(ROYALTY_ADMIN_ROLE);
-            InternalImpl::set_token_royalty(ref self, token_id, receiver, fee_numerator)
+            self._set_token_royalty(token_id, receiver, fee_numerator)
         }
 
         /// Resets royalty information for the token id back to unset.
@@ -280,7 +280,7 @@ pub mod ERC2981Component {
         /// - The caller must have `ROYALTY_ADMIN_ROLE` role.
         fn reset_token_royalty(ref self: ComponentState<TContractState>, token_id: u256) {
             get_dep_component!(@self, AccessControl).assert_only_role(ROYALTY_ADMIN_ROLE);
-            InternalImpl::reset_token_royalty(ref self, token_id)
+            self._reset_token_royalty(token_id)
         }
     }
 
@@ -315,7 +315,7 @@ pub mod ERC2981Component {
             let mut src5_component = get_dep_component_mut!(ref self, SRC5);
             src5_component.register_interface(IERC2981_ID);
 
-            self.set_default_royalty(default_receiver, default_royalty_fraction)
+            self._set_default_royalty(default_receiver, default_royalty_fraction)
         }
 
         /// Returns the royalty information that all ids in this contract will default to.
@@ -325,7 +325,7 @@ pub mod ERC2981Component {
         /// - `t.0`: The receiver of the royalty payment.
         /// - `t.1`: The numerator of the royalty fraction.
         /// - `t.2`: The denominator of the royalty fraction.
-        fn default_royalty(self: @ComponentState<TContractState>) -> (ContractAddress, u128, u128) {
+        fn _default_royalty(self: @ComponentState<TContractState>) -> (ContractAddress, u128, u128) {
             let royalty_info = self.ERC2981_default_royalty_info.read();
             (royalty_info.receiver, royalty_info.royalty_fraction, Immutable::FEE_DENOMINATOR)
         }
@@ -336,7 +336,7 @@ pub mod ERC2981Component {
         ///
         /// - `receiver` cannot be the zero address.
         /// - `fee_numerator` cannot be greater than the fee denominator.
-        fn set_default_royalty(
+        fn _set_default_royalty(
             ref self: ComponentState<TContractState>, receiver: ContractAddress, fee_numerator: u128
         ) {
             let fee_denominator = Immutable::FEE_DENOMINATOR;
@@ -348,7 +348,7 @@ pub mod ERC2981Component {
         }
 
         /// Removes default royalty information.
-        fn delete_default_royalty(ref self: ComponentState<TContractState>) {
+        fn _delete_default_royalty(ref self: ComponentState<TContractState>) {
             self
                 .ERC2981_default_royalty_info
                 .write(RoyaltyInfo { receiver: Zero::zero(), royalty_fraction: 0 })
@@ -362,7 +362,7 @@ pub mod ERC2981Component {
         /// - `t.0`: The receiver of the royalty payment.
         /// - `t.1`: The numerator of the royalty fraction.
         /// - `t.2`: The denominator of the royalty fraction.
-        fn token_royalty(
+        fn _token_royalty(
             self: @ComponentState<TContractState>, token_id: u256
         ) -> (ContractAddress, u128, u128) {
             let token_royalty_info = self.ERC2981_token_royalty_info.read(token_id);
@@ -384,7 +384,7 @@ pub mod ERC2981Component {
         ///
         /// - `receiver` cannot be the zero address.
         /// - `fee_numerator` cannot be greater than the fee denominator.
-        fn set_token_royalty(
+        fn _set_token_royalty(
             ref self: ComponentState<TContractState>,
             token_id: u256,
             receiver: ContractAddress,
@@ -400,7 +400,7 @@ pub mod ERC2981Component {
         }
 
         /// Resets royalty information for the token id back to unset.
-        fn reset_token_royalty(ref self: ComponentState<TContractState>, token_id: u256) {
+        fn _reset_token_royalty(ref self: ComponentState<TContractState>, token_id: u256) {
             self
                 .ERC2981_token_royalty_info
                 .write(token_id, RoyaltyInfo { receiver: Zero::zero(), royalty_fraction: 0 },)

@@ -1,14 +1,24 @@
-use crate::common::erc2981::ERC2981Component::ROYALTY_ADMIN_ROLE;
-use crate::common::erc2981::ERC2981Component;
-use crate::common::erc2981::interface::{IERC2981ABIDispatcher, IERC2981ABIDispatcherTrait};
-use openzeppelin_access::accesscontrol::interface::{
-    AccessControlABIDispatcher, AccessControlABIDispatcherTrait
-};
-use openzeppelin_testing as utils;
+use crate::common::erc2981::ERC2981Component::{InternalImpl, ROYALTY_ADMIN_ROLE};
+use crate::common::erc2981::ERC2981Component::{ERC2981Impl, ERC2981InfoImpl, ERC2981AdminAccessControlImpl};
+use crate::common::erc2981::{DefaultConfig, ERC2981Component};
+use openzeppelin_test_common::mocks::erc2981::ERC2981AccessControlMock;
 use openzeppelin_testing::constants::{ADMIN, OTHER_ADMIN, OTHER_ROLE, OTHER, ZERO, RECIPIENT};
-use openzeppelin_utils::serde::SerializedAppend;
-use snforge_std::start_cheat_caller_address;
+use openzeppelin_access::accesscontrol::{AccessControlComponent, DEFAULT_ADMIN_ROLE};
+use openzeppelin_access::accesscontrol::AccessControlComponent::InternalImpl as AccessControlInternalImpl;
+use snforge_std::{start_cheat_caller_address, test_address};
 use starknet::{ContractAddress, contract_address_const};
+
+type MockState = ERC2981AccessControlMock::ContractState;
+type ComponentState = ERC2981Component::ComponentState<MockState>;
+type AccessControlComponentState = AccessControlComponent::ComponentState<MockState>;
+
+fn COMPONENT_STATE() -> ComponentState {
+    ERC2981Component::component_state_for_testing()
+}
+
+fn ACCESS_CONTROL_STATE() -> AccessControlComponentState {
+    AccessControlComponent::component_state_for_testing()
+}
 
 fn DEFAULT_RECEIVER() -> ContractAddress {
     contract_address_const::<'DEFAULT_RECEIVER'>()
@@ -19,13 +29,16 @@ const DEFAULT_FEE_NUMERATOR: u128 = 50;
 // 5% (default denominator is 10000)
 const FEE_NUMERATOR: u128 = 500;
 
-fn setup_dispatcher() -> IERC2981ABIDispatcher {
-    let mut calldata = array![];
-    calldata.append_serde(ADMIN());
-    calldata.append_serde(DEFAULT_RECEIVER());
-    calldata.append_serde(DEFAULT_FEE_NUMERATOR);
-    let contract_address = utils::declare_and_deploy("ERC2981AccessControlMock", calldata);
-    IERC2981ABIDispatcher { contract_address }
+fn setup() -> ComponentState {
+    let mut state = COMPONENT_STATE();
+    state.initializer(DEFAULT_RECEIVER(), DEFAULT_FEE_NUMERATOR);
+
+    let mut access_control_state = ACCESS_CONTROL_STATE();
+    access_control_state.initializer();
+    grant_accesscontrol_role(DEFAULT_ADMIN_ROLE, ADMIN());
+    grant_accesscontrol_role(ROYALTY_ADMIN_ROLE, ADMIN());
+
+    state
 }
 
 //
@@ -34,9 +47,9 @@ fn setup_dispatcher() -> IERC2981ABIDispatcher {
 
 #[test]
 fn test_default_royalty() {
-    let dispatcher = setup_dispatcher();
+    let state = setup();
 
-    let (receiver, numerator, denominator) = dispatcher.default_royalty();
+    let (receiver, numerator, denominator) = state.default_royalty();
 
     assert_eq!(receiver, DEFAULT_RECEIVER());
     assert_eq!(numerator, DEFAULT_FEE_NUMERATOR);
@@ -45,11 +58,11 @@ fn test_default_royalty() {
 
 #[test]
 fn test_royalty_info_default_royalty() {
-    let dispatcher = setup_dispatcher();
+    let state = setup();
     let token_id = 12;
     let sale_price = 1_000_000;
 
-    let (receiver, amount) = dispatcher.royalty_info(token_id, sale_price);
+    let (receiver, amount) = state.royalty_info(token_id, sale_price);
     assert_eq!(receiver, DEFAULT_RECEIVER());
     assert_eq!(amount, 5000);
 }
@@ -60,51 +73,51 @@ fn test_royalty_info_default_royalty() {
 
 #[test]
 fn test_royalty_info_token_royalty_set() {
-    let dispatcher = setup_dispatcher();
+    let mut state = setup();
     let token_id = 12;
     let sale_price = 1_000_000;
 
-    let (receiver, amount) = dispatcher.royalty_info(token_id, sale_price);
+    let (receiver, amount) = state.royalty_info(token_id, sale_price);
     assert_eq!(receiver, DEFAULT_RECEIVER());
     assert_eq!(amount, 5_000);
 
-    start_cheat_caller_address(dispatcher.contract_address, ADMIN());
-    dispatcher.set_token_royalty(token_id, RECIPIENT(), FEE_NUMERATOR);
+    start_cheat_caller_address(test_address(), ADMIN());
+    state.set_token_royalty(token_id, RECIPIENT(), FEE_NUMERATOR);
 
-    let (receiver, amount) = dispatcher.royalty_info(token_id, sale_price);
+    let (receiver, amount) = state.royalty_info(token_id, sale_price);
     assert_eq!(receiver, RECIPIENT());
     assert_eq!(amount, 50_000);
 }
 
 #[test]
 fn test_set_default_royalty() {
-    let dispatcher = setup_dispatcher();
+    let mut state = setup();
     let token_id = 12;
     let sale_price = 1_000_000;
 
-    let (receiver, amount) = dispatcher.royalty_info(token_id, sale_price);
+    let (receiver, amount) = state.royalty_info(token_id, sale_price);
     assert_eq!(receiver, DEFAULT_RECEIVER());
     assert_eq!(amount, 5_000);
 
-    start_cheat_caller_address(dispatcher.contract_address, ADMIN());
-    dispatcher.set_default_royalty(RECIPIENT(), FEE_NUMERATOR);
+    start_cheat_caller_address(test_address(), ADMIN());
+    state.set_default_royalty(RECIPIENT(), FEE_NUMERATOR);
 
-    let (receiver, amount) = dispatcher.royalty_info(token_id, sale_price);
+    let (receiver, amount) = state.royalty_info(token_id, sale_price);
     assert_eq!(receiver, RECIPIENT());
     assert_eq!(amount, 50_000);
 }
 
 #[test]
 fn test_set_default_royalty_other_admin() {
-    let dispatcher = setup_dispatcher();
+    let mut state = setup();
     let token_id = 12;
     let sale_price = 1_000_000;
 
-    grant_accesscontrol_role(dispatcher, ROYALTY_ADMIN_ROLE, OTHER_ADMIN());
-    start_cheat_caller_address(dispatcher.contract_address, OTHER_ADMIN());
-    dispatcher.set_default_royalty(RECIPIENT(), FEE_NUMERATOR);
+    grant_accesscontrol_role(ROYALTY_ADMIN_ROLE, OTHER_ADMIN());
+    start_cheat_caller_address(test_address(), OTHER_ADMIN());
+    state.set_default_royalty(RECIPIENT(), FEE_NUMERATOR);
 
-    let (receiver, amount) = dispatcher.royalty_info(token_id, sale_price);
+    let (receiver, amount) = state.royalty_info(token_id, sale_price);
     assert_eq!(receiver, RECIPIENT());
     assert_eq!(amount, 50_000);
 }
@@ -112,32 +125,32 @@ fn test_set_default_royalty_other_admin() {
 #[test]
 #[should_panic(expected: 'Caller is missing role')]
 fn test_set_default_royalty_unauthorized() {
-    let dispatcher = setup_dispatcher();
+    let mut state = setup();
 
-    start_cheat_caller_address(dispatcher.contract_address, OTHER());
-    dispatcher.set_default_royalty(RECIPIENT(), FEE_NUMERATOR);
+    start_cheat_caller_address(test_address(), OTHER());
+    state.set_default_royalty(RECIPIENT(), FEE_NUMERATOR);
 }
 
 #[test]
 #[should_panic(expected: 'Caller is missing role')]
 fn test_set_default_royalty_invalid_role() {
-    let dispatcher = setup_dispatcher();
+    let mut state = setup();
 
-    grant_accesscontrol_role(dispatcher, OTHER_ROLE, OTHER_ADMIN());
-    start_cheat_caller_address(dispatcher.contract_address, OTHER_ADMIN());
-    dispatcher.set_default_royalty(RECIPIENT(), FEE_NUMERATOR);
+    grant_accesscontrol_role(OTHER_ROLE, OTHER_ADMIN());
+    start_cheat_caller_address(test_address(), OTHER_ADMIN());
+    state.set_default_royalty(RECIPIENT(), FEE_NUMERATOR);
 }
 
 #[test]
 fn test_set_default_royalty_with_zero_royalty_fraction() {
-    let dispatcher = setup_dispatcher();
+    let mut state = setup();
     let token_id = 12;
     let sale_price = 1_000_000;
 
-    start_cheat_caller_address(dispatcher.contract_address, ADMIN());
-    dispatcher.set_default_royalty(DEFAULT_RECEIVER(), 0);
+    start_cheat_caller_address(test_address(), ADMIN());
+    state.set_default_royalty(DEFAULT_RECEIVER(), 0);
 
-    let (receiver, amount) = dispatcher.royalty_info(token_id, sale_price);
+    let (receiver, amount) = state.royalty_info(token_id, sale_price);
     assert_eq!(receiver, DEFAULT_RECEIVER());
     assert_eq!(amount, 0);
 }
@@ -145,61 +158,61 @@ fn test_set_default_royalty_with_zero_royalty_fraction() {
 #[test]
 #[should_panic(expected: 'ERC2981: invalid receiver')]
 fn test_set_default_royalty_with_zero_receiver() {
-    let dispatcher = setup_dispatcher();
+    let mut state = setup();
 
-    start_cheat_caller_address(dispatcher.contract_address, ADMIN());
-    dispatcher.set_default_royalty(ZERO(), FEE_NUMERATOR);
+    start_cheat_caller_address(test_address(), ADMIN());
+    state.set_default_royalty(ZERO(), FEE_NUMERATOR);
 }
 
 #[test]
 #[should_panic(expected: 'ERC2981: invalid royalty')]
 fn test_set_default_royalty_with_invalid_fee_numerator() {
-    let dispatcher = setup_dispatcher();
+    let mut state = setup();
     let fee_denominator = ERC2981Component::DEFAULT_FEE_DENOMINATOR;
 
-    start_cheat_caller_address(dispatcher.contract_address, ADMIN());
-    dispatcher.set_default_royalty(DEFAULT_RECEIVER(), fee_denominator + 1);
+    start_cheat_caller_address(test_address(), ADMIN());
+    state.set_default_royalty(DEFAULT_RECEIVER(), fee_denominator + 1);
 }
 
 #[test]
 fn test_delete_default_royalty() {
-    let dispatcher = setup_dispatcher();
+    let mut state = setup();
     let token_id = 12;
     let sale_price = 1_000_000;
 
-    start_cheat_caller_address(dispatcher.contract_address, ADMIN());
-    dispatcher.set_default_royalty(RECIPIENT(), FEE_NUMERATOR);
+    start_cheat_caller_address(test_address(), ADMIN());
+    state.set_default_royalty(RECIPIENT(), FEE_NUMERATOR);
 
-    let (receiver, amount) = dispatcher.royalty_info(token_id, sale_price);
+    let (receiver, amount) = state.royalty_info(token_id, sale_price);
     assert_eq!(receiver, RECIPIENT());
     assert_eq!(amount, 50_000);
 
-    start_cheat_caller_address(dispatcher.contract_address, ADMIN());
-    dispatcher.delete_default_royalty();
+    start_cheat_caller_address(test_address(), ADMIN());
+    state.delete_default_royalty();
 
-    let (receiver, amount) = dispatcher.royalty_info(token_id, sale_price);
+    let (receiver, amount) = state.royalty_info(token_id, sale_price);
     assert_eq!(receiver, ZERO());
     assert_eq!(amount, 0);
 }
 
 #[test]
 fn test_delete_default_royalty_other_admin() {
-    let dispatcher = setup_dispatcher();
+    let mut state = setup();
     let token_id = 12;
     let sale_price = 1_000_000;
 
-    start_cheat_caller_address(dispatcher.contract_address, ADMIN());
-    dispatcher.set_default_royalty(RECIPIENT(), FEE_NUMERATOR);
+    start_cheat_caller_address(test_address(), ADMIN());
+    state.set_default_royalty(RECIPIENT(), FEE_NUMERATOR);
 
-    let (receiver, amount) = dispatcher.royalty_info(token_id, sale_price);
+    let (receiver, amount) = state.royalty_info(token_id, sale_price);
     assert_eq!(receiver, RECIPIENT());
     assert_eq!(amount, 50_000);
 
-    grant_accesscontrol_role(dispatcher, ROYALTY_ADMIN_ROLE, OTHER_ADMIN());
-    start_cheat_caller_address(dispatcher.contract_address, OTHER_ADMIN());
-    dispatcher.delete_default_royalty();
+    grant_accesscontrol_role(ROYALTY_ADMIN_ROLE, OTHER_ADMIN());
+    start_cheat_caller_address(test_address(), OTHER_ADMIN());
+    state.delete_default_royalty();
 
-    let (receiver, amount) = dispatcher.royalty_info(token_id, sale_price);
+    let (receiver, amount) = state.royalty_info(token_id, sale_price);
     assert_eq!(receiver, ZERO());
     assert_eq!(amount, 0);
 }
@@ -207,73 +220,73 @@ fn test_delete_default_royalty_other_admin() {
 #[test]
 #[should_panic(expected: 'Caller is missing role')]
 fn test_delete_default_royalty_unauthorized() {
-    let dispatcher = setup_dispatcher();
+    let mut state = setup();
 
-    start_cheat_caller_address(dispatcher.contract_address, OTHER());
-    dispatcher.delete_default_royalty();
+    start_cheat_caller_address(test_address(), OTHER());
+    state.delete_default_royalty();
 }
 
 #[test]
 #[should_panic(expected: 'Caller is missing role')]
 fn test_delete_default_royalty_invalid_role() {
-    let dispatcher = setup_dispatcher();
+    let mut state = setup();
 
-    grant_accesscontrol_role(dispatcher, OTHER_ROLE, OTHER_ADMIN());
-    start_cheat_caller_address(dispatcher.contract_address, OTHER_ADMIN());
-    dispatcher.delete_default_royalty();
+    grant_accesscontrol_role(OTHER_ROLE, OTHER_ADMIN());
+    start_cheat_caller_address(test_address(), OTHER_ADMIN());
+    state.delete_default_royalty();
 }
 
 #[test]
 fn test_set_token_royalty() {
-    let dispatcher = setup_dispatcher();
+    let mut state = setup();
     let token_id = 12;
     let another_token_id = 13;
     let sale_price = 1_000_000;
 
-    let (receiver, amount) = dispatcher.royalty_info(token_id, sale_price);
+    let (receiver, amount) = state.royalty_info(token_id, sale_price);
     assert_eq!(receiver, DEFAULT_RECEIVER());
     assert_eq!(amount, 5_000);
 
-    let (receiver, amount) = dispatcher.royalty_info(another_token_id, sale_price);
+    let (receiver, amount) = state.royalty_info(another_token_id, sale_price);
     assert_eq!(receiver, DEFAULT_RECEIVER());
     assert_eq!(amount, 5_000);
 
-    start_cheat_caller_address(dispatcher.contract_address, ADMIN());
-    dispatcher.set_token_royalty(token_id, RECIPIENT(), FEE_NUMERATOR);
+    start_cheat_caller_address(test_address(), ADMIN());
+    state.set_token_royalty(token_id, RECIPIENT(), FEE_NUMERATOR);
 
-    let (receiver, amount) = dispatcher.royalty_info(token_id, sale_price);
+    let (receiver, amount) = state.royalty_info(token_id, sale_price);
     assert_eq!(receiver, RECIPIENT());
     assert_eq!(amount, 50_000);
 
-    let (receiver, amount) = dispatcher.royalty_info(another_token_id, sale_price);
+    let (receiver, amount) = state.royalty_info(another_token_id, sale_price);
     assert_eq!(receiver, DEFAULT_RECEIVER());
     assert_eq!(amount, 5_000);
 }
 
 #[test]
 fn test_set_token_royalty_other_admin() {
-    let dispatcher = setup_dispatcher();
+    let mut state = setup();
     let token_id = 12;
     let another_token_id = 13;
     let sale_price = 1_000_000;
 
-    let (receiver, amount) = dispatcher.royalty_info(token_id, sale_price);
+    let (receiver, amount) = state.royalty_info(token_id, sale_price);
     assert_eq!(receiver, DEFAULT_RECEIVER());
     assert_eq!(amount, 5_000);
 
-    let (receiver, amount) = dispatcher.royalty_info(another_token_id, sale_price);
+    let (receiver, amount) = state.royalty_info(another_token_id, sale_price);
     assert_eq!(receiver, DEFAULT_RECEIVER());
     assert_eq!(amount, 5_000);
 
-    grant_accesscontrol_role(dispatcher, ROYALTY_ADMIN_ROLE, OTHER_ADMIN());
-    start_cheat_caller_address(dispatcher.contract_address, OTHER_ADMIN());
-    dispatcher.set_token_royalty(token_id, RECIPIENT(), FEE_NUMERATOR);
+    grant_accesscontrol_role(ROYALTY_ADMIN_ROLE, OTHER_ADMIN());
+    start_cheat_caller_address(test_address(), OTHER_ADMIN());
+    state.set_token_royalty(token_id, RECIPIENT(), FEE_NUMERATOR);
 
-    let (receiver, amount) = dispatcher.royalty_info(token_id, sale_price);
+    let (receiver, amount) = state.royalty_info(token_id, sale_price);
     assert_eq!(receiver, RECIPIENT());
     assert_eq!(amount, 50_000);
 
-    let (receiver, amount) = dispatcher.royalty_info(another_token_id, sale_price);
+    let (receiver, amount) = state.royalty_info(another_token_id, sale_price);
     assert_eq!(receiver, DEFAULT_RECEIVER());
     assert_eq!(amount, 5_000);
 }
@@ -281,34 +294,34 @@ fn test_set_token_royalty_other_admin() {
 #[test]
 #[should_panic(expected: 'Caller is missing role')]
 fn test_set_token_royalty_unauthorized() {
-    let dispatcher = setup_dispatcher();
+    let mut state = setup();
     let token_id = 12;
 
-    start_cheat_caller_address(dispatcher.contract_address, OTHER());
-    dispatcher.set_token_royalty(token_id, RECIPIENT(), FEE_NUMERATOR);
+    start_cheat_caller_address(test_address(), OTHER());
+    state.set_token_royalty(token_id, RECIPIENT(), FEE_NUMERATOR);
 }
 
 #[test]
 #[should_panic(expected: 'Caller is missing role')]
 fn test_set_token_royalty_invalid_role() {
-    let dispatcher = setup_dispatcher();
+    let mut state = setup();
     let token_id = 12;
 
-    grant_accesscontrol_role(dispatcher, OTHER_ROLE, OTHER_ADMIN());
-    start_cheat_caller_address(dispatcher.contract_address, OTHER_ADMIN());
-    dispatcher.set_token_royalty(token_id, RECIPIENT(), FEE_NUMERATOR);
+    grant_accesscontrol_role(OTHER_ROLE, OTHER_ADMIN());
+    start_cheat_caller_address(test_address(), OTHER_ADMIN());
+    state.set_token_royalty(token_id, RECIPIENT(), FEE_NUMERATOR);
 }
 
 #[test]
 fn test_set_token_royalty_with_zero_royalty_fraction() {
-    let dispatcher = setup_dispatcher();
+    let mut state = setup();
     let token_id = 12;
     let sale_price = 1_000_000;
 
-    start_cheat_caller_address(dispatcher.contract_address, ADMIN());
-    dispatcher.set_token_royalty(token_id, RECIPIENT(), 0);
+    start_cheat_caller_address(test_address(), ADMIN());
+    state.set_token_royalty(token_id, RECIPIENT(), 0);
 
-    let (receiver, amount) = dispatcher.royalty_info(token_id, sale_price);
+    let (receiver, amount) = state.royalty_info(token_id, sale_price);
     assert_eq!(receiver, RECIPIENT());
     assert_eq!(amount, 0);
 }
@@ -316,71 +329,71 @@ fn test_set_token_royalty_with_zero_royalty_fraction() {
 #[test]
 #[should_panic(expected: 'ERC2981: invalid receiver')]
 fn test_set_token_royalty_with_zero_receiver() {
-    let dispatcher = setup_dispatcher();
+    let mut state = setup();
     let token_id = 12;
 
-    start_cheat_caller_address(dispatcher.contract_address, ADMIN());
-    dispatcher.set_token_royalty(token_id, ZERO(), FEE_NUMERATOR);
+    start_cheat_caller_address(test_address(), ADMIN());
+    state.set_token_royalty(token_id, ZERO(), FEE_NUMERATOR);
 }
 
 #[test]
 #[should_panic(expected: 'ERC2981: invalid royalty')]
 fn test_set_token_royalty_with_invalid_fee_numerator() {
-    let dispatcher = setup_dispatcher();
+    let mut state = setup();
     let token_id = 12;
     let fee_denominator = ERC2981Component::DEFAULT_FEE_DENOMINATOR;
 
-    start_cheat_caller_address(dispatcher.contract_address, ADMIN());
-    dispatcher.set_token_royalty(token_id, RECIPIENT(), fee_denominator + 1);
+    start_cheat_caller_address(test_address(), ADMIN());
+    state.set_token_royalty(token_id, RECIPIENT(), fee_denominator + 1);
 }
 
 #[test]
 fn test_reset_token_royalty() {
-    let dispatcher = setup_dispatcher();
+    let mut state = setup();
     let token_id = 12;
     let sale_price = 1_000_000;
 
-    let (receiver, amount) = dispatcher.royalty_info(token_id, sale_price);
+    let (receiver, amount) = state.royalty_info(token_id, sale_price);
     assert_eq!(receiver, DEFAULT_RECEIVER());
     assert_eq!(amount, 5_000);
 
-    start_cheat_caller_address(dispatcher.contract_address, ADMIN());
-    dispatcher.set_token_royalty(token_id, RECIPIENT(), FEE_NUMERATOR);
+    start_cheat_caller_address(test_address(), ADMIN());
+    state.set_token_royalty(token_id, RECIPIENT(), FEE_NUMERATOR);
 
-    let (receiver, amount) = dispatcher.royalty_info(token_id, sale_price);
+    let (receiver, amount) = state.royalty_info(token_id, sale_price);
     assert_eq!(receiver, RECIPIENT());
     assert_eq!(amount, 50_000);
 
-    start_cheat_caller_address(dispatcher.contract_address, ADMIN());
-    dispatcher.reset_token_royalty(token_id);
+    start_cheat_caller_address(test_address(), ADMIN());
+    state.reset_token_royalty(token_id);
 
-    let (receiver, amount) = dispatcher.royalty_info(token_id, sale_price);
+    let (receiver, amount) = state.royalty_info(token_id, sale_price);
     assert_eq!(receiver, DEFAULT_RECEIVER());
     assert_eq!(amount, 5_000);
 }
 
 #[test]
 fn test_reset_token_royalty_other_admin() {
-    let dispatcher = setup_dispatcher();
+    let mut state = setup();
     let token_id = 12;
     let sale_price = 1_000_000;
 
-    let (receiver, amount) = dispatcher.royalty_info(token_id, sale_price);
+    let (receiver, amount) = state.royalty_info(token_id, sale_price);
     assert_eq!(receiver, DEFAULT_RECEIVER());
     assert_eq!(amount, 5_000);
 
-    start_cheat_caller_address(dispatcher.contract_address, ADMIN());
-    dispatcher.set_token_royalty(token_id, RECIPIENT(), FEE_NUMERATOR);
+    start_cheat_caller_address(test_address(), ADMIN());
+    state.set_token_royalty(token_id, RECIPIENT(), FEE_NUMERATOR);
 
-    let (receiver, amount) = dispatcher.royalty_info(token_id, sale_price);
+    let (receiver, amount) = state.royalty_info(token_id, sale_price);
     assert_eq!(receiver, RECIPIENT());
     assert_eq!(amount, 50_000);
 
-    grant_accesscontrol_role(dispatcher, ROYALTY_ADMIN_ROLE, OTHER_ADMIN());
-    start_cheat_caller_address(dispatcher.contract_address, OTHER_ADMIN());
-    dispatcher.reset_token_royalty(token_id);
+    grant_accesscontrol_role(ROYALTY_ADMIN_ROLE, OTHER_ADMIN());
+    start_cheat_caller_address(test_address(), OTHER_ADMIN());
+    state.reset_token_royalty(token_id);
 
-    let (receiver, amount) = dispatcher.royalty_info(token_id, sale_price);
+    let (receiver, amount) = state.royalty_info(token_id, sale_price);
     assert_eq!(receiver, DEFAULT_RECEIVER());
     assert_eq!(amount, 5_000);
 }
@@ -388,32 +401,29 @@ fn test_reset_token_royalty_other_admin() {
 #[test]
 #[should_panic(expected: 'Caller is missing role')]
 fn test_reset_token_royalty_unauthorized() {
-    let dispatcher = setup_dispatcher();
+    let mut state = setup();
     let token_id = 12;
 
-    start_cheat_caller_address(dispatcher.contract_address, OTHER());
-    dispatcher.reset_token_royalty(token_id);
+    start_cheat_caller_address(test_address(), OTHER());
+    state.reset_token_royalty(token_id);
 }
 
 #[test]
 #[should_panic(expected: 'Caller is missing role')]
 fn test_reset_token_royalty_invalid_role() {
-    let dispatcher = setup_dispatcher();
+    let mut state = setup();
     let token_id = 12;
 
-    grant_accesscontrol_role(dispatcher, OTHER_ROLE, OTHER_ADMIN());
-    start_cheat_caller_address(dispatcher.contract_address, OTHER_ADMIN());
-    dispatcher.reset_token_royalty(token_id);
+    grant_accesscontrol_role(OTHER_ROLE, OTHER_ADMIN());
+    start_cheat_caller_address(test_address(), OTHER_ADMIN());
+    state.reset_token_royalty(token_id);
 }
 
 //
 // Helpers
 //
 
-fn grant_accesscontrol_role(
-    dispatcher: IERC2981ABIDispatcher, role: felt252, admin: ContractAddress
-) {
-    start_cheat_caller_address(dispatcher.contract_address, ADMIN());
-    AccessControlABIDispatcher { contract_address: dispatcher.contract_address }
-        .grant_role(role, admin);
+fn grant_accesscontrol_role(role: felt252, admin: ContractAddress) {
+    let mut state = ACCESS_CONTROL_STATE();
+    state._grant_role(role, admin);
 }

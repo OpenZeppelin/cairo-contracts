@@ -49,7 +49,6 @@ build-external-contracts = [
     "openzeppelin_test_common::mocks::erc721::DualCaseERC721ReceiverMock",
     "openzeppelin_test_common::mocks::erc1155::DualCaseERC1155ReceiverMock",
     "openzeppelin_test_common::mocks::erc2981::ERC2981OwnableMock",
-    "openzeppelin_test_common::mocks::erc2981::ERC2981AccessControlMock",
     "openzeppelin_test_common::mocks::non_implementing::NonImplementingMock",
     "openzeppelin_test_common::mocks::src5::SRC5Mock",
 ]

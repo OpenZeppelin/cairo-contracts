@@ -334,6 +334,7 @@ pub mod ERC20Component {
         /// - `signature` must use the current nonce of the `owner`.
         ///
         /// Emits an `Approval` event.
+        /// Every successful call increases `owner`'s nonce by one.
         fn permit(
             ref self: ComponentState<TContractState>,
             owner: ContractAddress,
@@ -387,7 +388,13 @@ pub mod ERC20Component {
     impl SNIP12MetadataExternal<
         TContractState, +HasComponent<TContractState>, impl Metadata: SNIP12Metadata
     > of ISNIP12Metadata<ComponentState<TContractState>> {
-        /// Returns domain name and version used for generating a message hash for permit signature.
+        /// Returns the domain name and version used to generate the message hash for for permit
+        /// signature.
+        ///
+        /// The returned tuple contains:
+        ///
+        /// - `t.0`: The name used in the SNIP12Metadata implementation.
+        /// - `t.1`: The version used in the SNIP12Metadata implementation.
         fn snip12_metadata(self: @ComponentState<TContractState>) -> (felt252, felt252) {
             (Metadata::name(), Metadata::version())
         }

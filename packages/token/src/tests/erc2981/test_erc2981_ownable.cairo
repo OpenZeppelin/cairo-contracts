@@ -1,11 +1,10 @@
-use OwnableComponent::InternalTrait;
-use crate::common::erc2981::ERC2981Component::InternalImpl;
-use crate::common::erc2981::ERC2981Component::{ERC2981Impl, ERC2981InfoImpl, ERC2981AdminOwnableImpl};
+use crate::common::erc2981::ERC2981Component::{ERC2981InfoImpl, ERC2981AdminOwnableImpl};
+use crate::common::erc2981::ERC2981Component::{ERC2981Impl, InternalImpl};
 use crate::common::erc2981::{DefaultConfig, ERC2981Component};
+use openzeppelin_access::ownable::OwnableComponent::InternalImpl as OwnableInternalImpl;
+use openzeppelin_access::ownable::OwnableComponent;
 use openzeppelin_test_common::mocks::erc2981::ERC2981OwnableMock;
 use openzeppelin_testing::constants::{OWNER, OTHER, ZERO, RECIPIENT};
-use openzeppelin_access::ownable::OwnableComponent;
-use openzeppelin_access::ownable::OwnableComponent::InternalImpl as OwnableInternalImpl;
 use snforge_std::{start_cheat_caller_address, test_address};
 use starknet::{ContractAddress, contract_address_const};
 

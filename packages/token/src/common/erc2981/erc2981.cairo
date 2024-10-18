@@ -173,7 +173,7 @@ pub mod ERC2981Component {
             ref self: ComponentState<TContractState>, receiver: ContractAddress, fee_numerator: u128
         ) {
             get_dep_component!(@self, Ownable).assert_only_owner();
-            self.set_default_royalty(receiver, fee_numerator)
+            self._set_default_royalty(receiver, fee_numerator)
         }
 
         /// Removes default royalty information.
@@ -201,7 +201,7 @@ pub mod ERC2981Component {
             fee_numerator: u128
         ) {
             get_dep_component!(@self, Ownable).assert_only_owner();
-            self.set_token_royalty(token_id, receiver, fee_numerator)
+            self._set_token_royalty(token_id, receiver, fee_numerator)
         }
 
         /// Resets royalty information for the token id back to unset.
@@ -242,7 +242,7 @@ pub mod ERC2981Component {
             ref self: ComponentState<TContractState>, receiver: ContractAddress, fee_numerator: u128
         ) {
             get_dep_component!(@self, AccessControl).assert_only_role(ROYALTY_ADMIN_ROLE);
-            self.set_default_royalty(receiver, fee_numerator)
+            self._set_default_royalty(receiver, fee_numerator)
         }
 
         /// Removes default royalty information.

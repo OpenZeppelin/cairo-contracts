@@ -388,7 +388,8 @@ pub mod ERC20Component {
     impl SNIP12MetadataExternal<
         TContractState, +HasComponent<TContractState>, impl Metadata: SNIP12Metadata
     > of ISNIP12Metadata<ComponentState<TContractState>> {
-        /// Returns domain name and version used for generating a message hash for permit signature.
+        /// Returns the domain name and version used to generate the message hash for for permit
+        /// signature.
         ///
         /// The returned tuple contains:
         ///

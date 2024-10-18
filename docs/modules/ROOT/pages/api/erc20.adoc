@@ -165,7 +165,7 @@ NOTE: This information is only used for _display_ purposes: it in no way affects
 
 [.contract]
 [[IERC20Permit]]
-=== `++IERC20Permit++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.17.0/packages/token/src/erc20/interface.cairo#L19[{github-icon},role=heading-link]
+=== `++IERC20Permit++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.18.0/packages/token/src/erc20/interface.cairo#L19[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -445,7 +445,7 @@ The domain hashing logic follows the {snip-12} standard.
 [[ERC20Component-snip12_metadata]]
 ==== `[.contract-item-name]#++snip12_metadata++#++(self: @ContractState) → (felt252, felt252)++` [.item-kind]#external#
 
-Returns domain name and version used for generating a message hash for permit signature.
+Returns the domain name and version used to generate the message hash for permit signature.
 
 The returned tuple contains:
 

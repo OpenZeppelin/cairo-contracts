@@ -175,12 +175,12 @@ ERC2981 component extending <<IERC2981,IERC2981>>.
 * xref:#IERC2981AdminOwnableImpl-set_token_royalty[`++set_token_royalty(self, token_id, receiver, fee_numerator)++`]
 * xref:#IERC2981AdminOwnableImpl-reset_token_royalty[`++reset_token_royalty(self, token_id)++`]
 
-[.sub-index#ERC2981Component-Embeddable-Impls-IERC2981AdminAccessControlImpl]
-.IERC2981AdminAccessControlImpl
-* xref:#IERC2981AdminAccessControlImpl-set_default_royalty[`++set_default_royalty(self, receiver, fee_numerator)++`]
-* xref:#IERC2981AdminAccessControlImpl-delete_default_royalty[`++delete_default_royalty(self)++`]
-* xref:#IERC2981AdminAccessControlImpl-set_token_royalty[`++set_token_royalty(self, token_id, receiver, fee_numerator)++`]
-* xref:#IERC2981AdminAccessControlImpl-reset_token_royalty[`++reset_token_royalty(self, token_id)++`]
+[.sub-index#ERC2981Component-Embeddable-Impls-ERC2981AdminAccessControlImpl]
+.ERC2981AdminAccessControlImpl
+* xref:#ERC2981AdminAccessControlImpl-set_default_royalty[`++set_default_royalty(self, receiver, fee_numerator)++`]
+* xref:#ERC2981AdminAccessControlImpl-delete_default_royalty[`++delete_default_royalty(self)++`]
+* xref:#ERC2981AdminAccessControlImpl-set_token_royalty[`++set_token_royalty(self, token_id, receiver, fee_numerator)++`]
+* xref:#ERC2981AdminAccessControlImpl-reset_token_royalty[`++reset_token_royalty(self, token_id)++`]
 --
 
 [.contract-index]
@@ -311,8 +311,8 @@ Requirements:
 
 - The caller is the contract owner.
 
-[#ERC2981Component-IERC2981AdminAccessControlImpl]
-==== IERC2981AdminAccessControlImpl
+[#ERC2981Component-ERC2981AdminAccessControlImpl]
+==== ERC2981AdminAccessControlImpl
 
 :accesscontrol-component: xref:api/access.adoc#AccessControlComponent[AccessControlComponent]
 
@@ -320,13 +320,13 @@ Provides admin functions for managing royalty settings that require `ROYALTY_ADM
 Requires the contract to implement {accesscontrol-component}.
 
 [.contract-item]
-[[IERC2981AdminAccessControlImpl-ROYALTY_ADMIN_ROLE]]
+[[ERC2981AdminAccessControlImpl-ROYALTY_ADMIN_ROLE]]
 ==== `[.contract-item-name]#++ROYALTY_ADMIN_ROLE:++#++ felt252++` [.item-kind]#constant#
 
 Role for the admin responsible for managing royalty settings.
 
 [.contract-item]
-[[IERC2981AdminAccessControlImpl-set_default_royalty]]
+[[ERC2981AdminAccessControlImpl-set_default_royalty]]
 ==== `[.contract-item-name]#++set_default_royalty++#++(ref self: TState, receiver: ContractAddress, fee_numerator: u128)++` [.item-kind]#external#
 
 Sets the royalty information that all ids in this contract will default to.
@@ -338,7 +338,7 @@ Requirements:
 - `fee_numerator` cannot be greater than the fee denominator.
 
 [.contract-item]
-[[IERC2981AdminAccessControlImpl-delete_default_royalty]]
+[[ERC2981AdminAccessControlImpl-delete_default_royalty]]
 ==== `[.contract-item-name]#++delete_default_royalty++#++(ref self: TState)++` [.item-kind]#external#
 
 Removes default royalty information.
@@ -348,7 +348,7 @@ Requirements:
 - The caller must have `ROYALTY_ADMIN_ROLE` role.
 
 [.contract-item]
-[[IERC2981AdminAccessControlImpl-set_token_royalty]]
+[[ERC2981AdminAccessControlImpl-set_token_royalty]]
 ==== `[.contract-item-name]#++set_token_royalty++#++(ref self: TState, token_id: u256, receiver: ContractAddress, fee_numerator: u128)++` [.item-kind]#external#
 
 Sets the royalty information for a specific token id that takes precedence over the global default.
@@ -360,7 +360,7 @@ Requirements:
 - `fee_numerator` cannot be greater than the fee denominator.
 
 [.contract-item]
-[[IERC2981AdminAccessControlImpl-reset_token_royalty]]
+[[ERC2981AdminAccessControlImpl-reset_token_royalty]]
 ==== `[.contract-item-name]#++reset_token_royalty++#++(ref self: TState, token_id: u256)++` [.item-kind]#external#
 
 Resets royalty information for the token id back to unset.

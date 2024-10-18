@@ -130,8 +130,8 @@ pub mod ERC2981AccessControlMock {
     impl ERC2981InfoImpl =
         ERC2981Component::ERC2981InfoImpl<ContractState>;
     #[abi(embed_v0)]
-    impl IERC2981AdminAccessControlImpl =
-        ERC2981Component::IERC2981AdminAccessControlImpl<ContractState>;
+    impl ERC2981AdminAccessControlImpl =
+        ERC2981Component::ERC2981AdminAccessControlImpl<ContractState>;
     impl ERC2981InternalImpl = ERC2981Component::InternalImpl<ContractState>;
 
     // AccessControl

@@ -241,6 +241,8 @@ pub mod GovernorComponent {
         fn _propose(
             ref self: ComponentState<TContractState>, calls: Span<Call>, description: @ByteArray, proposer: ContractAddress
         ) -> felt252 {
+            let proposal_id = self.hash_proposal(calls, description.hash());
+
             1
         }
 

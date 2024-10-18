@@ -188,12 +188,12 @@ ERC2981 component extending <<IERC2981,IERC2981>>.
 --
 .InternalImpl
 * xref:#ERC2981Component-initializer[`++initializer(self, default_receiver, default_royalty_fraction)++`]
-* xref:#ERC2981Component-default_royalty[`++default_royalty(self)++`]
-* xref:#ERC2981Component-set_default_royalty[`++set_default_royalty(self, receiver, fee_numerator)++`]
-* xref:#ERC2981Component-delete_default_royalty[`++delete_default_royalty(self)++`]
-* xref:#ERC2981Component-token_royalty[`++token_royalty(self, token_id)++`]
-* xref:#ERC2981Component-set_token_royalty[`++set_token_royalty(self, token_id, receiver, fee_numerator)++`]
-* xref:#ERC2981Component-reset_token_royalty[`++reset_token_royalty(self, token_id)++`]
+* xref:#ERC2981Component-_default_royalty[`++_default_royalty(self)++`]
+* xref:#ERC2981Component-_set_default_royalty[`++_set_default_royalty(self, receiver, fee_numerator)++`]
+* xref:#ERC2981Component-_delete_default_royalty[`++_delete_default_royalty(self)++`]
+* xref:#ERC2981Component-_token_royalty[`++_token_royalty(self, token_id)++`]
+* xref:#ERC2981Component-_set_token_royalty[`++_set_token_royalty(self, token_id, receiver, fee_numerator)++`]
+* xref:#ERC2981Component-_reset_token_royalty[`++_reset_token_royalty(self, token_id)++`]
 --
 
 [#ERC2981Component-Immutable-Config]
@@ -204,7 +204,7 @@ ERC2981 component extending <<IERC2981,IERC2981>>.
 ==== `[.contract-item-name]#++FEE_DENOMINATOR:++#++ u128++` [.item-kind]#constant#
 
 The denominator with which to interpret the fee set in
-`set_token_royalty` and `set_default_royalty` as a fraction of the sale price.
+`_set_token_royalty` and `_set_default_royalty` as a fraction of the sale price.
 
 [.contract-item]
 [[ERC2981Component-IC-validate]]
@@ -387,8 +387,8 @@ Requirements:
 NOTE: The fee denominator is set by the contract using the {immutable-config}.
 
 [.contract-item]
-[[ERC2981Component-default_royalty]]
-==== `[.contract-item-name]#++default_royalty++#++(self: @ContractState) → (ContractAddress, u128, u128)++` [.item-kind]#internal#
+[[ERC2981Component-_default_royalty]]
+==== `[.contract-item-name]#++_default_royalty++#++(self: @ContractState) → (ContractAddress, u128, u128)++` [.item-kind]#internal#
 
 Returns the royalty information that all ids in this contract will default to.
 
@@ -399,8 +399,8 @@ The returned tuple contains:
 - `t.2`: The denominator of the royalty fraction.
 
 [.contract-item]
-[[ERC2981Component-set_default_royalty]]
-==== `[.contract-item-name]#++set_default_royalty++#++(ref self: ContractState, receiver: ContractAddress, fee_numerator: u128)++` [.item-kind]#internal#
+[[ERC2981Component-_set_default_royalty]]
+==== `[.contract-item-name]#++_set_default_royalty++#++(ref self: ContractState, receiver: ContractAddress, fee_numerator: u128)++` [.item-kind]#internal#
 
 Sets the royalty information that all ids in this contract will default to.
 
@@ -410,14 +410,14 @@ Requirements:
 - `fee_numerator` cannot be greater than the fee denominator.
 
 [.contract-item]
-[[ERC2981Component-delete_default_royalty]]
-==== `[.contract-item-name]#++delete_default_royalty++#++(ref self: ContractState)++` [.item-kind]#internal#
+[[ERC2981Component-_delete_default_royalty]]
+==== `[.contract-item-name]#++_delete_default_royalty++#++(ref self: ContractState)++` [.item-kind]#internal#
 
 Removes default royalty information.
 
 [.contract-item]
-[[ERC2981Component-token_royalty]]
-==== `[.contract-item-name]#++token_royalty++#++(self: @ContractState, token_id: u256) → (ContractAddress, u256, u256)++` [.item-kind]#internal#
+[[ERC2981Component-_token_royalty]]
+==== `[.contract-item-name]#++_token_royalty++#++(self: @ContractState, token_id: u256) → (ContractAddress, u256, u256)++` [.item-kind]#internal#
 
 Returns the royalty information that all ids in this contract will default to.
 
@@ -428,8 +428,8 @@ The returned tuple contains:
 - `t.2`: The denominator of the royalty fraction.
 
 [.contract-item]
-[[ERC2981Component-set_token_royalty]]
-==== `[.contract-item-name]#++set_token_royalty++#++(ref self: ContractState, token_id: u256, receiver: ContractAddress, fee_numerator: u128)++` [.item-kind]#internal#
+[[ERC2981Component-_set_token_royalty]]
+==== `[.contract-item-name]#++_set_token_royalty++#++(ref self: ContractState, token_id: u256, receiver: ContractAddress, fee_numerator: u128)++` [.item-kind]#internal#
 
 Sets the royalty information for a specific token id that takes precedence over the global default.
 
@@ -439,7 +439,7 @@ Requirements:
 - `fee_numerator` cannot be greater than the fee denominator.
 
 [.contract-item]
-[[ERC2981Component-reset_token_royalty]]
-==== `[.contract-item-name]#++reset_token_royalty++#++(ref self: ContractState, token_id: u256)++` [.item-kind]#internal#
+[[ERC2981Component-_reset_token_royalty]]
+==== `[.contract-item-name]#++_reset_token_royalty++#++(ref self: ContractState, token_id: u256)++` [.item-kind]#internal#
 
 Resets royalty information for the token id back to unset.

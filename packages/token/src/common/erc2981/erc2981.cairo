@@ -62,7 +62,7 @@ pub mod ERC2981Component {
     /// behaviour.
     ///
     /// - `FEE_DENOMINATOR`: The denominator with which to interpret the fee set in
-    ///   `set_token_royalty` and `set_default_royalty` as a fraction of the sale price.
+    ///   `_set_token_royalty` and `_set_default_royalty` as a fraction of the sale price.
     ///
     /// Requirements:
     ///
@@ -325,7 +325,9 @@ pub mod ERC2981Component {
         /// - `t.0`: The receiver of the royalty payment.
         /// - `t.1`: The numerator of the royalty fraction.
         /// - `t.2`: The denominator of the royalty fraction.
-        fn _default_royalty(self: @ComponentState<TContractState>) -> (ContractAddress, u128, u128) {
+        fn _default_royalty(
+            self: @ComponentState<TContractState>
+        ) -> (ContractAddress, u128, u128) {
             let royalty_info = self.ERC2981_default_royalty_info.read();
             (royalty_info.receiver, royalty_info.royalty_fraction, Immutable::FEE_DENOMINATOR)
         }

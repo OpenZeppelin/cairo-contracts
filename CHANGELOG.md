@@ -9,10 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## 0.18.0 (2024-10-17)
+
 ### Added
 
+- `VotesComponent` with implementation for ERC721 and ERC20 tokens (#1114)
 - `IUpgradeAndCall` interface (#1148)
 - `upgrade_and_call` function in UpgradeableComponent's InternalImpl (#1148)
+- `ERC20Permit` impl for `ERC20Component` facilitating token approvals via off-chain signatures (#1140)
+- `ISNIP12Metadata` interface for discovering name and version of a SNIP-12 impl (#1140)
+- `SNIP12MetadataExternal` impl of `ISNIP12Metadata` interface for `ERC20Component` (#1140)
 - Embeddable impls for ERC2981 component (#1173)
   - `ERC2981Info` with read functions for discovering the component's state
   - `ERC2981AdminOwnable` providing admin functions for a token that implements Ownable component
@@ -24,6 +30,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed (Breaking)
 
+- Remove `ERC20Votes` component in favor of `VotesComponent` (#1114)
+  - `Trace` is now declared as a `storage_node` and now uses `Vec` instead of `StorageArray`.
+  - `delegate_by_sig` `signature` param in the `IVotes` interface updated from `Array<felt252>` to `Span<felt252>`.
+- Remove `StorageArray` from `openzeppelin_utils` (#1114)
 - Bump snforge to 0.31.0
 - Remove openzeppelin_utils::selectors (#1163)
 - Remove `DualCase dispatchers` (#1163)

@@ -12,7 +12,7 @@ This crate includes primitives for financial systems.
 
 [.contract]
 [[IVesting]]
-=== `++IVesting++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.17.0/packages/finance/src/vesting/interface.cairo[{github-icon},role=heading-link]
+=== `++IVesting++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.18.0/packages/finance/src/vesting/interface.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -104,7 +104,7 @@ Emitted when vested tokens are released to the beneficiary.
 
 [.contract]
 [[VestingComponent]]
-=== `++VestingComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.17.0/packages/finance/src/vesting/vesting.cairo[{github-icon},role=heading-link]
+=== `++VestingComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.18.0/packages/finance/src/vesting/vesting.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -114,7 +114,7 @@ use openzeppelin_finance::vesting::VestingComponent;
 Vesting component implementing the xref:IVesting[`IVesting`] interface.
 
 [.contract-index]
-.Vesting Schedule Trait
+.Vesting Schedule Trait Implementations
 --
 .functions
 * xref:#VestingComponent-calculate_vested_amount[`++calculate_vested_amount(self, token, total_allocation, 
@@ -236,7 +236,7 @@ Returns the vested amount that's calculated using the {vesting-schedule} trait i
 
 [.contract]
 [[LinearVestingSchedule]]
-=== `++LinearVestingSchedule++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.17.0/packages/finance/src/vesting/vesting.cairo[{github-icon},role=heading-link]
+=== `++LinearVestingSchedule++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.18.0/packages/finance/src/vesting/vesting.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -251,7 +251,7 @@ is directly proportional to the time passed since the start of the vesting sched
 
 [.contract]
 [[VestingWallet]]
-=== `++VestingWallet++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.17.0/packages/presets/src/vesting.cairo[{github-icon},role=heading-link]
+=== `++VestingWallet++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.18.0/packages/presets/src/vesting.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin::presets::VestingWallet;

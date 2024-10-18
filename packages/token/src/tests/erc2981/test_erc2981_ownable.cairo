@@ -25,8 +25,19 @@ fn setup_dispatcher() -> IERC2981ABIDispatcher {
 }
 
 //
-// Getters
+// IERC2981Info
 //
+
+#[test]
+fn test_default_royalty() {
+    let dispatcher = setup_dispatcher();
+
+    let (receiver, numerator, denominator) = dispatcher.default_royalty();
+
+    assert_eq!(receiver, DEFAULT_RECEIVER());
+    assert_eq!(numerator, DEFAULT_FEE_NUMERATOR);
+    assert_eq!(denominator, ERC2981Component::DEFAULT_FEE_DENOMINATOR);
+}
 
 #[test]
 fn test_royalty_info_default_royalty() {
@@ -38,6 +49,10 @@ fn test_royalty_info_default_royalty() {
     assert_eq!(receiver, DEFAULT_RECEIVER());
     assert_eq!(amount, 5000);
 }
+
+//
+// IERC2981Admin
+//
 
 #[test]
 fn test_royalty_info_token_royalty_set() {
@@ -55,21 +70,6 @@ fn test_royalty_info_token_royalty_set() {
     let (receiver, amount) = dispatcher.royalty_info(token_id, sale_price);
     assert_eq!(receiver, RECIPIENT());
     assert_eq!(amount, 50_000);
-}
-
-//
-// Internals
-//
-
-#[test]
-fn test_default_royalty() {
-    let dispatcher = setup_dispatcher();
-
-    let (receiver, numerator, denominator) = dispatcher.default_royalty();
-
-    assert_eq!(receiver, DEFAULT_RECEIVER());
-    assert_eq!(numerator, DEFAULT_FEE_NUMERATOR);
-    assert_eq!(denominator, ERC2981Component::DEFAULT_FEE_DENOMINATOR);
 }
 
 #[test]

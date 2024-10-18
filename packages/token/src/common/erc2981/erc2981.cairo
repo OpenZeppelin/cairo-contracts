@@ -220,7 +220,7 @@ pub mod ERC2981Component {
     //
 
     // Role for the admin responsible for managing royalty settings.
-    pub const ROYALTY_ADMIN_ROLE: felt252 = 'ROYALTY_ADMIN_ROLE';
+    pub const ROYALTY_ADMIN_ROLE: felt252 = selector!("ROYALTY_ADMIN_ROLE");
 
     #[embeddable_as(ERC2981AdminAccessControlImpl)]
     impl ERC2981AdminAccessControl<

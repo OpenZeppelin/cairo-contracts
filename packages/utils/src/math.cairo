@@ -60,15 +60,16 @@ fn round_up(rounding: Rounding) -> bool {
     u8_rounding % 2 == 1
 }
 
-/// ADD MEEE
+/// Returns the quotient of x * y / denominator and rounds up or down depending on `rounding`.
+/// Uses `u512_safe_div_rem_by_u256` for precision.
 pub fn u256_mul_div(x: u256, y: u256, denominator: u256, rounding: Rounding) -> u256 {
     let (q, r) = _raw_u256_mul_div(x, y, denominator);
 
-    // Prepare vars for bitwise op
-    let felt_is_round_up: felt252 = round_up(rounding).into();
+    // Cast to felts for bitwise op
+    let is_rounded_up: felt252 = round_up(rounding).into();
     let has_remainder: felt252 = (r > 0).into();
 
-    q + (felt_is_round_up.into() & has_remainder.into())
+    q + (is_rounded_up.into() & has_remainder.into())
 }
 
 fn _raw_u256_mul_div(x: u256, y: u256, denominator: u256) -> (u256, u256) {

@@ -1,6 +1,6 @@
 use core::num::traits::Bounded;
 use crate::math::Rounding;
-use crate::math::{u256_mul_div, power};
+use crate::math::u256_mul_div;
 
 #[test]
 #[should_panic(expected: 'Math: division by zero')]

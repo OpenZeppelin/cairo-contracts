@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.17.0 (merkle_tree/hashes.cairo)
+// OpenZeppelin Contracts for Cairo v0.18.0 (merkle_tree/hashes.cairo)
 
 use core::hash::HashStateTrait;
 use core::pedersen::PedersenTrait;

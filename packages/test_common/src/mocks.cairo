@@ -1,5 +1,6 @@
 pub mod access;
 pub mod account;
+pub mod checkpoint;
 pub mod erc1155;
 pub mod erc20;
 pub mod erc2981;
@@ -14,3 +15,5 @@ pub mod src9;
 pub mod timelock;
 pub mod upgrades;
 pub mod vesting;
+pub mod votes;
+

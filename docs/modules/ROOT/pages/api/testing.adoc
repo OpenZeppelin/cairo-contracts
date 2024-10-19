@@ -15,7 +15,7 @@ be added as a separate dependency in `Scarb.toml`:
 
 ```
 [dev-dependencies]
-openzeppelin_testing = "0.17.0"
+openzeppelin_testing = "0.18.0"
 ```
 
 == Test Utilities

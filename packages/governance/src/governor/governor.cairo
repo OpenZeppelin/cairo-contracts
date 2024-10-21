@@ -30,7 +30,8 @@ pub mod GovernorComponent {
     #[event]
     #[derive(Drop, starknet::Event)]
     pub enum Event {
-        ProposalCreated: ProposalCreated
+        ProposalCreated: ProposalCreated,
+        ProposalQueued: ProposalQueued
     }
 
     // TODO: Maybe add indexed keys and rename members since we don't have the GovernorBravo BC
@@ -47,12 +48,24 @@ pub mod GovernorComponent {
         pub description: ByteArray
     }
 
+    // TODO: Maybe add indexed keys and rename members since we don't have the GovernorBravo BC
+    // restriction.
+    /// Emitted when a proposal is queued.
+    #[derive(Drop, starknet::Event)]
+    pub struct ProposalQueued {
+        pub proposal_id: felt252,
+        pub eta_seconds: u64
+    }
+
+    // TODO: check prefix for errors
     mod Errors {
-        pub const EXECUTOR_ONLY: felt252 = 'Governor: executor only';
-        pub const NONEXISTENT_PROPOSAL: felt252 = 'Governor: nonexistent proposal';
-        pub const EXISTENT_PROPOSAL: felt252 = 'Governor: existent proposal';
-        pub const RESTRICTED_PROPOSER: felt252 = 'Governor: restricted proposer';
-        pub const INSUFFICIENT_PROPOSER_VOTES: felt252 = 'Governor: insufficient votes';
+        pub const EXECUTOR_ONLY: felt252 = 'Gov: executor only';
+        pub const NONEXISTENT_PROPOSAL: felt252 = 'Gov: nonexistent proposal';
+        pub const EXISTENT_PROPOSAL: felt252 = 'Gov: existent proposal';
+        pub const RESTRICTED_PROPOSER: felt252 = 'Gov: restricted proposer';
+        pub const INSUFFICIENT_PROPOSER_VOTES: felt252 = 'Gov: insufficient votes';
+        pub const UNEXPECTED_PROPOSAL_STATE: felt252 = 'Gov: unexpected proposal state';
+        pub const QUEUE_NOT_IMPLEMENTED: felt252 = 'Gov: queue not implemented';
     }
 
     //
@@ -96,6 +109,21 @@ pub mod GovernorComponent {
         ) -> u256;
     }
 
+    pub trait GovernorQueueTrait<TContractState> {
+        /// Queuing mechanism. Can be used to modify the way queuing is
+        /// performed (for example adding a vault/timelock).
+        ///
+        /// Must return a timestamp that describes the expected ETA for execution. If the returned
+        /// value is 0, the core will consider queueing did not succeed, and the public `queue`
+        /// function will revert.
+        fn queue_operations(
+            ref self: ComponentState<TContractState>,
+            proposal_id: felt252,
+            calls: Span<Call>,
+            description_hash: felt252
+        ) -> u64;
+    }
+
     //
     // Internal
     //
@@ -107,6 +135,7 @@ pub mod GovernorComponent {
         +GovernorCountingTrait<TContractState>,
         +GovernorExecutorTrait<TContractState>,
         +GovernorVotesTrait<TContractState>,
+        +GovernorQueueTrait<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
@@ -313,6 +342,40 @@ pub mod GovernorComponent {
             proposal_id
         }
 
+        /// Queue a proposal. Some governors require this step to be performed before execution can
+        /// happen. If queuing is not necessary, this function may revert.
+        /// Queuing a proposal requires the quorum to be reached, the vote to be successful, and the
+        /// deadline to be reached.
+        ///
+        /// Returns the id of the proposal.
+        ///
+        /// Requirements:
+        ///
+        /// - The proposal must be in the `Succeeded` state.
+        /// - The queue operation must return a non-zero ETA.
+        ///
+        /// Emits a `ProposalQueued` event.
+        fn queue(
+            ref self: ComponentState<TContractState>, calls: Span<Call>, description_hash: felt252
+        ) -> felt252 {
+            let proposal_id = self.hash_proposal(calls, description_hash);
+
+            self.validate_state(proposal_id, array![ProposalState::Succeeded].span());
+
+            let eta_seconds = self.queue_operations(proposal_id, calls, description_hash);
+
+            assert(eta_seconds > 0, Errors::QUEUE_NOT_IMPLEMENTED);
+
+            let mut proposal = self.proposals.read(proposal_id);
+            proposal.eta_seconds = eta_seconds;
+
+            self.proposals.write(proposal_id, proposal);
+
+            self.emit(ProposalQueued { proposal_id, eta_seconds });
+
+            proposal_id
+        }
+
         /// Checks if the proposer is authorized to submit a proposal with the given description.
         ///
         /// If the proposal description ends with `#proposer=0x???`, where `0x???` is an address
@@ -353,6 +416,23 @@ pub mod GovernorComponent {
 
             let expected_address = description.read_n_bytes(length - 42, 42);
             proposer.to_byte_array(16, 64) == expected_address
+        }
+
+        /// Validates that the proposal is in one of the expected states.
+        fn validate_state(
+            self: @ComponentState<TContractState>,
+            proposal_id: felt252,
+            allowed_states: Span<ProposalState>
+        ) {
+            let current_state = self.state(proposal_id);
+            let mut found = false;
+            for state in allowed_states {
+                if current_state == *state {
+                    found = true;
+                    break;
+                }
+            };
+            assert(found, Errors::UNEXPECTED_PROPOSAL_STATE);
         }
     }
 }

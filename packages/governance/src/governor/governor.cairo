@@ -16,7 +16,7 @@ pub mod GovernorComponent {
     use openzeppelin_token::erc1155::interface::IERC1155_RECEIVER_ID;
     use openzeppelin_token::erc721::interface::IERC721_RECEIVER_ID;
     use openzeppelin_utils::bytearray::ByteArrayExtTrait;
-    use openzeppelin_utils::structs::DoubleEndedQueue;
+    use openzeppelin_utils::structs::{DoubleEndedQueue, DoubleEndedQueueTrait};
     use starknet::ContractAddress;
     use starknet::account::Call;
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
@@ -31,7 +31,9 @@ pub mod GovernorComponent {
     #[derive(Drop, starknet::Event)]
     pub enum Event {
         ProposalCreated: ProposalCreated,
-        ProposalQueued: ProposalQueued
+        ProposalQueued: ProposalQueued,
+        ProposalExecuted: ProposalExecuted,
+        ProposalCanceled: ProposalCanceled
     }
 
     // TODO: Maybe add indexed keys and rename members since we don't have the GovernorBravo BC
@@ -57,9 +59,26 @@ pub mod GovernorComponent {
         pub eta_seconds: u64
     }
 
+    // TODO: Maybe add indexed keys and rename members since we don't have the GovernorBravo BC
+    // restriction.
+    /// Emitted when a proposal is executed.
+    #[derive(Drop, starknet::Event)]
+    pub struct ProposalExecuted {
+        pub proposal_id: felt252
+    }
+
+    // TODO: Maybe add indexed keys and rename members since we don't have the GovernorBravo BC
+    // restriction.
+    /// Emitted when a proposal is canceled.
+    #[derive(Drop, starknet::Event)]
+    pub struct ProposalCanceled {
+        pub proposal_id: felt252
+    }
+
     // TODO: check prefix for errors
     mod Errors {
         pub const EXECUTOR_ONLY: felt252 = 'Gov: executor only';
+        pub const PROPOSER_ONLY: felt252 = 'Gov: proposer only';
         pub const NONEXISTENT_PROPOSAL: felt252 = 'Gov: nonexistent proposal';
         pub const EXISTENT_PROPOSAL: felt252 = 'Gov: existent proposal';
         pub const RESTRICTED_PROPOSER: felt252 = 'Gov: restricted proposer';
@@ -89,8 +108,20 @@ pub mod GovernorComponent {
         ) -> u256;
     }
 
-    pub trait GovernorExecutorTrait<TContractState> {
+    pub trait GovernorExecuteTrait<TContractState> {
+        /// Address through which the governor executes action.
+        /// Should be used to specify whether the module execute actions through another contract
+        /// such as a timelock.
         fn executor(self: @ComponentState<TContractState>) -> ContractAddress;
+
+        /// Execution mechanism. Can be used to modify the way execution is
+        /// performed (for example adding a vault/timelock).
+        fn execute_operations(
+            ref self: ComponentState<TContractState>,
+            proposal_id: felt252,
+            calls: Span<Call>,
+            description_hash: felt252
+        );
     }
 
     pub trait GovernorVotesTrait<TContractState> {
@@ -113,7 +144,9 @@ pub mod GovernorComponent {
         /// Queuing mechanism. Can be used to modify the way queuing is
         /// performed (for example adding a vault/timelock).
         ///
-        /// Must return a timestamp that describes the expected ETA for execution. If the returned
+        /// Requirements:
+        ///
+        /// - Must return a timestamp that describes the expected ETA for execution. If the returned
         /// value is 0, the core will consider queueing did not succeed, and the public `queue`
         /// function will revert.
         fn queue_operations(
@@ -122,6 +155,15 @@ pub mod GovernorComponent {
             calls: Span<Call>,
             description_hash: felt252
         ) -> u64;
+
+        /// Whether a proposal needs to be queued before execution.
+        ///
+        /// Requirements:
+        ///
+        /// - Must return true if the proposal needs to be queued before execution.
+        fn proposal_needs_queuing(
+            self: @ComponentState<TContractState>, proposal_id: felt252
+        ) -> bool;
     }
 
     //
@@ -133,7 +175,7 @@ pub mod GovernorComponent {
         TContractState,
         +HasComponent<TContractState>,
         +GovernorCountingTrait<TContractState>,
-        +GovernorExecutorTrait<TContractState>,
+        +GovernorExecuteTrait<TContractState>,
         +GovernorVotesTrait<TContractState>,
         +GovernorQueueTrait<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
@@ -246,13 +288,6 @@ pub mod GovernorComponent {
             self.proposals.read(proposal_id).eta_seconds
         }
 
-        /// Whether a proposal needs to be queued before execution.
-        fn proposal_needs_queuing(
-            self: @ComponentState<TContractState>, proposal_id: felt252
-        ) -> bool {
-            false
-        }
-
         /// Creates a new proposal. Vote start after a delay specified by `voting_delay` and
         /// lasts for a duration specified by `voting_period`. Returns the id of the proposal.
         ///
@@ -342,7 +377,7 @@ pub mod GovernorComponent {
             proposal_id
         }
 
-        /// Queue a proposal. Some governors require this step to be performed before execution can
+        /// Queues a proposal. Some governors require this step to be performed before execution can
         /// happen. If queuing is not necessary, this function may revert.
         /// Queuing a proposal requires the quorum to be reached, the vote to be successful, and the
         /// deadline to be reached.
@@ -359,19 +394,117 @@ pub mod GovernorComponent {
             ref self: ComponentState<TContractState>, calls: Span<Call>, description_hash: felt252
         ) -> felt252 {
             let proposal_id = self.hash_proposal(calls, description_hash);
-
             self.validate_state(proposal_id, array![ProposalState::Succeeded].span());
 
             let eta_seconds = self.queue_operations(proposal_id, calls, description_hash);
-
             assert(eta_seconds > 0, Errors::QUEUE_NOT_IMPLEMENTED);
 
             let mut proposal = self.proposals.read(proposal_id);
             proposal.eta_seconds = eta_seconds;
-
             self.proposals.write(proposal_id, proposal);
 
             self.emit(ProposalQueued { proposal_id, eta_seconds });
+
+            proposal_id
+        }
+
+        /// Executes a successful proposal. This requires the quorum to be reached, the vote to be
+        /// successful, and the deadline to be reached. Depending on the governor it might also be
+        /// required that the proposal was queued and that some delay passed.
+        ///
+        /// NOTE: Some modules can modify the requirements for execution, for example by adding an
+        /// additional timelock (See `timelock_controller`).
+        ///
+        /// Returns the id of the proposal.
+        ///
+        /// Requirements:
+        ///
+        /// - The proposal must be in the `Succeeded` or `Queued` state.
+        ///
+        /// Emits a `ProposalExecuted` event.
+        fn execute(
+            ref self: ComponentState<TContractState>, calls: Span<Call>, description_hash: felt252
+        ) -> felt252 {
+            let proposal_id = self.hash_proposal(calls, description_hash);
+            self
+                .validate_state(
+                    proposal_id, array![ProposalState::Succeeded, ProposalState::Queued].span()
+                );
+
+            // Mark proposal as executed to avoid reentrancy
+            let mut proposal = self.proposals.read(proposal_id);
+            proposal.executed = true;
+            self.proposals.write(proposal_id, proposal);
+
+            let self_executor = self.executor() == starknet::get_contract_address();
+            // Register governance call in queue before execution
+            if self_executor { // TODO: Save the calldatas in the governance_call queue
+            }
+
+            self.execute_operations(proposal_id, calls, description_hash);
+
+            // Clean up the governance call queue
+            if self_executor
+                && (@self).governance_call.deref().len() > 0 { // TODO: Clean up the queue
+            }
+
+            self.emit(ProposalExecuted { proposal_id });
+
+            proposal_id
+        }
+
+        /// Cancels a proposal. A proposal is cancellable by the proposer, but only while it is
+        /// Pending state, i.e. before the vote starts.
+        ///
+        /// Returns the id of the proposal.
+        ///
+        /// Requirements:
+        ///
+        /// - The proposal must be in the `Pending` state.
+        ///
+        /// Emits a `ProposalCanceled` event.
+        fn cancel(
+            ref self: ComponentState<TContractState>, calls: Span<Call>, description_hash: felt252
+        ) -> felt252 {
+            let proposal_id = self.hash_proposal(calls, description_hash);
+            self.validate_state(proposal_id, array![ProposalState::Pending].span());
+
+            assert(
+                starknet::get_caller_address() == self.proposal_proposer(proposal_id),
+                Errors::PROPOSER_ONLY
+            );
+
+            self._cancel(proposal_id, calls, description_hash)
+        }
+
+        /// Internal cancel mechanism with minimal restrictions. Returns the id of the proposal.
+        ///
+        /// Requirements:
+        ///
+        /// - A proposal can be cancelled in any state other than
+        /// Canceled, Expired, or Executed. Once cancelled a proposal can't be re-submitted.
+        ///
+        /// Emits a `ProposalCanceled` event.
+        fn _cancel(
+            ref self: ComponentState<TContractState>,
+            proposal_id: felt252,
+            calls: Span<Call>,
+            description_hash: felt252
+        ) -> felt252 {
+            let valid_states = array![
+                ProposalState::Pending,
+                ProposalState::Active,
+                ProposalState::Defeated,
+                ProposalState::Succeeded,
+                ProposalState::Queued
+            ];
+            self.validate_state(proposal_id, valid_states.span());
+
+            let mut proposal = self.proposals.read(proposal_id);
+            proposal.canceled = true;
+            self.proposals.write(proposal_id, proposal);
+
+            self.emit(ProposalCanceled { proposal_id });
 
             proposal_id
         }

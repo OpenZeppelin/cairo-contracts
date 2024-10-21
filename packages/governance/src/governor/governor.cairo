@@ -18,9 +18,8 @@ pub mod GovernorComponent {
     use openzeppelin_utils::bytearray::ByteArrayExtTrait;
     use openzeppelin_utils::structs::DoubleEndedQueue;
     use starknet::ContractAddress;
-
     use starknet::account::Call;
-    use starknet::storage::{Map, StorageMapReadAccess};
+    use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
 
     #[storage]
     pub struct Storage {
@@ -28,9 +27,30 @@ pub mod GovernorComponent {
         governance_call: DoubleEndedQueue
     }
 
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    pub enum Event {
+        ProposalCreated: ProposalCreated
+    }
+
+    // TODO: Maybe add indexed keys and rename members since we don't have the GovernorBravo BC
+    // restriction.
+    /// Emitted when `call` is scheduled as part of operation `id`.
+    #[derive(Drop, starknet::Event)]
+    pub struct ProposalCreated {
+        pub proposal_id: felt252,
+        pub proposer: ContractAddress,
+        pub calls: Span<Call>,
+        pub signatures: Span<Span<felt252>>,
+        pub vote_start: u64,
+        pub vote_end: u64,
+        pub description: ByteArray
+    }
+
     mod Errors {
         pub const EXECUTOR_ONLY: felt252 = 'Governor: executor only';
         pub const NONEXISTENT_PROPOSAL: felt252 = 'Governor: nonexistent proposal';
+        pub const EXISTENT_PROPOSAL: felt252 = 'Governor: existent proposal';
         pub const RESTRICTED_PROPOSER: felt252 = 'Governor: restricted proposer';
         pub const INSUFFICIENT_PROPOSER_VOTES: felt252 = 'Governor: insufficient votes';
     }
@@ -63,10 +83,10 @@ pub mod GovernorComponent {
     pub trait GovernorVotesTrait<TContractState> {
         fn clock(self: @ComponentState<TContractState>) -> u64;
         fn CLOCK_MODE(self: @ComponentState<TContractState>) -> ByteArray;
+        fn voting_delay(self: @ComponentState<TContractState>) -> u64;
+        fn voting_period(self: @ComponentState<TContractState>) -> u64;
         fn get_votes(
-            self: @ComponentState<TContractState>,
-            account: ContractAddress,
-            timepoint: u64
+            self: @ComponentState<TContractState>, account: ContractAddress, timepoint: u64
         ) -> u256;
         fn get_votes_with_params(
             self: @ComponentState<TContractState>,
@@ -205,9 +225,10 @@ pub mod GovernorComponent {
         }
 
         /// Creates a new proposal. Vote start after a delay specified by `voting_delay` and
-        /// lasts for a duration specified by `voting_period`.
+        /// lasts for a duration specified by `voting_period`. Returns the id of the proposal.
         ///
-        /// This function has opt-in frontrunning protection, described in `is_valid_description_for_proposer`.
+        /// This function has opt-in frontrunning protection, described in
+        /// `is_valid_description_for_proposer`.
         ///
         /// NOTE: The state of the Governor and `targets` may change between the proposal creation
         /// and its execution. This may be the result of third party actions on the targeted
@@ -216,7 +237,14 @@ pub mod GovernorComponent {
         /// proposal's ability to execute successfully (e.g. the governor doesn't have enough value
         /// to cover a proposal with multiple transfers).
         ///
-        /// Returns the id of the proposal.
+        /// Requirements:
+        ///
+        /// - The proposer must be authorized to submit the proposal.
+        /// - The proposer must have enough votes to submit the proposal if `proposal_threshold` is
+        /// greater than zero.
+        /// - The proposal must not already exist.
+        ///
+        /// Emits a `ProposalCreated` event.
         fn propose(
             ref self: ComponentState<TContractState>, calls: Span<Call>, description: ByteArray
         ) -> felt252 {
@@ -238,12 +266,51 @@ pub mod GovernorComponent {
             self._propose(calls, @description, proposer)
         }
 
+        /// Internal propose mechanism. Returns the proposal id.
+        ///
+        /// Requirements:
+        ///
+        /// - The proposal must not already exist.
+        ///
+        /// Emits a `ProposalCreated` event.
         fn _propose(
-            ref self: ComponentState<TContractState>, calls: Span<Call>, description: @ByteArray, proposer: ContractAddress
+            ref self: ComponentState<TContractState>,
+            calls: Span<Call>,
+            description: @ByteArray,
+            proposer: ContractAddress
         ) -> felt252 {
             let proposal_id = self.hash_proposal(calls, description.hash());
 
-            1
+            assert(self.proposals.read(proposal_id).vote_start == 0, Errors::EXISTENT_PROPOSAL);
+
+            let snapshot = self.clock() + self.voting_delay();
+            let duration = self.voting_period();
+
+            let proposal = ProposalCore {
+                proposer,
+                vote_start: snapshot,
+                vote_duration: duration,
+                executed: false,
+                canceled: false,
+                eta_seconds: 0
+            };
+
+            self.proposals.write(proposal_id, proposal);
+
+            self
+                .emit(
+                    ProposalCreated {
+                        proposal_id,
+                        proposer,
+                        calls,
+                        signatures: array![].span(),
+                        vote_start: snapshot,
+                        vote_end: snapshot + duration,
+                        description: description.clone()
+                    }
+                );
+
+            proposal_id
         }
 
         /// Checks if the proposer is authorized to submit a proposal with the given description.
@@ -265,7 +332,9 @@ pub mod GovernorComponent {
         /// - If it ends with some other similar suffix, e.g. `#other=abc`.
         /// - If it does not end with any such suffix.
         fn is_valid_description_for_proposer(
-            self: @ComponentState<TContractState>, proposer: ContractAddress, description: @ByteArray
+            self: @ComponentState<TContractState>,
+            proposer: ContractAddress,
+            description: @ByteArray
         ) -> bool {
             let length = description.len();
 

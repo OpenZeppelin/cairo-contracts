@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.17.0 (utils/bytearray.cairo)
+// OpenZeppelin Contracts for Cairo v0.18.0 (utils/bytearray.cairo)
 
 use core::byte_array::ByteArrayTrait;
+use core::poseidon::poseidon_hash_span;
 use core::to_byte_array::FormatAsByteArray;
 
 /// Reads n bytes from a byte array starting from a given index.
@@ -24,9 +25,7 @@ pub fn read_n_bytes(data: @ByteArray, start: u32, n: u32) -> ByteArray {
 /// Requirements:
 ///
 /// - `base` can not be zero.
-pub fn to_byte_array<
-    T, +Into<T, felt252>, +Copy<T>
->(
+pub fn to_byte_array<T, +Into<T, felt252>, +Copy<T>>(
     value: @T, base: u8, padding: u16
 ) -> ByteArray {
     let value: felt252 = (*value).into();
@@ -41,6 +40,15 @@ pub fn to_byte_array<
         };
     };
     byte_array
+}
+
+/// Hashes a byte array using the Poseidon hash algorithm.
+/// Encodes the byte array as a ´Span<felt252>´ by serializing ´data´.
+pub fn hash_byte_array(data: @ByteArray) -> felt252 {
+    let mut serialized = array![];
+    data.serialize(ref serialized);
+
+    poseidon_hash_span(serialized.span())
 }
 
 /// ByteArray extension trait.
@@ -60,11 +68,15 @@ pub impl ByteArrayExtImpl of ByteArrayExtTrait {
     /// Requirements:
     ///
     /// - `base` can not be zero.
-    fn to_byte_array<
-    T, +Into<T, felt252>, +Copy<T>
-    >(
+    fn to_byte_array<T, +Into<T, felt252>, +Copy<T>>(
         self: @T, base: u8, padding: u16
     ) -> ByteArray {
         to_byte_array(self, base, padding)
+    }
+
+    /// Hashes a byte array using the Poseidon hash algorithm.
+    /// Encodes the byte array as a ´Span<felt252>´ by serializing ´data´.
+    fn hash(self: @ByteArray) -> felt252 {
+        hash_byte_array(self)
     }
 }

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.17.0 (governance/governor/proposal_core.cairo)
+// OpenZeppelin Contracts for Cairo v0.18.0 (governance/governor/proposal_core.cairo)
 
 use starknet::ContractAddress;
 use starknet::storage_access::StorePacking;

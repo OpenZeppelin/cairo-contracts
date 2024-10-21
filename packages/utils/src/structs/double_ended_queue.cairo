@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts for Cairo v0.18.0 (utils/structs/double_ended_queue.cairo)
+
 use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
 use starknet::storage::{StoragePath, Mutable};
 use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};

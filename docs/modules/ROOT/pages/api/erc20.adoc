@@ -164,48 +164,6 @@ To create a custom decimals implementation, see {custom-decimals}.
 NOTE: This information is only used for _display_ purposes: it in no way affects any of the arithmetic of the contract.
 
 [.contract]
-[[IERC20Permit]]
-=== `++IERC20Permit++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.18.0/packages/token/src/erc20/interface.cairo#L19[{github-icon},role=heading-link]
-
-[.hljs-theme-dark]
-```cairo
-use openzeppelin_token::erc20::interface::IERC20Permit;
-```
-
-Interface of the ERC20Permit standard to support gasless token approvals as defined in {eip-2612}. 
-
-[.contract-index]
-.Functions
---
-* xref:#IERC20Permit-permit[`++permit(owner, spender, amount, deadline, signature)++`]
-* xref:#IERC20Permit-nonces[`++nonces(owner)++`]
-* xref:#IERC20Permit-DOMAIN_SEPARATOR[`++DOMAIN_SEPARATOR()++`]
---
-
-[#IERC20Permit-Functions]
-==== Functions
-
-[.contract-item]
-[[IERC20Permit-permit]]
-==== `[.contract-item-name]#++permit++#++(owner: ContractAddress, spender: ContractAddress, amount: u256, deadline: u64, signature: Span<felt252>)++` [.item-kind]#external#
-
-Sets `amount` as the allowance of `spender` over ``owner``'s tokens after validating the signature.
-
-[.contract-item]
-[[IERC20Permit-nonces]]
-==== `[.contract-item-name]#++nonces++#++(owner: ContractAddress) → felt252++` [.item-kind]#external#
-
-Returns the current nonce of `owner`. A nonce value must be included 
-whenever a signature for `permit` call is generated.
-
-[.contract-item]
-[[IERC20Permit-DOMAIN_SEPARATOR]]
-==== `[.contract-item-name]#++DOMAIN_SEPARATOR++#++() → felt252++` [.item-kind]#external#
-
-Returns the domain separator used in generating a message hash for `permit` signature. 
-The domain hashing logic follows the {snip-12} standard.
-
-[.contract]
 [[ERC20Component]]
 === `++ERC20Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.18.0/packages/token/src/erc20/erc20.cairo[{github-icon},role=heading-link]
 
@@ -553,6 +511,50 @@ See <<IERC20-Transfer,IERC20::Transfer>>.
 ==== `[.contract-item-name]#++Approval++#++(owner: ContractAddress, spender: ContractAddress, value: u256)++` [.item-kind]#event#
 
 See <<IERC20-Approval,IERC20::Approval>>.
+
+== Extensions
+
+[.contract]
+[[IERC20Permit]]
+=== `++IERC20Permit++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.18.0/packages/token/src/erc20/interface.cairo#L19[{github-icon},role=heading-link]
+
+[.hljs-theme-dark]
+```cairo
+use openzeppelin_token::erc20::interface::IERC20Permit;
+```
+
+Interface of the ERC20Permit standard to support gasless token approvals as defined in {eip-2612}. 
+
+[.contract-index]
+.Functions
+--
+* xref:#IERC20Permit-permit[`++permit(owner, spender, amount, deadline, signature)++`]
+* xref:#IERC20Permit-nonces[`++nonces(owner)++`]
+* xref:#IERC20Permit-DOMAIN_SEPARATOR[`++DOMAIN_SEPARATOR()++`]
+--
+
+[#IERC20Permit-Functions]
+==== Functions
+
+[.contract-item]
+[[IERC20Permit-permit]]
+==== `[.contract-item-name]#++permit++#++(owner: ContractAddress, spender: ContractAddress, amount: u256, deadline: u64, signature: Span<felt252>)++` [.item-kind]#external#
+
+Sets `amount` as the allowance of `spender` over ``owner``'s tokens after validating the signature.
+
+[.contract-item]
+[[IERC20Permit-nonces]]
+==== `[.contract-item-name]#++nonces++#++(owner: ContractAddress) → felt252++` [.item-kind]#external#
+
+Returns the current nonce of `owner`. A nonce value must be included 
+whenever a signature for `permit` call is generated.
+
+[.contract-item]
+[[IERC20Permit-DOMAIN_SEPARATOR]]
+==== `[.contract-item-name]#++DOMAIN_SEPARATOR++#++() → felt252++` [.item-kind]#external#
+
+Returns the domain separator used in generating a message hash for `permit` signature. 
+The domain hashing logic follows the {snip-12} standard.
 
 == Presets
 

@@ -7,8 +7,6 @@ use starknet::storage::{StoragePath, StorageAsPath, Vec, VecTrait, Mutable, Muta
 use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 use starknet::storage_access::StorePacking;
 
-const _2_POW_184: felt252 = 0x10000000000000000000000000000000000000000000000;
-
 /// `Trace` struct, for checkpointing values as they change at different points in
 /// time, and later looking up past values by block timestamp.
 #[starknet::storage_node]
@@ -161,20 +159,26 @@ impl CheckpointImpl of CheckpointTrait {
     }
 }
 
+const _2_POW_184: felt252 = 0x10000000000000000000000000000000000000000000000;
+const _128_BITS_MASK: u256 = 0xffffffffffffffffffffffffffffffff;
+
 /// Packs a Checkpoint into a (felt252, felt252).
 ///
 /// The packing is done as follows:
+///
 /// - The first felt of the tuple contains `key` and `value.low`.
-/// - In this first felt, the first four bits are skipped to avoid representation errors due
-///   to `felt252` max value being a bit less than a 252 bits number max value
-///   (https://docs.starknet.io/documentation/architecture_and_concepts/Cryptography/p-value/).
 /// - `key` is stored at range [4,67] bits (0-indexed), taking the most significant usable bits.
 /// - `value.low` is stored at range [124, 251], taking the less significant bits (at the end).
 /// - `value.high` is stored as the second tuple element.
+///
+/// NOTE: In this first felt, the first four bits are skipped to avoid representation errors due
+/// to `felt252` max value being a bit less than a 252 bits number max value
+/// (https://docs.starknet.io/documentation/architecture_and_concepts/Cryptography/p-value/).
 impl CheckpointStorePacking of StorePacking<Checkpoint, (felt252, felt252)> {
     fn pack(value: Checkpoint) -> (felt252, felt252) {
         let checkpoint = value;
-        // shift-left by 184 bits
+
+        // shift-left to reach the corresponding position
         let key = checkpoint.key.into() * _2_POW_184;
         let key_and_low = key + checkpoint.value.low.into();
 
@@ -183,11 +187,11 @@ impl CheckpointStorePacking of StorePacking<Checkpoint, (felt252, felt252)> {
 
     fn unpack(value: (felt252, felt252)) -> Checkpoint {
         let (key_and_low, high) = value;
-
         let key_and_low: u256 = key_and_low.into();
-        // shift-right by 184 bits
+
+        // shift-right and mask to extract the corresponding values
         let key: u256 = key_and_low / _2_POW_184.into();
-        let low = key_and_low & 0xffffffffffffffffffffffffffffffff;
+        let low = key_and_low & _128_BITS_MASK;
 
         Checkpoint {
             key: key.try_into().unwrap(),

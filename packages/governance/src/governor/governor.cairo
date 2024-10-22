@@ -10,7 +10,7 @@ pub mod GovernorComponent {
     use core::num::traits::Zero;
     use core::poseidon::{PoseidonTrait, poseidon_hash_span};
     use crate::governor::ProposalCore;
-    use crate::governor::interface::{ProposalState, IGOVERNOR_ID};
+    use crate::governor::interface::{ProposalState, IGovernor, IGOVERNOR_ID};
     use openzeppelin_introspection::src5::SRC5Component::InternalImpl as SRC5InternalImpl;
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_token::erc1155::interface::IERC1155_RECEIVER_ID;
@@ -20,6 +20,7 @@ pub mod GovernorComponent {
     use starknet::ContractAddress;
     use starknet::account::Call;
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
+    use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
 
     #[storage]
     pub struct Storage {
@@ -88,22 +89,35 @@ pub mod GovernorComponent {
     }
 
     //
-    // Extensions
+    // Extensions traits
     //
 
     pub trait GovernorCountingTrait<TContractState> {
-        fn COUNTING_MODE(self: @ComponentState<TContractState>) -> ByteArray;
-        fn has_voted(
-            self: @ComponentState<TContractState>, proposal_id: felt252, account: ContractAddress
-        ) -> bool;
-        fn quorum_reached(self: @ComponentState<TContractState>, proposal_id: felt252) -> bool;
-        fn vote_succeeded(self: @ComponentState<TContractState>, proposal_id: felt252) -> bool;
+        fn counting_mode(self: @ComponentState<TContractState>) -> ByteArray;
         fn count_vote(
             ref self: ComponentState<TContractState>,
             proposal_id: felt252,
             account: ContractAddress,
             support: u8,
             total_weight: u256,
+            params: Span<felt252>
+        ) -> u256;
+        fn has_voted(
+            self: @ComponentState<TContractState>, proposal_id: felt252, account: ContractAddress
+        ) -> bool;
+        fn quorum_reached(self: @ComponentState<TContractState>, proposal_id: felt252) -> bool;
+        fn vote_succeeded(self: @ComponentState<TContractState>, proposal_id: felt252) -> bool;
+    }
+
+    pub trait GovernorVotesTrait<TContractState> {
+        fn clock(self: @ComponentState<TContractState>) -> u64;
+        fn CLOCK_MODE(self: @ComponentState<TContractState>) -> ByteArray;
+        fn voting_delay(self: @ComponentState<TContractState>) -> u64;
+        fn voting_period(self: @ComponentState<TContractState>) -> u64;
+        fn get_votes(
+            self: @ComponentState<TContractState>,
+            account: ContractAddress,
+            timepoint: u64,
             params: Span<felt252>
         ) -> u256;
     }
@@ -122,22 +136,6 @@ pub mod GovernorComponent {
             calls: Span<Call>,
             description_hash: felt252
         );
-    }
-
-    pub trait GovernorVotesTrait<TContractState> {
-        fn clock(self: @ComponentState<TContractState>) -> u64;
-        fn CLOCK_MODE(self: @ComponentState<TContractState>) -> ByteArray;
-        fn voting_delay(self: @ComponentState<TContractState>) -> u64;
-        fn voting_period(self: @ComponentState<TContractState>) -> u64;
-        fn get_votes(
-            self: @ComponentState<TContractState>, account: ContractAddress, timepoint: u64
-        ) -> u256;
-        fn get_votes_with_params(
-            self: @ComponentState<TContractState>,
-            account: ContractAddress,
-            timepoint: u64,
-            params: Span<felt252>
-        ) -> u256;
     }
 
     pub trait GovernorQueueTrait<TContractState> {
@@ -164,6 +162,197 @@ pub mod GovernorComponent {
         fn proposal_needs_queuing(
             self: @ComponentState<TContractState>, proposal_id: felt252
         ) -> bool;
+    }
+
+    //
+    // External
+    //
+
+    #[embeddable_as(GovernorImpl)]
+    impl Governor<
+        TContractState, +HasComponent<TContractState>,
+        +GovernorCountingTrait<TContractState>,
+        impl Metadata: SNIP12Metadata,
+        +Drop<TContractState>,
+    > of IGovernor<ComponentState<TContractState>> {
+        /// Name of the governor instance (used in building the SNIP-12 domain separator).
+        fn name(self: @ComponentState<TContractState>) -> felt252 {
+            Metadata::name()
+        }
+
+        /// Version of the governor instance (used in building SNIP-12 domain separator).
+        fn version(self: @ComponentState<TContractState>) -> felt252 {
+            Metadata::version()
+        }
+
+        /// A description of the possible `support` values for `cast_vote` and the way these votes are
+        /// counted, meant to be consumed by UIs to show correct vote options and interpret the results.
+        /// The string is a URL-encoded sequence of key-value pairs that each describe one aspect, for
+        /// example `support=bravo&quorum=for,abstain`.
+        ///
+        /// There are 2 standard keys: `support` and `quorum`.
+        ///
+        /// - `support=bravo` refers to the vote options 0 = Against, 1 = For, 2 = Abstain, as in
+        /// `GovernorBravo`.
+        /// - `quorum=bravo` means that only For votes are counted towards quorum.
+        /// - `quorum=for,abstain` means that both For and Abstain votes are counted towards quorum.
+        ///
+        /// If a counting module makes use of encoded `params`, it should  include this under a `params`
+        /// key with a unique name that describes the behavior. For example:
+        ///
+        /// - `params=fractional` might refer to a scheme where votes are divided fractionally between
+        /// for/against/abstain.
+        /// - `params=erc721` might refer to a scheme where specific NFTs are delegated to vote.
+        ///
+        /// NOTE: The string can be decoded by the standard
+        /// https://developer.mozilla.org/en-US/docs/Web/API/URLSearchParams[`URLSearchParams`]
+        /// JavaScript class.
+        fn COUNTING_MODE(self: @ComponentState<TContractState>) -> ByteArray {
+            self.counting_mode()
+        }
+
+        /// Hashing function used to (re)build the proposal id from the proposal details.
+        fn hash_proposal(
+            self: @ComponentState<TContractState>, calls: Span<Call>, description_hash: felt252
+        ) -> felt252 {
+            self._hash_proposal(calls, description_hash)
+        }
+
+        fn state(self: @ComponentState<TContractState>, proposal_id: felt252) -> ProposalState {
+            ProposalState::Pending
+        }
+
+        fn proposal_threshold(self: @ComponentState<TContractState>, proposal_id: felt252) -> u256 {
+            1
+        }
+
+        fn proposal_snapshot(self: @ComponentState<TContractState>, proposal_id: felt252) -> u64 {
+            1
+        }
+
+        fn proposal_deadline(self: @ComponentState<TContractState>, proposal_id: felt252) -> u64 {
+            1
+        }
+
+        fn proposal_proposer(
+            self: @ComponentState<TContractState>, proposal_id: felt252
+        ) -> ContractAddress {
+            Default::default()
+        }
+
+        fn proposal_eta(self: @ComponentState<TContractState>, proposal_id: felt252) -> u64 {
+            1
+        }
+
+        fn proposal_needs_queuing(
+            self: @ComponentState<TContractState>, proposal_id: felt252
+        ) -> bool {
+            false
+        }
+
+        fn voting_delay(self: @ComponentState<TContractState>) -> u64 {
+            1
+        }
+
+        fn voting_period(self: @ComponentState<TContractState>) -> u64 {
+            1
+        }
+
+        fn quorum(self: @ComponentState<TContractState>, timepoint: u64) -> u256 {
+            1
+        }
+
+        fn get_votes(
+            self: @ComponentState<TContractState>, account: ContractAddress, timepoint: u64
+        ) -> u256 {
+            1
+        }
+
+        fn get_votes_with_params(
+            self: @ComponentState<TContractState>,
+            account: ContractAddress,
+            timepoint: u64,
+            params: Span<felt252>
+        ) -> u256 {
+            1
+        }
+
+        fn has_voted(
+            self: @ComponentState<TContractState>, proposal_id: felt252, account: ContractAddress
+        ) -> bool {
+            false
+        }
+
+        fn propose(
+            ref self: ComponentState<TContractState>, calls: Span<Call>, description: ByteArray
+        ) -> felt252 {
+            1
+        }
+
+        fn queue(
+            ref self: ComponentState<TContractState>, calls: Span<Call>, description_hash: felt252
+        ) -> felt252 {
+            1
+        }
+
+        fn execute(
+            ref self: ComponentState<TContractState>, calls: Span<Call>, description_hash: felt252
+        ) -> felt252 {
+            1
+        }
+
+        fn cancel(
+            ref self: ComponentState<TContractState>, calls: Span<Call>, description_hash: felt252
+        ) -> felt252 {
+            1
+        }
+
+        fn cast_vote(
+            ref self: ComponentState<TContractState>, proposal_id: felt252, support: u8
+        ) -> u256 {
+            1
+        }
+
+        fn cast_vote_with_reason(
+            ref self: ComponentState<TContractState>,
+            proposal_id: felt252,
+            support: u8,
+            reason: ByteArray
+        ) -> u256 {
+            1
+        }
+
+        fn cast_vote_with_reason_and_params(
+            ref self: ComponentState<TContractState>,
+            proposal_id: felt252,
+            support: u8,
+            reason: ByteArray,
+            params: Span<felt252>
+        ) -> u256 {
+            1
+        }
+
+        fn cast_vote_by_sig(
+            ref self: ComponentState<TContractState>,
+            proposal_id: felt252,
+            support: u8,
+            voter: ContractAddress,
+            signature: Span<felt252>
+        ) -> u256 {
+            1
+        }
+
+        fn cast_vote_with_reason_and_params_by_sig(
+            ref self: ComponentState<TContractState>,
+            proposal_id: felt252,
+            support: u8,
+            voter: ContractAddress,
+            reason: ByteArray,
+            params: Span<felt252>,
+            signature: Span<felt252>
+        ) -> u256 {
+            1
+        }
     }
 
     //
@@ -198,9 +387,9 @@ pub mod GovernorComponent {
             ()
         }
 
-        /// Hashing function used to (re)build the proposal id from the proposal details.
+        /// Returns a hash of the proposal using the Poseidon algorithm.
         /// TODO: check if we should be using Pedersen hash instead of Poseidon.
-        fn hash_proposal(
+        fn _hash_proposal(
             ref self: ComponentState<TContractState>, calls: Span<Call>, description_hash: felt252
         ) -> felt252 {
             let mut hashed_calls = array![];
@@ -323,7 +512,7 @@ pub mod GovernorComponent {
             // Check proposal threshold
             let vote_threshold = self.proposal_threshold();
             if vote_threshold > 0 {
-                let votes = self.get_votes(proposer, self.clock() - 1);
+                let votes = self.get_votes(proposer, self.clock() - 1, array![].span());
                 assert(votes >= vote_threshold, Errors::INSUFFICIENT_PROPOSER_VOTES);
             }
 
@@ -507,6 +696,59 @@ pub mod GovernorComponent {
             self.emit(ProposalCanceled { proposal_id });
 
             proposal_id
+        }
+
+        /// Cast a vote.
+        fn cast_vote(
+            ref self: ComponentState<TContractState>, proposal_id: felt252, support: u8
+        ) -> u256 {
+            1
+        }
+
+        /// Cast a vote with a reason.
+        fn cast_vote_with_reason(
+            ref self: ComponentState<TContractState>,
+            proposal_id: felt252,
+            support: u8,
+            reason: ByteArray
+        ) -> u256 {
+            1
+        }
+
+        /// Cast a vote with a reason and additional serialized parameters.
+        fn cast_vote_with_reason_and_params(
+            ref self: ComponentState<TContractState>,
+            proposal_id: felt252,
+            support: u8,
+            reason: ByteArray,
+            params: Span<felt252>
+        ) -> u256 {
+            1
+        }
+
+        fn _cast_vote(
+            ref self: ComponentState<TContractState>,
+            proposal_id: felt252,
+            account: ContractAddress,
+            support: u8,
+            reason: ByteArray,
+        ) -> u256 {
+            1
+        }
+
+        fn _cast_vote_with_params(
+            ref self: ComponentState<TContractState>,
+            proposal_id: felt252,
+            account: ContractAddress,
+            support: u8,
+            reason: ByteArray,
+            params: Span<felt252>
+        ) -> u256 {
+            self.validate_state(proposal_id, array![ProposalState::Active].span());
+
+            // let total_weight = self.get_votes(account, self.clock() - 1);
+
+            1
         }
 
         /// Checks if the proposer is authorized to submit a proposal with the given description.

@@ -46,7 +46,7 @@ unit of exchange.
 
 [.contract]
 [[IERC2981Info]]
-=== `++IERC2981Info++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.17.0/packages/token/src/common/erc2981/interface.cairo[{github-icon},role=heading-link]
+=== `++IERC2981Info++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.18.0/packages/token/src/common/erc2981/interface.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -91,7 +91,7 @@ The returned tuple contains:
 
 [.contract]
 [[IERC2981Admin]]
-=== `++IERC2981Admin++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.17.0/packages/token/src/common/erc2981/interface.cairo[{github-icon},role=heading-link]
+=== `++IERC2981Admin++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.18.0/packages/token/src/common/erc2981/interface.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo

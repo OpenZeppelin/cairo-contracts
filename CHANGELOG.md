@@ -16,6 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `ERC2981AdminOwnable` providing admin functions for a token that implements Ownable component
   - `ERC2981AdminAccessControl` providing admin functions for a token that implements AccessControl component
 
+### Changed (Breaking)
+
+- Apply underscore pattern to the internal functions of `ERC2981Component` to prevent collisions
+with new external functions (#1173)
+
 ## 0.18.0 (2024-10-17)
 
 ### Added

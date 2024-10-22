@@ -189,7 +189,7 @@ Interface of the ERC20Permit standard to support gasless token approvals as defi
 [[IERC20Permit-permit]]
 ==== `[.contract-item-name]#++permit++#++(owner: ContractAddress, spender: ContractAddress, amount: u256, deadline: u64, signature: Span<felt252>)++` [.item-kind]#external#
 
-Sets `amount` as the allowance of `spender` over `owner`'s tokens after validating the signature.
+Sets `amount` as the allowance of `spender` over ``owner``'s tokens after validating the signature.
 
 [.contract-item]
 [[IERC20Permit-nonces]]
@@ -413,7 +413,7 @@ Supports the Cairo v0 convention of writing external methods in camelCase as dis
 [[ERC20Component-permit]]
 ==== `[.contract-item-name]#++permit++#++(ref self: ContractState, owner: ContractAddress, spender: ContractAddress, amount: u256, deadline: u64, signature: Span<felt252>) → bool++` [.item-kind]#external#
 
-Sets `amount` as the allowance of `spender` over `owner`'s tokens after validating the
+Sets `amount` as the allowance of `spender` over ``owner``'s tokens after validating the
 signature.
 
 Requirements:

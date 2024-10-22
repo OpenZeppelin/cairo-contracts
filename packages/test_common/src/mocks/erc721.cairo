@@ -233,7 +233,7 @@ pub mod ERC721EnumerableMock {
             token_id: u256,
             auth: ContractAddress
         ) {
-            let mut contract_state = ERC721Component::HasComponent::get_contract_mut(ref self);
+            let mut contract_state = self.get_contract_mut();
             contract_state.erc721_enumerable.before_update(to, token_id);
         }
     }

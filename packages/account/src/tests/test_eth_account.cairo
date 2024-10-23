@@ -3,8 +3,8 @@ use crate::EthAccountComponent::{PublicKeyCamelImpl, PublicKeyImpl};
 use crate::EthAccountComponent;
 use crate::interface::{EthAccountABIDispatcherTrait, EthAccountABIDispatcher};
 use crate::interface::{ISRC6, ISRC6_ID};
-use crate::utils::secp256k1::{DebugSecp256k1Point, Secp256k1PointPartialEq};
-use crate::utils::signature::EthSignature;
+use crate::utils::secp256_point::{DebugSecp256Point, Secp256PointPartialEq};
+use crate::utils::signature::Secp256Signature;
 use openzeppelin_introspection::interface::{ISRC5, ISRC5_ID};
 use openzeppelin_test_common::eth_account::EthAccountSpyHelpers;
 use openzeppelin_test_common::eth_account::{
@@ -529,7 +529,7 @@ fn test_assert_valid_new_owner_invalid_signature() {
 
     start_cheat_caller_address(test_address(), test_address());
     let mut bad_signature = array![];
-    EthSignature { r: 'BAD'.into(), s: 'SIG'.into() }.serialize(ref bad_signature);
+    Secp256Signature { r: 'BAD'.into(), s: 'SIG'.into() }.serialize(ref bad_signature);
     let new_key_pair = KEY_PAIR_2();
 
     state

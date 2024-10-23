@@ -136,6 +136,7 @@ dependencies = [
 name = "openzeppelin_token"
 version = "0.18.0"
 dependencies = [
+ "openzeppelin_access",
  "openzeppelin_account",
  "openzeppelin_introspection",
  "openzeppelin_test_common",

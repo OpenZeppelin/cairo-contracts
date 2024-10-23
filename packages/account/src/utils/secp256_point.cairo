@@ -19,10 +19,10 @@ pub impl Secp256PointStorePacking<
     fn pack(value: Secp256Point) -> (felt252, felt252) {
         let (x, y) = value.get_coordinates().unwrap_syscall();
 
-        let parity: u128 = (y % 2).try_into().unwrap();
-        let xhigh_and_parity = 2 * x.high + parity;
+        let parity = y % 2;
+        let xhigh_and_parity = 2 * x.high.into() + parity;
 
-        (x.low.into(), xhigh_and_parity.into())
+        (x.low.into(), xhigh_and_parity.try_into().unwrap())
     }
 
     fn unpack(value: (felt252, felt252)) -> Secp256Point {

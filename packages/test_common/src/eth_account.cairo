@@ -5,7 +5,7 @@ use core::starknet::secp256_trait::Secp256PointTrait;
 use openzeppelin_account::EthAccountComponent::{OwnerAdded, OwnerRemoved};
 use openzeppelin_account::EthAccountComponent;
 use openzeppelin_account::interface::EthPublicKey;
-use openzeppelin_account::utils::signature::EthSignature;
+use openzeppelin_account::utils::signature::Secp256Signature;
 use openzeppelin_testing::constants::TRANSACTION_HASH;
 use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_testing::signing::{Secp256k1KeyPair, Secp256k1SerializedSigning};
@@ -18,7 +18,7 @@ pub struct SignedTransactionData {
     pub private_key: u256,
     pub public_key: EthPublicKey,
     pub tx_hash: felt252,
-    pub signature: EthSignature
+    pub signature: Secp256Signature
 }
 
 pub fn SIGNED_TX_DATA(key_pair: Secp256k1KeyPair) -> SignedTransactionData {
@@ -28,7 +28,7 @@ pub fn SIGNED_TX_DATA(key_pair: Secp256k1KeyPair) -> SignedTransactionData {
         private_key: key_pair.secret_key,
         public_key: key_pair.public_key,
         tx_hash,
-        signature: EthSignature { r, s }
+        signature: Secp256Signature { r, s }
     }
 }
 

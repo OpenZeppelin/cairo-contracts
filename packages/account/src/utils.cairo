@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.18.0 (account/utils.cairo)
 
-pub mod secp256k1;
+pub mod secp256_point;
 pub mod signature;
 
-pub use signature::{is_valid_stark_signature, is_valid_eth_signature};
+pub use signature::{is_valid_stark_signature, is_valid_eth_signature, is_valid_p256_signature};
 
 use starknet::SyscallResultTrait;
 use starknet::account::Call;

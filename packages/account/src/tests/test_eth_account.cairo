@@ -364,7 +364,7 @@ fn test_account_called_from_contract() {
 //
 
 #[test]
-#[should_panic(expected: ('Secp256Point: Invalid point.',))]
+#[should_panic(expected: 'Secp256Point: Invalid point.')]
 fn test_cannot_get_without_initialize() {
     let state = COMPONENT_STATE();
     state.get_public_key();

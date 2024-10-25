@@ -371,7 +371,7 @@ fn test_cannot_get_without_initialize() {
 }
 
 #[test]
-#[should_panic(expected: ('Secp256Point: Invalid point.',))]
+#[should_panic(expected: 'Secp256Point: Invalid point.')]
 fn test_cannot_set_without_initialize() {
     let key_pair = KEY_PAIR();
     let mut state = COMPONENT_STATE();

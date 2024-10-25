@@ -188,7 +188,7 @@ fn test_is_valid_p256_signature_bad_sig() {
 }
 
 #[test]
-#[should_panic(expected: ('Signature: Invalid format.',))]
+#[should_panic(expected: 'Signature: Invalid format.')]
 fn test_is_valid_p256_signature_invalid_format_sig() {
     let key_pair = secp256r1::KEY_PAIR();
     let data = p256_signature_data(key_pair);

@@ -32,7 +32,7 @@ pub impl Secp256PointStorePacking<
         let low = xlow.try_into().unwrap();
         let high = (xhigh_and_parity / 2).try_into().unwrap();
 
-        let x = u256 { low, high, };
+        let x = u256 { low, high };
         let parity = xhigh_and_parity % 2 == 1;
 
         // Expects parity odd to be true

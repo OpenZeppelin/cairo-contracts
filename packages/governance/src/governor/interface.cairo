@@ -1,11 +1,12 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.17.0 (governance/governor/interface.cairo)
+// OpenZeppelin Contracts for Cairo v0.18.0 (governance/governor/interface.cairo)
 
 use starknet::ContractAddress;
 use starknet::account::Call;
 
 pub const IGOVERNOR_ID: felt252 = 0x1f; // TODO: Update this value.
 
+/// Interface for a contract that implements the ERC-6372 standard.
 #[starknet::interface]
 pub trait IERC6372<TState> {
     /// Clock used for flagging checkpoints.
@@ -68,7 +69,7 @@ pub trait IGovernor<TState> {
     fn state(self: @TState, proposal_id: felt252) -> ProposalState;
 
     /// The number of votes required in order for a voter to become a proposer.
-    fn proposal_threshold(self: @TState, proposal_id: felt252) -> u256;
+    fn proposal_threshold(self: @TState) -> u256;
 
     /// Timepoint used to retrieve user's votes and quorum. If using block number, the snapshot is
     /// performed at the end of this block. Hence, voting for this proposal starts at the beginning

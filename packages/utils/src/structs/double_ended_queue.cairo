@@ -85,7 +85,7 @@ pub impl DoubleEndedQueueImpl of DoubleEndedQueueTrait {
     }
 
     /// Returns the number of items in the queue.
-    fn len(self: StoragePath<DoubleEndedQueue>) -> u32 {
+    fn len(self: StoragePath<DoubleEndedQueue>) -> felt252 {
         self._end.read() - self._begin.read()
     }
 

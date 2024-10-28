@@ -8,7 +8,7 @@
 #[starknet::component]
 pub mod GovernorCountingSimpleComponent {
     use crate::governor::GovernorComponent::{
-        GovernorCountingTrait, InternalImpl, ComponentState as GovernorComponentState
+        InternalImpl, ComponentState as GovernorComponentState
     };
     use crate::governor::GovernorComponent;
     use openzeppelin_introspection::src5::SRC5Component;
@@ -20,7 +20,7 @@ pub mod GovernorCountingSimpleComponent {
 
     #[storage]
     pub struct Storage {
-        GovernorCountingSimple_proposals_votes: Map<ProposalId, ProposalVote>,
+        Governor_proposals_votes: Map<ProposalId, ProposalVote>,
     }
 
     /// Supported vote types.
@@ -54,6 +54,10 @@ pub mod GovernorCountingSimpleComponent {
         pub const INVALID_VOTE_TYPE: felt252 = 'Invalid vote type';
     }
 
+    //
+    // Extensions
+    //
+
     impl GovernorCounting<
         TContractState,
         +GovernorComponent::HasComponent<TContractState>,
@@ -66,7 +70,7 @@ pub mod GovernorCountingSimpleComponent {
         +SRC5Component::HasComponent<TContractState>,
         impl GovernorCountingSimple: HasComponent<TContractState>,
         +Drop<TContractState>
-    > of GovernorCountingTrait<TContractState> {
+    > of GovernorComponent::GovernorCountingTrait<TContractState> {
         /// See `GovernorComponent::GovernorCountingTrait::counting_mode`.
         fn counting_mode(self: @GovernorComponentState<TContractState>) -> ByteArray {
             return "support=bravo&quorum=for,abstain";
@@ -86,9 +90,7 @@ pub mod GovernorCountingSimpleComponent {
             let mut contract = self.get_contract_mut();
             let mut this_component = GovernorCountingSimple::get_component_mut(ref contract);
 
-            let proposal_votes = this_component
-                .GovernorCountingSimple_proposals_votes
-                .entry(proposal_id);
+            let proposal_votes = this_component.Governor_proposals_votes.entry(proposal_id);
             assert(!proposal_votes.has_voted.read(account), Errors::ALREADY_CAST_VOTE);
 
             proposal_votes.has_voted.write(account, true);
@@ -119,9 +121,7 @@ pub mod GovernorCountingSimpleComponent {
         ) -> bool {
             let contract = self.get_contract();
             let this_component = GovernorCountingSimple::get_component(contract);
-            let proposal_votes = this_component
-                .GovernorCountingSimple_proposals_votes
-                .entry(proposal_id);
+            let proposal_votes = this_component.Governor_proposals_votes.entry(proposal_id);
 
             proposal_votes.has_voted.read(account)
         }
@@ -133,9 +133,7 @@ pub mod GovernorCountingSimpleComponent {
             let contract = self.get_contract();
             let this_component = GovernorCountingSimple::get_component(contract);
 
-            let proposal_votes = this_component
-                .GovernorCountingSimple_proposals_votes
-                .entry(proposal_id);
+            let proposal_votes = this_component.Governor_proposals_votes.entry(proposal_id);
             let snapshot = self._proposal_snapshot(proposal_id);
 
             self.quorum(snapshot) <= proposal_votes.for_votes.read()
@@ -150,9 +148,7 @@ pub mod GovernorCountingSimpleComponent {
         ) -> bool {
             let contract = self.get_contract();
             let this_component = GovernorCountingSimple::get_component(contract);
-            let proposal_votes = this_component
-                .GovernorCountingSimple_proposals_votes
-                .entry(proposal_id);
+            let proposal_votes = this_component.Governor_proposals_votes.entry(proposal_id);
 
             proposal_votes.for_votes.read() > proposal_votes.against_votes.read()
         }

@@ -766,7 +766,9 @@ pub mod GovernorComponent {
         ) -> felt252 {
             let proposal_id = self._hash_proposal(calls, description.hash());
 
-            assert(self.Governor_proposals.read(proposal_id).vote_start == 0, Errors::EXISTENT_PROPOSAL);
+            assert(
+                self.Governor_proposals.read(proposal_id).vote_start == 0, Errors::EXISTENT_PROPOSAL
+            );
 
             let snapshot = self.clock() + self.voting_delay();
             let duration = self.voting_period();

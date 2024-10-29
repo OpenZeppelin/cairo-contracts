@@ -16,5 +16,5 @@ pub trait IERC721Enumerable<TState> {
 
 #[starknet::interface]
 pub trait IERC721EnumerableExtended<TState> {
-    fn all_tokens_by_owner(self: @TState, owner: ContractAddress) -> Span<u256>;
+    fn all_tokens_of_owner(self: @TState, owner: ContractAddress) -> Span<u256>;
 }

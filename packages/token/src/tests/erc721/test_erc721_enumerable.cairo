@@ -504,24 +504,24 @@ fn test__remove_token_from_all_tokens_enumeration_with_first_token() {
 }
 
 //
-// all_tokens_by_owner
+// all_tokens_of_owner
 //
 
 #[test]
-fn test_all_tokens_by_owner() {
-    let (state, tokens_list) = setup();
-    assert_all_tokens_by_owner(OWNER(), tokens_list);
+fn test_all_tokens_of_owner() {
+    let (_, tokens_list) = setup();
+    assert_all_tokens_of_owner(OWNER(), tokens_list);
 }
 
 #[test]
-fn test_all_tokens_by_owner_after_transfer() {
+fn test_all_tokens_of_owner_after_transfer() {
     let _ = setup();
     let mut contract_state = CONTRACT_STATE();
 
     contract_state.erc721.transfer(OWNER(), RECIPIENT(), TOKEN_2);
 
-    assert_all_tokens_by_owner(OWNER(), array![TOKEN_1, TOKEN_3].span());
-    assert_all_tokens_by_owner(RECIPIENT(), array![TOKEN_2].span());
+    assert_all_tokens_of_owner(OWNER(), array![TOKEN_1, TOKEN_3].span());
+    assert_all_tokens_of_owner(RECIPIENT(), array![TOKEN_2].span());
 }
 
 //
@@ -589,27 +589,24 @@ fn assert_all_tokens_index_to_id(index: u256, exp_token_id: u256) {
 
 fn assert_all_tokens_id_to_index(token_id: u256, exp_index: u256) {
     let state = @COMPONENT_STATE();
-
     let id_to_index = state.ERC721Enumerable_all_tokens_index.read(token_id);
     assert_eq!(id_to_index, exp_index);
 }
 
 fn assert_owner_tokens_index_to_id(owner: ContractAddress, index: u256, exp_token_id: u256) {
     let state = @COMPONENT_STATE();
-
     let index_to_id = state.ERC721Enumerable_owned_tokens.read((owner, index));
     assert_eq!(index_to_id, exp_token_id);
 }
 
 fn assert_owner_tokens_id_to_index(token_id: u256, exp_index: u256) {
     let state = @COMPONENT_STATE();
-
     let id_to_index = state.ERC721Enumerable_owned_tokens_index.read(token_id);
     assert_eq!(id_to_index, exp_index);
 }
 
-fn assert_all_tokens_by_owner(owner: ContractAddress, exp_tokens: Span<u256>) {
+fn assert_all_tokens_of_owner(owner: ContractAddress, exp_tokens: Span<u256>) {
     let state = @COMPONENT_STATE();
-    let tokens = state.all_tokens_by_owner(owner);
+    let tokens = state.all_tokens_of_owner(owner);
     assert_eq!(tokens, exp_tokens);
 }

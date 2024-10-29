@@ -92,7 +92,7 @@ pub mod ERC721EnumerableComponent {
         +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of interface::IERC721EnumerableExtended<ComponentState<TContractState>> {
-        fn all_tokens_by_owner(
+        fn all_tokens_of_owner(
             self: @ComponentState<TContractState>, owner: ContractAddress
         ) -> Span<u256> {
             let erc721_component = get_dep_component!(self, ERC721);

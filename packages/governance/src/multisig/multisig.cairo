@@ -107,17 +107,17 @@ pub mod MultisigComponent {
     }
 
     pub mod Errors {
-        pub const UNAUTHORIZED: felt252 = 'Multisig: Unauthorized';
-        pub const NOT_A_SIGNER: felt252 = 'Multisig: Not a signer';
-        pub const ALREADY_A_SIGNER: felt252 = 'Multisig: Already a signer';
-        pub const ALREADY_CONFIRMED: felt252 = 'Multisig: Already confirmed';
-        pub const HAS_NOT_CONFIRMED: felt252 = 'Multisig: Has not confirmed';
-        pub const TX_NOT_FOUND: felt252 = 'Multisig: Tx not found';
-        pub const TX_NOT_CONFIRMED: felt252 = 'Multisig: Tx not confirmed';
-        pub const TX_ALREADY_EXECUTED: felt252 = 'Multisig: Tx already executed';
-        pub const EMPTY_SIGNERS_LIST: felt252 = 'Multisig: Empty signers list';
-        pub const ZERO_THRESHOLD: felt252 = 'Multisig: Threshold is zero';
-        pub const THRESHOLD_TOO_HIGH: felt252 = 'Multisig: Threshold > Signers';
+        pub const UNAUTHORIZED: felt252 = 'Multisig: unauthorized';
+        pub const NOT_A_SIGNER: felt252 = 'Multisig: not a signer';
+        pub const ALREADY_A_SIGNER: felt252 = 'Multisig: already a signer';
+        pub const ALREADY_CONFIRMED: felt252 = 'Multisig: already confirmed';
+        pub const HAS_NOT_CONFIRMED: felt252 = 'Multisig: has not confirmed';
+        pub const TX_NOT_FOUND: felt252 = 'Multisig: tx not found';
+        pub const TX_NOT_CONFIRMED: felt252 = 'Multisig: tx not confirmed';
+        pub const TX_ALREADY_EXECUTED: felt252 = 'Multisig: tx already executed';
+        pub const EMPTY_SIGNERS_LIST: felt252 = 'Multisig: empty signers list';
+        pub const ZERO_THRESHOLD: felt252 = 'Multisig: threshold is zero';
+        pub const THRESHOLD_TOO_HIGH: felt252 = 'Multisig: threshold > signers';
     }
 
     #[embeddable_as(MultisigImpl)]

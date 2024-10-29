@@ -43,14 +43,14 @@ Edit `scarb.toml` and add:
 
 ```toml
 [dependencies]
-openzeppelin = "0.17.0"
+openzeppelin = "0.18.0"
 ```
 
 The previous example would import the entire library. We can also add each package as a separate dependency to improve the building time by not including modules that won't be used:
 
 ```toml
 [dependencies]
-openzeppelin_token = "0.17.0"
+openzeppelin_token = "0.18.0"
 ```
 
 Build the project to download it:
@@ -109,10 +109,6 @@ mod MyToken {
     }
 }
 ```
-
-### Unsupported
-
-[`DualCase` dispatchers](https://docs.openzeppelin.com/contracts-cairo/0.17.0/interfaces#dualcase_dispatchers) rely on Sierra's ability to catch a revert to resume execution. Currently, Starknet live chains (testnets and mainnet) don't implement that behavior. Starknet's testing framework does support it.
 
 ## Learn
 

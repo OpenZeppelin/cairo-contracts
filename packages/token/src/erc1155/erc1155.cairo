@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.17.0 (token/erc1155/erc1155.cairo)
+// OpenZeppelin Contracts for Cairo v0.18.0 (token/erc1155/erc1155.cairo)
 
 /// # ERC1155 Component
 ///
@@ -8,7 +8,7 @@
 #[starknet::component]
 pub mod ERC1155Component {
     use core::num::traits::Zero;
-    use crate::erc1155::dual1155_receiver::{DualCaseERC1155Receiver, DualCaseERC1155ReceiverTrait};
+    use crate::erc1155::interface::{IERC1155ReceiverDispatcher, IERC1155ReceiverDispatcherTrait};
     use crate::erc1155::interface;
     use openzeppelin_account::interface::ISRC6_ID;
     use openzeppelin_introspection::interface::{ISRC5Dispatcher, ISRC5DispatcherTrait};
@@ -684,7 +684,7 @@ pub mod ERC1155Component {
         let src5_dispatcher = ISRC5Dispatcher { contract_address: to };
 
         if src5_dispatcher.supports_interface(interface::IERC1155_RECEIVER_ID) {
-            DualCaseERC1155Receiver { contract_address: to }
+            IERC1155ReceiverDispatcher { contract_address: to }
                 .on_erc1155_received(
                     get_caller_address(), from, token_id, value, data
                 ) == interface::IERC1155_RECEIVER_ID
@@ -705,7 +705,7 @@ pub mod ERC1155Component {
         let src5_dispatcher = ISRC5Dispatcher { contract_address: to };
 
         if src5_dispatcher.supports_interface(interface::IERC1155_RECEIVER_ID) {
-            DualCaseERC1155Receiver { contract_address: to }
+            IERC1155ReceiverDispatcher { contract_address: to }
                 .on_erc1155_batch_received(
                     get_caller_address(), from, token_ids, values, data
                 ) == interface::IERC1155_RECEIVER_ID

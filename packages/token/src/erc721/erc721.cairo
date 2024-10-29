@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.17.0 (token/erc721/erc721.cairo)
+// OpenZeppelin Contracts for Cairo v0.18.0 (token/erc721/erc721.cairo)
 
 /// # ERC721 Component
 ///
@@ -8,7 +8,7 @@
 #[starknet::component]
 pub mod ERC721Component {
     use core::num::traits::Zero;
-    use crate::erc721::dual721_receiver::{DualCaseERC721Receiver, DualCaseERC721ReceiverTrait};
+    use crate::erc721::interface::{IERC721ReceiverDispatcher, IERC721ReceiverDispatcherTrait};
     use crate::erc721::interface;
     use openzeppelin_introspection::interface::{ISRC5Dispatcher, ISRC5DispatcherTrait};
     use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
@@ -813,7 +813,7 @@ pub mod ERC721Component {
         let src5_dispatcher = ISRC5Dispatcher { contract_address: to };
 
         if src5_dispatcher.supports_interface(interface::IERC721_RECEIVER_ID) {
-            DualCaseERC721Receiver { contract_address: to }
+            IERC721ReceiverDispatcher { contract_address: to }
                 .on_erc721_received(
                     get_caller_address(), from, token_id, data
                 ) == interface::IERC721_RECEIVER_ID

@@ -25,11 +25,15 @@ fmt.workspace = true
 starknet.workspace = true
 openzeppelin_access = { path = "../access" }
 openzeppelin_introspection = { path = "../introspection" }
+openzeppelin_account = { path = "../account" }
+openzeppelin_token = { path= "../token" }
 
 [dev-dependencies]
 assert_macros.workspace = true
 snforge_std.workspace = true
+openzeppelin_utils = { path = "../utils" }
 openzeppelin_testing = { path = "../testing" }
+openzeppelin_test_common = { path = "../test_common" }
 
 [lib]
 
@@ -37,3 +41,14 @@ openzeppelin_testing = { path = "../testing" }
 allowed-libfuncs-list.name = "experimental"
 sierra = true
 casm = false
+
+[[test]]
+name = "openzeppelin_governance_unittest"
+build-external-contracts = [
+    "openzeppelin_test_common::mocks::account::SnakeAccountMock",
+    "openzeppelin_test_common::mocks::timelock::TimelockControllerMock",
+    "openzeppelin_test_common::mocks::timelock::MockContract",
+    "openzeppelin_test_common::mocks::timelock::TimelockAttackerMock",
+    "openzeppelin_test_common::mocks::votes::ERC721VotesMock",
+    "openzeppelin_test_common::mocks::votes::ERC20VotesMock"
+]

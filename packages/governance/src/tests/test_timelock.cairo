@@ -1,8 +1,5 @@
 use core::hash::{HashStateTrait, HashStateExTrait};
 use core::pedersen::PedersenTrait;
-use crate::tests::mocks::timelock_mocks::{IMockContractDispatcher, IMockContractDispatcherTrait};
-use crate::tests::mocks::timelock_mocks::{ITimelockAttackerDispatcher};
-use crate::tests::mocks::timelock_mocks::{TimelockControllerMock};
 use crate::timelock::OperationState;
 use crate::timelock::TimelockControllerComponent::{
     CallScheduled, CallExecuted, CallSalt, CallCancelled, MinDelayChanged
@@ -21,6 +18,11 @@ use openzeppelin_access::accesscontrol::interface::IACCESSCONTROL_ID;
 use openzeppelin_access::accesscontrol::interface::IAccessControl;
 use openzeppelin_introspection::interface::ISRC5_ID;
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
+use openzeppelin_test_common::mocks::timelock::ITimelockAttackerDispatcher;
+use openzeppelin_test_common::mocks::timelock::TimelockControllerMock;
+use openzeppelin_test_common::mocks::timelock::{
+    IMockContractDispatcher, IMockContractDispatcherTrait
+};
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{ADMIN, ZERO, OTHER, SALT, FELT_VALUE as VALUE};
 use openzeppelin_testing::events::EventSpyExt;

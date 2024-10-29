@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.17.0 (token/erc20/interface.cairo)
+// OpenZeppelin Contracts for Cairo v0.18.0 (token/erc20/interface.cairo)
 
 use starknet::ContractAddress;
 
@@ -44,7 +44,7 @@ pub trait IERC20CamelOnly<TState> {
 }
 
 #[starknet::interface]
-pub trait ERC20ABI<TState> {
+pub trait IERC20Mixin<TState> {
     // IERC20
     fn total_supply(self: @TState) -> u256;
     fn balance_of(self: @TState, account: ContractAddress) -> u256;
@@ -69,7 +69,21 @@ pub trait ERC20ABI<TState> {
 }
 
 #[starknet::interface]
-pub trait ERC20VotesABI<TState> {
+pub trait IERC20Permit<TState> {
+    fn permit(
+        ref self: TState,
+        owner: ContractAddress,
+        spender: ContractAddress,
+        amount: u256,
+        deadline: u64,
+        signature: Span<felt252>
+    );
+    fn nonces(self: @TState, owner: ContractAddress) -> felt252;
+    fn DOMAIN_SEPARATOR(self: @TState) -> felt252;
+}
+
+#[starknet::interface]
+pub trait ERC20ABI<TState> {
     // IERC20
     fn total_supply(self: @TState) -> u256;
     fn balance_of(self: @TState, account: ContractAddress) -> u256;
@@ -85,25 +99,25 @@ pub trait ERC20VotesABI<TState> {
     fn symbol(self: @TState) -> ByteArray;
     fn decimals(self: @TState) -> u8;
 
-    // IVotes
-    fn get_votes(self: @TState, account: ContractAddress) -> u256;
-    fn get_past_votes(self: @TState, account: ContractAddress, timepoint: u64) -> u256;
-    fn get_past_total_supply(self: @TState, timepoint: u64) -> u256;
-    fn delegates(self: @TState, account: ContractAddress) -> ContractAddress;
-    fn delegate(ref self: TState, delegatee: ContractAddress);
-    fn delegate_by_sig(
-        ref self: TState,
-        delegator: ContractAddress,
-        delegatee: ContractAddress,
-        nonce: felt252,
-        expiry: u64,
-        signature: Array<felt252>
-    );
-
     // IERC20CamelOnly
     fn totalSupply(self: @TState) -> u256;
     fn balanceOf(self: @TState, account: ContractAddress) -> u256;
     fn transferFrom(
         ref self: TState, sender: ContractAddress, recipient: ContractAddress, amount: u256
     ) -> bool;
+
+    // IERC20Permit
+    fn permit(
+        ref self: TState,
+        owner: ContractAddress,
+        spender: ContractAddress,
+        amount: u256,
+        deadline: u64,
+        signature: Span<felt252>
+    );
+    fn nonces(self: @TState, owner: ContractAddress) -> felt252;
+    fn DOMAIN_SEPARATOR(self: @TState) -> felt252;
+
+    // ISNIP12Metadata
+    fn snip12_metadata(self: @TState) -> (felt252, felt252);
 }

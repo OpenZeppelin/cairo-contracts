@@ -8,6 +8,8 @@ target/
 
 # Starknet Foundry
 .snfoundry_cache/
+*-sepolia_state.json
+snfoundry.toml
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

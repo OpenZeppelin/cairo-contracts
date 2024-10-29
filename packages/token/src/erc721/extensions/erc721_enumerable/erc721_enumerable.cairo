@@ -92,6 +92,13 @@ pub mod ERC721EnumerableComponent {
         +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of interface::IERC721EnumerableExtended<ComponentState<TContractState>> {
+        /// Returns a list of all token ids owned by the specified `owner`.
+        /// This function provides a more efficient alternative to calling `ERC721::balance_of`
+        /// and iterating through tokens with `ERC721Enumerable::token_of_owner_by_index`.
+        ///
+        /// Requirements:
+        ///
+        /// - `owner` is not the zero address.
         fn all_tokens_of_owner(
             self: @ComponentState<TContractState>, owner: ContractAddress
         ) -> Span<u256> {

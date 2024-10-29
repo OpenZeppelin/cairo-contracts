@@ -831,6 +831,26 @@ Returns the token id owned by `owner` at a given `index` of its token list.
 Use along with xref:#IERC721-balance_of[IERC721::balance_of] to enumerate all of ``owner``'s tokens.
 
 [.contract]
+[[IERC721EnumerableExtended]]
+=== `++IERC721EnumerableExtended++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.18.0/packages/token/src/erc721/extensions/erc721_enumerable/interface.cairo[{github-icon},role=heading-link]
+
+Interface for the helper enumerable functions in {eip721}.
+
+[.contract-index]
+.Functions
+--
+* xref:#IERC721EnumerableExtended-all_tokens_of_owner[`++all_tokens_of_owner(owner)++`]
+--
+
+==== Functions
+
+[.contract-item]
+[[IERC721EnumerableExtended-all_tokens_of_owner]]
+==== `[.contract-item-name]#++all_tokens_of_owner++#++(owner: ContractAddress) -> Span<u256>++` [.item-kind]#external#
+
+Returns a list of all token ids owned by the specified `owner`.
+
+[.contract]
 [[ERC721EnumerableComponent]]
 === `++ERC721EnumerableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.18.0/packages/token/src/erc721/extensions/erc721_enumerable.cairo[{github-icon},role=heading-link]
 
@@ -878,6 +898,10 @@ mod ERC721EnumerableContract {
 * xref:#ERC721EnumerableComponent-total_supply[`++total_supply(self)++`]
 * xref:#ERC721EnumerableComponent-token_by_index[`++token_by_index(self, index)++`]
 * xref:#ERC721EnumerableComponent-token_of_owner_by_index[`++token_of_owner_by_index(self, address, index)++`]
+
+[.sub-index#ERC721EnumerableComponent-Embeddable-Impls-ERC721EnumerableExtendedImpl]
+.ERC721EnumerableExtendedImpl
+* xref:#ERC721EnumerableComponent-all_tokens_of_owner[`++all_tokens_of_owner(self, owner)++`]
 --
 
 [.contract-index]
@@ -920,6 +944,17 @@ See xref:#IERC721Enumerable-token_of_owner_by_index[IERC721Enumerable::token_of_
 Requirements:
 
 - `index` is less than ``owner``'s token balance.
+- `owner` is not the zero address.
+
+[.contract-item]
+[[ERC721EnumerableComponent-all_tokens_of_owner]]
+==== `[.contract-item-name]#++all_tokens_of_owner++#++(self: @ContractState, owner: ContractAddress) → Span<u256>++` [.item-kind]#external#
+
+Returns a list of all token ids owned by the specified `owner`.
+This function provides a more efficient alternative to calling `ERC721::balance_of`
+and iterating through tokens with `ERC721Enumerable::token_of_owner_by_index`.
+
+Requirements:
 - `owner` is not the zero address.
 
 [#ERC721EnumerableComponent-Internal-functions]

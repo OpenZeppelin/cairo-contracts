@@ -1,8 +1,8 @@
 #[starknet::contract]
 pub mod ERC721EnumerableMock {
+    use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_token::erc721::ERC721Component;
     use openzeppelin_token::erc721::extensions::ERC721EnumerableComponent;
-    use openzeppelin_introspection::src5::SRC5Component;
     use starknet::ContractAddress;
 
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);
@@ -24,7 +24,8 @@ pub mod ERC721EnumerableMock {
 
     // ERC721EnumerableExtended
     #[abi(embed_v0)]
-    impl ERC721EnumerableExtendedImpl = ERC721EnumerableComponent::ERC721EnumerableExtendedImpl<ContractState>;
+    impl ERC721EnumerableExtendedImpl =
+        ERC721EnumerableComponent::ERC721EnumerableExtendedImpl<ContractState>;
 
     // SRC5
     #[abi(embed_v0)]
@@ -80,9 +81,9 @@ pub mod ERC721EnumerableMock {
 
 #[starknet::contract]
 pub mod SnakeERC721EnumerableMock {
+    use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_token::erc721::ERC721Component;
     use openzeppelin_token::erc721::extensions::ERC721EnumerableComponent;
-    use openzeppelin_introspection::src5::SRC5Component;
 
     use starknet::ContractAddress;
 

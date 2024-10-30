@@ -105,7 +105,7 @@ pub mod GovernorComponent {
         pub params: ByteArray
     }
 
-    mod Errors {
+    pub mod Errors {
         pub const EXECUTOR_ONLY: felt252 = 'Executor only';
         pub const PROPOSER_ONLY: felt252 = 'Proposer only';
         pub const NONEXISTENT_PROPOSAL: felt252 = 'Nonexistent proposal';
@@ -193,6 +193,9 @@ pub mod GovernorComponent {
     }
 
     pub trait GovernorExecutionTrait<TContractState> {
+        /// See `interface::IGovernor::state`.
+        fn state(self: @ComponentState<TContractState>, proposal_id: felt252) -> ProposalState;
+
         /// Address through which the governor executes action.
         /// Should be used to specify whether the module execute actions through another contract
         /// such as a timelock.
@@ -301,7 +304,7 @@ pub mod GovernorComponent {
 
         /// Returns the state of a proposal, given its id.
         fn state(self: @ComponentState<TContractState>, proposal_id: felt252) -> ProposalState {
-            self._state(proposal_id)
+            GovernorExecution::state(self, proposal_id)
         }
 
         /// The number of votes required in order for a voter to become a proposer.
@@ -649,13 +652,20 @@ pub mod GovernorComponent {
             src5_component.register_interface(IERC1155_RECEIVER_ID);
         }
 
-        fn assert_only_governance(ref self: ComponentState<TContractState>) {
+        fn assert_only_governance(self: @ComponentState<TContractState>) {
             let executor = self.executor();
             assert(executor == starknet::get_caller_address(), Errors::EXECUTOR_ONLY);
 
             // TODO: either check that the calldata matches the whitelist or assume the Executor
             // can't execute proposals not created from the Governor itself.
             ()
+        }
+
+        /// Returns the proposal object given its id.
+        fn get_proposal(
+            self: @ComponentState<TContractState>, proposal_id: felt252
+        ) -> ProposalCore {
+            self.Governor_proposals.read(proposal_id)
         }
 
         /// Returns a hash of the proposal using the Poseidon algorithm.
@@ -725,22 +735,19 @@ pub mod GovernorComponent {
 
         /// Returns the state of a proposal, given its id.
         fn _state(self: @ComponentState<TContractState>, proposal_id: felt252) -> ProposalState {
-            let proposal = self.Governor_proposals.read(proposal_id);
+            let proposal = self.get_proposal(proposal_id);
 
             if proposal.executed {
                 return ProposalState::Executed;
             }
-
             if proposal.canceled {
                 return ProposalState::Canceled;
             }
 
             let snapshot = self._proposal_snapshot(proposal_id);
-
             assert(snapshot.is_non_zero(), Errors::NONEXISTENT_PROPOSAL);
 
             let current_timepoint = self.clock();
-
             if current_timepoint < snapshot {
                 return ProposalState::Pending;
             }
@@ -807,7 +814,8 @@ pub mod GovernorComponent {
             proposal_id
         }
 
-        /// Internal cancel mechanism with minimal restrictions..
+        /// Internal cancel mechanism with minimal restrictions.
+        /// A proposal can be cancelled in any state other than Canceled, Expired, or Executed.
         ///
         /// NOTE: Once cancelled a proposal can't be re-submitted.
         fn _cancel(
@@ -815,6 +823,15 @@ pub mod GovernorComponent {
             proposal_id: felt252,
             description_hash: felt252
         ) {
+            let valid_states = array![
+                ProposalState::Pending,
+                ProposalState::Active,
+                ProposalState::Defeated,
+                ProposalState::Succeeded,
+                ProposalState::Queued
+            ];
+            self.validate_state(proposal_id, valid_states.span());
+
             let mut proposal = self.Governor_proposals.read(proposal_id);
             proposal.canceled = true;
             self.Governor_proposals.write(proposal_id, proposal);
@@ -916,7 +933,7 @@ pub mod GovernorComponent {
             proposal_id: felt252,
             allowed_states: Span<ProposalState>
         ) {
-            let current_state = self._state(proposal_id);
+            let current_state = self.state(proposal_id);
             let mut found = false;
             for state in allowed_states {
                 if current_state == *state {

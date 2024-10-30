@@ -25,13 +25,22 @@ pub trait IVotesToken<TState> {
 }
 
 #[starknet::interface]
+pub trait ITimelockController<TState> {
+    /// Returns address of the associated timelock.
+    fn timelock(self: @TState) -> ContractAddress;
+
+    /// Updates the associated timelock.
+    fn update_timelock(ref self: TState, new_timelock: ContractAddress);
+}
+
+#[starknet::interface]
 pub trait ISetSettings<TState> {
     /// Sets the voting delay.
-    fn set_voting_delay(ref self: TState, voting_delay: u64);
+    fn set_voting_delay(ref self: TState, new_voting_delay: u64);
 
     /// Sets the voting period.
-    fn set_voting_period(ref self: TState, voting_period: u64);
+    fn set_voting_period(ref self: TState, new_voting_period: u64);
 
     /// Sets the proposal threshold.
-    fn set_proposal_threshold(ref self: TState, proposal_threshold: u256);
+    fn set_proposal_threshold(ref self: TState, new_proposal_threshold: u256);
 }

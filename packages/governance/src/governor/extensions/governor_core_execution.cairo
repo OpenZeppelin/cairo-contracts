@@ -9,26 +9,17 @@
 /// GovernorTimelockExecutionComponent.
 #[starknet::component]
 pub mod GovernorCoreExecutionComponent {
-    use core::num::traits::Zero;
     use crate::governor::GovernorComponent::{
-        InternalImpl as GovernorInternalImpl, ComponentState as GovernorComponentState
+        InternalTrait as GovernorInternalImpl, ComponentState as GovernorComponentState
     };
     use crate::governor::GovernorComponent;
-    use crate::governor::extensions::interface::IVotesToken;
+    use crate::governor::interface::ProposalState;
     use openzeppelin_introspection::src5::SRC5Component;
-    use starknet::ContractAddress;
-    use starknet::SyscallResultTrait;
     use starknet::account::Call;
-    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use starknet::{ContractAddress, SyscallResultTrait};
 
     #[storage]
-    pub struct Storage {
-        Governor_token: ContractAddress
-    }
-
-    mod Errors {
-        pub const INVALID_TOKEN: felt252 = 'Invalid votes token';
-    }
+    pub struct Storage {}
 
     //
     // Extensions
@@ -45,6 +36,13 @@ pub mod GovernorCoreExecutionComponent {
         impl GovernorCoreExecution: HasComponent<TContractState>,
         +Drop<TContractState>
     > of GovernorComponent::GovernorExecutionTrait<TContractState> {
+        /// See `GovernorComponent::GovernorExecutionTrait::state`.
+        fn state(
+            self: @GovernorComponentState<TContractState>, proposal_id: felt252
+        ) -> ProposalState {
+            self._state(proposal_id)
+        }
+
         /// See `GovernorComponent::GovernorExecutionTrait::executor`.
         fn executor(self: @GovernorComponentState<TContractState>) -> ContractAddress {
             starknet::get_contract_address()
@@ -87,43 +85,6 @@ pub mod GovernorCoreExecutionComponent {
             description_hash: felt252
         ) {
             self._cancel(proposal_id, description_hash);
-        }
-    }
-
-    //
-    // External
-    //
-
-    #[embeddable_as(VotesTokenImpl)]
-    impl VotesToken<
-        TContractState, +HasComponent<TContractState>, +Drop<TContractState>
-    > of IVotesToken<ComponentState<TContractState>> {
-        /// Returns the token that voting power is sourced from.
-        fn token(self: @ComponentState<TContractState>) -> ContractAddress {
-            self.Governor_token.read()
-        }
-    }
-
-    //
-    // Internal
-    //
-
-    #[generate_trait]
-    pub impl InternalImpl<
-        TContractState,
-        +HasComponent<TContractState>,
-        +GovernorComponent::GovernorVotesTrait<TContractState>,
-        impl Governor: GovernorComponent::HasComponent<TContractState>,
-        +Drop<TContractState>
-    > of InternalTrait<TContractState> {
-        /// Initializes the component by setting the votes token.
-        ///
-        /// Requirements:
-        ///
-        /// - `votes_token` must not be zero.
-        fn initialize(ref self: ComponentState<TContractState>, votes_token: ContractAddress) {
-            assert(votes_token.is_non_zero(), Errors::INVALID_TOKEN);
-            self.Governor_token.write(votes_token);
         }
     }
 }

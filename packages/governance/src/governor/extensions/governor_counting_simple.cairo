@@ -8,7 +8,7 @@
 #[starknet::component]
 pub mod GovernorCountingSimpleComponent {
     use crate::governor::GovernorComponent::{
-        InternalImpl, ComponentState as GovernorComponentState
+        InternalTrait, ComponentState as GovernorComponentState
     };
     use crate::governor::GovernorComponent;
     use openzeppelin_introspection::src5::SRC5Component;

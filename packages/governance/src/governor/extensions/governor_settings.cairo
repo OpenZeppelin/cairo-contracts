@@ -7,7 +7,9 @@
 /// Extension of GovernorComponent for settings updatable through governance.
 #[starknet::component]
 pub mod GovernorSettingsComponent {
-    use crate::governor::GovernorComponent::ComponentState as GovernorComponentState;
+    use crate::governor::GovernorComponent::{
+        InternalTrait as GovernorInternalTrait, ComponentState as GovernorComponentState
+    };
     use crate::governor::GovernorComponent;
     use crate::governor::extensions::interface::ISetSettings;
     use openzeppelin_introspection::src5::SRC5Component;
@@ -100,56 +102,98 @@ pub mod GovernorSettingsComponent {
 
     #[embeddable_as(SetSettingsImpl)]
     impl SetSettings<
-        TContractState, +HasComponent<TContractState>, +Drop<TContractState>
+        TContractState,
+        +HasComponent<TContractState>,
+        +GovernorComponent::HasComponent<TContractState>,
+        +GovernorComponent::GovernorCountingTrait<TContractState>,
+        +GovernorComponent::GovernorExecutionTrait<TContractState>,
+        +GovernorComponent::GovernorSettingsTrait<TContractState>,
+        +GovernorComponent::GovernorVotesTrait<TContractState>,
+        +SRC5Component::HasComponent<TContractState>,
+        +GovernorComponent::ImmutableConfig,
+        +Drop<TContractState>
     > of ISetSettings<ComponentState<TContractState>> {
         /// Sets the voting delay.
         ///
         /// Emits a `VotingDelayUpdated` event.
-        fn set_voting_delay(ref self: ComponentState<TContractState>, voting_delay: u64) {
-            self
-                .emit(
-                    VotingDelayUpdated {
-                        old_voting_delay: self.Governor_voting_delay.read(),
-                        new_voting_delay: voting_delay
-                    }
-                );
-            self.Governor_voting_delay.write(voting_delay);
+        fn set_voting_delay(ref self: ComponentState<TContractState>, new_voting_delay: u64) {
+            self.assert_only_governance();
+
+            let old_voting_delay = self.Governor_voting_delay.read();
+            self.emit(VotingDelayUpdated { old_voting_delay, new_voting_delay });
+            self.Governor_voting_delay.write(new_voting_delay);
         }
 
         /// Sets the voting period.
         ///
         /// Requirements:
         ///
-        /// - `voting_period` must be greater than 0.
+        /// - `new_voting_period` must be greater than 0.
         ///
         /// Emits a `VotingPeriodUpdated` event.
-        fn set_voting_period(ref self: ComponentState<TContractState>, voting_period: u64) {
-            assert(voting_period > 0, Errors::INVALID_VOTING_PERIOD);
+        fn set_voting_period(ref self: ComponentState<TContractState>, new_voting_period: u64) {
+            self.assert_only_governance();
+            assert(new_voting_period > 0, Errors::INVALID_VOTING_PERIOD);
 
-            self
-                .emit(
-                    VotingPeriodUpdated {
-                        old_voting_period: self.Governor_voting_period.read(),
-                        new_voting_period: voting_period
-                    }
-                );
-            self.Governor_voting_period.write(voting_period);
+            let old_voting_period = self.Governor_voting_period.read();
+            self.emit(VotingPeriodUpdated { old_voting_period, new_voting_period });
+            self.Governor_voting_period.write(new_voting_period);
         }
 
         /// Sets the proposal threshold.
         ///
         /// Emits a `ProposalThresholdUpdated` event.
         fn set_proposal_threshold(
-            ref self: ComponentState<TContractState>, proposal_threshold: u256
+            ref self: ComponentState<TContractState>, new_proposal_threshold: u256
         ) {
-            self
-                .emit(
-                    ProposalThresholdUpdated {
-                        old_proposal_threshold: self.Governor_proposal_threshold.read(),
-                        new_proposal_threshold: proposal_threshold
-                    }
-                );
-            self.Governor_proposal_threshold.write(proposal_threshold);
+            self.assert_only_governance();
+
+            let old_proposal_threshold = self.Governor_proposal_threshold.read();
+            self.emit(ProposalThresholdUpdated { old_proposal_threshold, new_proposal_threshold });
+            self.Governor_proposal_threshold.write(new_proposal_threshold);
+        }
+    }
+
+    //
+    // Internal
+    //
+
+    #[generate_trait]
+    pub impl InternalImpl<
+        TContractState,
+        +HasComponent<TContractState>,
+        +GovernorComponent::GovernorCountingTrait<TContractState>,
+        +GovernorComponent::GovernorExecutionTrait<TContractState>,
+        +GovernorComponent::GovernorSettingsTrait<TContractState>,
+        +GovernorComponent::GovernorVotesTrait<TContractState>,
+        +SRC5Component::HasComponent<TContractState>,
+        +GovernorComponent::ImmutableConfig,
+        impl Governor: GovernorComponent::HasComponent<TContractState>,
+        +Drop<TContractState>
+    > of InternalTrait<TContractState> {
+        /// Initializes the component by setting the default values.
+        ///
+        /// Requirements:
+        ///
+        /// - `new_voting_period` must be greater than 0.
+        ///
+        /// Emits a `VotingDelayUpdated`, `VotingPeriodUpdated`, and `ProposalThresholdUpdated`
+        /// event.
+        fn initialize(
+            ref self: ComponentState<TContractState>,
+            new_voting_delay: u64,
+            new_voting_period: u64,
+            new_proposal_threshold: u256
+        ) {
+            self.set_voting_delay(new_voting_delay);
+            self.set_voting_period(new_voting_period);
+            self.set_proposal_threshold(new_proposal_threshold);
+        }
+
+        /// Wrapper for `Governor::assert_only_governance`.
+        fn assert_only_governance(self: @ComponentState<TContractState>) {
+            let governor_component = get_dep_component!(self, Governor);
+            governor_component.assert_only_governance();
         }
     }
 }

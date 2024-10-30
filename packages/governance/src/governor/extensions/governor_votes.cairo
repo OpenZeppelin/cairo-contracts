@@ -33,8 +33,7 @@ pub mod GovernorVotesComponent {
     impl GovernorVotes<
         TContractState,
         +GovernorComponent::HasComponent<TContractState>,
-        +GovernorComponent::GovernorExecuteTrait<TContractState>,
-        +GovernorComponent::GovernorQueueTrait<TContractState>,
+        +GovernorComponent::GovernorExecutionTrait<TContractState>,
         +GovernorComponent::GovernorCountingTrait<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         impl GovernorVotesQuorumFraction: HasComponent<TContractState>,

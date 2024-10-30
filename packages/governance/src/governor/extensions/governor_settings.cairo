@@ -64,8 +64,7 @@ pub mod GovernorSettingsComponent {
         +GovernorComponent::GovernorQuorumTrait<TContractState>,
         +GovernorComponent::GovernorCountingTrait<TContractState>,
         +GovernorComponent::GovernorVotesTrait<TContractState>,
-        +GovernorComponent::GovernorExecuteTrait<TContractState>,
-        +GovernorComponent::GovernorQueueTrait<TContractState>,
+        +GovernorComponent::GovernorExecutionTrait<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         impl GovernorSettings: HasComponent<TContractState>,
         +Drop<TContractState>

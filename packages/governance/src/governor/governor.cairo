@@ -192,7 +192,7 @@ pub mod GovernorComponent {
         ) -> u256;
     }
 
-    pub trait GovernorExecuteTrait<TContractState> {
+    pub trait GovernorExecutionTrait<TContractState> {
         /// Address through which the governor executes action.
         /// Should be used to specify whether the module execute actions through another contract
         /// such as a timelock.
@@ -206,9 +206,7 @@ pub mod GovernorComponent {
             calls: Span<Call>,
             description_hash: felt252
         );
-    }
 
-    pub trait GovernorQueueTrait<TContractState> {
         /// Queuing mechanism. Can be used to modify the way queuing is
         /// performed (for example adding a vault/timelock).
         ///
@@ -228,6 +226,14 @@ pub mod GovernorComponent {
         fn proposal_needs_queuing(
             self: @ComponentState<TContractState>, proposal_id: felt252
         ) -> bool;
+
+        /// Cancel mechanism. Can be used to modify the way canceling is
+        /// performed (for example adding a vault/timelock).
+        fn cancel_operations(
+            ref self: ComponentState<TContractState>,
+            proposal_id: felt252,
+            description_hash: felt252
+        );
     }
 
     //
@@ -240,10 +246,9 @@ pub mod GovernorComponent {
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +GovernorVotesTrait<TContractState>,
-        +GovernorExecuteTrait<TContractState>,
         impl GovernorQuorum: GovernorQuorumTrait<TContractState>,
         impl GovernorCounting: GovernorCountingTrait<TContractState>,
-        impl GovernorQueue: GovernorQueueTrait<TContractState>,
+        impl GovernorExecution: GovernorExecutionTrait<TContractState>,
         impl GovernorSettings: GovernorSettingsTrait<TContractState>,
         impl Metadata: SNIP12Metadata,
         impl Immutable: ImmutableConfig,
@@ -335,7 +340,7 @@ pub mod GovernorComponent {
         fn proposal_needs_queuing(
             self: @ComponentState<TContractState>, proposal_id: felt252
         ) -> bool {
-            GovernorQueue::proposal_needs_queuing(self, proposal_id)
+            GovernorExecution::proposal_needs_queuing(self, proposal_id)
         }
 
         /// Delay between the proposal is created and the vote starts. The unit this duration is
@@ -539,8 +544,11 @@ pub mod GovernorComponent {
                 starknet::get_caller_address() == self.proposal_proposer(proposal_id),
                 Errors::PROPOSER_ONLY
             );
+            self.cancel_operations(proposal_id, description_hash);
 
-            self._cancel(proposal_id, calls, description_hash)
+            self.emit(ProposalCanceled { proposal_id });
+
+            proposal_id
         }
 
         /// Cast a vote.
@@ -626,8 +634,7 @@ pub mod GovernorComponent {
         TContractState,
         +HasComponent<TContractState>,
         +GovernorCountingTrait<TContractState>,
-        +GovernorExecuteTrait<TContractState>,
-        +GovernorQueueTrait<TContractState>,
+        +GovernorExecutionTrait<TContractState>,
         impl GovernorSettings: GovernorSettingsTrait<TContractState>,
         impl GovernorVotes: GovernorVotesTrait<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
@@ -800,36 +807,17 @@ pub mod GovernorComponent {
             proposal_id
         }
 
-        /// Internal cancel mechanism with minimal restrictions. Returns the id of the proposal.
+        /// Internal cancel mechanism with minimal restrictions..
         ///
-        /// Requirements:
-        ///
-        /// - A proposal can be cancelled in any state other than
-        /// Canceled, Expired, or Executed. Once cancelled a proposal can't be re-submitted.
-        ///
-        /// Emits a `ProposalCanceled` event.
+        /// NOTE: Once cancelled a proposal can't be re-submitted.
         fn _cancel(
             ref self: ComponentState<TContractState>,
             proposal_id: felt252,
-            calls: Span<Call>,
             description_hash: felt252
-        ) -> felt252 {
-            let valid_states = array![
-                ProposalState::Pending,
-                ProposalState::Active,
-                ProposalState::Defeated,
-                ProposalState::Succeeded,
-                ProposalState::Queued
-            ];
-            self.validate_state(proposal_id, valid_states.span());
-
+        ) {
             let mut proposal = self.Governor_proposals.read(proposal_id);
             proposal.canceled = true;
             self.Governor_proposals.write(proposal_id, proposal);
-
-            self.emit(ProposalCanceled { proposal_id });
-
-            proposal_id
         }
 
         /// Internal wrapper for `GovernorCountingTrait::count_vote`.

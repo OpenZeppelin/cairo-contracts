@@ -7,9 +7,7 @@
 /// Extension of GovernorComponent for settings updatable through governance.
 #[starknet::component]
 pub mod GovernorSettingsComponent {
-    use crate::governor::GovernorComponent::{
-        InternalImpl, ComponentState as GovernorComponentState
-    };
+    use crate::governor::GovernorComponent::ComponentState as GovernorComponentState;
     use crate::governor::GovernorComponent;
     use crate::governor::extensions::interface::ISetSettings;
     use openzeppelin_introspection::src5::SRC5Component;

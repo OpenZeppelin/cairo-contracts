@@ -19,6 +19,12 @@ pub trait IQuorumFraction<TState> {
 }
 
 #[starknet::interface]
+pub trait IVotesToken<TState> {
+    /// Returns the token that voting power is sourced from.
+    fn token(self: @TState) -> ContractAddress;
+}
+
+#[starknet::interface]
 pub trait ISetSettings<TState> {
     /// Sets the voting delay.
     fn set_voting_delay(ref self: TState, voting_delay: u64);

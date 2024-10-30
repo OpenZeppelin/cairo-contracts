@@ -4,14 +4,12 @@
 
 /// # GovernorVotesQuorumFraction Component
 ///
-/// Extension of GovernorComponent for voting weight extraction from an ERC20 token with the Votes
+/// Extension of GovernorComponent for voting weight extraction from a token with the Votes
 /// extension and a quorum expressed as a fraction of the total supply.
 #[starknet::component]
 pub mod GovernorVotesQuorumFractionComponent {
     use core::num::traits::Zero;
-    use crate::governor::GovernorComponent::{
-        InternalImpl as GovernorInternalImpl, ComponentState as GovernorComponentState
-    };
+    use crate::governor::GovernorComponent::ComponentState as GovernorComponentState;
     use crate::governor::GovernorComponent;
     use crate::governor::extensions::interface::IQuorumFraction;
     use crate::votes::interface::{IVotesDispatcher, IVotesDispatcherTrait};
@@ -48,10 +46,36 @@ pub mod GovernorVotesQuorumFractionComponent {
     // Extensions
     //
 
+    impl GovernorQuorum<
+        TContractState,
+        +GovernorComponent::HasComponent<TContractState>,
+        +GovernorComponent::GovernorVotesTrait<TContractState>,
+        +GovernorComponent::GovernorExecuteTrait<TContractState>,
+        +GovernorComponent::GovernorQueueTrait<TContractState>,
+        +GovernorComponent::GovernorCountingTrait<TContractState>,
+        +SRC5Component::HasComponent<TContractState>,
+        impl GovernorVotesQuorumFraction: HasComponent<TContractState>,
+        +Drop<TContractState>
+    > of GovernorComponent::GovernorQuorumTrait<TContractState> {
+        /// See `GovernorComponent::GovernorQuorumTrait::quorum`.
+        fn quorum(self: @GovernorComponentState<TContractState>, timepoint: u64) -> u256 {
+            let contract = self.get_contract();
+            let this_component = GovernorVotesQuorumFraction::get_component(contract);
+
+            let token = this_component.Governor_token.read();
+            let votes_dispatcher = IVotesDispatcher { contract_address: token };
+
+            let past_total_supply = votes_dispatcher.get_past_total_supply(timepoint);
+            let quorum_numerator = this_component.quorum_numerator(timepoint);
+            let quorum_denominator = this_component.quorum_denominator();
+
+            past_total_supply * quorum_numerator / quorum_denominator
+        }
+    }
+
     impl GovernorVotes<
         TContractState,
         +GovernorComponent::HasComponent<TContractState>,
-        +GovernorComponent::GovernorQuorumTrait<TContractState>,
         +GovernorComponent::GovernorExecuteTrait<TContractState>,
         +GovernorComponent::GovernorQueueTrait<TContractState>,
         +GovernorComponent::GovernorCountingTrait<TContractState>,
@@ -178,7 +202,8 @@ pub mod GovernorVotesQuorumFractionComponent {
             assert(new_quorum_numerator <= denominator, Errors::INVALID_QUORUM_FRACTION);
 
             let old_quorum_numerator = self.current_quorum_numerator();
-            let governor_component = get_dep_component_mut!(ref self, Governor);
+            let governor_component = get_dep_component!(@self, Governor);
+
             let clock = governor_component.clock();
 
             self.Governor_quorum_numerator_history.deref().push(clock, new_quorum_numerator);

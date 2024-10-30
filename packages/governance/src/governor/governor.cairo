@@ -142,7 +142,7 @@ pub mod GovernorComponent {
     }
 
     pub trait GovernorQuorumTrait<TContractState> {
-        /// See `interface::IGovernor::::quorum`.
+        /// See `interface::IGovernor::quorum`.
         fn quorum(self: @ComponentState<TContractState>, timepoint: u64) -> u256;
     }
 

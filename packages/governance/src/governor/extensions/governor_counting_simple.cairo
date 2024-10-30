@@ -60,12 +60,12 @@ pub mod GovernorCountingSimpleComponent {
 
     impl GovernorCounting<
         TContractState,
+        +GovernorComponent::ImmutableConfig,
         +GovernorComponent::HasComponent<TContractState>,
-        +GovernorComponent::GovernorQuorumTrait<TContractState>,
         +GovernorComponent::GovernorSettingsTrait<TContractState>,
+        +GovernorComponent::GovernorQuorumTrait<TContractState>,
         +GovernorComponent::GovernorExecuteTrait<TContractState>,
         +GovernorComponent::GovernorQueueTrait<TContractState>,
-        +GovernorComponent::GovernorProposeTrait<TContractState>,
         +GovernorComponent::GovernorVotesTrait<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         impl GovernorCountingSimple: HasComponent<TContractState>,
@@ -85,7 +85,7 @@ pub mod GovernorCountingSimpleComponent {
             account: ContractAddress,
             support: u8,
             total_weight: u256,
-            params: Span<felt252>
+            params: @ByteArray
         ) -> u256 {
             let mut contract = self.get_contract_mut();
             let mut this_component = GovernorCountingSimple::get_component_mut(ref contract);

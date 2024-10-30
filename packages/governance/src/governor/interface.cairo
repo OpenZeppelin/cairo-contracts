@@ -123,7 +123,7 @@ pub trait IGovernor<TState> {
 
     /// Voting power of an `account` at a specific `timepoint` given additional encoded parameters.
     fn get_votes_with_params(
-        self: @TState, account: ContractAddress, timepoint: u64, params: Span<felt252>
+        self: @TState, account: ContractAddress, timepoint: u64, params: ByteArray
     ) -> u256;
 
     /// Returns whether `account` has cast a vote on `proposal_id`.
@@ -176,11 +176,7 @@ pub trait IGovernor<TState> {
 
     /// Cast a vote with a reason and additional serialized parameters.
     fn cast_vote_with_reason_and_params(
-        ref self: TState,
-        proposal_id: felt252,
-        support: u8,
-        reason: ByteArray,
-        params: Span<felt252>
+        ref self: TState, proposal_id: felt252, support: u8, reason: ByteArray, params: ByteArray
     ) -> u256;
 
     /// Cast a vote using the voter's signature.
@@ -199,7 +195,7 @@ pub trait IGovernor<TState> {
         support: u8,
         voter: ContractAddress,
         reason: ByteArray,
-        params: Span<felt252>,
+        params: ByteArray,
         signature: Span<felt252>
     ) -> u256;
 }

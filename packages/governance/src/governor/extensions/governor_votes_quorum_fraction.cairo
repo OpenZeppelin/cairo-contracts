@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.18.0
-// (governance/governor/extensions/governor_votes_quorum_fractional.cairo)
+// (governance/governor/extensions/governor_votes_quorum_fraction.cairo)
 
 /// # GovernorVotesQuorumFraction Component
 ///
@@ -8,17 +8,21 @@
 /// extension and a quorum expressed as a fraction of the total supply.
 #[starknet::component]
 pub mod GovernorVotesQuorumFractionComponent {
+    use core::num::traits::Zero;
     use crate::governor::GovernorComponent::{
         InternalImpl as GovernorInternalImpl, ComponentState as GovernorComponentState
     };
     use crate::governor::GovernorComponent;
     use crate::governor::extensions::interface::IQuorumFraction;
+    use crate::votes::interface::{IVotesDispatcher, IVotesDispatcherTrait};
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_utils::structs::checkpoint::{Trace, TraceTrait};
     use starknet::ContractAddress;
+    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 
     #[storage]
     pub struct Storage {
+        Governor_token: ContractAddress,
         Governor_quorum_numerator_history: Trace,
     }
 
@@ -37,6 +41,7 @@ pub mod GovernorVotesQuorumFractionComponent {
 
     mod Errors {
         pub const INVALID_QUORUM_FRACTION: felt252 = 'Invalid quorum fraction';
+        pub const INVALID_TOKEN: felt252 = 'Invalid votes token';
     }
 
     //
@@ -47,10 +52,8 @@ pub mod GovernorVotesQuorumFractionComponent {
         TContractState,
         +GovernorComponent::HasComponent<TContractState>,
         +GovernorComponent::GovernorQuorumTrait<TContractState>,
-        +GovernorComponent::GovernorSettingsTrait<TContractState>,
         +GovernorComponent::GovernorExecuteTrait<TContractState>,
         +GovernorComponent::GovernorQueueTrait<TContractState>,
-        +GovernorComponent::GovernorProposeTrait<TContractState>,
         +GovernorComponent::GovernorCountingTrait<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         impl GovernorVotesQuorumFraction: HasComponent<TContractState>,
@@ -58,22 +61,14 @@ pub mod GovernorVotesQuorumFractionComponent {
     > of GovernorComponent::GovernorVotesTrait<TContractState> {
         /// See `GovernorComponent::GovernorVotesTrait::clock`.
         fn clock(self: @GovernorComponentState<TContractState>) -> u64 {
-            1
+            // VotesComponent uses the block timestamp for tracking checkpoints.
+            // That should be updated in order to allow for more flexible clock modes.
+            starknet::get_block_timestamp()
         }
 
         /// See `GovernorComponent::GovernorVotesTrait::CLOCK_MODE`.
         fn clock_mode(self: @GovernorComponentState<TContractState>) -> ByteArray {
-            ""
-        }
-
-        /// See `GovernorComponent::GovernorVotesTrait::voting_delay`.
-        fn voting_delay(self: @GovernorComponentState<TContractState>) -> u64 {
-            1
-        }
-
-        /// See `GovernorComponent::GovernorVotesTrait::voting_period`.
-        fn voting_period(self: @GovernorComponentState<TContractState>) -> u64 {
-            1
+            "mode=timestamp&from=starknet::SN_MAIN"
         }
 
         /// See `GovernorComponent::GovernorVotesTrait::get_votes`.
@@ -81,9 +76,15 @@ pub mod GovernorVotesQuorumFractionComponent {
             self: @GovernorComponentState<TContractState>,
             account: ContractAddress,
             timepoint: u64,
-            params: Span<felt252>
+            params: @ByteArray
         ) -> u256 {
-            1
+            let contract = self.get_contract();
+            let this_component = GovernorVotesQuorumFraction::get_component(contract);
+
+            let token = this_component.Governor_token.read();
+            let votes_dispatcher = IVotesDispatcher { contract_address: token };
+
+            votes_dispatcher.get_past_votes(account, timepoint)
         }
     }
 
@@ -95,6 +96,11 @@ pub mod GovernorVotesQuorumFractionComponent {
     impl QuorumFraction<
         TContractState, +HasComponent<TContractState>, +Drop<TContractState>
     > of IQuorumFraction<ComponentState<TContractState>> {
+        /// Returns the token that voting power is sourced from.
+        fn token(self: @ComponentState<TContractState>) -> ContractAddress {
+            self.Governor_token.read()
+        }
+
         /// Returns the current quorum numerator.
         fn current_quorum_numerator(self: @ComponentState<TContractState>) -> u256 {
             self.Governor_quorum_numerator_history.deref().latest()
@@ -137,14 +143,23 @@ pub mod GovernorVotesQuorumFractionComponent {
         impl Governor: GovernorComponent::HasComponent<TContractState>,
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
-        /// Initializes the component by setting the initial quorum numerator value.
+        /// Initializes the component by setting the votes token and the
+        /// initial quorum numerator value.
         ///
         /// Requirements:
         ///
+        /// - `votes_token` must not be zero.
         /// - `quorum_numerator` must be less than `quorum_denominator`.
         ///
         /// Emits a `QuorumNumeratorUpdated` event.
-        fn initialize(ref self: ComponentState<TContractState>, quorum_numerator: u256) {
+        fn initialize(
+            ref self: ComponentState<TContractState>,
+            votes_token: ContractAddress,
+            quorum_numerator: u256
+        ) {
+            assert(votes_token.is_non_zero(), Errors::INVALID_TOKEN);
+
+            self.Governor_token.write(votes_token);
             self.update_quorum_numerator(quorum_numerator);
         }
 

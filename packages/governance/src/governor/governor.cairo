@@ -39,12 +39,12 @@ pub mod GovernorComponent {
         VoteCastWithParams: VoteCastWithParams
     }
 
-    // TODO: maybe add indexed keys and rename members since we don't have the GovernorBravo BC
-    // restriction.
     /// Emitted when `call` is scheduled as part of operation `id`.
     #[derive(Drop, starknet::Event)]
     pub struct ProposalCreated {
+        #[key]
         pub proposal_id: felt252,
+        #[key]
         pub proposer: ContractAddress,
         pub calls: Span<Call>,
         pub signatures: Span<Span<felt252>>,
@@ -53,28 +53,28 @@ pub mod GovernorComponent {
         pub description: ByteArray
     }
 
-    // TODO: maybe add indexed keys and rename members since we don't have the GovernorBravo BC
     // restriction.
     /// Emitted when a proposal is queued.
     #[derive(Drop, starknet::Event)]
     pub struct ProposalQueued {
+        #[key]
         pub proposal_id: felt252,
         pub eta_seconds: u64
     }
 
-    // TODO: maybe add indexed keys and rename members since we don't have the GovernorBravo BC
     // restriction.
     /// Emitted when a proposal is executed.
     #[derive(Drop, starknet::Event)]
     pub struct ProposalExecuted {
+        #[key]
         pub proposal_id: felt252
     }
 
-    // TODO: maybe add indexed keys and rename members since we don't have the GovernorBravo BC
     // restriction.
     /// Emitted when a proposal is canceled.
     #[derive(Drop, starknet::Event)]
     pub struct ProposalCanceled {
+        #[key]
         pub proposal_id: felt252
     }
 
@@ -92,9 +92,8 @@ pub mod GovernorComponent {
     /// Emitted when a vote is cast with params.
     ///
     /// NOTE: `support` values should be seen as buckets. Their interpretation depends on the voting
-    /// module used.
-    /// `params` are additional encoded parameters. Their interpretation also depends on the voting
-    /// module used.
+    /// module used. `params` are additional encoded parameters. Their interpretation also
+    /// depends on the voting module used.
     #[derive(Drop, starknet::Event)]
     pub struct VoteCastWithParams {
         #[key]
@@ -103,19 +102,28 @@ pub mod GovernorComponent {
         pub support: u8,
         pub weight: u256,
         pub reason: ByteArray,
-        pub params: Span<felt252>
+        pub params: ByteArray
     }
 
-    // TODO: check prefix for errors
     mod Errors {
-        pub const EXECUTOR_ONLY: felt252 = 'Gov: executor only';
-        pub const PROPOSER_ONLY: felt252 = 'Gov: proposer only';
-        pub const NONEXISTENT_PROPOSAL: felt252 = 'Gov: nonexistent proposal';
-        pub const EXISTENT_PROPOSAL: felt252 = 'Gov: existent proposal';
-        pub const RESTRICTED_PROPOSER: felt252 = 'Gov: restricted proposer';
-        pub const INSUFFICIENT_PROPOSER_VOTES: felt252 = 'Gov: insufficient votes';
-        pub const UNEXPECTED_PROPOSAL_STATE: felt252 = 'Gov: unexpected proposal state';
-        pub const QUEUE_NOT_IMPLEMENTED: felt252 = 'Gov: queue not implemented';
+        pub const EXECUTOR_ONLY: felt252 = 'Executor only';
+        pub const PROPOSER_ONLY: felt252 = 'Proposer only';
+        pub const NONEXISTENT_PROPOSAL: felt252 = 'Nonexistent proposal';
+        pub const EXISTENT_PROPOSAL: felt252 = 'Existent proposal';
+        pub const RESTRICTED_PROPOSER: felt252 = 'Restricted proposer';
+        pub const INSUFFICIENT_PROPOSER_VOTES: felt252 = 'Insufficient votes';
+        pub const UNEXPECTED_PROPOSAL_STATE: felt252 = 'Unexpected proposal state';
+        pub const QUEUE_NOT_IMPLEMENTED: felt252 = 'Queue not implemented';
+    }
+
+    /// Constants expected to be defined at the contract level used to configure the component
+    /// behaviour.
+    ///
+    /// - `DEFAULT_PARAMS`: Default additional encoded parameters used by cast_vote
+    /// methods that don't include them.
+    pub trait ImmutableConfig {
+        /// Temporary defined as a function since constant ByteArray is not supported yet.
+        fn DEFAULT_PARAMS() -> ByteArray;
     }
 
     //
@@ -123,13 +131,15 @@ pub mod GovernorComponent {
     //
 
     pub trait GovernorSettingsTrait<TContractState> {
-        /// Default additional encoded parameters used by cast_vote methods that don't include them.
-        ///
-        /// Note: Should be defined by specific implementations to use an appropriate value, the
-        /// meaning of the additional params, in the context of that implementation
-        fn default_params(self: @ComponentState<TContractState>) -> Span<felt252>;
-    }
+        /// See `interface::IGovernor::voting_delay`.
+        fn voting_delay(self: @ComponentState<TContractState>) -> u64;
 
+        /// See `interface::IGovernor::voting_period`.
+        fn voting_period(self: @ComponentState<TContractState>) -> u64;
+
+        /// See `interface::IGovernor::proposal_threshold`.
+        fn proposal_threshold(self: @ComponentState<TContractState>) -> u256;
+    }
 
     pub trait GovernorQuorumTrait<TContractState> {
         /// See `interface::IGovernor::::quorum`.
@@ -151,7 +161,7 @@ pub mod GovernorComponent {
             account: ContractAddress,
             support: u8,
             total_weight: u256,
-            params: Span<felt252>
+            params: @ByteArray
         ) -> u256;
 
         /// See `interface::IGovernor::has_voted`.
@@ -173,24 +183,13 @@ pub mod GovernorComponent {
         /// See `interface::IERC6372::CLOCK_MODE`.
         fn clock_mode(self: @ComponentState<TContractState>) -> ByteArray;
 
-        /// See `interface::IGovernor::voting_delay`.
-        fn voting_delay(self: @ComponentState<TContractState>) -> u64;
-
-        /// See `interface::IGovernor::voting_period`.
-        fn voting_period(self: @ComponentState<TContractState>) -> u64;
-
         /// See `interface::IGovernor::get_votes`.
         fn get_votes(
             self: @ComponentState<TContractState>,
             account: ContractAddress,
             timepoint: u64,
-            params: Span<felt252>
+            params: @ByteArray
         ) -> u256;
-    }
-
-    pub trait GovernorProposeTrait<TContractState> {
-        /// See `interface::IGovernor::proposal_threshold`.
-        fn proposal_threshold(self: @ComponentState<TContractState>) -> u256;
     }
 
     pub trait GovernorExecuteTrait<TContractState> {
@@ -240,14 +239,14 @@ pub mod GovernorComponent {
         TContractState,
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
-        +GovernorSettingsTrait<TContractState>,
+        +GovernorVotesTrait<TContractState>,
         +GovernorExecuteTrait<TContractState>,
         impl GovernorQuorum: GovernorQuorumTrait<TContractState>,
         impl GovernorCounting: GovernorCountingTrait<TContractState>,
-        impl GovernorPropose: GovernorProposeTrait<TContractState>,
         impl GovernorQueue: GovernorQueueTrait<TContractState>,
-        impl GovernorVotes: GovernorVotesTrait<TContractState>,
+        impl GovernorSettings: GovernorSettingsTrait<TContractState>,
         impl Metadata: SNIP12Metadata,
+        impl Immutable: ImmutableConfig,
         +Drop<TContractState>,
     > of IGovernor<ComponentState<TContractState>> {
         /// Name of the governor instance (used in building the SNIP-12 domain separator).
@@ -345,7 +344,7 @@ pub mod GovernorComponent {
         /// This can be increased to leave time for users to buy voting power, or delegate it,
         /// before the voting of a proposal starts.
         fn voting_delay(self: @ComponentState<TContractState>) -> u64 {
-            GovernorVotes::voting_delay(self)
+            GovernorSettings::voting_delay(self)
         }
 
         /// Delay between the vote start and vote end. The unit this duration is expressed in
@@ -357,7 +356,7 @@ pub mod GovernorComponent {
         /// NOTE: This value is stored when the proposal is submitted so that possible changes to
         /// the value do not affect proposals that have already been submitted.
         fn voting_period(self: @ComponentState<TContractState>) -> u64 {
-            GovernorVotes::voting_period(self)
+            GovernorSettings::voting_period(self)
         }
 
         /// Minimum number of cast voted required for a proposal to be successful.
@@ -376,7 +375,7 @@ pub mod GovernorComponent {
         fn get_votes(
             self: @ComponentState<TContractState>, account: ContractAddress, timepoint: u64
         ) -> u256 {
-            self._get_votes(account, timepoint, self.default_params())
+            self._get_votes(account, timepoint, @Immutable::DEFAULT_PARAMS())
         }
 
         /// Voting power of an `account` at a specific `timepoint` given additional encoded
@@ -385,9 +384,9 @@ pub mod GovernorComponent {
             self: @ComponentState<TContractState>,
             account: ContractAddress,
             timepoint: u64,
-            params: Span<felt252>
+            params: ByteArray
         ) -> u256 {
-            self._get_votes(account, timepoint, params)
+            self._get_votes(account, timepoint, @params)
         }
 
         /// Returns whether `account` has cast a vote on `proposal_id`.
@@ -432,7 +431,8 @@ pub mod GovernorComponent {
             // Check proposal threshold
             let vote_threshold = self._proposal_threshold();
             if vote_threshold > 0 {
-                let votes = self._get_votes(proposer, self.clock() - 1, self.default_params());
+                let votes = self
+                    ._get_votes(proposer, self.clock() - 1, @Immutable::DEFAULT_PARAMS());
                 assert(votes >= vote_threshold, Errors::INSUFFICIENT_PROPOSER_VOTES);
             }
 
@@ -554,7 +554,7 @@ pub mod GovernorComponent {
             ref self: ComponentState<TContractState>, proposal_id: felt252, support: u8
         ) -> u256 {
             let voter = starknet::get_caller_address();
-            self._cast_vote(proposal_id, voter, support, "", self.default_params())
+            self._cast_vote(proposal_id, voter, support, "", Immutable::DEFAULT_PARAMS())
         }
 
         /// Cast a vote with a reason.
@@ -571,7 +571,7 @@ pub mod GovernorComponent {
             reason: ByteArray
         ) -> u256 {
             let voter = starknet::get_caller_address();
-            self._cast_vote(proposal_id, voter, support, reason, self.default_params())
+            self._cast_vote(proposal_id, voter, support, reason, Immutable::DEFAULT_PARAMS())
         }
 
         /// Cast a vote with a reason and additional serialized parameters.
@@ -586,7 +586,7 @@ pub mod GovernorComponent {
             proposal_id: felt252,
             support: u8,
             reason: ByteArray,
-            params: Span<felt252>
+            params: ByteArray
         ) -> u256 {
             let voter = starknet::get_caller_address();
             self._cast_vote(proposal_id, voter, support, reason, params)
@@ -610,7 +610,7 @@ pub mod GovernorComponent {
             support: u8,
             voter: ContractAddress,
             reason: ByteArray,
-            params: Span<felt252>,
+            params: ByteArray,
             signature: Span<felt252>
         ) -> u256 {
             1
@@ -625,13 +625,13 @@ pub mod GovernorComponent {
     pub impl InternalImpl<
         TContractState,
         +HasComponent<TContractState>,
-        +GovernorSettingsTrait<TContractState>,
         +GovernorCountingTrait<TContractState>,
         +GovernorExecuteTrait<TContractState>,
         +GovernorQueueTrait<TContractState>,
-        impl GovernorPropose: GovernorProposeTrait<TContractState>,
+        impl GovernorSettings: GovernorSettingsTrait<TContractState>,
         impl GovernorVotes: GovernorVotesTrait<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
+        impl Immutable: ImmutableConfig,
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
         /// Initializes the contract by registering the supported interface Ids.
@@ -678,14 +678,14 @@ pub mod GovernorComponent {
             self: @ComponentState<TContractState>,
             account: ContractAddress,
             timepoint: u64,
-            params: Span<felt252>
+            params: @ByteArray
         ) -> u256 {
             GovernorVotes::get_votes(self, account, timepoint, params)
         }
 
         /// Internal wrapper for `GovernorProposeTrait::proposal_threshold`.
         fn _proposal_threshold(self: @ComponentState<TContractState>) -> u256 {
-            GovernorPropose::proposal_threshold(self)
+            GovernorSettings::proposal_threshold(self)
         }
 
         /// Timepoint used to retrieve user's votes and quorum. If using block number, the snapshot
@@ -839,7 +839,7 @@ pub mod GovernorComponent {
             account: ContractAddress,
             support: u8,
             total_weight: u256,
-            params: Span<felt252>
+            params: @ByteArray
         ) -> u256 {
             self.count_vote(proposal_id, account, support, total_weight, params)
         }
@@ -856,15 +856,15 @@ pub mod GovernorComponent {
             voter: ContractAddress,
             support: u8,
             reason: ByteArray,
-            params: Span<felt252>
+            params: ByteArray
         ) -> u256 {
             self.validate_state(proposal_id, array![ProposalState::Active].span());
 
             let snapshot = self._proposal_snapshot(proposal_id);
-            let total_weight = self._get_votes(voter, snapshot, params);
-            let voted_weight = self._count_vote(proposal_id, voter, support, total_weight, params);
+            let total_weight = self._get_votes(voter, snapshot, @params);
+            let voted_weight = self._count_vote(proposal_id, voter, support, total_weight, @params);
 
-            if params.is_empty() {
+            if params.len().is_zero() {
                 self.emit(VoteCast { voter, proposal_id, support, weight: voted_weight, reason });
             } else {
                 self
@@ -938,5 +938,17 @@ pub mod GovernorComponent {
             };
             assert(found, Errors::UNEXPECTED_PROPOSAL_STATE);
         }
+    }
+}
+
+/// Implementation of the default ERC2981Component ImmutableConfig.
+///
+/// See
+/// https://github.com/starknet-io/SNIPs/blob/963848f0752bde75c7087c2446d83b7da8118b25/SNIPS/snip-107.md#defaultconfig-implementation
+///
+/// The default fee denominator is set to `DEFAULT_FEE_DENOMINATOR`.
+pub impl DefaultConfig of GovernorComponent::ImmutableConfig {
+    fn DEFAULT_PARAMS() -> ByteArray {
+        ""
     }
 }

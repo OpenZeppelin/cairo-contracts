@@ -23,13 +23,13 @@ pub mod MultisigComponent {
 
     #[storage]
     pub struct Storage {
-        pub Multisig_threshold: u32,
+        pub Multisig_quorum: u8,
         pub Multisig_signers_count: u32,
         pub Multisig_is_signer: Map<ContractAddress, bool>,
         pub Multisig_signers_by_index: Map<u32, ContractAddress>,
         pub Multisig_signers_indices: Map<ContractAddress, u32>,
         pub Multisig_total_txs: TransactionID,
-        pub Multisig_tx_confirmations: Map<TransactionID, u32>,
+        pub Multisig_tx_confirmations: Map<TransactionID, u8>,
         pub Multisig_tx_confirmed_by: Map<(TransactionID, ContractAddress), bool>,
         pub Multisig_tx_executed: Map<TransactionID, bool>,
         pub Multisig_tx_calls_len: Map<TransactionID, u32>,
@@ -42,7 +42,7 @@ pub mod MultisigComponent {
     pub enum Event {
         SignerAdded: SignerAdded,
         SignerRemoved: SignerRemoved,
-        ThresholdUpdated: ThresholdUpdated,
+        QuorumUpdated: QuorumUpdated,
         TransactionSubmitted: TransactionSubmitted,
         TransactionConfirmed: TransactionConfirmed,
         TransactionExecuted: TransactionExecuted,
@@ -64,7 +64,7 @@ pub mod MultisigComponent {
         pub id: TransactionID,
         #[key]
         pub signer: ContractAddress,
-        pub total_confirmations: u32
+        pub total_confirmations: u8
     }
 
     #[derive(Drop, starknet::Event)]
@@ -73,7 +73,7 @@ pub mod MultisigComponent {
         pub id: TransactionID,
         #[key]
         pub signer: ContractAddress,
-        pub total_confirmations: u32
+        pub total_confirmations: u8
     }
 
     #[derive(Drop, starknet::Event)]
@@ -101,9 +101,9 @@ pub mod MultisigComponent {
     }
 
     #[derive(Drop, starknet::Event)]
-    pub struct ThresholdUpdated {
-        pub old_threshold: u32,
-        pub new_threshold: u32
+    pub struct QuorumUpdated {
+        pub old_quorum: u8,
+        pub new_quorum: u8
     }
 
     pub mod Errors {
@@ -116,8 +116,9 @@ pub mod MultisigComponent {
         pub const TX_NOT_CONFIRMED: felt252 = 'Multisig: tx not confirmed';
         pub const TX_ALREADY_EXECUTED: felt252 = 'Multisig: tx already executed';
         pub const EMPTY_SIGNERS_LIST: felt252 = 'Multisig: empty signers list';
-        pub const ZERO_THRESHOLD: felt252 = 'Multisig: threshold is zero';
-        pub const THRESHOLD_TOO_HIGH: felt252 = 'Multisig: threshold > signers';
+        pub const ZERO_ADDRESS: felt252 = 'Multisig: zero address';
+        pub const ZERO_QUORUM: felt252 = 'Multisig: quorum cannot be 0';
+        pub const QUORUM_TOO_HIGH: felt252 = 'Multisig: quorum > signers';
     }
 
     #[embeddable_as(MultisigImpl)]
@@ -143,14 +144,18 @@ pub mod MultisigComponent {
             self.resolve_tx_status(id)
         }
 
+        fn get_transaction_confirmations(self: @ComponentState<TContractState>, id: TransactionID) -> u8 {
+            self.Multisig_tx_confirmations.read(id)
+        }
+
         fn get_transaction_calls(
             self: @ComponentState<TContractState>, id: TransactionID
         ) -> Span<Call> {
             self.load_tx_calls(id)
         }
 
-        fn get_threshold(self: @ComponentState<TContractState>) -> u32 {
-            self.Multisig_threshold.read()
+        fn get_quorum(self: @ComponentState<TContractState>) -> u8 {
+            self.Multisig_quorum.read()
         }
 
         fn is_signer(self: @ComponentState<TContractState>, signer: ContractAddress) -> bool {
@@ -159,20 +164,20 @@ pub mod MultisigComponent {
 
         fn add_signers(
             ref self: ComponentState<TContractState>,
-            new_threshold: u32,
+            new_quorum: u8,
             signers_to_add: Span<ContractAddress>
         ) {
             self.assert_only_self();
-            self._add_signers(new_threshold, signers_to_add);
+            self._add_signers(new_quorum, signers_to_add);
         }
 
         fn remove_signers(
             ref self: ComponentState<TContractState>,
-            new_threshold: u32,
+            new_quorum: u8,
             signers_to_remove: Span<ContractAddress>
         ) {
             self.assert_only_self();
-            self._remove_signers(new_threshold, signers_to_remove);
+            self._remove_signers(new_quorum, signers_to_remove);
         }
 
         fn replace_signer(
@@ -184,9 +189,9 @@ pub mod MultisigComponent {
             self._replace_signer(signer_to_remove, signer_to_add);
         }
 
-        fn change_threshold(ref self: ComponentState<TContractState>, new_threshold: u32) {
+        fn change_quorum(ref self: ComponentState<TContractState>, new_quorum: u8) {
             self.assert_only_self();
-            self._change_threshold(new_threshold);
+            self._change_quorum(new_quorum);
         }
 
         fn submit_transaction(
@@ -222,8 +227,9 @@ pub mod MultisigComponent {
         fn confirm_transaction(ref self: ComponentState<TContractState>, id: TransactionID) {
             let caller = get_caller_address();
             self.assert_one_of_signers(caller);
-            assert(!self.Multisig_tx_confirmed_by.read((id, caller)), Errors::ALREADY_CONFIRMED);
+            self.assert_tx_exists(id);
             assert(!self.Multisig_tx_executed.read(id), Errors::TX_ALREADY_EXECUTED);
+            assert(!self.Multisig_tx_confirmed_by.read((id, caller)), Errors::ALREADY_CONFIRMED);
 
             let total_confirmations = 1 + self.Multisig_tx_confirmations.read(id);
             self.Multisig_tx_confirmations.write(id, total_confirmations);
@@ -235,8 +241,9 @@ pub mod MultisigComponent {
         fn revoke_confirmation(ref self: ComponentState<TContractState>, id: TransactionID) {
             let caller = get_caller_address();
             self.assert_one_of_signers(caller);
-            assert(self.Multisig_tx_confirmed_by.read((id, caller)), Errors::HAS_NOT_CONFIRMED);
+            self.assert_tx_exists(id);
             assert(!self.Multisig_tx_executed.read(id), Errors::TX_ALREADY_EXECUTED);
+            assert(self.Multisig_tx_confirmed_by.read((id, caller)), Errors::HAS_NOT_CONFIRMED);
 
             let total_confirmations = self.Multisig_tx_confirmations.read(id) - 1;
             self.Multisig_tx_confirmations.write(id, total_confirmations);
@@ -271,9 +278,9 @@ pub mod MultisigComponent {
         TContractState, +HasComponent<TContractState>, +Drop<TContractState>
     > of InternalTrait<TContractState> {
         fn initializer(
-            ref self: ComponentState<TContractState>, threshold: u32, signers: Span<ContractAddress>
+            ref self: ComponentState<TContractState>, quorum: u8, signers: Span<ContractAddress>
         ) {
-            self._add_signers(threshold, signers);
+            self._add_signers(quorum, signers);
         }
 
         fn emit_new_tx_id(ref self: ComponentState<TContractState>) -> TransactionID {
@@ -291,7 +298,7 @@ pub mod MultisigComponent {
                 TransactionStatus::Executed
             } else {
                 let confirmations = self.Multisig_tx_confirmations.read(id);
-                let is_confirmed = confirmations >= self.Multisig_threshold.read();
+                let is_confirmed = confirmations >= self.Multisig_quorum.read();
                 if is_confirmed {
                     TransactionStatus::Confirmed
                 } else {
@@ -340,7 +347,7 @@ pub mod MultisigComponent {
 
         fn _add_signers(
             ref self: ComponentState<TContractState>,
-            new_threshold: u32,
+            new_quorum: u8,
             signers_to_add: Span<ContractAddress>
         ) {
             assert(!signers_to_add.is_empty(), Errors::EMPTY_SIGNERS_LIST);
@@ -348,6 +355,7 @@ pub mod MultisigComponent {
             let mut current_signers_count = self.Multisig_signers_count.read();
             for signer in signers_to_add {
                 let signer_to_add = *signer;
+                assert(signer_to_add.is_non_zero(), Errors::ZERO_ADDRESS);
                 assert(!self.Multisig_is_signer.read(signer_to_add), Errors::ALREADY_A_SIGNER);
 
                 let index = current_signers_count;
@@ -360,12 +368,12 @@ pub mod MultisigComponent {
             };
             self.Multisig_signers_count.write(current_signers_count);
 
-            self._change_threshold(new_threshold);
+            self._change_quorum(new_quorum);
         }
 
         fn _remove_signers(
             ref self: ComponentState<TContractState>,
-            new_threshold: u32,
+            new_quorum: u8,
             signers_to_remove: Span<ContractAddress>
         ) {
             assert(!signers_to_remove.is_empty(), Errors::EMPTY_SIGNERS_LIST);
@@ -394,7 +402,7 @@ pub mod MultisigComponent {
             };
             self.Multisig_signers_count.write(current_signers_count);
 
-            self._change_threshold(new_threshold);
+            self._change_quorum(new_quorum);
         }
 
         fn _replace_signer(
@@ -416,19 +424,23 @@ pub mod MultisigComponent {
             self.emit(SignerAdded { signer: signer_to_add });
         }
 
-        fn _change_threshold(ref self: ComponentState<TContractState>, new_threshold: u32) {
-            assert(new_threshold.is_non_zero(), Errors::ZERO_THRESHOLD);
-            assert(new_threshold <= self.Multisig_signers_count.read(), Errors::THRESHOLD_TOO_HIGH);
+        fn _change_quorum(ref self: ComponentState<TContractState>, new_quorum: u8) {
+            assert(new_quorum.is_non_zero(), Errors::ZERO_QUORUM);
+            assert(new_quorum.into() <= self.Multisig_signers_count.read(), Errors::QUORUM_TOO_HIGH);
 
-            let old_threshold = self.Multisig_threshold.read();
-            if new_threshold != old_threshold {
-                self.Multisig_threshold.write(new_threshold);
-                self.emit(ThresholdUpdated { old_threshold, new_threshold });
+            let old_quorum = self.Multisig_quorum.read();
+            if new_quorum != old_quorum {
+                self.Multisig_quorum.write(new_quorum);
+                self.emit(QuorumUpdated { old_quorum, new_quorum });
             }
         }
 
         fn assert_one_of_signers(self: @ComponentState<TContractState>, caller: ContractAddress) {
             assert(self.Multisig_is_signer.read(caller), Errors::NOT_A_SIGNER);
+        }
+
+        fn assert_tx_exists(self: @ComponentState<TContractState>, id: TransactionID) {
+            assert(id < self.Multisig_total_txs.read(), Errors::TX_NOT_FOUND);
         }
 
         fn assert_only_self(self: @ComponentState<TContractState>) {

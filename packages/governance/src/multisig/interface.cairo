@@ -20,17 +20,18 @@ pub trait IMultisig<TState> {
     fn is_confirmed(self: @TState, id: TransactionID) -> bool;
     fn is_executed(self: @TState, id: TransactionID) -> bool;
     fn get_transaction_status(self: @TState, id: TransactionID) -> TransactionStatus;
+    fn get_transaction_confirmations(self: @TState, id: TransactionID) -> u8;
     fn get_transaction_calls(self: @TState, id: TransactionID) -> Span<Call>;
-    fn get_threshold(self: @TState) -> u32;
+    fn get_quorum(self: @TState) -> u8;
     fn is_signer(self: @TState, signer: ContractAddress) -> bool;
-    fn add_signers(ref self: TState, new_threshold: u32, signers_to_add: Span<ContractAddress>);
+    fn add_signers(ref self: TState, new_quorum: u8, signers_to_add: Span<ContractAddress>);
     fn remove_signers(
-        ref self: TState, new_threshold: u32, signers_to_remove: Span<ContractAddress>
+        ref self: TState, new_quorum: u8, signers_to_remove: Span<ContractAddress>
     );
     fn replace_signer(
         ref self: TState, signer_to_remove: ContractAddress, signer_to_add: ContractAddress
     );
-    fn change_threshold(ref self: TState, new_threshold: u32);
+    fn change_quorum(ref self: TState, new_quorum: u8);
     fn submit_transaction(
         ref self: TState, to: ContractAddress, selector: felt252, calldata: Span<felt252>
     ) -> TransactionID;

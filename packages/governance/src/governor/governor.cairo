@@ -430,7 +430,7 @@ pub mod GovernorComponent {
         ) -> felt252 {
             let proposer = starknet::get_caller_address();
 
-            // Check descrption for restricted proposer
+            // Check description for restricted proposer
             assert(
                 self.is_valid_description_for_proposer(proposer, @description),
                 Errors::RESTRICTED_PROPOSER

@@ -1,7 +1,7 @@
 #[starknet::contract]
 pub mod Governor {
-    use openzeppelin_governance::governor::extensions::GovernorVotesComponent::InternalTrait;
     use openzeppelin_governance::governor::GovernorComponent::InternalTrait as GovernorInternalTrait;
+    use openzeppelin_governance::governor::extensions::GovernorVotesComponent::InternalTrait;
     use openzeppelin_governance::governor::extensions::{
         GovernorVotesComponent, GovernorCountingSimpleComponent, GovernorCoreExecutionComponent
     };

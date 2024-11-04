@@ -9,6 +9,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+- `is_valid_p256_signature` utility function to `openzeppelin_account::utils::signature` (#1189)
+- `Secp256r1KeyPair` type and helpers to `openzeppelin_testing::signing` (#1189)
+- Embeddable impls for ERC2981 component (#1173)
+  - `ERC2981Info` with read functions for discovering the component's state
+  - `ERC2981AdminOwnable` providing admin functions for a token that implements Ownable component
+  - `ERC2981AdminAccessControl` providing admin functions for a token that implements AccessControl component
+
+### Changed (Breaking)
+
+- Refactor `openzeppelin_account::utils::secp256k1` module to `openzeppelin_account::utils::secp256_point` (#1189)
+  - `Secp256k1PointStorePacking` replaced by a generic `Secp256PointStorePacking`
+  - `Secp256k1PointPartialEq` replaced by a generic `Secp256PointPartialEq`
+  - `DebugSecp256k1Point` replaced by a generic `DebugSecp256Point`
+- Apply underscore pattern to the internal functions of `ERC2981Component` to prevent collisions
+with new external functions (#1173)
+
 ## 0.18.0 (2024-10-17)
 
 ### Added

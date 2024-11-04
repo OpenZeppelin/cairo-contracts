@@ -7,7 +7,7 @@ use crate::interfaces::{
     EthAccountUpgradeableABIDispatcher, EthAccountUpgradeableABIDispatcherTrait
 };
 use openzeppelin_account::interface::ISRC6_ID;
-use openzeppelin_account::utils::secp256k1::{DebugSecp256k1Point, Secp256k1PointPartialEq};
+use openzeppelin_account::utils::secp256_point::{DebugSecp256Point, Secp256PointPartialEq};
 use openzeppelin_introspection::interface::ISRC5_ID;
 use openzeppelin_test_common::erc20::deploy_erc20;
 use openzeppelin_test_common::eth_account::EthAccountSpyHelpers;

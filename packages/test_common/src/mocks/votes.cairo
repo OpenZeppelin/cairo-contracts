@@ -70,7 +70,7 @@ pub mod ERC721VotesMock {
             token_id: u256,
             auth: ContractAddress
         ) {
-            let mut contract_state = ERC721Component::HasComponent::get_contract_mut(ref self);
+            let mut contract_state = self.get_contract_mut();
 
             // We use the internal function here since it does not check if the token id exists
             // which is necessary for mints
@@ -149,7 +149,7 @@ pub mod ERC20VotesMock {
             recipient: ContractAddress,
             amount: u256
         ) {
-            let mut contract_state = ERC20Component::HasComponent::get_contract_mut(ref self);
+            let mut contract_state = self.get_contract_mut();
             contract_state.erc20_votes.transfer_voting_units(from, recipient, amount);
         }
     }

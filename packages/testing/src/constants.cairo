@@ -131,6 +131,18 @@ pub fn EMPTY_DATA() -> Span<felt252> {
 // Signing keys
 //
 
+pub mod stark {
+    use crate::signing::{StarkKeyPair, get_stark_keys_from};
+
+    pub fn KEY_PAIR() -> StarkKeyPair {
+        get_stark_keys_from('PRIVATE_KEY')
+    }
+
+    pub fn KEY_PAIR_2() -> StarkKeyPair {
+        get_stark_keys_from('PRIVATE_KEY_2')
+    }
+}
+
 pub mod secp256k1 {
     use crate::signing::{Secp256k1KeyPair, get_secp256k1_keys_from};
 
@@ -145,14 +157,16 @@ pub mod secp256k1 {
     }
 }
 
-pub mod stark {
-    use crate::signing::{StarkKeyPair, get_stark_keys_from};
+pub mod secp256r1 {
+    use crate::signing::{Secp256r1KeyPair, get_secp256r1_keys_from};
 
-    pub fn KEY_PAIR() -> StarkKeyPair {
-        get_stark_keys_from('PRIVATE_KEY')
+    pub fn KEY_PAIR() -> Secp256r1KeyPair {
+        let private_key = u256 { low: 'PRIVATE_LOW', high: 'PRIVATE_HIGH' };
+        get_secp256r1_keys_from(private_key)
     }
 
-    pub fn KEY_PAIR_2() -> StarkKeyPair {
-        get_stark_keys_from('PRIVATE_KEY_2')
+    pub fn KEY_PAIR_2() -> Secp256r1KeyPair {
+        let private_key = u256 { low: 'PRIVATE_LOW_2', high: 'PRIVATE_HIGH_2' };
+        get_secp256r1_keys_from(private_key)
     }
 }

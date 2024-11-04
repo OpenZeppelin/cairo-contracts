@@ -4,22 +4,18 @@
 /// # Multisig Component
 #[starknet::component]
 pub mod MultisigComponent {
+    use core::hash::{HashStateTrait, HashStateExTrait};
     use core::num::traits::Zero;
     use core::panic_with_felt252;
-    use crate::multisig::interface::{IMultisig, TransactionID, TransactionStatus};
+    use core::pedersen::PedersenTrait;
+    use crate::multisig::interface::{IMultisig, TransactionID, TransactionState};
+    use crate::timelock::utils::call_impls::{HashCallImpl, HashCallsImpl, CallPartialEq};
     use starknet::account::Call;
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
     use starknet::syscalls::call_contract_syscall;
     use starknet::{ContractAddress, SyscallResultTrait};
-    use starknet::{get_caller_address, get_contract_address};
-
-    #[derive(Drop, starknet::Store)]
-    struct StorableCallInfo {
-        to: ContractAddress,
-        selector: felt252,
-        calldata_len: u32
-    }
+    use starknet::{get_caller_address, get_contract_address, get_block_number};
 
     #[storage]
     pub struct Storage {
@@ -28,13 +24,10 @@ pub mod MultisigComponent {
         pub Multisig_is_signer: Map<ContractAddress, bool>,
         pub Multisig_signers_by_index: Map<u32, ContractAddress>,
         pub Multisig_signers_indices: Map<ContractAddress, u32>,
-        pub Multisig_total_txs: TransactionID,
         pub Multisig_tx_confirmations: Map<TransactionID, u8>,
         pub Multisig_tx_confirmed_by: Map<(TransactionID, ContractAddress), bool>,
-        pub Multisig_tx_executed: Map<TransactionID, bool>,
-        pub Multisig_tx_calls_len: Map<TransactionID, u32>,
-        pub Multisig_tx_call_info: Map<(TransactionID, u32), StorableCallInfo>,
-        pub Multisig_tx_call_calldata: Map<(TransactionID, u32, u32), felt252>,
+        pub Multisig_tx_submitted_block: Map<TransactionID, u64>,
+        pub Multisig_tx_executed: Map<TransactionID, bool>
     }
 
     #[event]
@@ -47,7 +40,25 @@ pub mod MultisigComponent {
         TransactionConfirmed: TransactionConfirmed,
         TransactionExecuted: TransactionExecuted,
         ConfirmationRevoked: ConfirmationRevoked,
-        ExecutionFailed: ExecutionFailed
+        CallSalt: CallSalt
+    }
+
+    #[derive(Drop, starknet::Event)]
+    pub struct SignerAdded {
+        #[key]
+        pub signer: ContractAddress
+    }
+
+    #[derive(Drop, starknet::Event)]
+    pub struct SignerRemoved {
+        #[key]
+        pub signer: ContractAddress
+    }
+
+    #[derive(Drop, starknet::Event)]
+    pub struct QuorumUpdated {
+        pub old_quorum: u8,
+        pub new_quorum: u8
     }
 
     #[derive(Drop, starknet::Event)]
@@ -82,28 +93,11 @@ pub mod MultisigComponent {
         pub id: TransactionID
     }
 
-    #[derive(Drop, starknet::Event)]
-    pub struct ExecutionFailed {
+    #[derive(Drop, PartialEq, starknet::Event)]
+    pub struct CallSalt {
         #[key]
-        pub id: TransactionID
-    }
-
-    #[derive(Drop, starknet::Event)]
-    pub struct SignerAdded {
-        #[key]
-        pub signer: ContractAddress
-    }
-
-    #[derive(Drop, starknet::Event)]
-    pub struct SignerRemoved {
-        #[key]
-        pub signer: ContractAddress
-    }
-
-    #[derive(Drop, starknet::Event)]
-    pub struct QuorumUpdated {
-        pub old_quorum: u8,
-        pub new_quorum: u8
+        pub id: felt252,
+        pub salt: felt252
     }
 
     pub mod Errors {
@@ -112,6 +106,7 @@ pub mod MultisigComponent {
         pub const ALREADY_A_SIGNER: felt252 = 'Multisig: already a signer';
         pub const ALREADY_CONFIRMED: felt252 = 'Multisig: already confirmed';
         pub const HAS_NOT_CONFIRMED: felt252 = 'Multisig: has not confirmed';
+        pub const TX_ALREADY_EXISTS: felt252 = 'Multisig: tx already exists';
         pub const TX_NOT_FOUND: felt252 = 'Multisig: tx not found';
         pub const TX_NOT_CONFIRMED: felt252 = 'Multisig: tx not confirmed';
         pub const TX_ALREADY_EXECUTED: felt252 = 'Multisig: tx already executed';
@@ -125,41 +120,56 @@ pub mod MultisigComponent {
     impl Multisig<
         TContractState, +HasComponent<TContractState>, +Drop<TContractState>
     > of IMultisig<ComponentState<TContractState>> {
-        fn is_confirmed(self: @ComponentState<TContractState>, id: TransactionID) -> bool {
-            match self.resolve_tx_status(id) {
-                TransactionStatus::NotFound => false,
-                TransactionStatus::Submitted => false,
-                TransactionStatus::Confirmed => true,
-                TransactionStatus::Executed => true
-            }
-        }
-
-        fn is_executed(self: @ComponentState<TContractState>, id: TransactionID) -> bool {
-            self.Multisig_tx_executed.read(id)
-        }
-
-        fn get_transaction_status(
-            self: @ComponentState<TContractState>, id: TransactionID
-        ) -> TransactionStatus {
-            self.resolve_tx_status(id)
-        }
-
-        fn get_transaction_confirmations(self: @ComponentState<TContractState>, id: TransactionID) -> u8 {
-            self.Multisig_tx_confirmations.read(id)
-        }
-
-        fn get_transaction_calls(
-            self: @ComponentState<TContractState>, id: TransactionID
-        ) -> Span<Call> {
-            self.load_tx_calls(id)
-        }
-
         fn get_quorum(self: @ComponentState<TContractState>) -> u8 {
             self.Multisig_quorum.read()
         }
 
         fn is_signer(self: @ComponentState<TContractState>, signer: ContractAddress) -> bool {
             self.Multisig_is_signer.read(signer)
+        }
+
+        fn get_signers(self: @ComponentState<TContractState>) -> Span<ContractAddress> {
+            let signers_count = self.Multisig_signers_count.read();
+            let mut result = array![];
+            for i in 0..signers_count {
+                result.append(self.Multisig_signers_by_index.read(i));
+            };
+            result.span()
+        }
+
+        fn is_confirmed(self: @ComponentState<TContractState>, id: TransactionID) -> bool {
+            match self.resolve_tx_state(id) {
+                TransactionState::NotFound => false,
+                TransactionState::Pending => false,
+                TransactionState::Confirmed => true,
+                TransactionState::Executed => true
+            }
+        }
+
+        fn is_confirmed_by(
+            self: @ComponentState<TContractState>, id: TransactionID, signer: ContractAddress
+        ) -> bool {
+            self.Multisig_tx_confirmed_by.read((id, signer))
+        }
+
+        fn is_executed(self: @ComponentState<TContractState>, id: TransactionID) -> bool {
+            self.Multisig_tx_executed.read(id)
+        }
+
+        fn get_transaction_state(
+            self: @ComponentState<TContractState>, id: TransactionID
+        ) -> TransactionState {
+            self.resolve_tx_state(id)
+        }
+
+        fn get_transaction_confirmations(
+            self: @ComponentState<TContractState>, id: TransactionID
+        ) -> u8 {
+            self.Multisig_tx_confirmations.read(id)
+        }
+
+        fn get_submitted_block(self: @ComponentState<TContractState>, id: TransactionID) -> u64 {
+            self.Multisig_tx_submitted_block.read(id)
         }
 
         fn add_signers(
@@ -198,27 +208,26 @@ pub mod MultisigComponent {
             ref self: ComponentState<TContractState>,
             to: ContractAddress,
             selector: felt252,
-            calldata: Span<felt252>
+            calldata: Span<felt252>,
+            salt: felt252
         ) -> TransactionID {
-            let caller = get_caller_address();
-            self.assert_one_of_signers(caller);
-
-            let id = self.emit_new_tx_id();
             let call = Call { to, selector, calldata };
-            self.store_tx_calls(id, array![call].span());
-            self.emit(TransactionSubmitted { id, signer: caller });
-
-            id
+            self.submit_transaction_batch(array![call].span(), salt)
         }
 
         fn submit_transaction_batch(
-            ref self: ComponentState<TContractState>, calls: Span<Call>
+            ref self: ComponentState<TContractState>, calls: Span<Call>, salt: felt252
         ) -> TransactionID {
             let caller = get_caller_address();
             self.assert_one_of_signers(caller);
+            let id = self.hash_transaction_batch(calls, salt);
+            assert(self.Multisig_tx_submitted_block.read(id).is_zero(), Errors::TX_ALREADY_EXISTS);
 
-            let id = self.emit_new_tx_id();
-            self.store_tx_calls(id, calls);
+            let block_number = get_block_number();
+            self.Multisig_tx_submitted_block.write(id, block_number);
+            if salt.is_non_zero() {
+                self.emit(CallSalt { id, salt });
+            }
             self.emit(TransactionSubmitted { id, signer: caller });
 
             id
@@ -240,7 +249,6 @@ pub mod MultisigComponent {
 
         fn revoke_confirmation(ref self: ComponentState<TContractState>, id: TransactionID) {
             let caller = get_caller_address();
-            self.assert_one_of_signers(caller);
             self.assert_tx_exists(id);
             assert(!self.Multisig_tx_executed.read(id), Errors::TX_ALREADY_EXECUTED);
             assert(self.Multisig_tx_confirmed_by.read((id, caller)), Errors::HAS_NOT_CONFIRMED);
@@ -252,24 +260,53 @@ pub mod MultisigComponent {
             self.emit(ConfirmationRevoked { id, signer: caller, total_confirmations });
         }
 
-        fn execute_transaction(ref self: ComponentState<TContractState>, id: TransactionID) {
-            let caller = get_caller_address();
-            self.assert_one_of_signers(caller);
+        fn execute_transaction(
+            ref self: ComponentState<TContractState>,
+            to: ContractAddress,
+            selector: felt252,
+            calldata: Span<felt252>,
+            salt: felt252
+        ) {
+            let call = Call { to, selector, calldata };
+            self.execute_transaction_batch(array![call].span(), salt)
+        }
 
-            match self.resolve_tx_status(id) {
-                TransactionStatus::NotFound => panic_with_felt252(Errors::TX_NOT_FOUND),
-                TransactionStatus::Submitted => panic_with_felt252(Errors::TX_NOT_CONFIRMED),
-                TransactionStatus::Executed => panic_with_felt252(Errors::TX_ALREADY_EXECUTED),
-                TransactionStatus::Confirmed => {
+        fn execute_transaction_batch(
+            ref self: ComponentState<TContractState>, calls: Span<Call>, salt: felt252
+        ) {
+            let id = self.hash_transaction_batch(calls, salt);
+            match self.resolve_tx_state(id) {
+                TransactionState::NotFound => panic_with_felt252(Errors::TX_NOT_FOUND),
+                TransactionState::Pending => panic_with_felt252(Errors::TX_NOT_CONFIRMED),
+                TransactionState::Executed => panic_with_felt252(Errors::TX_ALREADY_EXECUTED),
+                TransactionState::Confirmed => {
+                    let caller = get_caller_address();
+                    self.assert_one_of_signers(caller);
                     self.Multisig_tx_executed.write(id, true);
-                    let tx_calls = self.load_tx_calls(id);
-                    for call in tx_calls {
+                    for call in calls {
                         let Call { to, selector, calldata } = *call;
                         call_contract_syscall(to, selector, calldata).unwrap_syscall();
                     };
                     self.emit(TransactionExecuted { id });
                 }
             };
+        }
+
+        fn hash_transaction(
+            self: @ComponentState<TContractState>,
+            to: ContractAddress,
+            selector: felt252,
+            calldata: Span<felt252>,
+            salt: felt252
+        ) -> TransactionID {
+            let call = Call { to, selector, calldata };
+            self.hash_transaction_batch(array![call].span(), salt)
+        }
+
+        fn hash_transaction_batch(
+            self: @ComponentState<TContractState>, calls: Span<Call>, salt: felt252
+        ) -> TransactionID {
+            PedersenTrait::new(0).update_with(calls).update_with(salt).finalize()
         }
     }
 
@@ -283,66 +320,22 @@ pub mod MultisigComponent {
             self._add_signers(quorum, signers);
         }
 
-        fn emit_new_tx_id(ref self: ComponentState<TContractState>) -> TransactionID {
-            let new_tx_id = self.Multisig_total_txs.read();
-            self.Multisig_total_txs.write(new_tx_id + 1);
-            new_tx_id
-        }
-
-        fn resolve_tx_status(
+        fn resolve_tx_state(
             self: @ComponentState<TContractState>, id: TransactionID
-        ) -> TransactionStatus {
-            if id >= self.Multisig_total_txs.read() {
-                TransactionStatus::NotFound
+        ) -> TransactionState {
+            if self.Multisig_tx_submitted_block.read(id).is_zero() {
+                TransactionState::NotFound
             } else if self.Multisig_tx_executed.read(id) {
-                TransactionStatus::Executed
+                TransactionState::Executed
             } else {
                 let confirmations = self.Multisig_tx_confirmations.read(id);
                 let is_confirmed = confirmations >= self.Multisig_quorum.read();
                 if is_confirmed {
-                    TransactionStatus::Confirmed
+                    TransactionState::Confirmed
                 } else {
-                    TransactionStatus::Submitted
+                    TransactionState::Pending
                 }
             }
-        }
-
-        fn store_tx_calls(
-            ref self: ComponentState<TContractState>, id: TransactionID, calls: Span<Call>
-        ) {
-            self.Multisig_tx_calls_len.write(id, calls.len());
-            let mut call_index = 0;
-            for call in calls {
-                let Call { to, selector, calldata } = *call;
-                let call_info = StorableCallInfo { to, selector, calldata_len: calldata.len() };
-                self.Multisig_tx_call_info.write((id, call_index), call_info);
-                let mut calldata_index = 0;
-                for val in calldata {
-                    self.Multisig_tx_call_calldata.write((id, call_index, calldata_index), *val);
-                    calldata_index += 1;
-                };
-                call_index += 1;
-            };
-        }
-
-        fn load_tx_calls(self: @ComponentState<TContractState>, id: TransactionID) -> Span<Call> {
-            let calls_len = self.Multisig_tx_calls_len.read(id);
-            let mut call_index = 0;
-            let mut result = array![];
-            while call_index < calls_len {
-                let call_info = self.Multisig_tx_call_info.read((id, call_index));
-                let StorableCallInfo { to, selector, calldata_len } = call_info;
-                let mut calldata_index = 0;
-                let mut calldata = array![];
-                while calldata_index < calldata_len {
-                    let val = self.Multisig_tx_call_calldata.read((id, call_index, calldata_index));
-                    calldata.append(val);
-                    calldata_index += 1;
-                };
-                result.append(Call { to, selector, calldata: calldata.span() });
-                call_index += 1;
-            };
-            result.span()
         }
 
         fn _add_signers(
@@ -426,7 +419,9 @@ pub mod MultisigComponent {
 
         fn _change_quorum(ref self: ComponentState<TContractState>, new_quorum: u8) {
             assert(new_quorum.is_non_zero(), Errors::ZERO_QUORUM);
-            assert(new_quorum.into() <= self.Multisig_signers_count.read(), Errors::QUORUM_TOO_HIGH);
+            let signers_count = assert(
+                new_quorum.into() <= self.Multisig_signers_count.read(), Errors::QUORUM_TOO_HIGH
+            );
 
             let old_quorum = self.Multisig_quorum.read();
             if new_quorum != old_quorum {
@@ -440,7 +435,7 @@ pub mod MultisigComponent {
         }
 
         fn assert_tx_exists(self: @ComponentState<TContractState>, id: TransactionID) {
-            assert(id < self.Multisig_total_txs.read(), Errors::TX_NOT_FOUND);
+            assert(self.Multisig_tx_submitted_block.read(id).is_non_zero(), Errors::TX_NOT_FOUND);
         }
 
         fn assert_only_self(self: @ComponentState<TContractState>) {

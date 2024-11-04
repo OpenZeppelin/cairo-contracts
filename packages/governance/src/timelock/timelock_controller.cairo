@@ -156,11 +156,11 @@ pub mod TimelockControllerComponent {
             self: @ComponentState<TContractState>, id: felt252
         ) -> OperationState {
             let timestamp = Self::get_timestamp(self, id);
-            if (timestamp == 0) {
+            if timestamp == 0 {
                 return OperationState::Unset;
-            } else if (timestamp == DONE_TIMESTAMP) {
+            } else if timestamp == DONE_TIMESTAMP {
                 return OperationState::Done;
-            } else if (timestamp > starknet::get_block_timestamp()) {
+            } else if timestamp > starknet::get_block_timestamp() {
                 return OperationState::Waiting;
             } else {
                 return OperationState::Ready;

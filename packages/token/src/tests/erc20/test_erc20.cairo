@@ -16,8 +16,7 @@ use starknet::ContractAddress;
 //
 
 type ComponentState = ERC20Component::ComponentState<DualCaseERC20Mock::ContractState>;
-type ComponentStateWithHooks =
-    ERC20Component::ComponentState<ERC20MockWithHooks::ContractState>;
+type ComponentStateWithHooks = ERC20Component::ComponentState<ERC20MockWithHooks::ContractState>;
 
 fn COMPONENT_STATE() -> ComponentState {
     ERC20Component::component_state_for_testing()

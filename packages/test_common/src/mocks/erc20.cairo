@@ -98,7 +98,7 @@ pub mod DualCaseERC20MockWithHooks {
         self.erc20.mint(recipient, initial_supply);
     }
 
-    impl ERC20VotesHooksImpl of ERC20Component::ERC20HooksTrait<ContractState> {
+    impl ERC20HooksImpl of ERC20Component::ERC20HooksTrait<ContractState> {
         fn before_update(
             ref self: ERC20Component::ComponentState<ContractState>,
             from: ContractAddress,

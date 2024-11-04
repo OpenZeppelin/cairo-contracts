@@ -3,12 +3,12 @@ use crate::erc20::ERC20Component::{ERC20CamelOnlyImpl, ERC20Impl};
 use crate::erc20::ERC20Component::{ERC20MetadataImpl, InternalImpl};
 use crate::erc20::ERC20Component;
 use openzeppelin_test_common::erc20::ERC20SpyHelpers;
-use openzeppelin_test_common::mocks::erc20::{DualCaseERC20Mock, DualCaseERC20MockWithHooks};
+use openzeppelin_test_common::mocks::erc20::{DualCaseERC20Mock, ERC20MockWithHooks};
 use openzeppelin_testing::constants::{
     ZERO, OWNER, SPENDER, RECIPIENT, NAME, SYMBOL, DECIMALS, SUPPLY, VALUE
 };
 use openzeppelin_testing::events::EventSpyExt;
-use snforge_std::{spy_events, test_address, start_cheat_caller_address};
+use snforge_std::{EventSpy, spy_events, test_address, start_cheat_caller_address};
 use starknet::ContractAddress;
 
 //
@@ -17,7 +17,7 @@ use starknet::ContractAddress;
 
 type ComponentState = ERC20Component::ComponentState<DualCaseERC20Mock::ContractState>;
 type ComponentStateWithHooks =
-    ERC20Component::ComponentState<DualCaseERC20MockWithHooks::ContractState>;
+    ERC20Component::ComponentState<ERC20MockWithHooks::ContractState>;
 
 fn COMPONENT_STATE() -> ComponentState {
     ERC20Component::component_state_for_testing()
@@ -576,12 +576,7 @@ fn test_update_calls_before_update_hook() {
     start_cheat_caller_address(contract_address, OWNER());
     state.update(OWNER(), RECIPIENT(), VALUE);
 
-    let expected = DualCaseERC20MockWithHooks::Event::BeforeUpdate(
-        DualCaseERC20MockWithHooks::BeforeUpdate {
-            from: OWNER(), recipient: RECIPIENT(), amount: VALUE
-        }
-    );
-    spy.assert_emitted_single(contract_address, expected);
+    spy.assert_event_before_update(contract_address, OWNER(), RECIPIENT(), VALUE);
 }
 
 #[test]
@@ -594,12 +589,7 @@ fn test_update_calls_after_update_hook() {
     start_cheat_caller_address(contract_address, OWNER());
     state.update(OWNER(), RECIPIENT(), VALUE);
 
-    let expected = DualCaseERC20MockWithHooks::Event::AfterUpdate(
-        DualCaseERC20MockWithHooks::AfterUpdate {
-            from: OWNER(), recipient: RECIPIENT(), amount: VALUE
-        }
-    );
-    spy.assert_emitted_single(contract_address, expected);
+    spy.assert_event_after_update(contract_address, OWNER(), RECIPIENT(), VALUE);
 }
 
 //
@@ -660,4 +650,33 @@ fn assert_state_after_burn(account: ContractAddress, amount: u256) {
 
     assert_eq!(current_supply, initial_supply - amount);
     assert_eq!(state.balance_of(account), initial_supply - amount);
+}
+
+#[generate_trait]
+impl ERC20HooksSpyHelpersImpl of ERC20HooksSpyHelpers {
+    fn assert_event_before_update(
+        ref self: EventSpy,
+        contract: ContractAddress,
+        from: ContractAddress,
+        recipient: ContractAddress,
+        amount: u256
+    ) {
+        let expected = ERC20MockWithHooks::Event::BeforeUpdate(
+            ERC20MockWithHooks::BeforeUpdate { from, recipient, amount }
+        );
+        self.assert_emitted_single(contract, expected);
+    }
+
+    fn assert_event_after_update(
+        ref self: EventSpy,
+        contract: ContractAddress,
+        from: ContractAddress,
+        recipient: ContractAddress,
+        amount: u256
+    ) {
+        let expected = ERC20MockWithHooks::Event::AfterUpdate(
+            ERC20MockWithHooks::AfterUpdate { from, recipient, amount }
+        );
+        self.assert_emitted_single(contract, expected);
+    }
 }

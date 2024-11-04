@@ -56,10 +56,10 @@ pub mod DualCaseERC721Mock {
     }
 }
 
-/// Same as `DualCaseERC721Mock`, but emits events for `before_update` and `after_update` hooks.
+/// Similar as `DualCaseERC721Mock`, but emits events for `before_update` and `after_update` hooks.
 /// This is used to test that the hooks are called with the correct arguments.
 #[starknet::contract]
-pub mod DualCaseERC721MockWithHooks {
+pub mod ERC721MockWithHooks {
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_token::erc721::ERC721Component;
     use starknet::ContractAddress;
@@ -72,11 +72,6 @@ pub mod DualCaseERC721MockWithHooks {
     impl ERC721Impl = ERC721Component::ERC721Impl<ContractState>;
     #[abi(embed_v0)]
     impl ERC721MetadataImpl = ERC721Component::ERC721MetadataImpl<ContractState>;
-    #[abi(embed_v0)]
-    impl ERC721CamelOnly = ERC721Component::ERC721CamelOnlyImpl<ContractState>;
-    #[abi(embed_v0)]
-    impl ERC721MetadataCamelOnly =
-        ERC721Component::ERC721MetadataCamelOnlyImpl<ContractState>;
     impl ERC721InternalImpl = ERC721Component::InternalImpl<ContractState>;
 
     // SRC5

@@ -5,7 +5,7 @@ use crate::erc721::ERC721Component;
 use crate::erc721;
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin_test_common::erc721::ERC721SpyHelpers;
-use openzeppelin_test_common::mocks::erc721::{DualCaseERC721Mock, DualCaseERC721MockWithHooks};
+use openzeppelin_test_common::mocks::erc721::{DualCaseERC721Mock, ERC721MockWithHooks};
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{
     DATA, ZERO, OWNER, CALLER, RECIPIENT, SPENDER, OPERATOR, OTHER, NAME, SYMBOL, TOKEN_ID,
@@ -21,8 +21,7 @@ use starknet::storage::StorageMapReadAccess;
 //
 
 type ComponentState = ERC721Component::ComponentState<DualCaseERC721Mock::ContractState>;
-type ComponentStateWithHooks =
-    ERC721Component::ComponentState<DualCaseERC721MockWithHooks::ContractState>;
+type ComponentStateWithHooks = ERC721Component::ComponentState<ERC721MockWithHooks::ContractState>;
 
 fn CONTRACT_STATE() -> DualCaseERC721Mock::ContractState {
     DualCaseERC721Mock::contract_state_for_testing()
@@ -1465,8 +1464,8 @@ impl ERC721HooksSpyHelpersImpl of ERC721HooksSpyHelpers {
         token_id: u256,
         auth: ContractAddress
     ) {
-        let expected = DualCaseERC721MockWithHooks::Event::BeforeUpdate(
-            DualCaseERC721MockWithHooks::BeforeUpdate { to, token_id, auth }
+        let expected = ERC721MockWithHooks::Event::BeforeUpdate(
+            ERC721MockWithHooks::BeforeUpdate { to, token_id, auth }
         );
         self.assert_emitted_single(contract, expected);
     }
@@ -1478,8 +1477,8 @@ impl ERC721HooksSpyHelpersImpl of ERC721HooksSpyHelpers {
         token_id: u256,
         auth: ContractAddress
     ) {
-        let expected = DualCaseERC721MockWithHooks::Event::AfterUpdate(
-            DualCaseERC721MockWithHooks::AfterUpdate { to, token_id, auth }
+        let expected = ERC721MockWithHooks::Event::AfterUpdate(
+            ERC721MockWithHooks::AfterUpdate { to, token_id, auth }
         );
         self.assert_emitted_single(contract, expected);
     }

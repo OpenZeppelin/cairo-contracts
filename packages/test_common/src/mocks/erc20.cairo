@@ -38,10 +38,10 @@ pub mod DualCaseERC20Mock {
         self.erc20.mint(recipient, initial_supply);
     }
 }
-/// Same as `DualCaseERC20Mock`, but emits events for `before_update` and `after_update` hooks.
+/// Similar to `DualCaseERC20Mock`, but emits events for `before_update` and `after_update` hooks.
 /// This is used to test that the hooks are called with the correct arguments.
 #[starknet::contract]
-pub mod DualCaseERC20MockWithHooks {
+pub mod ERC20MockWithHooks {
     use openzeppelin_token::erc20::{ERC20Component};
     use starknet::ContractAddress;
 
@@ -51,8 +51,6 @@ pub mod DualCaseERC20MockWithHooks {
     impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
     #[abi(embed_v0)]
     impl ERC20MetadataImpl = ERC20Component::ERC20MetadataImpl<ContractState>;
-    #[abi(embed_v0)]
-    impl ERC20CamelOnlyImpl = ERC20Component::ERC20CamelOnlyImpl<ContractState>;
     impl InternalImpl = ERC20Component::InternalImpl<ContractState>;
 
     #[storage]

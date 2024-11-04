@@ -76,7 +76,9 @@ pub mod Governor {
         self.governor_votes.initializer(votes_token);
     }
 
+    //
     // SNIP12 Metadata
+    //
 
     impl SNIP12MetadataImpl of SNIP12Metadata {
         fn name() -> felt252 {

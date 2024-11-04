@@ -12,7 +12,7 @@ use openzeppelin_testing::constants::{
     TOKEN_ID_2, PUBKEY, BASE_URI, BASE_URI_2
 };
 use openzeppelin_testing::events::EventSpyExt;
-use snforge_std::{spy_events, test_address, start_cheat_caller_address};
+use snforge_std::{EventSpy, spy_events, test_address, start_cheat_caller_address};
 use starknet::ContractAddress;
 use starknet::storage::StorageMapReadAccess;
 
@@ -1407,13 +1407,7 @@ fn test_update_calls_before_update_hook() {
     start_cheat_caller_address(contract_address, OWNER());
     state.update(RECIPIENT(), TOKEN_ID, OWNER());
 
-    let expected = DualCaseERC721MockWithHooks::Event::BeforeUpdate(
-        DualCaseERC721MockWithHooks::BeforeUpdate {
-            to: RECIPIENT(), token_id: TOKEN_ID, auth: OWNER()
-        }
-    );
-
-    spy.assert_emitted_single(contract_address, expected);
+    spy.assert_event_before_update(contract_address, RECIPIENT(), TOKEN_ID, OWNER());
 }
 
 #[test]
@@ -1426,13 +1420,7 @@ fn test_update_calls_after_update_hook() {
     start_cheat_caller_address(contract_address, OWNER());
     state.update(RECIPIENT(), TOKEN_ID, OWNER());
 
-    let expected = DualCaseERC721MockWithHooks::Event::AfterUpdate(
-        DualCaseERC721MockWithHooks::AfterUpdate {
-            to: RECIPIENT(), token_id: TOKEN_ID, auth: OWNER()
-        }
-    );
-
-    spy.assert_emitted_single(contract_address, expected);
+    spy.assert_event_after_update(contract_address, RECIPIENT(), TOKEN_ID, OWNER())
 }
 
 //
@@ -1466,4 +1454,33 @@ fn assert_state_after_mint(recipient: ContractAddress, token_id: u256) {
     assert_eq!(state.owner_of(token_id), recipient);
     assert_eq!(state.balance_of(recipient), 1);
     assert!(state.get_approved(token_id).is_zero());
+}
+
+#[generate_trait]
+impl ERC721HooksSpyHelpersImpl of ERC721HooksSpyHelpers {
+    fn assert_event_before_update(
+        ref self: EventSpy,
+        contract: ContractAddress,
+        to: ContractAddress,
+        token_id: u256,
+        auth: ContractAddress
+    ) {
+        let expected = DualCaseERC721MockWithHooks::Event::BeforeUpdate(
+            DualCaseERC721MockWithHooks::BeforeUpdate { to, token_id, auth }
+        );
+        self.assert_emitted_single(contract, expected);
+    }
+
+    fn assert_event_after_update(
+        ref self: EventSpy,
+        contract: ContractAddress,
+        to: ContractAddress,
+        token_id: u256,
+        auth: ContractAddress
+    ) {
+        let expected = DualCaseERC721MockWithHooks::Event::AfterUpdate(
+            DualCaseERC721MockWithHooks::AfterUpdate { to, token_id, auth }
+        );
+        self.assert_emitted_single(contract, expected);
+    }
 }

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.17.0 (account/eth_account.cairo)
+// OpenZeppelin Contracts for Cairo v0.18.0 (account/eth_account.cairo)
 
 /// # EthAccount Component
 ///
@@ -12,7 +12,7 @@ pub mod EthAccountComponent {
     use core::starknet::secp256_trait::Secp256PointTrait;
     use crate::interface::EthPublicKey;
     use crate::interface;
-    use crate::utils::secp256k1::Secp256k1PointStorePacking;
+    use crate::utils::secp256_point::Secp256PointStorePacking;
     use crate::utils::{MIN_TRANSACTION_VERSION, QUERY_OFFSET};
     use crate::utils::{execute_calls, is_valid_eth_signature};
     use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;

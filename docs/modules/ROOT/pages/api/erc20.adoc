@@ -3,6 +3,9 @@
 :erc20-guide: xref:erc20.adoc[ERC20 guide]
 :casing-discussion: https://github.com/OpenZeppelin/cairo-contracts/discussions/34[here]
 :custom-decimals: xref:/erc20.adoc#customizing_decimals[Customizing decimals]
+:snip-12: https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-12.md[SNIP12]
+:snip12-metadata: xref:api/utilities.adoc#snip12[SNIP12Metadata]
+:eip-2612: https://eips.ethereum.org/EIPS/eip-2612[EIP-2612]
 
 = ERC20
 
@@ -16,7 +19,7 @@ TIP: For an overview of ERC20, read our {erc20-guide}.
 
 [.contract]
 [[IERC20]]
-=== `++IERC20++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.17.0/packages/token/src/erc20/interface.cairo[{github-icon},role=heading-link]
+=== `++IERC20++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.18.0/packages/token/src/erc20/interface.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -114,7 +117,7 @@ Emitted when the allowance of a `spender` for an `owner` is set.
 
 [.contract]
 [[IERC20Metadata]]
-=== `++IERC20Metadata++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.17.0/packages/token/src/erc20/interface.cairo#L19[{github-icon},role=heading-link]
+=== `++IERC20Metadata++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.18.0/packages/token/src/erc20/interface.cairo#L19[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -162,7 +165,7 @@ NOTE: This information is only used for _display_ purposes: it in no way affects
 
 [.contract]
 [[ERC20Component]]
-=== `++ERC20Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.17.0/packages/token/src/erc20/erc20.cairo[{github-icon},role=heading-link]
+=== `++ERC20Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.18.0/packages/token/src/erc20/erc20.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -213,6 +216,16 @@ NOTE: See xref:#ERC20Component-Hooks[Hooks] to understand how are hooks used.
 * xref:#ERC20Component-totalSupply[`++totalSupply(self)++`]
 * xref:#ERC20Component-balanceOf[`++balanceOf(self, account)++`]
 * xref:#ERC20Component-transferFrom[`++transferFrom(self, sender, recipient, amount)++`]
+
+[.sub-index#ERC20Component-Embeddable-Impls-ERC20PermitImpl]
+.ERC20PermitImpl
+* xref:#ERC20Component-permit[`++permit(self, owner, spender, amount, deadline, signature)++`]
+* xref:#ERC20Component-nonces[`++nonces(self, owner)++`]
+* xref:#ERC20Component-DOMAIN_SEPARATOR[`++DOMAIN_SEPARATOR(self)++`]
+
+[.sub-index#ERC20Component-Embeddable-Impls-SNIP12MetadataExternalImpl]
+.SNIP12MetadataExternalImpl
+* xref:#ERC20Component-snip12_metadata[`++snip12_metadata(self)++`]
 --
 
 [.contract-index]
@@ -354,6 +367,49 @@ See <<IERC20-transfer_from,IERC20::transfer_from>>.
 
 Supports the Cairo v0 convention of writing external methods in camelCase as discussed {casing-discussion}.
 
+[.contract-item]
+[[ERC20Component-permit]]
+==== `[.contract-item-name]#++permit++#++(ref self: ContractState, owner: ContractAddress, spender: ContractAddress, amount: u256, deadline: u64, signature: Span<felt252>) → bool++` [.item-kind]#external#
+
+Sets `amount` as the allowance of `spender` over ``owner``'s tokens after validating the
+signature.
+
+Requirements:
+
+- `owner` is a deployed account contract.
+- `spender` is not the zero address.
+- `deadline` is not a timestamp in the past.
+- `signature` is a valid signature that can be validated with a call to `owner` account.
+- `signature` must use the current nonce of the `owner`.
+
+Emits an <<ERC20-Approval,Approval>> event.
+Every successful call increases `owner`'s nonce by one.
+
+[.contract-item]
+[[ERC20Component-nonces]]
+==== `[.contract-item-name]#++nonces++#++(self: @ContractState, owner: ContractAddress) → felt252++` [.item-kind]#external#
+
+Returns the current nonce of `owner`. A nonce value must be included 
+whenever a signature for `permit` call is generated.
+
+[.contract-item]
+[[ERC20Component-DOMAIN_SEPARATOR]]
+==== `[.contract-item-name]#++DOMAIN_SEPARATOR++#++(self: @ContractState) → felt252++` [.item-kind]#external#
+
+Returns the domain separator used in generating a message hash for `permit` signature. 
+The domain hashing logic follows the {snip-12} standard.
+
+[.contract-item]
+[[ERC20Component-snip12_metadata]]
+==== `[.contract-item-name]#++snip12_metadata++#++(self: @ContractState) → (felt252, felt252)++` [.item-kind]#external#
+
+Returns the domain name and version used to generate the message hash for permit signature.
+
+The returned tuple contains:
+
+- `t.0`: The name used in the {snip12-metadata} implementation.
+- `t.1`: The version used in the {snip12-metadata} implementation.
+
 [#ERC20Component-Internal-functions]
 ==== Internal functions
 
@@ -456,11 +512,55 @@ See <<IERC20-Transfer,IERC20::Transfer>>.
 
 See <<IERC20-Approval,IERC20::Approval>>.
 
+== Extensions
+
+[.contract]
+[[IERC20Permit]]
+=== `++IERC20Permit++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.18.0/packages/token/src/erc20/interface.cairo#L19[{github-icon},role=heading-link]
+
+[.hljs-theme-dark]
+```cairo
+use openzeppelin_token::erc20::interface::IERC20Permit;
+```
+
+Interface of the ERC20Permit standard to support gasless token approvals as defined in {eip-2612}. 
+
+[.contract-index]
+.Functions
+--
+* xref:#IERC20Permit-permit[`++permit(owner, spender, amount, deadline, signature)++`]
+* xref:#IERC20Permit-nonces[`++nonces(owner)++`]
+* xref:#IERC20Permit-DOMAIN_SEPARATOR[`++DOMAIN_SEPARATOR()++`]
+--
+
+[#IERC20Permit-Functions]
+==== Functions
+
+[.contract-item]
+[[IERC20Permit-permit]]
+==== `[.contract-item-name]#++permit++#++(owner: ContractAddress, spender: ContractAddress, amount: u256, deadline: u64, signature: Span<felt252>)++` [.item-kind]#external#
+
+Sets `amount` as the allowance of `spender` over ``owner``'s tokens after validating the signature.
+
+[.contract-item]
+[[IERC20Permit-nonces]]
+==== `[.contract-item-name]#++nonces++#++(owner: ContractAddress) → felt252++` [.item-kind]#external#
+
+Returns the current nonce of `owner`. A nonce value must be included 
+whenever a signature for `permit` call is generated.
+
+[.contract-item]
+[[IERC20Permit-DOMAIN_SEPARATOR]]
+==== `[.contract-item-name]#++DOMAIN_SEPARATOR++#++() → felt252++` [.item-kind]#external#
+
+Returns the domain separator used in generating a message hash for `permit` signature. 
+The domain hashing logic follows the {snip-12} standard.
+
 == Presets
 
 [.contract]
 [[ERC20Upgradeable]]
-=== `++ERC20Upgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.17.0/packages/presets/src/erc20.cairo[{github-icon},role=heading-link]
+=== `++ERC20Upgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.18.0/packages/presets/src/erc20.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin_presets::ERC20Upgradeable;

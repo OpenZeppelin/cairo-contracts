@@ -2,6 +2,7 @@
 
 :stark: https://docs.starknet.io/architecture-and-concepts/cryptography/stark-curve/[Stark]
 :secp256k1: https://github.com/starkware-libs/cairo/blob/main/corelib/src/starknet/secp256k1.cairo[Secp256k1]
+:secp256r1: https://www.nervos.org/knowledge-base/what_is_secp256r1[Secp256r1]
 
 This crate provides various helper functions for declaring, deploying,
 and testing smart contracts using the `snforge` toolchain from Starknet Foundry.
@@ -15,7 +16,7 @@ be added as a separate dependency in `Scarb.toml`:
 
 ```
 [dev-dependencies]
-openzeppelin_testing = "0.17.0"
+openzeppelin_testing = "0.18.0"
 ```
 
 == Test Utilities
@@ -267,6 +268,7 @@ A module offering utility functions for easier management of key pairs and signa
 .Functions
 * xref:#testing-signing-get_stark_keys_from[`++get_stark_keys_from(private_key)++`]
 * xref:#testing-signing-get_secp256k1_keys_from[`++get_secp256k1_keys_from(private_key)++`]
+* xref:#testing-signing-get_secp256r1_keys_from[`++get_secp256r1_keys_from(private_key)++`]
 
 .Traits
 * xref:#testing-signing-SerializedSigning[`++SerializedSigning++`]
@@ -286,6 +288,12 @@ Builds a {stark} key pair from a private key represented by a `felt252` value.
 ==== `[.contract-item-name]#++get_secp256k1_keys_from++#++(private_key: u256) → Secp256k1KeyPair++` [.item-kind]#function#
 
 Builds a {secp256k1} key pair from a private key represented by a `u256` value.
+
+[.contract-item]
+[[testing-signing-get_secp256r1_keys_from]]
+==== `[.contract-item-name]#++get_secp256r1_keys_from++#++(private_key: u256) → Secp256r1KeyPair++` [.item-kind]#function#
+
+Builds a {secp256r1} key pair from a private key represented by a `u256` value.
 
 [#testing-signing-Traits]
 ==== Traits

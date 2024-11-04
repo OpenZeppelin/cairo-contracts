@@ -174,7 +174,7 @@ pub mod GovernorVotesQuorumFractionComponent {
         /// - `quorum_numerator` must be less than `quorum_denominator`.
         ///
         /// Emits a `QuorumNumeratorUpdated` event.
-        fn initialize(
+        fn initializer(
             ref self: ComponentState<TContractState>,
             votes_token: ContractAddress,
             quorum_numerator: u256

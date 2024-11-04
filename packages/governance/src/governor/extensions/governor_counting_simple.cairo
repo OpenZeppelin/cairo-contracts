@@ -24,7 +24,7 @@ pub mod GovernorCountingSimpleComponent {
     }
 
     /// Supported vote types.
-    enum VoteType {
+    pub enum VoteType {
         Against,
         For,
         Abstain,
@@ -42,7 +42,7 @@ pub mod GovernorCountingSimpleComponent {
     }
 
     #[starknet::storage_node]
-    struct ProposalVote {
+    pub struct ProposalVote {
         against_votes: u256,
         for_votes: u256,
         abstain_votes: u256,

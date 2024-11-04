@@ -766,6 +766,23 @@ pub mod GovernorComponent {
             ()
         }
 
+        /// Validates that the proposal is in one of the expected states.
+        fn validate_state(
+            self: @ComponentState<TContractState>,
+            proposal_id: felt252,
+            allowed_states: Span<ProposalState>
+        ) {
+            let current_state = self.state(proposal_id);
+            let mut found = false;
+            for state in allowed_states {
+                if current_state == *state {
+                    found = true;
+                    break;
+                }
+            };
+            assert(found, Errors::UNEXPECTED_PROPOSAL_STATE);
+        }
+
         /// Internal wrapper for `GovernorVotesTrait::get_votes`.
         fn _get_votes(
             self: @ComponentState<TContractState>,
@@ -930,23 +947,6 @@ pub mod GovernorComponent {
             // TODO: check if the tally hook must be used
 
             voted_weight
-        }
-
-        /// Validates that the proposal is in one of the expected states.
-        fn validate_state(
-            self: @ComponentState<TContractState>,
-            proposal_id: felt252,
-            allowed_states: Span<ProposalState>
-        ) {
-            let current_state = self.state(proposal_id);
-            let mut found = false;
-            for state in allowed_states {
-                if current_state == *state {
-                    found = true;
-                    break;
-                }
-            };
-            assert(found, Errors::UNEXPECTED_PROPOSAL_STATE);
         }
     }
 }

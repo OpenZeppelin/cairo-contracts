@@ -32,7 +32,6 @@ pub mod GovernorCoreExecutionComponent {
         +GovernorComponent::GovernorSettingsTrait<TContractState>,
         +GovernorComponent::GovernorVotesTrait<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
-        +GovernorComponent::ImmutableConfig,
         impl GovernorCoreExecution: HasComponent<TContractState>,
         +Drop<TContractState>
     > of GovernorComponent::GovernorExecutionTrait<TContractState> {

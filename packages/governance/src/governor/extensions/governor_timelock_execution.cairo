@@ -253,7 +253,7 @@ pub mod GovernorTimelockExecutionComponent {
         /// Requirements:
         ///
         /// - `timelock_controller` must not be zero.
-        fn initialize(
+        fn initializer(
             ref self: ComponentState<TContractState>, timelock_controller: ContractAddress
         ) {
             assert(timelock_controller.is_non_zero(), Errors::INVALID_TIMELOCK_CONTROLLER);

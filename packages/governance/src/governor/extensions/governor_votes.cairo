@@ -97,7 +97,7 @@ pub mod GovernorVotesComponent {
         /// Requirements:
         ///
         /// - `votes_token` must not be zero.
-        fn initialize(ref self: ComponentState<TContractState>, votes_token: ContractAddress) {
+        fn initializer(ref self: ComponentState<TContractState>, votes_token: ContractAddress) {
             assert(votes_token.is_non_zero(), Errors::INVALID_TOKEN);
             self.Governor_token.write(votes_token);
         }

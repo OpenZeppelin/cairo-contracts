@@ -170,7 +170,7 @@ pub mod GovernorSettingsComponent {
         ///
         /// Emits a `VotingDelayUpdated`, `VotingPeriodUpdated`, and `ProposalThresholdUpdated`
         /// event.
-        fn initialize(
+        fn initializer(
             ref self: ComponentState<TContractState>,
             new_voting_delay: u64,
             new_voting_period: u64,

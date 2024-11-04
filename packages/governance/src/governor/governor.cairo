@@ -636,12 +636,7 @@ pub mod GovernorComponent {
     pub impl InternalImpl<
         TContractState,
         +HasComponent<TContractState>,
-        +GovernorCountingTrait<TContractState>,
-        +GovernorExecutionTrait<TContractState>,
-        impl GovernorSettings: GovernorSettingsTrait<TContractState>,
-        impl GovernorVotes: GovernorVotesTrait<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
-        impl Immutable: ImmutableConfig,
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
         /// Initializes the contract by registering the supported interface Ids.
@@ -652,15 +647,6 @@ pub mod GovernorComponent {
             src5_component.register_interface(IERC1155_RECEIVER_ID);
         }
 
-        fn assert_only_governance(self: @ComponentState<TContractState>) {
-            let executor = self.executor();
-            assert(executor == starknet::get_caller_address(), Errors::EXECUTOR_ONLY);
-
-            // TODO: either check that the calldata matches the whitelist or assume the Executor
-            // can't execute proposals not created from the Governor itself.
-            ()
-        }
-
         /// Returns the proposal object given its id.
         fn get_proposal(
             self: @ComponentState<TContractState>, proposal_id: felt252
@@ -668,8 +654,49 @@ pub mod GovernorComponent {
             self.Governor_proposals.read(proposal_id)
         }
 
+        /// Checks if the proposer is authorized to submit a proposal with the given description.
+        ///
+        /// If the proposal description ends with `#proposer=0x???`, where `0x???` is an address
+        /// written as a hex string (case insensitive), then the submission of this proposal will
+        /// only be authorized to said address.
+        ///
+        /// This is used for frontrunning protection. By adding this pattern at the end of their
+        /// proposal, one can ensure that no other address can submit the same proposal. An attacker
+        /// would have to either remove or change that part, which would result in a different
+        /// proposal id.
+        ///
+        /// If the description does not match this pattern, it is unrestricted and anyone can submit
+        /// it. This includes:
+        /// - If the `0x???` part is not a valid hex string.
+        /// - If the `0x???` part is a valid hex string, but does not contain exactly 40 hex digits.
+        /// - If it ends with the expected suffix followed by newlines or other whitespace.
+        /// - If it ends with some other similar suffix, e.g. `#other=abc`.
+        /// - If it does not end with any such suffix.
+        fn is_valid_description_for_proposer(
+            self: @ComponentState<TContractState>,
+            proposer: ContractAddress,
+            description: @ByteArray
+        ) -> bool {
+            let length = description.len();
+
+            // Length is too short to contain a valid proposer suffix
+            if description.len() < 52 {
+                return true;
+            }
+
+            // Extract what would be the `#proposer=` marker beginning the suffix
+            let marker = description.read_n_bytes(length - 52, 10);
+
+            // If the marker is not found, there is no proposer suffix to check
+            if marker != "#proposer=" {
+                return true;
+            }
+
+            let expected_address = description.read_n_bytes(length - 42, 42);
+            proposer.to_byte_array(16, 64) == expected_address
+        }
+
         /// Returns a hash of the proposal using the Poseidon algorithm.
-        /// TODO: check if we should be using Pedersen hash instead of Poseidon.
         fn _hash_proposal(
             self: @ComponentState<TContractState>, calls: Span<Call>, description_hash: felt252
         ) -> felt252 {
@@ -688,21 +715,6 @@ pub mod GovernorComponent {
             hashed_calls.append(description_hash);
 
             poseidon_hash_span(hashed_calls.span())
-        }
-
-        /// Internal wrapper for `GovernorVotesTrait::get_votes`.
-        fn _get_votes(
-            self: @ComponentState<TContractState>,
-            account: ContractAddress,
-            timepoint: u64,
-            params: @ByteArray
-        ) -> u256 {
-            GovernorVotes::get_votes(self, account, timepoint, params)
-        }
-
-        /// Internal wrapper for `GovernorProposeTrait::proposal_threshold`.
-        fn _proposal_threshold(self: @ComponentState<TContractState>) -> u256 {
-            GovernorSettings::proposal_threshold(self)
         }
 
         /// Timepoint used to retrieve user's votes and quorum. If using block number, the snapshot
@@ -731,6 +743,42 @@ pub mod GovernorComponent {
         /// executor's clock which may be different. In most cases this will be a timestamp.
         fn _proposal_eta(self: @ComponentState<TContractState>, proposal_id: felt252) -> u64 {
             self.Governor_proposals.read(proposal_id).eta_seconds
+        }
+    }
+
+    #[generate_trait]
+    pub impl InternalExtendedImpl<
+        TContractState,
+        +HasComponent<TContractState>,
+        +SRC5Component::HasComponent<TContractState>,
+        +GovernorCountingTrait<TContractState>,
+        +GovernorExecutionTrait<TContractState>,
+        impl GovernorSettings: GovernorSettingsTrait<TContractState>,
+        impl GovernorVotes: GovernorVotesTrait<TContractState>,
+        +Drop<TContractState>
+    > of InternalExtendedTrait<TContractState> {
+        fn assert_only_governance(self: @ComponentState<TContractState>) {
+            let executor = self.executor();
+            assert(executor == starknet::get_caller_address(), Errors::EXECUTOR_ONLY);
+
+            // TODO: either check that the calldata matches the whitelist or assume the Executor
+            // can't execute proposals not created from the Governor itself.
+            ()
+        }
+
+        /// Internal wrapper for `GovernorVotesTrait::get_votes`.
+        fn _get_votes(
+            self: @ComponentState<TContractState>,
+            account: ContractAddress,
+            timepoint: u64,
+            params: @ByteArray
+        ) -> u256 {
+            GovernorVotes::get_votes(self, account, timepoint, params)
+        }
+
+        /// Internal wrapper for `GovernorProposeTrait::proposal_threshold`.
+        fn _proposal_threshold(self: @ComponentState<TContractState>) -> u256 {
+            GovernorSettings::proposal_threshold(self)
         }
 
         /// Returns the state of a proposal, given its id.
@@ -797,7 +845,6 @@ pub mod GovernorComponent {
             };
 
             self.Governor_proposals.write(proposal_id, proposal);
-
             self
                 .emit(
                     ProposalCreated {
@@ -883,48 +930,6 @@ pub mod GovernorComponent {
             // TODO: check if the tally hook must be used
 
             voted_weight
-        }
-
-        /// Checks if the proposer is authorized to submit a proposal with the given description.
-        ///
-        /// If the proposal description ends with `#proposer=0x???`, where `0x???` is an address
-        /// written as a hex string (case insensitive), then the submission of this proposal will
-        /// only be authorized to said address.
-        ///
-        /// This is used for frontrunning protection. By adding this pattern at the end of their
-        /// proposal, one can ensure that no other address can submit the same proposal. An attacker
-        /// would have to either remove or change that part, which would result in a different
-        /// proposal id.
-        ///
-        /// If the description does not match this pattern, it is unrestricted and anyone can submit
-        /// it. This includes:
-        /// - If the `0x???` part is not a valid hex string.
-        /// - If the `0x???` part is a valid hex string, but does not contain exactly 40 hex digits.
-        /// - If it ends with the expected suffix followed by newlines or other whitespace.
-        /// - If it ends with some other similar suffix, e.g. `#other=abc`.
-        /// - If it does not end with any such suffix.
-        fn is_valid_description_for_proposer(
-            self: @ComponentState<TContractState>,
-            proposer: ContractAddress,
-            description: @ByteArray
-        ) -> bool {
-            let length = description.len();
-
-            // Length is too short to contain a valid proposer suffix
-            if description.len() < 52 {
-                return true;
-            }
-
-            // Extract what would be the `#proposer=` marker beginning the suffix
-            let marker = description.read_n_bytes(length - 52, 10);
-
-            // If the marker is not found, there is no proposer suffix to check
-            if marker != "#proposer=" {
-                return true;
-            }
-
-            let expected_address = description.read_n_bytes(length - 42, 42);
-            proposer.to_byte_array(16, 64) == expected_address
         }
 
         /// Validates that the proposal is in one of the expected states.

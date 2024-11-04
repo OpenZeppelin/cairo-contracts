@@ -8,7 +8,7 @@
 #[starknet::component]
 pub mod GovernorSettingsComponent {
     use crate::governor::GovernorComponent::{
-        InternalTrait as GovernorInternalTrait, ComponentState as GovernorComponentState
+        InternalExtendedTrait, ComponentState as GovernorComponentState
     };
     use crate::governor::GovernorComponent;
     use crate::governor::extensions::interface::ISetSettings;
@@ -59,14 +59,9 @@ pub mod GovernorSettingsComponent {
     // Extensions
     //
 
-    impl GovernorSettings<
+    pub impl GovernorSettings<
         TContractState,
-        +GovernorComponent::ImmutableConfig,
         +GovernorComponent::HasComponent<TContractState>,
-        +GovernorComponent::GovernorQuorumTrait<TContractState>,
-        +GovernorComponent::GovernorCountingTrait<TContractState>,
-        +GovernorComponent::GovernorVotesTrait<TContractState>,
-        +GovernorComponent::GovernorExecutionTrait<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         impl GovernorSettings: HasComponent<TContractState>,
         +Drop<TContractState>
@@ -107,10 +102,8 @@ pub mod GovernorSettingsComponent {
         +GovernorComponent::HasComponent<TContractState>,
         +GovernorComponent::GovernorCountingTrait<TContractState>,
         +GovernorComponent::GovernorExecutionTrait<TContractState>,
-        +GovernorComponent::GovernorSettingsTrait<TContractState>,
         +GovernorComponent::GovernorVotesTrait<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
-        +GovernorComponent::ImmutableConfig,
         +Drop<TContractState>
     > of ISetSettings<ComponentState<TContractState>> {
         /// Sets the voting delay.
@@ -164,10 +157,8 @@ pub mod GovernorSettingsComponent {
         +HasComponent<TContractState>,
         +GovernorComponent::GovernorCountingTrait<TContractState>,
         +GovernorComponent::GovernorExecutionTrait<TContractState>,
-        +GovernorComponent::GovernorSettingsTrait<TContractState>,
         +GovernorComponent::GovernorVotesTrait<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
-        +GovernorComponent::ImmutableConfig,
         impl Governor: GovernorComponent::HasComponent<TContractState>,
         +Drop<TContractState>
     > of InternalTrait<TContractState> {

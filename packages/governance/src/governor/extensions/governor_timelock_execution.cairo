@@ -23,7 +23,7 @@
 pub mod GovernorTimelockExecutionComponent {
     use core::num::traits::Zero;
     use crate::governor::GovernorComponent::{
-        InternalTrait as GovernorInternalTrait, ComponentState as GovernorComponentState
+        InternalExtendedTrait, ComponentState as GovernorComponentState
     };
     use crate::governor::GovernorComponent;
     use crate::governor::extensions::interface::ITimelockController;
@@ -65,14 +65,13 @@ pub mod GovernorTimelockExecutionComponent {
     // Extensions
     //
 
-    impl GovernorExecution<
+    pub impl GovernorExecution<
         TContractState,
         +GovernorComponent::HasComponent<TContractState>,
         +GovernorComponent::GovernorSettingsTrait<TContractState>,
         +GovernorComponent::GovernorCountingTrait<TContractState>,
         +GovernorComponent::GovernorVotesTrait<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
-        +GovernorComponent::ImmutableConfig,
         impl GovernorCoreExecution: HasComponent<TContractState>,
         +Drop<TContractState>
     > of GovernorComponent::GovernorExecutionTrait<TContractState> {
@@ -211,7 +210,6 @@ pub mod GovernorTimelockExecutionComponent {
         +GovernorComponent::GovernorCountingTrait<TContractState>,
         +GovernorComponent::GovernorVotesTrait<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
-        +GovernorComponent::ImmutableConfig,
         +GovernorComponent::HasComponent<TContractState>,
         +Drop<TContractState>
     > of ITimelockController<ComponentState<TContractState>> {
@@ -247,7 +245,6 @@ pub mod GovernorTimelockExecutionComponent {
         +GovernorComponent::GovernorCountingTrait<TContractState>,
         +GovernorComponent::GovernorVotesTrait<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
-        +GovernorComponent::ImmutableConfig,
         impl Governor: GovernorComponent::HasComponent<TContractState>,
         +Drop<TContractState>
     > of InternalTrait<TContractState> {

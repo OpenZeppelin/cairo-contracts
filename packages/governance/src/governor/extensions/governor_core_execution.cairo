@@ -10,7 +10,7 @@
 #[starknet::component]
 pub mod GovernorCoreExecutionComponent {
     use crate::governor::GovernorComponent::{
-        InternalTrait as GovernorInternalImpl, ComponentState as GovernorComponentState
+        InternalExtendedTrait, ComponentState as GovernorComponentState
     };
     use crate::governor::GovernorComponent;
     use crate::governor::interface::ProposalState;
@@ -25,7 +25,7 @@ pub mod GovernorCoreExecutionComponent {
     // Extensions
     //
 
-    impl GovernorExecution<
+    pub impl GovernorExecution<
         TContractState,
         +GovernorComponent::HasComponent<TContractState>,
         +GovernorComponent::GovernorCountingTrait<TContractState>,

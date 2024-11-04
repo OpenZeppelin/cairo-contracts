@@ -58,14 +58,10 @@ pub mod GovernorCountingSimpleComponent {
     // Extensions
     //
 
-    impl GovernorCounting<
+    pub impl GovernorCounting<
         TContractState,
-        +GovernorComponent::ImmutableConfig,
         +GovernorComponent::HasComponent<TContractState>,
-        +GovernorComponent::GovernorSettingsTrait<TContractState>,
         +GovernorComponent::GovernorQuorumTrait<TContractState>,
-        +GovernorComponent::GovernorExecutionTrait<TContractState>,
-        +GovernorComponent::GovernorVotesTrait<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         impl GovernorCountingSimple: HasComponent<TContractState>,
         +Drop<TContractState>

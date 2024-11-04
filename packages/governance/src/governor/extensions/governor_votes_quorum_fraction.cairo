@@ -46,7 +46,7 @@ pub mod GovernorVotesQuorumFractionComponent {
     // Extensions
     //
 
-    impl GovernorQuorum<
+    pub impl GovernorQuorum<
         TContractState,
         +GovernorComponent::HasComponent<TContractState>,
         +GovernorComponent::GovernorVotesTrait<TContractState>,
@@ -72,7 +72,7 @@ pub mod GovernorVotesQuorumFractionComponent {
         }
     }
 
-    impl GovernorVotes<
+    pub impl GovernorVotesImpl<
         TContractState,
         +GovernorComponent::HasComponent<TContractState>,
         +GovernorComponent::GovernorExecutionTrait<TContractState>,
@@ -84,7 +84,7 @@ pub mod GovernorVotesQuorumFractionComponent {
         /// See `GovernorComponent::GovernorVotesTrait::clock`.
         fn clock(self: @GovernorComponentState<TContractState>) -> u64 {
             // VotesComponent uses the block timestamp for tracking checkpoints.
-            // That should be updated in order to allow for more flexible clock modes.
+            // That must be updated in order to allow for more flexible clock modes.
             starknet::get_block_timestamp()
         }
 

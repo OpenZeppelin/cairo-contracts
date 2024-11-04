@@ -30,19 +30,17 @@ pub mod GovernorVotesComponent {
     // Extensions
     //
 
-    impl GovernorVotes<
+    pub impl GovernorVotes<
         TContractState,
         +GovernorComponent::HasComponent<TContractState>,
-        +GovernorComponent::GovernorExecutionTrait<TContractState>,
-        +GovernorComponent::GovernorCountingTrait<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
-        impl GovernorVotesQuorumFraction: HasComponent<TContractState>,
+        impl GovernorVotes: HasComponent<TContractState>,
         +Drop<TContractState>
     > of GovernorComponent::GovernorVotesTrait<TContractState> {
         /// See `GovernorComponent::GovernorVotesTrait::clock`.
         fn clock(self: @GovernorComponentState<TContractState>) -> u64 {
             // VotesComponent uses the block timestamp for tracking checkpoints.
-            // That should be updated in order to allow for more flexible clock modes.
+            // That must be updated in order to allow for more flexible clock modes.
             starknet::get_block_timestamp()
         }
 
@@ -59,7 +57,7 @@ pub mod GovernorVotesComponent {
             params: @ByteArray
         ) -> u256 {
             let contract = self.get_contract();
-            let this_component = GovernorVotesQuorumFraction::get_component(contract);
+            let this_component = GovernorVotes::get_component(contract);
 
             let token = this_component.Governor_token.read();
             let votes_dispatcher = IVotesDispatcher { contract_address: token };
@@ -90,8 +88,8 @@ pub mod GovernorVotesComponent {
     pub impl InternalImpl<
         TContractState,
         +HasComponent<TContractState>,
+        +GovernorComponent::HasComponent<TContractState>,
         +GovernorComponent::GovernorVotesTrait<TContractState>,
-        impl Governor: GovernorComponent::HasComponent<TContractState>,
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
         /// Initializes the component by setting the votes token.

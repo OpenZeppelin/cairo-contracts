@@ -403,6 +403,7 @@ pub mod MultisigComponent {
             signer_to_remove: ContractAddress,
             signer_to_add: ContractAddress
         ) {
+            assert(signer_to_add.is_non_zero(), Errors::ZERO_ADDRESS);
             assert(!self.Multisig_is_signer.read(signer_to_add), Errors::ALREADY_A_SIGNER);
             assert(self.Multisig_is_signer.read(signer_to_remove), Errors::NOT_A_SIGNER);
 
@@ -419,9 +420,8 @@ pub mod MultisigComponent {
 
         fn _change_quorum(ref self: ComponentState<TContractState>, new_quorum: u8) {
             assert(new_quorum.is_non_zero(), Errors::ZERO_QUORUM);
-            let signers_count = assert(
-                new_quorum.into() <= self.Multisig_signers_count.read(), Errors::QUORUM_TOO_HIGH
-            );
+            let signers_count = self.Multisig_signers_count.read();
+            assert(new_quorum.into() <= signers_count, Errors::QUORUM_TOO_HIGH);
 
             let old_quorum = self.Multisig_quorum.read();
             if new_quorum != old_quorum {

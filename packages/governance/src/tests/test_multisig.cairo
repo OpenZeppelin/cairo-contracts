@@ -1,11 +1,14 @@
 use MultisigComponent::InternalTrait;
 use core::num::traits::Zero;
-use crate::multisig::MultisigComponent::{MultisigImpl, InternalImpl};
+use crate::multisig::MultisigComponent::{ConfirmationRevoked, TransactionExecuted};
+use crate::multisig::MultisigComponent::{MultisigImpl, InternalImpl, Event};
+use crate::multisig::MultisigComponent::{SignerAdded, SignerRemoved, QuorumUpdated, CallSalt};
+use crate::multisig::MultisigComponent::{TransactionSubmitted, TransactionConfirmed};
 use crate::multisig::{MultisigComponent, TransactionID, TransactionState};
 use openzeppelin_test_common::mocks::multisig::IMultisigTargetDispatcherTrait;
 use openzeppelin_test_common::mocks::multisig::{MultisigWalletMock, IMultisigTargetDispatcher};
 use openzeppelin_testing as utils;
-use openzeppelin_testing::constants::{OTHER, ALICE, BOB, CHARLIE, SALT, BLOCK_NUMBER};
+use openzeppelin_testing::constants::{ZERO, OTHER, ALICE, BOB, CHARLIE, SALT, BLOCK_NUMBER};
 use openzeppelin_testing::events::EventSpyExt;
 use snforge_std::{EventSpy, spy_events, test_address};
 use snforge_std::{start_cheat_caller_address, start_cheat_block_number_global};
@@ -822,6 +825,472 @@ fn test_tx_hash_depends_on_to_address() {
 }
 
 //
+// add_signers
+//
+
+#[test]
+fn test_add_single_signer() {
+    let quorum = 1;
+    let (alice, bob, charlie) = (ALICE(), BOB(), CHARLIE());
+    let mut state = setup_component(quorum, array![alice].span());
+    let contract_address = test_address();
+    let mut spy = spy_events();
+    start_cheat_caller_address(contract_address, contract_address);
+
+    // Add Bob as signer
+    state.add_signers(quorum, array![bob].span());
+    assert_signers_list(array![alice, bob].span());
+    spy.assert_only_event_signer_added(contract_address, bob);
+
+    // Add Charlie as signer
+    state.add_signers(quorum, array![charlie].span());
+    assert_signers_list(array![alice, bob, charlie].span());
+    spy.assert_only_event_signer_added(contract_address, charlie);
+}
+
+#[test]
+fn test_add_multiple_signers() {
+    let quorum = 1;
+    let (alice, bob, charlie) = (ALICE(), BOB(), CHARLIE());
+    let mut state = setup_component(quorum, array![alice].span());
+    let contract_address = test_address();
+    let mut spy = spy_events();
+    start_cheat_caller_address(contract_address, contract_address);
+
+    // Add Bob and Charlie as signers
+    state.add_signers(quorum, array![bob, charlie].span());
+    assert_signers_list(array![alice, bob, charlie].span());
+    spy.assert_event_signer_added(contract_address, bob);
+    spy.assert_only_event_signer_added(contract_address, charlie);
+}
+
+#[test]
+fn test_add_remove_add() {
+    let quorum = 1;
+    let (alice, bob, charlie) = (ALICE(), BOB(), CHARLIE());
+    let mut state = setup_component(quorum, array![alice].span());
+    let contract_address = test_address();
+    start_cheat_caller_address(contract_address, contract_address);
+
+    // Add Bob and Charlie as signers
+    state.add_signers(quorum, array![bob, charlie].span());
+    assert_signers_list(array![alice, bob, charlie].span());
+
+    // Remove Alice
+    state.remove_signers(quorum, array![alice].span());
+    assert_signers_list(array![charlie, bob].span());
+
+    // Remove Charlie
+    state.remove_signers(quorum, array![charlie].span());
+    assert_signers_list(array![bob].span());
+
+    // Add Alice
+    state.add_signers(quorum, array![alice].span());
+    assert_signers_list(array![bob, alice].span());
+
+    // Add Charlie
+    state.add_signers(quorum, array![charlie].span());
+    assert_signers_list(array![bob, alice, charlie].span());
+}
+
+#[test]
+#[should_panic(expected: 'Multisig: already a signer')]
+fn test_cannot_add_signer_twice() {
+    let quorum = 1;
+    let (alice, bob) = (ALICE(), BOB());
+    let mut state = setup_component(quorum, array![alice].span());
+    let contract_address = test_address();
+    start_cheat_caller_address(contract_address, contract_address);
+
+    // Add Bob as signer
+    state.add_signers(quorum, array![bob].span());
+    assert_signers_list(array![alice, bob].span());
+
+    // Try to add Bob again
+    state.add_signers(quorum, array![bob].span());
+}
+
+#[test]
+#[should_panic(expected: 'Multisig: unauthorized')]
+fn test_cannot_add_when_not_multisig_itself() {
+    let quorum = 1;
+    let (alice, bob) = (ALICE(), BOB());
+    let mut state = setup_component(quorum, array![alice].span());
+
+    // Try to add signer
+    start_cheat_caller_address(test_address(), OTHER());
+    state.add_signers(quorum, array![bob].span());
+}
+
+#[test]
+#[should_panic(expected: 'Multisig: empty signers list')]
+fn test_cannot_add_empty_signers_list() {
+    let quorum = 1;
+    let mut state = setup_component(quorum, array![ALICE()].span());
+    let contract_address = test_address();
+    start_cheat_caller_address(contract_address, contract_address);
+
+    // Try to add empty signers list
+    let empty_list = array![].span();
+    state.add_signers(quorum, empty_list);
+}
+
+#[test]
+#[should_panic(expected: 'Multisig: zero address')]
+fn test_cannot_add_zero_address_as_signer() {
+    let quorum = 1;
+    let mut state = setup_component(quorum, array![ALICE()].span());
+    let contract_address = test_address();
+    start_cheat_caller_address(contract_address, contract_address);
+
+    // Try to add zero address as signer
+    state.add_signers(quorum, array![ZERO()].span());
+}
+
+#[test]
+#[should_panic(expected: 'Multisig: quorum cannot be 0')]
+fn test_cannot_add_with_zero_quorum() {
+    let quorum = 1;
+    let (alice, bob) = (ALICE(), BOB());
+    let mut state = setup_component(quorum, array![alice].span());
+    let contract_address = test_address();
+    start_cheat_caller_address(contract_address, contract_address);
+
+    // Try to add with 0 quorum value
+    state.add_signers(0, array![bob].span());
+}
+
+#[test]
+#[should_panic(expected: 'Multisig: quorum > signers')]
+fn test_cannot_add_with_quorum_too_high() {
+    let quorum = 1;
+    let (alice, bob, charlie) = (ALICE(), BOB(), CHARLIE());
+    let mut state = setup_component(quorum, array![alice].span());
+    let contract_address = test_address();
+    start_cheat_caller_address(contract_address, contract_address);
+
+    // Try to add with quorum value > signers count
+    state.add_signers(4, array![bob, charlie].span());
+}
+
+//
+// remove_signers
+//
+
+#[test]
+fn test_remove_single_signer() {
+    let quorum = 1;
+    let (alice, bob, charlie) = (ALICE(), BOB(), CHARLIE());
+    let mut state = setup_component(quorum, array![alice, bob, charlie].span());
+    let contract_address = test_address();
+    let mut spy = spy_events();
+    start_cheat_caller_address(contract_address, contract_address);
+
+    // Remove Alice from signers
+    assert_signers_list(array![alice, bob, charlie].span());
+    state.remove_signers(quorum, array![alice].span());
+    assert_signers_list(array![charlie, bob].span());
+    spy.assert_only_event_signer_removed(contract_address, alice);
+    assert_eq!(state.is_signer(alice), false);
+
+    // Remove Charlie from signers
+    state.remove_signers(quorum, array![charlie].span());
+    assert_signers_list(array![bob].span());
+    spy.assert_only_event_signer_removed(contract_address, charlie);
+    assert_eq!(state.is_signer(charlie), false);
+}
+
+#[test]
+fn test_remove_multiple_signers() {
+    let quorum = 1;
+    let (alice, bob, charlie, other) = (ALICE(), BOB(), CHARLIE(), OTHER());
+    let mut state = setup_component(quorum, array![alice, bob, charlie, other].span());
+    let contract_address = test_address();
+    let mut spy = spy_events();
+    start_cheat_caller_address(contract_address, contract_address);
+
+    // Remove Alice and Other from signers
+    assert_signers_list(array![alice, bob, charlie, other].span());
+    state.remove_signers(quorum, array![alice, other].span());
+    assert_signers_list(array![charlie, bob].span());
+    spy.assert_event_signer_removed(contract_address, alice);
+    spy.assert_only_event_signer_removed(contract_address, other);
+    assert_eq!(state.is_signer(alice), false);
+    assert_eq!(state.is_signer(other), false);
+}
+
+#[test]
+fn test_remove_add_remove() {
+    let quorum = 1;
+    let (alice, bob, charlie) = (ALICE(), BOB(), CHARLIE());
+    let mut state = setup_component(quorum, array![alice, bob, charlie].span());
+    let contract_address = test_address();
+    start_cheat_caller_address(contract_address, contract_address);
+
+    // Remove Alice from signers
+    state.remove_signers(quorum, array![alice].span());
+    assert_signers_list(array![charlie, bob].span());
+    assert_eq!(state.is_signer(alice), false);
+
+    // Add Alice to signers
+    state.add_signers(quorum, array![alice].span());
+    assert_signers_list(array![charlie, bob, alice].span());
+    assert_eq!(state.is_signer(alice), true);
+
+    // Remove Alice from signers
+    state.remove_signers(quorum, array![alice].span());
+    assert_signers_list(array![charlie, bob].span());
+    assert_eq!(state.is_signer(alice), false);
+}
+
+#[test]
+#[should_panic(expected: 'Multisig: not a signer')]
+fn test_cannot_remove_not_signer() {
+    let quorum = 1;
+    let (alice, bob, charlie) = (ALICE(), BOB(), CHARLIE());
+    let mut state = setup_component(quorum, array![alice, bob, charlie].span());
+    let contract_address = test_address();
+    start_cheat_caller_address(contract_address, contract_address);
+
+    // Try to remove Other from signers
+    state.remove_signers(quorum, array![OTHER()].span());
+}
+
+#[test]
+#[should_panic(expected: 'Multisig: unauthorized')]
+fn test_cannot_remove_when_not_multisig_itself() {
+    let quorum = 1;
+    let (alice, bob, charlie) = (ALICE(), BOB(), CHARLIE());
+    let mut state = setup_component(quorum, array![alice, bob, charlie].span());
+
+    // Try to call 'remove_signers' from Other
+    start_cheat_caller_address(test_address(), OTHER());
+    state.remove_signers(quorum, array![alice].span());
+}
+
+#[test]
+#[should_panic(expected: 'Multisig: empty signers list')]
+fn test_cannot_remove_empty_signers_list() {
+    let quorum = 1;
+    let (alice, bob, charlie) = (ALICE(), BOB(), CHARLIE());
+    let mut state = setup_component(quorum, array![alice, bob, charlie].span());
+    let contract_address = test_address();
+    start_cheat_caller_address(contract_address, contract_address);
+
+    // Try to remove empty signers list
+    let empty_list = array![].span();
+    state.remove_signers(quorum, empty_list);
+}
+
+#[test]
+#[should_panic(expected: 'Multisig: quorum cannot be 0')]
+fn test_cannot_remove_with_zero_quorum() {
+    let quorum = 1;
+    let (alice, bob, charlie) = (ALICE(), BOB(), CHARLIE());
+    let mut state = setup_component(quorum, array![alice, bob, charlie].span());
+    let contract_address = test_address();
+    start_cheat_caller_address(contract_address, contract_address);
+
+    // Try to remove signers with 0 quorum value
+    state.remove_signers(0, array![bob, charlie].span());
+}
+
+#[test]
+#[should_panic(expected: 'Multisig: quorum > signers')]
+fn test_cannot_remove_with_quorum_too_high() {
+    let quorum = 1;
+    let (alice, bob, charlie) = (ALICE(), BOB(), CHARLIE());
+    let mut state = setup_component(quorum, array![alice, bob, charlie].span());
+    let contract_address = test_address();
+    start_cheat_caller_address(contract_address, contract_address);
+
+    // Try to remove signers with quorum value too high
+    state.remove_signers(3, array![bob].span());
+}
+
+//
+// replace_signer
+//
+
+#[test]
+fn test_replace_signer() {
+    let quorum = 1;
+    let (alice, bob, charlie) = (ALICE(), BOB(), CHARLIE());
+    let mut state = setup_component(quorum, array![alice, bob].span());
+    let contract_address = test_address();
+    let mut spy = spy_events();
+    start_cheat_caller_address(contract_address, contract_address);
+
+    // Check state before
+    assert_signers_list(array![alice, bob].span());
+    assert_eq!(state.is_signer(alice), true);
+    assert_eq!(state.is_signer(charlie), false);
+
+    // Replace Alice with Charlie
+    state.replace_signer(alice, charlie);
+    spy.assert_event_signer_removed(contract_address, alice);
+    spy.assert_only_event_signer_added(contract_address, charlie);
+
+    // Check state after
+    assert_signers_list(array![charlie, bob].span());
+    assert_eq!(state.is_signer(alice), false);
+    assert_eq!(state.is_signer(charlie), true);
+}
+
+#[test]
+#[should_panic(expected: 'Multisig: not a signer')]
+fn test_cannot_replace_not_signer() {
+    let quorum = 1;
+    let (alice, bob, charlie) = (ALICE(), BOB(), CHARLIE());
+    let mut state = setup_component(quorum, array![alice, bob].span());
+    let contract_address = test_address();
+    start_cheat_caller_address(contract_address, contract_address);
+
+    // Try to replace not a signer
+    state.replace_signer(OTHER(), charlie);
+}
+
+#[test]
+#[should_panic(expected: 'Multisig: already a signer')]
+fn test_cannot_replace_with_existing_signer() {
+    let quorum = 1;
+    let (alice, bob) = (ALICE(), BOB());
+    let mut state = setup_component(quorum, array![alice, bob].span());
+    let contract_address = test_address();
+    start_cheat_caller_address(contract_address, contract_address);
+
+    // Try to replace with existing signer
+    state.replace_signer(alice, bob);
+}
+
+#[test]
+#[should_panic(expected: 'Multisig: zero address')]
+fn test_cannot_replace_with_zero_address() {
+    let quorum = 1;
+    let (alice, bob, charlie) = (ALICE(), BOB(), CHARLIE());
+    let mut state = setup_component(quorum, array![alice, bob, charlie].span());
+    let contract_address = test_address();
+    start_cheat_caller_address(contract_address, contract_address);
+
+    // Try to replace with zero address
+    state.replace_signer(alice, ZERO());
+}
+
+//
+// change_quorum
+//
+
+#[test]
+fn test_change_quorum_higher_value() {
+    let (initial_quorum, signers) = DEFAULT_DATA();
+    let mut state = setup_component(initial_quorum, signers);
+    let contract_address = test_address();
+    let mut spy = spy_events();
+    start_cheat_caller_address(contract_address, contract_address);
+
+    // Increase quorum value
+    let new_quorum = initial_quorum + 1;
+    state.change_quorum(new_quorum);
+    assert_eq!(state.get_quorum(), new_quorum);
+    spy.assert_only_event_quorum_updated(contract_address, initial_quorum, new_quorum);
+}
+
+#[test]
+fn test_change_quorum_lower_value() {
+    let (initial_quorum, signers) = DEFAULT_DATA();
+    let mut state = setup_component(initial_quorum, signers);
+    let contract_address = test_address();
+    let mut spy = spy_events();
+    start_cheat_caller_address(contract_address, contract_address);
+
+    // Reduce quorum value
+    let new_quorum = initial_quorum - 1;
+    state.change_quorum(new_quorum);
+    assert_eq!(state.get_quorum(), new_quorum);
+    spy.assert_only_event_quorum_updated(contract_address, initial_quorum, new_quorum);
+}
+
+#[test]
+fn test_change_quorum_to_same_value() {
+    let (initial_quorum, signers) = DEFAULT_DATA();
+    let mut state = setup_component(initial_quorum, signers);
+    let contract_address = test_address();
+    let mut spy = spy_events();
+    start_cheat_caller_address(contract_address, contract_address);
+
+    // Call 'change_quorum' with the current quorum value
+    state.change_quorum(initial_quorum);
+    assert_eq!(state.get_quorum(), initial_quorum);
+    spy.assert_no_events_left_from(contract_address);
+}
+
+#[test]
+fn test_change_quorum_to_min_value() {
+    let (initial_quorum, signers) = DEFAULT_DATA();
+    let mut state = setup_component(initial_quorum, signers);
+    let contract_address = test_address();
+    let mut spy = spy_events();
+    start_cheat_caller_address(contract_address, contract_address);
+
+    // Set quorum to min allowed value (1)
+    let new_quorum = 1;
+    state.change_quorum(new_quorum);
+    assert_eq!(state.get_quorum(), new_quorum);
+    spy.assert_only_event_quorum_updated(contract_address, initial_quorum, new_quorum);
+}
+
+#[test]
+fn test_change_quorum_to_max_value() {
+    let (initial_quorum, signers) = DEFAULT_DATA();
+    let mut state = setup_component(initial_quorum, signers);
+    let contract_address = test_address();
+    let mut spy = spy_events();
+    start_cheat_caller_address(contract_address, contract_address);
+
+    // Set quorum to max allowed value (signers count)
+    let new_quorum = signers.len().try_into().unwrap();
+    state.change_quorum(new_quorum);
+    assert_eq!(state.get_quorum(), new_quorum);
+    spy.assert_only_event_quorum_updated(contract_address, initial_quorum, new_quorum);
+}
+
+#[test]
+#[should_panic(expected: 'Multisig: quorum cannot be 0')]
+fn test_cannot_change_quorum_to_zero() {
+    let (initial_quorum, signers) = DEFAULT_DATA();
+    let mut state = setup_component(initial_quorum, signers);
+    let contract_address = test_address();
+    start_cheat_caller_address(contract_address, contract_address);
+
+    // Try to set quorum to 0
+    state.change_quorum(0);
+}
+
+#[test]
+#[should_panic(expected: 'Multisig: quorum > signers')]
+fn test_cannot_set_quorum_too_high() {
+    let (initial_quorum, signers) = DEFAULT_DATA();
+    let mut state = setup_component(initial_quorum, signers);
+    let contract_address = test_address();
+    start_cheat_caller_address(contract_address, contract_address);
+
+    // Try to set quorum to a value too high (signers count + 1)
+    let new_quorum = signers.len().try_into().unwrap() + 1;
+    state.change_quorum(new_quorum);
+}
+
+#[test]
+#[should_panic(expected: 'Multisig: unauthorized')]
+fn test_cannot_change_quorum_when_not_multisig_itself() {
+    let (initial_quorum, signers) = DEFAULT_DATA();
+    let mut state = setup_component(initial_quorum, signers);
+    start_cheat_caller_address(test_address(), OTHER());
+
+    // Try to set quorum to 0
+    state.change_quorum(0);
+}
+
+//
 // Helpers
 //
 
@@ -878,11 +1347,12 @@ fn assert_tx_state(id: TransactionID, expected_state: TransactionState) {
     };
 }
 
-fn assert_signers_list(expected_signers: Array<ContractAddress>) {
+fn assert_signers_list(expected_signers: Span<ContractAddress>) {
     let state = COMPONENT_STATE();
-    assert_eq!(state.get_signers().len(), expected_signers.len());
+    let actual_signers = state.get_signers();
+    assert_eq!(actual_signers, expected_signers);
     for signer in expected_signers {
-        assert!(state.is_signer(signer));
+        assert!(state.is_signer(*signer));
     };
 }
 
@@ -899,10 +1369,15 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
     fn assert_event_signer_added(
         ref self: EventSpy, contract: ContractAddress, signer: ContractAddress
     ) {
-        let expected = MultisigComponent::Event::SignerAdded(
-            MultisigComponent::SignerAdded { signer }
-        );
+        let expected = Event::SignerAdded(SignerAdded { signer });
         self.assert_emitted_single(contract, expected);
+    }
+
+    fn assert_only_event_signer_added(
+        ref self: EventSpy, contract: ContractAddress, signer: ContractAddress
+    ) {
+        self.assert_event_signer_added(contract, signer);
+        self.assert_no_events_left_from(contract);
     }
 
     //
@@ -912,10 +1387,15 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
     fn assert_event_signer_removed(
         ref self: EventSpy, contract: ContractAddress, signer: ContractAddress
     ) {
-        let expected = MultisigComponent::Event::SignerRemoved(
-            MultisigComponent::SignerRemoved { signer }
-        );
+        let expected = Event::SignerRemoved(SignerRemoved { signer });
         self.assert_emitted_single(contract, expected);
+    }
+
+    fn assert_only_event_signer_removed(
+        ref self: EventSpy, contract: ContractAddress, signer: ContractAddress
+    ) {
+        self.assert_event_signer_removed(contract, signer);
+        self.assert_no_events_left_from(contract);
     }
 
     //
@@ -925,9 +1405,7 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
     fn assert_event_quorum_updated(
         ref self: EventSpy, contract: ContractAddress, old_quorum: u8, new_quorum: u8
     ) {
-        let expected = MultisigComponent::Event::QuorumUpdated(
-            MultisigComponent::QuorumUpdated { old_quorum, new_quorum }
-        );
+        let expected = Event::QuorumUpdated(QuorumUpdated { old_quorum, new_quorum });
         self.assert_emitted_single(contract, expected);
     }
 
@@ -945,9 +1423,7 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
     fn assert_event_tx_submitted(
         ref self: EventSpy, contract: ContractAddress, id: TransactionID, signer: ContractAddress
     ) {
-        let expected = MultisigComponent::Event::TransactionSubmitted(
-            MultisigComponent::TransactionSubmitted { id, signer }
-        );
+        let expected = Event::TransactionSubmitted(TransactionSubmitted { id, signer });
         self.assert_emitted_single(contract, expected);
     }
 
@@ -969,8 +1445,8 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
         signer: ContractAddress,
         total_confirmations: u8
     ) {
-        let expected = MultisigComponent::Event::TransactionConfirmed(
-            MultisigComponent::TransactionConfirmed { id, signer, total_confirmations }
+        let expected = Event::TransactionConfirmed(
+            TransactionConfirmed { id, signer, total_confirmations }
         );
         self.assert_emitted_single(contract, expected);
     }
@@ -997,8 +1473,8 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
         signer: ContractAddress,
         total_confirmations: u8
     ) {
-        let expected = MultisigComponent::Event::ConfirmationRevoked(
-            MultisigComponent::ConfirmationRevoked { id, signer, total_confirmations }
+        let expected = Event::ConfirmationRevoked(
+            ConfirmationRevoked { id, signer, total_confirmations }
         );
         self.assert_emitted_single(contract, expected);
     }
@@ -1019,9 +1495,7 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
     //
 
     fn assert_event_tx_executed(ref self: EventSpy, contract: ContractAddress, id: TransactionID) {
-        let expected = MultisigComponent::Event::TransactionExecuted(
-            MultisigComponent::TransactionExecuted { id }
-        );
+        let expected = Event::TransactionExecuted(TransactionExecuted { id });
         self.assert_emitted_single(contract, expected);
     }
 
@@ -1039,7 +1513,7 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
     fn assert_event_call_salt(
         ref self: EventSpy, contract: ContractAddress, id: TransactionID, salt: felt252
     ) {
-        let expected = MultisigComponent::Event::CallSalt(MultisigComponent::CallSalt { id, salt });
+        let expected = Event::CallSalt(CallSalt { id, salt });
         self.assert_emitted_single(contract, expected);
     }
 }

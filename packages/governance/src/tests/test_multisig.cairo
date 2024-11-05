@@ -512,7 +512,7 @@ fn test_can_revoke_confirmation_after_being_removed() {
     // Revoke confirmation by Bob
     start_cheat_caller_address(contract_address, BOB());
     state.revoke_confirmation(id);
-    
+
     // Check state before removing
     assert_tx_state(id, TransactionState::Pending);
     assert_eq!(state.is_confirmed_by(id, BOB()), false);

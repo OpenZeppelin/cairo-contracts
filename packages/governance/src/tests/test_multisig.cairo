@@ -485,6 +485,41 @@ fn test_revoke_confirmation() {
 }
 
 #[test]
+fn test_can_revoke_confirmation_after_being_removed() {
+    let (quorum, signers) = DEFAULT_DATA();
+    let mut state = setup_component(quorum, signers);
+    let contract_address = test_address();
+
+    // Submit & confirm by Alice
+    let Call { to, selector, calldata } = build_call(MockCall::AddNumber(42));
+    start_cheat_caller_address(contract_address, ALICE());
+    let id = state.submit_transaction(to, selector, calldata, 0);
+    state.confirm_transaction(id);
+
+    // Confirm by Bob
+    start_cheat_caller_address(contract_address, BOB());
+    state.confirm_transaction(id);
+
+    // Remove Bob from signers
+    start_cheat_caller_address(contract_address, contract_address);
+    state.remove_signers(quorum, array![BOB()].span());
+
+    // Check state before removing
+    assert_tx_state(id, TransactionState::Confirmed);
+    assert_eq!(state.is_confirmed_by(id, BOB()), true);
+    assert_eq!(state.get_transaction_confirmations(id), 2);
+
+    // Revoke confirmation by Bob
+    start_cheat_caller_address(contract_address, BOB());
+    state.revoke_confirmation(id);
+    
+    // Check state before removing
+    assert_tx_state(id, TransactionState::Pending);
+    assert_eq!(state.is_confirmed_by(id, BOB()), false);
+    assert_eq!(state.get_transaction_confirmations(id), 1);
+}
+
+#[test]
 #[should_panic(expected: 'Multisig: has not confirmed')]
 fn test_cannot_revoke_confirmation_has_not_confirmed() {
     let (quorum, signers) = DEFAULT_DATA();
@@ -587,6 +622,20 @@ fn test_execute_tx_batch() {
     assert_eq!(mock.get_current_sum(), 100);
     assert_tx_state(id, TransactionState::Executed);
     spy.assert_only_event_tx_executed(contract_address, id);
+}
+
+#[test]
+#[should_panic(expected: 'Multisig: tx not found')]
+fn test_cannot_execute_not_submitted_tx() {
+    let (quorum, signers) = DEFAULT_DATA();
+    let mut state = setup_component(quorum, signers);
+    let contract_address = test_address();
+    let Call { to, selector, calldata } = build_call(MockCall::AddNumber(42));
+    let salt = 0;
+
+    // Try to execute
+    start_cheat_caller_address(contract_address, ALICE());
+    state.execute_transaction(to, selector, calldata, salt);
 }
 
 #[test]

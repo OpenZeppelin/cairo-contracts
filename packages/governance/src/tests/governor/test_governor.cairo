@@ -10,8 +10,8 @@ use openzeppelin_testing::constants::{ADMIN, ZERO};
 use openzeppelin_token::erc1155::interface::IERC1155_RECEIVER_ID;
 use openzeppelin_token::erc721::interface::IERC721_RECEIVER_ID;
 use openzeppelin_utils::bytearray::ByteArrayExtTrait;
-use starknet::account::Call;
 use starknet::ContractAddress;
+use starknet::account::Call;
 use starknet::storage::StorageMapWriteAccess;
 
 type ComponentState = GovernorComponent::ComponentState<GovernorMock::ContractState>;

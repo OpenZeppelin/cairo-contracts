@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `is_valid_p256_signature` utility function to `openzeppelin_account::utils::signature` (#1189)
 - `Secp256r1KeyPair` type and helpers to `openzeppelin_testing::signing` (#1189)
-- `ERC721EnumerableExtended` impl for fetching all ERC721 tokens of an owner in a single call (#1196)
+- `all_tokens_of_owner` function to `ERC721EnumerableComponent` fetching all owner's tokens in a single call (#1196)
 - Embeddable impls for ERC2981 component (#1173)
   - `ERC2981Info` with read functions for discovering the component's state
   - `ERC2981AdminOwnable` providing admin functions for a token that implements Ownable component

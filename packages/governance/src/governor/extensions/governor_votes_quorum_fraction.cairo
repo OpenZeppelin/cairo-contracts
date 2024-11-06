@@ -20,8 +20,8 @@ pub mod GovernorVotesQuorumFractionComponent {
 
     #[storage]
     pub struct Storage {
-        Governor_token: ContractAddress,
-        Governor_quorum_numerator_history: Trace,
+        pub Governor_token: ContractAddress,
+        pub Governor_quorum_numerator_history: Trace,
     }
 
     #[event]

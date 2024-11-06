@@ -19,7 +19,7 @@ pub mod GovernorVotesComponent {
 
     #[storage]
     pub struct Storage {
-        Governor_token: ContractAddress
+        pub Governor_token: ContractAddress
     }
 
     mod Errors {

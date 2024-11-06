@@ -20,7 +20,7 @@ pub mod GovernorCountingSimpleComponent {
 
     #[storage]
     pub struct Storage {
-        Governor_proposals_votes: Map<ProposalId, ProposalVote>,
+        pub Governor_proposals_votes: Map<ProposalId, ProposalVote>,
     }
 
     /// Supported vote types.

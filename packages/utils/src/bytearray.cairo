@@ -35,15 +35,17 @@ pub fn to_byte_array<T, +Into<T, felt252>, +Copy<T>>(
     if padding.into() > byte_array.len() {
         let mut padding = padding.into() - byte_array.len();
         while padding > 0 {
-            byte_array += "0";
+            byte_array = "0" + byte_array;
             padding -= 1;
         };
     };
     byte_array
 }
 
-/// Hashes a byte array using the Poseidon hash algorithm.
-/// Encodes the byte array as a ´Span<felt252>´ by serializing ´data´.
+/// Returns a unique hash given a ByteArray.
+///
+/// The hash is computed by serializing the data into a span of felts, and
+/// then hashing the span using the Poseidon hash algorithm.
 pub fn hash_byte_array(data: @ByteArray) -> felt252 {
     let mut serialized = array![];
     data.serialize(ref serialized);

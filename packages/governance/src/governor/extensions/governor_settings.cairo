@@ -17,9 +17,9 @@ pub mod GovernorSettingsComponent {
 
     #[storage]
     pub struct Storage {
-        Governor_voting_delay: u64,
-        Governor_voting_period: u64,
-        Governor_proposal_threshold: u256,
+        pub Governor_voting_delay: u64,
+        pub Governor_voting_period: u64,
+        pub Governor_proposal_threshold: u256,
     }
 
     #[event]

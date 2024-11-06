@@ -4,7 +4,7 @@
 use starknet::ContractAddress;
 use starknet::storage_access::StorePacking;
 
-#[derive(Copy, Drop, Serde)]
+#[derive(Copy, Drop, Serde, PartialEq, Debug)]
 pub struct ProposalCore {
     pub proposer: ContractAddress,
     pub vote_start: u64,

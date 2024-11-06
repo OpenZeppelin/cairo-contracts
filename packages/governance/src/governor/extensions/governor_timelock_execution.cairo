@@ -40,8 +40,8 @@ pub mod GovernorTimelockExecutionComponent {
 
     #[storage]
     pub struct Storage {
-        Governor_timelock_controller: ContractAddress,
-        Governor_timelock_ids: Map<ProposalId, TimelockProposalId>
+        pub Governor_timelock_controller: ContractAddress,
+        pub Governor_timelock_ids: Map<ProposalId, TimelockProposalId>
     }
 
     #[event]

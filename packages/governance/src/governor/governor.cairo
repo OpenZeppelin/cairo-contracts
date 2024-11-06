@@ -8,9 +8,10 @@
 pub mod GovernorComponent {
     use core::hash::{HashStateTrait, HashStateExTrait};
     use core::num::traits::Zero;
-    use core::poseidon::{PoseidonTrait, poseidon_hash_span};
+    use core::pedersen::PedersenTrait;
     use crate::governor::ProposalCore;
     use crate::governor::interface::{ProposalState, IGovernor, IGOVERNOR_ID};
+    use crate::timelock::utils::call_impls::{HashCallImpl, HashCallsImpl};
     use openzeppelin_introspection::src5::SRC5Component::InternalImpl as SRC5InternalImpl;
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_token::erc1155::interface::IERC1155_RECEIVER_ID;
@@ -24,8 +25,8 @@ pub mod GovernorComponent {
 
     #[storage]
     pub struct Storage {
-        Governor_proposals: Map<felt252, ProposalCore>,
-        Governor_governance_call: DoubleEndedQueue
+        pub Governor_proposals: Map<felt252, ProposalCore>,
+        pub Governor_governance_call: DoubleEndedQueue
     }
 
     #[event]
@@ -665,6 +666,10 @@ pub mod GovernorComponent {
         /// would have to either remove or change that part, which would result in a different
         /// proposal id.
         ///
+        /// NOTE: In Starknet, the Sequencer ensures the orders of transactions, but frontrunning
+        /// can still be achieved by nodes, and potentially other actors in the future with
+        /// sequencer decentralization.
+        ///
         /// If the description does not match this pattern, it is unrestricted and anyone can submit
         /// it. This includes:
         /// - If the `0x???` part is not a valid hex string.
@@ -696,25 +701,11 @@ pub mod GovernorComponent {
             proposer.to_byte_array(16, 64) == expected_address
         }
 
-        /// Returns a hash of the proposal using the Poseidon algorithm.
+        /// Returns a hash of the proposal using the Pedersen hashing algorithm.
         fn _hash_proposal(
             self: @ComponentState<TContractState>, calls: Span<Call>, description_hash: felt252
         ) -> felt252 {
-            let mut hashed_calls = array![];
-
-            for call in calls {
-                let hash_state = PoseidonTrait::new();
-                let hash = hash_state
-                    .update_with(*call.to)
-                    .update_with(*call.selector)
-                    .update_with(poseidon_hash_span(*call.calldata))
-                    .finalize();
-
-                hashed_calls.append(hash);
-            };
-            hashed_calls.append(description_hash);
-
-            poseidon_hash_span(hashed_calls.span())
+            PedersenTrait::new(0).update_with(calls).update_with(description_hash).finalize()
         }
 
         /// Timepoint used to retrieve user's votes and quorum. If using block number, the snapshot

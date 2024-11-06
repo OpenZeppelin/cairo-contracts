@@ -1,5 +1,5 @@
 #[starknet::contract]
-pub mod Governor {
+pub mod GovernorMock {
     use openzeppelin_governance::governor::GovernorComponent::InternalTrait as GovernorInternalTrait;
     use openzeppelin_governance::governor::extensions::GovernorVotesComponent::InternalTrait;
     use openzeppelin_governance::governor::extensions::{
@@ -9,6 +9,10 @@ pub mod Governor {
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
     use starknet::ContractAddress;
+
+    pub const VOTING_DELAY: u64 = 86400; // 1 day
+    pub const VOTING_PERIOD: u64 = 432_000; // 1 week
+    pub const PROPOSAL_THRESHOLD: u256 = 0;
 
     component!(path: GovernorComponent, storage: governor, event: GovernorEvent);
     component!(path: GovernorVotesComponent, storage: governor_votes, event: GovernorVotesEvent);
@@ -104,17 +108,17 @@ pub mod Governor {
     pub impl GovernorSettings of GovernorComponent::GovernorSettingsTrait<ContractState> {
         /// See `GovernorComponent::GovernorSettingsTrait::voting_delay`.
         fn voting_delay(self: @GovernorComponent::ComponentState<ContractState>) -> u64 {
-            86400 // 1 day
+            VOTING_DELAY
         }
 
         /// See `GovernorComponent::GovernorSettingsTrait::voting_period`.
         fn voting_period(self: @GovernorComponent::ComponentState<ContractState>) -> u64 {
-            432_000 // 1 week
+            VOTING_PERIOD
         }
 
         /// See `GovernorComponent::GovernorSettingsTrait::proposal_threshold`.
         fn proposal_threshold(self: @GovernorComponent::ComponentState<ContractState>) -> u256 {
-            0
+            PROPOSAL_THRESHOLD
         }
     }
 }

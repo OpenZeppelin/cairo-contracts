@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.18.0 (governance/multisig/multisig.cairo)
 
-use core::integer::u128_safe_divmod;
-use starknet::storage_access::StorePacking;
-
 /// # Multisig Component
 #[starknet::component]
 pub mod MultisigComponent {
@@ -12,13 +9,13 @@ pub mod MultisigComponent {
     use core::panic_with_felt252;
     use core::pedersen::PedersenTrait;
     use crate::multisig::interface::{IMultisig, TransactionID, TransactionState};
-    use crate::timelock::utils::call_impls::{HashCallImpl, HashCallsImpl, CallPartialEq};
+    use crate::utils::call_impls::{HashCallImpl, HashCallsImpl, CallPartialEq};
     use starknet::account::Call;
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
     use starknet::syscalls::call_contract_syscall;
     use starknet::{ContractAddress, SyscallResultTrait};
-    use super::{TxInfo, SignersInfo, TxInfoStorePacking, SignersInfoStorePacking};
+    use crate::multisig::storage_utils::{TxInfo, SignersInfo, TxInfoStorePacking, SignersInfoStorePacking};
 
     #[storage]
     pub struct Storage {
@@ -227,13 +224,12 @@ pub mod MultisigComponent {
             let id = self.hash_transaction_batch(calls, salt);
             assert(self.get_submitted_block(id).is_zero(), Errors::TX_ALREADY_EXISTS);
 
-            let tx_info = TxInfo {
-                is_executed: false, submitted_block: starknet::get_block_number()
-            };
-            self.Multisig_tx_info.write(id, tx_info);
-
-            if salt.is_non_zero() {
-                self.emit(CallSalt { id, salt });
+            self.Multisig_tx_info.write(id, TxInfo {
+                is_executed: false, 
+                submitted_block: starknet::get_block_number()
+            });
+            if salt.is_non_zero() { 
+                self.emit(CallSalt { id, salt }); 
             }
             self.emit(TransactionSubmitted { id, signer: caller });
 
@@ -332,8 +328,7 @@ pub mod MultisigComponent {
             } else if is_executed {
                 TransactionState::Executed
             } else {
-                let quorum = Multisig::get_quorum(self);
-                let is_confirmed = Multisig::get_transaction_confirmations(self, id) >= quorum;
+                let is_confirmed = self.get_transaction_confirmations(id) >= self.get_quorum();
                 if is_confirmed {
                     TransactionState::Confirmed
                 } else {
@@ -343,12 +338,11 @@ pub mod MultisigComponent {
         }
 
         fn assert_one_of_signers(self: @ComponentState<TContractState>, caller: ContractAddress) {
-            assert(self.Multisig_is_signer.read(caller), Errors::NOT_A_SIGNER);
+            assert(self.is_signer(caller), Errors::NOT_A_SIGNER);
         }
 
         fn assert_tx_exists(self: @ComponentState<TContractState>, id: TransactionID) {
-            let tx_info = self.Multisig_tx_info.read(id);
-            assert(tx_info.submitted_block.is_non_zero(), Errors::TX_NOT_FOUND);
+            assert(self.get_submitted_block(id).is_non_zero(), Errors::TX_NOT_FOUND);
         }
 
         fn assert_only_self(self: @ComponentState<TContractState>) {
@@ -367,7 +361,7 @@ pub mod MultisigComponent {
                 for signer in signers_to_add {
                     let signer_to_add = *signer;
                     assert(signer_to_add.is_non_zero(), Errors::ZERO_ADDRESS);
-                    if Multisig::is_signer(@self, signer_to_add) {
+                    if self.is_signer(signer_to_add) {
                         continue;
                     }
                     let index = signers_count;
@@ -392,7 +386,7 @@ pub mod MultisigComponent {
                 let SignersInfo { quorum, mut signers_count } = self.Multisig_signers_info.read();
                 for signer in signers_to_remove {
                     let signer_to_remove = *signer;
-                    if !Multisig::is_signer(@self, signer_to_remove) {
+                    if !self.is_signer(signer_to_remove) {
                         continue;
                     }
                     let last_index = signers_count - 1;
@@ -407,7 +401,6 @@ pub mod MultisigComponent {
                     self.Multisig_is_signer.write(signer_to_remove, false);
                     self.Multisig_signers_by_index.write(last_index, Zero::zero());
                     self.Multisig_signers_indices.write(signer_to_remove, 0);
-
                     self.emit(SignerRemoved { signer: signer_to_remove });
 
                     signers_count -= 1;
@@ -423,8 +416,8 @@ pub mod MultisigComponent {
             signer_to_add: ContractAddress
         ) {
             assert(signer_to_add.is_non_zero(), Errors::ZERO_ADDRESS);
-            assert(!Multisig::is_signer(@self, signer_to_add), Errors::ALREADY_A_SIGNER);
-            assert(Multisig::is_signer(@self, signer_to_remove), Errors::NOT_A_SIGNER);
+            assert(!self.is_signer(signer_to_add), Errors::ALREADY_A_SIGNER);
+            assert(self.is_signer(signer_to_remove), Errors::NOT_A_SIGNER);
 
             self.Multisig_is_signer.write(signer_to_remove, false);
             self.Multisig_is_signer.write(signer_to_add, true);
@@ -432,7 +425,6 @@ pub mod MultisigComponent {
             self.Multisig_signers_by_index.write(index, signer_to_add);
             self.Multisig_signers_indices.write(signer_to_add, index);
             self.Multisig_signers_indices.write(signer_to_remove, 0);
-
             self.emit(SignerRemoved { signer: signer_to_remove });
             self.emit(SignerAdded { signer: signer_to_add });
         }
@@ -447,57 +439,6 @@ pub mod MultisigComponent {
                 self.Multisig_signers_info.write(SignersInfo { quorum: new_quorum, signers_count });
                 self.emit(QuorumUpdated { old_quorum, new_quorum });
             }
-        }
-    }
-}
-
-//
-// Storage helpers
-//
-
-const _2_POW_32: NonZero<u128> = 0xFFFFFFFF;
-const _2_POW_64: NonZero<u128> = 0xFFFFFFFFFFFFFFFF;
-
-#[derive(Drop)]
-struct TxInfo {
-    is_executed: bool,
-    submitted_block: u64
-}
-
-impl TxInfoStorePacking of StorePacking<TxInfo, u128> {
-    fn pack(value: TxInfo) -> u128 {
-        let TxInfo { is_executed, submitted_block } = value;
-        let is_executed_value = if is_executed {
-            1
-        } else {
-            0
-        };
-        is_executed_value * _2_POW_64.into() + submitted_block.into()
-    }
-
-    fn unpack(value: u128) -> TxInfo {
-        let (is_executed_value, submitted_block) = u128_safe_divmod(value, _2_POW_64);
-        let is_executed = is_executed_value == 1;
-        TxInfo { is_executed, submitted_block: submitted_block.try_into().unwrap() }
-    }
-}
-
-#[derive(Drop)]
-struct SignersInfo {
-    quorum: u32,
-    signers_count: u32
-}
-
-impl SignersInfoStorePacking of StorePacking<SignersInfo, u128> {
-    fn pack(value: SignersInfo) -> u128 {
-        let SignersInfo { quorum, signers_count } = value;
-        quorum.into() * _2_POW_32.into() + signers_count.into()
-    }
-
-    fn unpack(value: u128) -> SignersInfo {
-        let (quorum, signers_count) = u128_safe_divmod(value, _2_POW_32);
-        SignersInfo {
-            quorum: quorum.try_into().unwrap(), signers_count: signers_count.try_into().unwrap()
         }
     }
 }

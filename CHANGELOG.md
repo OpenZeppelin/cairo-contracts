@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Multisig component (#1193)
 - `is_valid_p256_signature` utility function to `openzeppelin_account::utils::signature` (#1189)
 - `Secp256r1KeyPair` type and helpers to `openzeppelin_testing::signing` (#1189)
 - Embeddable impls for ERC2981 component (#1173)

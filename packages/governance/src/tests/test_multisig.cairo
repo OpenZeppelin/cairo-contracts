@@ -299,7 +299,7 @@ fn test_confirm_tx() {
     assert_eq!(state.is_confirmed_by(id, BOB()), true);
     assert_tx_state(id, TransactionState::Pending);
     assert_eq!(state.get_transaction_confirmations(id), 1);
-    spy.assert_only_event_tx_confirmed(contract_address, id, BOB(), 1);
+    spy.assert_only_event_tx_confirmed(contract_address, id, BOB());
 
     // Confirm by Charlie
     start_cheat_caller_address(contract_address, CHARLIE());
@@ -308,7 +308,7 @@ fn test_confirm_tx() {
     assert_eq!(state.is_confirmed_by(id, CHARLIE()), true);
     assert_tx_state(id, TransactionState::Confirmed);
     assert_eq!(state.get_transaction_confirmations(id), 2);
-    spy.assert_only_event_tx_confirmed(contract_address, id, CHARLIE(), 2);
+    spy.assert_only_event_tx_confirmed(contract_address, id, CHARLIE());
 }
 
 #[test]
@@ -383,7 +383,7 @@ fn test_confirm_tx_batch() {
     assert_eq!(state.is_confirmed_by(id, BOB()), true);
     assert_tx_state(id, TransactionState::Pending);
     assert_eq!(state.get_transaction_confirmations(id), 1);
-    spy.assert_only_event_tx_confirmed(contract_address, id, BOB(), 1);
+    spy.assert_only_event_tx_confirmed(contract_address, id, BOB());
 
     // Confirm by Charlie
     start_cheat_caller_address(contract_address, CHARLIE());
@@ -392,7 +392,7 @@ fn test_confirm_tx_batch() {
     assert_eq!(state.is_confirmed_by(id, CHARLIE()), true);
     assert_tx_state(id, TransactionState::Confirmed);
     assert_eq!(state.get_transaction_confirmations(id), 2);
-    spy.assert_only_event_tx_confirmed(contract_address, id, CHARLIE(), 2);
+    spy.assert_only_event_tx_confirmed(contract_address, id, CHARLIE());
 }
 
 #[test]
@@ -481,7 +481,38 @@ fn test_revoke_confirmation() {
     assert_tx_state(id, TransactionState::Pending);
     assert_eq!(state.is_confirmed_by(id, CHARLIE()), false);
     assert_eq!(state.get_transaction_confirmations(id), 1);
-    spy.assert_only_event_confirmation_revoked(contract_address, id, CHARLIE(), 1);
+    spy.assert_only_event_confirmation_revoked(contract_address, id, CHARLIE());
+}
+
+#[test]
+fn test_tx_not_confirmed_after_signer_removal() {
+    let (quorum, signers) = DEFAULT_DATA();
+    let mut state = setup_component(quorum, signers);
+    let contract_address = test_address();
+
+    // Submit & confirm by Alice
+    let Call { to, selector, calldata } = build_call(MockCall::AddNumber(42));
+    start_cheat_caller_address(contract_address, ALICE());
+    let id = state.submit_transaction(to, selector, calldata, 0);
+    state.confirm_transaction(id);
+
+    // Confirm by Bob
+    start_cheat_caller_address(contract_address, BOB());
+    state.confirm_transaction(id);
+
+    // Check state before removal
+    assert_tx_state(id, TransactionState::Confirmed);
+    assert_eq!(state.is_confirmed_by(id, BOB()), true);
+    assert_eq!(state.get_transaction_confirmations(id), 2);
+
+    // Remove Bob from signers
+    start_cheat_caller_address(contract_address, contract_address);
+    state.remove_signers(quorum, array![BOB()].span());
+
+    // Check state after removal
+    assert_tx_state(id, TransactionState::Pending);
+    assert_eq!(state.is_confirmed_by(id, BOB()), true);
+    assert_eq!(state.get_transaction_confirmations(id), 1);
 }
 
 #[test]
@@ -504,16 +535,16 @@ fn test_can_revoke_confirmation_after_being_removed() {
     start_cheat_caller_address(contract_address, contract_address);
     state.remove_signers(quorum, array![BOB()].span());
 
-    // Check state before removing
-    assert_tx_state(id, TransactionState::Confirmed);
+    // Check state before revocation
+    assert_tx_state(id, TransactionState::Pending);
     assert_eq!(state.is_confirmed_by(id, BOB()), true);
-    assert_eq!(state.get_transaction_confirmations(id), 2);
+    assert_eq!(state.get_transaction_confirmations(id), 1);
 
     // Revoke confirmation by Bob
     start_cheat_caller_address(contract_address, BOB());
     state.revoke_confirmation(id);
 
-    // Check state before removing
+    // Check state after revocation
     assert_tx_state(id, TransactionState::Pending);
     assert_eq!(state.is_confirmed_by(id, BOB()), false);
     assert_eq!(state.get_transaction_confirmations(id), 1);
@@ -1497,26 +1528,16 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
     //
 
     fn assert_event_tx_confirmed(
-        ref self: EventSpy,
-        contract: ContractAddress,
-        id: TransactionID,
-        signer: ContractAddress,
-        confirmations: u32
+        ref self: EventSpy, contract: ContractAddress, id: TransactionID, signer: ContractAddress
     ) {
-        let expected = Event::TransactionConfirmed(
-            TransactionConfirmed { id, signer, confirmations }
-        );
+        let expected = Event::TransactionConfirmed(TransactionConfirmed { id, signer });
         self.assert_emitted_single(contract, expected);
     }
 
     fn assert_only_event_tx_confirmed(
-        ref self: EventSpy,
-        contract: ContractAddress,
-        id: TransactionID,
-        signer: ContractAddress,
-        confirmations: u32
+        ref self: EventSpy, contract: ContractAddress, id: TransactionID, signer: ContractAddress
     ) {
-        self.assert_event_tx_confirmed(contract, id, signer, confirmations);
+        self.assert_event_tx_confirmed(contract, id, signer);
         self.assert_no_events_left_from(contract);
     }
 
@@ -1525,26 +1546,16 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
     //
 
     fn assert_event_confirmation_revoked(
-        ref self: EventSpy,
-        contract: ContractAddress,
-        id: TransactionID,
-        signer: ContractAddress,
-        confirmations: u32
+        ref self: EventSpy, contract: ContractAddress, id: TransactionID, signer: ContractAddress
     ) {
-        let expected = Event::ConfirmationRevoked(
-            ConfirmationRevoked { id, signer, confirmations }
-        );
+        let expected = Event::ConfirmationRevoked(ConfirmationRevoked { id, signer });
         self.assert_emitted_single(contract, expected);
     }
 
     fn assert_only_event_confirmation_revoked(
-        ref self: EventSpy,
-        contract: ContractAddress,
-        id: TransactionID,
-        signer: ContractAddress,
-        confirmations: u32
+        ref self: EventSpy, contract: ContractAddress, id: TransactionID, signer: ContractAddress
     ) {
-        self.assert_event_confirmation_revoked(contract, id, signer, confirmations);
+        self.assert_event_confirmation_revoked(contract, id, signer);
         self.assert_no_events_left_from(contract);
     }
 

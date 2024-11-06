@@ -121,7 +121,7 @@ fn test_token_by_index_greater_than_supply() {
 
 #[test]
 fn test_token_by_index_burn_last_token() {
-    let (_, _) = setup();
+    let _ = setup();
     let mut contract_state = CONTRACT_STATE();
     let last_token = TOKEN_3;
 
@@ -133,7 +133,7 @@ fn test_token_by_index_burn_last_token() {
 
 #[test]
 fn test_token_by_index_burn_first_token() {
-    let (_, _) = setup();
+    let _ = setup();
     let mut contract_state = CONTRACT_STATE();
     let first_token = TOKEN_1;
 
@@ -514,14 +514,45 @@ fn test_all_tokens_of_owner() {
 }
 
 #[test]
-fn test_all_tokens_of_owner_after_transfer() {
+fn test_all_tokens_of_owner_after_transfer_first_token() {
     let _ = setup();
     let mut contract_state = CONTRACT_STATE();
 
-    contract_state.erc721.transfer(OWNER(), RECIPIENT(), TOKEN_2);
+    contract_state.erc721.transfer(OWNER(), RECIPIENT(), TOKEN_1);
 
-    assert_all_tokens_of_owner(OWNER(), array![TOKEN_1, TOKEN_3].span());
-    assert_all_tokens_of_owner(RECIPIENT(), array![TOKEN_2].span());
+    assert_all_tokens_of_owner(OWNER(), array![TOKEN_3, TOKEN_2].span());
+    assert_all_tokens_of_owner(RECIPIENT(), array![TOKEN_1].span());
+}
+
+#[test]
+fn test_all_tokens_of_owner_after_transfer_last_token() {
+    let _ = setup();
+    let mut contract_state = CONTRACT_STATE();
+
+    contract_state.erc721.transfer(OWNER(), RECIPIENT(), TOKEN_3);
+
+    assert_all_tokens_of_owner(OWNER(), array![TOKEN_1, TOKEN_2].span());
+    assert_all_tokens_of_owner(RECIPIENT(), array![TOKEN_3].span());
+}
+
+#[test]
+fn test_all_tokens_of_owner_after_burn_first_token() {
+    let _ = setup();
+    let mut contract_state = CONTRACT_STATE();
+
+    contract_state.erc721.burn(TOKEN_1);
+
+    assert_all_tokens_of_owner(OWNER(), array![TOKEN_3, TOKEN_2].span());
+}
+
+#[test]
+fn test_all_tokens_of_owner_after_burn_last_token() {
+    let _ = setup();
+    let mut contract_state = CONTRACT_STATE();
+
+    contract_state.erc721.burn(TOKEN_3);
+
+    assert_all_tokens_of_owner(OWNER(), array![TOKEN_1, TOKEN_2].span());
 }
 
 //

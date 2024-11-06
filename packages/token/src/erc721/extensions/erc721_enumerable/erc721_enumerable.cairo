@@ -143,8 +143,7 @@ pub mod ERC721EnumerableComponent {
             self: @ComponentState<TContractState>, owner: ContractAddress
         ) -> Span<u256> {
             let mut result = array![];
-            let erc721_component = get_dep_component!(self, ERC721);
-            let balance = erc721_component.balance_of(owner);
+            let balance = get_dep_component!(self, ERC721).balance_of(owner);
             for index in 0
                 ..balance {
                     result.append(self.ERC721Enumerable_owned_tokens.read((owner, index)));

@@ -9,13 +9,14 @@ pub mod MultisigComponent {
     use core::panic_with_felt252;
     use core::pedersen::PedersenTrait;
     use crate::multisig::interface::{IMultisig, TransactionID, TransactionState};
+    use crate::multisig::storage_utils::{SignersInfo, SignersInfoStorePacking};
+    use crate::multisig::storage_utils::{TxInfo, TxInfoStorePacking};
     use crate::utils::call_impls::{HashCallImpl, HashCallsImpl, CallPartialEq};
     use starknet::account::Call;
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
     use starknet::syscalls::call_contract_syscall;
     use starknet::{ContractAddress, SyscallResultTrait};
-    use crate::multisig::storage_utils::{TxInfo, SignersInfo, TxInfoStorePacking, SignersInfoStorePacking};
 
     #[storage]
     pub struct Storage {
@@ -224,12 +225,12 @@ pub mod MultisigComponent {
             let id = self.hash_transaction_batch(calls, salt);
             assert(self.get_submitted_block(id).is_zero(), Errors::TX_ALREADY_EXISTS);
 
-            self.Multisig_tx_info.write(id, TxInfo {
-                is_executed: false, 
-                submitted_block: starknet::get_block_number()
-            });
-            if salt.is_non_zero() { 
-                self.emit(CallSalt { id, salt }); 
+            let tx_info = TxInfo {
+                is_executed: false, submitted_block: starknet::get_block_number()
+            };
+            self.Multisig_tx_info.write(id, tx_info);
+            if salt.is_non_zero() {
+                self.emit(CallSalt { id, salt });
             }
             self.emit(TransactionSubmitted { id, signer: caller });
 

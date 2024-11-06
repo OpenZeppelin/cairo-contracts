@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `DebugSecp256k1Point` replaced by a generic `DebugSecp256Point`
 - Apply underscore pattern to the internal functions of `ERC2981Component` to prevent collisions
 with new external functions (#1173)
+- Move `Hash` and `PartialEq` impls of `Call` struct from `openzeppelin_governance::timelock::utils` to `openzeppelin_governance::utils` (#1193)
 
 ## 0.18.0 (2024-10-17)
 

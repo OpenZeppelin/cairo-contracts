@@ -148,8 +148,7 @@ pub mod ERC721EnumerableComponent {
                 ..balance {
                     result.append(self.ERC721Enumerable_owned_tokens.read((owner, index)));
                 };
-            let result = result.span();
-            result
+            result.span()
         }
 
         /// Adds token to this extension's ownership-tracking data structures.

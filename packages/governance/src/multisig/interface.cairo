@@ -17,7 +17,7 @@ pub enum TransactionState {
 /// Interface for a contract providing the Multisig functionality.
 #[starknet::interface]
 pub trait IMultisig<TState> {
-    fn get_quorum(self: @TState) -> u8;
+    fn get_quorum(self: @TState) -> u32;
     fn is_signer(self: @TState, signer: ContractAddress) -> bool;
     fn get_signers(self: @TState) -> Span<ContractAddress>;
     fn is_confirmed(self: @TState, id: TransactionID) -> bool;
@@ -25,7 +25,7 @@ pub trait IMultisig<TState> {
     fn is_executed(self: @TState, id: TransactionID) -> bool;
     fn get_submitted_block(self: @TState, id: TransactionID) -> u64;
     fn get_transaction_state(self: @TState, id: TransactionID) -> TransactionState;
-    fn get_transaction_confirmations(self: @TState, id: TransactionID) -> u8;
+    fn get_transaction_confirmations(self: @TState, id: TransactionID) -> u32;
     fn hash_transaction(
         self: @TState,
         to: ContractAddress,
@@ -35,12 +35,12 @@ pub trait IMultisig<TState> {
     ) -> TransactionID;
     fn hash_transaction_batch(self: @TState, calls: Span<Call>, salt: felt252) -> TransactionID;
 
-    fn add_signers(ref self: TState, new_quorum: u8, signers_to_add: Span<ContractAddress>);
-    fn remove_signers(ref self: TState, new_quorum: u8, signers_to_remove: Span<ContractAddress>);
+    fn add_signers(ref self: TState, new_quorum: u32, signers_to_add: Span<ContractAddress>);
+    fn remove_signers(ref self: TState, new_quorum: u32, signers_to_remove: Span<ContractAddress>);
     fn replace_signer(
         ref self: TState, signer_to_remove: ContractAddress, signer_to_add: ContractAddress
     );
-    fn change_quorum(ref self: TState, new_quorum: u8);
+    fn change_quorum(ref self: TState, new_quorum: u32);
     fn submit_transaction(
         ref self: TState,
         to: ContractAddress,

@@ -25,17 +25,17 @@ fn COMPONENT_STATE() -> ComponentState {
     MultisigComponent::component_state_for_testing()
 }
 
-fn DEFAULT_DATA() -> (u8, Span<ContractAddress>) {
+fn DEFAULT_DATA() -> (u32, Span<ContractAddress>) {
     let signers = array![ALICE(), BOB(), CHARLIE()];
     let quorum = signers.len() - 1;
-    (quorum.try_into().unwrap(), signers.span())
+    (quorum, signers.span())
 }
 
 fn MOCK_ADDRESS() -> ContractAddress {
     contract_address_const::<'MOCK_ADDRESS'>()
 }
 
-fn setup_component(quorum: u8, signers: Span<ContractAddress>) -> ComponentState {
+fn setup_component(quorum: u32, signers: Span<ContractAddress>) -> ComponentState {
     start_cheat_block_number_global(BLOCK_NUMBER);
     let mut state = COMPONENT_STATE();
     state.initializer(quorum, signers);
@@ -1306,7 +1306,7 @@ fn test_change_quorum_to_max_value() {
     start_cheat_caller_address(contract_address, contract_address);
 
     // Set quorum to max allowed value (signers count)
-    let new_quorum = signers.len().try_into().unwrap();
+    let new_quorum = signers.len();
     state.change_quorum(new_quorum);
     assert_eq!(state.get_quorum(), new_quorum);
     spy.assert_only_event_quorum_updated(contract_address, initial_quorum, new_quorum);
@@ -1333,7 +1333,7 @@ fn test_cannot_set_quorum_too_high() {
     start_cheat_caller_address(contract_address, contract_address);
 
     // Try to set quorum to a value too high (signers count + 1)
-    let new_quorum = signers.len().try_into().unwrap() + 1;
+    let new_quorum = signers.len() + 1;
     state.change_quorum(new_quorum);
 }
 
@@ -1461,14 +1461,14 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
     //
 
     fn assert_event_quorum_updated(
-        ref self: EventSpy, contract: ContractAddress, old_quorum: u8, new_quorum: u8
+        ref self: EventSpy, contract: ContractAddress, old_quorum: u32, new_quorum: u32
     ) {
         let expected = Event::QuorumUpdated(QuorumUpdated { old_quorum, new_quorum });
         self.assert_emitted_single(contract, expected);
     }
 
     fn assert_only_event_quorum_updated(
-        ref self: EventSpy, contract: ContractAddress, old_quorum: u8, new_quorum: u8
+        ref self: EventSpy, contract: ContractAddress, old_quorum: u32, new_quorum: u32
     ) {
         self.assert_event_quorum_updated(contract, old_quorum, new_quorum);
         self.assert_no_events_left_from(contract);
@@ -1501,7 +1501,7 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
         contract: ContractAddress,
         id: TransactionID,
         signer: ContractAddress,
-        total_confirmations: u8
+        total_confirmations: u32
     ) {
         let expected = Event::TransactionConfirmed(
             TransactionConfirmed { id, signer, total_confirmations }
@@ -1514,7 +1514,7 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
         contract: ContractAddress,
         id: TransactionID,
         signer: ContractAddress,
-        total_confirmations: u8
+        total_confirmations: u32
     ) {
         self.assert_event_tx_confirmed(contract, id, signer, total_confirmations);
         self.assert_no_events_left_from(contract);
@@ -1529,7 +1529,7 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
         contract: ContractAddress,
         id: TransactionID,
         signer: ContractAddress,
-        total_confirmations: u8
+        total_confirmations: u32
     ) {
         let expected = Event::ConfirmationRevoked(
             ConfirmationRevoked { id, signer, total_confirmations }
@@ -1542,7 +1542,7 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
         contract: ContractAddress,
         id: TransactionID,
         signer: ContractAddress,
-        total_confirmations: u8
+        total_confirmations: u32
     ) {
         self.assert_event_confirmation_revoked(contract, id, signer, total_confirmations);
         self.assert_no_events_left_from(contract);

@@ -18,13 +18,13 @@ pub mod MultisigComponent {
 
     #[storage]
     pub struct Storage {
-        pub Multisig_quorum: u8,
+        pub Multisig_quorum: u32,
         pub Multisig_signers_count: u32,
         pub Multisig_is_signer: Map<ContractAddress, bool>,
         pub Multisig_signers_by_index: Map<u32, ContractAddress>,
         pub Multisig_signers_indices: Map<ContractAddress, u32>,
-        pub Multisig_tx_confirmations: Map<TransactionID, u8>,
         pub Multisig_tx_confirmed_by: Map<(TransactionID, ContractAddress), bool>,
+        pub Multisig_tx_confirmations: Map<TransactionID, u32>,
         pub Multisig_tx_submitted_block: Map<TransactionID, u64>,
         pub Multisig_tx_executed: Map<TransactionID, bool>
     }
@@ -56,8 +56,8 @@ pub mod MultisigComponent {
 
     #[derive(Drop, starknet::Event)]
     pub struct QuorumUpdated {
-        pub old_quorum: u8,
-        pub new_quorum: u8
+        pub old_quorum: u32,
+        pub new_quorum: u32
     }
 
     #[derive(Drop, starknet::Event)]
@@ -74,7 +74,7 @@ pub mod MultisigComponent {
         pub id: TransactionID,
         #[key]
         pub signer: ContractAddress,
-        pub total_confirmations: u8
+        pub total_confirmations: u32
     }
 
     #[derive(Drop, starknet::Event)]
@@ -83,7 +83,7 @@ pub mod MultisigComponent {
         pub id: TransactionID,
         #[key]
         pub signer: ContractAddress,
-        pub total_confirmations: u8
+        pub total_confirmations: u32
     }
 
     #[derive(Drop, starknet::Event)]
@@ -118,7 +118,7 @@ pub mod MultisigComponent {
     impl Multisig<
         TContractState, +HasComponent<TContractState>, +Drop<TContractState>
     > of IMultisig<ComponentState<TContractState>> {
-        fn get_quorum(self: @ComponentState<TContractState>) -> u8 {
+        fn get_quorum(self: @ComponentState<TContractState>) -> u32 {
             self.Multisig_quorum.read()
         }
 
@@ -162,7 +162,7 @@ pub mod MultisigComponent {
 
         fn get_transaction_confirmations(
             self: @ComponentState<TContractState>, id: TransactionID
-        ) -> u8 {
+        ) -> u32 {
             self.Multisig_tx_confirmations.read(id)
         }
 
@@ -172,7 +172,7 @@ pub mod MultisigComponent {
 
         fn add_signers(
             ref self: ComponentState<TContractState>,
-            new_quorum: u8,
+            new_quorum: u32,
             signers_to_add: Span<ContractAddress>
         ) {
             self.assert_only_self();
@@ -181,7 +181,7 @@ pub mod MultisigComponent {
 
         fn remove_signers(
             ref self: ComponentState<TContractState>,
-            new_quorum: u8,
+            new_quorum: u32,
             signers_to_remove: Span<ContractAddress>
         ) {
             self.assert_only_self();
@@ -197,7 +197,7 @@ pub mod MultisigComponent {
             self._replace_signer(signer_to_remove, signer_to_add);
         }
 
-        fn change_quorum(ref self: ComponentState<TContractState>, new_quorum: u8) {
+        fn change_quorum(ref self: ComponentState<TContractState>, new_quorum: u32) {
             self.assert_only_self();
             self._change_quorum(new_quorum);
         }
@@ -312,7 +312,7 @@ pub mod MultisigComponent {
         TContractState, +HasComponent<TContractState>, +Drop<TContractState>
     > of InternalTrait<TContractState> {
         fn initializer(
-            ref self: ComponentState<TContractState>, quorum: u8, signers: Span<ContractAddress>
+            ref self: ComponentState<TContractState>, quorum: u32, signers: Span<ContractAddress>
         ) {
             self._add_signers(quorum, signers);
         }
@@ -351,7 +351,7 @@ pub mod MultisigComponent {
 
         fn _add_signers(
             ref self: ComponentState<TContractState>,
-            new_quorum: u8,
+            new_quorum: u32,
             signers_to_add: Span<ContractAddress>
         ) {
             if !signers_to_add.is_empty() {
@@ -377,7 +377,7 @@ pub mod MultisigComponent {
 
         fn _remove_signers(
             ref self: ComponentState<TContractState>,
-            new_quorum: u8,
+            new_quorum: u32,
             signers_to_remove: Span<ContractAddress>
         ) {
             if !signers_to_remove.is_empty() {
@@ -429,12 +429,12 @@ pub mod MultisigComponent {
             self.emit(SignerAdded { signer: signer_to_add });
         }
 
-        fn _change_quorum(ref self: ComponentState<TContractState>, new_quorum: u8) {
+        fn _change_quorum(ref self: ComponentState<TContractState>, new_quorum: u32) {
             let old_quorum = self.Multisig_quorum.read();
             if new_quorum != old_quorum {
                 assert(new_quorum.is_non_zero(), Errors::ZERO_QUORUM);
                 let signers_count = self.Multisig_signers_count.read();
-                assert(new_quorum.into() <= signers_count, Errors::QUORUM_TOO_HIGH);
+                assert(new_quorum <= signers_count, Errors::QUORUM_TOO_HIGH);
                 self.Multisig_quorum.write(new_quorum);
                 self.emit(QuorumUpdated { old_quorum, new_quorum });
             }

@@ -943,10 +943,9 @@ fn test_add_remove_add() {
 }
 
 #[test]
-#[should_panic(expected: 'Multisig: already a signer')]
-fn test_cannot_add_signer_twice() {
+fn test_signers_ignored_if_added_again() {
     let quorum = 1;
-    let (alice, bob) = (ALICE(), BOB());
+    let (alice, bob, charlie) = (ALICE(), BOB(), CHARLIE());
     let mut state = setup_component(quorum, array![alice].span());
     let contract_address = test_address();
     start_cheat_caller_address(contract_address, contract_address);
@@ -955,8 +954,25 @@ fn test_cannot_add_signer_twice() {
     state.add_signers(quorum, array![bob].span());
     assert_signers_list(array![alice, bob].span());
 
-    // Try to add Bob again
-    state.add_signers(quorum, array![bob].span());
+    // Add Alice and Bob again and Charlie as a new signer
+    let mut spy = spy_events();
+    state.add_signers(quorum, array![alice, bob, charlie].span());
+    assert_signers_list(array![alice, bob, charlie].span());
+    spy.assert_only_event_signer_added(contract_address, charlie);
+}
+
+#[test]
+fn test_add_signers_does_nothing_if_signers_empty() {
+    let (quorum, signers) = DEFAULT_DATA();
+    let mut state = setup_component(quorum, signers);
+    let contract_address = test_address();
+    start_cheat_caller_address(contract_address, contract_address);
+
+    // Call `add_signers` with an empty list
+    let mut spy = spy_events();
+    let empty_list = array![].span();
+    state.add_signers(quorum, empty_list);
+    spy.assert_no_events_left_from(contract_address);
 }
 
 #[test]
@@ -969,19 +985,6 @@ fn test_cannot_add_when_not_multisig_itself() {
     // Try to add signer
     start_cheat_caller_address(test_address(), OTHER());
     state.add_signers(quorum, array![bob].span());
-}
-
-#[test]
-#[should_panic(expected: 'Multisig: empty signers list')]
-fn test_cannot_add_empty_signers_list() {
-    let quorum = 1;
-    let mut state = setup_component(quorum, array![ALICE()].span());
-    let contract_address = test_address();
-    start_cheat_caller_address(contract_address, contract_address);
-
-    // Try to add empty signers list
-    let empty_list = array![].span();
-    state.add_signers(quorum, empty_list);
 }
 
 #[test]
@@ -1093,16 +1096,36 @@ fn test_remove_add_remove() {
 }
 
 #[test]
-#[should_panic(expected: 'Multisig: not a signer')]
-fn test_cannot_remove_not_signer() {
+fn test_not_signers_ignored_when_removing() {
+    let quorum = 1;
+    let (alice, bob, charlie, other) = (ALICE(), BOB(), CHARLIE(), OTHER());
+    let mut state = setup_component(quorum, array![alice, bob, charlie].span());
+    let contract_address = test_address();
+    start_cheat_caller_address(contract_address, contract_address);
+
+    // Remove Alice and Other from signers
+    let mut spy = spy_events();
+    state.remove_signers(quorum, array![alice, other].span());
+    assert_signers_list(array![charlie, bob].span());
+    assert_eq!(state.is_signer(alice), false);
+    assert_eq!(state.is_signer(other), false);
+    spy.assert_only_event_signer_removed(contract_address, alice);
+}
+
+#[test]
+fn test_remove_signers_does_nothing_if_signers_empty() {
     let quorum = 1;
     let (alice, bob, charlie) = (ALICE(), BOB(), CHARLIE());
     let mut state = setup_component(quorum, array![alice, bob, charlie].span());
     let contract_address = test_address();
     start_cheat_caller_address(contract_address, contract_address);
 
-    // Try to remove Other from signers
-    state.remove_signers(quorum, array![OTHER()].span());
+    // Call `remove_signers` with an empty list
+    let mut spy = spy_events();
+    let empty_list = array![].span();
+    state.remove_signers(quorum, empty_list);
+    assert_signers_list(array![alice, bob, charlie].span());
+    spy.assert_no_events_left_from(contract_address);
 }
 
 #[test]
@@ -1115,20 +1138,6 @@ fn test_cannot_remove_when_not_multisig_itself() {
     // Try to call 'remove_signers' from Other
     start_cheat_caller_address(test_address(), OTHER());
     state.remove_signers(quorum, array![alice].span());
-}
-
-#[test]
-#[should_panic(expected: 'Multisig: empty signers list')]
-fn test_cannot_remove_empty_signers_list() {
-    let quorum = 1;
-    let (alice, bob, charlie) = (ALICE(), BOB(), CHARLIE());
-    let mut state = setup_component(quorum, array![alice, bob, charlie].span());
-    let contract_address = test_address();
-    start_cheat_caller_address(contract_address, contract_address);
-
-    // Try to remove empty signers list
-    let empty_list = array![].span();
-    state.remove_signers(quorum, empty_list);
 }
 
 #[test]

@@ -49,7 +49,7 @@ build-external-contracts = [
     "openzeppelin_test_common::mocks::timelock::TimelockControllerMock",
     "openzeppelin_test_common::mocks::timelock::MockContract",
     "openzeppelin_test_common::mocks::timelock::TimelockAttackerMock",
-    "openzeppelin_test_common::mocks::multisig::MultisigTarget",
+    "openzeppelin_test_common::mocks::multisig::MultisigTargetMock",
     "openzeppelin_test_common::mocks::votes::ERC721VotesMock",
     "openzeppelin_test_common::mocks::votes::ERC20VotesMock"
 ]

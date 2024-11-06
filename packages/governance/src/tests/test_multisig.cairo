@@ -5,8 +5,8 @@ use crate::multisig::MultisigComponent::{MultisigImpl, InternalImpl, Event};
 use crate::multisig::MultisigComponent::{SignerAdded, SignerRemoved, QuorumUpdated, CallSalt};
 use crate::multisig::MultisigComponent::{TransactionSubmitted, TransactionConfirmed};
 use crate::multisig::{MultisigComponent, TransactionID, TransactionState};
-use openzeppelin_test_common::mocks::multisig::IMultisigTargetDispatcherTrait;
-use openzeppelin_test_common::mocks::multisig::{MultisigWalletMock, IMultisigTargetDispatcher};
+use openzeppelin_test_common::mocks::multisig::IMultisigTargetMockDispatcherTrait;
+use openzeppelin_test_common::mocks::multisig::{MultisigWalletMock, IMultisigTargetMockDispatcher};
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{ZERO, OTHER, ALICE, BOB, CHARLIE, SALT, BLOCK_NUMBER};
 use openzeppelin_testing::events::EventSpyExt;
@@ -42,10 +42,10 @@ fn setup_component(quorum: u32, signers: Span<ContractAddress>) -> ComponentStat
     state
 }
 
-fn deploy_mock() -> IMultisigTargetDispatcher {
+fn deploy_mock() -> IMultisigTargetMockDispatcher {
     let contract_address = MOCK_ADDRESS();
-    utils::declare_and_deploy_at("MultisigTarget", contract_address, array![]);
-    IMultisigTargetDispatcher { contract_address }
+    utils::declare_and_deploy_at("MultisigTargetMock", contract_address, array![]);
+    IMultisigTargetMockDispatcher { contract_address }
 }
 
 //
@@ -75,7 +75,7 @@ fn test_submit_tx() {
 }
 
 #[test]
-fn test_submit_tx_custom_salt() {
+fn test_submit_tx_with_salt() {
     let (quorum, signers) = DEFAULT_DATA();
     let mut state = setup_component(quorum, signers);
     let mut spy = spy_events();
@@ -154,7 +154,7 @@ fn test_submit_tx_batch() {
 }
 
 #[test]
-fn test_submit_tx_batch_custom_salt() {
+fn test_submit_tx_batch_with_salt() {
     let (quorum, signers) = DEFAULT_DATA();
     let mut state = setup_component(quorum, signers);
     let mut spy = spy_events();
@@ -217,7 +217,7 @@ fn test_submit_same_tx_batch_different_salt() {
 
 #[test]
 #[should_panic(expected: 'Multisig: not a signer')]
-fn test_cannot_submit_tx_not_signer() {
+fn test_cannot_submit_tx_unauthorized() {
     let (quorum, signers) = DEFAULT_DATA();
     let mut state = setup_component(quorum, signers);
 
@@ -229,7 +229,7 @@ fn test_cannot_submit_tx_not_signer() {
 
 #[test]
 #[should_panic(expected: 'Multisig: not a signer')]
-fn test_cannot_submit_tx_batch_not_signer() {
+fn test_cannot_submit_tx_batch_unauthorized() {
     let (quorum, signers) = DEFAULT_DATA();
     let mut state = setup_component(quorum, signers);
 
@@ -336,7 +336,7 @@ fn test_confirmed_status_changed_when_quorum_increased() {
 }
 
 #[test]
-fn test_confirmed_status_changed_when_quorum_reduced() {
+fn test_pending_status_changed_when_quorum_reduced() {
     let (quorum, signers) = DEFAULT_DATA();
     let mut state = setup_component(quorum, signers);
     let contract_address = test_address();
@@ -411,7 +411,7 @@ fn test_cannot_confirm_nonexistent_tx() {
 
 #[test]
 #[should_panic(expected: 'Multisig: not a signer')]
-fn test_cannot_confirm_tx_not_signer() {
+fn test_cannot_confirm_tx_unauthorized() {
     let (quorum, signers) = DEFAULT_DATA();
     let mut state = setup_component(quorum, signers);
     let contract_address = test_address();
@@ -671,7 +671,7 @@ fn test_cannot_execute_not_submitted_tx() {
 
 #[test]
 #[should_panic(expected: 'Multisig: not a signer')]
-fn test_cannot_execute_not_signer() {
+fn test_cannot_execute_unauthorized() {
     let (quorum, signers) = DEFAULT_DATA();
     let mut state = setup_component(quorum, signers);
     let contract_address = test_address();
@@ -695,7 +695,7 @@ fn test_cannot_execute_not_signer() {
 
 #[test]
 #[should_panic(expected: 'Multisig: not a signer')]
-fn test_cannot_execute_batch_not_signer() {
+fn test_cannot_execute_batch_unauthorized() {
     let (quorum, signers) = DEFAULT_DATA();
     let mut state = setup_component(quorum, signers);
     let contract_address = test_address();
@@ -1019,7 +1019,7 @@ fn test_cannot_add_when_not_multisig_itself() {
 }
 
 #[test]
-#[should_panic(expected: 'Multisig: zero address')]
+#[should_panic(expected: 'Multisig: zero address signer')]
 fn test_cannot_add_zero_address_as_signer() {
     let quorum = 1;
     let mut state = setup_component(quorum, array![ALICE()].span());
@@ -1253,7 +1253,7 @@ fn test_cannot_replace_with_existing_signer() {
 }
 
 #[test]
-#[should_panic(expected: 'Multisig: zero address')]
+#[should_panic(expected: 'Multisig: zero address signer')]
 fn test_cannot_replace_with_zero_address() {
     let quorum = 1;
     let (alice, bob, charlie) = (ALICE(), BOB(), CHARLIE());

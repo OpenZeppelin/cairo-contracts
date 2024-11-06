@@ -29,14 +29,14 @@ pub mod MultisigWalletMock {
 }
 
 #[starknet::interface]
-pub trait IMultisigTarget<TState> {
+pub trait IMultisigTargetMock<TState> {
     fn add_number(ref self: TState, number: felt252);
     fn get_current_sum(self: @TState) -> felt252;
     fn failing_function(self: @TState);
 }
 
 #[starknet::contract]
-pub mod MultisigTarget {
+pub mod MultisigTargetMock {
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 
     #[storage]
@@ -45,7 +45,7 @@ pub mod MultisigTarget {
     }
 
     #[abi(embed_v0)]
-    impl MockContractImpl of super::IMultisigTarget<ContractState> {
+    impl MockContractImpl of super::IMultisigTargetMock<ContractState> {
         fn add_number(ref self: ContractState, number: felt252) {
             self.total_sum.write(self.total_sum.read() + number);
         }

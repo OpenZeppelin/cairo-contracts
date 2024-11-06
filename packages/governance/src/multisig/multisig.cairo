@@ -106,7 +106,7 @@ pub mod MultisigComponent {
         pub const TX_NOT_FOUND: felt252 = 'Multisig: tx not found';
         pub const TX_NOT_CONFIRMED: felt252 = 'Multisig: tx not confirmed';
         pub const TX_ALREADY_EXECUTED: felt252 = 'Multisig: tx already executed';
-        pub const ZERO_ADDRESS: felt252 = 'Multisig: zero address';
+        pub const ZERO_ADDRESS_SIGNER: felt252 = 'Multisig: zero address signer';
         pub const ZERO_QUORUM: felt252 = 'Multisig: quorum cannot be 0';
         pub const QUORUM_TOO_HIGH: felt252 = 'Multisig: quorum > signers';
     }
@@ -361,7 +361,7 @@ pub mod MultisigComponent {
                 let SignersInfo { quorum, mut signers_count } = self.Multisig_signers_info.read();
                 for signer in signers_to_add {
                     let signer_to_add = *signer;
-                    assert(signer_to_add.is_non_zero(), Errors::ZERO_ADDRESS);
+                    assert(signer_to_add.is_non_zero(), Errors::ZERO_ADDRESS_SIGNER);
                     if self.is_signer(signer_to_add) {
                         continue;
                     }
@@ -416,7 +416,7 @@ pub mod MultisigComponent {
             signer_to_remove: ContractAddress,
             signer_to_add: ContractAddress
         ) {
-            assert(signer_to_add.is_non_zero(), Errors::ZERO_ADDRESS);
+            assert(signer_to_add.is_non_zero(), Errors::ZERO_ADDRESS_SIGNER);
             assert(!self.is_signer(signer_to_add), Errors::ALREADY_A_SIGNER);
             assert(self.is_signer(signer_to_remove), Errors::NOT_A_SIGNER);
 

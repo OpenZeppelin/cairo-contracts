@@ -1501,10 +1501,10 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
         contract: ContractAddress,
         id: TransactionID,
         signer: ContractAddress,
-        total_confirmations: u32
+        confirmations: u32
     ) {
         let expected = Event::TransactionConfirmed(
-            TransactionConfirmed { id, signer, total_confirmations }
+            TransactionConfirmed { id, signer, confirmations }
         );
         self.assert_emitted_single(contract, expected);
     }
@@ -1514,9 +1514,9 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
         contract: ContractAddress,
         id: TransactionID,
         signer: ContractAddress,
-        total_confirmations: u32
+        confirmations: u32
     ) {
-        self.assert_event_tx_confirmed(contract, id, signer, total_confirmations);
+        self.assert_event_tx_confirmed(contract, id, signer, confirmations);
         self.assert_no_events_left_from(contract);
     }
 
@@ -1529,10 +1529,10 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
         contract: ContractAddress,
         id: TransactionID,
         signer: ContractAddress,
-        total_confirmations: u32
+        confirmations: u32
     ) {
         let expected = Event::ConfirmationRevoked(
-            ConfirmationRevoked { id, signer, total_confirmations }
+            ConfirmationRevoked { id, signer, confirmations }
         );
         self.assert_emitted_single(contract, expected);
     }
@@ -1542,9 +1542,9 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
         contract: ContractAddress,
         id: TransactionID,
         signer: ContractAddress,
-        total_confirmations: u32
+        confirmations: u32
     ) {
-        self.assert_event_confirmation_revoked(contract, id, signer, total_confirmations);
+        self.assert_event_confirmation_revoked(contract, id, signer, confirmations);
         self.assert_no_events_left_from(contract);
     }
 

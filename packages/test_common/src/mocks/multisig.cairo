@@ -23,7 +23,7 @@ pub mod MultisigWalletMock {
     }
 
     #[constructor]
-    fn constructor(ref self: ContractState, quorum: u8, signers: Span<ContractAddress>) {
+    fn constructor(ref self: ContractState, quorum: u32, signers: Span<ContractAddress>) {
         self.multisig.initializer(quorum, signers);
     }
 }

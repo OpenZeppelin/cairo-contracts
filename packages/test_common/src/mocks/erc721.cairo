@@ -181,6 +181,7 @@ pub mod DualCaseERC721ReceiverMock {
 pub mod ERC721EnumerableMock {
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_token::erc721::ERC721Component;
+    use openzeppelin_token::erc721::extensions::ERC721EnumerableComponent::InternalTrait;
     use openzeppelin_token::erc721::extensions::ERC721EnumerableComponent;
     use starknet::ContractAddress;
 
@@ -200,11 +201,6 @@ pub mod ERC721EnumerableMock {
     impl ERC721EnumerableImpl =
         ERC721EnumerableComponent::ERC721EnumerableImpl<ContractState>;
     impl ERC721EnumerableInternalImpl = ERC721EnumerableComponent::InternalImpl<ContractState>;
-
-    // ERC721EnumerableExtended
-    #[abi(embed_v0)]
-    impl ERC721EnumerableExtendedImpl =
-        ERC721EnumerableComponent::ERC721EnumerableExtendedImpl<ContractState>;
 
     // SRC5
     #[abi(embed_v0)]
@@ -240,6 +236,15 @@ pub mod ERC721EnumerableMock {
         ) {
             let mut contract_state = self.get_contract_mut();
             contract_state.erc721_enumerable.before_update(to, token_id);
+        }
+    }
+
+    #[generate_trait]
+    #[abi(per_item)]
+    impl ExternalImpl of ExternalTrait {
+        #[external(v0)]
+        fn all_tokens_of_owner(self: @ContractState, owner: ContractAddress) -> Span<u256> {
+            self.erc721_enumerable.all_tokens_of_owner(owner)
         }
     }
 

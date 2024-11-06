@@ -1,9 +1,9 @@
 use crate::erc721::ERC721Component::{ERC721Impl, InternalImpl as ERC721InternalImpl};
 use crate::erc721::extensions::erc721_enumerable::ERC721EnumerableComponent::{
-    ERC721EnumerableImpl, ERC721EnumerableExtendedImpl, InternalImpl
+    ERC721EnumerableImpl, InternalImpl
 };
 use crate::erc721::extensions::erc721_enumerable::ERC721EnumerableComponent;
-use crate::erc721::extensions::erc721_enumerable::interface;
+use crate::erc721::extensions::erc721_enumerable::interface::IERC721ENUMERABLE_ID;
 use openzeppelin_introspection::interface::ISRC5_ID;
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin_test_common::mocks::erc721::ERC721EnumerableMock;
@@ -57,7 +57,7 @@ fn test_initializer() {
 
     state.initializer();
 
-    let supports_ierc721_enum = mock_state.supports_interface(interface::IERC721ENUMERABLE_ID);
+    let supports_ierc721_enum = mock_state.supports_interface(IERC721ENUMERABLE_ID);
     assert!(supports_ierc721_enum);
 
     let supports_isrc5 = mock_state.supports_interface(ISRC5_ID);
@@ -102,7 +102,7 @@ fn test_token_by_index() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC721Enum: out of bounds index',))]
+#[should_panic(expected: 'ERC721Enum: out of bounds index')]
 fn test_token_by_index_equal_to_supply() {
     let (state, token_list) = setup();
     let supply = token_list.len().into();
@@ -111,7 +111,7 @@ fn test_token_by_index_equal_to_supply() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC721Enum: out of bounds index',))]
+#[should_panic(expected: 'ERC721Enum: out of bounds index')]
 fn test_token_by_index_greater_than_supply() {
     let (state, token_list) = setup();
     let supply_plus_one = token_list.len().into() + 1;
@@ -177,7 +177,7 @@ fn test_token_of_owner_by_index() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC721Enum: out of bounds index',))]
+#[should_panic(expected: 'ERC721Enum: out of bounds index')]
 fn test_token_of_owner_by_index_when_index_equals_owned_tokens() {
     let (state, tokens_list) = setup();
     let owned_token_len = tokens_list.len().into();
@@ -186,7 +186,7 @@ fn test_token_of_owner_by_index_when_index_equals_owned_tokens() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC721Enum: out of bounds index',))]
+#[should_panic(expected: 'ERC721Enum: out of bounds index')]
 fn test_token_of_owner_by_index_when_index_exceeds_owned_tokens() {
     let (state, tokens_list) = setup();
     let owned_tokens_len_plus_one = tokens_list.len().into() + 1;
@@ -195,7 +195,7 @@ fn test_token_of_owner_by_index_when_index_exceeds_owned_tokens() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC721Enum: out of bounds index',))]
+#[should_panic(expected: 'ERC721Enum: out of bounds index')]
 fn test_token_of_owner_by_index_when_target_has_no_tokens() {
     let (state, _) = setup();
 
@@ -203,7 +203,7 @@ fn test_token_of_owner_by_index_when_target_has_no_tokens() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC721: invalid account',))]
+#[should_panic(expected: 'ERC721: invalid account')]
 fn test_token_of_owner_by_index_when_owner_is_zero() {
     let (state, _) = setup();
 

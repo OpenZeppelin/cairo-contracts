@@ -1403,7 +1403,6 @@ fn test_update_calls_before_update_hook() {
     let mut spy = spy_events();
     let contract_address = test_address();
 
-    start_cheat_caller_address(contract_address, OWNER());
     state.update(RECIPIENT(), TOKEN_ID, OWNER());
 
     spy.assert_event_before_update(contract_address, RECIPIENT(), TOKEN_ID, OWNER());
@@ -1416,7 +1415,6 @@ fn test_update_calls_after_update_hook() {
     let mut spy = spy_events();
     let contract_address = test_address();
 
-    start_cheat_caller_address(contract_address, OWNER());
     state.update(RECIPIENT(), TOKEN_ID, OWNER());
 
     spy.assert_event_after_update(contract_address, RECIPIENT(), TOKEN_ID, OWNER())

@@ -41,24 +41,28 @@ pub mod MultisigComponent {
         CallSalt: CallSalt
     }
 
+    /// Emitted when a new `signer` is added.
     #[derive(Drop, starknet::Event)]
     pub struct SignerAdded {
         #[key]
         pub signer: ContractAddress
     }
 
+    /// Emitted when a `signer` is removed.
     #[derive(Drop, starknet::Event)]
     pub struct SignerRemoved {
         #[key]
         pub signer: ContractAddress
     }
 
+    /// Emitted when the `quorum` value is updated.
     #[derive(Drop, starknet::Event)]
     pub struct QuorumUpdated {
         pub old_quorum: u32,
         pub new_quorum: u32
     }
 
+    /// Emitted when a new transaction is submitted by a `signer`.
     #[derive(Drop, starknet::Event)]
     pub struct TransactionSubmitted {
         #[key]
@@ -67,6 +71,7 @@ pub mod MultisigComponent {
         pub signer: ContractAddress
     }
 
+    /// Emitted when a transaction is confirmed by a `signer`.
     #[derive(Drop, starknet::Event)]
     pub struct TransactionConfirmed {
         #[key]
@@ -75,6 +80,7 @@ pub mod MultisigComponent {
         pub signer: ContractAddress
     }
 
+    /// Emitted when a `signer` revokes his confirmation.
     #[derive(Drop, starknet::Event)]
     pub struct ConfirmationRevoked {
         #[key]
@@ -83,12 +89,14 @@ pub mod MultisigComponent {
         pub signer: ContractAddress
     }
 
+    /// Emitted when a transaction is executed.
     #[derive(Drop, starknet::Event)]
     pub struct TransactionExecuted {
         #[key]
         pub id: TransactionID
     }
 
+    /// Emitted when a new transaction is submitted with non-zero salt.
     #[derive(Drop, PartialEq, starknet::Event)]
     pub struct CallSalt {
         #[key]

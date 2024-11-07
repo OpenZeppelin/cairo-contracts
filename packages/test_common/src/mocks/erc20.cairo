@@ -42,7 +42,7 @@ pub mod DualCaseERC20Mock {
 /// This is used to test that the hooks are called with the correct arguments.
 #[starknet::contract]
 pub mod ERC20MockWithHooks {
-    use openzeppelin_token::erc20::{ERC20Component};
+    use openzeppelin_token::erc20::ERC20Component;
     use starknet::ContractAddress;
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);

@@ -1,4 +1,3 @@
-use MultisigComponent::InternalTrait;
 use core::num::traits::Zero;
 use crate::multisig::MultisigComponent::{ConfirmationRevoked, TransactionExecuted};
 use crate::multisig::MultisigComponent::{MultisigImpl, InternalImpl, Event};
@@ -562,6 +561,7 @@ fn test_cannot_revoke_confirmation_has_not_confirmed() {
     let id = state.submit_transaction(to, selector, calldata, 0);
 
     // Revoke confirmation by Bob
+    start_cheat_caller_address(test_address(), BOB());
     state.revoke_confirmation(id);
 }
 

@@ -2,6 +2,15 @@
 // OpenZeppelin Contracts for Cairo v0.18.0 (governance/multisig/multisig.cairo)
 
 /// # Multisig Component
+///
+/// Component that implements a multi-signature mechanism to enhance the security and governance
+/// of smart contract transactions. It requires multiple registered signers to collectively approve
+/// and execute transactions, ensuring that no single signer can perform critical actions unilaterally.
+///
+/// By default, this component is self-administered, meaning modifications to signers or quorum must
+/// be performed by the contract itself through the multisig approval process. Only registered signers
+/// can submit, confirm, revoke, or execute transactions. A common use case is to secure important
+/// operations by requiring multiple approvals, such as in fund management or protocol governance.
 #[starknet::component]
 pub mod MultisigComponent {
     use core::hash::{HashStateTrait, HashStateExTrait};

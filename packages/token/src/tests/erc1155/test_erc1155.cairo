@@ -10,12 +10,14 @@ use openzeppelin_test_common::erc1155::{
 use openzeppelin_test_common::erc1155::{
     setup_account, deploy_another_account_at, setup_src5, setup_receiver
 };
-use openzeppelin_test_common::mocks::erc1155::DualCaseERC1155Mock;
+use openzeppelin_test_common::mocks::erc1155::{DualCaseERC1155Mock, ERC1155MockWithHooks};
 use openzeppelin_testing::constants::{
     EMPTY_DATA, ZERO, OWNER, RECIPIENT, OPERATOR, OTHER, TOKEN_ID, TOKEN_ID_2, TOKEN_VALUE,
     TOKEN_VALUE_2
 };
-use snforge_std::{spy_events, test_address, start_cheat_caller_address};
+use openzeppelin_testing::events::EventSpyExt;
+
+use snforge_std::{EventSpy, spy_events, test_address, start_cheat_caller_address};
 use starknet::ContractAddress;
 use starknet::storage::StoragePointerReadAccess;
 
@@ -24,6 +26,8 @@ use starknet::storage::StoragePointerReadAccess;
 //
 
 type ComponentState = ERC1155Component::ComponentState<DualCaseERC1155Mock::ContractState>;
+type ComponentStateWithHooks =
+    ERC1155Component::ComponentState<ERC1155MockWithHooks::ContractState>;
 
 fn CONTRACT_STATE() -> DualCaseERC1155Mock::ContractState {
     DualCaseERC1155Mock::contract_state_for_testing()
@@ -31,9 +35,25 @@ fn CONTRACT_STATE() -> DualCaseERC1155Mock::ContractState {
 fn COMPONENT_STATE() -> ComponentState {
     ERC1155Component::component_state_for_testing()
 }
+fn COMPONENT_STATE_WITH_HOOKS() -> ComponentStateWithHooks {
+    ERC1155Component::component_state_for_testing()
+}
 
 fn setup() -> (ComponentState, ContractAddress) {
     let mut state = COMPONENT_STATE();
+    state.initializer("URI");
+
+    let owner = setup_account();
+    let token_ids = array![TOKEN_ID, TOKEN_ID_2].span();
+    let values = array![TOKEN_VALUE, TOKEN_VALUE_2].span();
+
+    state.batch_mint_with_acceptance_check(owner, token_ids, values, array![].span());
+
+    (state, owner)
+}
+
+fn setup_with_hooks() -> (ComponentStateWithHooks, ContractAddress) {
+    let mut state = COMPONENT_STATE_WITH_HOOKS();
     state.initializer("URI");
 
     let owner = setup_account();
@@ -811,6 +831,34 @@ fn test_update_insufficient_balance() {
     state.update(owner, recipient, token_ids, values);
 }
 
+#[test]
+fn test_update_calls_before_update_hook() {
+    let (mut state, owner) = setup_with_hooks();
+    let recipient = RECIPIENT();
+    let token_ids = array![TOKEN_ID].span();
+    let values = array![TOKEN_VALUE].span();
+
+    let mut spy = spy_events();
+    let contract_address = test_address();
+
+    state.update(owner, recipient, token_ids, values);
+    spy.assert_event_before_update(contract_address, owner, recipient, token_ids, values);
+}
+
+#[test]
+fn test_update_calls_after_update_hook() {
+    let (mut state, owner) = setup_with_hooks();
+    let recipient = RECIPIENT();
+    let token_ids = array![TOKEN_ID].span();
+    let values = array![TOKEN_VALUE].span();
+
+    let mut spy = spy_events();
+    let contract_address = test_address();
+
+    state.update(owner, recipient, token_ids, values);
+    spy.assert_event_after_update(contract_address, owner, recipient, token_ids, values);
+}
+
 
 //
 // update_with_acceptance_check
@@ -1328,3 +1376,33 @@ fn assert_state_after_transfer_from_zero_batch(
     }
 }
 
+#[generate_trait]
+impl ERC1155HooksSpyHelpersImpl of ERC1155HooksSpyHelpers {
+    fn assert_event_before_update(
+        ref self: EventSpy,
+        contract: ContractAddress,
+        from: ContractAddress,
+        to: ContractAddress,
+        token_ids: Span<u256>,
+        values: Span<u256>
+    ) {
+        let expected = ERC1155MockWithHooks::Event::BeforeUpdate(
+            ERC1155MockWithHooks::BeforeUpdate { from, to, token_ids, values }
+        );
+        self.assert_emitted_single(contract, expected);
+    }
+
+    fn assert_event_after_update(
+        ref self: EventSpy,
+        contract: ContractAddress,
+        from: ContractAddress,
+        to: ContractAddress,
+        token_ids: Span<u256>,
+        values: Span<u256>
+    ) {
+        let expected = ERC1155MockWithHooks::Event::AfterUpdate(
+            ERC1155MockWithHooks::AfterUpdate { from, to, token_ids, values }
+        );
+        self.assert_emitted_single(contract, expected);
+    }
+}

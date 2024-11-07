@@ -132,14 +132,19 @@ pub mod MultisigComponent {
     impl Multisig<
         TContractState, +HasComponent<TContractState>, +Drop<TContractState>
     > of IMultisig<ComponentState<TContractState>> {
+        /// Returns the current quorum value. The quorum is the minimum number
+        /// of confirmations required to approve a transaction.
         fn get_quorum(self: @ComponentState<TContractState>) -> u32 {
             self.Multisig_signers_info.read().quorum
         }
 
+        /// Returns whether the given `signer` is a registered signer.
+        /// Only registered signers can submit, confirm, or execute transactions.
         fn is_signer(self: @ComponentState<TContractState>, signer: ContractAddress) -> bool {
             self.Multisig_is_signer.read(signer)
         }
 
+        /// Returns the list of all current signers.
         fn get_signers(self: @ComponentState<TContractState>) -> Span<ContractAddress> {
             let mut result = array![];
             let signers_count = self.Multisig_signers_info.read().signers_count;
@@ -149,6 +154,8 @@ pub mod MultisigComponent {
             result.span()
         }
 
+        /// Returns whether the transaction with the given `id` has been confirmed.
+        /// A confirmed transaction has received the required number of confirmations (quorum).
         fn is_confirmed(self: @ComponentState<TContractState>, id: TransactionID) -> bool {
             match self.resolve_tx_state(id) {
                 TransactionState::NotFound => false,
@@ -158,22 +165,32 @@ pub mod MultisigComponent {
             }
         }
 
+        /// Returns whether the transaction with the given `id` has been confirmed by the specified `signer`.
         fn is_confirmed_by(
             self: @ComponentState<TContractState>, id: TransactionID, signer: ContractAddress
         ) -> bool {
             self.Multisig_tx_confirmed_by.read((id, signer))
         }
 
+        /// Returns whether the transaction with the given `id` has been executed.
         fn is_executed(self: @ComponentState<TContractState>, id: TransactionID) -> bool {
             self.Multisig_tx_info.read(id).is_executed
         }
 
+        /// Returns the current state of the transaction with the given `id`.
+        ///
+        /// The possible states are:
+        /// - `NotFound`: The transaction does not exist.
+        /// - `Pending`: The transaction exists but hasn't reached the required confirmations.
+        /// - `Confirmed`: The transaction has reached the required confirmations but hasn't been executed.
+        /// - `Executed`: The transaction has been executed.
         fn get_transaction_state(
             self: @ComponentState<TContractState>, id: TransactionID
         ) -> TransactionState {
             self.resolve_tx_state(id)
         }
 
+        /// Returns the number of confirmations for the transaction with the given `id`.
         fn get_transaction_confirmations(
             self: @ComponentState<TContractState>, id: TransactionID
         ) -> u32 {
@@ -187,10 +204,19 @@ pub mod MultisigComponent {
             result
         }
 
+        /// Returns the block number when the transaction with the given `id` was submitted.
         fn get_submitted_block(self: @ComponentState<TContractState>, id: TransactionID) -> u64 {
             self.Multisig_tx_info.read(id).submitted_block
         }
 
+        /// Adds new signers and updates the quorum.
+        ///
+        /// Requirements:
+        ///
+        /// - The caller must be the contract itself.
+        /// - `new_quorum` must be less than or equal to the total number of signers after addition.
+        ///
+        /// Emits a `SignersAdded` event for each signer added.
         fn add_signers(
             ref self: ComponentState<TContractState>,
             new_quorum: u32,
@@ -200,6 +226,14 @@ pub mod MultisigComponent {
             self._add_signers(new_quorum, signers_to_add);
         }
 
+        /// Removes signers and updates the quorum.
+        ///
+        /// Requirements:
+        ///
+        /// - The caller must be the contract itself.
+        /// - `new_quorum` must be less than or equal to the total number of signers after removal.
+        ///
+        /// Emits a `SignersRemoved` event for each signer removed.
         fn remove_signers(
             ref self: ComponentState<TContractState>,
             new_quorum: u32,
@@ -209,6 +243,16 @@ pub mod MultisigComponent {
             self._remove_signers(new_quorum, signers_to_remove);
         }
 
+        /// Replaces an existing signer with a new signer.
+        ///
+        /// Requirements:
+        ///
+        /// - The caller must be the contract itself.
+        /// - `signer_to_remove` must be an existing signer.
+        /// - `signer_to_add` must not be an existing signer.
+        ///
+        /// Emits a `SignerRemoved` event for the removed signer.
+        /// Emits a `SignerAdded` event for the new signer.
         fn replace_signer(
             ref self: ComponentState<TContractState>,
             signer_to_remove: ContractAddress,
@@ -218,11 +262,27 @@ pub mod MultisigComponent {
             self._replace_signer(signer_to_remove, signer_to_add);
         }
 
+        /// Changes the quorum value.
+        ///
+        /// Requirements:
+        ///
+        /// - The caller must be the contract itself.
+        /// - `new_quorum` must be less than or equal to the total number of signers.
+        ///
+        /// Emits a `QuorumUpdated` event if the quorum changes.
         fn change_quorum(ref self: ComponentState<TContractState>, new_quorum: u32) {
             self.assert_only_self();
             self._change_quorum(new_quorum);
         }
 
+        /// Submits a new transaction for confirmation.
+        ///
+        /// Requirements:
+        ///
+        /// - The caller must be a registered signer.
+        ///
+        /// Emits a `TransactionSubmitted` event.
+        /// If `salt` is not zero, emits a `CallSalt` event.
         fn submit_transaction(
             ref self: ComponentState<TContractState>,
             to: ContractAddress,
@@ -234,6 +294,14 @@ pub mod MultisigComponent {
             self.submit_transaction_batch(array![call].span(), salt)
         }
 
+        /// Submits a new batch transaction for confirmation.
+        ///
+        /// Requirements:
+        ///
+        /// - The caller must be a registered signer.
+        ///
+        /// Emits a `TransactionSubmitted` event.
+        /// If `salt` is not zero, emits a `CallSalt` event.
         fn submit_transaction_batch(
             ref self: ComponentState<TContractState>, calls: Span<Call>, salt: felt252
         ) -> TransactionID {
@@ -254,6 +322,15 @@ pub mod MultisigComponent {
             id
         }
 
+        /// Confirms a transaction with the given `id`.
+        ///
+        /// Requirements:
+        ///
+        /// - The caller must be a registered signer.
+        /// - The transaction must exist and not be executed.
+        /// - The caller must not have already confirmed the transaction.
+        ///
+        /// Emits a `TransactionConfirmed` event.
         fn confirm_transaction(ref self: ComponentState<TContractState>, id: TransactionID) {
             let caller = starknet::get_caller_address();
             self.assert_one_of_signers(caller);
@@ -265,6 +342,15 @@ pub mod MultisigComponent {
             self.emit(TransactionConfirmed { id, signer: caller });
         }
 
+        /// Revokes a previous confirmation for a transaction with the given `id`.
+        ///
+        /// Requirements:
+        ///
+        /// - The caller must be a registered signer.
+        /// - The transaction must exist and not be executed.
+        /// - The caller must have previously confirmed the transaction.
+        ///
+        /// Emits a `ConfirmationRevoked` event.
         fn revoke_confirmation(ref self: ComponentState<TContractState>, id: TransactionID) {
             let caller = starknet::get_caller_address();
             self.assert_tx_exists(id);
@@ -275,6 +361,14 @@ pub mod MultisigComponent {
             self.emit(ConfirmationRevoked { id, signer: caller });
         }
 
+        /// Executes a confirmed transaction.
+        ///
+        /// Requirements:
+        ///
+        /// - The caller must be a registered signer.
+        /// - The transaction must be confirmed and not yet executed.
+        ///
+        /// Emits a `TransactionExecuted` event.
         fn execute_transaction(
             ref self: ComponentState<TContractState>,
             to: ContractAddress,
@@ -286,6 +380,14 @@ pub mod MultisigComponent {
             self.execute_transaction_batch(array![call].span(), salt)
         }
 
+        /// Executes a confirmed batch transaction.
+        ///
+        /// Requirements:
+        ///
+        /// - The caller must be a registered signer.
+        /// - The transaction must be confirmed and not yet executed.
+        ///
+        /// Emits a `TransactionExecuted` event.
         fn execute_transaction_batch(
             ref self: ComponentState<TContractState>, calls: Span<Call>, salt: felt252
         ) {
@@ -309,6 +411,7 @@ pub mod MultisigComponent {
             };
         }
 
+        /// Returns the computed identifier of a transaction containing a single call.
         fn hash_transaction(
             self: @ComponentState<TContractState>,
             to: ContractAddress,
@@ -320,6 +423,7 @@ pub mod MultisigComponent {
             self.hash_transaction_batch(array![call].span(), salt)
         }
 
+        /// Returns the computed identifier of a transaction containing a batch of calls.
         fn hash_transaction_batch(
             self: @ComponentState<TContractState>, calls: Span<Call>, salt: felt252
         ) -> TransactionID {
@@ -331,12 +435,29 @@ pub mod MultisigComponent {
     pub impl InternalImpl<
         TContractState, +HasComponent<TContractState>, +Drop<TContractState>
     > of InternalTrait<TContractState> {
+        /// Initializes the Multisig component with the initial `quorum` and `signers`.
+        /// This function must be called during contract initialization to set up the initial state.
+        ///
+        /// Requirements:
+        ///
+        /// - The function must be called only once.
+        /// - `quorum` must be non-zero and less than or equal to the number of `signers`.
+        ///
+        /// Emits a `SignersAdded` event for each signer added.
+        /// Emits a `QuorumUpdated` event if the quorum changes.
         fn initializer(
             ref self: ComponentState<TContractState>, quorum: u32, signers: Span<ContractAddress>
         ) {
             self._add_signers(quorum, signers);
         }
 
+        /// Resolves and returns the current state of the transaction with the given `id`.
+        ///
+        /// The possible states are:
+        /// - `NotFound`: The transaction does not exist.
+        /// - `Pending`: The transaction exists but hasn't reached the required confirmations.
+        /// - `Confirmed`: The transaction has reached the required confirmations but hasn't been executed.
+        /// - `Executed`: The transaction has been executed.
         fn resolve_tx_state(
             self: @ComponentState<TContractState>, id: TransactionID
         ) -> TransactionState {
@@ -355,20 +476,50 @@ pub mod MultisigComponent {
             }
         }
 
+        /// Asserts that the `caller` is one of the registered signers.
+        ///
+        /// Requirements:
+        ///
+        /// - The `caller` must be a registered signer.
+        ///
+        /// Otherwise, the function panics with `Errors::NOT_A_SIGNER`.
         fn assert_one_of_signers(self: @ComponentState<TContractState>, caller: ContractAddress) {
             assert(self.is_signer(caller), Errors::NOT_A_SIGNER);
         }
 
+        /// Asserts that a transaction with the given `id` exists.
+        ///
+        /// Requirements:
+        ///
+        /// - The transaction with `id` must have been submitted.
+        ///
+        /// Otherwise, the function panics with `Errors::TX_NOT_FOUND`.
         fn assert_tx_exists(self: @ComponentState<TContractState>, id: TransactionID) {
             assert(self.get_submitted_block(id).is_non_zero(), Errors::TX_NOT_FOUND);
         }
 
+        /// Asserts that the caller is the contract itself.
+        ///
+        /// Requirements:
+        ///
+        /// - The caller must be the contract's own address.
+        ///
+        /// Otherwise, the function panics with `Errors::UNAUTHORIZED`.
         fn assert_only_self(self: @ComponentState<TContractState>) {
             let caller = starknet::get_caller_address();
             let self = starknet::get_contract_address();
             assert(caller == self, Errors::UNAUTHORIZED);
         }
 
+        /// Adds new signers and updates the quorum.
+        ///
+        /// Requirements:
+        ///
+        /// - Each signer address must be non-zero.
+        /// - `new_quorum` must be non-zero and less than or equal to the total number of signers after addition.
+        ///
+        /// Emits a `SignerAdded` event for each new signer added.
+        /// Emits a `QuorumUpdated` event if the quorum changes.
         fn _add_signers(
             ref self: ComponentState<TContractState>,
             new_quorum: u32,
@@ -395,6 +546,14 @@ pub mod MultisigComponent {
             self._change_quorum(new_quorum);
         }
 
+        /// Removes existing signers and updates the quorum.
+        ///
+        /// Requirements:
+        ///
+        /// - `new_quorum` must be non-zero and less than or equal to the total number of signers after removal.
+        ///
+        /// Emits a `SignerRemoved` event for each signer removed.
+        /// Emits a `QuorumUpdated` event if the quorum changes.
         fn _remove_signers(
             ref self: ComponentState<TContractState>,
             new_quorum: u32,
@@ -428,6 +587,16 @@ pub mod MultisigComponent {
             self._change_quorum(new_quorum);
         }
 
+        /// Replaces an existing signer with a new signer.
+        ///
+        /// Requirements:
+        ///
+        /// - `signer_to_remove` must be an existing signer.
+        /// - `signer_to_add` must not be an existing signer.
+        /// - `signer_to_add` must be a non-zero address.
+        ///
+        /// Emits a `SignerRemoved` event for the removed signer.
+        /// Emits a `SignerAdded` event for the new signer.
         fn _replace_signer(
             ref self: ComponentState<TContractState>,
             signer_to_remove: ContractAddress,
@@ -447,6 +616,14 @@ pub mod MultisigComponent {
             self.emit(SignerAdded { signer: signer_to_add });
         }
 
+        /// Change the quorum value if `new_quorum` is different from the current one.
+        ///
+        /// Requirements:
+        ///
+        /// - `new_quorum` must be non-zero.
+        /// - `new_quorum` must be less than or equal to the total number of signers.
+        ///
+        /// Emits a `QuorumUpdated` event if the quorum changes.
         fn _change_quorum(ref self: ComponentState<TContractState>, new_quorum: u32) {
             let SignersInfo { quorum: old_quorum, signers_count } = self
                 .Multisig_signers_info

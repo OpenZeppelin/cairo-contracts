@@ -5,12 +5,14 @@
 ///
 /// Component that implements a multi-signature mechanism to enhance the security and governance
 /// of smart contract transactions. It requires multiple registered signers to collectively approve
-/// and execute transactions, ensuring that no single signer can perform critical actions unilaterally.
+/// and execute transactions, ensuring that no single signer can perform critical actions
+/// unilaterally.
 ///
 /// By default, this component is self-administered, meaning modifications to signers or quorum must
-/// be performed by the contract itself through the multisig approval process. Only registered signers
-/// can submit, confirm, revoke, or execute transactions. A common use case is to secure important
-/// operations by requiring multiple approvals, such as in fund management or protocol governance.
+/// be performed by the contract itself through the multisig approval process. Only registered
+/// signers can submit, confirm, revoke, or execute transactions. A common use case is to secure
+/// important operations by requiring multiple approvals, such as in fund management or protocol
+/// governance.
 #[starknet::component]
 pub mod MultisigComponent {
     use core::hash::{HashStateTrait, HashStateExTrait};
@@ -165,7 +167,8 @@ pub mod MultisigComponent {
             }
         }
 
-        /// Returns whether the transaction with the given `id` has been confirmed by the specified `signer`.
+        /// Returns whether the transaction with the given `id` has been confirmed by the specified
+        /// `signer`.
         fn is_confirmed_by(
             self: @ComponentState<TContractState>, id: TransactionID, signer: ContractAddress
         ) -> bool {
@@ -182,7 +185,8 @@ pub mod MultisigComponent {
         /// The possible states are:
         /// - `NotFound`: The transaction does not exist.
         /// - `Pending`: The transaction exists but hasn't reached the required confirmations.
-        /// - `Confirmed`: The transaction has reached the required confirmations but hasn't been executed.
+        /// - `Confirmed`: The transaction has reached the required confirmations but hasn't been
+        /// executed.
         /// - `Executed`: The transaction has been executed.
         fn get_transaction_state(
             self: @ComponentState<TContractState>, id: TransactionID
@@ -456,7 +460,8 @@ pub mod MultisigComponent {
         /// The possible states are:
         /// - `NotFound`: The transaction does not exist.
         /// - `Pending`: The transaction exists but hasn't reached the required confirmations.
-        /// - `Confirmed`: The transaction has reached the required confirmations but hasn't been executed.
+        /// - `Confirmed`: The transaction has reached the required confirmations but hasn't been
+        /// executed.
         /// - `Executed`: The transaction has been executed.
         fn resolve_tx_state(
             self: @ComponentState<TContractState>, id: TransactionID
@@ -516,7 +521,8 @@ pub mod MultisigComponent {
         /// Requirements:
         ///
         /// - Each signer address must be non-zero.
-        /// - `new_quorum` must be non-zero and less than or equal to the total number of signers after addition.
+        /// - `new_quorum` must be non-zero and less than or equal to the total number of signers
+        /// after addition.
         ///
         /// Emits a `SignerAdded` event for each new signer added.
         /// Emits a `QuorumUpdated` event if the quorum changes.
@@ -550,7 +556,8 @@ pub mod MultisigComponent {
         ///
         /// Requirements:
         ///
-        /// - `new_quorum` must be non-zero and less than or equal to the total number of signers after removal.
+        /// - `new_quorum` must be non-zero and less than or equal to the total number of signers
+        /// after removal.
         ///
         /// Emits a `SignerRemoved` event for each signer removed.
         /// Emits a `QuorumUpdated` event if the quorum changes.

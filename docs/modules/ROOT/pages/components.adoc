@@ -508,7 +508,7 @@ mod MyToken {
             amount: u256
         ) {
             // Access local state from component state
-            let contract_state = ERC20Component::HasComponent::get_contract(@self);
+            let contract_state = self.get_contract();
             // Call function from integrated component
             contract_state.pausable.assert_not_paused();
         }

@@ -3,8 +3,8 @@ use crate::EthAccountComponent::{PublicKeyCamelImpl, PublicKeyImpl};
 use crate::EthAccountComponent;
 use crate::interface::{EthAccountABIDispatcherTrait, EthAccountABIDispatcher};
 use crate::interface::{ISRC6, ISRC6_ID};
-use crate::utils::secp256k1::{DebugSecp256k1Point, Secp256k1PointPartialEq};
-use crate::utils::signature::EthSignature;
+use crate::utils::secp256_point::{DebugSecp256Point, Secp256PointPartialEq};
+use crate::utils::signature::Secp256Signature;
 use openzeppelin_introspection::interface::{ISRC5, ISRC5_ID};
 use openzeppelin_test_common::eth_account::EthAccountSpyHelpers;
 use openzeppelin_test_common::eth_account::{
@@ -364,14 +364,14 @@ fn test_account_called_from_contract() {
 //
 
 #[test]
-#[should_panic(expected: ('Secp256k1Point: Invalid point.',))]
+#[should_panic(expected: 'Secp256Point: Invalid point.')]
 fn test_cannot_get_without_initialize() {
     let state = COMPONENT_STATE();
     state.get_public_key();
 }
 
 #[test]
-#[should_panic(expected: ('Secp256k1Point: Invalid point.',))]
+#[should_panic(expected: 'Secp256Point: Invalid point.')]
 fn test_cannot_set_without_initialize() {
     let key_pair = KEY_PAIR();
     let mut state = COMPONENT_STATE();
@@ -529,7 +529,7 @@ fn test_assert_valid_new_owner_invalid_signature() {
 
     start_cheat_caller_address(test_address(), test_address());
     let mut bad_signature = array![];
-    EthSignature { r: 'BAD'.into(), s: 'SIG'.into() }.serialize(ref bad_signature);
+    Secp256Signature { r: 'BAD'.into(), s: 'SIG'.into() }.serialize(ref bad_signature);
     let new_key_pair = KEY_PAIR_2();
 
     state

@@ -1,3 +1,4 @@
+use openzeppelin_account::extensions::src9::interface::OutsideExecution;
 use openzeppelin_account::interface::EthPublicKey;
 use starknet::ClassHash;
 use starknet::account::Call;
@@ -11,6 +12,12 @@ pub trait EthAccountUpgradeableABI<TState> {
 
     // ISRC5
     fn supports_interface(self: @TState, interface_id: felt252) -> bool;
+
+    // ISRC9
+    fn execute_from_outside_v2(
+        ref self: TState, outside_execution: OutsideExecution, signature: Span<felt252>,
+    ) -> Array<Span<felt252>>;
+    fn is_valid_outside_execution_nonce(self: @TState, nonce: felt252) -> bool;
 
     // IDeclarer
     fn __validate_declare__(self: @TState, class_hash: felt252) -> felt252;

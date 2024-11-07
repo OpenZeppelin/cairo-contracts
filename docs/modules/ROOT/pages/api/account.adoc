@@ -704,7 +704,8 @@ Initializes the account by registering the `ISRC9_V2` interface Id.
 use openzeppelin_presets::AccountUpgradeable;
 ```
 
-Upgradeable account contract leveraging xref:#AccountComponent[AccountComponent].
+Upgradeable account which can change its public key and declare, deploy, or call
+contracts. Supports outside execution by implementing xref:#SRC9Component[SRC9].
 
 include::../utils/_class_hashes.adoc[]
 
@@ -726,6 +727,7 @@ include::../utils/_class_hashes.adoc[]
 .AccountComponent
 
 * xref:#AccountComponent-Embeddable-Mixin-Impl[`++AccountMixinImpl++`]
+* xref:#SRC9Component-Embeddable-Impls-OutsideExecutionV2Impl[`++OutsideExecutionV2Impl++`]
 --
 
 [.contract-index]
@@ -765,7 +767,8 @@ Requirements:
 use openzeppelin_presets::EthAccountUpgradeable;
 ```
 
-Upgradeable account contract leveraging xref:#EthAccountComponent[EthAccountComponent].
+Upgradeable account which can change its public key and declare, deploy, or call contracts, using Ethereum
+signing keys. Supports outside execution by implementing xref:#SRC9Component[SRC9].
 
 NOTE: The `EthPublicKey` type is an alias for `starknet::secp256k1::Secp256k1Point`.
 
@@ -789,6 +792,7 @@ include::../utils/_class_hashes.adoc[]
 .EthAccountComponent
 
 * xref:#EthAccountComponent-Embeddable-Mixin-Impl[`++EthAccountMixinImpl++`]
+* xref:#SRC9Component-Embeddable-Impls-OutsideExecutionV2Impl[`++OutsideExecutionV2Impl++`]
 --
 
 [.contract-index]

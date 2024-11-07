@@ -1,6 +1,7 @@
 #[starknet::interface]
 pub trait ISimpleMock<TContractState> {
     fn increase_balance(ref self: TContractState, amount: felt252) -> bool;
+    fn set_balance(ref self: TContractState, value: felt252, panic: bool);
     fn get_balance(self: @TContractState) -> felt252;
 }
 
@@ -18,6 +19,13 @@ pub mod SimpleMock {
         fn increase_balance(ref self: ContractState, amount: felt252) -> bool {
             self.balance.write(self.balance.read() + amount);
             true
+        }
+
+        fn set_balance(ref self: ContractState, value: felt252, panic: bool) {
+            if panic {
+                panic!("Some error");
+            }
+            self.balance.write(value);
         }
 
         fn get_balance(self: @ContractState) -> felt252 {

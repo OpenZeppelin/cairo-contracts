@@ -10,7 +10,7 @@ use openzeppelin_test_common::erc1155::{
 use openzeppelin_test_common::erc1155::{
     setup_account, deploy_another_account_at, setup_src5, setup_receiver
 };
-use openzeppelin_test_common::mocks::erc1155::{DualCaseERC1155Mock, ERC1155MockWithHooks};
+use openzeppelin_test_common::mocks::erc1155::{DualCaseERC1155Mock, SnakeERC1155MockWithHooks};
 use openzeppelin_testing::constants::{
     EMPTY_DATA, ZERO, OWNER, RECIPIENT, OPERATOR, OTHER, TOKEN_ID, TOKEN_ID_2, TOKEN_VALUE,
     TOKEN_VALUE_2
@@ -27,7 +27,7 @@ use starknet::storage::StoragePointerReadAccess;
 
 type ComponentState = ERC1155Component::ComponentState<DualCaseERC1155Mock::ContractState>;
 type ComponentStateWithHooks =
-    ERC1155Component::ComponentState<ERC1155MockWithHooks::ContractState>;
+    ERC1155Component::ComponentState<SnakeERC1155MockWithHooks::ContractState>;
 
 fn CONTRACT_STATE() -> DualCaseERC1155Mock::ContractState {
     DualCaseERC1155Mock::contract_state_for_testing()
@@ -1386,8 +1386,8 @@ impl ERC1155HooksSpyHelpersImpl of ERC1155HooksSpyHelpers {
         token_ids: Span<u256>,
         values: Span<u256>
     ) {
-        let expected = ERC1155MockWithHooks::Event::BeforeUpdate(
-            ERC1155MockWithHooks::BeforeUpdate { from, to, token_ids, values }
+        let expected = SnakeERC1155MockWithHooks::Event::BeforeUpdate(
+            SnakeERC1155MockWithHooks::BeforeUpdate { from, to, token_ids, values }
         );
         self.assert_emitted_single(contract, expected);
     }
@@ -1400,8 +1400,8 @@ impl ERC1155HooksSpyHelpersImpl of ERC1155HooksSpyHelpers {
         token_ids: Span<u256>,
         values: Span<u256>
     ) {
-        let expected = ERC1155MockWithHooks::Event::AfterUpdate(
-            ERC1155MockWithHooks::AfterUpdate { from, to, token_ids, values }
+        let expected = SnakeERC1155MockWithHooks::Event::AfterUpdate(
+            SnakeERC1155MockWithHooks::AfterUpdate { from, to, token_ids, values }
         );
         self.assert_emitted_single(contract, expected);
     }

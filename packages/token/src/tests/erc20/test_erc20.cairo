@@ -3,7 +3,7 @@ use crate::erc20::ERC20Component::{ERC20CamelOnlyImpl, ERC20Impl};
 use crate::erc20::ERC20Component::{ERC20MetadataImpl, InternalImpl};
 use crate::erc20::ERC20Component;
 use openzeppelin_test_common::erc20::ERC20SpyHelpers;
-use openzeppelin_test_common::mocks::erc20::{DualCaseERC20Mock, ERC20MockWithHooks};
+use openzeppelin_test_common::mocks::erc20::{DualCaseERC20Mock, SnakeERC20MockWithHooks};
 use openzeppelin_testing::constants::{
     ZERO, OWNER, SPENDER, RECIPIENT, NAME, SYMBOL, DECIMALS, SUPPLY, VALUE
 };
@@ -16,7 +16,8 @@ use starknet::ContractAddress;
 //
 
 type ComponentState = ERC20Component::ComponentState<DualCaseERC20Mock::ContractState>;
-type ComponentStateWithHooks = ERC20Component::ComponentState<ERC20MockWithHooks::ContractState>;
+type ComponentStateWithHooks =
+    ERC20Component::ComponentState<SnakeERC20MockWithHooks::ContractState>;
 
 fn COMPONENT_STATE() -> ComponentState {
     ERC20Component::component_state_for_testing()
@@ -658,8 +659,8 @@ impl ERC20HooksSpyHelpersImpl of ERC20HooksSpyHelpers {
         recipient: ContractAddress,
         amount: u256
     ) {
-        let expected = ERC20MockWithHooks::Event::BeforeUpdate(
-            ERC20MockWithHooks::BeforeUpdate { from, recipient, amount }
+        let expected = SnakeERC20MockWithHooks::Event::BeforeUpdate(
+            SnakeERC20MockWithHooks::BeforeUpdate { from, recipient, amount }
         );
         self.assert_emitted_single(contract, expected);
     }
@@ -671,8 +672,8 @@ impl ERC20HooksSpyHelpersImpl of ERC20HooksSpyHelpers {
         recipient: ContractAddress,
         amount: u256
     ) {
-        let expected = ERC20MockWithHooks::Event::AfterUpdate(
-            ERC20MockWithHooks::AfterUpdate { from, recipient, amount }
+        let expected = SnakeERC20MockWithHooks::Event::AfterUpdate(
+            SnakeERC20MockWithHooks::AfterUpdate { from, recipient, amount }
         );
         self.assert_emitted_single(contract, expected);
     }

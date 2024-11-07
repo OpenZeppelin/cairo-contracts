@@ -5,7 +5,6 @@ use openzeppelin_test_common::mocks::upgrades::{IUpgradesV1Dispatcher, IUpgrades
 use openzeppelin_test_common::mocks::upgrades::{IUpgradesV2Dispatcher, IUpgradesV2DispatcherTrait};
 use openzeppelin_test_common::upgrades::UpgradeableSpyHelpers;
 use openzeppelin_testing as utils;
-use openzeppelin_testing::common::IntoBase16String;
 use openzeppelin_testing::constants::{CLASS_HASH_ZERO, FELT_VALUE as VALUE};
 use openzeppelin_testing::{declare_class, deploy};
 use snforge_std::{spy_events, ContractClass};
@@ -149,6 +148,5 @@ fn test_upgrade_and_call_with_removed_selector() {
     let calldata = array![];
 
     // We use the v1 dispatcher because `remove_selector` is not in v2 interface
-    //let safe_dispatcher = IUpgradesV1SafeDispatcher { contract_address: v1.contract_address };
     v1.upgrade_and_call(v2_class.class_hash, removed_selector, calldata.span());
 }

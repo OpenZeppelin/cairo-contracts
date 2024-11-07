@@ -6,6 +6,7 @@ use starknet::account::Call;
 
 pub type TransactionID = felt252;
 
+/// Represents the possible states of a Multisig transaction.
 #[derive(Copy, Drop, Serde, PartialEq, Debug)]
 pub enum TransactionState {
     NotFound,
@@ -14,7 +15,7 @@ pub enum TransactionState {
     Executed
 }
 
-/// Interface for a contract providing the Multisig functionality.
+/// Interface of a contract providing the Multisig functionality.
 #[starknet::interface]
 pub trait IMultisig<TState> {
     fn get_quorum(self: @TState) -> u32;

@@ -266,11 +266,12 @@ pub mod MultisigComponent {
             self._replace_signer(signer_to_remove, signer_to_add);
         }
 
-        /// Changes the quorum value.
+        /// Updates the quorum value to `new_quorum` if it differs from the current quorum.
         ///
         /// Requirements:
         ///
         /// - The caller must be the contract itself.
+        /// - `new_quorum` must be non-zero.
         /// - `new_quorum` must be less than or equal to the total number of signers.
         ///
         /// Emits a `QuorumUpdated` event if the quorum changes.
@@ -350,7 +351,6 @@ pub mod MultisigComponent {
         ///
         /// Requirements:
         ///
-        /// - The caller must be a registered signer.
         /// - The transaction must exist and not be executed.
         /// - The caller must have previously confirmed the transaction.
         ///
@@ -623,7 +623,7 @@ pub mod MultisigComponent {
             self.emit(SignerAdded { signer: signer_to_add });
         }
 
-        /// Change the quorum value if `new_quorum` is different from the current one.
+        /// Updates the quorum value to `new_quorum` if it differs from the current quorum.
         ///
         /// Requirements:
         ///

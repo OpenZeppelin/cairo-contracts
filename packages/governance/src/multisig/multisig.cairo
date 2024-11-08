@@ -170,9 +170,9 @@ pub mod MultisigComponent {
         /// Returns whether the transaction with the given `id` has been confirmed by the specified
         /// `signer`.
         ///
-        /// NOTE: Even if a signer is removed after confirming a transaction, this function will
-        /// still return true. However, their confirmation does not count when the quorum is
-        /// checked. Therefore, this function should not be relied upon to verify legitimate
+        /// NOTE: Even if a `signer` is removed after confirming a transaction, this function will
+        /// still return true. However, their confirmation does not count toward the quorum when it
+        /// is checked. Therefore, this function should not be relied upon to verify legitimate
         /// confirmations toward meeting the quorum.
         fn is_confirmed_by(
             self: @ComponentState<TContractState>, id: TransactionID, signer: ContractAddress
@@ -199,8 +199,8 @@ pub mod MultisigComponent {
             self.resolve_tx_state(id)
         }
 
-        /// Returns the number of confirmations given by registered signers for the transaction with
-        /// the given `id`.
+        /// Returns the number of confirmations from registered signers for the transaction with the
+        /// specified `id`.
         fn get_transaction_confirmations(
             self: @ComponentState<TContractState>, id: TransactionID
         ) -> u32 {

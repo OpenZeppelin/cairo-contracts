@@ -6,6 +6,10 @@ use crate::interfaces::eth_account::{
 use crate::interfaces::{
     EthAccountUpgradeableABIDispatcher, EthAccountUpgradeableABIDispatcherTrait
 };
+use openzeppelin_account::eth_account::EthAccountComponent::EthAccountMixinImpl;
+use openzeppelin_account::extensions::SRC9Component::{OutsideExecutionV2Impl, SNIP12MetadataImpl};
+use openzeppelin_account::extensions::src9::interface::{OutsideExecution, ISRC9_V2_ID};
+use openzeppelin_account::extensions::src9::snip12_utils::OutsideExecutionStructHash;
 use openzeppelin_account::interface::ISRC6_ID;
 use openzeppelin_account::utils::secp256_point::{DebugSecp256Point, Secp256PointPartialEq};
 use openzeppelin_introspection::interface::ISRC5_ID;
@@ -17,21 +21,25 @@ use openzeppelin_test_common::eth_account::{
 use openzeppelin_test_common::upgrades::UpgradeableSpyHelpers;
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::secp256k1::{KEY_PAIR, KEY_PAIR_2};
-use openzeppelin_testing::constants::{CLASS_HASH_ZERO, ZERO, RECIPIENT, CALLER, OTHER};
+use openzeppelin_testing::constants::{CLASS_HASH_ZERO, ZERO, RECIPIENT, CALLER, OTHER, FELT_VALUE};
 use openzeppelin_testing::constants::{SALT, QUERY_VERSION, MIN_TRANSACTION_VERSION};
 use openzeppelin_testing::signing::Secp256k1KeyPair;
+use openzeppelin_testing::signing::SerializedSigning;
 use openzeppelin_token::erc20::interface::IERC20DispatcherTrait;
+use openzeppelin_utils::cryptography::snip12::OffchainMessageHash;
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{
-    start_cheat_signature_global, start_cheat_transaction_version_global,
-    start_cheat_transaction_hash_global, start_cheat_caller_address
+    spy_events, test_address, load, CheatSpan, cheat_caller_address, start_cheat_caller_address
 };
-use snforge_std::{spy_events, test_address};
-use starknet::ClassHash;
+use snforge_std::{
+    start_cheat_signature_global, start_cheat_transaction_version_global,
+    start_cheat_transaction_hash_global, start_cheat_block_timestamp_global
+};
 use starknet::SyscallResultTrait;
 use starknet::account::Call;
 use starknet::secp256_trait::Secp256Trait;
 use starknet::secp256k1::Secp256k1Point;
+use starknet::{contract_address_const, ContractAddress, ClassHash};
 
 fn declare_v2_class() -> ClassHash {
     utils::declare_class("SnakeEthAccountMock").class_hash
@@ -41,12 +49,16 @@ fn declare_v2_class() -> ClassHash {
 // Setup
 //
 
-fn setup_dispatcher(key_pair: Secp256k1KeyPair) -> EthAccountUpgradeableABIDispatcher {
+fn setup_dispatcher(
+    key_pair: Secp256k1KeyPair
+) -> (ContractAddress, EthAccountUpgradeableABIDispatcher) {
     let mut calldata = array![];
     calldata.append_serde(key_pair.public_key);
 
     let contract_address = utils::declare_and_deploy("EthAccountUpgradeable", calldata);
-    EthAccountUpgradeableABIDispatcher { contract_address }
+    let dispatcher = EthAccountUpgradeableABIDispatcher { contract_address };
+
+    (contract_address, dispatcher)
 }
 
 fn setup_dispatcher_with_data(
@@ -68,6 +80,10 @@ fn setup_dispatcher_with_data(
     (dispatcher, contract_class.class_hash.into())
 }
 
+fn setup_simple_mock() -> ContractAddress {
+    utils::declare_and_deploy("SimpleMock", array![])
+}
+
 //
 // constructor
 //
@@ -82,17 +98,17 @@ fn test_constructor() {
 
     spy.assert_only_event_owner_added(test_address(), key_pair.public_key);
 
-    let public_key = EthAccountUpgradeable::EthAccountMixinImpl::get_public_key(@state);
+    let public_key = state.get_public_key();
     assert_eq!(public_key, key_pair.public_key);
 
-    let supports_isrc5 = EthAccountUpgradeable::EthAccountMixinImpl::supports_interface(
-        @state, ISRC5_ID
-    );
+    let supports_isrc5 = state.supports_interface(ISRC5_ID);
     assert!(supports_isrc5);
-    let supports_isrc6 = EthAccountUpgradeable::EthAccountMixinImpl::supports_interface(
-        @state, ISRC6_ID
-    );
+
+    let supports_isrc6 = state.supports_interface(ISRC6_ID);
     assert!(supports_isrc6);
+
+    let supports_isrc9 = state.supports_interface(ISRC9_V2_ID);
+    assert!(supports_isrc9);
 }
 
 //
@@ -102,7 +118,7 @@ fn test_constructor() {
 #[test]
 fn test_public_key_setter_and_getter() {
     let key_pair = KEY_PAIR();
-    let dispatcher = setup_dispatcher(key_pair);
+    let (_, dispatcher) = setup_dispatcher(key_pair);
     let contract_address = dispatcher.contract_address;
     let mut spy = spy_events();
 
@@ -122,7 +138,7 @@ fn test_public_key_setter_and_getter() {
 #[test]
 fn test_public_key_setter_and_getter_camel() {
     let key_pair = KEY_PAIR();
-    let dispatcher = setup_dispatcher(key_pair);
+    let (_, dispatcher) = setup_dispatcher(key_pair);
     let contract_address = dispatcher.contract_address;
     let mut spy = spy_events();
 
@@ -141,7 +157,7 @@ fn test_public_key_setter_and_getter_camel() {
 #[test]
 #[should_panic(expected: ('EthAccount: unauthorized',))]
 fn test_set_public_key_different_account() {
-    let dispatcher = setup_dispatcher(KEY_PAIR());
+    let (_, dispatcher) = setup_dispatcher(KEY_PAIR());
 
     dispatcher.set_public_key(KEY_PAIR_2().public_key, array![].span());
 }
@@ -149,7 +165,7 @@ fn test_set_public_key_different_account() {
 #[test]
 #[should_panic(expected: ('EthAccount: unauthorized',))]
 fn test_setPublicKey_different_account() {
-    let dispatcher = setup_dispatcher(KEY_PAIR());
+    let (_, dispatcher) = setup_dispatcher(KEY_PAIR());
 
     dispatcher.setPublicKey(KEY_PAIR_2().public_key, array![].span());
 }
@@ -160,7 +176,7 @@ fn test_setPublicKey_different_account() {
 
 fn is_valid_sig_dispatcher() -> (EthAccountUpgradeableABIDispatcher, felt252, Array<felt252>) {
     let key_pair = KEY_PAIR();
-    let dispatcher = setup_dispatcher(key_pair);
+    let (_, dispatcher) = setup_dispatcher(key_pair);
     let data = SIGNED_TX_DATA(key_pair);
 
     let mut serialized_signature = array![];
@@ -208,7 +224,7 @@ fn test_isValidSignature_bad_sig() {
 #[test]
 fn test_supports_interface() {
     let key_pair = KEY_PAIR();
-    let dispatcher = setup_dispatcher(key_pair);
+    let (_, dispatcher) = setup_dispatcher(key_pair);
 
     let supports_isrc5 = dispatcher.supports_interface(ISRC5_ID);
     assert!(supports_isrc5);
@@ -438,7 +454,7 @@ fn test_multicall_zero_calls() {
 #[test]
 #[should_panic(expected: ('EthAccount: invalid caller',))]
 fn test_account_called_from_contract() {
-    let account = setup_dispatcher(KEY_PAIR());
+    let (_, account) = setup_dispatcher(KEY_PAIR());
     let calls = array![];
 
     start_cheat_caller_address(account.contract_address, CALLER());
@@ -453,14 +469,14 @@ fn test_account_called_from_contract() {
 #[test]
 #[should_panic(expected: ('EthAccount: unauthorized',))]
 fn test_upgrade_access_control() {
-    let v1 = setup_dispatcher(KEY_PAIR());
+    let (_, v1) = setup_dispatcher(KEY_PAIR());
     v1.upgrade(CLASS_HASH_ZERO());
 }
 
 #[test]
 #[should_panic(expected: ('Class hash cannot be zero',))]
 fn test_upgrade_with_class_hash_zero() {
-    let v1 = setup_dispatcher(KEY_PAIR());
+    let (_, v1) = setup_dispatcher(KEY_PAIR());
 
     start_cheat_caller_address(v1.contract_address, v1.contract_address);
     v1.upgrade(CLASS_HASH_ZERO());
@@ -468,7 +484,7 @@ fn test_upgrade_with_class_hash_zero() {
 
 #[test]
 fn test_upgraded_event() {
-    let v1 = setup_dispatcher(KEY_PAIR());
+    let (_, v1) = setup_dispatcher(KEY_PAIR());
     let contract_address = v1.contract_address;
     let mut spy = spy_events();
 
@@ -482,7 +498,7 @@ fn test_upgraded_event() {
 #[test]
 #[feature("safe_dispatcher")]
 fn test_v2_missing_camel_selector() {
-    let v1 = setup_dispatcher(KEY_PAIR());
+    let (_, v1) = setup_dispatcher(KEY_PAIR());
     let contract_address = v1.contract_address;
     let v2_class_hash = declare_v2_class();
 
@@ -498,7 +514,7 @@ fn test_v2_missing_camel_selector() {
 #[test]
 fn test_state_persists_after_upgrade() {
     let key_pair = KEY_PAIR();
-    let v1 = setup_dispatcher(key_pair);
+    let (_, v1) = setup_dispatcher(key_pair);
     let contract_address = v1.contract_address;
 
     start_cheat_caller_address(contract_address, contract_address);
@@ -521,8 +537,195 @@ fn test_state_persists_after_upgrade() {
 }
 
 //
+// execute_from_outside_v2
+//
+
+#[test]
+fn test_execute_from_outside_v2_any_caller() {
+    let key_pair = KEY_PAIR();
+    let (account_address, dispatcher) = setup_dispatcher(key_pair);
+    let simple_mock = setup_simple_mock();
+    let outside_execution = setup_outside_execution(simple_mock, false);
+
+    let msg_hash = outside_execution.get_message_hash(account_address);
+    let signature = key_pair.serialized_sign(msg_hash.into());
+
+    dispatcher.execute_from_outside_v2(outside_execution, signature.span());
+
+    assert_value(simple_mock, FELT_VALUE);
+}
+
+#[test]
+fn test_execute_from_outside_v2_specific_caller() {
+    let key_pair = KEY_PAIR();
+    let (account_address, dispatcher) = setup_dispatcher(key_pair);
+    let simple_mock = setup_simple_mock();
+    let mut outside_execution = setup_outside_execution(simple_mock, false);
+    outside_execution.caller = CALLER();
+
+    let msg_hash = outside_execution.get_message_hash(account_address);
+    let signature = key_pair.serialized_sign(msg_hash.into());
+
+    cheat_caller_address(account_address, CALLER(), CheatSpan::TargetCalls(1));
+
+    dispatcher.execute_from_outside_v2(outside_execution, signature.span());
+
+    assert_value(simple_mock, FELT_VALUE);
+}
+
+#[test]
+fn test_execute_from_outside_v2_uses_nonce() {
+    let key_pair = KEY_PAIR();
+    let (account_address, dispatcher) = setup_dispatcher(key_pair);
+    let simple_mock = setup_simple_mock();
+    let outside_execution = setup_outside_execution(simple_mock, false);
+
+    let is_valid_nonce = dispatcher.is_valid_outside_execution_nonce(outside_execution.nonce);
+    assert!(is_valid_nonce);
+
+    let msg_hash = outside_execution.get_message_hash(account_address);
+    let signature = key_pair.serialized_sign(msg_hash.into());
+
+    dispatcher.execute_from_outside_v2(outside_execution, signature.span());
+
+    assert_value(simple_mock, FELT_VALUE);
+
+    let is_invalid_nonce = !dispatcher.is_valid_outside_execution_nonce(outside_execution.nonce);
+    assert!(is_invalid_nonce);
+}
+
+#[test]
+#[should_panic(expected: 'SRC9: invalid caller')]
+fn test_execute_from_outside_v2_caller_mismatch() {
+    let key_pair = KEY_PAIR();
+    let (account_address, dispatcher) = setup_dispatcher(key_pair);
+    let mut outside_execution = setup_outside_execution(account_address, false);
+    outside_execution.caller = CALLER();
+
+    start_cheat_caller_address(account_address, OTHER());
+
+    dispatcher.execute_from_outside_v2(outside_execution, array![].span());
+}
+
+#[test]
+#[should_panic(expected: 'SRC9: now >= execute_before')]
+fn test_execute_from_outside_v2_call_after_execute_before() {
+    let key_pair = KEY_PAIR();
+    let (account_address, dispatcher) = setup_dispatcher(key_pair);
+    let outside_execution = setup_outside_execution(account_address, false);
+
+    start_cheat_block_timestamp_global(25);
+
+    dispatcher.execute_from_outside_v2(outside_execution, array![].span());
+}
+
+#[test]
+#[should_panic(expected: 'SRC9: now >= execute_before')]
+fn test_execute_from_outside_v2_call_equal_to_execute_before() {
+    let key_pair = KEY_PAIR();
+    let (account_address, dispatcher) = setup_dispatcher(key_pair);
+    let outside_execution = setup_outside_execution(account_address, false);
+
+    start_cheat_block_timestamp_global(20);
+
+    dispatcher.execute_from_outside_v2(outside_execution, array![].span());
+}
+
+#[test]
+#[should_panic(expected: ('SRC9: now <= execute_after',))]
+fn test_execute_from_outside_v2_call_before_execute_after() {
+    let key_pair = KEY_PAIR();
+    let (account_address, dispatcher) = setup_dispatcher(key_pair);
+    let outside_execution = setup_outside_execution(account_address, false);
+
+    start_cheat_block_timestamp_global(5);
+
+    dispatcher.execute_from_outside_v2(outside_execution, array![].span());
+}
+
+#[test]
+#[should_panic(expected: 'SRC9: now <= execute_after')]
+fn test_execute_from_outside_v2_call_equal_to_execute_after() {
+    let key_pair = KEY_PAIR();
+    let (account_address, dispatcher) = setup_dispatcher(key_pair);
+    let outside_execution = setup_outside_execution(account_address, false);
+
+    start_cheat_block_timestamp_global(10);
+
+    dispatcher.execute_from_outside_v2(outside_execution, array![].span());
+}
+
+#[test]
+#[should_panic(expected: 'SRC9: duplicated nonce')]
+fn test_execute_from_outside_v2_invalid_nonce() {
+    let key_pair = KEY_PAIR();
+    let (account_address, dispatcher) = setup_dispatcher(key_pair);
+    let simple_mock = setup_simple_mock();
+    let outside_execution = setup_outside_execution(simple_mock, false);
+
+    let msg_hash = outside_execution.get_message_hash(account_address);
+    let signature = key_pair.serialized_sign(msg_hash.into());
+
+    dispatcher.execute_from_outside_v2(outside_execution, signature.span());
+    dispatcher.execute_from_outside_v2(outside_execution, array![].span());
+}
+
+#[test]
+#[should_panic(expected: 'SRC9: invalid signature')]
+fn test_execute_from_outside_v2_invalid_signature() {
+    let key_pair = KEY_PAIR();
+    let (account_address, dispatcher) = setup_dispatcher(key_pair);
+    let outside_execution = setup_outside_execution(account_address, false);
+
+    let msg_hash = outside_execution.get_message_hash(account_address);
+    let signature = key_pair.serialized_sign(msg_hash.into());
+    let invalid_signature = array![
+        *signature.at(0), *signature.at(1), *signature.at(2), *signature.at(3) + 1
+    ];
+
+    dispatcher.execute_from_outside_v2(outside_execution, invalid_signature.span());
+}
+
+#[test]
+#[should_panic(expected: "Some error")]
+fn test_execute_from_outside_v2_panics_when_inner_call_panic() {
+    let key_pair = KEY_PAIR();
+    let (account_address, dispatcher) = setup_dispatcher(key_pair);
+    let simple_mock = setup_simple_mock();
+    let outside_execution = setup_outside_execution(simple_mock, true);
+
+    let msg_hash = outside_execution.get_message_hash(account_address);
+    let signature = key_pair.serialized_sign(msg_hash.into());
+
+    dispatcher.execute_from_outside_v2(outside_execution, signature.span());
+}
+
+//
 // Helpers
 //
+
+fn setup_outside_execution(target: ContractAddress, panic: bool) -> OutsideExecution {
+    let call = Call {
+        to: target,
+        selector: selector!("set_balance"),
+        calldata: array![FELT_VALUE, panic.into()].span(),
+    };
+    let caller = contract_address_const::<'ANY_CALLER'>();
+    let nonce = 5;
+    let execute_after = 10;
+    let execute_before = 20;
+    let calls = array![call].span();
+
+    // Set a valid timestamp for the execution time span
+    start_cheat_block_timestamp_global(15);
+
+    OutsideExecution { caller, nonce, execute_after, execute_before, calls }
+}
+
+fn assert_value(target: ContractAddress, expected_value: felt252) {
+    let value = *load(target, selector!("balance"), 1).at(0);
+    assert_eq!(value, expected_value);
+}
 
 fn get_points() -> (Secp256k1Point, Secp256k1Point) {
     let curve_size = Secp256Trait::<Secp256k1Point>::get_curve_size();

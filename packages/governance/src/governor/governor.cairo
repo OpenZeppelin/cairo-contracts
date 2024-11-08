@@ -54,7 +54,6 @@ pub mod GovernorComponent {
         pub description: ByteArray
     }
 
-    // restriction.
     /// Emitted when a proposal is queued.
     #[derive(Drop, starknet::Event)]
     pub struct ProposalQueued {
@@ -63,7 +62,6 @@ pub mod GovernorComponent {
         pub eta_seconds: u64
     }
 
-    // restriction.
     /// Emitted when a proposal is executed.
     #[derive(Drop, starknet::Event)]
     pub struct ProposalExecuted {
@@ -71,7 +69,6 @@ pub mod GovernorComponent {
         pub proposal_id: felt252
     }
 
-    // restriction.
     /// Emitted when a proposal is canceled.
     #[derive(Drop, starknet::Event)]
     pub struct ProposalCanceled {

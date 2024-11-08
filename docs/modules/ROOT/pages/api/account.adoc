@@ -725,8 +725,9 @@ include::../utils/_class_hashes.adoc[]
 .Embedded Implementations
 --
 .AccountComponent
-
 * xref:#AccountComponent-Embeddable-Mixin-Impl[`++AccountMixinImpl++`]
+
+.SRC9Component
 * xref:#SRC9Component-Embeddable-Impls-OutsideExecutionV2Impl[`++OutsideExecutionV2Impl++`]
 --
 
@@ -790,8 +791,9 @@ include::../utils/_class_hashes.adoc[]
 .Embedded Implementations
 --
 .EthAccountComponent
-
 * xref:#EthAccountComponent-Embeddable-Mixin-Impl[`++EthAccountMixinImpl++`]
+
+.SRC9Component
 * xref:#SRC9Component-Embeddable-Impls-OutsideExecutionV2Impl[`++OutsideExecutionV2Impl++`]
 --
 

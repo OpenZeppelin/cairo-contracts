@@ -107,6 +107,99 @@ pub mod SnakeERC721Mock {
     }
 }
 
+/// Similar as `SnakeERC721Mock`, but emits events for `before_update` and `after_update` hooks.
+/// This is used to test that the hooks are called with the correct arguments.
+#[starknet::contract]
+pub mod SnakeERC721MockWithHooks {
+    use openzeppelin_introspection::src5::SRC5Component;
+    use openzeppelin_token::erc721::ERC721Component;
+    use starknet::ContractAddress;
+
+    component!(path: ERC721Component, storage: erc721, event: ERC721Event);
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
+
+    // ERC721
+    #[abi(embed_v0)]
+    impl ERC721Impl = ERC721Component::ERC721Impl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC721MetadataImpl = ERC721Component::ERC721MetadataImpl<ContractState>;
+    impl ERC721InternalImpl = ERC721Component::InternalImpl<ContractState>;
+
+    // SRC5
+    #[abi(embed_v0)]
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
+
+    #[storage]
+    pub struct Storage {
+        #[substorage(v0)]
+        pub erc721: ERC721Component::Storage,
+        #[substorage(v0)]
+        pub src5: SRC5Component::Storage
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    pub enum Event {
+        #[flat]
+        ERC721Event: ERC721Component::Event,
+        #[flat]
+        SRC5Event: SRC5Component::Event,
+        BeforeUpdate: BeforeUpdate,
+        AfterUpdate: AfterUpdate
+    }
+
+    /// Event used to test that `before_update` hook is called.
+    #[derive(Drop, PartialEq, starknet::Event)]
+    pub struct BeforeUpdate {
+        pub to: ContractAddress,
+        pub token_id: u256,
+        pub auth: ContractAddress
+    }
+
+    /// Event used to test that `after_update` hook is called.
+    #[derive(Drop, PartialEq, starknet::Event)]
+    pub struct AfterUpdate {
+        pub to: ContractAddress,
+        pub token_id: u256,
+        pub auth: ContractAddress
+    }
+
+    #[constructor]
+    fn constructor(
+        ref self: ContractState,
+        name: ByteArray,
+        symbol: ByteArray,
+        base_uri: ByteArray,
+        recipient: ContractAddress,
+        token_id: u256
+    ) {
+        self.erc721.initializer(name, symbol, base_uri);
+        self.erc721.mint(recipient, token_id);
+    }
+
+    impl ERC721HooksImpl of ERC721Component::ERC721HooksTrait<ContractState> {
+        fn before_update(
+            ref self: ERC721Component::ComponentState<ContractState>,
+            to: ContractAddress,
+            token_id: u256,
+            auth: ContractAddress
+        ) {
+            let mut contract_state = self.get_contract_mut();
+            contract_state.emit(BeforeUpdate { to, token_id, auth });
+        }
+
+        fn after_update(
+            ref self: ERC721Component::ComponentState<ContractState>,
+            to: ContractAddress,
+            token_id: u256,
+            auth: ContractAddress
+        ) {
+            let mut contract_state = self.get_contract_mut();
+            contract_state.emit(AfterUpdate { to, token_id, auth });
+        }
+    }
+}
+
 #[starknet::contract]
 pub mod DualCaseERC721ReceiverMock {
     use openzeppelin_introspection::src5::SRC5Component;

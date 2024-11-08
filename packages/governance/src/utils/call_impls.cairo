@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.18.0 (governance/timelock/utils/call_impls.cairo)
+// OpenZeppelin Contracts for Cairo v0.19.0 (governance/utils/call_impls.cairo)
 
 use core::hash::{HashStateTrait, HashStateExTrait, Hash};
 use starknet::account::Call;
@@ -36,6 +36,6 @@ pub impl CallPartialEq of PartialEq<Call> {
     }
     #[inline(always)]
     fn ne(lhs: @Call, rhs: @Call) -> bool {
-        !(lhs == rhs)
+        lhs != rhs
     }
 }

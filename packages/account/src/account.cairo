@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.18.0 (account/account.cairo)
+// OpenZeppelin Contracts for Cairo v0.19.0 (account/account.cairo)
 
 /// # Account Component
 ///
@@ -16,10 +16,8 @@ pub mod AccountComponent {
     use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
     use openzeppelin_introspection::src5::SRC5Component;
     use starknet::account::Call;
-    use starknet::get_caller_address;
-    use starknet::get_contract_address;
-    use starknet::get_tx_info;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use starknet::{get_caller_address, get_contract_address, get_tx_info};
 
     #[storage]
     pub struct Storage {

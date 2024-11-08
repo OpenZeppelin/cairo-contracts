@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.18.0 (utils/math.cairo)
+// OpenZeppelin Contracts for Cairo v0.19.0 (utils/math.cairo)
 
 use core::traits::{Into, BitAnd, BitXor};
 

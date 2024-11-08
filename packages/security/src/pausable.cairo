@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.18.0 (security/pausable.cairo)
+// OpenZeppelin Contracts for Cairo v0.19.0 (security/pausable.cairo)
 
 /// # Pausable Component
 ///

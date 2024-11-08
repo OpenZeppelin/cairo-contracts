@@ -6,9 +6,8 @@ use starknet::storage_access::StorePacking;
 
 const _2_POW_32: NonZero<u128> = 0xffffffff;
 
-/// `TxInfo` is a helper struct in `MultisigComponent` that optimizes how transaction-related
-/// information is stored, including the transaction's execution status and the block it was
-/// submitted in.
+/// Helper struct for `MultisigComponent` that optimizes how transaction-related information
+/// is stored, including the transaction's execution status and the block it was submitted in.
 #[derive(Drop)]
 pub struct TxInfo {
     pub is_executed: bool,
@@ -38,8 +37,8 @@ pub impl TxInfoStorePacking of StorePacking<TxInfo, u128> {
     }
 }
 
-/// `SignersInfo` is a helper struct in `MultisigComponent` that optimizes how
-/// the quorum value and the total number of signers are stored.
+/// Helper struct for `MultisigComponent` that optimizes how the quorum
+/// value and the total number of signers are stored.
 #[derive(Drop)]
 pub struct SignersInfo {
     pub quorum: u32,

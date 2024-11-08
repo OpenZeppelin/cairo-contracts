@@ -11,6 +11,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- SRC9 (Outside Execution) integration to account presets (#1201)
+
+## 0.19.0 (2024-11-08)
+
+### Added
+
 - `is_valid_p256_signature` utility function to `openzeppelin_account::utils::signature` (#1189)
 - `Secp256r1KeyPair` type and helpers to `openzeppelin_testing::signing` (#1189)
 - `all_tokens_of_owner` function to `ERC721EnumerableComponent` fetching all owner's tokens in a single call (#1196)

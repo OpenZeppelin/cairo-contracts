@@ -663,14 +663,14 @@ pub mod GovernorComponent {
         /// would have to either remove or change that part, which would result in a different
         /// proposal id.
         ///
-        /// NOTE: In Starknet, the Sequencer ensures the orders of transactions, but frontrunning
+        /// NOTE: In Starknet, the Sequencer ensures the order of transactions, but frontrunning
         /// can still be achieved by nodes, and potentially other actors in the future with
         /// sequencer decentralization.
         ///
         /// If the description does not match this pattern, it is unrestricted and anyone can submit
         /// it. This includes:
         /// - If the `0x???` part is not a valid hex string.
-        /// - If the `0x???` part is a valid hex string, but does not contain exactly 40 hex digits.
+        /// - If the `0x???` part is a valid hex string, but does not contain exactly 64 hex digits.
         /// - If it ends with the expected suffix followed by newlines or other whitespace.
         /// - If it ends with some other similar suffix, e.g. `#other=abc`.
         /// - If it does not end with any such suffix.
@@ -682,19 +682,20 @@ pub mod GovernorComponent {
             let length = description.len();
 
             // Length is too short to contain a valid proposer suffix
-            if description.len() < 52 {
+            if description.len() < 76 {
                 return true;
             }
 
             // Extract what would be the `#proposer=` marker beginning the suffix
-            let marker = description.read_n_bytes(length - 52, 10);
+            let marker = description.read_n_bytes(length - 76, 10);
 
             // If the marker is not found, there is no proposer suffix to check
             if marker != "#proposer=" {
                 return true;
             }
 
-            let expected_address = description.read_n_bytes(length - 42, 42);
+            let expected_address = description.read_n_bytes(length - 64, 64);
+
             proposer.to_byte_array(16, 64) == expected_address
         }
 

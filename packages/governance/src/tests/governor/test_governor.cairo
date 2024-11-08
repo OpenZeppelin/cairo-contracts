@@ -76,8 +76,9 @@ fn test_get_proposal() {
 #[test]
 fn test_is_valid_description_too_short() {
     let state = COMPONENT_STATE();
-    let short_description: ByteArray = "fffffffffffffffffffffffffffffffffffffffffffffffffff";
-    assert_eq!(short_description.len(), 51);
+    let short_description: ByteArray
+        = "fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
+    assert_eq!(short_description.len(), 75);
 
     let is_valid = state.is_valid_description_for_proposer(ADMIN(), @short_description);
     assert!(is_valid);
@@ -95,7 +96,7 @@ fn test_is_valid_description_wrong_suffix() {
 #[test]
 fn test_is_valid_description_wrong_proposer() {
     let state = COMPONENT_STATE();
-    let description = "#proposer=0x4718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d";
+    let description = "#proposer=0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d";
 
     let is_valid = state.is_valid_description_for_proposer(ADMIN(), @description);
     assert!(!is_valid);

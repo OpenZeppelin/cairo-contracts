@@ -11,7 +11,7 @@ pub mod GovernorComponent {
     use core::pedersen::PedersenTrait;
     use crate::governor::ProposalCore;
     use crate::governor::interface::{ProposalState, IGovernor, IGOVERNOR_ID};
-    use crate::timelock::utils::call_impls::{HashCallImpl, HashCallsImpl};
+    use crate::utils::call_impls::{HashCallImpl, HashCallsImpl};
     use openzeppelin_introspection::src5::SRC5Component::InternalImpl as SRC5InternalImpl;
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_token::erc1155::interface::IERC1155_RECEIVER_ID;

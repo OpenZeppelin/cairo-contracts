@@ -3,7 +3,7 @@ use core::pedersen::PedersenTrait;
 use crate::governor::GovernorComponent::InternalImpl;
 use crate::governor::interface::IGOVERNOR_ID;
 use crate::governor::{GovernorComponent, ProposalCore};
-use crate::timelock::utils::call_impls::{HashCallImpl, HashCallsImpl};
+use crate::utils::call_impls::{HashCallImpl, HashCallsImpl};
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin_test_common::mocks::governor::GovernorMock;
 use openzeppelin_testing::constants::{ADMIN, ZERO};

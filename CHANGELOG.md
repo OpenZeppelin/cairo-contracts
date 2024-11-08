@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Multisig component (#1193)
 - `is_valid_p256_signature` utility function to `openzeppelin_account::utils::signature` (#1189)
 - `Secp256r1KeyPair` type and helpers to `openzeppelin_testing::signing` (#1189)
 - `all_tokens_of_owner` function to `ERC721EnumerableComponent` fetching all owner's tokens in a single call (#1196)
@@ -27,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `DebugSecp256k1Point` replaced by a generic `DebugSecp256Point`
 - Apply underscore pattern to the internal functions of `ERC2981Component` to prevent collisions
 with new external functions (#1173)
+- Move `Hash` and `PartialEq` impls of `Call` struct from `openzeppelin_governance::timelock::utils` to `openzeppelin_governance::utils` (#1193)
 
 ## 0.18.0 (2024-10-17)
 

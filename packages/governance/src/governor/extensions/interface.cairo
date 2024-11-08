@@ -25,7 +25,7 @@ pub trait IVotesToken<TState> {
 }
 
 #[starknet::interface]
-pub trait ITimelockController<TState> {
+pub trait ITimelocked<TState> {
     /// Returns address of the associated timelock.
     fn timelock(self: @TState) -> ContractAddress;
 

@@ -198,4 +198,13 @@ pub trait IGovernor<TState> {
         params: ByteArray,
         signature: Span<felt252>
     ) -> u256;
+
+    /// Relays a transaction or function call to an arbitrary target.
+    ///
+    /// In cases where the governance executor is some contract other than the governor itself, like
+    /// when using a timelock, this function can be invoked in a governance proposal to recover
+    /// tokens that was sent to the governor contract by mistake.
+    ///
+    /// NOTE: If the executor is simply the governor itself, use of `relay` is redundant.
+    fn relay(ref self: TState, call: Call);
 }

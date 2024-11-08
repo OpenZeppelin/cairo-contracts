@@ -19,9 +19,9 @@ pub mod GovernorComponent {
     use openzeppelin_utils::bytearray::ByteArrayExtTrait;
     use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
     use openzeppelin_utils::structs::{DoubleEndedQueue, DoubleEndedQueueTrait};
-    use starknet::ContractAddress;
     use starknet::account::Call;
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
+    use starknet::{ContractAddress, SyscallResultTrait};
 
     #[storage]
     pub struct Storage {
@@ -623,6 +623,20 @@ pub mod GovernorComponent {
             signature: Span<felt252>
         ) -> u256 {
             1
+        }
+
+        /// Relays a transaction or function call to an arbitrary target.
+        ///
+        /// In cases where the governance executor is some contract other than the governor itself,
+        /// like when using a timelock, this function can be invoked in a governance proposal to
+        /// recover tokens that was sent to the governor contract by mistake.
+        ///
+        /// NOTE: If the executor is simply the governor itself, use of `relay` is redundant.
+        fn relay(ref self: ComponentState<TContractState>, call: Call) {
+            self.assert_only_governance();
+
+            let Call { to, selector, calldata } = call;
+            starknet::syscalls::call_contract_syscall(to, selector, calldata).unwrap_syscall();
         }
     }
 

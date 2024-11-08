@@ -6,8 +6,9 @@
 ///
 /// Extension of GovernorComponent that binds the execution process to an instance of a contract
 /// implementing TimelockControllerComponent. This adds a delay, enforced by the TimelockController
-/// to all successful proposal (in addition to the voting duration). The Governor needs the proposer
-/// (and ideally the executor and canceller) roles for the Governor to work properly.
+/// to all successful proposal (in addition to the voting duration).
+///
+/// NOTE: The Governor needs the PROPOSER, EXECUTOR, and CANCELLER roles to work properly.
 ///
 /// Using this model means the proposal will be operated by the TimelockController and not by the
 /// Governor. Thus, the assets and permissions must be attached to the TimelockController. Any asset
@@ -26,7 +27,7 @@ pub mod GovernorTimelockExecutionComponent {
         InternalExtendedTrait, ComponentState as GovernorComponentState
     };
     use crate::governor::GovernorComponent;
-    use crate::governor::extensions::interface::ITimelockController;
+    use crate::governor::extensions::interface::ITimelocked;
     use crate::governor::interface::ProposalState;
     use crate::timelock::interface::{ITimelockDispatcher, ITimelockDispatcherTrait};
     use openzeppelin_introspection::src5::SRC5Component;
@@ -202,8 +203,8 @@ pub mod GovernorTimelockExecutionComponent {
     // External
     //
 
-    #[embeddable_as(TimelockControllerImpl)]
-    impl TimelockController<
+    #[embeddable_as(TimelockedImpl)]
+    impl Timelocked<
         TContractState,
         +HasComponent<TContractState>,
         +GovernorComponent::GovernorSettingsTrait<TContractState>,
@@ -212,7 +213,7 @@ pub mod GovernorTimelockExecutionComponent {
         +SRC5Component::HasComponent<TContractState>,
         +GovernorComponent::HasComponent<TContractState>,
         +Drop<TContractState>
-    > of ITimelockController<ComponentState<TContractState>> {
+    > of ITimelocked<ComponentState<TContractState>> {
         /// Returns the token that voting power is sourced from.
         fn timelock(self: @ComponentState<TContractState>) -> ContractAddress {
             self.Governor_timelock_controller.read()

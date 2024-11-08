@@ -506,13 +506,13 @@ pub mod GovernorComponent {
 
             let self_executor = self.executor() == starknet::get_contract_address();
             // Register governance call in queue before execution
-            if self_executor { // TODO: save the calldatas in the governance_call queue
+            if !self_executor { // TODO: save the calldatas in the governance_call queue
             }
 
             self.execute_operations(proposal_id, calls, description_hash);
 
             // Clean up the governance call queue
-            if self_executor
+            if !self_executor
                 && (@self)
                     .Governor_governance_call
                     .deref()

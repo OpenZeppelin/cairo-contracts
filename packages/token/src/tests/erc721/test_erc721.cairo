@@ -5,14 +5,14 @@ use crate::erc721::ERC721Component;
 use crate::erc721;
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin_test_common::erc721::ERC721SpyHelpers;
-use openzeppelin_test_common::mocks::erc721::DualCaseERC721Mock;
+use openzeppelin_test_common::mocks::erc721::{DualCaseERC721Mock, SnakeERC721MockWithHooks};
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{
     DATA, ZERO, OWNER, CALLER, RECIPIENT, SPENDER, OPERATOR, OTHER, NAME, SYMBOL, TOKEN_ID,
     TOKEN_ID_2, PUBKEY, BASE_URI, BASE_URI_2
 };
 use openzeppelin_testing::events::EventSpyExt;
-use snforge_std::{spy_events, test_address, start_cheat_caller_address};
+use snforge_std::{EventSpy, spy_events, test_address, start_cheat_caller_address};
 use starknet::ContractAddress;
 use starknet::storage::StorageMapReadAccess;
 
@@ -21,6 +21,8 @@ use starknet::storage::StorageMapReadAccess;
 //
 
 type ComponentState = ERC721Component::ComponentState<DualCaseERC721Mock::ContractState>;
+type ComponentStateWithHooks =
+    ERC721Component::ComponentState<SnakeERC721MockWithHooks::ContractState>;
 
 fn CONTRACT_STATE() -> DualCaseERC721Mock::ContractState {
     DualCaseERC721Mock::contract_state_for_testing()
@@ -28,9 +30,19 @@ fn CONTRACT_STATE() -> DualCaseERC721Mock::ContractState {
 fn COMPONENT_STATE() -> ComponentState {
     ERC721Component::component_state_for_testing()
 }
+fn COMPONENT_STATE_WITH_HOOKS() -> ComponentStateWithHooks {
+    ERC721Component::component_state_for_testing()
+}
 
 fn setup() -> ComponentState {
     let mut state = COMPONENT_STATE();
+    state.initializer(NAME(), SYMBOL(), BASE_URI());
+    state.mint(OWNER(), TOKEN_ID);
+    state
+}
+
+fn setup_with_hooks() -> ComponentStateWithHooks {
+    let mut state = COMPONENT_STATE_WITH_HOOKS();
     state.initializer(NAME(), SYMBOL(), BASE_URI());
     state.mint(OWNER(), TOKEN_ID);
     state
@@ -1385,6 +1397,30 @@ fn test_update_mint_auth_not_zero() {
     state.update(RECIPIENT(), TOKEN_ID_2, CALLER());
 }
 
+#[test]
+fn test_update_calls_before_update_hook() {
+    let mut state = setup_with_hooks();
+
+    let mut spy = spy_events();
+    let contract_address = test_address();
+
+    state.update(RECIPIENT(), TOKEN_ID, OWNER());
+
+    spy.assert_event_before_update(contract_address, RECIPIENT(), TOKEN_ID, OWNER());
+}
+
+#[test]
+fn test_update_calls_after_update_hook() {
+    let mut state = setup_with_hooks();
+
+    let mut spy = spy_events();
+    let contract_address = test_address();
+
+    state.update(RECIPIENT(), TOKEN_ID, OWNER());
+
+    spy.assert_event_after_update(contract_address, RECIPIENT(), TOKEN_ID, OWNER())
+}
+
 //
 // Helpers
 //
@@ -1416,4 +1452,33 @@ fn assert_state_after_mint(recipient: ContractAddress, token_id: u256) {
     assert_eq!(state.owner_of(token_id), recipient);
     assert_eq!(state.balance_of(recipient), 1);
     assert!(state.get_approved(token_id).is_zero());
+}
+
+#[generate_trait]
+impl ERC721HooksSpyHelpersImpl of ERC721HooksSpyHelpers {
+    fn assert_event_before_update(
+        ref self: EventSpy,
+        contract: ContractAddress,
+        to: ContractAddress,
+        token_id: u256,
+        auth: ContractAddress
+    ) {
+        let expected = SnakeERC721MockWithHooks::Event::BeforeUpdate(
+            SnakeERC721MockWithHooks::BeforeUpdate { to, token_id, auth }
+        );
+        self.assert_emitted_single(contract, expected);
+    }
+
+    fn assert_event_after_update(
+        ref self: EventSpy,
+        contract: ContractAddress,
+        to: ContractAddress,
+        token_id: u256,
+        auth: ContractAddress
+    ) {
+        let expected = SnakeERC721MockWithHooks::Event::AfterUpdate(
+            SnakeERC721MockWithHooks::AfterUpdate { to, token_id, auth }
+        );
+        self.assert_emitted_single(contract, expected);
+    }
 }

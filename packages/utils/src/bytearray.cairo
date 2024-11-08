@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.18.0 (utils/bytearray.cairo)
+// OpenZeppelin Contracts for Cairo v0.19.0 (utils/bytearray.cairo)
 
 use core::byte_array::ByteArrayTrait;
 use core::poseidon::poseidon_hash_span;

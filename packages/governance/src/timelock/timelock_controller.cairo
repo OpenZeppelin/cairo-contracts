@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.18.0 (governance/timelock/timelock_controller.cairo)
+// OpenZeppelin Contracts for Cairo v0.19.0 (governance/timelock/timelock_controller.cairo)
 
 /// # TimelockController Component
 ///
@@ -18,7 +18,7 @@ pub mod TimelockControllerComponent {
     use core::num::traits::Zero;
     use core::pedersen::PedersenTrait;
     use crate::timelock::interface::{ITimelock, TimelockABI};
-    use crate::timelock::utils::call_impls::{HashCallImpl, HashCallsImpl, CallPartialEq};
+    use crate::utils::call_impls::{HashCallImpl, HashCallsImpl, CallPartialEq};
     use openzeppelin_access::accesscontrol::AccessControlComponent::InternalTrait as AccessControlInternalTrait;
     use openzeppelin_access::accesscontrol::AccessControlComponent::{
         AccessControlImpl, AccessControlCamelImpl
@@ -156,11 +156,11 @@ pub mod TimelockControllerComponent {
             self: @ComponentState<TContractState>, id: felt252
         ) -> OperationState {
             let timestamp = Self::get_timestamp(self, id);
-            if (timestamp == 0) {
+            if timestamp == 0 {
                 return OperationState::Unset;
-            } else if (timestamp == DONE_TIMESTAMP) {
+            } else if timestamp == DONE_TIMESTAMP {
                 return OperationState::Done;
-            } else if (timestamp > starknet::get_block_timestamp()) {
+            } else if timestamp > starknet::get_block_timestamp() {
                 return OperationState::Waiting;
             } else {
                 return OperationState::Ready;

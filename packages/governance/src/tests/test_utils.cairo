@@ -1,4 +1,4 @@
-use crate::timelock::utils::call_impls::CallPartialEq;
+use crate::utils::call_impls::CallPartialEq;
 use starknet::account::Call;
 use starknet::contract_address_const;
 

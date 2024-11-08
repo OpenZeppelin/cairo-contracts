@@ -9,6 +9,7 @@ pub const VALUE: u256 = 300;
 pub const FELT_VALUE: felt252 = 'FELT_VALUE';
 pub const ROLE: felt252 = 'ROLE';
 pub const TIMESTAMP: u64 = 1704067200; // 2024-01-01 00:00:00 UTC
+pub const BLOCK_NUMBER: u64 = 1234567;
 pub const OTHER_ROLE: felt252 = 'OTHER_ROLE';
 pub const CHAIN_ID: felt252 = 'CHAIN_ID';
 pub const TOKEN_ID: u256 = 21;
@@ -99,6 +100,18 @@ pub fn DELEGATOR() -> ContractAddress {
 
 pub fn DELEGATEE() -> ContractAddress {
     contract_address_const::<'DELEGATEE'>()
+}
+
+pub fn ALICE() -> ContractAddress {
+    contract_address_const::<'ALICE'>()
+}
+
+pub fn BOB() -> ContractAddress {
+    contract_address_const::<'BOB'>()
+}
+
+pub fn CHARLIE() -> ContractAddress {
+    contract_address_const::<'CHARLIE'>()
 }
 
 pub fn DATA(success: bool) -> Span<felt252> {

@@ -78,6 +78,87 @@ pub mod SnakeERC20Mock {
     }
 }
 
+/// Similar to `SnakeERC20Mock`, but emits events for `before_update` and `after_update` hooks.
+/// This is used to test that the hooks are called with the correct arguments.
+#[starknet::contract]
+pub mod SnakeERC20MockWithHooks {
+    use openzeppelin_token::erc20::ERC20Component;
+    use starknet::ContractAddress;
+
+    component!(path: ERC20Component, storage: erc20, event: ERC20Event);
+
+    #[abi(embed_v0)]
+    impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC20MetadataImpl = ERC20Component::ERC20MetadataImpl<ContractState>;
+    impl InternalImpl = ERC20Component::InternalImpl<ContractState>;
+
+    #[storage]
+    pub struct Storage {
+        #[substorage(v0)]
+        pub erc20: ERC20Component::Storage
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    pub enum Event {
+        #[flat]
+        ERC20Event: ERC20Component::Event,
+        BeforeUpdate: BeforeUpdate,
+        AfterUpdate: AfterUpdate
+    }
+
+    /// Event used to test that `before_update` hook is called.
+    #[derive(Drop, PartialEq, starknet::Event)]
+    pub struct BeforeUpdate {
+        pub from: ContractAddress,
+        pub recipient: ContractAddress,
+        pub amount: u256
+    }
+
+    /// Event used to test that `after_update` hook is called.
+    #[derive(Drop, PartialEq, starknet::Event)]
+    pub struct AfterUpdate {
+        pub from: ContractAddress,
+        pub recipient: ContractAddress,
+        pub amount: u256
+    }
+
+    #[constructor]
+    fn constructor(
+        ref self: ContractState,
+        name: ByteArray,
+        symbol: ByteArray,
+        initial_supply: u256,
+        recipient: ContractAddress
+    ) {
+        self.erc20.initializer(name, symbol);
+        self.erc20.mint(recipient, initial_supply);
+    }
+
+    impl ERC20HooksImpl of ERC20Component::ERC20HooksTrait<ContractState> {
+        fn before_update(
+            ref self: ERC20Component::ComponentState<ContractState>,
+            from: ContractAddress,
+            recipient: ContractAddress,
+            amount: u256
+        ) {
+            let mut contract_state = self.get_contract_mut();
+            contract_state.emit(BeforeUpdate { from, recipient, amount });
+        }
+
+        fn after_update(
+            ref self: ERC20Component::ComponentState<ContractState>,
+            from: ContractAddress,
+            recipient: ContractAddress,
+            amount: u256
+        ) {
+            let mut contract_state = self.get_contract_mut();
+            contract_state.emit(AfterUpdate { from, recipient, amount });
+        }
+    }
+}
+
 #[starknet::contract]
 pub mod DualCaseERC20PermitMock {
     use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};

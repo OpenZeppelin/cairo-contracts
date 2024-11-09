@@ -53,6 +53,7 @@ pub trait SNIP12Metadata {
 /// Implementation of OffchainMessageHash that calculates the Poseidon hash of the message.
 ///
 /// The hash state hashes the following in order:
+///
 /// - 'StarkNet Message' short string.
 /// - Starknet domain.
 /// - `signer` of the message.

@@ -24,14 +24,17 @@ pub struct StarknetDomain {
     pub revision: felt252,
 }
 
+/// Trait for calculating the hash of a struct.
 pub trait StructHash<T> {
     fn hash_struct(self: @T) -> felt252;
 }
 
+/// Trait for calculating the hash of a message given the passed `signer`.
 pub trait OffchainMessageHash<T> {
     fn get_message_hash(self: @T, signer: ContractAddress) -> felt252;
 }
 
+/// Implementation of `StructHash` that calculates the Poseidon hash of type `StarknetDomain`.
 pub impl StructHashStarknetDomainImpl of StructHash<StarknetDomain> {
     fn hash_struct(self: @StarknetDomain) -> felt252 {
         let hash_state = PoseidonTrait::new();
@@ -47,6 +50,13 @@ pub trait SNIP12Metadata {
     fn version() -> felt252;
 }
 
+/// Implementation of OffchainMessageHash that calculates the Poseidon hash of the message.
+///
+/// The hash state hashes the following in order:
+/// - 'StarkNet Message' short string.
+/// - Starknet domain.
+/// - `signer` of the message.
+/// - Hashed struct of the message.
 pub(crate) impl OffchainMessageHashImpl<
     T, +StructHash<T>, impl metadata: SNIP12Metadata
 > of OffchainMessageHash<T> {

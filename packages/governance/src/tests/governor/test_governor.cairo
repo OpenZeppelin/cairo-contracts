@@ -2,9 +2,7 @@ use core::hash::{HashStateTrait, HashStateExTrait};
 use core::num::traits::Zero;
 use core::pedersen::PedersenTrait;
 use crate::governor::GovernorComponent::{InternalImpl, InternalExtendedImpl, GovernorQuorumTrait};
-use crate::governor::interface::{
-    IGOVERNOR_ID, ProposalState
-};
+use crate::governor::interface::{IGOVERNOR_ID, ProposalState};
 use crate::governor::{GovernorComponent, ProposalCore};
 use crate::utils::call_impls::{HashCallImpl, HashCallsImpl};
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;

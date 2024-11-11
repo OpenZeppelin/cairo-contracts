@@ -323,7 +323,7 @@ fn test_get_votes_with_params() {
     // Mock the get_past_votes call
     start_mock_call(Zero::zero(), selector!("get_past_votes"), expected_weight);
 
-    let votes = state.get_votes_with_params(OTHER(), timepoint, @"params");
+    let votes = state.get_votes_with_params(OTHER(), timepoint, "params");
     assert_eq!(votes, expected_weight);
 }
 

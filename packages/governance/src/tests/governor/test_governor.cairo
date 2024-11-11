@@ -1,11 +1,12 @@
 use core::hash::{HashStateTrait, HashStateExTrait};
 use core::num::traits::Zero;
 use core::pedersen::PedersenTrait;
-use crate::governor::GovernorComponent::{InternalImpl, InternalExtendedImpl, GovernorQuorumTrait};
-use crate::governor::interface::{IGOVERNOR_ID, ProposalState};
-use crate::governor::{GovernorComponent, ProposalCore};
+use crate::governor::GovernorComponent::{InternalImpl, InternalExtendedImpl};
+use crate::governor::interface::{IGovernor, IGOVERNOR_ID, ProposalState};
+use crate::governor::{DefaultConfig, GovernorComponent, ProposalCore};
 use crate::utils::call_impls::{HashCallImpl, HashCallsImpl};
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
+use openzeppelin_test_common::mocks::governor::GovernorMock::SNIP12MetadataImpl;
 use openzeppelin_test_common::mocks::governor::GovernorMock;
 use openzeppelin_testing::constants::{ADMIN, OTHER, ZERO};
 use openzeppelin_testing::events::EventSpyExt;
@@ -27,6 +28,303 @@ fn CONTRACT_STATE() -> GovernorMock::ContractState {
 
 fn COMPONENT_STATE() -> ComponentState {
     GovernorComponent::component_state_for_testing()
+}
+
+//
+// External
+//
+
+#[test]
+fn test_name() {
+    let state = @COMPONENT_STATE();
+    let name = state.name();
+    assert_eq!(name, 'APP_NAME');
+}
+
+#[test]
+fn test_version() {
+    let state = COMPONENT_STATE();
+    let version = state.version();
+    assert_eq!(version, 'APP_VERSION');
+}
+
+#[test]
+fn test_counting_mode() {
+    let state = COMPONENT_STATE();
+    let counting_mode = state.COUNTING_MODE();
+    assert_eq!(counting_mode, "support=bravo&quorum=for,abstain");
+}
+
+#[test]
+fn test_hash_proposal() {
+    let state = COMPONENT_STATE();
+    let calls = get_calls(ZERO());
+    let description = @"proposal description";
+    let description_hash = description.hash();
+
+    let expected_hash = hash_proposal(calls, description_hash);
+    let hash = state.hash_proposal(calls, description_hash);
+
+    assert_eq!(hash, expected_hash);
+}
+
+//
+// state
+//
+
+#[test]
+fn test_state_executed() {
+    let mut state = COMPONENT_STATE();
+
+    // The function already asserts the state
+    setup_executed_proposal(ref state, true);
+}
+
+#[test]
+fn test_state_canceled() {
+    let mut state = COMPONENT_STATE();
+
+    // The function already asserts the state
+    setup_canceled_proposal(ref state, true);
+}
+
+#[test]
+#[should_panic(expected: 'Nonexistent proposal')]
+fn test_state_non_existent() {
+    let state = COMPONENT_STATE();
+
+    state._state(1);
+}
+
+#[test]
+fn test_state_pending() {
+    let mut state = COMPONENT_STATE();
+
+    // The function already asserts the state
+    setup_pending_proposal(ref state, true);
+}
+
+fn test_state_active_external_version(external_state_version: bool) {
+    let mut state = COMPONENT_STATE();
+    let (id, proposal) = get_proposal_info();
+
+    state.Governor_proposals.write(id, proposal);
+
+    let deadline = proposal.vote_start + proposal.vote_duration;
+    let expected = ProposalState::Active;
+
+    // Is active before deadline
+    start_cheat_block_timestamp_global(deadline - 1);
+    let current_state = get_state(@state, id, external_state_version);
+    assert_eq!(current_state, expected);
+
+    // Is active in deadline
+    start_cheat_block_timestamp_global(deadline);
+    let current_state = get_state(@state, id, external_state_version);
+    assert_eq!(current_state, expected);
+}
+
+#[test]
+fn test_state_active() {
+    test_state_active_external_version(true);
+}
+
+fn test_state_defeated_quorum_not_reached_external_version(external_state_version: bool) {
+    let mut mock_state = CONTRACT_STATE();
+    let (id, proposal) = get_proposal_info();
+
+    mock_state.governor.Governor_proposals.write(id, proposal);
+
+    let deadline = proposal.vote_start + proposal.vote_duration;
+    let expected = ProposalState::Defeated;
+
+    start_cheat_block_timestamp_global(deadline + 1);
+
+    // Quorum not reached
+    let quorum = mock_state.governor.quorum(0);
+    let proposal_votes = mock_state.governor_counting_simple.Governor_proposals_votes.entry(id);
+    proposal_votes.for_votes.write(quorum - 1);
+
+    let current_state = get_mock_state(@mock_state, id, external_state_version);
+    assert_eq!(current_state, expected);
+}
+
+#[test]
+fn test_state_defeated_quorum_not_reached() {
+    test_state_defeated_quorum_not_reached_external_version(true);
+}
+
+fn test_state_defeated_vote_not_succeeded_external_version(external_state_version: bool) {
+    let mut mock_state = CONTRACT_STATE();
+    let (id, proposal) = get_proposal_info();
+
+    mock_state.governor.Governor_proposals.write(id, proposal);
+
+    let deadline = proposal.vote_start + proposal.vote_duration;
+    let expected = ProposalState::Defeated;
+
+    start_cheat_block_timestamp_global(deadline + 1);
+
+    // Quorum reached
+    let quorum = mock_state.governor.quorum(0);
+    let proposal_votes = mock_state.governor_counting_simple.Governor_proposals_votes.entry(id);
+    proposal_votes.for_votes.write(quorum + 1);
+
+    // Vote not succeeded
+    proposal_votes.against_votes.write(quorum + 1);
+
+    let current_state = get_mock_state(@mock_state, id, external_state_version);
+    assert_eq!(current_state, expected);
+}
+
+#[test]
+fn test_state_defeated_vote_not_succeeded() {
+    test_state_defeated_vote_not_succeeded_external_version(true);
+}
+
+#[test]
+fn test_state_queued() {
+    let mut mock_state = CONTRACT_STATE();
+
+    // The function already asserts the state
+    setup_queued_proposal(ref mock_state, true);
+}
+
+#[test]
+fn test_state_succeeded() {
+    let mut mock_state = CONTRACT_STATE();
+
+    // The function already asserts the state
+    setup_succeeded_proposal(ref mock_state, true);
+}
+
+//
+// Proposal info
+//
+
+#[test]
+fn test_proposal_threshold() {
+    let mut state = COMPONENT_STATE();
+
+    let threshold = state.proposal_threshold();
+    let expected = GovernorMock::PROPOSAL_THRESHOLD;
+    assert_eq!(threshold, expected);
+}
+
+#[test]
+fn test_proposal_snapshot() {
+    let mut state = COMPONENT_STATE();
+    let (id, proposal) = get_proposal_info();
+
+    state.Governor_proposals.write(id, proposal);
+
+    let snapshot = state.proposal_snapshot(id);
+    let expected = proposal.vote_start;
+    assert_eq!(snapshot, expected);
+}
+
+#[test]
+fn test_proposal_deadline() {
+    let mut state = COMPONENT_STATE();
+    let (id, proposal) = get_proposal_info();
+
+    state.Governor_proposals.write(id, proposal);
+
+    let deadline = state.proposal_deadline(id);
+    let expected = proposal.vote_start + proposal.vote_duration;
+    assert_eq!(deadline, expected);
+}
+
+#[test]
+fn test_proposal_proposer() {
+    let mut state = COMPONENT_STATE();
+    let (id, proposal) = get_proposal_info();
+
+    state.Governor_proposals.write(id, proposal);
+
+    let proposer = state.proposal_proposer(id);
+    let expected = proposal.proposer;
+    assert_eq!(proposer, expected);
+}
+
+#[test]
+fn test_proposal_eta() {
+    let mut state = COMPONENT_STATE();
+    let (id, proposal) = get_proposal_info();
+
+    state.Governor_proposals.write(id, proposal);
+
+    let eta = state.proposal_eta(id);
+    let expected = proposal.eta_seconds;
+    assert_eq!(eta, expected);
+}
+
+#[test]
+fn test_proposal_needs_queuing() {
+    let mut state = COMPONENT_STATE();
+    let (id, proposal) = get_proposal_info();
+
+    state.Governor_proposals.write(id, proposal);
+
+    let needs_queuing = state.proposal_needs_queuing(id);
+    assert_eq!(needs_queuing, false);
+}
+
+#[test]
+fn test_voting_delay() {
+    let mut state = COMPONENT_STATE();
+
+    let threshold = state.voting_delay();
+    let expected = GovernorMock::VOTING_DELAY;
+    assert_eq!(threshold, expected);
+}
+
+#[test]
+fn test_voting_period() {
+    let mut state = COMPONENT_STATE();
+
+    let threshold = state.voting_period();
+    let expected = GovernorMock::VOTING_PERIOD;
+    assert_eq!(threshold, expected);
+}
+
+#[test]
+fn test_quorum(timepoint: u64) {
+    let mut state = COMPONENT_STATE();
+
+    let threshold = state.quorum(timepoint);
+    let expected = GovernorMock::QUORUM;
+    assert_eq!(threshold, expected);
+}
+
+//
+// get_votes
+//
+
+#[test]
+fn test_get_votes() {
+    let mut state = COMPONENT_STATE();
+    let timepoint = 0;
+    let expected_weight = 100;
+
+    // Mock the get_past_votes call
+    start_mock_call(Zero::zero(), selector!("get_past_votes"), expected_weight);
+
+    let votes = state.get_votes(OTHER(), timepoint);
+    assert_eq!(votes, expected_weight);
+}
+
+#[test]
+fn test_get_votes_with_params() {
+    let mut state = COMPONENT_STATE();
+    let timepoint = 0;
+    let expected_weight = 100;
+
+    // Mock the get_past_votes call
+    start_mock_call(Zero::zero(), selector!("get_past_votes"), expected_weight);
+
+    let votes = state.get_votes_with_params(OTHER(), timepoint, @"params");
+    assert_eq!(votes, expected_weight);
 }
 
 //
@@ -142,6 +440,15 @@ fn test__hash_proposal() {
 //
 
 #[test]
+fn test__proposal_threshold() {
+    let mut state = COMPONENT_STATE();
+
+    let threshold = state._proposal_threshold();
+    let expected = GovernorMock::PROPOSAL_THRESHOLD;
+    assert_eq!(threshold, expected);
+}
+
+#[test]
 fn test__proposal_snapshot() {
     let mut state = COMPONENT_STATE();
     let (id, proposal) = get_proposal_info();
@@ -180,11 +487,11 @@ fn test__proposal_proposer() {
 #[test]
 fn test__proposal_eta() {
     let mut state = COMPONENT_STATE();
-    let (_, proposal) = get_proposal_info();
+    let (id, proposal) = get_proposal_info();
 
-    state.Governor_proposals.write(1, proposal);
+    state.Governor_proposals.write(id, proposal);
 
-    let eta = state._proposal_eta(1);
+    let eta = state._proposal_eta(id);
     let expected = proposal.eta_seconds;
     assert_eq!(eta, expected);
 }
@@ -258,6 +565,23 @@ fn test_validate_state_invalid() {
 }
 
 //
+// _get_votes
+//
+
+#[test]
+fn test__get_votes() {
+    let mut state = COMPONENT_STATE();
+    let timepoint = 0;
+    let expected_weight = 100;
+
+    // Mock the get_past_votes call
+    start_mock_call(Zero::zero(), selector!("get_past_votes"), expected_weight);
+
+    let votes = state._get_votes(OTHER(), timepoint, @"params");
+    assert_eq!(votes, expected_weight);
+}
+
+//
 // _state
 //
 
@@ -265,16 +589,16 @@ fn test_validate_state_invalid() {
 fn test__state_executed() {
     let mut state = COMPONENT_STATE();
 
-    // The getter already asserts the state
-    get_executed_proposal(ref state);
+    // The function already asserts the state
+    setup_executed_proposal(ref state, false);
 }
 
 #[test]
 fn test__state_canceled() {
     let mut state = COMPONENT_STATE();
 
-    // The getter already asserts the state
-    get_canceled_proposal(ref state);
+    // The function already asserts the state
+    setup_canceled_proposal(ref state, false);
 }
 
 #[test]
@@ -289,90 +613,39 @@ fn test__state_non_existent() {
 fn test__state_pending() {
     let mut state = COMPONENT_STATE();
 
-    // The getter already asserts the state
-    get_pending_proposal(ref state);
+    // The function already asserts the state
+    setup_pending_proposal(ref state, false);
 }
 
 #[test]
 fn test__state_active() {
-    let mut state = COMPONENT_STATE();
-    let (id, proposal) = get_proposal_info();
-
-    state.Governor_proposals.write(id, proposal);
-
-    let deadline = proposal.vote_start + proposal.vote_duration;
-    let expected = ProposalState::Active;
-
-    // Is active before deadline
-    start_cheat_block_timestamp_global(deadline - 1);
-    let current_state = state._state(id);
-    assert_eq!(current_state, expected);
-
-    // Is active in deadline
-    start_cheat_block_timestamp_global(deadline);
-    let current_state = state._state(id);
-    assert_eq!(current_state, expected);
+    test_state_active_external_version(false);
 }
 
 #[test]
 fn test__state_defeated_quorum_not_reached() {
-    let mut mock_state = CONTRACT_STATE();
-    let (id, proposal) = get_proposal_info();
-
-    mock_state.governor.Governor_proposals.write(id, proposal);
-
-    let deadline = proposal.vote_start + proposal.vote_duration;
-    let expected = ProposalState::Defeated;
-
-    start_cheat_block_timestamp_global(deadline + 1);
-
-    // Quorum not reached
-    let quorum = mock_state.governor.quorum(0);
-    let proposal_votes = mock_state.governor_counting_simple.Governor_proposals_votes.entry(id);
-    proposal_votes.for_votes.write(quorum - 1);
-
-    let current_state = mock_state.governor._state(id);
-    assert_eq!(current_state, expected);
+    test_state_defeated_quorum_not_reached_external_version(false);
 }
 
 #[test]
 fn test__state_defeated_vote_not_succeeded() {
-    let mut mock_state = CONTRACT_STATE();
-    let (id, proposal) = get_proposal_info();
-
-    mock_state.governor.Governor_proposals.write(id, proposal);
-
-    let deadline = proposal.vote_start + proposal.vote_duration;
-    let expected = ProposalState::Defeated;
-
-    start_cheat_block_timestamp_global(deadline + 1);
-
-    // Quorum reached
-    let quorum = mock_state.governor.quorum(0);
-    let proposal_votes = mock_state.governor_counting_simple.Governor_proposals_votes.entry(id);
-    proposal_votes.for_votes.write(quorum + 1);
-
-    // Vote not succeeded
-    proposal_votes.against_votes.write(quorum + 1);
-
-    let current_state = mock_state.governor._state(id);
-    assert_eq!(current_state, expected);
+    test_state_defeated_vote_not_succeeded_external_version(false);
 }
 
 #[test]
 fn test__state_queued() {
     let mut mock_state = CONTRACT_STATE();
 
-    // The getter already asserts the state
-    get_queued_proposal(ref mock_state);
+    // The function already asserts the state
+    setup_queued_proposal(ref mock_state, false);
 }
 
 #[test]
 fn test__state_succeeded() {
     let mut mock_state = CONTRACT_STATE();
 
-    // The getter already asserts the state
-    get_succeeded_proposal(ref mock_state);
+    // The function already asserts the state
+    setup_succeeded_proposal(ref mock_state, false);
 }
 
 //
@@ -447,7 +720,7 @@ fn test__propose_existent_proposal() {
 #[test]
 fn test__cancel_pending() {
     let mut state = COMPONENT_STATE();
-    let (id, _) = get_pending_proposal(ref state);
+    let (id, _) = setup_pending_proposal(ref state, false);
 
     state._cancel(id, 0);
 
@@ -458,7 +731,7 @@ fn test__cancel_pending() {
 #[test]
 fn test__cancel_active() {
     let mut state = COMPONENT_STATE();
-    let (id, _) = get_active_proposal(ref state);
+    let (id, _) = setup_active_proposal(ref state, false);
 
     state._cancel(id, 0);
 
@@ -469,7 +742,7 @@ fn test__cancel_active() {
 #[test]
 fn test__cancel_defeated() {
     let mut mock_state = CONTRACT_STATE();
-    let (id, _) = get_defeated_proposal(ref mock_state);
+    let (id, _) = setup_defeated_proposal(ref mock_state, false);
 
     mock_state.governor._cancel(id, 0);
 
@@ -480,7 +753,7 @@ fn test__cancel_defeated() {
 #[test]
 fn test__cancel_succeeded() {
     let mut mock_state = CONTRACT_STATE();
-    let (id, _) = get_succeeded_proposal(ref mock_state);
+    let (id, _) = setup_succeeded_proposal(ref mock_state, false);
 
     mock_state.governor._cancel(id, 0);
 
@@ -491,7 +764,7 @@ fn test__cancel_succeeded() {
 #[test]
 fn test__cancel_queued() {
     let mut mock_state = CONTRACT_STATE();
-    let (id, _) = get_queued_proposal(ref mock_state);
+    let (id, _) = setup_queued_proposal(ref mock_state, false);
 
     mock_state.governor._cancel(id, 0);
 
@@ -503,7 +776,7 @@ fn test__cancel_queued() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test__cancel_canceled() {
     let mut state = COMPONENT_STATE();
-    let (id, _) = get_canceled_proposal(ref state);
+    let (id, _) = setup_canceled_proposal(ref state, false);
 
     // Cancel again
     state._cancel(id, 0);
@@ -513,7 +786,7 @@ fn test__cancel_canceled() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test__cancel_executed() {
     let mut state = COMPONENT_STATE();
-    let (id, _) = get_executed_proposal(ref state);
+    let (id, _) = setup_executed_proposal(ref state, false);
 
     state._cancel(id, 0);
 }
@@ -526,7 +799,7 @@ fn test__cancel_executed() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test__cast_vote_pending() {
     let mut state = COMPONENT_STATE();
-    let (id, _) = get_pending_proposal(ref state);
+    let (id, _) = setup_pending_proposal(ref state, false);
 
     state._cast_vote(id, OTHER(), 0, "", "");
 }
@@ -534,14 +807,14 @@ fn test__cast_vote_pending() {
 #[test]
 fn test__cast_vote_active_no_params() {
     let mut state = COMPONENT_STATE();
-    let (id, _) = get_active_proposal(ref state);
+    let (id, _) = setup_active_proposal(ref state, false);
     let mut spy = spy_events();
     let contract_address = test_address();
 
     let reason = "reason";
     let expected_weight = 100;
 
-    // Mock the get past votes call
+    // Mock the get_past_votes call
     start_mock_call(Zero::zero(), selector!("get_past_votes"), expected_weight);
 
     let weight = state._cast_vote(id, OTHER(), 0, reason, "");
@@ -553,7 +826,7 @@ fn test__cast_vote_active_no_params() {
 #[test]
 fn test__cast_vote_active_with_params() {
     let mut state = COMPONENT_STATE();
-    let (id, _) = get_active_proposal(ref state);
+    let (id, _) = setup_active_proposal(ref state, false);
     let mut spy = spy_events();
     let contract_address = test_address();
 
@@ -561,7 +834,7 @@ fn test__cast_vote_active_with_params() {
     let params = "params";
     let expected_weight = 100;
 
-    // Mock the get past votes call
+    // Mock the get_past_votes call
     start_mock_call(Zero::zero(), selector!("get_past_votes"), expected_weight);
 
     let weight = state._cast_vote(id, OTHER(), 0, reason, params);
@@ -577,7 +850,7 @@ fn test__cast_vote_active_with_params() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test__cast_vote_defeated() {
     let mut mock_state = CONTRACT_STATE();
-    let (id, _) = get_defeated_proposal(ref mock_state);
+    let (id, _) = setup_defeated_proposal(ref mock_state, false);
 
     mock_state.governor._cast_vote(id, OTHER(), 0, "", "");
 }
@@ -586,7 +859,7 @@ fn test__cast_vote_defeated() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test__cast_vote_succeeded() {
     let mut mock_state = CONTRACT_STATE();
-    let (id, _) = get_succeeded_proposal(ref mock_state);
+    let (id, _) = setup_succeeded_proposal(ref mock_state, false);
 
     mock_state.governor._cast_vote(id, OTHER(), 0, "", "");
 }
@@ -595,7 +868,7 @@ fn test__cast_vote_succeeded() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test__cast_vote_queued() {
     let mut mock_state = CONTRACT_STATE();
-    let (id, _) = get_queued_proposal(ref mock_state);
+    let (id, _) = setup_queued_proposal(ref mock_state, false);
 
     mock_state.governor._cast_vote(id, OTHER(), 0, "", "");
 }
@@ -604,7 +877,7 @@ fn test__cast_vote_queued() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test__cast_vote_canceled() {
     let mut state = COMPONENT_STATE();
-    let (id, _) = get_canceled_proposal(ref state);
+    let (id, _) = setup_canceled_proposal(ref state, false);
 
     state._cast_vote(id, OTHER(), 0, "", "");
 }
@@ -613,7 +886,7 @@ fn test__cast_vote_canceled() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test__cast_vote_executed() {
     let mut state = COMPONENT_STATE();
-    let (id, _) = get_executed_proposal(ref state);
+    let (id, _) = setup_executed_proposal(ref state, false);
 
     state._cast_vote(id, OTHER(), 0, "", "");
 }
@@ -655,20 +928,24 @@ fn get_calls(to: ContractAddress) -> Span<Call> {
     array![call1, call2].span()
 }
 
-fn get_pending_proposal(ref state: ComponentState) -> (felt252, ProposalCore) {
+fn setup_pending_proposal(
+    ref state: ComponentState, external_state_version: bool
+) -> (felt252, ProposalCore) {
     let (id, proposal) = get_proposal_info();
 
     state.Governor_proposals.write(id, proposal);
 
-    let state = state._state(id);
+    let current_state = get_state(@state, id, external_state_version);
     let expected = ProposalState::Pending;
 
-    assert_eq!(state, expected);
+    assert_eq!(current_state, expected);
 
     (id, proposal)
 }
 
-fn get_active_proposal(ref state: ComponentState) -> (felt252, ProposalCore) {
+fn setup_active_proposal(
+    ref state: ComponentState, external_state_version: bool
+) -> (felt252, ProposalCore) {
     let (id, proposal) = get_proposal_info();
 
     state.Governor_proposals.write(id, proposal);
@@ -678,13 +955,15 @@ fn get_active_proposal(ref state: ComponentState) -> (felt252, ProposalCore) {
 
     // Is active before deadline
     start_cheat_block_timestamp_global(deadline - 1);
-    let current_state = state._state(id);
+    let current_state = get_state(@state, id, external_state_version);
     assert_eq!(current_state, expected);
 
     (id, proposal)
 }
 
-fn get_queued_proposal(ref mock_state: GovernorMock::ContractState) -> (felt252, ProposalCore) {
+fn setup_queued_proposal(
+    ref mock_state: GovernorMock::ContractState, external_state_version: bool
+) -> (felt252, ProposalCore) {
     let (id, mut proposal) = get_proposal_info();
 
     proposal.eta_seconds = 1;
@@ -702,13 +981,15 @@ fn get_queued_proposal(ref mock_state: GovernorMock::ContractState) -> (felt252,
     proposal_votes.against_votes.write(quorum);
 
     let expected = ProposalState::Queued;
-    let current_state = mock_state.governor._state(id);
+    let current_state = get_mock_state(@mock_state, id, external_state_version);
     assert_eq!(current_state, expected);
 
     (id, proposal)
 }
 
-fn get_canceled_proposal(ref state: ComponentState) -> (felt252, ProposalCore) {
+fn setup_canceled_proposal(
+    ref state: ComponentState, external_state_version: bool
+) -> (felt252, ProposalCore) {
     let (id, proposal) = get_proposal_info();
 
     state.Governor_proposals.write(id, proposal);
@@ -716,13 +997,15 @@ fn get_canceled_proposal(ref state: ComponentState) -> (felt252, ProposalCore) {
     state._cancel(id, 0);
 
     let expected = ProposalState::Canceled;
-    let current_state = state._state(id);
+    let current_state = get_state(@state, id, external_state_version);
     assert_eq!(current_state, expected);
 
     (id, proposal)
 }
 
-fn get_defeated_proposal(ref mock_state: GovernorMock::ContractState) -> (felt252, ProposalCore) {
+fn setup_defeated_proposal(
+    ref mock_state: GovernorMock::ContractState, external_state_version: bool
+) -> (felt252, ProposalCore) {
     let (id, proposal) = get_proposal_info();
 
     mock_state.governor.Governor_proposals.write(id, proposal);
@@ -736,13 +1019,15 @@ fn get_defeated_proposal(ref mock_state: GovernorMock::ContractState) -> (felt25
     proposal_votes.for_votes.write(quorum - 1);
 
     let expected = ProposalState::Defeated;
-    let current_state = mock_state.governor._state(id);
+    let current_state = get_mock_state(@mock_state, id, external_state_version);
     assert_eq!(current_state, expected);
 
     (id, proposal)
 }
 
-fn get_succeeded_proposal(ref mock_state: GovernorMock::ContractState) -> (felt252, ProposalCore) {
+fn setup_succeeded_proposal(
+    ref mock_state: GovernorMock::ContractState, external_state_version: bool
+) -> (felt252, ProposalCore) {
     let (id, proposal) = get_proposal_info();
 
     mock_state.governor.Governor_proposals.write(id, proposal);
@@ -760,24 +1045,44 @@ fn get_succeeded_proposal(ref mock_state: GovernorMock::ContractState) -> (felt2
     // Vote succeeded
     proposal_votes.against_votes.write(quorum);
 
-    let current_state = mock_state.governor._state(id);
+    let current_state = get_mock_state(@mock_state, id, external_state_version);
     assert_eq!(current_state, expected);
 
     (id, proposal)
 }
 
-fn get_executed_proposal(ref state: ComponentState) -> (felt252, ProposalCore) {
+fn setup_executed_proposal(
+    ref state: ComponentState, external_state_version: bool
+) -> (felt252, ProposalCore) {
     let (id, mut proposal) = get_proposal_info();
 
     proposal.executed = true;
     state.Governor_proposals.write(id, proposal);
 
-    let state = state._state(id);
+    let current_state = get_state(@state, id, external_state_version);
     let expected = ProposalState::Executed;
 
-    assert_eq!(state, expected);
+    assert_eq!(current_state, expected);
 
     (id, proposal)
+}
+
+fn get_state(state: @ComponentState, id: felt252, external_state_version: bool) -> ProposalState {
+    if external_state_version {
+        state.state(id)
+    } else {
+        state._state(id)
+    }
+}
+
+fn get_mock_state(
+    mock_state: @GovernorMock::ContractState, id: felt252, external_state_version: bool
+) -> ProposalState {
+    if external_state_version {
+        mock_state.governor.state(id)
+    } else {
+        mock_state.governor._state(id)
+    }
 }
 
 //

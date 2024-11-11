@@ -954,12 +954,12 @@ pub mod GovernorComponent {
     }
 }
 
-/// Implementation of the default ERC2981Component ImmutableConfig.
+/// Implementation of the default Governor ImmutableConfig.
 ///
 /// See
 /// https://github.com/starknet-io/SNIPs/blob/963848f0752bde75c7087c2446d83b7da8118b25/SNIPS/snip-107.md#defaultconfig-implementation
 ///
-/// The default fee denominator is set to `DEFAULT_FEE_DENOMINATOR`.
+/// The `DEFAULT_PARAMS` is set to `""`.
 pub impl DefaultConfig of GovernorComponent::ImmutableConfig {
     fn DEFAULT_PARAMS() -> ByteArray {
         ""

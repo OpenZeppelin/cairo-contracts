@@ -12,7 +12,8 @@ pub mod GovernorMock {
 
     pub const VOTING_DELAY: u64 = 86400; // 1 day
     pub const VOTING_PERIOD: u64 = 432_000; // 1 week
-    pub const PROPOSAL_THRESHOLD: u256 = 0;
+    pub const PROPOSAL_THRESHOLD: u256 = 10;
+    pub const QUORUM: u256 = 100_000_000;
 
     component!(path: GovernorComponent, storage: governor, event: GovernorEvent);
     component!(path: GovernorVotesComponent, storage: governor_votes, event: GovernorVotesEvent);
@@ -84,7 +85,7 @@ pub mod GovernorMock {
     // SNIP12 Metadata
     //
 
-    impl SNIP12MetadataImpl of SNIP12Metadata {
+    pub impl SNIP12MetadataImpl of SNIP12Metadata {
         fn name() -> felt252 {
             'APP_NAME'
         }
@@ -101,7 +102,7 @@ pub mod GovernorMock {
     impl GovernorQuorum of GovernorComponent::GovernorQuorumTrait<ContractState> {
         /// See `GovernorComponent::GovernorQuorumTrait::quorum`.
         fn quorum(self: @GovernorComponent::ComponentState<ContractState>, timepoint: u64) -> u256 {
-            100_000_000
+            QUORUM
         }
     }
 

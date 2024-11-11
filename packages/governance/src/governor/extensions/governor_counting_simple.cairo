@@ -43,10 +43,10 @@ pub mod GovernorCountingSimpleComponent {
 
     #[starknet::storage_node]
     pub struct ProposalVote {
-        against_votes: u256,
-        for_votes: u256,
-        abstain_votes: u256,
-        has_voted: Map<ContractAddress, bool>
+        pub against_votes: u256,
+        pub for_votes: u256,
+        pub abstain_votes: u256,
+        pub has_voted: Map<ContractAddress, bool>
     }
 
     mod Errors {

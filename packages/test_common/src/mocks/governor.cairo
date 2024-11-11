@@ -48,15 +48,15 @@ pub mod GovernorMock {
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        governor: GovernorComponent::Storage,
+        pub governor: GovernorComponent::Storage,
         #[substorage(v0)]
-        governor_votes: GovernorVotesComponent::Storage,
+        pub governor_votes: GovernorVotesComponent::Storage,
         #[substorage(v0)]
-        governor_counting_simple: GovernorCountingSimpleComponent::Storage,
+        pub governor_counting_simple: GovernorCountingSimpleComponent::Storage,
         #[substorage(v0)]
-        governor_core_execution: GovernorCoreExecutionComponent::Storage,
+        pub governor_core_execution: GovernorCoreExecutionComponent::Storage,
         #[substorage(v0)]
-        src5: SRC5Component::Storage,
+        pub src5: SRC5Component::Storage,
     }
 
     #[event]

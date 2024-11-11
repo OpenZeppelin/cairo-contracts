@@ -822,7 +822,7 @@ pub mod GovernorComponent {
 
             let deadline = self._proposal_deadline(proposal_id);
 
-            if current_timepoint < deadline {
+            if current_timepoint <= deadline {
                 return ProposalState::Active;
             } else if !self.quorum_reached(proposal_id) || !self.vote_succeeded(proposal_id) {
                 return ProposalState::Defeated;
@@ -882,7 +882,7 @@ pub mod GovernorComponent {
         }
 
         /// Internal cancel mechanism with minimal restrictions.
-        /// A proposal can be cancelled in any state other than Canceled, Expired, or Executed.
+        /// A proposal can be cancelled in any state other than Canceled or Executed.
         ///
         /// NOTE: Once cancelled a proposal can't be re-submitted.
         fn _cancel(
@@ -947,7 +947,7 @@ pub mod GovernorComponent {
                     );
             }
 
-            // TODO: check if the tally hook must be used
+            // TODO: add tally hook when the PreventLateQuorum extension gets added
 
             voted_weight
         }

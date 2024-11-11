@@ -18,7 +18,7 @@ pub trait IERC6372<TState> {
     fn CLOCK_MODE(self: @TState) -> ByteArray;
 }
 
-#[derive(Copy, PartialEq, Drop, Serde)]
+#[derive(Copy, PartialEq, Drop, Serde, Debug)]
 pub enum ProposalState {
     Pending,
     Active,
@@ -26,7 +26,6 @@ pub enum ProposalState {
     Defeated,
     Succeeded,
     Queued,
-    Expired,
     Executed
 }
 

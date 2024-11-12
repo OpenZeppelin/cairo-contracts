@@ -27,15 +27,15 @@ const _1_BIT_MASK: u256 = 0x1;
 ///
 /// The packing is done as follows:
 ///
-/// - The first felt of the tuple contains `proposer` serialized.
-/// - The second felt of the tuple contains `vote_start`, `vote_duration`, `executed`, `canceled`
-/// and `eta_seconds` organized as presented next.
-/// - `vote_start` is stored at range [4,67] bits (0-indexed), taking the most significant usable
+/// 1. The first felt of the tuple contains `proposer` serialized.
+/// 2. The second felt of the tuple contains `vote_start`, `vote_duration`, `executed`, `canceled`
+/// and `eta_seconds` organized as:
+///   - `vote_start` is stored at range [4,67] bits (0-indexed), taking the most significant usable
 /// bits.
-/// - `vote_duration` is stored at range [68, 131], following `vote_start`.
-/// - `executed` is stored at range [132, 132], following `vote_duration`.
-/// - `canceled` is stored at range [133, 133], following `executed`.
-/// - `eta_seconds` is stored at range [134, 197], following `canceled`.
+///   - `vote_duration` is stored at range [68, 131], following `vote_start`.
+///   - `executed` is stored at range [132, 132], following `vote_duration`.
+///   - `canceled` is stored at range [133, 133], following `executed`.
+///   - `eta_seconds` is stored at range [134, 197], following `canceled`.
 ///
 /// NOTE: In the second felt252, the first four bits are skipped to avoid representation errors due
 /// to `felt252` max value being a bit less than a 252 bits number max value

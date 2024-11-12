@@ -104,7 +104,7 @@ pub impl TraceImpl of TraceTrait {
         self.checkpoints.len()
     }
 
-    /// Returns the checkpoint at the given `pos`.
+    /// Returns the checkpoint at the given position.
     fn at(self: StoragePath<Trace>, pos: u64) -> Checkpoint {
         assert(pos < self.length(), 'Vec overflow');
         self.checkpoints[pos].read()

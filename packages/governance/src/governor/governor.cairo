@@ -365,7 +365,7 @@ pub mod GovernorComponent {
             GovernorSettings::voting_period(self)
         }
 
-        /// Minimum number of cast voted required for a proposal to be successful.
+        /// Minimum number of casted votes required for a proposal to be successful.
         ///
         /// NOTE: The `timepoint` parameter corresponds to the snapshot used for counting vote. This
         /// allows to scale the quorum depending on values such as the total supply of a token at

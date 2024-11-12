@@ -49,13 +49,15 @@ pub fn to_byte_array<T, +Into<T, felt252>, +Copy<T>>(
 /// then hashing the span using the Poseidon hash algorithm.
 pub fn hash_byte_array(data: @ByteArray) -> felt252 {
     let mut serialized = array![];
+
     data.serialize(ref serialized);
+    let len = serialized.len();
 
     let mut state = PedersenTrait::new(0);
     for elem in serialized {
         state = state.update_with(elem);
     };
-    state = state.update_with(serialized.len());
+    state = state.update_with(len);
     state.finalize()
 }
 

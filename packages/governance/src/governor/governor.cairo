@@ -365,9 +365,9 @@ pub mod GovernorComponent {
 
         /// Minimum number of casted votes required for a proposal to be successful.
         ///
-        /// NOTE: The `timepoint` parameter corresponds to the snapshot used for counting votes. This
-        /// allows the quorum to scale depending on values such as the total supply of a token at
-        /// this timepoint.
+        /// NOTE: The `timepoint` parameter corresponds to the snapshot used for counting votes.
+        /// This allows the quorum to scale depending on values such as the total supply of a token
+        /// at this timepoint.
         fn quorum(self: @ComponentState<TContractState>, timepoint: u64) -> u256 {
             GovernorQuorum::quorum(self, timepoint)
         }

@@ -54,7 +54,7 @@ pub mod GovernorVotesComponent {
             self: @GovernorComponentState<TContractState>,
             account: ContractAddress,
             timepoint: u64,
-            params: @ByteArray
+            params: Span<felt252>
         ) -> u256 {
             let contract = self.get_contract();
             let this_component = GovernorVotes::get_component(contract);

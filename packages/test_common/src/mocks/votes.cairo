@@ -10,7 +10,7 @@ pub mod ERC20VotesMock {
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
     component!(path: NoncesComponent, storage: nonces, event: NoncesEvent);
 
-    // Votes and ERC20Votes
+    // Votes
     #[abi(embed_v0)]
     impl VotesImpl = VotesComponent::VotesImpl<ContractState>;
     impl VotesInternalImpl = VotesComponent::InternalImpl<ContractState>;

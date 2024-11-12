@@ -10,8 +10,6 @@ use openzeppelin_test_common::mocks::governor::GovernorMock::SNIP12MetadataImpl;
 use openzeppelin_test_common::mocks::governor::GovernorMock;
 use openzeppelin_testing::constants::{ADMIN, OTHER, ZERO};
 use openzeppelin_testing::events::EventSpyExt;
-use openzeppelin_token::erc1155::interface::IERC1155_RECEIVER_ID;
-use openzeppelin_token::erc721::interface::IERC721_RECEIVER_ID;
 use openzeppelin_utils::bytearray::ByteArrayExtTrait;
 use snforge_std::EventSpy;
 use snforge_std::{spy_events, test_address};
@@ -319,11 +317,12 @@ fn test_get_votes_with_params() {
     let mut state = COMPONENT_STATE();
     let timepoint = 0;
     let expected_weight = 100;
+    let params = array!['param'].span();
 
     // Mock the get_past_votes call
     start_mock_call(Zero::zero(), selector!("get_past_votes"), expected_weight);
 
-    let votes = state.get_votes_with_params(OTHER(), timepoint, "params");
+    let votes = state.get_votes_with_params(OTHER(), timepoint, params);
     assert_eq!(votes, expected_weight);
 }
 
@@ -339,8 +338,6 @@ fn test_initializer() {
     state.initializer();
 
     assert!(contract_state.supports_interface(IGOVERNOR_ID));
-    assert!(contract_state.supports_interface(IERC721_RECEIVER_ID));
-    assert!(contract_state.supports_interface(IERC1155_RECEIVER_ID));
 }
 
 //
@@ -573,11 +570,12 @@ fn test__get_votes() {
     let mut state = COMPONENT_STATE();
     let timepoint = 0;
     let expected_weight = 100;
+    let params = array!['param'].span();
 
     // Mock the get_past_votes call
     start_mock_call(Zero::zero(), selector!("get_past_votes"), expected_weight);
 
-    let votes = state._get_votes(OTHER(), timepoint, @"params");
+    let votes = state._get_votes(OTHER(), timepoint, params);
     assert_eq!(votes, expected_weight);
 }
 
@@ -800,8 +798,9 @@ fn test__cancel_executed() {
 fn test__cast_vote_pending() {
     let mut state = COMPONENT_STATE();
     let (id, _) = setup_pending_proposal(ref state, false);
+    let params = array![].span();
 
-    state._cast_vote(id, OTHER(), 0, "", "");
+    state._cast_vote(id, OTHER(), 0, "", params);
 }
 
 #[test]
@@ -812,12 +811,13 @@ fn test__cast_vote_active_no_params() {
     let contract_address = test_address();
 
     let reason = "reason";
+    let params = array![].span();
     let expected_weight = 100;
 
     // Mock the get_past_votes call
     start_mock_call(Zero::zero(), selector!("get_past_votes"), expected_weight);
 
-    let weight = state._cast_vote(id, OTHER(), 0, reason, "");
+    let weight = state._cast_vote(id, OTHER(), 0, reason, params);
     assert_eq!(weight, expected_weight);
 
     spy.assert_only_event_vote_cast(contract_address, OTHER(), id, 0, expected_weight, @"reason");
@@ -831,7 +831,7 @@ fn test__cast_vote_active_with_params() {
     let contract_address = test_address();
 
     let reason = "reason";
-    let params = "params";
+    let params = array!['param'].span();
     let expected_weight = 100;
 
     // Mock the get_past_votes call
@@ -842,7 +842,7 @@ fn test__cast_vote_active_with_params() {
 
     spy
         .assert_event_vote_cast_with_params(
-            contract_address, OTHER(), id, 0, expected_weight, @"reason", @"params"
+            contract_address, OTHER(), id, 0, expected_weight, @"reason", params
         );
 }
 
@@ -851,8 +851,9 @@ fn test__cast_vote_active_with_params() {
 fn test__cast_vote_defeated() {
     let mut mock_state = CONTRACT_STATE();
     let (id, _) = setup_defeated_proposal(ref mock_state, false);
+    let params = array![].span();
 
-    mock_state.governor._cast_vote(id, OTHER(), 0, "", "");
+    mock_state.governor._cast_vote(id, OTHER(), 0, "", params);
 }
 
 #[test]
@@ -860,8 +861,9 @@ fn test__cast_vote_defeated() {
 fn test__cast_vote_succeeded() {
     let mut mock_state = CONTRACT_STATE();
     let (id, _) = setup_succeeded_proposal(ref mock_state, false);
+    let params = array![].span();
 
-    mock_state.governor._cast_vote(id, OTHER(), 0, "", "");
+    mock_state.governor._cast_vote(id, OTHER(), 0, "", params);
 }
 
 #[test]
@@ -869,8 +871,9 @@ fn test__cast_vote_succeeded() {
 fn test__cast_vote_queued() {
     let mut mock_state = CONTRACT_STATE();
     let (id, _) = setup_queued_proposal(ref mock_state, false);
+    let params = array![].span();
 
-    mock_state.governor._cast_vote(id, OTHER(), 0, "", "");
+    mock_state.governor._cast_vote(id, OTHER(), 0, "", params);
 }
 
 #[test]
@@ -878,8 +881,9 @@ fn test__cast_vote_queued() {
 fn test__cast_vote_canceled() {
     let mut state = COMPONENT_STATE();
     let (id, _) = setup_canceled_proposal(ref state, false);
+    let params = array![].span();
 
-    state._cast_vote(id, OTHER(), 0, "", "");
+    state._cast_vote(id, OTHER(), 0, "", params);
 }
 
 #[test]
@@ -887,8 +891,9 @@ fn test__cast_vote_canceled() {
 fn test__cast_vote_executed() {
     let mut state = COMPONENT_STATE();
     let (id, _) = setup_executed_proposal(ref state, false);
+    let params = array![].span();
 
-    state._cast_vote(id, OTHER(), 0, "", "");
+    state._cast_vote(id, OTHER(), 0, "", params);
 }
 
 //
@@ -1179,11 +1184,11 @@ pub(crate) impl GovernorSpyHelpersImpl of GovernorSpyHelpers {
         support: u8,
         weight: u256,
         reason: @ByteArray,
-        params: @ByteArray
+        params: Span<felt252>
     ) {
         let expected = GovernorComponent::Event::VoteCastWithParams(
             GovernorComponent::VoteCastWithParams {
-                voter, proposal_id, support, weight, reason: reason.clone(), params: params.clone()
+                voter, proposal_id, support, weight, reason: reason.clone(), params
             }
         );
         self.assert_emitted_single(contract, expected);
@@ -1197,7 +1202,7 @@ pub(crate) impl GovernorSpyHelpersImpl of GovernorSpyHelpers {
         support: u8,
         weight: u256,
         reason: @ByteArray,
-        params: @ByteArray
+        params: Span<felt252>
     ) {
         self
             .assert_event_vote_cast_with_params(

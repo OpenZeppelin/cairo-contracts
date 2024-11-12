@@ -14,8 +14,6 @@ pub mod GovernorComponent {
     use crate::utils::call_impls::{HashCallImpl, HashCallsImpl};
     use openzeppelin_introspection::src5::SRC5Component::InternalImpl as SRC5InternalImpl;
     use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_token::erc1155::interface::IERC1155_RECEIVER_ID;
-    use openzeppelin_token::erc721::interface::IERC721_RECEIVER_ID;
     use openzeppelin_utils::bytearray::ByteArrayExtTrait;
     use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
     use openzeppelin_utils::structs::{DoubleEndedQueue, DoubleEndedQueueTrait};
@@ -100,7 +98,7 @@ pub mod GovernorComponent {
         pub support: u8,
         pub weight: u256,
         pub reason: ByteArray,
-        pub params: ByteArray
+        pub params: Span<felt252>
     }
 
     pub mod Errors {
@@ -121,7 +119,7 @@ pub mod GovernorComponent {
     /// methods that don't include them.
     pub trait ImmutableConfig {
         /// Temporary defined as a function since constant ByteArray is not supported yet.
-        fn DEFAULT_PARAMS() -> ByteArray;
+        fn DEFAULT_PARAMS() -> Span<felt252>;
     }
 
     //
@@ -159,7 +157,7 @@ pub mod GovernorComponent {
             account: ContractAddress,
             support: u8,
             total_weight: u256,
-            params: @ByteArray
+            params: Span<felt252>
         ) -> u256;
 
         /// See `interface::IGovernor::has_voted`.
@@ -186,7 +184,7 @@ pub mod GovernorComponent {
             self: @ComponentState<TContractState>,
             account: ContractAddress,
             timepoint: u64,
-            params: @ByteArray
+            params: Span<felt252>
         ) -> u256;
     }
 
@@ -381,7 +379,7 @@ pub mod GovernorComponent {
         fn get_votes(
             self: @ComponentState<TContractState>, account: ContractAddress, timepoint: u64
         ) -> u256 {
-            self._get_votes(account, timepoint, @Immutable::DEFAULT_PARAMS())
+            self._get_votes(account, timepoint, Immutable::DEFAULT_PARAMS())
         }
 
         /// Voting power of an `account` at a specific `timepoint` given additional encoded
@@ -390,9 +388,9 @@ pub mod GovernorComponent {
             self: @ComponentState<TContractState>,
             account: ContractAddress,
             timepoint: u64,
-            params: ByteArray
+            params: Span<felt252>
         ) -> u256 {
-            self._get_votes(account, timepoint, @params)
+            self._get_votes(account, timepoint, params)
         }
 
         /// Returns whether `account` has cast a vote on `proposal_id`.
@@ -408,7 +406,7 @@ pub mod GovernorComponent {
         /// This function has opt-in frontrunning protection, described in
         /// `is_valid_description_for_proposer`.
         ///
-        /// NOTE: The state of the Governor and `targets` may change between the proposal creation
+        /// NOTE: The state of the Governor and targets may change between the proposal creation
         /// and its execution. This may be the result of third party actions on the targeted
         /// contracts, or other governor proposals. For example, the balance of this contract could
         /// be updated or its access control permissions may be modified, possibly compromising the
@@ -438,7 +436,7 @@ pub mod GovernorComponent {
             let vote_threshold = self._proposal_threshold();
             if vote_threshold > 0 {
                 let votes = self
-                    ._get_votes(proposer, self.clock() - 1, @Immutable::DEFAULT_PARAMS());
+                    ._get_votes(proposer, self.clock() - 1, Immutable::DEFAULT_PARAMS());
                 assert(votes >= vote_threshold, Errors::INSUFFICIENT_PROPOSER_VOTES);
             }
 
@@ -595,7 +593,7 @@ pub mod GovernorComponent {
             proposal_id: felt252,
             support: u8,
             reason: ByteArray,
-            params: ByteArray
+            params: Span<felt252>
         ) -> u256 {
             let voter = starknet::get_caller_address();
             self._cast_vote(proposal_id, voter, support, reason, params)
@@ -619,7 +617,7 @@ pub mod GovernorComponent {
             support: u8,
             voter: ContractAddress,
             reason: ByteArray,
-            params: ByteArray,
+            params: Span<felt252>,
             signature: Span<felt252>
         ) -> u256 {
             1
@@ -655,8 +653,6 @@ pub mod GovernorComponent {
         fn initializer(ref self: ComponentState<TContractState>) {
             let mut src5_component = get_dep_component_mut!(ref self, SRC5);
             src5_component.register_interface(IGOVERNOR_ID);
-            src5_component.register_interface(IERC721_RECEIVER_ID);
-            src5_component.register_interface(IERC1155_RECEIVER_ID);
         }
 
         /// Returns the proposal object given its id.
@@ -791,7 +787,7 @@ pub mod GovernorComponent {
             self: @ComponentState<TContractState>,
             account: ContractAddress,
             timepoint: u64,
-            params: @ByteArray
+            params: Span<felt252>
         ) -> u256 {
             GovernorVotes::get_votes(self, account, timepoint, params)
         }
@@ -911,7 +907,7 @@ pub mod GovernorComponent {
             account: ContractAddress,
             support: u8,
             total_weight: u256,
-            params: @ByteArray
+            params: Span<felt252>
         ) -> u256 {
             self.count_vote(proposal_id, account, support, total_weight, params)
         }
@@ -928,13 +924,13 @@ pub mod GovernorComponent {
             voter: ContractAddress,
             support: u8,
             reason: ByteArray,
-            params: ByteArray
+            params: Span<felt252>
         ) -> u256 {
             self.validate_state(proposal_id, array![ProposalState::Active].span());
 
             let snapshot = self._proposal_snapshot(proposal_id);
-            let total_weight = self._get_votes(voter, snapshot, @params);
-            let voted_weight = self._count_vote(proposal_id, voter, support, total_weight, @params);
+            let total_weight = self._get_votes(voter, snapshot, params);
+            let voted_weight = self._count_vote(proposal_id, voter, support, total_weight, params);
 
             if params.len().is_zero() {
                 self.emit(VoteCast { voter, proposal_id, support, weight: voted_weight, reason });
@@ -959,9 +955,9 @@ pub mod GovernorComponent {
 /// See
 /// https://github.com/starknet-io/SNIPs/blob/963848f0752bde75c7087c2446d83b7da8118b25/SNIPS/snip-107.md#defaultconfig-implementation
 ///
-/// The `DEFAULT_PARAMS` is set to `""`.
+/// The `DEFAULT_PARAMS` is set to an empty span of felts.
 pub impl DefaultConfig of GovernorComponent::ImmutableConfig {
-    fn DEFAULT_PARAMS() -> ByteArray {
-        ""
+    fn DEFAULT_PARAMS() -> Span<felt252> {
+        array![].span()
     }
 }

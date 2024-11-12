@@ -34,7 +34,7 @@ pub trait ITimelocked<TState> {
 }
 
 #[starknet::interface]
-pub trait ISetSettings<TState> {
+pub trait IGovernorSettingsAdmin<TState> {
     /// Sets the voting delay.
     fn set_voting_delay(ref self: TState, new_voting_delay: u64);
 

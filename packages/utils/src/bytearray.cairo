@@ -2,7 +2,8 @@
 // OpenZeppelin Contracts for Cairo v0.19.0 (utils/bytearray.cairo)
 
 use core::byte_array::ByteArrayTrait;
-use core::poseidon::poseidon_hash_span;
+use core::hash::{HashStateTrait, HashStateExTrait};
+use core::pedersen::PedersenTrait;
 use core::to_byte_array::FormatAsByteArray;
 
 /// Reads n bytes from a byte array starting from a given index.
@@ -50,7 +51,12 @@ pub fn hash_byte_array(data: @ByteArray) -> felt252 {
     let mut serialized = array![];
     data.serialize(ref serialized);
 
-    poseidon_hash_span(serialized.span())
+    let mut state = PedersenTrait::new(0);
+    for elem in serialized {
+        state = state.update_with(elem);
+    };
+    state = state.update_with(serialized.len());
+    state.finalize()
 }
 
 /// ByteArray extension trait.

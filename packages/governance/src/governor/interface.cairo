@@ -122,7 +122,7 @@ pub trait IGovernor<TState> {
 
     /// Voting power of an `account` at a specific `timepoint` given additional encoded parameters.
     fn get_votes_with_params(
-        self: @TState, account: ContractAddress, timepoint: u64, params: ByteArray
+        self: @TState, account: ContractAddress, timepoint: u64, params: Span<felt252>
     ) -> u256;
 
     /// Returns whether `account` has cast a vote on `proposal_id`.
@@ -131,7 +131,7 @@ pub trait IGovernor<TState> {
     /// Creates a new proposal. Vote start after a delay specified by `voting_delay` and
     /// lasts for a duration specified by `voting_period`.
     ///
-    /// NOTE: The state of the Governor and `targets` may change between the proposal creation and
+    /// NOTE: The state of the Governor and targets may change between the proposal creation and
     /// its execution. This may be the result of third party actions on the targeted contracts, or
     /// other governor proposals. For example, the balance of this contract could be updated or its
     /// access control permissions may be modified, possibly compromising the proposal's ability to
@@ -175,7 +175,11 @@ pub trait IGovernor<TState> {
 
     /// Cast a vote with a reason and additional serialized parameters.
     fn cast_vote_with_reason_and_params(
-        ref self: TState, proposal_id: felt252, support: u8, reason: ByteArray, params: ByteArray
+        ref self: TState,
+        proposal_id: felt252,
+        support: u8,
+        reason: ByteArray,
+        params: Span<felt252>
     ) -> u256;
 
     /// Cast a vote using the voter's signature.
@@ -194,7 +198,7 @@ pub trait IGovernor<TState> {
         support: u8,
         voter: ContractAddress,
         reason: ByteArray,
-        params: ByteArray,
+        params: Span<felt252>,
         signature: Span<felt252>
     ) -> u256;
 

@@ -4,7 +4,7 @@
 
 /// # GovernorCountingSimple Component
 ///
-/// Extension of GovernorComponent for simple, 3 options, vote counting.
+/// Extension of GovernorComponent for simple vote counting with three options.
 #[starknet::component]
 pub mod GovernorCountingSimpleComponent {
     use crate::governor::GovernorComponent::{
@@ -80,7 +80,7 @@ pub mod GovernorCountingSimpleComponent {
             account: ContractAddress,
             support: u8,
             total_weight: u256,
-            params: @ByteArray
+            params: Span<felt252>
         ) -> u256 {
             let mut contract = self.get_contract_mut();
             let mut this_component = GovernorCountingSimple::get_component_mut(ref contract);

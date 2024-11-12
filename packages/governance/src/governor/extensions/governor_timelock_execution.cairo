@@ -90,8 +90,7 @@ pub mod GovernorTimelockExecutionComponent {
             let this_component = GovernorCoreExecution::get_component(contract);
 
             let queue_id = this_component.Governor_timelock_ids.read(proposal_id);
-            let timelock_controller = this_component.timelock();
-            let timelock_dispatcher = ITimelockDispatcher { contract_address: timelock_controller };
+            let timelock_dispatcher = this_component.get_timelock_dispatcher();
 
             if timelock_dispatcher.is_operation_pending(queue_id) {
                 ProposalState::Queued
@@ -126,8 +125,7 @@ pub mod GovernorTimelockExecutionComponent {
             let mut contract = self.get_contract_mut();
             let mut this_component = GovernorCoreExecution::get_component_mut(ref contract);
 
-            let timelock_controller = this_component.Governor_timelock_controller.read();
-            let timelock_dispatcher = ITimelockDispatcher { contract_address: timelock_controller };
+            let timelock_dispatcher = this_component.get_timelock_dispatcher();
 
             timelock_dispatcher
                 .execute_batch(calls, 0, this_component.timelock_salt(description_hash));
@@ -148,8 +146,7 @@ pub mod GovernorTimelockExecutionComponent {
             let mut contract = self.get_contract_mut();
             let mut this_component = GovernorCoreExecution::get_component_mut(ref contract);
 
-            let timelock_controller = this_component.timelock();
-            let timelock_dispatcher = ITimelockDispatcher { contract_address: timelock_controller };
+            let timelock_dispatcher = this_component.get_timelock_dispatcher();
 
             let delay = timelock_dispatcher.get_min_delay();
             let salt = this_component.timelock_salt(description_hash);
@@ -188,10 +185,7 @@ pub mod GovernorTimelockExecutionComponent {
 
             let timelock_id = this_component.Governor_timelock_ids.read(proposal_id);
             if timelock_id.is_non_zero() {
-                let timelock_controller = this_component.timelock();
-                let timelock_dispatcher = ITimelockDispatcher {
-                    contract_address: timelock_controller
-                };
+                let timelock_dispatcher = this_component.get_timelock_dispatcher();
 
                 timelock_dispatcher.cancel(timelock_id);
                 this_component.Governor_timelock_ids.write(proposal_id, 0);
@@ -279,6 +273,12 @@ pub mod GovernorTimelockExecutionComponent {
 
             // Unwrap is safe since the u256 value came from a felt252.
             (this.into() ^ description_hash).try_into().unwrap()
+        }
+
+        /// Returns the timelock contract address wrapped in a ITimelockDispatcher.
+        fn get_timelock_dispatcher(self: @ComponentState<TContractState>) -> ITimelockDispatcher {
+            let timelock_controller = self.timelock();
+            ITimelockDispatcher { contract_address: timelock_controller }
         }
 
         /// Updates the timelock contract address.

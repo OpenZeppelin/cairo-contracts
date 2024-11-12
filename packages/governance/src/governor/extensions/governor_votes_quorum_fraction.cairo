@@ -98,7 +98,7 @@ pub mod GovernorVotesQuorumFractionComponent {
             self: @GovernorComponentState<TContractState>,
             account: ContractAddress,
             timepoint: u64,
-            params: @ByteArray
+            params: Span<felt252>
         ) -> u256 {
             let contract = self.get_contract();
             let this_component = GovernorVotesQuorumFraction::get_component(contract);
@@ -133,7 +133,7 @@ pub mod GovernorVotesQuorumFractionComponent {
             // Optimistic search: check the latest checkpoint.
             // The initializer call ensures that there is at least one checkpoint in the history.
             //
-            // NOTE: This optimization is specially helpful when the supply is not updated often.
+            // NOTE: This optimization is especially helpful when the supply is not updated often.
             let (_, key, value) = self
                 .Governor_quorum_numerator_history
                 .deref()

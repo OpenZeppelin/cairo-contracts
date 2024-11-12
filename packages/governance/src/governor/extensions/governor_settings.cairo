@@ -11,7 +11,7 @@ pub mod GovernorSettingsComponent {
         InternalExtendedTrait, ComponentState as GovernorComponentState
     };
     use crate::governor::GovernorComponent;
-    use crate::governor::extensions::interface::ISetSettings;
+    use crate::governor::extensions::interface::IGovernorSettingsAdmin;
     use openzeppelin_introspection::src5::SRC5Component;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 
@@ -105,7 +105,7 @@ pub mod GovernorSettingsComponent {
         +GovernorComponent::GovernorVotesTrait<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
-    > of ISetSettings<ComponentState<TContractState>> {
+    > of IGovernorSettingsAdmin<ComponentState<TContractState>> {
         /// Sets the voting delay.
         ///
         /// Emits a `VotingDelayUpdated` event.

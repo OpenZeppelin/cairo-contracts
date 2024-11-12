@@ -402,7 +402,7 @@ pub mod GovernorComponent {
             GovernorCounting::has_voted(self, proposal_id, account)
         }
 
-        /// Creates a new proposal. Vote start after a delay specified by `voting_delay` and
+        /// Creates a new proposal. Voting starts after the delay specified by `voting_delay` and
         /// lasts for a duration specified by `voting_period`. Returns the id of the proposal.
         ///
         /// This function has opt-in frontrunning protection, described in

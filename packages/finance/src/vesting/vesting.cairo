@@ -151,7 +151,9 @@ pub mod VestingComponent {
 
                 let beneficiary = get_dep_component!(@self, Ownable).owner();
                 let token_dispatcher = IERC20Dispatcher { contract_address: token };
-                assert(token_dispatcher.transfer(beneficiary, amount), Errors::TOKEN_TRANSFER_FAILED);
+                assert(
+                    token_dispatcher.transfer(beneficiary, amount), Errors::TOKEN_TRANSFER_FAILED
+                );
             }
             amount
         }

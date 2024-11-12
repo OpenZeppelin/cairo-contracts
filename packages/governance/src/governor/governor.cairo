@@ -363,10 +363,10 @@ pub mod GovernorComponent {
             GovernorSettings::voting_period(self)
         }
 
-        /// Minimum number of cast voted required for a proposal to be successful.
+        /// Minimum number of casted votes required for a proposal to be successful.
         ///
-        /// NOTE: The `timepoint` parameter corresponds to the snapshot used for counting vote. This
-        /// allows to scale the quorum depending on values such as the total supply of a token at
+        /// NOTE: The `timepoint` parameter corresponds to the snapshot used for counting votes. This
+        /// allows the quorum to scale depending on values such as the total supply of a token at
         /// this timepoint.
         fn quorum(self: @ComponentState<TContractState>, timepoint: u64) -> u256 {
             GovernorQuorum::quorum(self, timepoint)
@@ -400,7 +400,7 @@ pub mod GovernorComponent {
             GovernorCounting::has_voted(self, proposal_id, account)
         }
 
-        /// Creates a new proposal. Vote start after a delay specified by `voting_delay` and
+        /// Creates a new proposal. Voting starts after the delay specified by `voting_delay` and
         /// lasts for a duration specified by `voting_period`. Returns the id of the proposal.
         ///
         /// This function has opt-in frontrunning protection, described in

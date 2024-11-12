@@ -110,7 +110,7 @@ pub trait IGovernor<TState> {
     /// Minimum number of cast voted required for a proposal to be successful.
     ///
     /// NOTE: The `timepoint` parameter corresponds to the snapshot used for counting vote. This
-    /// allows to scale the quorum depending on values such as the total supply of a token at this
+    /// allows the quorum to scale depending on values such as the total supply of a token at this
     /// timepoint.
     fn quorum(self: @TState, timepoint: u64) -> u256;
 
@@ -206,7 +206,7 @@ pub trait IGovernor<TState> {
     ///
     /// In cases where the governance executor is some contract other than the governor itself, like
     /// when using a timelock, this function can be invoked in a governance proposal to recover
-    /// tokens that was sent to the governor contract by mistake.
+    /// tokens that were sent to the governor contract by mistake.
     ///
     /// NOTE: If the executor is simply the governor itself, use of `relay` is redundant.
     fn relay(ref self: TState, call: Call);

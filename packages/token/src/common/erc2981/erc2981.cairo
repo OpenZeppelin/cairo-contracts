@@ -43,7 +43,7 @@ pub mod ERC2981Component {
     pub const DEFAULT_FEE_DENOMINATOR: u128 = 10_000;
 
     #[derive(Serde, Drop, starknet::Store)]
-    struct RoyaltyInfo {
+    pub struct RoyaltyInfo {
         pub receiver: ContractAddress,
         pub royalty_fraction: u128,
     }
@@ -54,7 +54,7 @@ pub mod ERC2981Component {
         pub ERC2981_token_royalty_info: Map<u256, RoyaltyInfo>,
     }
 
-    mod Errors {
+    pub mod Errors {
         pub const INVALID_ROYALTY: felt252 = 'ERC2981: invalid royalty';
         pub const INVALID_ROYALTY_RECEIVER: felt252 = 'ERC2981: invalid receiver';
         pub const INVALID_FEE_DENOMINATOR: felt252 = 'Invalid fee denominator';

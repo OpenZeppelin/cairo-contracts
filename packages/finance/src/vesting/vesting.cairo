@@ -136,7 +136,8 @@ pub mod VestingComponent {
 
         /// Releases the amount of a given `token` that has already vested.
         ///
-        /// NOTE: If the releasable amount is zero, this function won't emit the event.
+        /// NOTE: If the releasable amount is zero, this function won't emit the event
+        /// or attempt to transfer the tokens.
         ///
         /// Requirements:
         ///

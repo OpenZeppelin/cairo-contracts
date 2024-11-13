@@ -91,7 +91,7 @@ Returns the total vested amount of a specified `token` at a given `timestamp`.
 
 Releases the amount of a given `token` that has already vested and returns that amount.
 
-Emits an {AmountReleased} event.
+May emit an {AmountReleased} event.
 
 [#IVesting-Events]
 ==== Events
@@ -208,7 +208,8 @@ Returns the total vested amount of a specified `token` at a given `timestamp`.
 
 Releases the amount of a given `token` that has already vested and returns that amount.
 
-NOTE: If the releasable amount is zero, this function won't emit the event.
+NOTE: If the releasable amount is zero, this function won't emit the event
+or attempt to transfer the tokens.
 
 Requirements:
 

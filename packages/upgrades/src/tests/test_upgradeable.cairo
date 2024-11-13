@@ -141,16 +141,12 @@ fn test_upgrade_and_call_with_no_return_value() {
 }
 
 #[test]
-#[ignore] // REASON: safe dispatcher does not catch syscall error in SN Forge
-#[feature("safe_dispatcher")]
+#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', 'ENTRYPOINT_FAILED'))]
 fn test_upgrade_and_call_with_removed_selector() {
     let (v1, v2_class) = setup_test();
     let removed_selector = selector!("remove_selector");
     let calldata = array![];
 
     // We use the v1 dispatcher because `remove_selector` is not in v2 interface
-    let safe_dispatcher = IUpgradesV1SafeDispatcher { contract_address: v1.contract_address };
-    let mut result = safe_dispatcher
-        .upgrade_and_call(v2_class.class_hash, removed_selector, calldata.span());
-    utils::assert_entrypoint_not_found_error(result, removed_selector, v1.contract_address);
+    v1.upgrade_and_call(v2_class.class_hash, removed_selector, calldata.span());
 }

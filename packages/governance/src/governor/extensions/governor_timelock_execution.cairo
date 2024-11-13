@@ -58,7 +58,7 @@ pub mod GovernorTimelockExecutionComponent {
         pub new_timelock: ContractAddress
     }
 
-    mod Errors {
+    pub mod Errors {
         pub const INVALID_TIMELOCK_CONTROLLER: felt252 = 'Invalid timelock controller';
     }
 

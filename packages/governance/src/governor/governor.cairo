@@ -16,7 +16,6 @@ pub mod GovernorComponent {
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_utils::bytearray::ByteArrayExtTrait;
     use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
-    use openzeppelin_utils::structs::{DoubleEndedQueue, DoubleEndedQueueTrait};
     use starknet::account::Call;
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
     use starknet::{ContractAddress, SyscallResultTrait};
@@ -24,7 +23,6 @@ pub mod GovernorComponent {
     #[storage]
     pub struct Storage {
         pub Governor_proposals: Map<felt252, ProposalCore>,
-        pub Governor_governance_call: DoubleEndedQueue
     }
 
     #[event]
@@ -195,6 +193,15 @@ pub mod GovernorComponent {
         /// Address through which the governor executes action.
         /// Should be used to specify whether the module execute actions through another contract
         /// such as a timelock.
+        ///
+        /// NOTE: MUST be the governor itself, or an instance of TimelockController with the
+        /// governor as the only proposer, canceller, and executor.
+        ///
+        /// WARNING: When the executor is not the governor itself (i.e. a timelock), it can call
+        /// functions that are restricted with the `assert_only_governance` modifier, and also
+        /// potentially execute transactions on behalf of the governor. Because of this, this module
+        /// is designed to work with the TimelockController as the unique potential external
+        /// executor.
         fn executor(self: @ComponentState<TContractState>) -> ContractAddress;
 
         /// Execution mechanism. Can be used to modify the way execution is
@@ -502,21 +509,7 @@ pub mod GovernorComponent {
             proposal.executed = true;
             self.Governor_proposals.write(proposal_id, proposal);
 
-            let self_executor = self.executor() == starknet::get_contract_address();
-            // Register governance call in queue before execution
-            if !self_executor { // TODO: save the calldatas in the governance_call queue
-            }
-
             self.execute_operations(proposal_id, calls, description_hash);
-
-            // Clean up the governance call queue
-            if !self_executor
-                && (@self)
-                    .Governor_governance_call
-                    .deref()
-                    .len()
-                    .into() > 0_u256 { // TODO: clean up the queue
-            }
 
             self.emit(ProposalExecuted { proposal_id });
 
@@ -756,13 +749,16 @@ pub mod GovernorComponent {
         impl GovernorVotes: GovernorVotesTrait<TContractState>,
         +Drop<TContractState>
     > of InternalExtendedTrait<TContractState> {
+        /// Asserts that the caller is the governance executor.
+        ///
+        /// WARNING: When the executor is not the governor itself (i.e. a timelock), it can call
+        /// functions that are restricted with this modifier, and also potentially execute
+        /// transactions on behalf of the governor. Because of this, this module is designed to work
+        /// with the TimelockController as the unique potential external executor. The timelock
+        /// MUST have the governor as the only proposer, canceller, and executor.
         fn assert_only_governance(self: @ComponentState<TContractState>) {
             let executor = self.executor();
             assert(executor == starknet::get_caller_address(), Errors::EXECUTOR_ONLY);
-
-            // TODO: either check that the calldata matches the whitelist or assume the Executor
-            // can't execute proposals not created from the Governor itself.
-            ()
         }
 
         /// Validates that the proposal is in one of the expected states.

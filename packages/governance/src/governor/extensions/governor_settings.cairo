@@ -51,7 +51,7 @@ pub mod GovernorSettingsComponent {
         pub new_proposal_threshold: u256
     }
 
-    mod Errors {
+    pub mod Errors {
         pub const INVALID_VOTING_PERIOD: felt252 = 'Invalid voting period';
     }
 

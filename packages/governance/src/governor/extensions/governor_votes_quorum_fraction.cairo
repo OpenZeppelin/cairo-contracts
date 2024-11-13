@@ -37,7 +37,7 @@ pub mod GovernorVotesQuorumFractionComponent {
         pub new_quorum_numerator: u256
     }
 
-    mod Errors {
+    pub mod Errors {
         pub const INVALID_QUORUM_FRACTION: felt252 = 'Invalid quorum fraction';
         pub const INVALID_TOKEN: felt252 = 'Invalid votes token';
     }

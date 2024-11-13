@@ -22,7 +22,7 @@ pub mod GovernorVotesComponent {
         pub Governor_token: ContractAddress
     }
 
-    mod Errors {
+    pub mod Errors {
         pub const INVALID_TOKEN: felt252 = 'Invalid votes token';
     }
 

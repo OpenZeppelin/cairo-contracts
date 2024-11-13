@@ -49,7 +49,7 @@ pub mod GovernorCountingSimpleComponent {
         pub has_voted: Map<ContractAddress, bool>
     }
 
-    mod Errors {
+    pub mod Errors {
         pub const ALREADY_CAST_VOTE: felt252 = 'Already cast vote';
         pub const INVALID_VOTE_TYPE: felt252 = 'Invalid vote type';
     }

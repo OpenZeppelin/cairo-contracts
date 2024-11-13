@@ -16,6 +16,7 @@ use starknet::{ContractAddress, get_tx_info};
 pub const STARKNET_DOMAIN_TYPE_HASH: felt252 =
     0x1ff2f602e42168014d405a94f75e8a93d640751d71d16311266e140d8b0a210;
 
+/// Generic Starknet domain separator representation as defined in SNIP-12.
 #[derive(Drop, Copy, Hash)]
 pub struct StarknetDomain {
     pub name: felt252,

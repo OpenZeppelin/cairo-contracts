@@ -12,6 +12,9 @@ pub impl EventSpyExtImpl of EventSpyExt {
     }
 
     /// Ensures that `from_address` has emitted the `expected_event`.
+    /// This assertion increments the event offset which essentially
+    /// consumes the event in the first position of the offset. This means
+    /// that events must be asserted in the order that they're emitted.
     fn assert_emitted_single<T, +starknet::Event<T>, +Drop<T>>(
         ref self: EventSpy, from_address: ContractAddress, expected_event: T
     ) {

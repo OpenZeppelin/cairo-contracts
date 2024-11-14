@@ -793,6 +793,255 @@ fn test_cancel_executed() {
 }
 
 //
+// cast_vote
+//
+
+#[test]
+#[should_panic(expected: 'Unexpected proposal state')]
+fn test_cast_vote_pending() {
+    let mut state = COMPONENT_STATE();
+    let (id, _) = setup_pending_proposal(ref state, false);
+
+    state.cast_vote(id, 0);
+}
+
+#[test]
+fn test_cast_vote_active() {
+    let mut state = COMPONENT_STATE();
+    let (id, _) = setup_active_proposal(ref state, false);
+    let mut spy = spy_events();
+    let contract_address = test_address();
+
+    let expected_weight = 100;
+
+    // Mock the get_past_votes call
+    start_mock_call(Zero::zero(), selector!("get_past_votes"), expected_weight);
+
+    start_cheat_caller_address(contract_address, OTHER());
+    let weight = state.cast_vote(id, 0);
+    assert_eq!(weight, expected_weight);
+
+    spy.assert_only_event_vote_cast(contract_address, OTHER(), id, 0, expected_weight, @"");
+}
+
+#[test]
+#[should_panic(expected: 'Unexpected proposal state')]
+fn test_cast_vote_defeated() {
+    let mut mock_state = CONTRACT_STATE();
+    let (id, _) = setup_defeated_proposal(ref mock_state, false);
+
+    mock_state.governor.cast_vote(id, 0);
+}
+
+#[test]
+#[should_panic(expected: 'Unexpected proposal state')]
+fn test_cast_vote_succeeded() {
+    let mut mock_state = CONTRACT_STATE();
+    let (id, _) = setup_succeeded_proposal(ref mock_state, false);
+
+    mock_state.governor.cast_vote(id, 0);
+}
+
+#[test]
+#[should_panic(expected: 'Unexpected proposal state')]
+fn test_cast_vote_queued() {
+    let mut mock_state = CONTRACT_STATE();
+    let (id, _) = setup_queued_proposal(ref mock_state, false);
+
+    mock_state.governor.cast_vote(id, 0);
+}
+
+#[test]
+#[should_panic(expected: 'Unexpected proposal state')]
+fn test_cast_vote_canceled() {
+    let mut state = COMPONENT_STATE();
+    let (id, _) = setup_canceled_proposal(ref state, false);
+
+    state.cast_vote(id, 0);
+}
+
+#[test]
+#[should_panic(expected: 'Unexpected proposal state')]
+fn test_cast_vote_executed() {
+    let mut state = COMPONENT_STATE();
+    let (id, _) = setup_executed_proposal(ref state, false);
+
+    state.cast_vote(id, 0);
+}
+
+//
+// cast_vote_with_reason
+//
+
+#[test]
+fn test_cast_vote_with_reason_active() {
+    let mut state = COMPONENT_STATE();
+    let (id, _) = setup_active_proposal(ref state, false);
+    let mut spy = spy_events();
+    let contract_address = test_address();
+
+    let reason = "proposal reason";
+    let expected_weight = 100;
+
+    // Mock the get_past_votes call
+    start_mock_call(Zero::zero(), selector!("get_past_votes"), expected_weight);
+
+    start_cheat_caller_address(contract_address, OTHER());
+    let weight = state.cast_vote_with_reason(id, 0, reason.clone());
+    assert_eq!(weight, expected_weight);
+
+    spy.assert_only_event_vote_cast(contract_address, OTHER(), id, 0, expected_weight, @reason);
+}
+
+#[test]
+#[should_panic(expected: 'Unexpected proposal state')]
+fn test_cast_vote_with_reason_pending() {
+    let mut state = COMPONENT_STATE();
+    let (id, _) = setup_pending_proposal(ref state, false);
+
+    state.cast_vote_with_reason(id, 0, "");
+}
+
+#[test]
+#[should_panic(expected: 'Unexpected proposal state')]
+fn test_cast_vote_with_reason_defeated() {
+    let mut mock_state = CONTRACT_STATE();
+    let (id, _) = setup_defeated_proposal(ref mock_state, false);
+
+    mock_state.governor.cast_vote_with_reason(id, 0, "");
+}
+
+#[test]
+#[should_panic(expected: 'Unexpected proposal state')]
+fn test_cast_vote_with_reason_succeeded() {
+    let mut mock_state = CONTRACT_STATE();
+    let (id, _) = setup_succeeded_proposal(ref mock_state, false);
+
+    mock_state.governor.cast_vote_with_reason(id, 0, "");
+}
+
+#[test]
+#[should_panic(expected: 'Unexpected proposal state')]
+fn test_cast_vote_with_reason_queued() {
+    let mut mock_state = CONTRACT_STATE();
+    let (id, _) = setup_queued_proposal(ref mock_state, false);
+
+    mock_state.governor.cast_vote_with_reason(id, 0, "");
+}
+
+#[test]
+#[should_panic(expected: 'Unexpected proposal state')]
+fn test_cast_vote_with_reason_canceled() {
+    let mut state = COMPONENT_STATE();
+    let (id, _) = setup_canceled_proposal(ref state, false);
+
+    state.cast_vote_with_reason(id, 0, "");
+}
+
+#[test]
+#[should_panic(expected: 'Unexpected proposal state')]
+fn test_cast_vote_with_reason_executed() {
+    let mut state = COMPONENT_STATE();
+    let (id, _) = setup_executed_proposal(ref state, false);
+
+    state.cast_vote_with_reason(id, 0, "");
+}
+
+//
+// cast_vote_with_reason_and_params
+//
+
+#[test]
+fn test_cast_vote_with_reason_and_params_active() {
+    let mut state = COMPONENT_STATE();
+    let (id, _) = setup_active_proposal(ref state, false);
+    let mut spy = spy_events();
+    let contract_address = test_address();
+
+    let params = array!['param1', 'param2'].span();
+    let reason = "proposal reason";
+    let expected_weight = 100;
+
+    // Mock the get_past_votes call
+    start_mock_call(Zero::zero(), selector!("get_past_votes"), expected_weight);
+
+    start_cheat_caller_address(contract_address, OTHER());
+    let weight = state.cast_vote_with_reason_and_params(id, 0, reason.clone(), params);
+    assert_eq!(weight, expected_weight);
+
+    spy
+        .assert_only_event_vote_cast_with_params(
+            contract_address, OTHER(), id, 0, expected_weight, @reason, params
+        );
+}
+
+#[test]
+fn test_cast_vote_with_reason_and_params_active_no_params() {
+    let mut state = COMPONENT_STATE();
+    let (id, _) = setup_active_proposal(ref state, false);
+    let mut spy = spy_events();
+    let contract_address = test_address();
+
+    let params = array![].span();
+    let reason = "proposal reason";
+    let expected_weight = 100;
+
+    // Mock the get_past_votes call
+    start_mock_call(Zero::zero(), selector!("get_past_votes"), expected_weight);
+
+    start_cheat_caller_address(contract_address, OTHER());
+    let weight = state.cast_vote_with_reason_and_params(id, 0, reason.clone(), params);
+    assert_eq!(weight, expected_weight);
+
+    spy.assert_only_event_vote_cast(contract_address, OTHER(), id, 0, expected_weight, @reason);
+}
+
+#[test]
+#[should_panic(expected: 'Unexpected proposal state')]
+fn test_cast_vote_with_reason_and_params_defeated() {
+    let mut mock_state = CONTRACT_STATE();
+    let (id, _) = setup_defeated_proposal(ref mock_state, false);
+
+    mock_state.governor.cast_vote_with_reason_and_params(id, 0, "", array![].span());
+}
+
+#[test]
+#[should_panic(expected: 'Unexpected proposal state')]
+fn test_cast_vote_with_reason_and_params_succeeded() {
+    let mut mock_state = CONTRACT_STATE();
+    let (id, _) = setup_succeeded_proposal(ref mock_state, false);
+
+    mock_state.governor.cast_vote_with_reason_and_params(id, 0, "", array![].span());
+}
+
+#[test]
+#[should_panic(expected: 'Unexpected proposal state')]
+fn test_cast_vote_with_reason_and_params_queued() {
+    let mut mock_state = CONTRACT_STATE();
+    let (id, _) = setup_queued_proposal(ref mock_state, false);
+
+    mock_state.governor.cast_vote_with_reason_and_params(id, 0, "", array![].span());
+}
+
+#[test]
+#[should_panic(expected: 'Unexpected proposal state')]
+fn test_cast_vote_with_reason_and_params_canceled() {
+    let mut state = COMPONENT_STATE();
+    let (id, _) = setup_canceled_proposal(ref state, false);
+
+    state.cast_vote_with_reason_and_params(id, 0, "", array![].span());
+}
+
+#[test]
+#[should_panic(expected: 'Unexpected proposal state')]
+fn test_cast_vote_with_reason_and_params_executed() {
+    let mut state = COMPONENT_STATE();
+    let (id, _) = setup_executed_proposal(ref state, false);
+
+    state.cast_vote_with_reason_and_params(id, 0, "", array![].span());
+}
+
+//
 // Internal
 //
 

@@ -580,7 +580,8 @@ pub mod GovernorComponent {
         ///
         /// - The proposal must be active.
         ///
-        /// Emits a `VoteCast` event.
+        /// Emits a `VoteCast` event if no params are provided.
+        /// Emits a `VoteCastWithParams` event otherwise.
         fn cast_vote_with_reason_and_params(
             ref self: ComponentState<TContractState>,
             proposal_id: felt252,
@@ -913,7 +914,8 @@ pub mod GovernorComponent {
         /// Checks that the vote is pending, that it has not been cast yet, retrieve
         /// voting weight using `get_votes` and call the `_count_vote` internal function.
         ///
-        /// Emits a `VoteCast` event.
+        /// Emits a `VoteCast` event if no params are provided.
+        /// Emits a `VoteCastWithParams` event otherwise.
         fn _cast_vote(
             ref self: ComponentState<TContractState>,
             proposal_id: felt252,

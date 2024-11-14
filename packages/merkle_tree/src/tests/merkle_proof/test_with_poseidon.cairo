@@ -58,7 +58,7 @@ fn test_invalid_merkle_proof() {
 }
 
 //
-// multi_proof_verify
+// verify_multi_proof
 //
 
 #[test]

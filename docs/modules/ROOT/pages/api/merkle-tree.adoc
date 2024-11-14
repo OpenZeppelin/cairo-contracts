@@ -40,7 +40,7 @@ These functions deal with verification of Merkle Tree proofs.
 
 The tree and the proofs can be generated using this {strk-merkle-tree}. You will find a quickstart guide in the readme.
 
-WARNING: You should avoid using leaf values that are two felt252 long prior to hashing, or use a hash function
+WARNING: You should avoid using leaf values that are two felt252 values long prior to hashing, or use a hash function
 other than the one used to hash internal nodes for hashing leaves. This is because the concatenation of a sorted pair
 of internal nodes in the Merkle tree could be reinterpreted as a leaf value. The JavaScript library generates Merkle
 trees that are safe against this attack out of the box.
@@ -182,7 +182,7 @@ Declares a commutative hash function with the following signature:
 
 `commutative_hash(a: felt252, b: felt252) -> felt252;`
 
-which computes a commutative hash of a sorted pair of `felt252` values.
+which computes a commutative hash of a sorted pair of felt252 values.
 
 This is usually implemented as an extension of a non-commutative hash function, like
 Pedersen or Poseidon, returning the hash of the concatenation of the two values by first

@@ -1,9 +1,7 @@
-use crate::votes::delegation::Delegation;
-use crate::votes::votes::VotesComponent::{
-    DelegateChanged, DelegateVotesChanged, VotesImpl, InternalImpl,
-};
-use crate::votes::votes::VotesComponent;
-use crate::votes::votes::VotingUnitsTrait;
+use crate::votes::Delegation;
+use crate::votes::VotesComponent::VotingUnitsTrait;
+use crate::votes::VotesComponent::{DelegateChanged, DelegateVotesChanged, VotesImpl, InternalImpl,};
+use crate::votes::VotesComponent;
 use openzeppelin_test_common::mocks::votes::ERC721VotesMock::SNIP12MetadataImpl;
 use openzeppelin_test_common::mocks::votes::{ERC721VotesMock, ERC20VotesMock};
 use openzeppelin_testing as utils;
@@ -267,11 +265,12 @@ fn test_delegate_by_sig() {
     // Set up delegation parameters
     let nonce = 0;
     let expiry = 'ts2';
+    let verifying_contract = contract_address;
     let delegator = account;
     let delegatee = DELEGATEE();
 
     // Create and sign the delegation message
-    let delegation = Delegation { delegatee, nonce, expiry };
+    let delegation = Delegation { verifying_contract, delegatee, nonce, expiry };
     let msg_hash = delegation.get_message_hash(delegator);
     let (r, s) = key_pair.sign(msg_hash).unwrap();
 
@@ -292,8 +291,9 @@ fn test_delegate_by_sig_hash_generation() {
     let delegator = contract_address_const::<
         0x70b0526a4bfbc9ca717c96aeb5a8afac85181f4585662273668928585a0d628
     >();
+    let verifying_contract = contract_address_const::<'VERIFIER'>();
     let delegatee = RECIPIENT();
-    let delegation = Delegation { delegatee, nonce, expiry };
+    let delegation = Delegation { verifying_contract, delegatee, nonce, expiry };
 
     let hash = delegation.get_message_hash(delegator);
 
@@ -302,11 +302,12 @@ fn test_delegate_by_sig_hash_generation() {
     // - version: 'DAPP_VERSION'
     // - chainId: 'SN_TEST'
     // - account: 0x70b0526a4bfbc9ca717c96aeb5a8afac85181f4585662273668928585a0d628
+    // - verifying_contract: 'VERIFIER'
     // - delegatee: 'RECIPIENT'
     // - nonce: 0
     // - expiry: 'ts2'
     // - revision: '1'
-    let expected_hash = 0x314bd38b22b62d576691d8dafd9f8ea0601329ebe686bc64ca28e4d8821d5a0;
+    let expected_hash = 0x1fa1af6d3d0ede7d09790ef20a894668af9445b6bc93714e87a758be40efdc7;
     assert_eq!(hash, expected_hash);
 }
 
@@ -342,7 +343,8 @@ fn test_delegate_by_sig_invalid_signature() {
     let expiry = 'ts2';
     let delegator = account;
     let delegatee = DELEGATEE();
-    let delegation = Delegation { delegatee, nonce, expiry };
+    let verifying_contract = test_address();
+    let delegation = Delegation { verifying_contract, delegatee, nonce, expiry };
     let msg_hash = delegation.get_message_hash(delegator);
     let (r, s) = key_pair.sign(msg_hash).unwrap();
 
@@ -362,8 +364,9 @@ fn test_delegate_by_sig_bad_delegatee() {
     let expiry = 'ts2';
     let delegator = account;
     let delegatee = DELEGATEE();
+    let verifying_contract = test_address();
     let bad_delegatee = contract_address_const::<0x1234>();
-    let delegation = Delegation { delegatee, nonce, expiry };
+    let delegation = Delegation { verifying_contract, delegatee, nonce, expiry };
     let msg_hash = delegation.get_message_hash(delegator);
     let (r, s) = key_pair.sign(msg_hash).unwrap();
 
@@ -383,7 +386,8 @@ fn test_delegate_by_sig_reused_signature() {
     let expiry = 'ts2';
     let delegator = account;
     let delegatee = DELEGATEE();
-    let delegation = Delegation { delegatee, nonce, expiry };
+    let verifying_contract = test_address();
+    let delegation = Delegation { verifying_contract, delegatee, nonce, expiry };
     let msg_hash = delegation.get_message_hash(delegator);
     let (r, s) = key_pair.sign(msg_hash).unwrap();
 

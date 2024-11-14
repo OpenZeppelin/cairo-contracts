@@ -4,6 +4,7 @@ use core::pedersen::PedersenTrait;
 use crate::governor::GovernorComponent::{InternalImpl, InternalExtendedImpl};
 use crate::governor::interface::{IGovernor, IGOVERNOR_ID, ProposalState};
 use crate::governor::interface::{IGovernorDispatcher, IGovernorDispatcherTrait};
+use crate::governor::vote::{Vote, VoteWithReasonAndParams};
 use crate::governor::{DefaultConfig, GovernorComponent, ProposalCore};
 use crate::utils::HashSpanImpl;
 use crate::utils::call_impls::HashCallImpl;
@@ -17,7 +18,9 @@ use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{ADMIN, OTHER, ZERO};
 use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_utils::bytearray::ByteArrayExtTrait;
+use openzeppelin_utils::cryptography::snip12::OffchainMessageHash;
 use snforge_std::EventSpy;
+use snforge_std::signature::stark_curve::{StarkCurveKeyPairImpl, StarkCurveSignerImpl};
 use snforge_std::{spy_events, test_address};
 use snforge_std::{start_cheat_caller_address, start_cheat_block_timestamp_global, start_mock_call};
 use starknet::account::Call;
@@ -65,6 +68,11 @@ fn setup_dispatchers() -> (IGovernorDispatcher, IMockContractDispatcher) {
     let target = deploy_mock_target();
 
     (governor, target)
+}
+
+fn setup_account(public_key: felt252) -> ContractAddress {
+    let mut calldata = array![public_key];
+    utils::declare_and_deploy("SnakeAccountMock", calldata)
 }
 
 //
@@ -497,10 +505,6 @@ fn test_propose_restricted_proposer() {
 
     state.propose(calls, description);
 }
-
-//
-// queue
-//
 
 //
 // execute
@@ -1040,6 +1044,71 @@ fn test_cast_vote_with_reason_and_params_executed() {
     let (id, _) = setup_executed_proposal(ref state, false);
 
     state.cast_vote_with_reason_and_params(id, 0, "", array![].span());
+}
+
+//
+// cast_vote_by_sig
+//
+
+fn prepare_governor_and_signature() -> (
+    IGovernorDispatcher, felt252, felt252, felt252, u8, ContractAddress, u256
+) {
+    let mut governor = deploy_governor();
+    let calls = get_calls(OTHER(), false);
+    let description = "proposal description";
+
+    // Mock the get_past_votes call
+    let quorum = GovernorMock::QUORUM;
+    start_mock_call(VOTES_TOKEN(), selector!("get_past_votes"), quorum);
+
+    // 1. Propose
+    let mut current_time = 10;
+    start_cheat_block_timestamp_global(current_time);
+    let proposal_id = governor.propose(calls, description.clone());
+
+    // 2. Fast forward the vote delay
+    current_time += GovernorMock::VOTING_DELAY;
+    start_cheat_block_timestamp_global(current_time);
+
+    // 3. Generate a key pair and set up an account
+    let key_pair = StarkCurveKeyPairImpl::generate();
+    let voter = setup_account(key_pair.public_key);
+
+    // 4. Set up signature parameters
+    let nonce = 0;
+    let support = 1;
+    let verifying_contract = governor.contract_address;
+
+    // 5. Create and sign the vote message
+    let vote = Vote { verifying_contract, nonce, proposal_id, support, voter };
+    let msg_hash = vote.get_message_hash(voter);
+    let (r, s) = key_pair.sign(msg_hash).unwrap();
+
+    (governor, r, s, proposal_id, support, voter, quorum)
+}
+
+#[test]
+fn test_cast_vote_by_sig() {
+    let (governor, r, s, proposal_id, support, voter, quorum) = prepare_governor_and_signature();
+
+    // Set up event spy and cast vote
+    let mut spy = spy_events();
+    governor.cast_vote_by_sig(proposal_id, support, voter, array![r, s].span());
+
+    spy
+        .assert_only_event_vote_cast(
+            governor.contract_address, voter, proposal_id, support, quorum, @""
+        );
+}
+
+
+#[test]
+#[should_panic(expected: 'Invalid signature')]
+fn test_cast_vote_by_sig_invalid_signature() {
+    let (governor, r, s, proposal_id, support, voter, _) = prepare_governor_and_signature();
+
+    // Cast vote with invalid signature
+    governor.cast_vote_by_sig(proposal_id, support, voter, array![r + 1, s].span());
 }
 
 //

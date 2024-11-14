@@ -66,3 +66,24 @@ impl VoteWithReasonAndParamsStructHashImpl of StructHash<VoteWithReasonAndParams
         hash_state.update_with(VOTE_WITH_REASON_AND_PARAMS_TYPE_HASH).update_with(*self).finalize()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::{VOTE_TYPE_HASH, VOTE_WITH_REASON_AND_PARAMS_TYPE_HASH};
+
+    #[test]
+    fn test_vote_type_hash() {
+        let expected = selector!(
+            "\"Vote\"(\"verifying_contract\":\"ContractAddress\",\"nonce\":\"felt\",\"proposal_id\":\"felt\",\"support\":\"u8\",\"voter\":\"ContractAddress\")"
+        );
+        assert_eq!(VOTE_TYPE_HASH, expected);
+    }
+
+    #[test]
+    fn test_vote_with_reason_and_params_type_hash() {
+        let expected = selector!(
+            "\"Vote\"(\"verifying_contract\":\"ContractAddress\",\"nonce\":\"felt\",\"proposal_id\":\"felt\",\"support\":\"u8\",\"voter\":\"ContractAddress\",\"reason_hash\":\"felt\",\"params\":\"felt*\")"
+        );
+        assert_eq!(VOTE_WITH_REASON_AND_PARAMS_TYPE_HASH, expected);
+    }
+}

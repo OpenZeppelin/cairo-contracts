@@ -14,8 +14,6 @@
 
 > **Warning**
 > Expect rapid iteration.
-> Some contracts or features are not ready to be deployed.
-> Check the **Unsupported** section below.
 
 ### Prepare the environment
 
@@ -120,9 +118,7 @@ Check out the [full documentation site](https://docs.openzeppelin.com/contracts-
 
 - [Cairo book](https://book.cairo-lang.org/)
 - [Cairo language documentation](https://docs.cairo-lang.org/)
-- [Starknet book](https://book.starknet.io/)
-- [Starknet documentation](https://docs.starknet.io/documentation/)
-- [Cairo 1.0 mini-docs](https://github.com/Starknet-Africa-Edu/Cairo1.0)
+- [Starknet documentation](https://docs.starknet.io/)
 - [Cairopractice](https://cairopractice.com/)
 
 ### Tooling

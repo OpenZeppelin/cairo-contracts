@@ -25,7 +25,6 @@ pub mod ERC20Component {
     use starknet::ContractAddress;
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
-    use starknet::{get_block_timestamp, get_caller_address, get_contract_address, get_tx_info};
 
     #[storage]
     pub struct Storage {
@@ -136,7 +135,7 @@ pub mod ERC20Component {
         fn transfer(
             ref self: ComponentState<TContractState>, recipient: ContractAddress, amount: u256
         ) -> bool {
-            let sender = get_caller_address();
+            let sender = starknet::get_caller_address();
             self._transfer(sender, recipient, amount);
             true
         }
@@ -158,7 +157,7 @@ pub mod ERC20Component {
             recipient: ContractAddress,
             amount: u256
         ) -> bool {
-            let caller = get_caller_address();
+            let caller = starknet::get_caller_address();
             self._spend_allowance(sender, caller, amount);
             self._transfer(sender, recipient, amount);
             true
@@ -174,7 +173,7 @@ pub mod ERC20Component {
         fn approve(
             ref self: ComponentState<TContractState>, spender: ContractAddress, amount: u256
         ) -> bool {
-            let caller = get_caller_address();
+            let caller = starknet::get_caller_address();
             self._approve(caller, spender, amount);
             true
         }
@@ -299,7 +298,7 @@ pub mod ERC20Component {
     /// off-chain signatures. This approach allows token holders to delegate their approval to spend
     /// tokens without executing an on-chain transaction, reducing gas costs and enhancing
     /// usability.
-    /// See  https://eips.ethereum.org/EIPS/eip-2612.
+    /// See https://eips.ethereum.org/EIPS/eip-2612.
     ///
     /// The message signed and the signature must follow the SNIP-12 standard for hashing and
     /// signing typed structured data.
@@ -344,14 +343,16 @@ pub mod ERC20Component {
             signature: Span<felt252>
         ) {
             // 1. Ensure the deadline is not missed
-            assert(get_block_timestamp() <= deadline, Errors::EXPIRED_PERMIT_SIGNATURE);
+            assert(starknet::get_block_timestamp() <= deadline, Errors::EXPIRED_PERMIT_SIGNATURE);
 
             // 2. Get the current nonce and increment it
             let mut nonces_component = get_dep_component_mut!(ref self, Nonces);
             let nonce = nonces_component.use_nonce(owner);
 
             // 3. Make a call to the account to validate permit signature
-            let permit = Permit { token: get_contract_address(), spender, amount, nonce, deadline };
+            let permit = Permit {
+                token: starknet::get_contract_address(), spender, amount, nonce, deadline
+            };
             let permit_hash = permit.get_message_hash(owner);
             let is_valid_sig_felt = ISRC6Dispatcher { contract_address: owner }
                 .is_valid_signature(permit_hash, signature.into());
@@ -377,7 +378,7 @@ pub mod ERC20Component {
             let domain = StarknetDomain {
                 name: Metadata::name(),
                 version: Metadata::version(),
-                chain_id: get_tx_info().unbox().chain_id,
+                chain_id: starknet::get_tx_info().unbox().chain_id,
                 revision: 1
             };
             domain.hash_struct()

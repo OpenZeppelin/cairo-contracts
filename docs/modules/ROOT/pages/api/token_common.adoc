@@ -122,7 +122,7 @@ Sets the royalty information that all ids in this contract will default to.
 [[IERC2981Admin-delete_default_royalty]]
 ==== `[.contract-item-name]#++delete_default_royalty++#++()++` [.item-kind]#external#
 
-Removes default royalty information.
+Sets the default royalty percentage and receiver to zero.
 
 [.contract-item]
 [[IERC2981Admin-set_token_royalty]]
@@ -283,7 +283,7 @@ Requirements:
 [[ERC2981AdminOwnableImpl-delete_default_royalty]]
 ==== `[.contract-item-name]#++delete_default_royalty++#++(ref self: ContractState)++` [.item-kind]#external#
 
-Removes default royalty information.
+Sets the default royalty percentage and receiver to zero.
 
 Requirements:
 
@@ -341,7 +341,7 @@ Requirements:
 [[ERC2981AdminAccessControlImpl-delete_default_royalty]]
 ==== `[.contract-item-name]#++delete_default_royalty++#++(ref self: ContractState)++` [.item-kind]#external#
 
-Removes default royalty information.
+Sets the default royalty percentage and receiver to zero.
 
 Requirements:
 
@@ -413,7 +413,7 @@ Requirements:
 [[ERC2981Component-_delete_default_royalty]]
 ==== `[.contract-item-name]#++_delete_default_royalty++#++(ref self: ContractState)++` [.item-kind]#internal#
 
-Removes default royalty information.
+Sets the default royalty percentage and receiver to zero.
 
 [.contract-item]
 [[ERC2981Component-_token_royalty]]

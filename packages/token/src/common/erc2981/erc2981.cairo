@@ -29,19 +29,21 @@ pub mod ERC2981Component {
     use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
     use openzeppelin_introspection::src5::SRC5Component;
-
     use starknet::ContractAddress;
     use starknet::storage::{
         Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
         StoragePointerWriteAccess
     };
 
+    /// Role for the admin responsible for managing royalty settings.
+    pub const ROYALTY_ADMIN_ROLE: felt252 = selector!("ROYALTY_ADMIN_ROLE");
+
     // This default denominator is only used when the DefaultConfig
     // is in scope in the implementing contract.
     pub const DEFAULT_FEE_DENOMINATOR: u128 = 10_000;
 
     #[derive(Serde, Drop, starknet::Store)]
-    struct RoyaltyInfo {
+    pub struct RoyaltyInfo {
         pub receiver: ContractAddress,
         pub royalty_fraction: u128,
     }
@@ -52,7 +54,7 @@ pub mod ERC2981Component {
         pub ERC2981_token_royalty_info: Map<u256, RoyaltyInfo>,
     }
 
-    mod Errors {
+    pub mod Errors {
         pub const INVALID_ROYALTY: felt252 = 'ERC2981: invalid royalty';
         pub const INVALID_ROYALTY_RECEIVER: felt252 = 'ERC2981: invalid receiver';
         pub const INVALID_FEE_DENOMINATOR: felt252 = 'Invalid fee denominator';
@@ -176,7 +178,7 @@ pub mod ERC2981Component {
             self._set_default_royalty(receiver, fee_numerator)
         }
 
-        /// Removes default royalty information.
+        /// Sets the default royalty percentage and receiver to zero.
         ///
         /// Requirements:
         ///
@@ -219,9 +221,6 @@ pub mod ERC2981Component {
     // AccessControl-based implementation of IERC2981Admin
     //
 
-    /// Role for the admin responsible for managing royalty settings.
-    pub const ROYALTY_ADMIN_ROLE: felt252 = selector!("ROYALTY_ADMIN_ROLE");
-
     #[embeddable_as(ERC2981AdminAccessControlImpl)]
     impl ERC2981AdminAccessControl<
         TContractState,
@@ -245,7 +244,7 @@ pub mod ERC2981Component {
             self._set_default_royalty(receiver, fee_numerator)
         }
 
-        /// Removes default royalty information.
+        /// Sets the default royalty percentage and receiver to zero.
         ///
         /// Requirements:
         ///
@@ -349,7 +348,7 @@ pub mod ERC2981Component {
                 .write(RoyaltyInfo { receiver, royalty_fraction: fee_numerator })
         }
 
-        /// Removes default royalty information.
+        /// Sets the default royalty percentage and receiver to zero.
         fn _delete_default_royalty(ref self: ComponentState<TContractState>) {
             self
                 .ERC2981_default_royalty_info

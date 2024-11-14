@@ -557,8 +557,7 @@ fn test_execute_failing_tx() {
 }
 
 #[test]
-#[ignore] // REASON: should_panic attribute not fit for complex panic messages.
-#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
+#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', 'ENTRYPOINT_FAILED'))]
 fn test_execute_bad_selector() {
     let (mut timelock, mut target) = setup_dispatchers();
     let predecessor = NO_PREDECESSOR;

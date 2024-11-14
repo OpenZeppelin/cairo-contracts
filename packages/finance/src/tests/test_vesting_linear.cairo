@@ -6,6 +6,7 @@ use openzeppelin_access::ownable::interface::{IOwnableDispatcher, IOwnableDispat
 use openzeppelin_test_common::mocks::vesting::LinearVestingMock;
 use openzeppelin_test_common::vesting::VestingSpyHelpers;
 use openzeppelin_testing::constants::{OWNER, OTHER};
+use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use snforge_std::{spy_events, start_cheat_caller_address, start_cheat_block_timestamp_global};
 
@@ -101,6 +102,22 @@ fn test_vesting_schedule_with_cliff() {
 
     let end_timestamp = data.start + data.duration;
     assert_eq!(vesting.vested_amount(token, end_timestamp), data.total_allocation);
+}
+
+#[test]
+fn test_release_zero_amount() {
+    let data = TEST_DATA();
+    let (vesting, token) = setup(data);
+
+    start_cheat_block_timestamp_global(data.start);
+    let mut spy = spy_events();
+
+    assert_eq!(vesting.releasable(token), 0);
+
+    let actual_release_amount = vesting.release(token);
+    assert_eq!(actual_release_amount, 0);
+
+    spy.assert_no_events_left();
 }
 
 #[test]

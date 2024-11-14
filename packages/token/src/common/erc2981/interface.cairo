@@ -43,7 +43,7 @@ pub trait IERC2981Admin<TState> {
     /// Sets the royalty information that all ids in this contract will default to.
     fn set_default_royalty(ref self: TState, receiver: ContractAddress, fee_numerator: u128);
 
-    /// Removes default royalty information.
+    /// Sets the default royalty percentage and receiver to zero.
     fn delete_default_royalty(ref self: TState);
 
     /// Sets the royalty information for a specific token id that takes precedence over the global

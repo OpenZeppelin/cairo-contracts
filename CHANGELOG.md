@@ -15,7 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed (Breaking)
 
-- Add `verifying_contract` member to the `Delegation` struct used in Votes `delegate_by_sig` (#)
+- Add `verifying_contract` member to the `Delegation` struct used in Votes `delegate_by_sig` (#1214)
 - VestingComponent `release` function won't emit an event or attempt to transfer when the amount is zero (#1209)
 - Bump snforge_std to v0.33.0 (#1203)
 

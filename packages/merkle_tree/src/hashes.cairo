@@ -45,7 +45,7 @@ pub impl PoseidonCHasher of CommutativeHasher {
 }
 
 /// PartialOrd implementation for felt252 comparisons.
-/// This is used in the CommutativeHasher trait.
+/// This is used in the CommutativeHasher impls.
 impl Felt252AsIntPartialOrd of PartialOrd<felt252> {
     #[inline(always)]
     fn lt(lhs: felt252, rhs: felt252) -> bool {

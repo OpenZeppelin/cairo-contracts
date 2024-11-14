@@ -71,7 +71,7 @@ pub fn verify_multi_proof<impl Hasher: CommutativeHasher>(
 ///
 /// CAUTION: Not all Merkle trees admit multiproofs. To use multiproofs, it is sufficient to ensure
 /// that: 1) the tree is complete (but not necessarily perfect), 2) the leaves to be proven are in
-/// the opposite order they are in the tree (i.e., as seen from right to left starting at the
+/// the opposite order than they are in the tree (i.e., as seen from right to left starting at the
 /// deepest layer and continuing at the next layer).
 ///
 /// NOTE: The _empty set_ (i.e. the case where `proof.len() == 1 && leaves.len() == 0`) is
@@ -93,16 +93,16 @@ pub fn process_multi_proof<impl Hasher: CommutativeHasher>(
     }
 
     // The x_pos values are "pointers" to the next value to consume in each array.
-    // By incrementing the value we simulate a queue's pop operation.
+    // By incrementing the value, we simulate a queue's pop operation.
     let mut hashes = array![];
     let mut leaf_pos = 0;
     let mut hash_pos = 0;
     let mut proof_pos = 0;
 
     // At each step, we compute the next hash using two values:
-    // - a value from the "main queue". If not all leaves have been consumed, we get the next leaf,
+    // 1. A value from the "main queue". If not all leaves have been consumed, we get the next leaf,
     // otherwise we get the next hash.
-    // - depending on the flag, either another value from the "main queue" (merging branches) or an
+    // 2. Depending on the flag, either another value from the "main queue" (merging branches) or an
     // element from the `proof` array.
     for i in 0
         ..proof_flags_len {

@@ -149,7 +149,7 @@ pub mod GovernorVotesQuorumFractionComponent {
 
         /// Returns the quorum denominator.
         fn quorum_denominator(self: @ComponentState<TContractState>) -> u256 {
-            100
+            1000
         }
     }
 
@@ -187,11 +187,14 @@ pub mod GovernorVotesQuorumFractionComponent {
 
         /// Updates the quorum numerator.
         ///
+        /// NOTE: This function does not emit an event if the new quorum numerator is the same as
+        /// the old one.
+        ///
         /// Requirements:
         ///
         /// - `new_quorum_numerator` must be less than `quorum_denominator`.
         ///
-        /// Emits a `QuorumNumeratorUpdated` event.
+        /// May emit a `QuorumNumeratorUpdated` event.
         fn update_quorum_numerator(
             ref self: ComponentState<TContractState>, new_quorum_numerator: u256
         ) {
@@ -200,13 +203,16 @@ pub mod GovernorVotesQuorumFractionComponent {
             assert(new_quorum_numerator <= denominator, Errors::INVALID_QUORUM_FRACTION);
 
             let old_quorum_numerator = self.current_quorum_numerator();
-            let governor_component = get_dep_component!(@self, Governor);
 
-            let clock = governor_component.clock();
+            if old_quorum_numerator != new_quorum_numerator {
+                let governor_component = get_dep_component!(@self, Governor);
 
-            self.Governor_quorum_numerator_history.deref().push(clock, new_quorum_numerator);
+                let clock = governor_component.clock();
 
-            self.emit(QuorumNumeratorUpdated { old_quorum_numerator, new_quorum_numerator });
+                self.Governor_quorum_numerator_history.deref().push(clock, new_quorum_numerator);
+
+                self.emit(QuorumNumeratorUpdated { old_quorum_numerator, new_quorum_numerator });
+            }
         }
     }
 }

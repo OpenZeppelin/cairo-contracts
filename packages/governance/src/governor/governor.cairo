@@ -20,9 +20,11 @@ pub mod GovernorComponent {
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
     use starknet::{ContractAddress, SyscallResultTrait};
 
+    type ProposalId = felt252;
+
     #[storage]
     pub struct Storage {
-        pub Governor_proposals: Map<felt252, ProposalCore>,
+        pub Governor_proposals: Map<ProposalId, ProposalCore>,
     }
 
     #[event]
@@ -557,7 +559,7 @@ pub mod GovernorComponent {
             self._cast_vote(proposal_id, voter, support, "", Immutable::DEFAULT_PARAMS())
         }
 
-        /// Cast a vote with a reason.
+        /// Cast a vote with a `reason`.
         ///
         /// Requirements:
         ///
@@ -574,7 +576,7 @@ pub mod GovernorComponent {
             self._cast_vote(proposal_id, voter, support, reason, Immutable::DEFAULT_PARAMS())
         }
 
-        /// Cast a vote with a reason and additional serialized parameters.
+        /// Cast a vote with a `reason` and additional serialized `params`.
         ///
         /// Requirements:
         ///

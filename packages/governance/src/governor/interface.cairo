@@ -168,12 +168,12 @@ pub trait IGovernor<TState> {
     /// Cast a vote.
     fn cast_vote(ref self: TState, proposal_id: felt252, support: u8) -> u256;
 
-    /// Cast a vote with a reason.
+    /// Cast a vote with a `reason`.
     fn cast_vote_with_reason(
         ref self: TState, proposal_id: felt252, support: u8, reason: ByteArray
     ) -> u256;
 
-    /// Cast a vote with a reason and additional serialized parameters.
+    /// Cast a vote with a `reason` and additional serialized `params`.
     fn cast_vote_with_reason_and_params(
         ref self: TState,
         proposal_id: felt252,
@@ -182,7 +182,7 @@ pub trait IGovernor<TState> {
         params: Span<felt252>
     ) -> u256;
 
-    /// Cast a vote using the voter's signature.
+    /// Cast a vote using the `voter`'s signature.
     fn cast_vote_by_sig(
         ref self: TState,
         proposal_id: felt252,
@@ -191,7 +191,8 @@ pub trait IGovernor<TState> {
         signature: Span<felt252>
     ) -> u256;
 
-    /// Cast a vote with a reason and additional serialized parameters using the voter's signature
+    /// Cast a vote with a `reason` and additional serialized `params` using the `voter`'s
+    /// signature.
     fn cast_vote_with_reason_and_params_by_sig(
         ref self: TState,
         proposal_id: felt252,

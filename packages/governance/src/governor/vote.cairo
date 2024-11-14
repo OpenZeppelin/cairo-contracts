@@ -3,6 +3,7 @@
 
 use core::hash::{HashStateTrait, HashStateExTrait};
 use core::poseidon::PoseidonTrait;
+use crate::utils::HashSpanImpl;
 use openzeppelin_utils::cryptography::snip12::StructHash;
 use starknet::ContractAddress;
 
@@ -27,10 +28,10 @@ pub struct Vote {
     pub voter: ContractAddress,
 }
 
-impl StructHashImpl of StructHash<Vote> {
+impl VoteStructHashImpl of StructHash<Vote> {
     fn hash_struct(self: @Vote) -> felt252 {
         let hash_state = PoseidonTrait::new();
-        hash_state.update_with(DELEGATION_TYPE_HASH).update_with(*self).finalize()
+        hash_state.update_with(VOTE_TYPE_HASH).update_with(*self).finalize()
     }
 }
 
@@ -59,9 +60,9 @@ pub struct VoteWithReasonAndParams {
     pub params: Span<felt252>,
 }
 
-impl StructHashImpl of StructHash<Vote> {
-    fn hash_struct(self: @Vote) -> felt252 {
+impl VoteWithReasonAndParamsStructHashImpl of StructHash<VoteWithReasonAndParams> {
+    fn hash_struct(self: @VoteWithReasonAndParams) -> felt252 {
         let hash_state = PoseidonTrait::new();
-        hash_state.update_with(DELEGATION_TYPE_HASH).update_with(*self).finalize()
+        hash_state.update_with(VOTE_WITH_REASON_AND_PARAMS_TYPE_HASH).update_with(*self).finalize()
     }
 }

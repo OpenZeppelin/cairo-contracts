@@ -21,7 +21,6 @@ const _2_POW_120: felt252 = 0x1000000000000000000000000000000;
 const _2_POW_56: felt252 = 0x100000000000000;
 const _2_POW_55: felt252 = 0x80000000000000;
 const _2_POW_54: felt252 = 0x40000000000000;
-const _2_POW_64: NonZero<u256> = 0xffffffffffffffff;
 
 /// Packs a ProposalCore into a (felt252, felt252).
 ///
@@ -58,8 +57,7 @@ impl ProposalCoreStorePacking of StorePacking<ProposalCore, (felt252, felt252)> 
 
     fn unpack(value: (felt252, felt252)) -> ProposalCore {
         let (proposer, second_felt) = value;
-
-        const _2_POW_64: NonZero<u256> = 0xffffffffffffffff;
+        let _2_POW_64: NonZero<u256> = 0x10000000000000000;
 
         // shift-right to extract the corresponding values
         let val: u256 = second_felt.into() / _2_POW_54.into();
@@ -78,5 +76,42 @@ impl ProposalCoreStorePacking of StorePacking<ProposalCore, (felt252, felt252)> 
             canceled: canceled > 0,
             eta_seconds: eta_seconds.try_into().unwrap()
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use core::num::traits::Bounded;
+    use openzeppelin_testing::constants::ALICE;
+    use super::{ProposalCore, ProposalCoreStorePacking};
+
+    #[test]
+    fn test_pack_and_unpack() {
+        let proposal = ProposalCore {
+            proposer: ALICE(),
+            vote_start: 100,
+            vote_duration: 200,
+            executed: false,
+            canceled: true,
+            eta_seconds: 300
+        };
+        let packed = ProposalCoreStorePacking::pack(proposal);
+        let unpacked = ProposalCoreStorePacking::unpack(packed);
+        assert_eq!(proposal, unpacked);
+    }
+
+    #[test]
+    fn test_pack_and_unpack_big_values() {
+        let proposal = ProposalCore {
+            proposer: ALICE(),
+            vote_start: Bounded::MAX,
+            vote_duration: Bounded::MAX,
+            executed: true,
+            canceled: true,
+            eta_seconds: Bounded::MAX
+        };
+        let packed = ProposalCoreStorePacking::pack(proposal);
+        let unpacked = ProposalCoreStorePacking::unpack(packed);
+        assert_eq!(proposal, unpacked);
     }
 }

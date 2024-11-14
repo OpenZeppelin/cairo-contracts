@@ -12,11 +12,13 @@ pub mod GovernorComponent {
     use crate::governor::ProposalCore;
     use crate::governor::interface::{ProposalState, IGovernor, IGOVERNOR_ID};
     use crate::governor::vote::{Vote, VoteWithReasonAndParams};
-    use crate::utils::call_impls::{HashCallImpl, HashCallsImpl};
+    use crate::utils::HashSpanImpl;
+    use crate::utils::call_impls::HashCallImpl;
+    use openzeppelin_account::interface::{ISRC6Dispatcher, ISRC6DispatcherTrait};
     use openzeppelin_introspection::src5::SRC5Component::InternalImpl as SRC5InternalImpl;
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_utils::bytearray::ByteArrayExtTrait;
-    use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
+    use openzeppelin_utils::cryptography::snip12::{OffchainMessageHash, SNIP12Metadata};
     use starknet::account::Call;
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
     use starknet::{ContractAddress, SyscallResultTrait};

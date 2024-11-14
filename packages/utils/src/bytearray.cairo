@@ -31,7 +31,7 @@ pub fn to_byte_array<T, +Into<T, felt252>, +Copy<T>>(
 ) -> ByteArray {
     let value: felt252 = (*value).into();
     let base: felt252 = base.into();
-    let mut byte_array = value.format_as_byte_array(base.try_into().unwrap());
+    let mut byte_array = value.format_as_byte_array(base.try_into().expect('ByteArray: base cannot be 0'));
 
     if padding.into() > byte_array.len() {
         let mut padding = padding.into() - byte_array.len();

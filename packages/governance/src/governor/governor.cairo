@@ -11,6 +11,7 @@ pub mod GovernorComponent {
     use core::pedersen::PedersenTrait;
     use crate::governor::ProposalCore;
     use crate::governor::interface::{ProposalState, IGovernor, IGOVERNOR_ID};
+    use crate::governor::vote::{Vote, VoteWithReasonAndParams};
     use crate::utils::call_impls::{HashCallImpl, HashCallsImpl};
     use openzeppelin_introspection::src5::SRC5Component::InternalImpl as SRC5InternalImpl;
     use openzeppelin_introspection::src5::SRC5Component;
@@ -25,6 +26,7 @@ pub mod GovernorComponent {
     #[storage]
     pub struct Storage {
         pub Governor_proposals: Map<ProposalId, ProposalCore>,
+        pub Governor_nonces: Map<ContractAddress, felt252>
     }
 
     #[event]
@@ -110,6 +112,7 @@ pub mod GovernorComponent {
         pub const INSUFFICIENT_PROPOSER_VOTES: felt252 = 'Insufficient votes';
         pub const UNEXPECTED_PROPOSAL_STATE: felt252 = 'Unexpected proposal state';
         pub const QUEUE_NOT_IMPLEMENTED: felt252 = 'Queue not implemented';
+        pub const INVALID_SIGNATURE: felt252 = 'Invalid signature';
     }
 
     /// Constants expected to be defined at the contract level used to configure the component
@@ -595,7 +598,16 @@ pub mod GovernorComponent {
             self._cast_vote(proposal_id, voter, support, reason, params)
         }
 
-        /// TODO: implement vote by signature
+        /// Cast a vote using the `voter`'s signature.
+        ///
+        /// Requirements:
+        ///
+        /// - The proposal must be active.
+        /// - The nonce in the signed message must match the account's current nonce.
+        /// - `voter` must implement `SRC6::is_valid_signature`.
+        /// - `signature` should be valid for the message hash.
+        ///
+        /// Emits a `VoteCast` event.
         fn cast_vote_by_sig(
             ref self: ComponentState<TContractState>,
             proposal_id: felt252,
@@ -603,10 +615,39 @@ pub mod GovernorComponent {
             voter: ContractAddress,
             signature: Span<felt252>
         ) -> u256 {
-            1
+            // 1. Get and increase current nonce
+            let nonce = self.use_nonce(voter);
+
+            // 2. Build hash for calling `is_valid_signature`
+            let verifying_contract = starknet::get_contract_address();
+            let vote = Vote { verifying_contract, nonce, proposal_id, support, voter };
+            let hash = vote.get_message_hash(voter);
+
+            let is_valid_signature_felt = ISRC6Dispatcher { contract_address: voter }
+                .is_valid_signature(hash, signature.into());
+
+            // 3. Check either 'VALID' or true for backwards compatibility
+            let is_valid_signature = is_valid_signature_felt == starknet::VALIDATED
+                || is_valid_signature_felt == 1;
+
+            assert(is_valid_signature, Errors::INVALID_SIGNATURE);
+
+            // 4. Cast vote
+            self._cast_vote(proposal_id, voter, support, "", Immutable::DEFAULT_PARAMS())
         }
 
-        /// TODO: implement vote by signature
+        /// Cast a vote with a `reason` and additional serialized `params` using the `voter`'s
+        /// signature.
+        ///
+        /// Requirements:
+        ///
+        /// - The proposal must be active.
+        /// - The nonce in the signed message must match the account's current nonce.
+        /// - `voter` must implement `SRC6::is_valid_signature`.
+        /// - `signature` should be valid for the message hash.
+        ///
+        /// Emits a `VoteCast` event if no params are provided.
+        /// Emits a `VoteCastWithParams` event otherwise.
         fn cast_vote_with_reason_and_params_by_sig(
             ref self: ComponentState<TContractState>,
             proposal_id: felt252,
@@ -616,7 +657,33 @@ pub mod GovernorComponent {
             params: Span<felt252>,
             signature: Span<felt252>
         ) -> u256 {
-            1
+            // 1. Get and increase current nonce
+            let nonce = self.use_nonce(voter);
+
+            // 2. Build hash for calling `is_valid_signature`
+            let verifying_contract = starknet::get_contract_address();
+            let reason_hash = reason.hash();
+            let vote = VoteWithReasonAndParams {
+                verifying_contract, nonce, proposal_id, support, voter, reason_hash, params
+            };
+            let hash = vote.get_message_hash(voter);
+
+            let is_valid_signature_felt = ISRC6Dispatcher { contract_address: voter }
+                .is_valid_signature(hash, signature.into());
+
+            // 3. Check either 'VALID' or true for backwards compatibility
+            let is_valid_signature = is_valid_signature_felt == starknet::VALIDATED
+                || is_valid_signature_felt == 1;
+
+            assert(is_valid_signature, Errors::INVALID_SIGNATURE);
+
+            // 4. Cast vote
+            self._cast_vote(proposal_id, voter, support, reason, params)
+        }
+
+        /// Returns the next unused nonce for an address.
+        fn nonces(self: @ComponentState<TContractState>, voter: ContractAddress) -> felt252 {
+            self.Governor_nonces.read(voter)
         }
 
         /// Relays a transaction or function call to an arbitrary target.
@@ -779,6 +846,16 @@ pub mod GovernorComponent {
                 }
             };
             assert(found, Errors::UNEXPECTED_PROPOSAL_STATE);
+        }
+
+        /// Consumes a nonce, returns the current value, and increments nonce.
+        fn use_nonce(ref self: ComponentState<TContractState>, voter: ContractAddress) -> felt252 {
+            // For each account, the nonce has an initial value of 0, can only be incremented by
+            // one, and cannot be decremented or reset. This guarantees that the nonce never
+            // overflows.
+            let nonce = self.Governor_nonces.read(voter);
+            self.Governor_nonces.write(voter, nonce + 1);
+            nonce
         }
 
         /// Internal wrapper for `GovernorVotesTrait::get_votes`.

@@ -203,6 +203,9 @@ pub trait IGovernor<TState> {
         signature: Span<felt252>
     ) -> u256;
 
+    /// Returns the next unused nonce for an address.
+    fn nonces(self: @TState, voter: ContractAddress) -> felt252;
+
     /// Relays a transaction or function call to an arbitrary target.
     ///
     /// In cases where the governance executor is some contract other than the governor itself, like

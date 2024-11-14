@@ -24,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed (Breaking)
 
 - Remove `HashCallsImpl` from `openzeppelin_governance::utils::call_impls` (#1180)
+- `HashCallImpl` now hashes the len after the span elements (#1180)
 - VestingComponent `release` function won't emit an event or attempt to transfer when the amount is zero (#1209)
 - Bump snforge_std to v0.33.0 (#1203)
 

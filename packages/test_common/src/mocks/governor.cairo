@@ -87,11 +87,11 @@ pub mod GovernorMock {
 
     pub impl SNIP12MetadataImpl of SNIP12Metadata {
         fn name() -> felt252 {
-            'APP_NAME'
+            'DAPP_NAME'
         }
 
         fn version() -> felt252 {
-            'APP_VERSION'
+            'DAPP_VERSION'
         }
     }
 

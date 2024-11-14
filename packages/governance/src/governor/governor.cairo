@@ -12,8 +12,7 @@ pub mod GovernorComponent {
     use crate::governor::ProposalCore;
     use crate::governor::interface::{ProposalState, IGovernor, IGOVERNOR_ID};
     use crate::governor::vote::{Vote, VoteWithReasonAndParams};
-    use crate::utils::HashSpanImpl;
-    use crate::utils::call_impls::HashCallImpl;
+    use crate::utils::call_impls::{HashCallImpl, HashCallsImpl};
     use openzeppelin_account::interface::{ISRC6Dispatcher, ISRC6DispatcherTrait};
     use openzeppelin_introspection::src5::SRC5Component::InternalImpl as SRC5InternalImpl;
     use openzeppelin_introspection::src5::SRC5Component;

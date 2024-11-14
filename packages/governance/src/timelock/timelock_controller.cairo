@@ -18,8 +18,7 @@ pub mod TimelockControllerComponent {
     use core::num::traits::Zero;
     use core::pedersen::PedersenTrait;
     use crate::timelock::interface::{ITimelock, TimelockABI};
-    use crate::utils::HashSpanImpl;
-    use crate::utils::call_impls::{HashCallImpl, CallPartialEq};
+    use crate::utils::call_impls::{HashCallImpl, HashCallsImpl, CallPartialEq};
     use openzeppelin_access::accesscontrol::AccessControlComponent::InternalTrait as AccessControlInternalTrait;
     use openzeppelin_access::accesscontrol::AccessControlComponent::{
         AccessControlImpl, AccessControlCamelImpl

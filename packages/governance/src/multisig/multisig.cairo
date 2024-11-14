@@ -22,8 +22,7 @@ pub mod MultisigComponent {
     use crate::multisig::interface::{IMultisig, TransactionID, TransactionState};
     use crate::multisig::storage_utils::{SignersInfo, SignersInfoStorePacking};
     use crate::multisig::storage_utils::{TxInfo, TxInfoStorePacking};
-    use crate::utils::HashSpanImpl;
-    use crate::utils::call_impls::{HashCallImpl, CallPartialEq};
+    use crate::utils::call_impls::{HashCallImpl, HashCallsImpl, CallPartialEq};
     use starknet::account::Call;
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};

@@ -6,8 +6,7 @@ use crate::governor::interface::{IGovernor, IGOVERNOR_ID, ProposalState};
 use crate::governor::interface::{IGovernorDispatcher, IGovernorDispatcherTrait};
 use crate::governor::vote::{Vote, VoteWithReasonAndParams};
 use crate::governor::{DefaultConfig, GovernorComponent, ProposalCore};
-use crate::utils::HashSpanImpl;
-use crate::utils::call_impls::HashCallImpl;
+use crate::utils::call_impls::{HashCallImpl, HashCallsImpl};
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin_test_common::mocks::governor::GovernorMock::SNIP12MetadataImpl;
 use openzeppelin_test_common::mocks::governor::GovernorMock;
@@ -21,8 +20,11 @@ use openzeppelin_utils::bytearray::ByteArrayExtTrait;
 use openzeppelin_utils::cryptography::snip12::OffchainMessageHash;
 use snforge_std::EventSpy;
 use snforge_std::signature::stark_curve::{StarkCurveKeyPairImpl, StarkCurveSignerImpl};
+use snforge_std::{
+    start_cheat_caller_address, start_cheat_block_timestamp_global, start_cheat_chain_id_global,
+    start_mock_call
+};
 use snforge_std::{spy_events, test_address};
-use snforge_std::{start_cheat_caller_address, start_cheat_block_timestamp_global, start_mock_call};
 use starknet::account::Call;
 use starknet::storage::{StoragePathEntry, StoragePointerWriteAccess, StorageMapWriteAccess};
 use starknet::{ContractAddress, contract_address_const};
@@ -83,14 +85,14 @@ fn setup_account(public_key: felt252) -> ContractAddress {
 fn test_name() {
     let state = @COMPONENT_STATE();
     let name = state.name();
-    assert_eq!(name, 'APP_NAME');
+    assert_eq!(name, 'DAPP_NAME');
 }
 
 #[test]
 fn test_version() {
     let state = COMPONENT_STATE();
     let version = state.version();
-    assert_eq!(version, 'APP_VERSION');
+    assert_eq!(version, 'DAPP_VERSION');
 }
 
 #[test]
@@ -1050,9 +1052,9 @@ fn test_cast_vote_with_reason_and_params_executed() {
 // cast_vote_by_sig
 //
 
-fn prepare_governor_and_signature() -> (
-    IGovernorDispatcher, felt252, felt252, felt252, u8, ContractAddress, u256
-) {
+fn prepare_governor_and_signature(
+    nonce: felt252
+) -> (IGovernorDispatcher, felt252, felt252, felt252, u8, ContractAddress, u256) {
     let mut governor = deploy_governor();
     let calls = get_calls(OTHER(), false);
     let description = "proposal description";
@@ -1075,7 +1077,6 @@ fn prepare_governor_and_signature() -> (
     let voter = setup_account(key_pair.public_key);
 
     // 4. Set up signature parameters
-    let nonce = 0;
     let support = 1;
     let verifying_contract = governor.contract_address;
 
@@ -1089,7 +1090,7 @@ fn prepare_governor_and_signature() -> (
 
 #[test]
 fn test_cast_vote_by_sig() {
-    let (governor, r, s, proposal_id, support, voter, quorum) = prepare_governor_and_signature();
+    let (governor, r, s, proposal_id, support, voter, quorum) = prepare_governor_and_signature(0);
 
     // Set up event spy and cast vote
     let mut spy = spy_events();
@@ -1101,14 +1102,262 @@ fn test_cast_vote_by_sig() {
         );
 }
 
-
 #[test]
 #[should_panic(expected: 'Invalid signature')]
 fn test_cast_vote_by_sig_invalid_signature() {
-    let (governor, r, s, proposal_id, support, voter, _) = prepare_governor_and_signature();
+    let (governor, r, s, proposal_id, support, voter, _) = prepare_governor_and_signature(0);
 
     // Cast vote with invalid signature
     governor.cast_vote_by_sig(proposal_id, support, voter, array![r + 1, s].span());
+}
+
+#[test]
+#[should_panic(expected: 'Invalid signature')]
+fn test_cast_vote_by_sig_invalid_msg_hash() {
+    // Use invalid nonce (not the account's current nonce)
+    let (governor, r, s, proposal_id, support, voter, _) = prepare_governor_and_signature(1);
+
+    // Cast vote with invalid msg hash
+    governor.cast_vote_by_sig(proposal_id, support, voter, array![r, s].span());
+}
+
+#[test]
+fn test_cast_vote_by_sig_hash_generation() {
+    start_cheat_chain_id_global('SN_TEST');
+
+    let verifying_contract = contract_address_const::<'VERIFIER'>();
+    let nonce = 0;
+    let proposal_id = 1;
+    let support = 1;
+    let voter = contract_address_const::<'VOTER'>();
+
+    let vote = Vote { verifying_contract, nonce, proposal_id, support, voter };
+    let hash = vote.get_message_hash(voter);
+
+    // This hash was computed using starknet js sdk from the following values:
+    // - name: 'DAPP_NAME'
+    // - version: 'DAPP_VERSION'
+    // - chainId: 'SN_TEST'
+    // - account: 'VOTER'
+    // - nonce: 0
+    // - verifying_contract: 'VERIFIER'
+    // - proposal_id: 1
+    // - support: 1
+    // - voter: 'VOTER'
+    // - revision: '1'
+    let expected_hash = 0x6541a00fa95d4796bded177fca3cee29d9697174edadebfa4b0b9784379f636;
+    assert_eq!(hash, expected_hash);
+}
+
+//
+// cast_vote_with_reason_and_params_by_sig
+//
+
+fn prepare_governor_and_signature_with_reason_and_params(
+    reason: @ByteArray, params: Span<felt252>, nonce: felt252
+) -> (IGovernorDispatcher, felt252, felt252, felt252, u8, ContractAddress, u256) {
+    let mut governor = deploy_governor();
+    let calls = get_calls(OTHER(), false);
+    let description = "proposal description";
+
+    // Mock the get_past_votes call
+    let quorum = GovernorMock::QUORUM;
+    start_mock_call(VOTES_TOKEN(), selector!("get_past_votes"), quorum);
+
+    // 1. Propose
+    let mut current_time = 10;
+    start_cheat_block_timestamp_global(current_time);
+    let proposal_id = governor.propose(calls, description.clone());
+
+    // 2. Fast forward the vote delay
+    current_time += GovernorMock::VOTING_DELAY;
+    start_cheat_block_timestamp_global(current_time);
+
+    // 3. Generate a key pair and set up an account
+    let key_pair = StarkCurveKeyPairImpl::generate();
+    let voter = setup_account(key_pair.public_key);
+
+    // 4. Set up signature parameters
+    let support = 1;
+    let verifying_contract = governor.contract_address;
+    let reason_hash = reason.hash();
+
+    // 5. Create and sign the vote message
+    let vote = VoteWithReasonAndParams {
+        verifying_contract, nonce, proposal_id, support, voter, reason_hash, params
+    };
+    let msg_hash = vote.get_message_hash(voter);
+    let (r, s) = key_pair.sign(msg_hash).unwrap();
+
+    (governor, r, s, proposal_id, support, voter, quorum)
+}
+
+#[test]
+fn test_cast_vote_with_reason_and_params_by_sig() {
+    let reason = "proposal reason";
+    let params = array!['param'].span();
+
+    let (governor, r, s, proposal_id, support, voter, quorum) =
+        prepare_governor_and_signature_with_reason_and_params(
+        @reason, params, 0
+    );
+
+    // Set up event spy and cast vote
+    let mut spy = spy_events();
+    governor
+        .cast_vote_with_reason_and_params_by_sig(
+            proposal_id, support, voter, reason.clone(), params, array![r, s].span()
+        );
+
+    spy
+        .assert_only_event_vote_cast_with_params(
+            governor.contract_address, voter, proposal_id, support, quorum, @reason, params
+        );
+}
+
+#[test]
+fn test_cast_vote_with_reason_and_params_by_sig_empty_params() {
+    let reason = "proposal reason";
+    let params = array![].span();
+
+    let (governor, r, s, proposal_id, support, voter, quorum) =
+        prepare_governor_and_signature_with_reason_and_params(
+        @reason, params, 0
+    );
+
+    // Set up event spy and cast vote
+    let mut spy = spy_events();
+    governor
+        .cast_vote_with_reason_and_params_by_sig(
+            proposal_id, support, voter, reason.clone(), params, array![r, s].span()
+        );
+
+    spy
+        .assert_only_event_vote_cast(
+            governor.contract_address, voter, proposal_id, support, quorum, @reason
+        );
+}
+
+#[test]
+#[should_panic(expected: 'Invalid signature')]
+fn test_cast_vote_with_reason_and_params_by_sig_invalid_signature() {
+    let reason = "proposal reason";
+    let params = array!['param'].span();
+
+    // Use invalid nonce (not the account's current nonce)
+    let (governor, r, s, proposal_id, support, voter, _) =
+        prepare_governor_and_signature_with_reason_and_params(
+        @reason, params, 0
+    );
+
+    // Cast vote with invalid signature
+    governor
+        .cast_vote_with_reason_and_params_by_sig(
+            proposal_id, support, voter, reason.clone(), params, array![r + 1, s].span()
+        );
+}
+
+#[test]
+#[should_panic(expected: 'Invalid signature')]
+fn test_cast_vote_with_reason_and_params_by_sig_invalid_msg_hash() {
+    let reason = "proposal reason";
+    let params = array!['param'].span();
+
+    // Use invalid nonce (not the account's current nonce)
+    let (governor, r, s, proposal_id, support, voter, _) =
+        prepare_governor_and_signature_with_reason_and_params(
+        @reason, params, 1
+    );
+
+    // Cast vote with invalid msg hash
+    governor
+        .cast_vote_with_reason_and_params_by_sig(
+            proposal_id, support, voter, reason.clone(), params, array![r, s].span()
+        );
+}
+
+#[test]
+fn test_cast_vote_with_reason_and_params_by_sig_hash_generation() {
+    start_cheat_chain_id_global('SN_TEST');
+
+    let verifying_contract = contract_address_const::<'VERIFIER'>();
+    let nonce = 0;
+    let proposal_id = 1;
+    let support = 1;
+    let voter = contract_address_const::<'VOTER'>();
+    let reason_hash = 'hash';
+    let params = array!['param'].span();
+    let vote = VoteWithReasonAndParams {
+        verifying_contract, nonce, proposal_id, support, voter, reason_hash, params
+    };
+    let hash = vote.get_message_hash(voter);
+
+    // This hash was computed using starknet js sdk from the following values:
+    // - name: 'DAPP_NAME'
+    // - version: 'DAPP_VERSION'
+    // - chainId: 'SN_TEST'
+    // - account: 'VOTER'
+    // - nonce: 0
+    // - verifying_contract: 'VERIFIER'
+    // - proposal_id: 1
+    // - support: 1
+    // - voter: 'VOTER'
+    // - reason_hash: 'hash'
+    // - params: ['param']
+    // - revision: '1'
+    let expected_hash = 0x729b7bd36fcddae615f7e2d7c78270e7f820f0dec9faf7842e0187670d3e84a;
+    assert_eq!(hash, expected_hash);
+}
+
+//
+// nonces
+//
+
+#[test]
+fn test_nonces() {
+    let mut state = COMPONENT_STATE();
+    let nonce = state.nonces(OTHER());
+    assert_eq!(nonce, 0);
+
+    state.Governor_nonces.write(OTHER(), 1);
+    let nonce = state.nonces(OTHER());
+    assert_eq!(nonce, 1);
+}
+
+//
+// relay
+//
+
+#[test]
+fn test_relay() {
+    let (mut governor, target) = setup_dispatchers();
+    let new_number = 1;
+    let contract_address = governor.contract_address;
+
+    let call = Call {
+        to: target.contract_address,
+        selector: selector!("set_number"),
+        calldata: array![new_number].span()
+    };
+
+    let number = target.get_number();
+    assert_eq!(number, 0);
+
+    start_cheat_caller_address(contract_address, contract_address);
+    governor.relay(call);
+
+    let number = target.get_number();
+    assert_eq!(number, new_number);
+}
+
+#[test]
+#[should_panic(expected: 'Executor only')]
+fn test_relay_invalid_caller() {
+    let mut state = COMPONENT_STATE();
+    let call = Call { to: ADMIN(), selector: selector!("foo"), calldata: array![].span() };
+
+    start_cheat_caller_address(test_address(), OTHER());
+    state.relay(call);
 }
 
 //

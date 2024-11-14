@@ -3,21 +3,20 @@
 
 use core::hash::{HashStateTrait, HashStateExTrait};
 use core::poseidon::PoseidonTrait;
-use crate::utils::HashSpanImpl;
-use openzeppelin_utils::cryptography::snip12::StructHash;
+use openzeppelin_utils::cryptography::snip12::{StructHash, SNIP12HashSpanImpl};
 use starknet::ContractAddress;
 
 // sn_keccak(
 //      "\"Vote\"(\"verifying_contract\":\"ContractAddress\",
 //      \"nonce\":\"felt\",
 //      \"proposal_id\":\"felt\",
-//      \"support\":\"u8\",
+//      \"support\":\"u128\",
 //      \"voter\":\"ContractAddress\")"
 // )
 //
 // Since there's no u8 type in SNIP-12, we use u128 for `support` in the type hash generation.
 pub const VOTE_TYPE_HASH: felt252 =
-    0x21d38a715b9e9f6da132e4d01c8e4bd956340b0407942182043d516d8e27f3f;
+    0x19a625949c5c367200d9ca91e845fe9c5f3c7f04735d97d91f3a6cb4cb30b81;
 
 #[derive(Copy, Drop, Hash)]
 pub struct Vote {
@@ -36,10 +35,10 @@ impl VoteStructHashImpl of StructHash<Vote> {
 }
 
 // sn_keccak(
-//      "\"Vote\"(\"verifying_contract\":\"ContractAddress\",
+//      "\"VoteWithReasonAndParams\"(\"verifying_contract\":\"ContractAddress\",
 //      \"nonce\":\"felt\",
 //      \"proposal_id\":\"felt\",
-//      \"support\":\"u8\",
+//      \"support\":\"u128\",
 //      \"voter\":\"ContractAddress\",
 //      \"reason_hash\":\"felt\",
 //      \"params\":\"felt*\")"
@@ -47,9 +46,9 @@ impl VoteStructHashImpl of StructHash<Vote> {
 //
 // Since there's no u8 type in SNIP-12, we use u128 for `support` in the type hash generation.
 pub const VOTE_WITH_REASON_AND_PARAMS_TYPE_HASH: felt252 =
-    0x3866b6236bd1166c5b7eeda1b8e6d1d8f3cd5b82bccd3dac6f8d476d4848dd4;
+    0x1f4ccab7220d6a3c0c1cbc1008bfcb3f6fbdb361dd14fd017fabd229e0cf94b;
 
-#[derive(Copy, Drop, Hash)]
+#[derive(Copy, Drop)]
 pub struct VoteWithReasonAndParams {
     pub verifying_contract: ContractAddress,
     pub nonce: felt252,
@@ -63,7 +62,16 @@ pub struct VoteWithReasonAndParams {
 impl VoteWithReasonAndParamsStructHashImpl of StructHash<VoteWithReasonAndParams> {
     fn hash_struct(self: @VoteWithReasonAndParams) -> felt252 {
         let hash_state = PoseidonTrait::new();
-        hash_state.update_with(VOTE_WITH_REASON_AND_PARAMS_TYPE_HASH).update_with(*self).finalize()
+        hash_state
+            .update_with(VOTE_WITH_REASON_AND_PARAMS_TYPE_HASH)
+            .update_with(*self.verifying_contract)
+            .update_with(*self.nonce)
+            .update_with(*self.proposal_id)
+            .update_with(*self.support)
+            .update_with(*self.voter)
+            .update_with(*self.reason_hash)
+            .update_with(*self.params)
+            .finalize()
     }
 }
 
@@ -74,7 +82,7 @@ mod tests {
     #[test]
     fn test_vote_type_hash() {
         let expected = selector!(
-            "\"Vote\"(\"verifying_contract\":\"ContractAddress\",\"nonce\":\"felt\",\"proposal_id\":\"felt\",\"support\":\"u8\",\"voter\":\"ContractAddress\")"
+            "\"Vote\"(\"verifying_contract\":\"ContractAddress\",\"nonce\":\"felt\",\"proposal_id\":\"felt\",\"support\":\"u128\",\"voter\":\"ContractAddress\")"
         );
         assert_eq!(VOTE_TYPE_HASH, expected);
     }
@@ -82,7 +90,7 @@ mod tests {
     #[test]
     fn test_vote_with_reason_and_params_type_hash() {
         let expected = selector!(
-            "\"Vote\"(\"verifying_contract\":\"ContractAddress\",\"nonce\":\"felt\",\"proposal_id\":\"felt\",\"support\":\"u8\",\"voter\":\"ContractAddress\",\"reason_hash\":\"felt\",\"params\":\"felt*\")"
+            "\"VoteWithReasonAndParams\"(\"verifying_contract\":\"ContractAddress\",\"nonce\":\"felt\",\"proposal_id\":\"felt\",\"support\":\"u128\",\"voter\":\"ContractAddress\",\"reason_hash\":\"felt\",\"params\":\"felt*\")"
         );
         assert_eq!(VOTE_WITH_REASON_AND_PARAMS_TYPE_HASH, expected);
     }

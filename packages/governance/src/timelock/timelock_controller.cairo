@@ -233,7 +233,7 @@ pub mod TimelockControllerComponent {
         ///
         /// - The caller must have the `PROPOSER_ROLE` role.
         /// - The proposal must not already exist.
-        /// - `delay` must not be greater than or equal to the min delay.
+        /// - `delay` must be greater than or equal to the min delay.
         ///
         /// Emits one `CallScheduled` event for each transaction in the batch.
         /// Emits `CallSalt` event if `salt` is not zero.

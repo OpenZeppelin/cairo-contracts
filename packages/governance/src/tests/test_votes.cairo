@@ -1,6 +1,6 @@
 use crate::votes::Delegation;
 use crate::votes::VotesComponent::VotingUnitsTrait;
-use crate::votes::VotesComponent::{DelegateChanged, DelegateVotesChanged, VotesImpl, InternalImpl,};
+use crate::votes::VotesComponent::{DelegateChanged, DelegateVotesChanged, VotesImpl, InternalImpl};
 use crate::votes::VotesComponent;
 use openzeppelin_test_common::mocks::votes::ERC721VotesMock::SNIP12MetadataImpl;
 use openzeppelin_test_common::mocks::votes::{ERC721VotesMock, ERC20VotesMock};

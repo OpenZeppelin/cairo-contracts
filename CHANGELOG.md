@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - SRC9 (Outside Execution) integration to account presets (#1201)
-- `HashSpanImpl` to `openzeppelin_governance::utils` (#1180)
+- `SNIP12HashSpanImpl` to `openzeppelin_utils::cryptography::snip12` (#1180)
 - GovernorComponent with the following extensions: (#1180)
   - GovernorCoreExecutionComponent
   - GovernorCountingSimpleComponent
@@ -23,8 +23,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed (Breaking)
 
-- Remove `HashCallsImpl` from `openzeppelin_governance::utils::call_impls` (#1180)
-- `HashCallImpl` now hashes the len after the span elements (#1180)
 - VestingComponent `release` function won't emit an event or attempt to transfer when the amount is zero (#1209)
 - Bump snforge_std to v0.33.0 (#1203)
 

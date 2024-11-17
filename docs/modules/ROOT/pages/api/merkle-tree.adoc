@@ -1,7 +1,7 @@
 :github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
 :strk-merkle-tree: https://github.com/ericnordelo/strk-merkle-tree[JavaScript library]
 :verify: xref:#merkle_proof-verify[verify]
-:verify_pedersen: xref:#merkle_proof-verify_perdersen[verify_pedersen]
+:verify_pedersen: xref:#merkle_proof-verify_pedersen[verify_pedersen]
 :verify_poseidon: xref:#merkle_proof-verify_poseidon[verify_poseidon]
 :verify_multi_proof: xref:#merkle_proof-verify_multi_proof[verify_multi_proof]
 :process_multi_proof: xref:#merkle_proof-process_multi_proof[process_multi_proof]
@@ -80,7 +80,7 @@ This function expects a `CommutativeHasher` implementation. See xref:#hashes-Com
 [[merkle_proof-verify_pedersen]]
 ==== `[.contract-item-name]#++verify_pedersen++#++(proof: Span<felt252>, root: felt252, leaf: felt252) → bool++` [.item-kind]#public#
 
-Version of `{verify}` using Perdersen as the hashing function.
+Version of `{verify}` using Pedersen as the hashing function.
 
 [.contract-item]
 [[merkle_proof-verify_poseidon]]

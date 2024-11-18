@@ -50,8 +50,7 @@ pub mod OwnableComponent {
 
     /// Emitted when `transfer_ownership` is called on a contract that implements `IOwnableTwoStep`.
     /// `previous_owner` is the address of the current owner.
-    /// `new_owner` is the address of the new owner. It will be the zero address if the ownership
-    /// is being renounced.
+    /// `new_owner` is the address of the pending owner.
     #[derive(Drop, PartialEq, starknet::Event)]
     pub struct OwnershipTransferStarted {
         #[key]

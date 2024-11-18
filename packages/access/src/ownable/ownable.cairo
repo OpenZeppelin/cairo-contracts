@@ -136,6 +136,8 @@ pub mod OwnableComponent {
 
         /// Starts the two-step ownership transfer process by setting the pending owner.
         ///
+        /// Setting `newOwner` to the zero address is allowed; this can be used to cancel an
+        /// initiated ownership transfer.
         /// Requirements:
         ///
         /// - The caller is the contract owner.
@@ -278,8 +280,13 @@ pub mod OwnableComponent {
     > of InternalTrait<TContractState> {
         /// Sets the contract's initial owner.
         ///
+        /// Requirements:
+        ///
+        /// - `owner` is not the zero address.
+        ///
         /// This function should be called at construction time.
         fn initializer(ref self: ComponentState<TContractState>, owner: ContractAddress) {
+            assert(!owner.is_zero(), Errors::ZERO_ADDRESS_OWNER);
             self._transfer_ownership(owner);
         }
 

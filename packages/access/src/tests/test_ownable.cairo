@@ -44,6 +44,13 @@ fn test_initializer_owner() {
     assert_eq!(new_owner, OWNER());
 }
 
+#[test]
+#[should_panic(expected: ('New owner is the zero address',))]
+fn test_initializer_zero_owner() {
+    let mut state = COMPONENT_STATE();
+    state.initializer(ZERO());
+}
+
 //
 // assert_only_owner
 //

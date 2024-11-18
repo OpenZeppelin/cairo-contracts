@@ -3,7 +3,7 @@
 
 /// # AccessControl Component
 ///
-/// Contract component that enables role-based access control mechanisms. This is a lightweight
+/// The AccessControl component enables role-based access control mechanisms. This is a lightweight
 /// implementation that doesn't support on-chain enumeration of role members, though role membership
 /// can be tracked off-chain through contract events.
 ///

@@ -43,7 +43,7 @@ pub mod AccessControlComponent {
     /// Emitted when `account` is granted `role`.
     ///
     /// `sender` is the account that originated the contract call, an account with the admin role
-    /// or the zero address if `grant_role` is called from the constructor.
+    /// or the deployer address if `grant_role` is called from the constructor.
     #[derive(Drop, PartialEq, starknet::Event)]
     pub struct RoleGranted {
         pub role: felt252,

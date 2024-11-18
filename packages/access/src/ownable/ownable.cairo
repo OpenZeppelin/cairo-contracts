@@ -35,6 +35,11 @@ pub mod OwnableComponent {
         OwnershipTransferStarted: OwnershipTransferStarted
     }
 
+    /// Emitted when `new_owner` is set as owner of the contract.
+    /// `previous_owner` is the address of the previous owner. It will be the zero address if
+    /// the ownership is transferred from the constructor.
+    /// `new_owner` is the address of the new owner. It will be the zero address if the ownership
+    /// is renounced.
     #[derive(Drop, PartialEq, starknet::Event)]
     pub struct OwnershipTransferred {
         #[key]
@@ -43,6 +48,10 @@ pub mod OwnableComponent {
         pub new_owner: ContractAddress,
     }
 
+    /// Emitted when `transfer_ownership` is called on a contract that implements `IOwnableTwoStep`.
+    /// `previous_owner` is the address of the current owner.
+    /// `new_owner` is the address of the new owner. It will be the zero address if the ownership
+    /// is being renounced.
     #[derive(Drop, PartialEq, starknet::Event)]
     pub struct OwnershipTransferStarted {
         #[key]
@@ -83,8 +92,8 @@ pub mod OwnableComponent {
             self._transfer_ownership(new_owner);
         }
 
-        /// Leaves the contract without owner. It will not be possible to call `assert_only_owner`
-        /// functions anymore. Can only be called by the current owner.
+        /// Leaves the contract without an owner. It will not be possible to call
+        /// `assert_only_owner` functions anymore. Can only be called by the current owner.
         ///
         /// Requirements:
         ///
@@ -150,7 +159,8 @@ pub mod OwnableComponent {
         ///
         /// Emits an `OwnershipTransferred` event.
         fn renounce_ownership(ref self: ComponentState<TContractState>) {
-            Ownable::renounce_ownership(ref self);
+            self.assert_only_owner();
+            self._transfer_ownership(Zero::zero());
         }
     }
 
@@ -280,7 +290,6 @@ pub mod OwnableComponent {
         fn assert_only_owner(self: @ComponentState<TContractState>) {
             let owner = self.Ownable_owner.read();
             let caller = get_caller_address();
-            assert(!caller.is_zero(), Errors::ZERO_ADDRESS_CALLER);
             assert(caller == owner, Errors::NOT_OWNER);
         }
 
@@ -297,10 +306,7 @@ pub mod OwnableComponent {
 
             let previous_owner: ContractAddress = self.Ownable_owner.read();
             self.Ownable_owner.write(new_owner);
-            self
-                .emit(
-                    OwnershipTransferred { previous_owner: previous_owner, new_owner: new_owner }
-                );
+            self.emit(OwnershipTransferred { previous_owner, new_owner });
         }
 
         /// Sets a new pending owner.
@@ -311,12 +317,7 @@ pub mod OwnableComponent {
         fn _propose_owner(ref self: ComponentState<TContractState>, new_owner: ContractAddress) {
             let previous_owner = self.Ownable_owner.read();
             self.Ownable_pending_owner.write(new_owner);
-            self
-                .emit(
-                    OwnershipTransferStarted {
-                        previous_owner: previous_owner, new_owner: new_owner
-                    }
-                );
+            self.emit(OwnershipTransferStarted { previous_owner, new_owner });
         }
     }
 }

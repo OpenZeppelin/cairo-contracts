@@ -5,8 +5,8 @@
 /// # ERC721Enumerable Component
 ///
 /// Extension of ERC721 as defined in the EIP that adds enumerability of all the token ids in the
-/// contract as well as all token ids owned by each account.
-/// This extension allows contracts to publish their entire list of NFTs and make them discoverable.
+/// contract as well as all token ids owned by each account. It allows contracts to publish
+/// their entire list of NFTs and make them discoverable.
 ///
 /// NOTE: Implementing ERC721Component is a requirement for this component to be implemented.
 ///
@@ -24,10 +24,8 @@ pub mod ERC721EnumerableComponent {
     use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin_introspection::src5::SRC5Component;
     use starknet::ContractAddress;
-    use starknet::storage::{
-        Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
-        StoragePointerWriteAccess
-    };
+    use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
+    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 
     #[storage]
     pub struct Storage {

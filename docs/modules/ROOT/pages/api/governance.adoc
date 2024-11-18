@@ -131,10 +131,10 @@ Schedule an operation containing a single transaction.
 
 Requirements:
 
-- the caller must have the `PROPOSER_ROLE` role.
+- The caller must have the `PROPOSER_ROLE` role.
 
 Emits {CallScheduled} event.
-If `salt` is not zero, emits {CallSalt} event.
+Emits {CallSalt} event if `salt` is not zero.
 
 [.contract-item]
 [[ITimelock-schedule_batch]]
@@ -147,7 +147,7 @@ Requirements:
 - The caller must have the `PROPOSER_ROLE` role.
 
 Emits one {CallScheduled} event for each transaction in the batch.
-If `salt` is not zero, emits {CallSalt} event.
+Emits {CallSalt} event if `salt` is not zero.
 
 [.contract-item]
 [[ITimelock-cancel]]
@@ -406,10 +406,12 @@ Schedule an operation containing a single transaction.
 
 Requirements:
 
-- the caller must have the `PROPOSER_ROLE` role.
+- The caller must have the `PROPOSER_ROLE` role.
+- The proposal must not already exist.
+- `delay` must be greater than or equal to the min delay.
 
 Emits {CallScheduled} event.
-If `salt` is not zero, emits {CallSalt} event.
+Emits {CallSalt} event if `salt` is not zero.
 
 [.contract-item]
 [[TimelockControllerComponent-schedule_batch]]
@@ -420,9 +422,11 @@ Schedule an operation containing a batch of transactions.
 Requirements:
 
 - The caller must have the `PROPOSER_ROLE` role.
+- The proposal must not already exist.
+- `delay` must be greater than or equal to the min delay.
 
 Emits one {CallScheduled} event for each transaction in the batch.
-If `salt` is not zero, emits {CallSalt} event.
+Emits {CallSalt} event if `salt` is not zero.
 
 [.contract-item]
 [[TimelockControllerComponent-cancel]]

@@ -79,6 +79,10 @@ pub mod VestingComponent {
         ) -> u256;
     }
 
+    //
+    // External
+    //
+
     #[embeddable_as(VestingImpl)]
     impl Vesting<
         TContractState,
@@ -132,21 +136,26 @@ pub mod VestingComponent {
 
         /// Releases the amount of a given `token` that has already vested.
         ///
+        /// NOTE: If the releasable amount is zero, this function won't emit the event
+        /// or attempt to transfer the tokens.
         ///
         /// Requirements:
         ///
         /// - `transfer` call to the `token` must return `true` indicating a successful transfer.
         ///
-        /// Emits an `AmountReleased` event.
+        /// May emit an `AmountReleased` event.
         fn release(ref self: ComponentState<TContractState>, token: ContractAddress) -> u256 {
             let amount = self.releasable(token);
-            self.Vesting_released.write(token, self.Vesting_released.read(token) + amount);
-            self.emit(AmountReleased { token, amount });
+            if amount > 0 {
+                self.Vesting_released.write(token, self.Vesting_released.read(token) + amount);
+                self.emit(AmountReleased { token, amount });
 
-            let beneficiary = get_dep_component!(@self, Ownable).owner();
-            let token_dispatcher = IERC20Dispatcher { contract_address: token };
-            assert(token_dispatcher.transfer(beneficiary, amount), Errors::TOKEN_TRANSFER_FAILED);
-
+                let beneficiary = get_dep_component!(@self, Ownable).owner();
+                let token_dispatcher = IERC20Dispatcher { contract_address: token };
+                assert(
+                    token_dispatcher.transfer(beneficiary, amount), Errors::TOKEN_TRANSFER_FAILED
+                );
+            }
             amount
         }
     }
@@ -159,13 +168,10 @@ pub mod VestingComponent {
     > of InternalTrait<TContractState> {
         /// Initializes the component by setting the vesting `start`, `duration` and
         /// `cliff_duration`.
-        /// To prevent reinitialization, this should only be used inside of a contract's
-        /// constructor.
         ///
         /// Requirements:
         ///
         /// - `cliff_duration` must be less than or equal to `duration`.
-        ///
         fn initializer(
             ref self: ComponentState<TContractState>, start: u64, duration: u64, cliff_duration: u64
         ) {

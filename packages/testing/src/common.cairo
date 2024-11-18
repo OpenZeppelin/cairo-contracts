@@ -3,7 +3,7 @@ use starknet::{ContractAddress, SyscallResult};
 
 /// Converts panic data into a string (ByteArray).
 ///
-/// panic_data is expected to be a valid serialized byte array with an extra
+/// `panic_data` is expected to be a valid serialized byte array with an extra
 /// felt252 at the beginning, which is the BYTE_ARRAY_MAGIC.
 pub fn panic_data_to_byte_array(panic_data: Array<felt252>) -> ByteArray {
     let mut panic_data = panic_data.span();
@@ -39,7 +39,7 @@ pub fn to_base_16_string_no_padding(value: felt252) -> ByteArray {
 }
 
 /// A helper trait that enables any value that can be converted to `felt252` to be represented
-/// as a `base16` string(including the `0x` prefix).
+/// as a `base16` string (including the `0x` prefix).
 #[generate_trait]
 pub impl IntoBase16String<T, +Into<T, felt252>> of IntoBase16StringTrait<T> {
     fn into_base_16_string(self: T) -> ByteArray {

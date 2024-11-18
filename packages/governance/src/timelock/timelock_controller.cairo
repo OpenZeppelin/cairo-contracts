@@ -17,7 +17,7 @@ pub mod TimelockControllerComponent {
     use core::hash::{HashStateTrait, HashStateExTrait};
     use core::num::traits::Zero;
     use core::pedersen::PedersenTrait;
-    use crate::timelock::interface::{ITimelock, TimelockABI};
+    use crate::timelock::interface::{OperationState, ITimelock, TimelockABI};
     use crate::utils::call_impls::{HashCallImpl, HashCallsImpl, CallPartialEq};
     use openzeppelin_access::accesscontrol::AccessControlComponent::InternalTrait as AccessControlInternalTrait;
     use openzeppelin_access::accesscontrol::AccessControlComponent::{
@@ -30,11 +30,8 @@ pub mod TimelockControllerComponent {
     use starknet::ContractAddress;
     use starknet::SyscallResultTrait;
     use starknet::account::Call;
-    use starknet::storage::{
-        Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
-        StoragePointerWriteAccess
-    };
-    use super::OperationState;
+    use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
+    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 
     // Constants
     pub const PROPOSER_ROLE: felt252 = selector!("PROPOSER_ROLE");
@@ -111,6 +108,10 @@ pub mod TimelockControllerComponent {
         pub const UNEXECUTED_PREDECESSOR: felt252 = 'Timelock: awaiting predecessor';
         pub const UNAUTHORIZED_CALLER: felt252 = 'Timelock: unauthorized caller';
     }
+
+    //
+    // External
+    //
 
     #[embeddable_as(TimelockImpl)]
     impl Timelock<
@@ -198,14 +199,16 @@ pub mod TimelockControllerComponent {
                 .finalize()
         }
 
-        /// Schedule an operation containing a single transaction.
+        /// Schedules an operation containing a single transaction.
         ///
         /// Requirements:
         ///
-        /// - the caller must have the `PROPOSER_ROLE` role.
+        /// - The caller must have the `PROPOSER_ROLE` role.
+        /// - The proposal must not already exist.
+        /// - `delay` must be greater than or equal to the min delay.
         ///
         /// Emits `CallScheduled` event.
-        /// If `salt` is not zero, emits `CallSalt` event.
+        /// Emits `CallSalt` event if `salt` is not zero.
         fn schedule(
             ref self: ComponentState<TContractState>,
             call: Call,
@@ -224,14 +227,16 @@ pub mod TimelockControllerComponent {
             }
         }
 
-        /// Schedule an operation containing a batch of transactions.
+        /// Schedules an operation containing a batch of transactions.
         ///
         /// Requirements:
         ///
-        /// - the caller must have the `PROPOSER_ROLE` role.
+        /// - The caller must have the `PROPOSER_ROLE` role.
+        /// - The proposal must not already exist.
+        /// - `delay` must be greater than or equal to the min delay.
         ///
         /// Emits one `CallScheduled` event for each transaction in the batch.
-        /// If `salt` is not zero, emits `CallSalt` event.
+        /// Emits `CallSalt` event if `salt` is not zero.
         fn schedule_batch(
             ref self: ComponentState<TContractState>,
             calls: Span<Call>,
@@ -255,12 +260,12 @@ pub mod TimelockControllerComponent {
             }
         }
 
-        /// Cancel an operation.
+        /// Cancels an operation.
         ///
         /// Requirements:
         ///
         /// - The caller must have the `CANCELLER_ROLE` role.
-        /// - `id` must be an operation.
+        /// - `id` must be a pending operation.
         ///
         /// Emits a `CallCancelled` event.
         fn cancel(ref self: ComponentState<TContractState>, id: felt252) {
@@ -271,7 +276,7 @@ pub mod TimelockControllerComponent {
             self.emit(CallCancelled { id });
         }
 
-        /// Execute a (Ready) operation containing a single Call.
+        /// Executes a (Ready) operation containing a single Call.
         ///
         /// Requirements:
         ///
@@ -299,7 +304,7 @@ pub mod TimelockControllerComponent {
             self._after_call(id);
         }
 
-        /// Execute a (Ready) operation containing a batch of Calls.
+        /// Executes a (Ready) operation containing a batch of Calls.
         ///
         /// Requirements:
         ///
@@ -522,6 +527,10 @@ pub mod TimelockControllerComponent {
         }
     }
 
+    //
+    // Internal
+    //
+
     #[generate_trait]
     pub impl InternalImpl<
         TContractState,
@@ -650,12 +659,4 @@ pub mod TimelockControllerComponent {
             starknet::syscalls::call_contract_syscall(to, selector, calldata).unwrap_syscall();
         }
     }
-}
-
-#[derive(Drop, Serde, PartialEq, Debug)]
-pub enum OperationState {
-    Unset,
-    Waiting,
-    Ready,
-    Done
 }

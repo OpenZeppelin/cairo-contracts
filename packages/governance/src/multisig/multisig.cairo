@@ -130,6 +130,10 @@ pub mod MultisigComponent {
         pub const QUORUM_TOO_HIGH: felt252 = 'Multisig: quorum > signers';
     }
 
+    //
+    // External
+    //
+
     #[embeddable_as(MultisigImpl)]
     impl Multisig<
         TContractState, +HasComponent<TContractState>, +Drop<TContractState>
@@ -140,7 +144,7 @@ pub mod MultisigComponent {
             self.Multisig_signers_info.read().quorum
         }
 
-        /// Returns whether the given `signer` is a registered signer.
+        /// Returns whether the given `signer` is registered.
         /// Only registered signers can submit, confirm, or execute transactions.
         fn is_signer(self: @ComponentState<TContractState>, signer: ContractAddress) -> bool {
             self.Multisig_is_signer.read(signer)
@@ -173,7 +177,8 @@ pub mod MultisigComponent {
         /// NOTE: Even if a `signer` is removed after confirming a transaction, this function will
         /// still return true. However, their confirmation does not count toward the quorum when it
         /// is checked. Therefore, this function should not be relied upon to verify legitimate
-        /// confirmations toward meeting the quorum.
+        /// confirmations toward meeting the quorum. For that, use `get_transaction_confirmations`
+        /// instead.
         fn is_confirmed_by(
             self: @ComponentState<TContractState>, id: TransactionID, signer: ContractAddress
         ) -> bool {
@@ -227,6 +232,7 @@ pub mod MultisigComponent {
         /// - `new_quorum` must be less than or equal to the total number of signers after addition.
         ///
         /// Emits a `SignerAdded` event for each signer added.
+        /// Emits a `QuorumUpdated` event if the quorum changes.
         fn add_signers(
             ref self: ComponentState<TContractState>,
             new_quorum: u32,
@@ -244,6 +250,7 @@ pub mod MultisigComponent {
         /// - `new_quorum` must be less than or equal to the total number of signers after removal.
         ///
         /// Emits a `SignerRemoved` event for each signer removed.
+        /// Emits a `QuorumUpdated` event if the quorum changes.
         fn remove_signers(
             ref self: ComponentState<TContractState>,
             new_quorum: u32,
@@ -260,6 +267,7 @@ pub mod MultisigComponent {
         /// - The caller must be the contract itself.
         /// - `signer_to_remove` must be an existing signer.
         /// - `signer_to_add` must not be an existing signer.
+        /// - `signer_to_add` must be a non-zero address.
         ///
         /// Emits a `SignerRemoved` event for the removed signer.
         /// Emits a `SignerAdded` event for the new signer.
@@ -291,9 +299,10 @@ pub mod MultisigComponent {
         /// Requirements:
         ///
         /// - The caller must be a registered signer.
+        /// - The transaction must not have been submitted before.
         ///
         /// Emits a `TransactionSubmitted` event.
-        /// If `salt` is not zero, emits a `CallSalt` event.
+        /// Emits a `CallSalt` event if `salt` is not zero.
         fn submit_transaction(
             ref self: ComponentState<TContractState>,
             to: ContractAddress,
@@ -310,9 +319,10 @@ pub mod MultisigComponent {
         /// Requirements:
         ///
         /// - The caller must be a registered signer.
+        /// - The transaction must not have been submitted before.
         ///
         /// Emits a `TransactionSubmitted` event.
-        /// If `salt` is not zero, emits a `CallSalt` event.
+        /// Emits a `CallSalt` event if `salt` is not zero.
         fn submit_transaction_batch(
             ref self: ComponentState<TContractState>, calls: Span<Call>, salt: felt252
         ) -> TransactionID {
@@ -440,6 +450,10 @@ pub mod MultisigComponent {
             PedersenTrait::new(0).update_with(calls).update_with(salt).finalize()
         }
     }
+
+    //
+    // Internal
+    //
 
     #[generate_trait]
     pub impl InternalImpl<

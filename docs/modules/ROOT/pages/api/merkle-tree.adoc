@@ -1,7 +1,7 @@
 :github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
 :strk-merkle-tree: https://github.com/ericnordelo/strk-merkle-tree[JavaScript library]
 :verify: xref:#merkle_proof-verify[verify]
-:verify_pedersen: xref:#merkle_proof-verify_perdersen[verify_pedersen]
+:verify_pedersen: xref:#merkle_proof-verify_pedersen[verify_pedersen]
 :verify_poseidon: xref:#merkle_proof-verify_poseidon[verify_poseidon]
 :verify_multi_proof: xref:#merkle_proof-verify_multi_proof[verify_multi_proof]
 :process_multi_proof: xref:#merkle_proof-process_multi_proof[process_multi_proof]
@@ -40,7 +40,7 @@ These functions deal with verification of Merkle Tree proofs.
 
 The tree and the proofs can be generated using this {strk-merkle-tree}. You will find a quickstart guide in the readme.
 
-WARNING: You should avoid using leaf values that are two felt252 long prior to hashing, or use a hash function
+WARNING: You should avoid using leaf values that are two felt252 values long prior to hashing, or use a hash function
 other than the one used to hash internal nodes for hashing leaves. This is because the concatenation of a sorted pair
 of internal nodes in the Merkle tree could be reinterpreted as a leaf value. The JavaScript library generates Merkle
 trees that are safe against this attack out of the box.
@@ -80,7 +80,7 @@ This function expects a `CommutativeHasher` implementation. See xref:#hashes-Com
 [[merkle_proof-verify_pedersen]]
 ==== `[.contract-item-name]#++verify_pedersen++#++(proof: Span<felt252>, root: felt252, leaf: felt252) → bool++` [.item-kind]#public#
 
-Version of `{verify}` using Perdersen as the hashing function.
+Version of `{verify}` using Pedersen as the hashing function.
 
 [.contract-item]
 [[merkle_proof-verify_poseidon]]
@@ -131,7 +131,7 @@ Not all Merkle trees admit multiproofs.
 To use multiproofs, it is sufficient to ensure that:
 
 1. The tree is complete (but not necessarily perfect).
-2. The leaves to be proven are in the opposite order they are in the tree.
+2. The leaves to be proven are in the opposite order than they are in the tree.
 (i.e., as seen from right to left starting at the deepest layer and continuing at the next layer).
 ====
 
@@ -182,7 +182,7 @@ Declares a commutative hash function with the following signature:
 
 `commutative_hash(a: felt252, b: felt252) -> felt252;`
 
-which computes a commutative hash of a sorted pair of `felt252`.
+which computes a commutative hash of a sorted pair of felt252 values.
 
 This is usually implemented as an extension of a non-commutative hash function, like
 Pedersen or Poseidon, returning the hash of the concatenation of the two values by first

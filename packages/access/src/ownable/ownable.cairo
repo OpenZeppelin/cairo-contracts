@@ -63,7 +63,6 @@ pub mod OwnableComponent {
     pub mod Errors {
         pub const NOT_OWNER: felt252 = 'Caller is not the owner';
         pub const NOT_PENDING_OWNER: felt252 = 'Caller is not the pending owner';
-        pub const ZERO_ADDRESS_CALLER: felt252 = 'Caller is the zero address';
         pub const ZERO_ADDRESS_OWNER: felt252 = 'New owner is the zero address';
     }
 

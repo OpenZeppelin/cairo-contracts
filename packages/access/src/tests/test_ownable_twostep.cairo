@@ -97,13 +97,6 @@ fn test_transfer_ownership_to_zero() {
 }
 
 #[test]
-#[should_panic(expected: ('Caller is the zero address',))]
-fn test_transfer_ownership_from_zero() {
-    let mut state = setup();
-    state.transfer_ownership(OTHER());
-}
-
-#[test]
 #[should_panic(expected: ('Caller is not the owner',))]
 fn test_transfer_ownership_from_nonowner() {
     let mut state = setup();
@@ -142,13 +135,6 @@ fn test_transferOwnership_to_zero() {
     spy.assert_event_ownership_transfer_started(contract_address, OWNER(), ZERO());
     assert_eq!(state.owner(), OWNER());
     assert!(state.pendingOwner().is_zero());
-}
-
-#[test]
-#[should_panic(expected: ('Caller is the zero address',))]
-fn test_transferOwnership_from_zero() {
-    let mut state = setup();
-    state.transferOwnership(OTHER());
 }
 
 #[test]
@@ -245,13 +231,6 @@ fn test_renounce_ownership_resets_pending_owner() {
 }
 
 #[test]
-#[should_panic(expected: ('Caller is the zero address',))]
-fn test_renounce_ownership_from_zero_address() {
-    let mut state = setup();
-    state.renounce_ownership();
-}
-
-#[test]
 #[should_panic(expected: ('Caller is not the owner',))]
 fn test_renounce_ownership_from_nonowner() {
     let mut state = setup();
@@ -270,13 +249,6 @@ fn test_renounceOwnership() {
     spy.assert_only_event_ownership_transferred(contract_address, OWNER(), ZERO());
 
     assert!(state.owner().is_zero());
-}
-
-#[test]
-#[should_panic(expected: ('Caller is the zero address',))]
-fn test_renounceOwnership_from_zero_address() {
-    let mut state = setup();
-    state.renounceOwnership();
 }
 
 #[test]

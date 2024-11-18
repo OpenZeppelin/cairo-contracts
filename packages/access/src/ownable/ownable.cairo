@@ -36,10 +36,7 @@ pub mod OwnableComponent {
     }
 
     /// Emitted when `new_owner` is set as owner of the contract.
-    /// `previous_owner` is the address of the previous owner. It will be the zero address if
-    /// the ownership is transferred from the constructor.
-    /// `new_owner` is the address of the new owner. It will be the zero address if the ownership
-    /// is renounced.
+    /// `new_owner` can be set to zero only if the ownership is renounced.
     #[derive(Drop, PartialEq, starknet::Event)]
     pub struct OwnershipTransferred {
         #[key]

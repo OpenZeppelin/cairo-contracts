@@ -410,9 +410,11 @@ fn test_propose_external_version(external_state_version: bool) {
     let contract_address = test_address();
 
     let calls = get_calls(OTHER(), false);
-    let description = "proposal description";
-    let description_snap = @description;
     let proposer = ADMIN();
+    let address = ADMIN().to_byte_array(16, 64);
+    let mut description: ByteArray = "proposal description#proposer=0x";
+    description.append(@address);
+    let description_snap = @description;
     let vote_start = starknet::get_block_timestamp() + GovernorMock::VOTING_DELAY;
     let vote_end = vote_start + GovernorMock::VOTING_PERIOD;
 
@@ -566,6 +568,50 @@ fn test_execute() {
     assert_eq!(state, ProposalState::Executed);
 
     spy.assert_only_event_proposal_executed(governor.contract_address, id);
+}
+
+#[test]
+#[should_panic(expected: 'Expected failure')]
+fn test_execute_panics() {
+    let (mut governor, target) = setup_dispatchers();
+    let new_number = 125;
+
+    let call = Call {
+        to: target.contract_address,
+        selector: selector!("failing_function"),
+        calldata: array![].span()
+    };
+    let calls = array![call].span();
+    let description = "proposal description";
+
+    // Mock the get_past_votes call
+    let quorum = GovernorMock::QUORUM;
+    start_mock_call(VOTES_TOKEN(), selector!("get_past_votes"), quorum);
+
+    // 1. Propose
+    let mut current_time = 10;
+    start_cheat_block_timestamp_global(current_time);
+    let id = governor.propose(calls, description.clone());
+
+    // 2. Cast vote
+
+    // Fast forward the vote delay
+    current_time += GovernorMock::VOTING_DELAY;
+    start_cheat_block_timestamp_global(current_time);
+
+    // Cast vote
+    governor.cast_vote(id, 1);
+
+    // 3. Execute
+
+    // Fast forward the vote duration
+    current_time += (GovernorMock::VOTING_PERIOD + 1);
+    start_cheat_block_timestamp_global(current_time);
+
+    let state = governor.state(id);
+    assert_eq!(state, ProposalState::Succeeded);
+
+    governor.execute(calls, (@description).hash());
 }
 
 #[test]
@@ -1244,7 +1290,6 @@ fn test_cast_vote_with_reason_and_params_by_sig_invalid_signature() {
     let reason = "proposal reason";
     let params = array!['param'].span();
 
-    // Use invalid nonce (not the account's current nonce)
     let (governor, r, s, proposal_id, support, voter, _) =
         prepare_governor_and_signature_with_reason_and_params(
         @reason, params, 0
@@ -1264,9 +1309,10 @@ fn test_cast_vote_with_reason_and_params_by_sig_invalid_msg_hash() {
     let params = array!['param'].span();
 
     // Use invalid nonce (not the account's current nonce)
+    let invalid_nonce = 1;
     let (governor, r, s, proposal_id, support, voter, _) =
         prepare_governor_and_signature_with_reason_and_params(
-        @reason, params, 1
+        @reason, params, invalid_nonce
     );
 
     // Cast vote with invalid msg hash
@@ -1348,6 +1394,23 @@ fn test_relay() {
 
     let number = target.get_number();
     assert_eq!(number, new_number);
+}
+
+#[test]
+#[should_panic(expected: 'Expected failure')]
+fn test_relay_panics() {
+    let (mut governor, target) = setup_dispatchers();
+    let new_number = 1;
+    let contract_address = governor.contract_address;
+
+    let call = Call {
+        to: target.contract_address,
+        selector: selector!("failing_function"),
+        calldata: array![].span()
+    };
+
+    start_cheat_caller_address(contract_address, contract_address);
+    governor.relay(call);
 }
 
 #[test]

@@ -122,7 +122,7 @@ pub mod GovernorComponent {
     /// - `DEFAULT_PARAMS`: Default additional encoded parameters used by cast_vote
     /// methods that don't include them.
     pub trait ImmutableConfig {
-        /// Temporary defined as a function since constant ByteArray is not supported yet.
+        /// Defined as a function since constant Span<felt252> is not supported.
         fn DEFAULT_PARAMS() -> Span<felt252>;
     }
 
@@ -204,7 +204,7 @@ pub mod GovernorComponent {
         /// governor as the only proposer, canceller, and executor.
         ///
         /// WARNING: When the executor is not the governor itself (i.e. a timelock), it can call
-        /// functions that are restricted with the `assert_only_governance` modifier, and also
+        /// functions that are restricted with the `assert_only_governance` guard, and also
         /// potentially execute transactions on behalf of the governor. Because of this, this module
         /// is designed to work with the TimelockController as the unique potential external
         /// executor.
@@ -586,8 +586,9 @@ pub mod GovernorComponent {
         ///
         /// - The proposal must be active.
         ///
-        /// Emits a `VoteCast` event if no params are provided.
-        /// Emits a `VoteCastWithParams` event otherwise.
+        /// Emits either:
+        /// - `VoteCast` event if no params are provided.
+        /// - `VoteCastWithParams` event otherwise.
         fn cast_vote_with_reason_and_params(
             ref self: ComponentState<TContractState>,
             proposal_id: felt252,
@@ -647,8 +648,9 @@ pub mod GovernorComponent {
         /// - `voter` must implement `SRC6::is_valid_signature`.
         /// - `signature` should be valid for the message hash.
         ///
-        /// Emits a `VoteCast` event if no params are provided.
-        /// Emits a `VoteCastWithParams` event otherwise.
+        /// Emits either:
+        /// - `VoteCast` event if no params are provided.
+        /// - `VoteCastWithParams` event otherwise.
         fn cast_vote_with_reason_and_params_by_sig(
             ref self: ComponentState<TContractState>,
             proposal_id: felt252,
@@ -713,7 +715,7 @@ pub mod GovernorComponent {
         impl SRC5: SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
-        /// Initializes the contract by registering the supported interface Ids.
+        /// Initializes the contract by registering the supported interface id.
         fn initializer(ref self: ComponentState<TContractState>) {
             let mut src5_component = get_dep_component_mut!(ref self, SRC5);
             src5_component.register_interface(IGOVERNOR_ID);
@@ -994,8 +996,9 @@ pub mod GovernorComponent {
         /// Checks that the vote is pending, that it has not been cast yet, retrieve
         /// voting weight using `get_votes` and call the `_count_vote` internal function.
         ///
-        /// Emits a `VoteCast` event if no params are provided.
-        /// Emits a `VoteCastWithParams` event otherwise.
+        /// Emits either:
+        /// - `VoteCast` event if no params are provided.
+        /// - `VoteCastWithParams` event otherwise.
         fn _cast_vote(
             ref self: ComponentState<TContractState>,
             proposal_id: felt252,

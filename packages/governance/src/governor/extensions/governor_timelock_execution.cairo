@@ -29,7 +29,7 @@ pub mod GovernorTimelockExecutionComponent {
     use crate::governor::GovernorComponent;
     use crate::governor::extensions::interface::ITimelocked;
     use crate::governor::interface::ProposalState;
-    use crate::timelock::interface::{ITimelockDispatcher, ITimelockDispatcherTrait};
+    use crate::timelock::interface::{OperationState, ITimelockDispatcher, ITimelockDispatcherTrait};
     use openzeppelin_introspection::src5::SRC5Component;
     use starknet::ContractAddress;
     use starknet::account::Call;
@@ -91,10 +91,15 @@ pub mod GovernorTimelockExecutionComponent {
 
             let queue_id = this_component.Governor_timelock_ids.read(proposal_id);
             let timelock_dispatcher = this_component.get_timelock_dispatcher();
+            let operation_state = timelock_dispatcher.get_operation_state(queue_id);
 
-            if timelock_dispatcher.is_operation_pending(queue_id) {
+            let is_timelock_operation_pending = operation_state == OperationState::Waiting
+                || operation_state == OperationState::Ready;
+            let is_timelock_operation_done = operation_state == OperationState::Done;
+
+            if is_timelock_operation_pending {
                 ProposalState::Queued
-            } else if timelock_dispatcher.is_operation_done(queue_id) {
+            } else if is_timelock_operation_done {
                 // This can happen if the proposal is executed directly on the timelock.
                 ProposalState::Executed
             } else {

@@ -27,7 +27,7 @@ pub mod GovernorCountingSimpleComponent {
     pub enum VoteType {
         Against,
         For,
-        Abstain,
+        Abstain
     }
 
     impl U8TryIntoVoteType of TryInto<u8, VoteType> {

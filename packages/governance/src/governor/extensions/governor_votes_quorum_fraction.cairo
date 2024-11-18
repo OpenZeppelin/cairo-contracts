@@ -134,17 +134,15 @@ pub mod GovernorVotesQuorumFractionComponent {
             // The initializer call ensures that there is at least one checkpoint in the history.
             //
             // NOTE: This optimization is especially helpful when the supply is not updated often.
-            let (_, key, value) = self
-                .Governor_quorum_numerator_history
-                .deref()
-                .latest_checkpoint();
+            let history = self.Governor_quorum_numerator_history.deref();
+            let (_, key, value) = history.latest_checkpoint();
 
             if key <= timepoint {
                 return value;
             }
 
             // Fallback to the binary search
-            self.Governor_quorum_numerator_history.deref().upper_lookup(timepoint)
+            history.upper_lookup(timepoint)
         }
 
         /// Returns the quorum denominator.

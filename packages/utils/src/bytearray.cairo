@@ -48,7 +48,7 @@ pub fn to_byte_array<T, +Into<T, felt252>, +Copy<T>>(
 /// Returns a unique hash given a ByteArray.
 ///
 /// The hash is computed by serializing the data into a span of felts, and
-/// then hashing the span using the Poseidon hash algorithm.
+/// then hashing the span using the Pedersen hash algorithm.
 pub fn hash_byte_array(data: @ByteArray) -> felt252 {
     let mut serialized = array![];
 
@@ -86,7 +86,7 @@ pub impl ByteArrayExtImpl of ByteArrayExtTrait {
         to_byte_array(self, base, padding)
     }
 
-    /// Hashes a byte array using the Poseidon hash algorithm.
+    /// Hashes a byte array using the Pedersen hash algorithm.
     /// Encodes the byte array as a ´Span<felt252>´ by serializing ´data´.
     fn hash(self: @ByteArray) -> felt252 {
         hash_byte_array(self)

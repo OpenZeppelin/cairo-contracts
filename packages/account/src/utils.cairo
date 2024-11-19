@@ -22,8 +22,9 @@ pub fn execute_calls(calls: Span<Call>) -> Array<Span<felt252>> {
     res
 }
 
-/// - If the transaction is a simulation (version >= `QUERY_OFFSET`), it must be
-/// greater than or equal to `QUERY_OFFSET` + `MIN_TRANSACTION_VERSION`.
+/// If the transaction is a simulation (version >= `QUERY_OFFSET`), it must be
+/// greater than or equal to `QUERY_OFFSET` + `MIN_TRANSACTION_VERSION` to be considered valid.
+/// Otherwise, it must be greater than or equal to `MIN_TRANSACTION_VERSION`.
 pub fn is_tx_version_valid() -> bool {
     let tx_info = starknet::get_tx_info().unbox();
     let tx_version = tx_info.version.into();

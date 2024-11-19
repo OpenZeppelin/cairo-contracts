@@ -182,7 +182,7 @@ pub mod AccessControlComponent {
         impl SRC5: SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
-        /// Initializes the contract by registering the IAccessControl interface Id.
+        /// Initializes the contract by registering the IAccessControl interface ID.
         fn initializer(ref self: ComponentState<TContractState>) {
             let mut src5_component = get_dep_component_mut!(ref self, SRC5);
             src5_component.register_interface(interface::IACCESSCONTROL_ID);

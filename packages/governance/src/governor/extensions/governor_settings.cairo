@@ -184,9 +184,9 @@ pub mod GovernorSettingsComponent {
             new_voting_period: u64,
             new_proposal_threshold: u256
         ) {
-            self.set_voting_delay(new_voting_delay);
-            self.set_voting_period(new_voting_period);
-            self.set_proposal_threshold(new_proposal_threshold);
+            self._set_voting_delay(new_voting_delay);
+            self._set_voting_period(new_voting_period);
+            self._set_proposal_threshold(new_proposal_threshold);
         }
 
         /// Wrapper for `Governor::assert_only_governance`.

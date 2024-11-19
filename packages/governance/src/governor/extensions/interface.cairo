@@ -29,6 +29,9 @@ pub trait ITimelocked<TState> {
     /// Returns address of the associated timelock.
     fn timelock(self: @TState) -> ContractAddress;
 
+    /// Returns the timelock proposal id for a given proposal id.
+    fn get_timelock_id(self: @TState, proposal_id: felt252) -> felt252;
+
     /// Updates the associated timelock.
     fn update_timelock(ref self: TState, new_timelock: ContractAddress);
 }

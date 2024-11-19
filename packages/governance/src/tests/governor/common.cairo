@@ -96,6 +96,12 @@ pub fn get_mock_state(
     }
 }
 
+pub fn set_executor(
+    ref mock_state: GovernorTimelockedMock::ContractState, executor: ContractAddress
+) {
+    mock_state.governor_timelock_execution.Governor_timelock_controller.write(executor);
+}
+
 //
 // Setup proposals
 //

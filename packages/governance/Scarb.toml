@@ -47,6 +47,7 @@ name = "openzeppelin_governance_unittest"
 build-external-contracts = [
     "openzeppelin_test_common::mocks::account::SnakeAccountMock",
     "openzeppelin_test_common::mocks::governor::GovernorMock",
+    "openzeppelin_test_common::mocks::governor::GovernorTimelockedMock",
     "openzeppelin_test_common::mocks::timelock::TimelockControllerMock",
     "openzeppelin_test_common::mocks::timelock::MockContract",
     "openzeppelin_test_common::mocks::timelock::TimelockAttackerMock",

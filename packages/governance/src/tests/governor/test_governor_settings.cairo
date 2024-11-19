@@ -5,11 +5,11 @@ use crate::governor::extensions::GovernorSettingsComponent::{
     GovernorSettings, GovernorSettingsAdminImpl
 };
 use crate::governor::extensions::GovernorSettingsComponent;
+use crate::tests::governor::common::set_executor;
 use crate::tests::governor::common::{
     COMPONENT_STATE_TIMELOCKED as COMPONENT_STATE, CONTRACT_STATE_TIMELOCKED as CONTRACT_STATE
 };
 use openzeppelin_test_common::mocks::governor::GovernorTimelockedMock::SNIP12MetadataImpl;
-use openzeppelin_test_common::mocks::governor::GovernorTimelockedMock;
 use openzeppelin_testing::constants::OTHER;
 use openzeppelin_testing::events::EventSpyExt;
 use snforge_std::start_cheat_caller_address;
@@ -386,14 +386,6 @@ fn test__set_proposal_threshold_no_change() {
     assert_eq!(GovernorSettings::proposal_threshold(component_state), expected);
 
     spy.assert_no_events_left();
-}
-
-//
-// Helpers
-//
-
-fn set_executor(ref mock_state: GovernorTimelockedMock::ContractState, executor: ContractAddress) {
-    mock_state.governor_timelock_execution.Governor_timelock_controller.write(executor);
 }
 
 //

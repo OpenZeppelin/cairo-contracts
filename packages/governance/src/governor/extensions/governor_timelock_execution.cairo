@@ -66,6 +66,9 @@ pub mod GovernorTimelockExecutionComponent {
     // Extensions
     //
 
+    /// NOTE: Some of these function can reenter through the external calls to the timelock, but we
+    /// assume the timelock is trusted and well behaved (according to TimelockController) and this
+    /// will not happen.
     pub impl GovernorExecution<
         TContractState,
         +GovernorComponent::HasComponent<TContractState>,
@@ -174,10 +177,6 @@ pub mod GovernorTimelockExecutionComponent {
         /// See `GovernorComponent::GovernorExecutionTrait::cancel_operations`.
         ///
         /// Cancels the timelocked proposal if it has already been queued.
-        ///
-        /// NOTE: This function can reenter through the external call to the timelock, but we assume
-        /// the timelock is trusted and well behaved (according to TimelockController) and this will
-        /// not happen.
         fn cancel_operations(
             ref self: GovernorComponentState<TContractState>,
             proposal_id: felt252,
@@ -216,6 +215,13 @@ pub mod GovernorTimelockExecutionComponent {
         /// Returns the token that voting power is sourced from.
         fn timelock(self: @ComponentState<TContractState>) -> ContractAddress {
             self.Governor_timelock_controller.read()
+        }
+
+        /// Returns the timelock proposal id for a given proposal id.
+        fn get_timelock_id(
+            self: @ComponentState<TContractState>, proposal_id: felt252
+        ) -> TimelockProposalId {
+            self.Governor_timelock_ids.read(proposal_id)
         }
 
         /// Updates the associated timelock.

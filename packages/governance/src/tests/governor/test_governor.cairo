@@ -19,7 +19,7 @@ use openzeppelin_test_common::mocks::timelock::{
     IMockContractDispatcher, IMockContractDispatcherTrait
 };
 use openzeppelin_testing as utils;
-use openzeppelin_testing::constants::{ADMIN, OTHER, ZERO};
+use openzeppelin_testing::constants::{ADMIN, OTHER, ZERO, VOTES_TOKEN};
 use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_utils::bytearray::ByteArrayExtTrait;
 use openzeppelin_utils::cryptography::snip12::OffchainMessageHash;
@@ -32,14 +32,6 @@ use snforge_std::{EventSpy, spy_events, test_address};
 use starknet::account::Call;
 use starknet::storage::{StoragePathEntry, StoragePointerWriteAccess, StorageMapWriteAccess};
 use starknet::{ContractAddress, contract_address_const};
-
-//
-// Constants
-//
-
-fn VOTES_TOKEN() -> ContractAddress {
-    contract_address_const::<'VOTES_TOKEN'>()
-}
 
 //
 // Dispatchers
@@ -2068,6 +2060,22 @@ pub(crate) impl GovernorSpyHelpersImpl of GovernorSpyHelpers {
             .assert_event_vote_cast_with_params(
                 contract, voter, proposal_id, support, weight, reason, params
             );
+        self.assert_no_events_left_from(contract);
+    }
+
+    fn assert_event_proposal_queued(
+        ref self: EventSpy, contract: ContractAddress, proposal_id: felt252, eta_seconds: u64
+    ) {
+        let expected = GovernorComponent::Event::ProposalQueued(
+            GovernorComponent::ProposalQueued { proposal_id, eta_seconds }
+        );
+        self.assert_emitted_single(contract, expected);
+    }
+
+    fn assert_only_event_proposal_queued(
+        ref self: EventSpy, contract: ContractAddress, proposal_id: felt252, eta_seconds: u64
+    ) {
+        self.assert_event_proposal_queued(contract, proposal_id, eta_seconds);
         self.assert_no_events_left_from(contract);
     }
 

@@ -56,7 +56,7 @@ pub trait SNIP12Metadata {
 /// The hash state hashes the following in order:
 ///
 /// - 'StarkNet Message' short string.
-/// - Starknet domain.
+/// - Starknet domain struct hash.
 /// - `signer` of the message.
 /// - Hashed struct of the message.
 pub(crate) impl OffchainMessageHashImpl<

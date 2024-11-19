@@ -49,9 +49,6 @@ pub mod GovernorVotesQuorumFractionComponent {
     pub impl GovernorQuorum<
         TContractState,
         +GovernorComponent::HasComponent<TContractState>,
-        +GovernorComponent::GovernorVotesTrait<TContractState>,
-        +GovernorComponent::GovernorExecutionTrait<TContractState>,
-        +GovernorComponent::GovernorCountingTrait<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         impl GovernorVotesQuorumFraction: HasComponent<TContractState>,
         +Drop<TContractState>
@@ -72,11 +69,9 @@ pub mod GovernorVotesQuorumFractionComponent {
         }
     }
 
-    pub impl GovernorVotesImpl<
+    pub impl GovernorVotes<
         TContractState,
         +GovernorComponent::HasComponent<TContractState>,
-        +GovernorComponent::GovernorExecutionTrait<TContractState>,
-        +GovernorComponent::GovernorCountingTrait<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         impl GovernorVotesQuorumFraction: HasComponent<TContractState>,
         +Drop<TContractState>

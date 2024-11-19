@@ -336,7 +336,7 @@ fn test_quorum(timepoint: u64) {
 
     let threshold = state.quorum(timepoint);
     let expected = if timepoint == Bounded::MAX {
-         Bounded::MAX
+        Bounded::MAX
     } else {
         GovernorMock::QUORUM
     };

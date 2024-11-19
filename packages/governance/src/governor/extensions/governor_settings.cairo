@@ -114,12 +114,7 @@ pub mod GovernorSettingsComponent {
         /// May emit a `VotingDelayUpdated` event.
         fn set_voting_delay(ref self: ComponentState<TContractState>, new_voting_delay: u64) {
             self.assert_only_governance();
-
-            let old_voting_delay = self.Governor_voting_delay.read();
-            if old_voting_delay != new_voting_delay {
-                self.emit(VotingDelayUpdated { old_voting_delay, new_voting_delay });
-                self.Governor_voting_delay.write(new_voting_delay);
-            }
+            self._set_voting_delay(new_voting_delay);
         }
 
         /// Sets the voting period.
@@ -134,13 +129,7 @@ pub mod GovernorSettingsComponent {
         /// May emit a `VotingPeriodUpdated` event.
         fn set_voting_period(ref self: ComponentState<TContractState>, new_voting_period: u64) {
             self.assert_only_governance();
-            assert(new_voting_period > 0, Errors::INVALID_VOTING_PERIOD);
-
-            let old_voting_period = self.Governor_voting_period.read();
-            if old_voting_period != new_voting_period {
-                self.emit(VotingPeriodUpdated { old_voting_period, new_voting_period });
-                self.Governor_voting_period.write(new_voting_period);
-            }
+            self._set_voting_period(new_voting_period);
         }
 
         /// Sets the proposal threshold.
@@ -153,15 +142,7 @@ pub mod GovernorSettingsComponent {
             ref self: ComponentState<TContractState>, new_proposal_threshold: u256
         ) {
             self.assert_only_governance();
-
-            let old_proposal_threshold = self.Governor_proposal_threshold.read();
-            if old_proposal_threshold != new_proposal_threshold {
-                let event = ProposalThresholdUpdated {
-                    old_proposal_threshold, new_proposal_threshold
-                };
-                self.emit(event);
-                self.Governor_proposal_threshold.write(new_proposal_threshold);
-            }
+            self._set_proposal_threshold(new_proposal_threshold);
         }
     }
 
@@ -203,6 +184,59 @@ pub mod GovernorSettingsComponent {
         fn assert_only_governance(self: @ComponentState<TContractState>) {
             let governor_component = get_dep_component!(self, Governor);
             governor_component.assert_only_governance();
+        }
+
+        /// Internal function to update the voting delay.
+        ///
+        /// NOTE: This function does not emit an event if the new voting delay is the same as the
+        /// old one.
+        ///
+        /// May emit a `VotingDelayUpdated` event.
+        fn _set_voting_delay(ref self: ComponentState<TContractState>, new_voting_delay: u64) {
+            let old_voting_delay = self.Governor_voting_delay.read();
+            if old_voting_delay != new_voting_delay {
+                self.emit(VotingDelayUpdated { old_voting_delay, new_voting_delay });
+                self.Governor_voting_delay.write(new_voting_delay);
+            }
+        }
+
+        /// Internal function to update the voting period.
+        ///
+        /// NOTE: This function does not emit an event if the new voting period is the same as the
+        /// old one.
+        ///
+        /// Requirements:
+        ///
+        /// - `new_voting_period` must be greater than 0.
+        ///
+        /// May emit a `VotingPeriodUpdated` event.
+        fn _set_voting_period(ref self: ComponentState<TContractState>, new_voting_period: u64) {
+            assert(new_voting_period > 0, Errors::INVALID_VOTING_PERIOD);
+
+            let old_voting_period = self.Governor_voting_period.read();
+            if old_voting_period != new_voting_period {
+                self.emit(VotingPeriodUpdated { old_voting_period, new_voting_period });
+                self.Governor_voting_period.write(new_voting_period);
+            }
+        }
+
+        /// Internal function to update the proposal threshold.
+        ///
+        /// NOTE: This function does not emit an event if the new proposal threshold is the same as
+        /// the old one.
+        ///
+        /// May emit a `ProposalThresholdUpdated` event.
+        fn _set_proposal_threshold(
+            ref self: ComponentState<TContractState>, new_proposal_threshold: u256
+        ) {
+            let old_proposal_threshold = self.Governor_proposal_threshold.read();
+            if old_proposal_threshold != new_proposal_threshold {
+                let event = ProposalThresholdUpdated {
+                    old_proposal_threshold, new_proposal_threshold
+                };
+                self.emit(event);
+                self.Governor_proposal_threshold.write(new_proposal_threshold);
+            }
         }
     }
 }

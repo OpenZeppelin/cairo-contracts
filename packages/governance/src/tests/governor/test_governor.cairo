@@ -23,13 +23,12 @@ use openzeppelin_testing::constants::{ADMIN, OTHER, ZERO};
 use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_utils::bytearray::ByteArrayExtTrait;
 use openzeppelin_utils::cryptography::snip12::OffchainMessageHash;
-use snforge_std::EventSpy;
 use snforge_std::signature::stark_curve::{StarkCurveKeyPairImpl, StarkCurveSignerImpl};
 use snforge_std::{
     start_cheat_caller_address, start_cheat_block_timestamp_global, start_cheat_chain_id_global,
     start_mock_call
 };
-use snforge_std::{spy_events, test_address};
+use snforge_std::{EventSpy, spy_events, test_address};
 use starknet::account::Call;
 use starknet::storage::{StoragePathEntry, StoragePointerWriteAccess, StorageMapWriteAccess};
 use starknet::{ContractAddress, contract_address_const};

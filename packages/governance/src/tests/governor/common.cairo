@@ -5,7 +5,7 @@ use crate::governor::interface::{IGovernor, ProposalState};
 use crate::governor::{DefaultConfig, GovernorComponent, ProposalCore};
 use crate::utils::call_impls::{HashCallImpl, HashCallsImpl};
 use openzeppelin_test_common::mocks::governor::GovernorMock::SNIP12MetadataImpl;
-use openzeppelin_test_common::mocks::governor::GovernorMock;
+use openzeppelin_test_common::mocks::governor::{GovernorMock, GovernorTimelockedMock};
 use openzeppelin_testing::constants::{ADMIN, OTHER};
 use openzeppelin_utils::bytearray::ByteArrayExtTrait;
 use snforge_std::{start_cheat_block_timestamp_global, start_mock_call};
@@ -14,12 +14,22 @@ use starknet::account::Call;
 use starknet::storage::{StoragePathEntry, StoragePointerWriteAccess, StorageMapWriteAccess};
 
 pub type ComponentState = GovernorComponent::ComponentState<GovernorMock::ContractState>;
+pub type ComponentStateTimelocked =
+    GovernorComponent::ComponentState<GovernorTimelockedMock::ContractState>;
 
 pub fn CONTRACT_STATE() -> GovernorMock::ContractState {
     GovernorMock::contract_state_for_testing()
 }
 
 pub fn COMPONENT_STATE() -> ComponentState {
+    GovernorComponent::component_state_for_testing()
+}
+
+pub fn CONTRACT_STATE_TIMELOCKED() -> GovernorTimelockedMock::ContractState {
+    GovernorTimelockedMock::contract_state_for_testing()
+}
+
+pub fn COMPONENT_STATE_TIMELOCKED() -> ComponentStateTimelocked {
     GovernorComponent::component_state_for_testing()
 }
 

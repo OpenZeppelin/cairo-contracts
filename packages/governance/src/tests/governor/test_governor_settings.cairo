@@ -231,10 +231,10 @@ fn test_initializer() {
     mock_state.governor_settings.initializer(15, 45, 100);
 
     assert_eq!(GovernorSettings::voting_delay(component_state), 15);
-    spy.assert_only_event_voting_delay_updated(test_address(), 0, 15);
+    spy.assert_event_voting_delay_updated(test_address(), 0, 15);
 
     assert_eq!(GovernorSettings::voting_period(component_state), 45);
-    spy.assert_only_event_voting_period_updated(test_address(), 0, 45);
+    spy.assert_event_voting_period_updated(test_address(), 0, 45);
 
     assert_eq!(GovernorSettings::proposal_threshold(component_state), 100);
     spy.assert_only_event_proposal_threshold_updated(test_address(), 0, 100);

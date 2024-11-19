@@ -111,6 +111,10 @@ pub mod GovernorSettingsComponent {
         /// NOTE: This function does not emit an event if the new voting delay is the same as the
         /// old one.
         ///
+        /// Requirements:
+        ///
+        /// - Caller must be the governance executor.
+        ///
         /// May emit a `VotingDelayUpdated` event.
         fn set_voting_delay(ref self: ComponentState<TContractState>, new_voting_delay: u64) {
             self.assert_only_governance();
@@ -124,6 +128,7 @@ pub mod GovernorSettingsComponent {
         ///
         /// Requirements:
         ///
+        /// - Caller must be the governance executor.
         /// - `new_voting_period` must be greater than 0.
         ///
         /// May emit a `VotingPeriodUpdated` event.
@@ -136,6 +141,10 @@ pub mod GovernorSettingsComponent {
         ///
         /// NOTE: This function does not emit an event if the new proposal threshold is the same as
         /// the old one.
+        ///
+        /// Requirements:
+        ///
+        /// - Caller must be the governance executor.
         ///
         /// May emit a `ProposalThresholdUpdated` event.
         fn set_proposal_threshold(

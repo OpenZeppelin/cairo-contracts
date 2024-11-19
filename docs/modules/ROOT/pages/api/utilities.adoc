@@ -136,7 +136,7 @@ Returns the contract address when passing the given arguments to {deploy_syscall
 
 [.contract-item]
 [[deployments-compute_hash_on_elements]]
-==== `[.contract-item-name]#++compute_hash_on_elements++#++(mut data: Span<felt252>) → felt252++` [.item-kind]#function#
+==== `[.contract-item-name]#++compute_hash_on_elements++#++(data: Span<felt252>) → felt252++` [.item-kind]#function#
 
 Creates a Pedersen hash chain with the elements of `data` and returns the finalized hash.
 

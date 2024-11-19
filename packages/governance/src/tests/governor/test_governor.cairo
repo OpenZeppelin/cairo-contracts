@@ -1,4 +1,4 @@
-use core::num::traits::Zero;
+use core::num::traits::{Bounded, Zero};
 use crate::governor::GovernorComponent::{InternalImpl, InternalExtendedImpl};
 use crate::governor::interface::{IGovernor, IGOVERNOR_ID, ProposalState};
 use crate::governor::interface::{IGovernorDispatcher, IGovernorDispatcherTrait};
@@ -335,7 +335,11 @@ fn test_quorum(timepoint: u64) {
     let state = COMPONENT_STATE();
 
     let threshold = state.quorum(timepoint);
-    let expected = GovernorMock::QUORUM;
+    let expected = if timepoint == Bounded::MAX {
+         Bounded::MAX
+    } else {
+        GovernorMock::QUORUM
+    };
     assert_eq!(threshold, expected);
 }
 

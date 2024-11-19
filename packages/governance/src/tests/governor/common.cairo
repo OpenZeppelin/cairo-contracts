@@ -12,6 +12,7 @@ use snforge_std::{start_cheat_block_timestamp_global, start_mock_call};
 use starknet::ContractAddress;
 use starknet::account::Call;
 use starknet::storage::{StoragePathEntry, StoragePointerWriteAccess, StorageMapWriteAccess};
+
 pub type ComponentState = GovernorComponent::ComponentState<GovernorMock::ContractState>;
 
 pub fn CONTRACT_STATE() -> GovernorMock::ContractState {

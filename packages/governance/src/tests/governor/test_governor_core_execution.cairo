@@ -9,7 +9,7 @@ use crate::tests::governor::common::{
 use crate::tests::governor::common::{get_proposal_info, get_calls, COMPONENT_STATE, CONTRACT_STATE};
 use openzeppelin_test_common::mocks::governor::GovernorMock::SNIP12MetadataImpl;
 use openzeppelin_testing::constants::OTHER;
-use snforge_std::{start_cheat_block_timestamp_global};
+use snforge_std::start_cheat_block_timestamp_global;
 use starknet::storage::{StoragePathEntry, StoragePointerWriteAccess, StorageMapWriteAccess};
 
 //

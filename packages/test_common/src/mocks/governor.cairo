@@ -1,5 +1,6 @@
 #[starknet::contract]
 pub mod GovernorMock {
+    use core::num::traits::Bounded;
     use openzeppelin_governance::governor::GovernorComponent::InternalTrait as GovernorInternalTrait;
     use openzeppelin_governance::governor::extensions::GovernorVotesComponent::InternalTrait;
     use openzeppelin_governance::governor::extensions::{
@@ -102,7 +103,11 @@ pub mod GovernorMock {
     impl GovernorQuorum of GovernorComponent::GovernorQuorumTrait<ContractState> {
         /// See `GovernorComponent::GovernorQuorumTrait::quorum`.
         fn quorum(self: @GovernorComponent::ComponentState<ContractState>, timepoint: u64) -> u256 {
-            QUORUM
+            if timepoint == Bounded::MAX {
+                Bounded::MAX
+            } else {
+                QUORUM
+            }
         }
     }
 

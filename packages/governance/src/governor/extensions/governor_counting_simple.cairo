@@ -24,6 +24,7 @@ pub mod GovernorCountingSimpleComponent {
     }
 
     /// Supported vote types.
+    #[derive(Drop, PartialEq, Debug)]
     pub enum VoteType {
         Against,
         For,
@@ -37,6 +38,16 @@ pub mod GovernorCountingSimpleComponent {
                 1 => Option::Some(VoteType::For),
                 2 => Option::Some(VoteType::Abstain),
                 _ => Option::None,
+            }
+        }
+    }
+
+    impl VoteTypeIntoU8 of Into<VoteType, u8> {
+        fn into(self: VoteType) -> u8 {
+            match self {
+                VoteType::Against => 0,
+                VoteType::For => 1,
+                VoteType::Abstain => 2
             }
         }
     }

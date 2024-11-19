@@ -21,6 +21,10 @@ use crate::votes::VotesComponent::VotingUnitsTrait;
 - VestingComponent `release` function won't emit an event or attempt to transfer when the amount is zero (#1209)
 - Bump snforge_std to v0.33.0 (#1203)
 
+### Changed
+
+- The initializer in `OwnableComponent` now checks that `owner` is not the zero address (#1221)
+
 ## 0.19.0 (2024-11-08)
 
 ### Added

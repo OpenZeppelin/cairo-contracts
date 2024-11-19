@@ -66,7 +66,7 @@ pub mod AccessControlComponent {
     /// Emitted when `new_admin_role` is set as `role`'s admin role, replacing `previous_admin_role`
     ///
     /// `DEFAULT_ADMIN_ROLE` is the starting admin for all roles, despite
-    /// {RoleAdminChanged} not being emitted signaling this.
+    /// `RoleAdminChanged` not being emitted signaling this.
     #[derive(Drop, PartialEq, starknet::Event)]
     pub struct RoleAdminChanged {
         pub role: felt252,

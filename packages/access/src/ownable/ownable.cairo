@@ -133,7 +133,7 @@ pub mod OwnableComponent {
 
         /// Starts the two-step ownership transfer process by setting the pending owner.
         ///
-        /// Setting `newOwner` to the zero address is allowed; this can be used to cancel an
+        /// Setting `new_owner` to the zero address is allowed; this can be used to cancel an
         /// initiated ownership transfer.
         /// Requirements:
         ///

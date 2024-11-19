@@ -261,4 +261,20 @@ pub mod GovernorTimelockedMock {
             QUORUM
         }
     }
+
+    #[abi(per_item)]
+    #[generate_trait]
+    impl ExternalImpl of ExternalTrait {
+        #[external(v0)]
+        fn cancel_operations(
+            ref self: ContractState, proposal_id: felt252, description_hash: felt252
+        ) {
+            self.governor.cancel_operations(proposal_id, description_hash);
+        }
+    }
+}
+
+#[starknet::interface]
+pub trait CancelOperations<TContractState> {
+    fn cancel_operations(ref self: TContractState, proposal_id: felt252, description_hash: felt252);
 }

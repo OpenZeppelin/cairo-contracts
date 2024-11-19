@@ -315,9 +315,6 @@ fn test_execute_operations() {
 
     governor.queue(calls, (@description).hash());
 
-    let target_id = timelocked.get_timelock_id(id);
-    let salt = timelock_salt(governor.contract_address, (@description).hash());
-
     let state = governor.state(id);
     assert_eq!(state, ProposalState::Queued);
 

@@ -45,7 +45,7 @@ fn test_initializer_owner() {
 }
 
 #[test]
-#[should_panic(expected: ('New owner is the zero address',))]
+#[should_panic(expected: 'New owner is the zero address')]
 fn test_initializer_zero_owner() {
     let mut state = COMPONENT_STATE();
     state.initializer(ZERO());
@@ -63,7 +63,7 @@ fn test_assert_only_owner() {
 }
 
 #[test]
-#[should_panic(expected: ('Caller is not the owner',))]
+#[should_panic(expected: 'Caller is not the owner')]
 fn test_assert_only_owner_when_not_owner() {
     let state = setup();
     start_cheat_caller_address(test_address(), OTHER());
@@ -117,7 +117,7 @@ fn test_transfer_ownership() {
 }
 
 #[test]
-#[should_panic(expected: ('New owner is the zero address',))]
+#[should_panic(expected: 'New owner is the zero address')]
 fn test_transfer_ownership_to_zero() {
     let mut state = setup();
     start_cheat_caller_address(test_address(), OWNER());
@@ -125,7 +125,7 @@ fn test_transfer_ownership_to_zero() {
 }
 
 #[test]
-#[should_panic(expected: ('Caller is not the owner',))]
+#[should_panic(expected: 'Caller is not the owner')]
 fn test_transfer_ownership_from_nonowner() {
     let mut state = setup();
     start_cheat_caller_address(test_address(), OTHER());
@@ -145,7 +145,7 @@ fn test_transferOwnership() {
 }
 
 #[test]
-#[should_panic(expected: ('New owner is the zero address',))]
+#[should_panic(expected: 'New owner is the zero address')]
 fn test_transferOwnership_to_zero() {
     let mut state = setup();
     start_cheat_caller_address(test_address(), OWNER());
@@ -153,7 +153,7 @@ fn test_transferOwnership_to_zero() {
 }
 
 #[test]
-#[should_panic(expected: ('Caller is not the owner',))]
+#[should_panic(expected: 'Caller is not the owner')]
 fn test_transferOwnership_from_nonowner() {
     let mut state = setup();
     start_cheat_caller_address(test_address(), OTHER());
@@ -177,7 +177,7 @@ fn test_renounce_ownership() {
 }
 
 #[test]
-#[should_panic(expected: ('Caller is not the owner',))]
+#[should_panic(expected: 'Caller is not the owner')]
 fn test_renounce_ownership_from_nonowner() {
     let mut state = setup();
     start_cheat_caller_address(test_address(), OTHER());
@@ -197,7 +197,7 @@ fn test_renounceOwnership() {
 }
 
 #[test]
-#[should_panic(expected: ('Caller is not the owner',))]
+#[should_panic(expected: 'Caller is not the owner')]
 fn test_renounceOwnership_from_nonowner() {
     let mut state = setup();
     start_cheat_caller_address(test_address(), OTHER());

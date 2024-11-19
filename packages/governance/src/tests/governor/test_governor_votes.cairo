@@ -6,8 +6,8 @@ use crate::governor::extensions::GovernorVotesComponent::{
 use crate::tests::governor::common::{COMPONENT_STATE, CONTRACT_STATE};
 use openzeppelin_test_common::mocks::governor::GovernorMock::SNIP12MetadataImpl;
 use openzeppelin_testing::constants::{VOTES_TOKEN, OTHER, ZERO};
-use snforge_std::{store, test_address};
 use snforge_std::{start_mock_call, start_cheat_block_timestamp_global};
+use snforge_std::{store, test_address};
 
 //
 // GovernorVotes

@@ -14,16 +14,12 @@ use openzeppelin_test_common::mocks::account::DualCaseEthAccountMock;
 use openzeppelin_test_common::mocks::simple::{ISimpleMockDispatcher, ISimpleMockDispatcherTrait};
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::secp256k1::{KEY_PAIR, KEY_PAIR_2};
-use openzeppelin_testing::constants::{
-    SALT, ZERO, OTHER, CALLER, QUERY_VERSION, MIN_TRANSACTION_VERSION
-};
+use openzeppelin_testing::constants::{SALT, QUERY_VERSION, MIN_TRANSACTION_VERSION};
+use openzeppelin_testing::constants::{ZERO, OTHER, CALLER};
 use openzeppelin_testing::signing::Secp256k1KeyPair;
 use openzeppelin_utils::serde::SerializedAppend;
-use snforge_std::{
-    start_cheat_signature_global, start_cheat_transaction_version_global,
-    start_cheat_transaction_hash_global, start_cheat_caller_address
-};
-use snforge_std::{spy_events, test_address};
+use snforge_std::{spy_events, start_cheat_signature_global, start_cheat_transaction_hash_global};
+use snforge_std::{test_address, start_cheat_caller_address, start_cheat_transaction_version_global};
 use starknet::account::Call;
 
 //
@@ -135,7 +131,7 @@ fn test_validate_deploy() {
 }
 
 #[test]
-#[should_panic(expected: ('EthAccount: invalid signature',))]
+#[should_panic(expected: 'EthAccount: invalid signature')]
 fn test_validate_deploy_invalid_signature_data() {
     let key_pair = KEY_PAIR();
     let mut data = SIGNED_TX_DATA(key_pair);
@@ -146,7 +142,7 @@ fn test_validate_deploy_invalid_signature_data() {
 }
 
 #[test]
-#[should_panic(expected: ('Signature: Invalid format.',))]
+#[should_panic(expected: 'Signature: Invalid format.')]
 fn test_validate_deploy_invalid_signature_length() {
     let key_pair = KEY_PAIR();
     let (account, class_hash) = setup_dispatcher(key_pair, SIGNED_TX_DATA(key_pair));
@@ -158,7 +154,7 @@ fn test_validate_deploy_invalid_signature_length() {
 }
 
 #[test]
-#[should_panic(expected: ('Signature: Invalid format.',))]
+#[should_panic(expected: 'Signature: Invalid format.')]
 fn test_validate_deploy_empty_signature() {
     let key_pair = KEY_PAIR();
     let (account, class_hash) = setup_dispatcher(key_pair, SIGNED_TX_DATA(key_pair));
@@ -181,7 +177,7 @@ fn test_validate_declare() {
 }
 
 #[test]
-#[should_panic(expected: ('EthAccount: invalid signature',))]
+#[should_panic(expected: 'EthAccount: invalid signature')]
 fn test_validate_declare_invalid_signature_data() {
     let key_pair = KEY_PAIR();
     let mut data = SIGNED_TX_DATA(key_pair);
@@ -192,7 +188,7 @@ fn test_validate_declare_invalid_signature_data() {
 }
 
 #[test]
-#[should_panic(expected: ('Signature: Invalid format.',))]
+#[should_panic(expected: 'Signature: Invalid format.')]
 fn test_validate_declare_invalid_signature_length() {
     let key_pair = KEY_PAIR();
     let (account, class_hash) = setup_dispatcher(key_pair, SIGNED_TX_DATA(key_pair));
@@ -204,7 +200,7 @@ fn test_validate_declare_invalid_signature_length() {
 }
 
 #[test]
-#[should_panic(expected: ('Signature: Invalid format.',))]
+#[should_panic(expected: 'Signature: Invalid format.')]
 fn test_validate_declare_empty_signature() {
     let key_pair = KEY_PAIR();
     let (account, class_hash) = setup_dispatcher(key_pair, SIGNED_TX_DATA(key_pair));
@@ -222,16 +218,14 @@ fn test_execute_with_version(version: Option<felt252>) {
 
     // Deploy target contract
     let calldata = array![];
-    let address = utils::declare_and_deploy("SimpleMock", calldata);
-    let simple_mock = ISimpleMockDispatcher { contract_address: address };
+    let contract_address = utils::declare_and_deploy("SimpleMock", calldata);
+    let simple_mock = ISimpleMockDispatcher { contract_address };
 
     // Craft call and add to calls array
     let amount = 200;
     let calldata = array![amount];
     let call = Call {
-        to: simple_mock.contract_address,
-        selector: selector!("increase_balance"),
-        calldata: calldata.span()
+        to: contract_address, selector: selector!("increase_balance"), calldata: calldata.span()
     };
     let calls = array![call];
 
@@ -297,25 +291,21 @@ fn test_multicall() {
 
     // Deploy target contract
     let calldata = array![];
-    let address = utils::declare_and_deploy("SimpleMock", calldata);
-    let simple_mock = ISimpleMockDispatcher { contract_address: address };
+    let contract_address = utils::declare_and_deploy("SimpleMock", calldata);
+    let simple_mock = ISimpleMockDispatcher { contract_address };
 
     // Craft 1st call
     let amount1 = 300;
     let calldata1 = array![amount1];
     let call1 = Call {
-        to: simple_mock.contract_address,
-        selector: selector!("increase_balance"),
-        calldata: calldata1.span()
+        to: contract_address, selector: selector!("increase_balance"), calldata: calldata1.span()
     };
 
     // Craft 2nd call
     let amount2 = 500;
     let calldata2 = array![amount2];
     let call2 = Call {
-        to: simple_mock.contract_address,
-        selector: selector!("increase_balance"),
-        calldata: calldata2.span()
+        to: contract_address, selector: selector!("increase_balance"), calldata: calldata2.span()
     };
 
     // Bundle calls and execute
@@ -407,7 +397,7 @@ fn test_public_key_setter_and_getter() {
 }
 
 #[test]
-#[should_panic(expected: ('EthAccount: unauthorized',))]
+#[should_panic(expected: 'EthAccount: unauthorized')]
 fn test_public_key_setter_different_account() {
     let mut state = COMPONENT_STATE();
     let key_pair = KEY_PAIR();
@@ -451,7 +441,7 @@ fn test_public_key_setter_and_getter_camel() {
 }
 
 #[test]
-#[should_panic(expected: ('EthAccount: unauthorized',))]
+#[should_panic(expected: 'EthAccount: unauthorized')]
 fn test_public_key_setter_different_account_camel() {
     let mut state = COMPONENT_STATE();
     let key_pair = KEY_PAIR();
@@ -499,7 +489,7 @@ fn test_assert_only_self_true() {
 }
 
 #[test]
-#[should_panic(expected: ('EthAccount: unauthorized',))]
+#[should_panic(expected: 'EthAccount: unauthorized')]
 fn test_assert_only_self_false() {
     let state = COMPONENT_STATE();
 
@@ -522,7 +512,7 @@ fn test_assert_valid_new_owner() {
 }
 
 #[test]
-#[should_panic(expected: ('EthAccount: invalid signature',))]
+#[should_panic(expected: 'EthAccount: invalid signature')]
 fn test_assert_valid_new_owner_invalid_signature() {
     let key_pair = KEY_PAIR();
     let state = setup(key_pair);

@@ -32,7 +32,7 @@ supporting this execution flow and interoperability with DApps in the ecosystem.
 struct Call {
     to: ContractAddress,
     selector: felt252,
-    calldata: Array<felt252>
+    calldata: Span<felt252>
 }
 
 /// Standard Account Interface
@@ -50,7 +50,7 @@ pub trait ISRC6 {
 ----
 
 WARNING: The `calldata` member of the `Call` struct in the accounts has been updated to `Span<felt252>` for optimization
-purposes, but the interface Id remains the same for backwards compatibility. This inconsistency will be fixed in future releases.
+purposes, but the interface ID remains the same for backwards compatibility. This inconsistency will be fixed in future releases.
 
 {snip-6}[SNIP-6] adds the `is_valid_signature` method. This method is not used by the protocol, but it's useful for
 DApps to verify the validity of signatures, supporting features like Sign In with Starknet.
@@ -70,7 +70,7 @@ pub trait ISRC5 {
 }
 ----
 
-{snip-6}[SNIP-6] compliant accounts must return `true` when queried for the ISRC6 interface Id.
+{snip-6}[SNIP-6] compliant accounts must return `true` when queried for the ISRC6 interface ID.
 
 Even though these interfaces are not enforced by the protocol, it's recommended to implement them for enabling
 interoperability with the ecosystem.

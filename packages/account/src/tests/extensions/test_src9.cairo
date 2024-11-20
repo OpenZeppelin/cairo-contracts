@@ -10,10 +10,8 @@ use openzeppelin_testing::constants::{RECIPIENT, OWNER, OTHER, FELT_VALUE};
 use openzeppelin_utils::cryptography::snip12::OffchainMessageHash;
 use snforge_std::signature::KeyPairTrait;
 use snforge_std::signature::stark_curve::{StarkCurveKeyPairImpl, StarkCurveSignerImpl};
-use snforge_std::{
-    start_cheat_caller_address, cheat_caller_address, start_cheat_block_timestamp_global
-};
-use snforge_std::{test_address, load, CheatSpan};
+use snforge_std::{start_cheat_block_timestamp_global, test_address, load, CheatSpan};
+use snforge_std::{start_cheat_caller_address, cheat_caller_address};
 use starknet::account::Call;
 use starknet::storage::StorageMapWriteAccess;
 use starknet::{ContractAddress, contract_address_const};
@@ -124,7 +122,7 @@ fn test_execute_from_outside_v2_uses_nonce() {
 }
 
 #[test]
-#[should_panic(expected: ('SRC9: invalid caller',))]
+#[should_panic(expected: 'SRC9: invalid caller')]
 fn test_execute_from_outside_v2_caller_mismatch() {
     let mut state = setup();
     let mut outside_execution = setup_outside_execution(RECIPIENT(), false);
@@ -136,7 +134,7 @@ fn test_execute_from_outside_v2_caller_mismatch() {
 }
 
 #[test]
-#[should_panic(expected: ('SRC9: now >= execute_before',))]
+#[should_panic(expected: 'SRC9: now >= execute_before')]
 fn test_execute_from_outside_v2_call_after_execute_before() {
     let mut state = setup();
     let outside_execution = setup_outside_execution(RECIPIENT(), false);
@@ -147,7 +145,7 @@ fn test_execute_from_outside_v2_call_after_execute_before() {
 }
 
 #[test]
-#[should_panic(expected: ('SRC9: now >= execute_before',))]
+#[should_panic(expected: 'SRC9: now >= execute_before')]
 fn test_execute_from_outside_v2_call_equal_to_execute_before() {
     let mut state = setup();
     let outside_execution = setup_outside_execution(RECIPIENT(), false);
@@ -158,7 +156,7 @@ fn test_execute_from_outside_v2_call_equal_to_execute_before() {
 }
 
 #[test]
-#[should_panic(expected: ('SRC9: now <= execute_after',))]
+#[should_panic(expected: 'SRC9: now <= execute_after')]
 fn test_execute_from_outside_v2_call_before_execute_after() {
     let mut state = setup();
     let outside_execution = setup_outside_execution(RECIPIENT(), false);
@@ -169,7 +167,7 @@ fn test_execute_from_outside_v2_call_before_execute_after() {
 }
 
 #[test]
-#[should_panic(expected: ('SRC9: now <= execute_after',))]
+#[should_panic(expected: 'SRC9: now <= execute_after')]
 fn test_execute_from_outside_v2_call_equal_to_execute_after() {
     let mut state = setup();
     let outside_execution = setup_outside_execution(RECIPIENT(), false);
@@ -180,7 +178,7 @@ fn test_execute_from_outside_v2_call_equal_to_execute_after() {
 }
 
 #[test]
-#[should_panic(expected: ('SRC9: duplicated nonce',))]
+#[should_panic(expected: 'SRC9: duplicated nonce')]
 fn test_execute_from_outside_v2_invalid_nonce() {
     let mut state = setup();
     let outside_execution = setup_outside_execution(RECIPIENT(), false);
@@ -191,7 +189,7 @@ fn test_execute_from_outside_v2_invalid_nonce() {
 }
 
 #[test]
-#[should_panic(expected: ('SRC9: invalid signature',))]
+#[should_panic(expected: 'SRC9: invalid signature')]
 fn test_execute_from_outside_v2_invalid_signature() {
     let key_pair = KeyPairTrait::generate();
     let account = setup_account(key_pair.public_key);

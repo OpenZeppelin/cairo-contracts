@@ -10,14 +10,12 @@ pub mod AccountComponent {
     use core::num::traits::Zero;
     use core::poseidon::PoseidonTrait;
     use crate::interface;
-    use crate::utils::{MIN_TRANSACTION_VERSION, QUERY_OFFSET};
-    use crate::utils::{execute_calls, is_valid_stark_signature};
+    use crate::utils::{is_tx_version_valid, execute_calls, is_valid_stark_signature};
     use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
     use openzeppelin_introspection::src5::SRC5Component;
     use starknet::account::Call;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
-    use starknet::{get_caller_address, get_contract_address, get_tx_info};
 
     #[storage]
     pub struct Storage {
@@ -66,34 +64,23 @@ pub mod AccountComponent {
         /// Requirements:
         ///
         /// - The transaction version must be greater than or equal to `MIN_TRANSACTION_VERSION`.
-        /// - If the transaction is a simulation (version than `QUERY_OFFSET`), it must be
+        /// - If the transaction is a simulation (version >= `QUERY_OFFSET`), it must be
         /// greater than or equal to `QUERY_OFFSET` + `MIN_TRANSACTION_VERSION`.
         fn __execute__(
-            self: @ComponentState<TContractState>, mut calls: Array<Call>
+            self: @ComponentState<TContractState>, calls: Array<Call>
         ) -> Array<Span<felt252>> {
             // Avoid calls from other contracts
             // https://github.com/OpenZeppelin/cairo-contracts/issues/344
-            let sender = get_caller_address();
+            let sender = starknet::get_caller_address();
             assert(sender.is_zero(), Errors::INVALID_CALLER);
-
-            // Check tx version
-            let tx_info = get_tx_info().unbox();
-            let tx_version: u256 = tx_info.version.into();
-            // Check if tx is a query
-            if (tx_version >= QUERY_OFFSET) {
-                assert(
-                    QUERY_OFFSET + MIN_TRANSACTION_VERSION <= tx_version, Errors::INVALID_TX_VERSION
-                );
-            } else {
-                assert(MIN_TRANSACTION_VERSION <= tx_version, Errors::INVALID_TX_VERSION);
-            }
+            assert(is_tx_version_valid(), Errors::INVALID_TX_VERSION);
 
             execute_calls(calls.span())
         }
 
         /// Verifies the validity of the signature for the current transaction.
         /// This function is used by the protocol to verify `invoke` transactions.
-        fn __validate__(self: @ComponentState<TContractState>, mut calls: Array<Call>) -> felt252 {
+        fn __validate__(self: @ComponentState<TContractState>, calls: Array<Call>) -> felt252 {
             self.validate_transaction()
         }
 
@@ -309,8 +296,9 @@ pub mod AccountComponent {
         impl SRC5: SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
-        /// Initializes the account by setting the initial public key
-        /// and registering the ISRC6 interface Id.
+        /// Initializes the account with the given public key, and registers the ISRC6 interface ID.
+        ///
+        /// Emits an `OwnerAdded` event.
         fn initializer(ref self: ComponentState<TContractState>, public_key: felt252) {
             let mut src5_component = get_dep_component_mut!(ref self, SRC5);
             src5_component.register_interface(interface::ISRC6_ID);
@@ -319,8 +307,8 @@ pub mod AccountComponent {
 
         /// Validates that the caller is the account itself. Otherwise it reverts.
         fn assert_only_self(self: @ComponentState<TContractState>) {
-            let caller = get_caller_address();
-            let self = get_contract_address();
+            let caller = starknet::get_caller_address();
+            let self = starknet::get_contract_address();
             assert(self == caller, Errors::UNAUTHORIZED);
         }
 
@@ -341,7 +329,7 @@ pub mod AccountComponent {
             let message_hash = PoseidonTrait::new()
                 .update_with('StarkNet Message')
                 .update_with('accept_ownership')
-                .update_with(get_contract_address())
+                .update_with(starknet::get_contract_address())
                 .update_with(current_owner)
                 .finalize();
 
@@ -352,7 +340,7 @@ pub mod AccountComponent {
         /// Validates the signature for the current transaction.
         /// Returns the short string `VALID` if valid, otherwise it reverts.
         fn validate_transaction(self: @ComponentState<TContractState>) -> felt252 {
-            let tx_info = get_tx_info().unbox();
+            let tx_info = starknet::get_tx_info().unbox();
             let tx_hash = tx_info.transaction_hash;
             let signature = tx_info.signature;
             assert(self._is_valid_signature(tx_hash, signature), Errors::INVALID_SIGNATURE);

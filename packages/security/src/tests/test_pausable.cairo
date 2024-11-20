@@ -42,7 +42,7 @@ fn test_assert_paused_when_paused() {
 }
 
 #[test]
-#[should_panic(expected: ('Pausable: not paused',))]
+#[should_panic(expected: 'Pausable: not paused')]
 fn test_assert_paused_when_not_paused() {
     let state = COMPONENT_STATE();
     state.assert_paused();
@@ -53,7 +53,7 @@ fn test_assert_paused_when_not_paused() {
 //
 
 #[test]
-#[should_panic(expected: ('Pausable: paused',))]
+#[should_panic(expected: 'Pausable: paused')]
 fn test_assert_not_paused_when_paused() {
     let mut state = COMPONENT_STATE();
     state.pause();
@@ -84,7 +84,7 @@ fn test_pause_when_unpaused() {
 }
 
 #[test]
-#[should_panic(expected: ('Pausable: paused',))]
+#[should_panic(expected: 'Pausable: paused')]
 fn test_pause_when_paused() {
     let mut state = COMPONENT_STATE();
     state.pause();
@@ -111,7 +111,7 @@ fn test_unpause_when_paused() {
 }
 
 #[test]
-#[should_panic(expected: ('Pausable: not paused',))]
+#[should_panic(expected: 'Pausable: not paused')]
 fn test_unpause_when_unpaused() {
     let mut state = COMPONENT_STATE();
     assert!(!state.is_paused());

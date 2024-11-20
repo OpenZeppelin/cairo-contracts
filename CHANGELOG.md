@@ -12,10 +12,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - SRC9 (Outside Execution) integration to account presets (#1201)
+- `is_tx_version_valid` utility function to `openzeppelin_account::utils` (#1224)
 
 ### Changed
 
 - Remove `mut` from `data` param in `compute_hash_on_elements` (#1206)
+- Remove `mut` from `calls` param in `__execute__` function of Account and EthAccount components (#1224)
+- Remove `mut` from `calls` param in `__validate__` function of Account and EthAccount components (#1224)
 
 ### Changed (Breaking)
 

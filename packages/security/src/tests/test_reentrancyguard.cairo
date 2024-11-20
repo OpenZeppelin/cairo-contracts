@@ -36,7 +36,7 @@ fn test_reentrancy_guard_start() {
 }
 
 #[test]
-#[should_panic(expected: ('ReentrancyGuard: reentrant call',))]
+#[should_panic(expected: 'ReentrancyGuard: reentrant call')]
 fn test_reentrancy_guard_start_when_started() {
     let mut state = COMPONENT_STATE();
 
@@ -64,7 +64,7 @@ fn test_reentrancy_guard_end() {
 //
 
 #[test]
-#[should_panic(expected: ('ReentrancyGuard: reentrant call',))]
+#[should_panic(expected: 'ReentrancyGuard: reentrant call')]
 fn test_remote_callback() {
     let contract = deploy_mock();
 
@@ -76,14 +76,14 @@ fn test_remote_callback() {
 }
 
 #[test]
-#[should_panic(expected: ('ReentrancyGuard: reentrant call',))]
+#[should_panic(expected: 'ReentrancyGuard: reentrant call')]
 fn test_local_recursion() {
     let contract = deploy_mock();
     contract.count_local_recursive(10);
 }
 
 #[test]
-#[should_panic(expected: ('ReentrancyGuard: reentrant call',))]
+#[should_panic(expected: 'ReentrancyGuard: reentrant call')]
 fn test_external_recursion() {
     let contract = deploy_mock();
     contract.count_external_recursive(10);

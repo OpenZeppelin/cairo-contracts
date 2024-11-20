@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.18.0 (utils/deployments.cairo)
+// OpenZeppelin Contracts for Cairo v0.19.0 (utils/deployments.cairo)
 
 pub mod interface;
 
@@ -46,20 +46,13 @@ pub fn calculate_contract_address_from_deploy_syscall(
 }
 
 /// Creates a Pedersen hash chain with the elements of `data` and returns the finalized hash.
-fn compute_hash_on_elements(mut data: Span<felt252>) -> felt252 {
-    let data_len = data.len();
+fn compute_hash_on_elements(data: Span<felt252>) -> felt252 {
     let mut state = PedersenTrait::new(0);
-    let mut hash = 0;
-    loop {
-        match data.pop_front() {
-            Option::Some(elem) => { state = state.update_with(*elem); },
-            Option::None => {
-                hash = state.update_with(data_len).finalize();
-                break;
-            },
-        };
+    for elem in data {
+        state = state.update_with(*elem);
     };
-    hash
+
+    state.update_with(data.len()).finalize()
 }
 
 #[derive(Drop)]

@@ -21,7 +21,7 @@ In a governance system, `TimelockControllerComponent` is in charge of introducin
 
 [.contract]
 [[ITimelock]]
-=== `++ITimelock++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.18.0/packages/governance/src/timelock/interface.cairo[{github-icon},role=heading-link]
+=== `++ITimelock++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.19.0/packages/governance/src/timelock/interface.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -131,10 +131,10 @@ Schedule an operation containing a single transaction.
 
 Requirements:
 
-- the caller must have the `PROPOSER_ROLE` role.
+- The caller must have the `PROPOSER_ROLE` role.
 
 Emits {CallScheduled} event.
-If `salt` is not zero, emits {CallSalt} event.
+Emits {CallSalt} event if `salt` is not zero.
 
 [.contract-item]
 [[ITimelock-schedule_batch]]
@@ -147,7 +147,7 @@ Requirements:
 - The caller must have the `PROPOSER_ROLE` role.
 
 Emits one {CallScheduled} event for each transaction in the batch.
-If `salt` is not zero, emits {CallSalt} event.
+Emits {CallSalt} event if `salt` is not zero.
 
 [.contract-item]
 [[ITimelock-cancel]]
@@ -247,7 +247,7 @@ Emitted when the minimum delay for future operations is modified.
 
 [.contract]
 [[TimelockControllerComponent]]
-=== `++TimelockControllerComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.18.0/packages/governance/src/timelock/timelock_controller.cairo[{github-icon},role=heading-link]
+=== `++TimelockControllerComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.19.0/packages/governance/src/timelock/timelock_controller.cairo[{github-icon},role=heading-link]
 
 include::../utils/_common.adoc[]
 
@@ -406,10 +406,12 @@ Schedule an operation containing a single transaction.
 
 Requirements:
 
-- the caller must have the `PROPOSER_ROLE` role.
+- The caller must have the `PROPOSER_ROLE` role.
+- The proposal must not already exist.
+- `delay` must be greater than or equal to the min delay.
 
 Emits {CallScheduled} event.
-If `salt` is not zero, emits {CallSalt} event.
+Emits {CallSalt} event if `salt` is not zero.
 
 [.contract-item]
 [[TimelockControllerComponent-schedule_batch]]
@@ -420,9 +422,11 @@ Schedule an operation containing a batch of transactions.
 Requirements:
 
 - The caller must have the `PROPOSER_ROLE` role.
+- The proposal must not already exist.
+- `delay` must be greater than or equal to the min delay.
 
 Emits one {CallScheduled} event for each transaction in the batch.
-If `salt` is not zero, emits {CallSalt} event.
+Emits {CallSalt} event if `salt` is not zero.
 
 [.contract-item]
 [[TimelockControllerComponent-cancel]]
@@ -611,7 +615,7 @@ The `VotesComponent` provides a flexible system for tracking and delegating voti
 
 [.contract]
 [[IVotes]]
-=== `++IVotes++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.18.0/packages/governance/src/votes/interface.cairo[{github-icon},role=heading-link]
+=== `++IVotes++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.19.0/packages/governance/src/votes/interface.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -676,7 +680,7 @@ Delegates votes from `delegator` to `delegatee` through a SNIP12 message signatu
 
 [.contract]
 [[VotesComponent]]
-=== `++VotesComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.18.0/packages/governance/src/votes/votes.cairo[{github-icon},role=heading-link]
+=== `++VotesComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.19.0/packages/governance/src/votes/votes.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -904,7 +908,7 @@ Emitted when a token transfer or delegate change results in changes to a delegat
 
 [.contract]
 [[VotingUnitsTrait]]
-=== `++VotingUnitsTrait++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.18.0/packages/governance/src/votes/votes.cairo[{github-icon},role=heading-link]
+=== `++VotingUnitsTrait++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.19.0/packages/governance/src/votes/votes.cairo[{github-icon},role=heading-link]
 
 ```cairo
 pub trait VotingUnitsTrait<TState> {

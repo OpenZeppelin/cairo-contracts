@@ -14,8 +14,6 @@
 
 > **Warning**
 > Expect rapid iteration.
-> Some contracts or features are not ready to be deployed.
-> Check the **Unsupported** section below.
 
 ### Prepare the environment
 
@@ -43,14 +41,14 @@ Edit `scarb.toml` and add:
 
 ```toml
 [dependencies]
-openzeppelin = "0.18.0"
+openzeppelin = "0.19.0"
 ```
 
 The previous example would import the entire library. We can also add each package as a separate dependency to improve the building time by not including modules that won't be used:
 
 ```toml
 [dependencies]
-openzeppelin_token = "0.18.0"
+openzeppelin_token = "0.19.0"
 ```
 
 Build the project to download it:
@@ -120,9 +118,7 @@ Check out the [full documentation site](https://docs.openzeppelin.com/contracts-
 
 - [Cairo book](https://book.cairo-lang.org/)
 - [Cairo language documentation](https://docs.cairo-lang.org/)
-- [Starknet book](https://book.starknet.io/)
-- [Starknet documentation](https://docs.starknet.io/documentation/)
-- [Cairo 1.0 mini-docs](https://github.com/Starknet-Africa-Edu/Cairo1.0)
+- [Starknet documentation](https://docs.starknet.io/)
 - [Cairopractice](https://cairopractice.com/)
 
 ### Tooling

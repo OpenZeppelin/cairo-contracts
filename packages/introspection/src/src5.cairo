@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.18.0 (introspection/src5.cairo)
+// OpenZeppelin Contracts for Cairo v0.19.0 (introspection/src5.cairo)
 
 /// # SRC5 Component
 ///
@@ -18,6 +18,10 @@ pub mod SRC5Component {
         pub const INVALID_ID: felt252 = 'SRC5: invalid id';
     }
 
+    //
+    // External
+    //
+
     #[embeddable_as(SRC5Impl)]
     impl SRC5<
         TContractState, +HasComponent<TContractState>
@@ -32,6 +36,10 @@ pub mod SRC5Component {
             self.SRC5_supported_interfaces.read(interface_id)
         }
     }
+
+    //
+    // Internal
+    //
 
     #[generate_trait]
     pub impl InternalImpl<

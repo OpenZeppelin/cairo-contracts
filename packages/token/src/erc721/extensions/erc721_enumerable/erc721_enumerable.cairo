@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.18.0
+// OpenZeppelin Contracts for Cairo v0.19.0
 // (token/erc721/extensions/erc721_enumerable/erc721_enumerable.cairo)
 
 /// # ERC721Enumerable Component
 ///
 /// Extension of ERC721 as defined in the EIP that adds enumerability of all the token ids in the
-/// contract as well as all token ids owned by each account.
-/// This extension allows contracts to publish their entire list of NFTs and make them discoverable.
+/// contract as well as all token ids owned by each account. It allows contracts to publish
+/// their entire list of NFTs and make them discoverable.
 ///
 /// NOTE: Implementing ERC721Component is a requirement for this component to be implemented.
 ///
@@ -20,15 +20,12 @@ pub mod ERC721EnumerableComponent {
     use crate::erc721::ERC721Component::ERC721Impl;
     use crate::erc721::ERC721Component::InternalImpl as ERC721InternalImpl;
     use crate::erc721::ERC721Component;
-    use crate::erc721::extensions::erc721_enumerable::interface::IERC721Enumerable;
     use crate::erc721::extensions::erc721_enumerable::interface;
     use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin_introspection::src5::SRC5Component;
     use starknet::ContractAddress;
-    use starknet::storage::{
-        Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
-        StoragePointerWriteAccess
-    };
+    use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
+    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 
     #[storage]
     pub struct Storage {
@@ -51,7 +48,7 @@ pub mod ERC721EnumerableComponent {
         +ERC721Component::ERC721HooksTrait<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
-    > of IERC721Enumerable<ComponentState<TContractState>> {
+    > of interface::IERC721Enumerable<ComponentState<TContractState>> {
         /// Returns the total amount of tokens stored by the contract.
         fn total_supply(self: @ComponentState<TContractState>) -> u256 {
             self.ERC721Enumerable_all_tokens_len.read()
@@ -131,6 +128,25 @@ pub mod ERC721EnumerableComponent {
             } else if previous_owner != to {
                 self._add_token_to_owner_enumeration(to, token_id);
             }
+        }
+
+        /// Returns a list of all token ids owned by the specified `owner`.
+        /// This function provides a more efficient alternative to calling `ERC721::balance_of`
+        /// and iterating through tokens with `ERC721Enumerable::token_of_owner_by_index`.
+        ///
+        /// Requirements:
+        ///
+        /// - `owner` is not the zero address.
+        fn all_tokens_of_owner(
+            self: @ComponentState<TContractState>, owner: ContractAddress
+        ) -> Span<u256> {
+            let mut result = array![];
+            let balance = get_dep_component!(self, ERC721).balance_of(owner);
+            for index in 0
+                ..balance {
+                    result.append(self.ERC721Enumerable_owned_tokens.read((owner, index)));
+                };
+            result.span()
         }
 
         /// Adds token to this extension's ownership-tracking data structures.

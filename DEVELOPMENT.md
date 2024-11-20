@@ -1,7 +1,7 @@
 # Development cycle
 
 To keep up with the fast development of the Cairo language and Starknet network while maintaining a secure
-and healthy development process, **we organize our work in 3-weeks cycles**.
+and healthy development process, **we organize our work in 3-week cycles**.
 These cycles consist of **milestones** and **sprints.**
 
 ## 📍 Milestones
@@ -31,7 +31,7 @@ i.e. “[the release train departs](https://github.com/OpenZeppelin/cairo-contra
 - We design milestones to take ~25 working days so we can tackle them in a single sprint
     1. 5 working days times 3 weeks/cycle per 3 devs
         - ⇒ 45 workdays/sprint
-    2. we estimate we spend roughly ~1/3 or our time doing reviews
+    2. we estimate we spend roughly ~1/3 of our time doing reviews
         - ⇒ 30 workdays/sprint
     3. we apply a 1/6 reduction to account for vacations, sickness, distractions, support, etc.
         - **⇒ 25 workdays/sprint**

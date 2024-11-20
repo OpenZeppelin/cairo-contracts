@@ -3,7 +3,7 @@ use crate::erc721::extensions::erc721_enumerable::ERC721EnumerableComponent::{
     ERC721EnumerableImpl, InternalImpl
 };
 use crate::erc721::extensions::erc721_enumerable::ERC721EnumerableComponent;
-use crate::erc721::extensions::erc721_enumerable::interface;
+use crate::erc721::extensions::erc721_enumerable::interface::IERC721ENUMERABLE_ID;
 use openzeppelin_introspection::interface::ISRC5_ID;
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin_test_common::mocks::erc721::ERC721EnumerableMock;
@@ -57,7 +57,7 @@ fn test_initializer() {
 
     state.initializer();
 
-    let supports_ierc721_enum = mock_state.supports_interface(interface::IERC721ENUMERABLE_ID);
+    let supports_ierc721_enum = mock_state.supports_interface(IERC721ENUMERABLE_ID);
     assert!(supports_ierc721_enum);
 
     let supports_isrc5 = mock_state.supports_interface(ISRC5_ID);
@@ -102,7 +102,7 @@ fn test_token_by_index() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC721Enum: out of bounds index',))]
+#[should_panic(expected: 'ERC721Enum: out of bounds index')]
 fn test_token_by_index_equal_to_supply() {
     let (state, token_list) = setup();
     let supply = token_list.len().into();
@@ -111,7 +111,7 @@ fn test_token_by_index_equal_to_supply() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC721Enum: out of bounds index',))]
+#[should_panic(expected: 'ERC721Enum: out of bounds index')]
 fn test_token_by_index_greater_than_supply() {
     let (state, token_list) = setup();
     let supply_plus_one = token_list.len().into() + 1;
@@ -121,7 +121,7 @@ fn test_token_by_index_greater_than_supply() {
 
 #[test]
 fn test_token_by_index_burn_last_token() {
-    let (_, _) = setup();
+    let _ = setup();
     let mut contract_state = CONTRACT_STATE();
     let last_token = TOKEN_3;
 
@@ -133,7 +133,7 @@ fn test_token_by_index_burn_last_token() {
 
 #[test]
 fn test_token_by_index_burn_first_token() {
-    let (_, _) = setup();
+    let _ = setup();
     let mut contract_state = CONTRACT_STATE();
     let first_token = TOKEN_1;
 
@@ -177,7 +177,7 @@ fn test_token_of_owner_by_index() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC721Enum: out of bounds index',))]
+#[should_panic(expected: 'ERC721Enum: out of bounds index')]
 fn test_token_of_owner_by_index_when_index_equals_owned_tokens() {
     let (state, tokens_list) = setup();
     let owned_token_len = tokens_list.len().into();
@@ -186,7 +186,7 @@ fn test_token_of_owner_by_index_when_index_equals_owned_tokens() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC721Enum: out of bounds index',))]
+#[should_panic(expected: 'ERC721Enum: out of bounds index')]
 fn test_token_of_owner_by_index_when_index_exceeds_owned_tokens() {
     let (state, tokens_list) = setup();
     let owned_tokens_len_plus_one = tokens_list.len().into() + 1;
@@ -195,7 +195,7 @@ fn test_token_of_owner_by_index_when_index_exceeds_owned_tokens() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC721Enum: out of bounds index',))]
+#[should_panic(expected: 'ERC721Enum: out of bounds index')]
 fn test_token_of_owner_by_index_when_target_has_no_tokens() {
     let (state, _) = setup();
 
@@ -203,7 +203,7 @@ fn test_token_of_owner_by_index_when_target_has_no_tokens() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC721: invalid account',))]
+#[should_panic(expected: 'ERC721: invalid account')]
 fn test_token_of_owner_by_index_when_owner_is_zero() {
     let (state, _) = setup();
 
@@ -504,6 +504,58 @@ fn test__remove_token_from_all_tokens_enumeration_with_first_token() {
 }
 
 //
+// all_tokens_of_owner
+//
+
+#[test]
+fn test_all_tokens_of_owner() {
+    let (_, tokens_list) = setup();
+    assert_all_tokens_of_owner(OWNER(), tokens_list);
+}
+
+#[test]
+fn test_all_tokens_of_owner_after_transfer_first_token() {
+    let _ = setup();
+    let mut contract_state = CONTRACT_STATE();
+
+    contract_state.erc721.transfer(OWNER(), RECIPIENT(), TOKEN_1);
+
+    assert_all_tokens_of_owner(OWNER(), array![TOKEN_3, TOKEN_2].span());
+    assert_all_tokens_of_owner(RECIPIENT(), array![TOKEN_1].span());
+}
+
+#[test]
+fn test_all_tokens_of_owner_after_transfer_last_token() {
+    let _ = setup();
+    let mut contract_state = CONTRACT_STATE();
+
+    contract_state.erc721.transfer(OWNER(), RECIPIENT(), TOKEN_3);
+
+    assert_all_tokens_of_owner(OWNER(), array![TOKEN_1, TOKEN_2].span());
+    assert_all_tokens_of_owner(RECIPIENT(), array![TOKEN_3].span());
+}
+
+#[test]
+fn test_all_tokens_of_owner_after_burn_first_token() {
+    let _ = setup();
+    let mut contract_state = CONTRACT_STATE();
+
+    contract_state.erc721.burn(TOKEN_1);
+
+    assert_all_tokens_of_owner(OWNER(), array![TOKEN_3, TOKEN_2].span());
+}
+
+#[test]
+fn test_all_tokens_of_owner_after_burn_last_token() {
+    let _ = setup();
+    let mut contract_state = CONTRACT_STATE();
+
+    contract_state.erc721.burn(TOKEN_3);
+
+    assert_all_tokens_of_owner(OWNER(), array![TOKEN_1, TOKEN_2].span());
+}
+
+//
 // Helpers
 //
 
@@ -568,21 +620,24 @@ fn assert_all_tokens_index_to_id(index: u256, exp_token_id: u256) {
 
 fn assert_all_tokens_id_to_index(token_id: u256, exp_index: u256) {
     let state = @COMPONENT_STATE();
-
     let id_to_index = state.ERC721Enumerable_all_tokens_index.read(token_id);
     assert_eq!(id_to_index, exp_index);
 }
 
 fn assert_owner_tokens_index_to_id(owner: ContractAddress, index: u256, exp_token_id: u256) {
     let state = @COMPONENT_STATE();
-
     let index_to_id = state.ERC721Enumerable_owned_tokens.read((owner, index));
     assert_eq!(index_to_id, exp_token_id);
 }
 
 fn assert_owner_tokens_id_to_index(token_id: u256, exp_index: u256) {
     let state = @COMPONENT_STATE();
-
     let id_to_index = state.ERC721Enumerable_owned_tokens_index.read(token_id);
     assert_eq!(id_to_index, exp_index);
+}
+
+fn assert_all_tokens_of_owner(owner: ContractAddress, exp_tokens: Span<u256>) {
+    let state = @COMPONENT_STATE();
+    let tokens = state.all_tokens_of_owner(owner);
+    assert_eq!(tokens, exp_tokens);
 }

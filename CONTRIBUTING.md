@@ -43,7 +43,7 @@ As a contributor, you are expected to fork this repository, work on your own for
 
     ```sh
     git add src/file.cairo
-    git commit "Fix some bug short description #123"
+    git commit -m "Fix some bug short description #123"
     git push origin fix/some-bug-short-description-#123
     ```
 

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.18.0 (token/erc1155/erc1155_receiver.cairo)
+// OpenZeppelin Contracts for Cairo v0.19.0 (token/erc1155/erc1155_receiver.cairo)
 
 /// # ERC1155Receiver Component
 ///
@@ -39,6 +39,9 @@ pub mod ERC1155ReceiverComponent {
             IERC1155_RECEIVER_ID
         }
 
+        /// Called whenever the implementing contract receives a batch of `values` through
+        /// a safe transfer. This function must return `IERC1155_RECEIVER_ID`
+        /// to confirm the token transfer.
         fn on_erc1155_batch_received(
             self: @ComponentState<TContractState>,
             operator: ContractAddress,

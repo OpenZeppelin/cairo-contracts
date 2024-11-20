@@ -9,6 +9,7 @@ pub const VALUE: u256 = 300;
 pub const FELT_VALUE: felt252 = 'FELT_VALUE';
 pub const ROLE: felt252 = 'ROLE';
 pub const TIMESTAMP: u64 = 1704067200; // 2024-01-01 00:00:00 UTC
+pub const BLOCK_NUMBER: u64 = 1234567;
 pub const OTHER_ROLE: felt252 = 'OTHER_ROLE';
 pub const CHAIN_ID: felt252 = 'CHAIN_ID';
 pub const TOKEN_ID: u256 = 21;
@@ -101,6 +102,26 @@ pub fn DELEGATEE() -> ContractAddress {
     contract_address_const::<'DELEGATEE'>()
 }
 
+pub fn TIMELOCK() -> ContractAddress {
+    contract_address_const::<'TIMELOCK'>()
+}
+
+pub fn VOTES_TOKEN() -> ContractAddress {
+    contract_address_const::<'VOTES_TOKEN'>()
+}
+
+pub fn ALICE() -> ContractAddress {
+    contract_address_const::<'ALICE'>()
+}
+
+pub fn BOB() -> ContractAddress {
+    contract_address_const::<'BOB'>()
+}
+
+pub fn CHARLIE() -> ContractAddress {
+    contract_address_const::<'CHARLIE'>()
+}
+
 pub fn DATA(success: bool) -> Span<felt252> {
     let value = if success {
         SUCCESS
@@ -118,6 +139,18 @@ pub fn EMPTY_DATA() -> Span<felt252> {
 // Signing keys
 //
 
+pub mod stark {
+    use crate::signing::{StarkKeyPair, get_stark_keys_from};
+
+    pub fn KEY_PAIR() -> StarkKeyPair {
+        get_stark_keys_from('PRIVATE_KEY')
+    }
+
+    pub fn KEY_PAIR_2() -> StarkKeyPair {
+        get_stark_keys_from('PRIVATE_KEY_2')
+    }
+}
+
 pub mod secp256k1 {
     use crate::signing::{Secp256k1KeyPair, get_secp256k1_keys_from};
 
@@ -132,14 +165,16 @@ pub mod secp256k1 {
     }
 }
 
-pub mod stark {
-    use crate::signing::{StarkKeyPair, get_stark_keys_from};
+pub mod secp256r1 {
+    use crate::signing::{Secp256r1KeyPair, get_secp256r1_keys_from};
 
-    pub fn KEY_PAIR() -> StarkKeyPair {
-        get_stark_keys_from('PRIVATE_KEY')
+    pub fn KEY_PAIR() -> Secp256r1KeyPair {
+        let private_key = u256 { low: 'PRIVATE_LOW', high: 'PRIVATE_HIGH' };
+        get_secp256r1_keys_from(private_key)
     }
 
-    pub fn KEY_PAIR_2() -> StarkKeyPair {
-        get_stark_keys_from('PRIVATE_KEY_2')
+    pub fn KEY_PAIR_2() -> Secp256r1KeyPair {
+        let private_key = u256 { low: 'PRIVATE_LOW_2', high: 'PRIVATE_HIGH_2' };
+        get_secp256r1_keys_from(private_key)
     }
 }

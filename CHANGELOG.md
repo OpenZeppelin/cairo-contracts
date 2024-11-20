@@ -9,6 +9,57 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+- SRC9 (Outside Execution) integration to account presets (#1201)
+- `SNIP12HashSpanImpl` to `openzeppelin_utils::cryptography::snip12` (#1180)
+- GovernorComponent with the following extensions: (#1180)
+  - GovernorCoreExecutionComponent
+  - GovernorCountingSimpleComponent
+  - GovernorSettingsComponent
+  - GovernorTimelockExecutionComponent
+  - GovernorVotesQuorumFractionComponent
+  - GovernorVotesComponent
+- `is_tx_version_valid` utility function to `openzeppelin_account::utils` (#1224)
+
+### Changed
+
+- Remove `mut` from `data` param in `compute_hash_on_elements` (#1206)
+- Remove `mut` from `calls` param in `__execute__` function of Account and EthAccount components (#1224)
+- Remove `mut` from `calls` param in `__validate__` function of Account and EthAccount components (#1224)
+
+### Changed (Breaking)
+
+- The initializer in `OwnableComponent` now checks that `owner` is not the zero address (#1221)
+- Add `verifying_contract` member to the `Delegation` struct used in Votes `delegate_by_sig` (#1214)
+use crate::votes::VotesComponent::VotingUnitsTrait;
+- VotingUnitsTrait moved from `openzeppelin_governance::votes::votes` to `openzeppelin_governance::votes::VotesComponent` (#1214)
+- VestingComponent `release` function won't emit an event or attempt to transfer when the amount is zero (#1209)
+- Bump snforge_std to v0.33.0 (#1203)
+
+## 0.19.0 (2024-11-08)
+
+### Added
+
+- Multisig component (#1193)
+- `is_valid_p256_signature` utility function to `openzeppelin_account::utils::signature` (#1189)
+- `Secp256r1KeyPair` type and helpers to `openzeppelin_testing::signing` (#1189)
+- `all_tokens_of_owner` function to `ERC721EnumerableComponent` fetching all owner's tokens in a single call (#1196)
+- Embeddable impls for ERC2981 component (#1173)
+  - `ERC2981Info` with read functions for discovering the component's state
+  - `ERC2981AdminOwnable` providing admin functions for a token that implements Ownable component
+  - `ERC2981AdminAccessControl` providing admin functions for a token that implements AccessControl component
+
+### Changed (Breaking)
+
+- Refactor `openzeppelin_account::utils::secp256k1` module to `openzeppelin_account::utils::secp256_point` (#1189)
+  - `Secp256k1PointStorePacking` replaced by a generic `Secp256PointStorePacking`
+  - `Secp256k1PointPartialEq` replaced by a generic `Secp256PointPartialEq`
+  - `DebugSecp256k1Point` replaced by a generic `DebugSecp256Point`
+- Apply underscore pattern to the internal functions of `ERC2981Component` to prevent collisions
+with new external functions (#1173)
+- Move `Hash` and `PartialEq` impls of `Call` struct from `openzeppelin_governance::timelock::utils` to `openzeppelin_governance::utils` (#1193)
+
 ## 0.18.0 (2024-10-17)
 
 ### Added

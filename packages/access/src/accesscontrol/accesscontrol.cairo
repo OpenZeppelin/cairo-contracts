@@ -1,10 +1,21 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.18.0 (access/accesscontrol/accesscontrol.cairo)
+// OpenZeppelin Contracts for Cairo v0.19.0 (access/accesscontrol/accesscontrol.cairo)
 
 /// # AccessControl Component
 ///
-/// The AccessControl component allows contracts to implement role-based access control mechanisms.
-/// Roles are referred to by their `felt252` identifier.
+/// The AccessControl component enables role-based access control mechanisms. This is a lightweight
+/// implementation that doesn't support on-chain enumeration of role members, though role membership
+/// can be tracked off-chain through contract events.
+///
+/// Roles can be granted and revoked dynamically via `grant_role` and `revoke_role`. Each role
+/// has an associated admin role that controls who can grant and revoke it. By default, all roles
+/// use `DEFAULT_ADMIN_ROLE` as their admin role.
+/// Accounts can also renounce roles they have been granted by using `renounce_role`.
+///
+/// More complex role hierarchies can be created using `set_role_admin`.
+///
+/// WARNING: The `DEFAULT_ADMIN_ROLE` is its own admin, meaning it can grant and revoke itself.
+/// Extra precautions should be taken to secure accounts with this role.
 #[starknet::component]
 pub mod AccessControlComponent {
     use crate::accesscontrol::interface;
@@ -31,8 +42,8 @@ pub mod AccessControlComponent {
 
     /// Emitted when `account` is granted `role`.
     ///
-    /// `sender` is the account that originated the contract call, an admin role
-    /// bearer (except if `_grant_role` is called during initialization from the constructor).
+    /// `sender` is the account that originated the contract call, an account with the admin role
+    /// or the deployer address if `grant_role` is called from the constructor.
     #[derive(Drop, PartialEq, starknet::Event)]
     pub struct RoleGranted {
         pub role: felt252,
@@ -40,7 +51,7 @@ pub mod AccessControlComponent {
         pub sender: ContractAddress
     }
 
-    /// Emitted when `account` is revoked `role`.
+    /// Emitted when `role` is revoked for `account`.
     ///
     /// `sender` is the account that originated the contract call:
     ///   - If using `revoke_role`, it is the admin role bearer.
@@ -55,7 +66,7 @@ pub mod AccessControlComponent {
     /// Emitted when `new_admin_role` is set as `role`'s admin role, replacing `previous_admin_role`
     ///
     /// `DEFAULT_ADMIN_ROLE` is the starting admin for all roles, despite
-    /// {RoleAdminChanged} not being emitted signaling this.
+    /// `RoleAdminChanged` not being emitted signaling this.
     #[derive(Drop, PartialEq, starknet::Event)]
     pub struct RoleAdminChanged {
         pub role: felt252,
@@ -89,7 +100,7 @@ pub mod AccessControlComponent {
 
         /// Grants `role` to `account`.
         ///
-        /// If `account` had not been already granted `role`, emits a `RoleGranted` event.
+        /// If `account` has not been already granted `role`, emits a `RoleGranted` event.
         ///
         /// Requirements:
         ///
@@ -104,7 +115,7 @@ pub mod AccessControlComponent {
 
         /// Revokes `role` from `account`.
         ///
-        /// If `account` had been granted `role`, emits a `RoleRevoked` event.
+        /// If `account` has been granted `role`, emits a `RoleRevoked` event.
         ///
         /// Requirements:
         ///
@@ -132,7 +143,7 @@ pub mod AccessControlComponent {
         fn renounce_role(
             ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
         ) {
-            let caller: ContractAddress = get_caller_address();
+            let caller = get_caller_address();
             assert(caller == account, Errors::INVALID_CALLER);
             self._revoke_role(role, account);
         }
@@ -182,7 +193,7 @@ pub mod AccessControlComponent {
         impl SRC5: SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>
     > of InternalTrait<TContractState> {
-        /// Initializes the contract by registering the IAccessControl interface Id.
+        /// Initializes the contract by registering the IAccessControl interface ID.
         fn initializer(ref self: ComponentState<TContractState>) {
             let mut src5_component = get_dep_component_mut!(ref self, SRC5);
             src5_component.register_interface(interface::IACCESSCONTROL_ID);

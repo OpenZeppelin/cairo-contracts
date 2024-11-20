@@ -16,7 +16,7 @@ TIP: For an overview of ERC721, read our xref:erc721.adoc[ERC721 guide].
 
 [.contract]
 [[IERC721]]
-=== `++IERC721++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.18.0/packages/token/src/erc721/interface.cairo#L13-L31[{github-icon},role=heading-link]
+=== `++IERC721++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.19.0/packages/token/src/erc721/interface.cairo#L13-L31[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -135,7 +135,7 @@ Emitted when `token_id` token is transferred from `from` to `to`.
 
 [.contract]
 [[IERC721Metadata]]
-=== `++IERC721Metadata++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.18.0/packages/token/src/erc721/interface.cairo#L54-L59[{github-icon},role=heading-link]
+=== `++IERC721Metadata++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.19.0/packages/token/src/erc721/interface.cairo#L54-L59[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -181,7 +181,7 @@ If the URI is not set for `token_id`, the return value will be an empty `ByteArr
 
 [.contract]
 [[ERC721Component]]
-=== `++ERC721Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.18.0/packages/token/src/erc721/erc721.cairo#L7[{github-icon},role=heading-link]
+=== `++ERC721Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.19.0/packages/token/src/erc721/erc721.cairo#L7[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -693,7 +693,7 @@ See <<IERC721-Transfer,IERC721::Transfer>>.
 
 [.contract]
 [[IERC721Receiver]]
-=== `++IERC721Receiver++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.18.0/packages/token/src/erc721/interface.cairo#L70-L79[{github-icon},role=heading-link]
+=== `++IERC721Receiver++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.19.0/packages/token/src/erc721/interface.cairo#L70-L79[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -724,7 +724,7 @@ Whenever an IERC721 `token_id` token is transferred to this non-account contract
 
 [.contract]
 [[ERC721ReceiverComponent]]
-=== `++ERC721ReceiverComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.18.0/packages/token/src/erc721/erc721_receiver.cairo[{github-icon},role=heading-link]
+=== `++ERC721ReceiverComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.19.0/packages/token/src/erc721/erc721_receiver.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -790,7 +790,7 @@ Registers the `IERC721Receiver` interface ID as supported through introspection.
 
 [.contract]
 [[IERC721Enumerable]]
-=== `++IERC721Enumerable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.18.0/packages/token/src/erc721/extensions/erc721_enumerable/interface.cairo[{github-icon},role=heading-link]
+=== `++IERC721Enumerable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.19.0/packages/token/src/erc721/extensions/erc721_enumerable/interface.cairo[{github-icon},role=heading-link]
 
 Interface for the optional enumerable functions in {eip721}.
 
@@ -832,7 +832,7 @@ Use along with xref:#IERC721-balance_of[IERC721::balance_of] to enumerate all of
 
 [.contract]
 [[ERC721EnumerableComponent]]
-=== `++ERC721EnumerableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.18.0/packages/token/src/erc721/extensions/erc721_enumerable.cairo[{github-icon},role=heading-link]
+=== `++ERC721EnumerableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.19.0/packages/token/src/erc721/extensions/erc721_enumerable.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin_token::erc721::extensions::ERC721EnumerableComponent;
@@ -863,7 +863,7 @@ mod ERC721EnumerableContract {
             token_id: u256,
             auth: ContractAddress
         ) {
-            let mut contract_state = ERC721Component::HasComponent::get_contract_mut(ref self);
+            let mut contract_state = self.get_contract_mut();
             contract_state.erc721_enumerable.before_update(to, token_id);
         }
     }
@@ -886,6 +886,7 @@ mod ERC721EnumerableContract {
 .InternalImpl
 * xref:#ERC721EnumerableComponent-initializer[`++initializer(self)++`]
 * xref:#ERC721EnumerableComponent-before_update[`++before_update(self, to, token_id)++`]
+* xref:#ERC721EnumerableComponent-all_tokens_of_owner[`++all_tokens_of_owner(self, owner)++`]
 * xref:#ERC721EnumerableComponent-_add_token_to_owner_enumeration[`++_add_token_to_owner_enumeration(self, to, token_id)++`]
 * xref:#ERC721EnumerableComponent-_add_token_to_all_tokens_enumeration[`++_add_token_to_all_tokens_enumeration(self, token_id)++`]
 * xref:#ERC721EnumerableComponent-_remove_token_from_owner_enumeration[`++_remove_token_from_owner_enumeration(self, from, token_id)++`]
@@ -944,6 +945,18 @@ When a token is transferred, minted, or burned, the ownership-tracking data stru
 This must be added to the implementing contract's xref:ERC721Component-before_update[ERC721HooksTrait::before_update] hook.
 
 [.contract-item]
+[[ERC721EnumerableComponent-all_tokens_of_owner]]
+==== `[.contract-item-name]#++all_tokens_of_owner++#++(self: @ContractState, owner: ContractAddress) → Span<u256>++` [.item-kind]#internal#
+
+Returns a list of all token ids owned by the specified `owner`.
+This function provides a more efficient alternative to calling `ERC721::balance_of`
+and iterating through tokens with `ERC721Enumerable::token_of_owner_by_index`.
+
+Requirements:
+
+- `owner` is not the zero address.
+
+[.contract-item]
 [[ERC721EnumerableComponent-_add_token_to_owner_enumeration]]
 ==== `[.contract-item-name]#++_add_token_to_owner_enumeration++#++(ref self: ContractState, to: ContractAddress, token_id: u256)++` [.item-kind]#internal#
 
@@ -975,7 +988,7 @@ This has 0(1) time complexity but alters the indexed order by swapping `token_id
 
 [.contract]
 [[ERC721Upgradeable]]
-=== `++ERC721Upgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.18.0/packages/presets/src/erc721.cairo[{github-icon},role=heading-link]
+=== `++ERC721Upgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.19.0/packages/presets/src/erc721.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin_presets::ERC721Upgradeable;

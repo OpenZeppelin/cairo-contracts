@@ -1,9 +1,10 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.18.0 (account/interface.cairo)
+// OpenZeppelin Contracts for Cairo v0.19.0 (account/interface.cairo)
 
 use starknet::account::Call;
 
 pub type EthPublicKey = starknet::secp256k1::Secp256k1Point;
+pub type P256PublicKey = starknet::secp256r1::Secp256r1Point;
 
 pub const ISRC6_ID: felt252 = 0x2ceccef7f994940b3962a6c67e0ba4fcd37df7d131417c604f91e03caecc1cd;
 

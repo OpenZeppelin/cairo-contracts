@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.18.0 (merkle_tree/hashes.cairo)
+// OpenZeppelin Contracts for Cairo v0.19.0 (merkle_tree/hashes.cairo)
 
 use core::hash::HashStateTrait;
 use core::pedersen::PedersenTrait;
 use core::poseidon::PoseidonTrait;
 use core::traits::PartialOrd;
 
-/// Computes a commutative hash of a sorted pair of felt252.
+/// Computes a commutative hash of a sorted pair of felt252 values.
 ///
 /// This is usually implemented as an extension of a non-commutative hash function, like
 /// Pedersen or Poseidon, returning the hash of the concatenation of the two values by first
@@ -17,10 +17,10 @@ pub trait CommutativeHasher {
     fn commutative_hash(a: felt252, b: felt252) -> felt252;
 }
 
-/// Computes Pedersen's commutative hash of a sorted pair of felt252.
+/// Computes the Pedersen commutative hash of a sorted pair of felt252 values.
 pub impl PedersenCHasher of CommutativeHasher {
-    /// Computes the Pedersen hash of chaining the two values
-    /// with the len, sorting the pair first.
+    /// Computes the Pedersen hash by chaining the two values
+    /// with the length, sorting the pair first.
     fn commutative_hash(a: felt252, b: felt252) -> felt252 {
         let hash_state = PedersenTrait::new(0);
         if a < b {
@@ -31,7 +31,7 @@ pub impl PedersenCHasher of CommutativeHasher {
     }
 }
 
-/// Computes Poseidon's commutative hash of a sorted pair of felt252.
+/// Computes the Poseidon commutative hash of a sorted pair of felt252 values.
 pub impl PoseidonCHasher of CommutativeHasher {
     /// Computes the Poseidon hash of the concatenation of two values, sorting the pair first.
     fn commutative_hash(a: felt252, b: felt252) -> felt252 {
@@ -44,6 +44,8 @@ pub impl PoseidonCHasher of CommutativeHasher {
     }
 }
 
+/// PartialOrd implementation for felt252 comparisons.
+/// This is used in the CommutativeHasher impls.
 impl Felt252AsIntPartialOrd of PartialOrd<felt252> {
     #[inline(always)]
     fn lt(lhs: felt252, rhs: felt252) -> bool {

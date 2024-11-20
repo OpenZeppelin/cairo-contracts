@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.18.0 (access/ownable/ownable.cairo)
+// OpenZeppelin Contracts for Cairo v0.19.0 (access/ownable/ownable.cairo)
 
 /// # Ownable Component
 ///
@@ -35,6 +35,8 @@ pub mod OwnableComponent {
         OwnershipTransferStarted: OwnershipTransferStarted
     }
 
+    /// Emitted when `new_owner` is set as owner of the contract.
+    /// `new_owner` can be set to zero only if the ownership is renounced.
     #[derive(Drop, PartialEq, starknet::Event)]
     pub struct OwnershipTransferred {
         #[key]
@@ -43,6 +45,9 @@ pub mod OwnableComponent {
         pub new_owner: ContractAddress,
     }
 
+    /// Emitted when `transfer_ownership` is called on a contract that implements `IOwnableTwoStep`.
+    /// `previous_owner` is the address of the current owner.
+    /// `new_owner` is the address of the pending owner.
     #[derive(Drop, PartialEq, starknet::Event)]
     pub struct OwnershipTransferStarted {
         #[key]
@@ -54,7 +59,6 @@ pub mod OwnableComponent {
     pub mod Errors {
         pub const NOT_OWNER: felt252 = 'Caller is not the owner';
         pub const NOT_PENDING_OWNER: felt252 = 'Caller is not the pending owner';
-        pub const ZERO_ADDRESS_CALLER: felt252 = 'Caller is the zero address';
         pub const ZERO_ADDRESS_OWNER: felt252 = 'New owner is the zero address';
     }
 
@@ -83,8 +87,8 @@ pub mod OwnableComponent {
             self._transfer_ownership(new_owner);
         }
 
-        /// Leaves the contract without owner. It will not be possible to call `assert_only_owner`
-        /// functions anymore. Can only be called by the current owner.
+        /// Leaves the contract without an owner. It will not be possible to call
+        /// `assert_only_owner` functions anymore. Can only be called by the current owner.
         ///
         /// Requirements:
         ///
@@ -129,6 +133,8 @@ pub mod OwnableComponent {
 
         /// Starts the two-step ownership transfer process by setting the pending owner.
         ///
+        /// Setting `new_owner` to the zero address is allowed; this can be used to cancel an
+        /// initiated ownership transfer.
         /// Requirements:
         ///
         /// - The caller is the contract owner.
@@ -150,7 +156,8 @@ pub mod OwnableComponent {
         ///
         /// Emits an `OwnershipTransferred` event.
         fn renounce_ownership(ref self: ComponentState<TContractState>) {
-            Ownable::renounce_ownership(ref self);
+            self.assert_only_owner();
+            self._transfer_ownership(Zero::zero());
         }
     }
 
@@ -270,8 +277,13 @@ pub mod OwnableComponent {
     > of InternalTrait<TContractState> {
         /// Sets the contract's initial owner.
         ///
+        /// Requirements:
+        ///
+        /// - `owner` is not the zero address.
+        ///
         /// This function should be called at construction time.
         fn initializer(ref self: ComponentState<TContractState>, owner: ContractAddress) {
+            assert(!owner.is_zero(), Errors::ZERO_ADDRESS_OWNER);
             self._transfer_ownership(owner);
         }
 
@@ -280,7 +292,6 @@ pub mod OwnableComponent {
         fn assert_only_owner(self: @ComponentState<TContractState>) {
             let owner = self.Ownable_owner.read();
             let caller = get_caller_address();
-            assert(!caller.is_zero(), Errors::ZERO_ADDRESS_CALLER);
             assert(caller == owner, Errors::NOT_OWNER);
         }
 
@@ -297,10 +308,7 @@ pub mod OwnableComponent {
 
             let previous_owner: ContractAddress = self.Ownable_owner.read();
             self.Ownable_owner.write(new_owner);
-            self
-                .emit(
-                    OwnershipTransferred { previous_owner: previous_owner, new_owner: new_owner }
-                );
+            self.emit(OwnershipTransferred { previous_owner, new_owner });
         }
 
         /// Sets a new pending owner.
@@ -311,12 +319,7 @@ pub mod OwnableComponent {
         fn _propose_owner(ref self: ComponentState<TContractState>, new_owner: ContractAddress) {
             let previous_owner = self.Ownable_owner.read();
             self.Ownable_pending_owner.write(new_owner);
-            self
-                .emit(
-                    OwnershipTransferStarted {
-                        previous_owner: previous_owner, new_owner: new_owner
-                    }
-                );
+            self.emit(OwnershipTransferStarted { previous_owner, new_owner });
         }
     }
 }

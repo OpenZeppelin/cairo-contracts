@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.18.0 (account/utils.cairo)
+// OpenZeppelin Contracts for Cairo v0.19.0 (account/utils.cairo)
 
-pub mod secp256k1;
+pub mod secp256_point;
 pub mod signature;
 
-pub use signature::{is_valid_stark_signature, is_valid_eth_signature};
+pub use signature::{is_valid_stark_signature, is_valid_eth_signature, is_valid_p256_signature};
 
 use starknet::SyscallResultTrait;
 use starknet::account::Call;
@@ -14,18 +14,25 @@ pub const QUERY_OFFSET: u256 = 0x100000000000000000000000000000000;
 // QUERY_OFFSET + TRANSACTION_VERSION
 pub const QUERY_VERSION: u256 = 0x100000000000000000000000000000001;
 
-pub fn execute_calls(mut calls: Span<Call>) -> Array<Span<felt252>> {
+pub fn execute_calls(calls: Span<Call>) -> Array<Span<felt252>> {
     let mut res = array![];
-    loop {
-        match calls.pop_front() {
-            Option::Some(call) => {
-                let _res = execute_single_call(call);
-                res.append(_res);
-            },
-            Option::None => { break (); },
-        };
+    for call in calls {
+        res.append(execute_single_call(call))
     };
     res
+}
+
+/// If the transaction is a simulation (version >= `QUERY_OFFSET`), it must be
+/// greater than or equal to `QUERY_OFFSET` + `MIN_TRANSACTION_VERSION` to be considered valid.
+/// Otherwise, it must be greater than or equal to `MIN_TRANSACTION_VERSION`.
+pub fn is_tx_version_valid() -> bool {
+    let tx_info = starknet::get_tx_info().unbox();
+    let tx_version = tx_info.version.into();
+    if tx_version >= QUERY_OFFSET {
+        QUERY_OFFSET + MIN_TRANSACTION_VERSION <= tx_version
+    } else {
+        MIN_TRANSACTION_VERSION <= tx_version
+    }
 }
 
 fn execute_single_call(call: @Call) -> Span<felt252> {

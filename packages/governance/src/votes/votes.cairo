@@ -1,7 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.18.0 (governance/votes/votes.cairo)
-
-use starknet::ContractAddress;
+// OpenZeppelin Contracts for Cairo v0.19.0 (governance/votes/votes.cairo)
 
 /// # Votes Component
 ///
@@ -22,7 +20,7 @@ use starknet::ContractAddress;
 /// purpose, as shown in the following ERC20 example:
 ///
 /// See [the documentation]
-/// (https://docs.openzeppelin.com/contracts-cairo/0.18.0/governance.html#usage_2)
+/// (https://docs.openzeppelin.com/contracts-cairo/0.19.0/governance.html#usage_2)
 /// for examples and more details.
 #[starknet::component]
 pub mod VotesComponent {
@@ -39,8 +37,8 @@ pub mod VotesComponent {
     use openzeppelin_utils::nonces::NoncesComponent::InternalTrait as NoncesInternalTrait;
     use openzeppelin_utils::nonces::NoncesComponent;
     use openzeppelin_utils::structs::checkpoint::{Checkpoint, Trace, TraceTrait};
+    use starknet::ContractAddress;
     use starknet::storage::{Map, StoragePathEntry, StorageMapReadAccess, StorageMapWriteAccess};
-    use super::{VotingUnitsTrait, ContractAddress};
 
     #[storage]
     pub struct Storage {
@@ -81,6 +79,25 @@ pub mod VotesComponent {
         pub const EXPIRED_SIGNATURE: felt252 = 'Votes: expired signature';
         pub const INVALID_SIGNATURE: felt252 = 'Votes: invalid signature';
     }
+
+    /// A trait that must be implemented when integrating {VotesComponent} into a contract. It
+    /// offers a mechanism to retrieve the number of voting units for a given account at the current
+    /// time.
+    pub trait VotingUnitsTrait<TState> {
+        /// Returns the number of voting units for a given account. For ERC20, this is typically the
+        /// token balance. For ERC721, this is typically the number of tokens owned.
+        ///
+        /// WARNING: While any formula can be used as a measure of voting units, the internal vote
+        /// accounting of the contract may be compromised if voting units are transferred in any
+        /// external flow by following a different formula. For example, when implementing the hook
+        /// for ERC20, the number of voting units transferred should match the formula given by the
+        /// `get_voting_units` implementation.
+        fn get_voting_units(self: @TState, account: ContractAddress) -> u256;
+    }
+
+    //
+    // External
+    //
 
     #[embeddable_as(VotesImpl)]
     impl Votes<
@@ -163,7 +180,8 @@ pub mod VotesComponent {
             nonces_component.use_checked_nonce(delegator, nonce);
 
             // Build hash for calling `is_valid_signature`.
-            let delegation = Delegation { delegatee, nonce, expiry };
+            let verifying_contract = starknet::get_contract_address();
+            let delegation = Delegation { verifying_contract, delegatee, nonce, expiry };
             let hash = delegation.get_message_hash(delegator);
 
             let is_valid_signature_felt = ISRC6Dispatcher { contract_address: delegator }
@@ -336,19 +354,4 @@ pub mod VotesComponent {
             self.move_delegate_votes(from_delegate, delegatee, self.get_voting_units(account));
         }
     }
-}
-
-/// A trait that must be implemented when integrating {VotesComponent} into a contract. It
-/// offers a mechanism to retrieve the number of voting units for a given account at the current
-/// time.
-pub trait VotingUnitsTrait<TState> {
-    /// Returns the number of voting units for a given account. For ERC20, this is typically the
-    /// token balance. For ERC721, this is typically the number of tokens owned.
-    ///
-    /// WARNING: While any formula can be used as a measure of voting units, the internal vote
-    /// accounting of the contract may be compromised if voting units are transferred in any
-    /// external flow by following a different formula. For example, when implementing the hook for
-    /// ERC20, the number of voting units transferred should match the formula given by the
-    /// `get_voting_units` implementation.
-    fn get_voting_units(self: @TState, account: ContractAddress) -> u256;
 }

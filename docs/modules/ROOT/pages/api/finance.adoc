@@ -12,7 +12,7 @@ This crate includes primitives for financial systems.
 
 [.contract]
 [[IVesting]]
-=== `++IVesting++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.18.0/packages/finance/src/vesting/interface.cairo[{github-icon},role=heading-link]
+=== `++IVesting++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.19.0/packages/finance/src/vesting/interface.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -91,7 +91,7 @@ Returns the total vested amount of a specified `token` at a given `timestamp`.
 
 Releases the amount of a given `token` that has already vested and returns that amount.
 
-Emits {AmountReleased} event.
+May emit an {AmountReleased} event.
 
 [#IVesting-Events]
 ==== Events
@@ -104,7 +104,7 @@ Emitted when vested tokens are released to the beneficiary.
 
 [.contract]
 [[VestingComponent]]
-=== `++VestingComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.18.0/packages/finance/src/vesting/vesting.cairo[{github-icon},role=heading-link]
+=== `++VestingComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.19.0/packages/finance/src/vesting/vesting.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -208,11 +208,14 @@ Returns the total vested amount of a specified `token` at a given `timestamp`.
 
 Releases the amount of a given `token` that has already vested and returns that amount.
 
+NOTE: If the releasable amount is zero, this function won't emit the event
+or attempt to transfer the tokens.
+
 Requirements:
 
 - `transfer` call to the `token` must return `true` indicating a successful transfer.
 
-Emits {AmountReleased} event.
+May emit an {AmountReleased} event.
 
 [#VestingComponent-Internal-Functions]
 ==== Internal functions
@@ -236,7 +239,7 @@ Returns the vested amount that's calculated using the {vesting-schedule} trait i
 
 [.contract]
 [[LinearVestingSchedule]]
-=== `++LinearVestingSchedule++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.18.0/packages/finance/src/vesting/vesting.cairo[{github-icon},role=heading-link]
+=== `++LinearVestingSchedule++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.19.0/packages/finance/src/vesting/vesting.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -251,7 +254,7 @@ is directly proportional to the time passed since the start of the vesting sched
 
 [.contract]
 [[VestingWallet]]
-=== `++VestingWallet++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.18.0/packages/presets/src/vesting.cairo[{github-icon},role=heading-link]
+=== `++VestingWallet++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.19.0/packages/presets/src/vesting.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin::presets::VestingWallet;

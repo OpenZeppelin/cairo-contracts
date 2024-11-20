@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.18.0 (security/initializable.cairo)
+// OpenZeppelin Contracts for Cairo v0.19.0 (security/initializable.cairo)
 
 /// # Initializable Component
 ///
@@ -24,7 +24,7 @@ pub mod InitializableComponent {
     impl Initializable<
         TContractState, +HasComponent<TContractState>
     > of IInitializable<ComponentState<TContractState>> {
-        /// Returns true if the using contract executed `initialize`.
+        /// Returns whether the contract has been initialized.
         fn is_initialized(self: @ComponentState<TContractState>) -> bool {
             self.Initializable_initialized.read()
         }

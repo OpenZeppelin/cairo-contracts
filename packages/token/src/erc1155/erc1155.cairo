@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.18.0 (token/erc1155/erc1155.cairo)
+// OpenZeppelin Contracts for Cairo v0.19.0 (token/erc1155/erc1155.cairo)
 
 /// # ERC1155 Component
 ///
@@ -15,12 +15,9 @@ pub mod ERC1155Component {
     use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
     use openzeppelin_introspection::src5::SRC5Component;
-    use starknet::ContractAddress;
-    use starknet::get_caller_address;
-    use starknet::storage::{
-        Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
-        StoragePointerWriteAccess
-    };
+    use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
+    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use starknet::{ContractAddress, get_caller_address};
 
     #[storage]
     pub struct Storage {
@@ -181,8 +178,7 @@ pub mod ERC1155Component {
         /// - `from` is not the zero address.
         /// - `to` is not the zero address.
         /// - If `to` refers to a non-account contract, it must implement
-        /// `IERC1155Receiver::on_ERC1155_received`
-        ///   and return the required magic value.
+        /// `IERC1155Receiver::on_ERC1155_received` and return the required magic value.
         ///
         /// Emits a `TransferSingle` event.
         fn safe_transfer_from(
@@ -213,8 +209,7 @@ pub mod ERC1155Component {
         /// - `to` is not the zero address.
         /// - `token_ids` and `values` must have the same length.
         /// - If `to` refers to a non-account contract, it must implement
-        /// `IERC1155Receiver::on_ERC1155_batch_received`
-        ///   and return the acceptance magic value.
+        /// `IERC1155Receiver::on_ERC1155_batch_received` and return the acceptance magic value.
         ///
         /// Emits either a `TransferSingle` or a `TransferBatch` event, depending on the length of
         /// the array arguments.

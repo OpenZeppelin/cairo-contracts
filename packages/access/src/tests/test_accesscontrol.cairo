@@ -81,7 +81,7 @@ fn test_assert_only_role() {
 }
 
 #[test]
-#[should_panic(expected: ('Caller is missing role',))]
+#[should_panic(expected: 'Caller is missing role')]
 fn test_assert_only_role_unauthorized() {
     let state = setup();
     start_cheat_caller_address(test_address(), OTHER());
@@ -89,7 +89,7 @@ fn test_assert_only_role_unauthorized() {
 }
 
 #[test]
-#[should_panic(expected: ('Caller is missing role',))]
+#[should_panic(expected: 'Caller is missing role')]
 fn test_assert_only_role_unauthorized_when_authorized_for_another_role() {
     let mut state = setup();
     state.grant_role(ROLE, AUTHORIZED());
@@ -151,7 +151,7 @@ fn test_grantRole_multiple_times_for_granted_role() {
 }
 
 #[test]
-#[should_panic(expected: ('Caller is missing role',))]
+#[should_panic(expected: 'Caller is missing role')]
 fn test_grant_role_unauthorized() {
     let mut state = setup();
     start_cheat_caller_address(test_address(), AUTHORIZED());
@@ -159,7 +159,7 @@ fn test_grant_role_unauthorized() {
 }
 
 #[test]
-#[should_panic(expected: ('Caller is missing role',))]
+#[should_panic(expected: 'Caller is missing role')]
 fn test_grantRole_unauthorized() {
     let mut state = setup();
     start_cheat_caller_address(test_address(), AUTHORIZED());
@@ -245,7 +245,7 @@ fn test_revokeRole_multiple_times_for_granted_role() {
 }
 
 #[test]
-#[should_panic(expected: ('Caller is missing role',))]
+#[should_panic(expected: 'Caller is missing role')]
 fn test_revoke_role_unauthorized() {
     let mut state = setup();
     start_cheat_caller_address(test_address(), OTHER());
@@ -253,7 +253,7 @@ fn test_revoke_role_unauthorized() {
 }
 
 #[test]
-#[should_panic(expected: ('Caller is missing role',))]
+#[should_panic(expected: 'Caller is missing role')]
 fn test_revokeRole_unauthorized() {
     let mut state = setup();
     start_cheat_caller_address(test_address(), OTHER());
@@ -345,7 +345,7 @@ fn test_renounceRole_multiple_times_for_granted_role() {
 }
 
 #[test]
-#[should_panic(expected: ('Can only renounce role for self',))]
+#[should_panic(expected: 'Can only renounce role for self')]
 fn test_renounce_role_unauthorized() {
     let mut state = setup();
     let contract_address = test_address();
@@ -357,7 +357,7 @@ fn test_renounce_role_unauthorized() {
 }
 
 #[test]
-#[should_panic(expected: ('Can only renounce role for self',))]
+#[should_panic(expected: 'Can only renounce role for self')]
 fn test_renounceRole_unauthorized() {
     let mut state = setup();
     start_cheat_caller_address(test_address(), ADMIN());
@@ -423,7 +423,7 @@ fn test_new_admin_can_revoke_roles() {
 }
 
 #[test]
-#[should_panic(expected: ('Caller is missing role',))]
+#[should_panic(expected: 'Caller is missing role')]
 fn test_previous_admin_cannot_grant_roles() {
     let mut state = setup();
     state.set_role_admin(ROLE, OTHER_ROLE);
@@ -432,7 +432,7 @@ fn test_previous_admin_cannot_grant_roles() {
 }
 
 #[test]
-#[should_panic(expected: ('Caller is missing role',))]
+#[should_panic(expected: 'Caller is missing role')]
 fn test_previous_admin_cannot_revoke_roles() {
     let mut state = setup();
     state.set_role_admin(ROLE, OTHER_ROLE);

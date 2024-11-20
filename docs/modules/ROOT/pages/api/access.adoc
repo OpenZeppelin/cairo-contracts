@@ -156,7 +156,8 @@ Emits an xref:OwnableComponent-OwnershipTransferred[OwnershipTransferred] event.
 [[OwnableComponent-two-step-transfer_ownership]]
 ==== `[.contract-item-name]#++transfer_ownership++#++(ref self: ContractState, new_owner: ContractAddress)++` [.item-kind]#external#
 
-Starts the two step ownership transfer process, by setting the pending owner.
+Starts the two step ownership transfer process, by setting the pending owner. Setting `new_owner` to the zero address is allowed, this can be used to cancel an initiated ownership transfer.
+
 Can only be called by the current owner.
 
 Emits an xref:OwnableComponent-OwnershipTransferStarted[OwnershipTransferStarted] event.
@@ -210,6 +211,10 @@ See xref:OwnableComponent-two-step-renounce_ownership[renounce_ownership].
 ==== `[.contract-item-name]#++initializer++#++(ref self: ContractState, owner: ContractAddress)++` [.item-kind]#internal#
 
 Initializes the contract and sets `owner` as the initial owner.
+
+Requirements:
+
+- `owner` cannot be the zero address.
 
 Emits an xref:OwnableComponent-OwnershipTransferred[OwnershipTransferred] event.
 

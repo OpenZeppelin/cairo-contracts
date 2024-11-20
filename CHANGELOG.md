@@ -13,8 +13,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - SRC9 (Outside Execution) integration to account presets (#1201)
 
+### Changed
+
+- Remove `mut` from `data` param in `compute_hash_on_elements` (#1206)
+
 ### Changed (Breaking)
 
+- The initializer in `OwnableComponent` now checks that `owner` is not the zero address (#1221)
 - Add `verifying_contract` member to the `Delegation` struct used in Votes `delegate_by_sig` (#1214)
 use crate::votes::VotesComponent::VotingUnitsTrait;
 - VotingUnitsTrait moved from `openzeppelin_governance::votes::votes` to `openzeppelin_governance::votes::VotesComponent` (#1214)

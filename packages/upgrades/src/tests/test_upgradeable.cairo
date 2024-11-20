@@ -1,6 +1,5 @@
-use openzeppelin_test_common::mocks::upgrades::{
-    IUpgradesV1SafeDispatcher, IUpgradesV1SafeDispatcherTrait
-};
+use openzeppelin_test_common::mocks::upgrades::IUpgradesV1SafeDispatcher;
+use openzeppelin_test_common::mocks::upgrades::IUpgradesV1SafeDispatcherTrait;
 use openzeppelin_test_common::mocks::upgrades::{IUpgradesV1Dispatcher, IUpgradesV1DispatcherTrait};
 use openzeppelin_test_common::mocks::upgrades::{IUpgradesV2Dispatcher, IUpgradesV2DispatcherTrait};
 use openzeppelin_test_common::upgrades::UpgradeableSpyHelpers;
@@ -26,7 +25,7 @@ fn setup_test() -> (IUpgradesV1Dispatcher, ContractClass) {
 //
 
 #[test]
-#[should_panic(expected: ('Class hash cannot be zero',))]
+#[should_panic(expected: 'Class hash cannot be zero')]
 fn test_upgrade_with_class_hash_zero() {
     let (v1, _) = setup_test();
     v1.upgrade(CLASS_HASH_ZERO());
@@ -86,7 +85,6 @@ fn test_remove_selector_fails_in_v2() {
         result, selector!("remove_selector"), v1.contract_address
     );
 }
-
 
 //
 // upgrade_and_call

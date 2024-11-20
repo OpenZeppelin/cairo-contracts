@@ -17,7 +17,7 @@ fn test_initialize() {
 }
 
 #[test]
-#[should_panic(expected: ('Initializable: is initialized',))]
+#[should_panic(expected: 'Initializable: is initialized')]
 fn test_initialize_when_initialized() {
     let mut state = COMPONENT_STATE();
     state.initialize();

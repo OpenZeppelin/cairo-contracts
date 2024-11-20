@@ -16,6 +16,7 @@ use starknet::{ContractAddress, get_tx_info};
 pub const STARKNET_DOMAIN_TYPE_HASH: felt252 =
     0x1ff2f602e42168014d405a94f75e8a93d640751d71d16311266e140d8b0a210;
 
+/// Generic Starknet domain separator representation as defined in SNIP-12.
 #[derive(Drop, Copy, Hash)]
 pub struct StarknetDomain {
     pub name: felt252,
@@ -24,14 +25,17 @@ pub struct StarknetDomain {
     pub revision: felt252,
 }
 
+/// Trait for calculating the hash of a struct.
 pub trait StructHash<T> {
     fn hash_struct(self: @T) -> felt252;
 }
 
+/// Trait for calculating the hash of a message given the passed `signer`.
 pub trait OffchainMessageHash<T> {
     fn get_message_hash(self: @T, signer: ContractAddress) -> felt252;
 }
 
+/// Implementation of `StructHash` that calculates the Poseidon hash of type `StarknetDomain`.
 pub impl StructHashStarknetDomainImpl of StructHash<StarknetDomain> {
     fn hash_struct(self: @StarknetDomain) -> felt252 {
         let hash_state = PoseidonTrait::new();
@@ -47,6 +51,14 @@ pub trait SNIP12Metadata {
     fn version() -> felt252;
 }
 
+/// Implementation of OffchainMessageHash that calculates the Poseidon hash of the message.
+///
+/// The hash state hashes the following in order:
+///
+/// - 'StarkNet Message' short string.
+/// - Starknet domain struct hash.
+/// - `signer` of the message.
+/// - Hashed struct of the message.
 pub(crate) impl OffchainMessageHashImpl<
     T, +StructHash<T>, impl metadata: SNIP12Metadata
 > of OffchainMessageHash<T> {

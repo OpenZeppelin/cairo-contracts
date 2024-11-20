@@ -20,9 +20,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - GovernorTimelockExecutionComponent
   - GovernorVotesQuorumFractionComponent
   - GovernorVotesComponent
+- `is_tx_version_valid` utility function to `openzeppelin_account::utils` (#1224)
+
+### Changed
+
+- Remove `mut` from `data` param in `compute_hash_on_elements` (#1206)
+- Remove `mut` from `calls` param in `__execute__` function of Account and EthAccount components (#1224)
+- Remove `mut` from `calls` param in `__validate__` function of Account and EthAccount components (#1224)
 
 ### Changed (Breaking)
 
+- The initializer in `OwnableComponent` now checks that `owner` is not the zero address (#1221)
 - Add `verifying_contract` member to the `Delegation` struct used in Votes `delegate_by_sig` (#1214)
 use crate::votes::VotesComponent::VotingUnitsTrait;
 - VotingUnitsTrait moved from `openzeppelin_governance::votes::votes` to `openzeppelin_governance::votes::VotesComponent` (#1214)

@@ -108,12 +108,12 @@ pub mod GovernorSettingsComponent {
     > of IGovernorSettingsAdmin<ComponentState<TContractState>> {
         /// Sets the voting delay.
         ///
-        /// NOTE: This function does not emit an event if the new voting delay is the same as the
-        /// old one.
-        ///
         /// Requirements:
         ///
         /// - Caller must be the governance executor.
+        ///
+        /// NOTE: This function does not emit an event if the new voting delay is the same as the
+        /// old one.
         ///
         /// May emit a `VotingDelayUpdated` event.
         fn set_voting_delay(ref self: ComponentState<TContractState>, new_voting_delay: u64) {
@@ -211,12 +211,12 @@ pub mod GovernorSettingsComponent {
 
         /// Internal function to update the voting period.
         ///
-        /// NOTE: This function does not emit an event if the new voting period is the same as the
-        /// old one.
-        ///
         /// Requirements:
         ///
         /// - `new_voting_period` must be greater than 0.
+        ///
+        /// NOTE: This function does not emit an event if the new voting period is the same as the
+        /// old one.
         ///
         /// May emit a `VotingPeriodUpdated` event.
         fn _set_voting_period(ref self: ComponentState<TContractState>, new_voting_period: u64) {

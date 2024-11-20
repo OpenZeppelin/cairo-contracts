@@ -7,9 +7,7 @@
 #[starknet::component]
 pub mod UpgradeableComponent {
     use core::num::traits::Zero;
-    use starknet::ClassHash;
-    use starknet::SyscallResultTrait;
-    use starknet::syscalls::{call_contract_syscall, replace_class_syscall};
+    use starknet::{ClassHash, SyscallResultTrait};
 
     #[storage]
     pub struct Storage {}
@@ -30,6 +28,10 @@ pub mod UpgradeableComponent {
         pub const INVALID_CLASS: felt252 = 'Class hash cannot be zero';
     }
 
+    //
+    // Internal
+    //
+
     #[generate_trait]
     pub impl InternalImpl<
         TContractState, +HasComponent<TContractState>
@@ -42,8 +44,8 @@ pub mod UpgradeableComponent {
         ///
         /// Emits an `Upgraded` event.
         fn upgrade(ref self: ComponentState<TContractState>, new_class_hash: ClassHash) {
-            assert(!new_class_hash.is_zero(), Errors::INVALID_CLASS);
-            replace_class_syscall(new_class_hash).unwrap_syscall();
+            assert(new_class_hash.is_non_zero(), Errors::INVALID_CLASS);
+            starknet::syscalls::replace_class_syscall(new_class_hash).unwrap_syscall();
             self.emit(Upgraded { class_hash: new_class_hash });
         }
 
@@ -68,7 +70,7 @@ pub mod UpgradeableComponent {
             // `call_contract_syscall` is used in order to call `selector` from the new class.
             // See:
             // https://docs.starknet.io/documentation/architecture_and_concepts/Contracts/system-calls-cairo1/#replace_class
-            call_contract_syscall(this, selector, calldata).unwrap_syscall()
+            starknet::syscalls::call_contract_syscall(this, selector, calldata).unwrap_syscall()
         }
     }
 }

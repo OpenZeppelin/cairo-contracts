@@ -329,14 +329,6 @@ fn test_transfer_ownership_to_zero() {
 }
 
 #[test]
-#[should_panic(expected: ('Caller is the zero address',))]
-fn test_transfer_ownership_from_zero() {
-    let (_, mut dispatcher) = setup_dispatcher();
-    start_cheat_caller_address(dispatcher.contract_address, ZERO());
-    dispatcher.transfer_ownership(OTHER());
-}
-
-#[test]
 #[should_panic(expected: ('Caller is not the owner',))]
 fn test_transfer_ownership_from_nonowner() {
     let (_, mut dispatcher) = setup_dispatcher();
@@ -363,14 +355,6 @@ fn test_transferOwnership_to_zero() {
 }
 
 #[test]
-#[should_panic(expected: ('Caller is the zero address',))]
-fn test_transferOwnership_from_zero() {
-    let (_, mut dispatcher) = setup_dispatcher();
-    start_cheat_caller_address(dispatcher.contract_address, ZERO());
-    dispatcher.transferOwnership(OTHER());
-}
-
-#[test]
 #[should_panic(expected: ('Caller is not the owner',))]
 fn test_transferOwnership_from_nonowner() {
     let (_, mut dispatcher) = setup_dispatcher();
@@ -393,14 +377,6 @@ fn test_renounce_ownership() {
 }
 
 #[test]
-#[should_panic(expected: ('Caller is the zero address',))]
-fn test_renounce_ownership_from_zero_address() {
-    let (_, mut dispatcher) = setup_dispatcher();
-    start_cheat_caller_address(dispatcher.contract_address, ZERO());
-    dispatcher.renounce_ownership();
-}
-
-#[test]
 #[should_panic(expected: ('Caller is not the owner',))]
 fn test_renounce_ownership_from_nonowner() {
     let (_, mut dispatcher) = setup_dispatcher();
@@ -416,14 +392,6 @@ fn test_renounceOwnership() {
 
     spy.assert_event_ownership_transferred(dispatcher.contract_address, OWNER(), ZERO());
     assert!(dispatcher.owner().is_zero());
-}
-
-#[test]
-#[should_panic(expected: ('Caller is the zero address',))]
-fn test_renounceOwnership_from_zero_address() {
-    let (_, mut dispatcher) = setup_dispatcher();
-    start_cheat_caller_address(dispatcher.contract_address, ZERO());
-    dispatcher.renounceOwnership();
 }
 
 #[test]

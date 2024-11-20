@@ -19,10 +19,9 @@ pub impl HashCallImpl<S, +HashStateTrait<S>, +Drop<S>> of Hash<Call, S> {
 pub impl HashCallsImpl<S, +HashStateTrait<S>, +Drop<S>> of Hash<Span<Call>, S> {
     fn update_state(mut state: S, value: Span<Call>) -> S {
         state = state.update_with(value.len());
-        for call in value {
-            state = state.update_with(*call);
+        for elem in value {
+            state = state.update_with(*elem);
         };
-
         state
     }
 }

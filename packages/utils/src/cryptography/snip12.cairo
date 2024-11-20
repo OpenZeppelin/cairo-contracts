@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.19.0 (utils/cryptography/snip12.cairo)
 
-use core::hash::{HashStateTrait, HashStateExTrait};
-use core::poseidon::PoseidonTrait;
+use core::hash::{HashStateTrait, HashStateExTrait, Hash};
+use core::poseidon::{PoseidonTrait, HashState};
 use starknet::{ContractAddress, get_tx_info};
 
 // selector!(
@@ -75,5 +75,16 @@ pub(crate) impl OffchainMessageHashImpl<
         state = state.update_with(signer);
         state = state.update_with(self.hash_struct());
         state.finalize()
+    }
+}
+
+/// Hash trait implementation for a span of elements according to SNIP-12.
+pub impl SNIP12HashSpanImpl<T, +Copy<T>, +Hash<T, HashState>> of Hash<Span<T>, HashState> {
+    fn update_state(mut state: HashState, value: Span<T>) -> HashState {
+        let mut inner_state = PoseidonTrait::new();
+        for elem in value {
+            inner_state = inner_state.update_with(*elem);
+        };
+        state.update_with(inner_state.finalize())
     }
 }

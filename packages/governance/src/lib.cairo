@@ -1,3 +1,4 @@
+pub mod governor;
 pub mod multisig;
 
 #[cfg(test)]

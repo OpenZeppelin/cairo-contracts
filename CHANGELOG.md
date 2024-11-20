@@ -12,6 +12,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - SRC9 (Outside Execution) integration to account presets (#1201)
+- `SNIP12HashSpanImpl` to `openzeppelin_utils::cryptography::snip12` (#1180)
+- GovernorComponent with the following extensions: (#1180)
+  - GovernorCoreExecutionComponent
+  - GovernorCountingSimpleComponent
+  - GovernorSettingsComponent
+  - GovernorTimelockExecutionComponent
+  - GovernorVotesQuorumFractionComponent
+  - GovernorVotesComponent
 - `is_tx_version_valid` utility function to `openzeppelin_account::utils` (#1224)
 
 ### Changed

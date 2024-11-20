@@ -102,6 +102,14 @@ pub fn DELEGATEE() -> ContractAddress {
     contract_address_const::<'DELEGATEE'>()
 }
 
+pub fn TIMELOCK() -> ContractAddress {
+    contract_address_const::<'TIMELOCK'>()
+}
+
+pub fn VOTES_TOKEN() -> ContractAddress {
+    contract_address_const::<'VOTES_TOKEN'>()
+}
+
 pub fn ALICE() -> ContractAddress {
     contract_address_const::<'ALICE'>()
 }

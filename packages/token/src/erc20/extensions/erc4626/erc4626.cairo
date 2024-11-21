@@ -3,7 +3,31 @@
 
 /// # ERC4626 Component
 ///
-/// ADD MEEEEEEEEEEEEEEEEE AHHHH
+/// The ERC4626 component is an extension of ERC20 and provides an implementation of the IERC4626
+/// interface which allows the minting and burning of "shares" in exchange for an underlying "asset."
+/// The component leverages traits to configure fees, limits, and decimals.
+///
+/// CAUTION: In empty (or nearly empty) ERC-4626 vaults, deposits are at high risk of being stolen through
+/// frontrunning with a "donation" to the vault that inflates the price of a share. This is variously known
+/// as a donation or inflation attack and is essntially a problem of slippage. Vault deployers can protect
+/// against this attack by making an initial deposit of a non-trivial amount of the asset, such that price
+/// manipulation becomes infeasible. Withdrawals may similarly be affected by slippage. Users can protect
+/// against this attack as well as unexpected slippage in general by verifying the amount received is as
+/// expected, using a wrapper that performs these checks.
+///
+/// This implementation offers configurable virtual assets and shares to help developers mitigate that risk.
+/// `ImmutableConfig::DECIMALS_OFFSET` corresponds to an offset in the decimal representation between the
+/// underlying asset's decimals and vault decimals. This offset also determines the rate of virtual shares to
+/// virtual assets in the vault, which itself determines the initial exchange rate. While not fully preventing
+/// the attack, analysis shows that the default offset (0) makes it non-profitable even if an attacker is able
+/// to capture value from multiple user deposits, as a result of the value being captured by the virtual shares
+/// (out of the attacker's donation) matching the attacker's expected gains. With a larger offset, the attack
+/// becomes orders of magnitude more expensive than it is profitable.
+///
+/// The drawback of this approach is that the virtual shares do capture (a very small) part of the value being accrued
+/// to the vault. Also, if the vault experiences losses and users try to exit the vault, the virtual shares and assets
+/// will cause the first exiting user to experience reduced losses to the detriment to the last users who  will
+/// experience bigger losses.
 #[starknet::component]
 pub mod ERC4626Component {
     use core::num::traits::{Bounded, Zero};
@@ -34,6 +58,8 @@ pub mod ERC4626Component {
         Withdraw: Withdraw,
     }
 
+    /// Emitted when `sender` exchanges `assets` for `shares` and transfers those
+    /// `shares` to `owner`.
     #[derive(Drop, PartialEq, starknet::Event)]
     pub struct Deposit {
         #[key]
@@ -44,6 +70,8 @@ pub mod ERC4626Component {
         pub shares: u256
     }
 
+    /// Emitted when `sender` exchanges `shares`, owned by `owner`, for `assets` and transfers
+    /// those `assets` to `receiver`.
     #[derive(Drop, PartialEq, starknet::Event)]
     pub struct Withdraw {
         #[key]
@@ -66,10 +94,20 @@ pub mod ERC4626Component {
         pub const DECIMALS_OVERFLOW: felt252 = 'ERC4626: decimals overflow';
     }
 
-    /// Constants expected to be defined at the contract level used to configure the component
-    /// behaviour.
+    /// Constants expected to be defined at the contract level which configure virtual
+    /// assets and shares.
     ///
-    /// ADD ME...
+    /// `UNDERLYING_DECIMALS` should match the underlying asset's decimals. The default
+    /// value is `18`.
+    ///
+    /// `DECIMALS_OFFSET` corresponds to the representational offset between `UNDERLYING_DECIMALS`
+    /// and the vault decimals. The greater the offset, the more expensive it is for attackers to
+    /// execute an inflation attack.
+    ///
+    /// Requirements:
+    ///
+    /// - `UNDERLYING_DECIMALS`+ `DECIMALS_OFFSET` cannot exceed 255 (max u8).
+    ///
     pub trait ImmutableConfig {
         const UNDERLYING_DECIMALS: u8;
         const DECIMALS_OFFSET: u8;
@@ -84,7 +122,7 @@ pub mod ERC4626Component {
 
     /// Adjustments for fees expected to be defined on the contract level.
     /// Defaults to no entry or exit fees.
-    /// To transfer fees, this trait needs to be coordinated with ERC4626Component::ERC4626Hooks.
+    /// To transfer fees, this trait needs to be coordinated with `ERC4626Component::ERC4626Hooks`.
     pub trait FeeConfigTrait<TContractState> {
         fn adjust_deposit(self: @ComponentState<TContractState>, assets: u256) -> u256 {
             assets
@@ -510,8 +548,8 @@ pub impl ERC4626DefaultLimits<
 /// See
 /// https://github.com/starknet-io/SNIPs/blob/963848f0752bde75c7087c2446d83b7da8118b25/SNIPS/snip-107.md#defaultconfig-implementation
 ///
-/// The default underlying decimals is set to `18`.
-/// The default decimals offset is set to `0`.
+/// The default `UNDERLYING_DECIMALS` is set to `18`.
+/// The default `DECIMALS_OFFSET` is set to `0`.
 pub impl DefaultConfig of ERC4626Component::ImmutableConfig {
     const UNDERLYING_DECIMALS: u8 = ERC4626Component::DEFAULT_UNDERLYING_DECIMALS;
     const DECIMALS_OFFSET: u8 = ERC4626Component::DEFAULT_DECIMALS_OFFSET;

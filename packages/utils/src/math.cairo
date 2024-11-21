@@ -62,6 +62,11 @@ fn round_up(rounding: Rounding) -> bool {
 
 /// Returns the quotient of x * y / denominator and rounds up or down depending on `rounding`.
 /// Uses `u512_safe_div_rem_by_u256` for precision.
+///
+/// Requirements:
+///
+/// - `denominator` cannot be zero.
+/// - The quotient cannot be greater than u256.
 pub fn u256_mul_div(x: u256, y: u256, denominator: u256, rounding: Rounding) -> u256 {
     let (q, r) = _raw_u256_mul_div(x, y, denominator);
 
@@ -73,9 +78,9 @@ pub fn u256_mul_div(x: u256, y: u256, denominator: u256, rounding: Rounding) -> 
 }
 
 fn _raw_u256_mul_div(x: u256, y: u256, denominator: u256) -> (u256, u256) {
-    assert(denominator != 0, 'Math: division by zero');
+    assert(denominator != 0, 'mul_div division by zero');
     let p = x.wide_mul(y);
     let (mut q, r) = u512_safe_div_rem_by_u256(p, denominator.try_into().unwrap());
-    let q = q.try_into().expect('Math: quotient > u256');
+    let q = q.try_into().expect('mul_div quotient > u256');
     (q, r)
 }

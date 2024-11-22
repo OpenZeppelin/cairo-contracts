@@ -309,10 +309,10 @@ pub mod ERC4626FeesMock {
         }
 
         fn adjust_mint(
-            self: @ERC4626Component::ComponentState<ContractState>, shares: u256
+            self: @ERC4626Component::ComponentState<ContractState>, assets: u256
         ) -> u256 {
             let contract_state = ERC4626Component::HasComponent::get_contract(self);
-            contract_state.add_fee_to_mint(shares)
+            contract_state.add_fee_to_mint(assets)
         }
 
         fn adjust_withdraw(
@@ -323,10 +323,10 @@ pub mod ERC4626FeesMock {
         }
 
         fn adjust_redeem(
-            self: @ERC4626Component::ComponentState<ContractState>, shares: u256
+            self: @ERC4626Component::ComponentState<ContractState>, assets: u256
         ) -> u256 {
             let contract_state = ERC4626Component::HasComponent::get_contract(self);
-            contract_state.remove_fee_from_redeem(shares)
+            contract_state.remove_fee_from_redeem(assets)
         }
     }
 

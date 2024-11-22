@@ -128,16 +128,16 @@ pub mod ERC4626Component {
             assets
         }
 
-        fn adjust_mint(self: @ComponentState<TContractState>, shares: u256) -> u256 {
-            shares
+        fn adjust_mint(self: @ComponentState<TContractState>, assets: u256) -> u256 {
+            assets
         }
 
         fn adjust_withdraw(self: @ComponentState<TContractState>, assets: u256) -> u256 {
             assets
         }
 
-        fn adjust_redeem(self: @ComponentState<TContractState>, shares: u256) -> u256 {
-            shares
+        fn adjust_redeem(self: @ComponentState<TContractState>, assets: u256) -> u256 {
+            assets
         }
     }
 
@@ -264,8 +264,8 @@ pub mod ERC4626Component {
         /// current block, given current on-chain conditions.
         /// If the `FeeConfigTrait` is not defined for mints, returns the full amount of assets.
         fn preview_mint(self: @ComponentState<TContractState>, shares: u256) -> u256 {
-            let raw_amount = self._convert_to_assets(shares, Rounding::Ceil);
-            Fee::adjust_mint(self, raw_amount)
+            let full_assets = self._convert_to_assets(shares, Rounding::Ceil);
+            Fee::adjust_mint(self, full_assets)
         }
 
         /// Mints exactly Vault `shares` to `receiver` by depositing amount of underlying tokens.
@@ -351,8 +351,8 @@ pub mod ERC4626Component {
         /// current block, given current on-chain conditions.
         /// If the `FeeConfigTrait` is not defined for redeems, returns the full amount of assets.
         fn preview_redeem(self: @ComponentState<TContractState>, shares: u256) -> u256 {
-            let raw_amount = self._convert_to_assets(shares, Rounding::Floor);
-            Fee::adjust_redeem(self, raw_amount)
+            let full_assets = self._convert_to_assets(shares, Rounding::Floor);
+            Fee::adjust_redeem(self, full_assets)
         }
 
         /// Burns exactly `shares` from `owner` and sends assets of underlying tokens to `receiver`.

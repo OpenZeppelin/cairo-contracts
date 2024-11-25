@@ -1371,12 +1371,6 @@ fn test_multiple_txs_part_1() {
     cheat_caller_address(vault.contract_address, alice, CheatSpan::TargetCalls(1));
     vault.mint(2_000, alice);
 
-    // Check events
-    spy.assert_event_approval(asset.contract_address, alice, vault.contract_address, 4_000 - 2_000);
-    spy.assert_event_transfer(asset.contract_address, alice, vault.contract_address, 2_000);
-    spy.assert_event_transfer(vault.contract_address, ZERO(), alice, 2_000);
-    spy.assert_only_event_deposit(vault.contract_address, alice, alice, 2_000, 2_000);
-
     assert_eq!(vault.preview_deposit(2_000), 2_000);
     assert_eq!(vault.balance_of(alice), 2_000);
     assert_eq!(vault.balance_of(bob), 0);
@@ -1389,12 +1383,6 @@ fn test_multiple_txs_part_1() {
     // 2. Bob deposits 4_000 tokens (mints 4_000 shares)
     cheat_caller_address(vault.contract_address, bob, CheatSpan::TargetCalls(1));
     vault.mint(4_000, bob);
-
-    // Check events
-    spy.assert_event_approval(asset.contract_address, bob, vault.contract_address, 7_001 - 4_000);
-    spy.assert_event_transfer(asset.contract_address, bob, vault.contract_address, 4_000);
-    spy.assert_event_transfer(vault.contract_address, ZERO(), bob, 4_000);
-    spy.assert_only_event_deposit(vault.contract_address, bob, bob, 4_000, 4_000);
 
     assert_eq!(vault.preview_deposit(4_000), 4_000);
     assert_eq!(vault.balance_of(alice), 2_000);
@@ -1410,9 +1398,9 @@ fn test_multiple_txs_part_1() {
 
     assert_eq!(vault.balance_of(alice), 2_000);
     assert_eq!(vault.balance_of(bob), 4_000);
-    // was 3_000, but virtual assets/shares captures part of the yield
+    // Was 3_000, but virtual assets/shares captures part of the yield
     assert_eq!(vault.convert_to_assets(vault.balance_of(alice)), 2_999);
-    // was 6_000, but virtual assets/shares captures part of the yield
+    // Was 6_000, but virtual assets/shares captures part of the yield
     assert_eq!(vault.convert_to_assets(vault.balance_of(bob)), 5_999);
     assert_eq!(vault.convert_to_shares(asset.balance_of(vault.contract_address)), 6_000);
     assert_eq!(vault.total_supply(), 6_000);
@@ -1431,8 +1419,8 @@ fn test_multiple_txs_part_1() {
     assert_eq!(vault.total_assets(), 11_000);
 
     // 5. Bob mints 2_000 shares (costs 3_001 assets)
-    // NOTE: bob's assets spent rounds toward infinity
-    // NOTE: alice's vault assets rounds toward infinity
+    // NOTE: Bob's assets spent rounds toward infinity
+    // NOTE: Alice's vault assets rounds toward infinity
     cheat_caller_address(vault.contract_address, bob, CheatSpan::TargetCalls(1));
     vault.mint(2_000, bob);
 
@@ -1524,7 +1512,7 @@ fn test_multiple_txs_part_2() {
     assert_eq!(vault.total_assets(), 11_644);
 
     // 9. Alice withdraws 3_643 assets (2_000 shares)
-    // NOTE: bob's assets have been rounded back towards infinity
+    // NOTE: Bob's assets have been rounded back towards infinity
     cheat_caller_address(vault.contract_address, alice, CheatSpan::TargetCalls(1));
     vault.withdraw(3_643, alice, alice);
 

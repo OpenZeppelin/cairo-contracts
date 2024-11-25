@@ -12,6 +12,7 @@ use openzeppelin_test_common::mocks::erc20::Type;
 use openzeppelin_test_common::mocks::erc20::{
     IERC20ReentrantDispatcher, IERC20ReentrantDispatcherTrait
 };
+use openzeppelin_test_common::mocks::erc4626::ERC4626Mock;
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{NAME, SYMBOL, OTHER, RECIPIENT, ZERO, SPENDER};
 use openzeppelin_testing::events::EventSpyExt;
@@ -19,6 +20,10 @@ use openzeppelin_utils::math;
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{cheat_caller_address, CheatSpan, spy_events, EventSpy};
 use starknet::{ContractAddress, contract_address_const};
+
+fn ASSET() -> ContractAddress {
+    contract_address_const::<'ASSET'>()
+}
 
 fn HOLDER() -> ContractAddress {
     contract_address_const::<'HOLDER'>()
@@ -50,6 +55,16 @@ fn parse_share_offset(share: u256) -> u256 {
 
 //
 // Setup
+//
+
+type ComponentState = ERC4626Component::ComponentState<ERC4626Mock::ContractState>;
+
+fn COMPONENT_STATE() -> ComponentState {
+    ERC4626Component::component_state_for_testing()
+}
+
+//
+// Dispatchers
 //
 
 fn deploy_asset() -> IERC20ReentrantDispatcher {
@@ -162,6 +177,23 @@ fn deploy_vault_limits(asset_address: ContractAddress) -> ERC4626ABIDispatcher {
 
     let contract_address = utils::declare_and_deploy("ERC4626LimitsMock", vault_calldata);
     ERC4626ABIDispatcher { contract_address }
+}
+
+//
+// asset
+//
+
+#[test]
+fn test_asset() {
+    let mut state = COMPONENT_STATE();
+
+    let asset_address = state.asset();
+    assert_eq!(asset_address, ZERO());
+
+    state.initializer(ASSET());
+
+    let asset_address = state.asset();
+    assert_eq!(asset_address, ASSET());
 }
 
 //
@@ -1312,6 +1344,209 @@ fn test_output_fees_withdraw() {
             VALUE_WITHOUT_FEES,
             VALUE_WITH_FEES
         );
+}
+
+//
+// Scenario inspired by solmate ERC4626 tests
+//
+
+#[test]
+fn test_multiple_txs_part_1() {
+    let mut asset = deploy_asset();
+    let mut vault = deploy_vault(asset.contract_address);
+
+    let alice = contract_address_const::<'alice'>();
+    let bob = contract_address_const::<'bob'>();
+
+    asset.unsafe_mint(alice, 4_000);
+    asset.unsafe_mint(bob, 7_001);
+
+    cheat_caller_address(asset.contract_address, alice, CheatSpan::TargetCalls(1));
+    asset.approve(vault.contract_address, 4_000);
+    cheat_caller_address(asset.contract_address, bob, CheatSpan::TargetCalls(1));
+    asset.approve(vault.contract_address, 7_001);
+
+    // 1. Alice mints 2_000 shares (costs 2_000 tokens)
+    let mut spy = spy_events();
+    cheat_caller_address(vault.contract_address, alice, CheatSpan::TargetCalls(1));
+    vault.mint(2_000, alice);
+
+    // Check events
+    spy.assert_event_approval(asset.contract_address, alice, vault.contract_address, 4_000 - 2_000);
+    spy.assert_event_transfer(asset.contract_address, alice, vault.contract_address, 2_000);
+    spy.assert_event_transfer(vault.contract_address, ZERO(), alice, 2_000);
+    spy.assert_only_event_deposit(vault.contract_address, alice, alice, 2_000, 2_000);
+
+    assert_eq!(vault.preview_deposit(2_000), 2_000);
+    assert_eq!(vault.balance_of(alice), 2_000);
+    assert_eq!(vault.balance_of(bob), 0);
+    assert_eq!(vault.convert_to_assets(vault.balance_of(alice)), 2_000);
+    assert_eq!(vault.convert_to_assets(vault.balance_of(bob)), 0);
+    assert_eq!(vault.convert_to_shares(asset.balance_of(vault.contract_address)), 2_000);
+    assert_eq!(vault.total_supply(), 2_000);
+    assert_eq!(vault.total_assets(), 2_000);
+
+    // 2. Bob deposits 4_000 tokens (mints 4_000 shares)
+    cheat_caller_address(vault.contract_address, bob, CheatSpan::TargetCalls(1));
+    vault.mint(4_000, bob);
+
+    // Check events
+    spy.assert_event_approval(asset.contract_address, bob, vault.contract_address, 7_001 - 4_000);
+    spy.assert_event_transfer(asset.contract_address, bob, vault.contract_address, 4_000);
+    spy.assert_event_transfer(vault.contract_address, ZERO(), bob, 4_000);
+    spy.assert_only_event_deposit(vault.contract_address, bob, bob, 4_000, 4_000);
+
+    assert_eq!(vault.preview_deposit(4_000), 4_000);
+    assert_eq!(vault.balance_of(alice), 2_000);
+    assert_eq!(vault.balance_of(bob), 4_000);
+    assert_eq!(vault.convert_to_assets(vault.balance_of(alice)), 2_000);
+    assert_eq!(vault.convert_to_assets(vault.balance_of(bob)), 4_000);
+    assert_eq!(vault.convert_to_shares(asset.balance_of(vault.contract_address)), 6_000);
+    assert_eq!(vault.total_supply(), 6_000);
+    assert_eq!(vault.total_assets(), 6_000);
+
+    // 3. Vault mutates by +3_000 tokens (simulated yield returned from strategy)
+    asset.unsafe_mint(vault.contract_address, 3_000);
+
+    assert_eq!(vault.balance_of(alice), 2_000);
+    assert_eq!(vault.balance_of(bob), 4_000);
+    // was 3_000, but virtual assets/shares captures part of the yield
+    assert_eq!(vault.convert_to_assets(vault.balance_of(alice)), 2_999);
+    // was 6_000, but virtual assets/shares captures part of the yield
+    assert_eq!(vault.convert_to_assets(vault.balance_of(bob)), 5_999);
+    assert_eq!(vault.convert_to_shares(asset.balance_of(vault.contract_address)), 6_000);
+    assert_eq!(vault.total_supply(), 6_000);
+    assert_eq!(vault.total_assets(), 9_000);
+
+    // 4. Alice deposits 2_000 tokens (mints 1_333 shares)
+    cheat_caller_address(vault.contract_address, alice, CheatSpan::TargetCalls(1));
+    vault.deposit(2_000, alice);
+
+    assert_eq!(vault.balance_of(alice), 3_333);
+    assert_eq!(vault.balance_of(bob), 4_000);
+    assert_eq!(vault.convert_to_assets(vault.balance_of(alice)), 4_999);
+    assert_eq!(vault.convert_to_assets(vault.balance_of(bob)), 6_000);
+    assert_eq!(vault.convert_to_shares(asset.balance_of(vault.contract_address)), 7_333);
+    assert_eq!(vault.total_supply(), 7_333);
+    assert_eq!(vault.total_assets(), 11_000);
+
+    // 5. Bob mints 2_000 shares (costs 3_001 assets)
+    // NOTE: bob's assets spent rounds toward infinity
+    // NOTE: alice's vault assets rounds toward infinity
+    cheat_caller_address(vault.contract_address, bob, CheatSpan::TargetCalls(1));
+    vault.mint(2_000, bob);
+
+    assert_eq!(vault.balance_of(alice), 3_333);
+    assert_eq!(vault.balance_of(bob), 6_000);
+    assert_eq!(vault.convert_to_assets(vault.balance_of(alice)), 4_999);
+    assert_eq!(vault.convert_to_assets(vault.balance_of(bob)), 9_000);
+    assert_eq!(vault.convert_to_shares(asset.balance_of(vault.contract_address)), 9_333);
+    assert_eq!(vault.total_supply(), 9_333);
+    assert_eq!(vault.total_assets(), 14_000);
+
+    // 6. Vault mutates by +3_000 tokens
+    // NOTE: Vault holds 17_001 tokens, but `assets_of` returns 17000.
+    asset.unsafe_mint(vault.contract_address, 3_000);
+
+    assert_eq!(vault.balance_of(alice), 3_333);
+    assert_eq!(vault.balance_of(bob), 6_000);
+    // Was 6_071
+    assert_eq!(vault.convert_to_assets(vault.balance_of(alice)), 6_070);
+    // Was 10_929
+    assert_eq!(vault.convert_to_assets(vault.balance_of(bob)), 10_928);
+    assert_eq!(vault.convert_to_shares(asset.balance_of(vault.contract_address)), 9_333);
+    assert_eq!(vault.total_supply(), 9_333);
+    // Was 17_001
+    assert_eq!(vault.total_assets(), 17_000);
+
+    // 7. Alice redeems 1_333 shares (2_428 assets)
+    cheat_caller_address(vault.contract_address, alice, CheatSpan::TargetCalls(1));
+    vault.redeem(1_333, alice, alice);
+
+    assert_eq!(vault.balance_of(alice), 2_000);
+    assert_eq!(vault.balance_of(bob), 6_000);
+    assert_eq!(vault.convert_to_assets(vault.balance_of(alice)), 3_643);
+    assert_eq!(vault.convert_to_assets(vault.balance_of(bob)), 10_929);
+    assert_eq!(vault.convert_to_shares(asset.balance_of(vault.contract_address)), 8_000);
+    assert_eq!(vault.total_supply(), 8_000);
+    assert_eq!(vault.total_assets(), 14_573);
+}
+
+#[test]
+fn test_multiple_txs_part_2() {
+    // SNForge hangs, so the test is split in two.
+    let mut asset = deploy_asset();
+    let mut vault = deploy_vault(asset.contract_address);
+
+    let alice = contract_address_const::<'alice'>();
+    let bob = contract_address_const::<'bob'>();
+
+    asset.unsafe_mint(alice, 4_000);
+    asset.unsafe_mint(bob, 7_001);
+
+    cheat_caller_address(asset.contract_address, alice, CheatSpan::TargetCalls(1));
+    asset.approve(vault.contract_address, 4_000);
+    cheat_caller_address(asset.contract_address, bob, CheatSpan::TargetCalls(1));
+    asset.approve(vault.contract_address, 7_001);
+
+    // Recreate state to where it left off from `test_multiple_txs_part_1`.
+
+    // 1. Alice mints 2_000 shares (costs 2_000 tokens)
+    cheat_caller_address(vault.contract_address, alice, CheatSpan::TargetCalls(1));
+    vault.mint(2_000, alice);
+    // 2. Bob deposits 4_000 tokens (mints 4_000 shares)
+    cheat_caller_address(vault.contract_address, bob, CheatSpan::TargetCalls(1));
+    vault.mint(4_000, bob);
+    // 3. Vault mutates by +3_000 tokens (simulated yield returned from strategy)
+    asset.unsafe_mint(vault.contract_address, 3_000);
+    // 4. Alice deposits 2_000 tokens (mints 1_333 shares)
+    cheat_caller_address(vault.contract_address, alice, CheatSpan::TargetCalls(1));
+    vault.deposit(2_000, alice);
+    // 5. Bob mints 2_000 shares (costs 3_001 assets)
+    cheat_caller_address(vault.contract_address, bob, CheatSpan::TargetCalls(1));
+    vault.mint(2_000, bob);
+    // 6. Vault mutates by +3_000 tokens
+    asset.unsafe_mint(vault.contract_address, 3_000);
+    // 7. Alice redeems 1_333 shares (2_428 assets)
+    cheat_caller_address(vault.contract_address, alice, CheatSpan::TargetCalls(1));
+    vault.redeem(1_333, alice, alice);
+
+    // 8. Bob withdraws 2_929 assets (1_608 shares)
+    cheat_caller_address(vault.contract_address, bob, CheatSpan::TargetCalls(1));
+    vault.withdraw(2_929, bob, bob);
+
+    assert_eq!(vault.balance_of(alice), 2_000);
+    assert_eq!(vault.balance_of(bob), 4_392);
+    assert_eq!(vault.convert_to_assets(vault.balance_of(alice)), 3_643);
+    assert_eq!(vault.convert_to_assets(vault.balance_of(bob)), 8_000);
+    assert_eq!(vault.convert_to_shares(asset.balance_of(vault.contract_address)), 6_392);
+    assert_eq!(vault.total_supply(), 6_392);
+    assert_eq!(vault.total_assets(), 11_644);
+
+    // 9. Alice withdraws 3_643 assets (2_000 shares)
+    // NOTE: bob's assets have been rounded back towards infinity
+    cheat_caller_address(vault.contract_address, alice, CheatSpan::TargetCalls(1));
+    vault.withdraw(3_643, alice, alice);
+
+    assert_eq!(vault.balance_of(alice), 0);
+    assert_eq!(vault.balance_of(bob), 4_392);
+    assert_eq!(vault.convert_to_assets(vault.balance_of(alice)), 0);
+    assert_eq!(vault.convert_to_assets(vault.balance_of(bob)), 8_000);
+    assert_eq!(vault.convert_to_shares(asset.balance_of(vault.contract_address)), 4_392);
+    assert_eq!(vault.total_supply(), 4_392);
+    assert_eq!(vault.total_assets(), 8_001);
+
+    // 10. Bob redeems 4_392 shares (8_001)
+    cheat_caller_address(vault.contract_address, bob, CheatSpan::TargetCalls(1));
+    vault.redeem(4_392, bob, bob);
+
+    assert_eq!(vault.balance_of(alice), 0);
+    assert_eq!(vault.balance_of(bob), 0);
+    assert_eq!(vault.convert_to_assets(vault.balance_of(alice)), 0);
+    assert_eq!(vault.convert_to_assets(vault.balance_of(bob)), 0);
+    assert_eq!(vault.convert_to_shares(asset.balance_of(vault.contract_address)), 0);
+    assert_eq!(vault.total_supply(), 0);
+    assert_eq!(vault.total_assets(), 1);
 }
 
 //

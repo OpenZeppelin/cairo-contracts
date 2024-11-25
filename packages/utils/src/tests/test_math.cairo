@@ -86,7 +86,7 @@ fn test_average_u256(a: u256, b: u256) {
 //
 
 #[test]
-#[should_panic(expected: 'Math: division by zero')]
+#[should_panic(expected: 'mul_div division by zero')]
 fn test_mul_div_divide_by_zero() {
     let x = 1;
     let y = 1;
@@ -96,7 +96,7 @@ fn test_mul_div_divide_by_zero() {
 }
 
 #[test]
-#[should_panic(expected: 'Math: quotient > u256')]
+#[should_panic(expected: 'mul_div quotient > u256')]
 fn test_mul_div_result_gt_u256() {
     let x = 5;
     let y = Bounded::MAX;

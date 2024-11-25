@@ -4,30 +4,32 @@
 /// # ERC4626 Component
 ///
 /// The ERC4626 component is an extension of ERC20 and provides an implementation of the IERC4626
-/// interface which allows the minting and burning of "shares" in exchange for an underlying "asset."
-/// The component leverages traits to configure fees, limits, and decimals.
+/// interface which allows the minting and burning of "shares" in exchange for an underlying
+/// "asset." The component leverages traits to configure fees, limits, and decimals.
 ///
-/// CAUTION: In empty (or nearly empty) ERC-4626 vaults, deposits are at high risk of being stolen through
-/// frontrunning with a "donation" to the vault that inflates the price of a share. This is variously known
-/// as a donation or inflation attack and is essntially a problem of slippage. Vault deployers can protect
-/// against this attack by making an initial deposit of a non-trivial amount of the asset, such that price
-/// manipulation becomes infeasible. Withdrawals may similarly be affected by slippage. Users can protect
-/// against this attack as well as unexpected slippage in general by verifying the amount received is as
-/// expected, using a wrapper that performs these checks.
+/// CAUTION: In empty (or nearly empty) ERC-4626 vaults, deposits are at high risk of being stolen
+/// through frontrunning with a "donation" to the vault that inflates the price of a share. This is
+/// variously known as a donation or inflation attack and is essentially a problem of slippage.
+/// Vault deployers can protect against this attack by making an initial deposit of a non-trivial
+/// amount of the asset, such that price manipulation becomes infeasible. Withdrawals may similarly
+/// be affected by slippage. Users can protect against this attack as well as unexpected slippage in
+/// general by verifying the amount received is as expected, using a wrapper that performs these
+/// checks.
 ///
-/// This implementation offers configurable virtual assets and shares to help developers mitigate that risk.
-/// `ImmutableConfig::DECIMALS_OFFSET` corresponds to an offset in the decimal representation between the
-/// underlying asset's decimals and vault decimals. This offset also determines the rate of virtual shares to
-/// virtual assets in the vault, which itself determines the initial exchange rate. While not fully preventing
-/// the attack, analysis shows that the default offset (0) makes it non-profitable even if an attacker is able
-/// to capture value from multiple user deposits, as a result of the value being captured by the virtual shares
-/// (out of the attacker's donation) matching the attacker's expected gains. With a larger offset, the attack
-/// becomes orders of magnitude more expensive than it is profitable.
+/// This implementation offers configurable virtual assets and shares to help developers mitigate
+/// that risk. `ImmutableConfig::DECIMALS_OFFSET` corresponds to an offset in the decimal
+/// representation between the underlying asset's decimals and vault decimals. This offset also
+/// determines the rate of virtual shares to virtual assets in the vault, which itself determines
+/// the initial exchange rate. While not fully preventing the attack, analysis shows that the
+/// default offset (0) makes it non-profitable even if an attacker is able to capture value from
+/// multiple user deposits, as a result of the value being captured by the virtual shares (out of
+/// the attacker's donation) matching the attacker's expected gains. With a larger offset, the
+/// attack becomes orders of magnitude more expensive than it is profitable.
 ///
-/// The drawback of this approach is that the virtual shares do capture (a very small) part of the value being accrued
-/// to the vault. Also, if the vault experiences losses and users try to exit the vault, the virtual shares and assets
-/// will cause the first exiting user to experience reduced losses to the detriment to the last users who  will
-/// experience bigger losses.
+/// The drawback of this approach is that the virtual shares do capture (a very small) part of the
+/// value being accrued to the vault. Also, if the vault experiences losses and users try to exit
+/// the vault, the virtual shares and assets will cause the first exiting user to experience reduced
+/// losses to the detriment to the last users who  will experience bigger losses.
 #[starknet::component]
 pub mod ERC4626Component {
     use core::num::traits::{Bounded, Zero};
@@ -176,6 +178,10 @@ pub mod ERC4626Component {
         fn after_deposit(ref self: ComponentState<TContractState>, assets: u256, shares: u256) {}
     }
 
+    //
+    // External
+    //
+
     #[embeddable_as(ERC4626Impl)]
     impl ERC4626<
         TContractState,
@@ -234,6 +240,7 @@ pub mod ERC4626Component {
         /// Returns the amount of newly-minted shares.
         ///
         /// Requirements:
+        ///
         /// - `assets` is less than or equal to the max deposit amount for `receiver`.
         ///
         /// Emits a `Deposit` event.
@@ -272,6 +279,7 @@ pub mod ERC4626Component {
         /// Returns the amount deposited assets.
         ///
         /// Requirements:
+        ///
         /// - `shares` is less than or equal to the max shares amount for `receiver`.
         ///
         /// Emits a `Deposit` event.
@@ -314,6 +322,7 @@ pub mod ERC4626Component {
         /// Burns shares from `owner` and sends exactly `assets` of underlying tokens to `receiver`.
         ///
         /// Requirements:
+        ///
         /// - `assets` is less than or equal to the max withdraw amount of `owner`.
         ///
         /// Emits a `Withdraw` event.
@@ -358,6 +367,7 @@ pub mod ERC4626Component {
         /// Burns exactly `shares` from `owner` and sends assets of underlying tokens to `receiver`.
         ///
         /// Requirements:
+        ///
         /// - `shares` is less than or equal to the max redeem amount of `owner`.
         ///
         /// Emits a `Withdraw` event.
@@ -405,6 +415,10 @@ pub mod ERC4626Component {
         }
     }
 
+    //
+    // Internal
+    //
+
     #[generate_trait]
     pub impl InternalImpl<
         TContractState,
@@ -421,6 +435,7 @@ pub mod ERC4626Component {
         /// This should be set in the contract's constructor.
         ///
         /// Requirements:
+        ///
         /// - `asset_address` cannot be the zero address.
         fn initializer(ref self: ComponentState<TContractState>, asset_address: ContractAddress) {
             ImmutableConfig::validate();
@@ -435,6 +450,7 @@ pub mod ERC4626Component {
         /// after the business logic.
         ///
         /// Requirements:
+        ///
         /// - `ERC20::transfer_from` must return true.
         ///
         /// Emits two `ERC20::Transfer` events (`ERC20::mint` and `ERC20::transfer_from`).
@@ -468,6 +484,7 @@ pub mod ERC4626Component {
         /// before the business logic.
         ///
         /// Requirements:
+        ///
         /// - `ERC20::transfer` must return true.
         ///
         /// Emits two `ERC20::Transfer` events (`ERC20::burn` and `ERC20::transfer`).

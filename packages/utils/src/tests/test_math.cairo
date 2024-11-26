@@ -2,8 +2,7 @@ use core::integer::{u512, u512_safe_div_rem_by_u256};
 use core::num::traits::Bounded;
 use core::num::traits::OverflowingAdd;
 use crate::math::Rounding;
-use crate::math::average;
-use crate::math::u256_mul_div;
+use crate::math;
 
 //
 // average
@@ -11,7 +10,7 @@ use crate::math::u256_mul_div;
 
 #[test]
 fn test_average_u8(a: u8, b: u8) {
-    let actual = average(a, b);
+    let actual = math::average(a, b);
 
     let a: u256 = a.into();
     let b: u256 = b.into();
@@ -22,7 +21,7 @@ fn test_average_u8(a: u8, b: u8) {
 
 #[test]
 fn test_average_u16(a: u16, b: u16) {
-    let actual = average(a, b);
+    let actual = math::average(a, b);
 
     let a: u256 = a.into();
     let b: u256 = b.into();
@@ -33,7 +32,7 @@ fn test_average_u16(a: u16, b: u16) {
 
 #[test]
 fn test_average_u32(a: u32, b: u32) {
-    let actual = average(a, b);
+    let actual = math::average(a, b);
 
     let a: u256 = a.into();
     let b: u256 = b.into();
@@ -44,7 +43,7 @@ fn test_average_u32(a: u32, b: u32) {
 
 #[test]
 fn test_average_u64(a: u64, b: u64) {
-    let actual = average(a, b);
+    let actual = math::average(a, b);
 
     let a: u256 = a.into();
     let b: u256 = b.into();
@@ -55,7 +54,7 @@ fn test_average_u64(a: u64, b: u64) {
 
 #[test]
 fn test_average_u128(a: u128, b: u128) {
-    let actual = average(a, b);
+    let actual = math::average(a, b);
 
     let a: u256 = a.into();
     let b: u256 = b.into();
@@ -66,7 +65,7 @@ fn test_average_u128(a: u128, b: u128) {
 
 #[test]
 fn test_average_u256(a: u256, b: u256) {
-    let actual = average(a, b);
+    let actual = math::average(a, b);
     let mut expected = 0;
 
     let (sum, overflow) = a.overflowing_add(b);
@@ -92,7 +91,7 @@ fn test_mul_div_divide_by_zero() {
     let y = 1;
     let denominator = 0;
 
-    u256_mul_div(x, y, denominator, Rounding::Floor);
+    math::u256_mul_div(x, y, denominator, Rounding::Floor);
 }
 
 #[test]
@@ -102,7 +101,7 @@ fn test_mul_div_result_gt_u256() {
     let y = Bounded::MAX;
     let denominator = 2;
 
-    u256_mul_div(x, y, denominator, Rounding::Floor);
+    math::u256_mul_div(x, y, denominator, Rounding::Floor);
 }
 
 #[test]
@@ -115,7 +114,7 @@ fn test_mul_div_round_down_small_values() {
     for round in round_down {
         for args in args_list {
             let (x, y, denominator, expected) = args;
-            assert_eq!(u256_mul_div(*x, *y, *denominator, round), *expected);
+            assert_eq!(math::u256_mul_div(*x, *y, *denominator, round), *expected);
         }
     }
 }
@@ -137,7 +136,7 @@ fn test_mul_div_round_down_large_values() {
     for round in round_down {
         for args in args_list {
             let (x, y, denominator, expected) = args;
-            assert_eq!(u256_mul_div(*x, *y, *denominator, round), *expected);
+            assert_eq!(math::u256_mul_div(*x, *y, *denominator, round), *expected);
         };
     };
 }
@@ -152,7 +151,7 @@ fn test_mul_div_round_up_small_values() {
     for round in round_up {
         for args in args_list {
             let (x, y, denominator, expected) = args;
-            assert_eq!(u256_mul_div(*x, *y, *denominator, round), *expected);
+            assert_eq!(math::u256_mul_div(*x, *y, *denominator, round), *expected);
         }
     }
 }
@@ -174,7 +173,7 @@ fn test_mul_div_round_up_large_values() {
     for round in round_up {
         for args in args_list {
             let (x, y, denominator, expected) = args;
-            assert_eq!(u256_mul_div(*x, *y, *denominator, round), *expected);
+            assert_eq!(math::u256_mul_div(*x, *y, *denominator, round), *expected);
         };
     };
 }

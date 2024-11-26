@@ -49,20 +49,6 @@ pub enum Rounding {
     Expand // Away from zero
 }
 
-fn cast_rounding(rounding: Rounding) -> u8 {
-    match rounding {
-        Rounding::Floor => 0,
-        Rounding::Ceil => 1,
-        Rounding::Trunc => 2,
-        Rounding::Expand => 3
-    }
-}
-
-fn round_up(rounding: Rounding) -> bool {
-    let u8_rounding = cast_rounding(rounding);
-    u8_rounding % 2 == 1
-}
-
 /// Returns the quotient of x * y / denominator and rounds up or down depending on `rounding`.
 /// Uses `u512_safe_div_rem_by_u256` for precision.
 ///
@@ -73,17 +59,24 @@ fn round_up(rounding: Rounding) -> bool {
 pub fn u256_mul_div(x: u256, y: u256, denominator: u256, rounding: Rounding) -> u256 {
     let (q, r) = _raw_u256_mul_div(x, y, denominator);
 
-    // Cast to felts for bitwise op
-    let is_rounded_up: felt252 = round_up(rounding).into();
-    let has_remainder: felt252 = (r > 0).into();
+    let is_rounded_up = match rounding {
+        Rounding::Ceil => 1,
+        Rounding::Expand => 1,
+        _ => 0
+    };
 
-    q + (is_rounded_up.into() & has_remainder.into())
+    let has_remainder = match r > 0 {
+        true => 1,
+        false => 0
+    };
+
+    q + (is_rounded_up & has_remainder)
 }
 
 fn _raw_u256_mul_div(x: u256, y: u256, denominator: u256) -> (u256, u256) {
-    assert(denominator != 0, 'mul_div division by zero');
+    let denominator = denominator.try_into().expect('mul_div division by zero');
     let p = x.wide_mul(y);
-    let (mut q, r) = u512_safe_div_rem_by_u256(p, denominator.try_into().unwrap());
+    let (mut q, r) = u512_safe_div_rem_by_u256(p, denominator);
     let q = q.try_into().expect('mul_div quotient > u256');
     (q, r)
 }

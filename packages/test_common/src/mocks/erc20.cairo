@@ -1,6 +1,5 @@
 use starknet::ContractAddress;
 
-
 #[starknet::contract]
 pub mod DualCaseERC20Mock {
     use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};

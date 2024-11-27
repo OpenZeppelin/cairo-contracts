@@ -116,7 +116,7 @@ pub trait IGovernor<TState> {
 
     /// Voting power of an `account` at a specific `timepoint`.
     ///
-    /// NOTE: this can be implemented in a number of ways, for example by reading the delegated
+    /// NOTE: This can be implemented in a number of ways, for example by reading the delegated
     /// balance from one (or multiple) `ERC20Votes` tokens.
     fn get_votes(self: @TState, account: ContractAddress, timepoint: u64) -> u256;
 

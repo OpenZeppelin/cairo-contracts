@@ -22,6 +22,7 @@ TIP: For an overview of ERC721, read our xref:erc721.adoc[ERC721 guide].
 ```cairo
 use openzeppelin_token::erc721::interface::IERC721;
 ```
+
 Interface of the IERC721 standard as defined in {eip721}.
 
 [.contract-index]

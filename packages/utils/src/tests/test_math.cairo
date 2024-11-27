@@ -111,10 +111,10 @@ fn test_mul_div_round_down_small_values() {
     (3, 4, 5, 2), (3, 5, 5, 3)]
         .span();
 
-    for round in round_down {
+    for rounding in round_down {
         for args in args_list {
             let (x, y, denominator, expected) = args;
-            assert_eq!(math::u256_mul_div(*x, *y, *denominator, round), *expected);
+            assert_eq!(math::u256_mul_div(*x, *y, *denominator, rounding), *expected);
         }
     }
 }
@@ -133,10 +133,10 @@ fn test_mul_div_round_down_large_values() {
     ]
         .span();
 
-    for round in round_down {
+    for rounding in round_down {
         for args in args_list {
             let (x, y, denominator, expected) = args;
-            assert_eq!(math::u256_mul_div(*x, *y, *denominator, round), *expected);
+            assert_eq!(math::u256_mul_div(*x, *y, *denominator, rounding), *expected);
         };
     };
 }
@@ -148,10 +148,10 @@ fn test_mul_div_round_up_small_values() {
     (3, 4, 5, 3), (3, 5, 5, 3)]
         .span();
 
-    for round in round_up {
+    for rounding in round_up {
         for args in args_list {
             let (x, y, denominator, expected) = args;
-            assert_eq!(math::u256_mul_div(*x, *y, *denominator, round), *expected);
+            assert_eq!(math::u256_mul_div(*x, *y, *denominator, rounding), *expected);
         }
     }
 }
@@ -170,10 +170,10 @@ fn test_mul_div_round_up_large_values() {
     ]
         .span();
 
-    for round in round_up {
+    for rounding in round_up {
         for args in args_list {
             let (x, y, denominator, expected) = args;
-            assert_eq!(math::u256_mul_div(*x, *y, *denominator, round), *expected);
+            assert_eq!(math::u256_mul_div(*x, *y, *denominator, rounding), *expected);
         };
     };
 }

@@ -1367,7 +1367,6 @@ fn test_multiple_txs_part_1() {
     asset.approve(vault.contract_address, 7_001);
 
     // 1. Alice mints 2_000 shares (costs 2_000 tokens)
-    let mut spy = spy_events();
     cheat_caller_address(vault.contract_address, alice, CheatSpan::TargetCalls(1));
     vault.mint(2_000, alice);
 

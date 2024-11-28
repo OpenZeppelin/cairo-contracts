@@ -54,6 +54,8 @@ pub mod GovernorVotesQuorumFractionComponent {
         +Drop<TContractState>
     > of GovernorComponent::GovernorQuorumTrait<TContractState> {
         /// See `GovernorComponent::GovernorQuorumTrait::quorum`.
+        ///
+        /// Returns a percentage of the votes token total supply at a given timepoint in the past.
         fn quorum(self: @GovernorComponentState<TContractState>, timepoint: u64) -> u256 {
             let contract = self.get_contract();
             let this_component = GovernorVotesQuorumFraction::get_component(contract);

@@ -212,7 +212,7 @@ pub mod GovernorTimelockExecutionComponent {
         +GovernorComponent::HasComponent<TContractState>,
         +Drop<TContractState>
     > of ITimelocked<ComponentState<TContractState>> {
-        /// Returns the token that voting power is sourced from.
+        /// Returns the timelock controller address.
         fn timelock(self: @ComponentState<TContractState>) -> ContractAddress {
             self.Governor_timelock_controller.read()
         }

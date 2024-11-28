@@ -12,6 +12,8 @@
 :IVotes: xref:IVotes[IVotes]
 :governor: xref:governance/governor.adoc[Governor]
 :inner-src5: xref:api/introspection.adoc#ISRC5[SRC5 ID]
+:GovernorComponent: xref:#GovernorComponent[GovernorComponent]
+:TimelockControllerComponent: xref:#TimelockControllerComponent[TimelockControllerComponent]
 
 = Governance
 
@@ -380,6 +382,7 @@ Emitted when a vote is cast with params.
 :ProposalCanceled: xref:GovernorComponent-ProposalCanceled[ProposalCanceled]
 :VoteCast: xref:GovernorComponent-VoteCast[VoteCast]
 :VoteCastWithParams: xref:GovernorComponent-VoteCastWithParams[VoteCastWithParams]
+:component-extensions: xref:#governor_extensions[component extensions]
 
 [.contract]
 [[GovernorComponent]]
@@ -391,6 +394,10 @@ use openzeppelin_governance::governor::GovernorComponent;
 ```
 
 Core of the governance system.
+
+NOTE: The extension traits presented below are what make the GovernorComponent a modular and configurable system. The embeddable
+and internal implementations depends on them. They can be implemented locally on the contract, or through the provided library
+{component-extensions}.
 
 NOTE: {src5-component-required-note}
 
@@ -1182,7 +1189,766 @@ Emitted when a vote is cast with params.
 
 The Governor component can (and must) be extended by implementing the {extension-traits} to add the desired functionality.
 This can be achieved by directly implementing the traits on your contract, or by using a set of ready-to-use extensions
-provided by the library. More extensions may be added in future releases.
+provided by the library, which are presented below.
+
+[.contract]
+[[GovernorCoreExecutionComponent]]
+=== `++GovernorCoreExecutionComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.20.0-rc.0/packages/governance/src/governor/extensions/governor_core_execution.cairo[{github-icon},role=heading-link]
+
+[.hljs-theme-dark]
+```cairo
+use openzeppelin_governance::governor::extensions::GovernorCoreExecutionComponent;
+```
+
+Extension of {GovernorComponent} providing an execution mechanism directly through
+the Governor itself. For a timelocked execution mechanism, see
+xref:#GovernorTimelockExecutionComponent[GovernorTimelockExecutionComponent].
+
+[.contract-index]
+.Extension traits implementations
+--
+.GovernorExecution
+
+* xref:#GovernorCoreExecutionComponent-state[`++state(self, proposal_id)++`]
+* xref:#GovernorCoreExecutionComponent-executor[`++executor(self)++`]
+* xref:#GovernorCoreExecutionComponent-execute_operations[`++execute_operations(self, proposal_id, calls, description_hash)++`]
+* xref:#GovernorCoreExecutionComponent-queue_operations[`++queue_operations(self, proposal_id, calls, description_hash)++`]
+* xref:#GovernorCoreExecutionComponent-proposal_needs_queuing[`++proposal_needs_queuing(self, proposal_id)++`]
+* xref:#GovernorCoreExecutionComponent-cancel_operations[`++cancel_operations(self, proposal_id, description_hash)++`]
+--
+
+[#GovernorCoreExecutionComponent-Extension-Traits-Functions]
+==== Extension traits functions
+
+[.contract-item]
+[[GovernorCoreExecutionComponent-state]]
+==== `[.contract-item-name]#++state++#++(self: @ContractState, proposal_id: felt252) → ProposalState++` [.item-kind]#internal#
+
+Returns the state of a proposal given its id.
+
+[.contract-item]
+[[GovernorCoreExecutionComponent-executor]]
+==== `[.contract-item-name]#++executor++#++(self: @ContractState) → ContractAddress++` [.item-kind]#internal#
+
+Returns the executor address.
+
+In this case, it returns the governor contract address since execution is performed directly through it.
+
+[.contract-item]
+[[GovernorCoreExecutionComponent-execute_operations]]
+==== `[.contract-item-name]#++execute_operations++#++(ref self: ContractState, proposal_id: felt252, calls: Span<Call>, description_hash: felt252)++` [.item-kind]#internal#
+
+Executes the proposal's operations directly through the governor contract.
+
+[.contract-item]
+[[GovernorCoreExecutionComponent-queue_operations]]
+==== `[.contract-item-name]#++queue_operations++#++(ref self: ContractState, proposal_id: felt252, calls: Span<Call>, description_hash: felt252) → u64++` [.item-kind]#internal#
+
+In this implementation, queuing is not required so it returns 0.
+
+[.contract-item]
+[[GovernorCoreExecutionComponent-proposal_needs_queuing]]
+==== `[.contract-item-name]#++proposal_needs_queuing++#++(self: @ContractState, proposal_id: felt252) → bool++` [.item-kind]#internal#
+
+In this implementation, it always returns false.
+
+[.contract-item]
+[[GovernorCoreExecutionComponent-cancel_operations]]
+==== `[.contract-item-name]#++cancel_operations++#++(ref self: ContractState, proposal_id: felt252, description_hash: felt252)++` [.item-kind]#internal#
+
+Cancels a proposal's operations.
+
+[.contract]
+[[GovernorCountingSimpleComponent]]
+=== `++GovernorCountingSimpleComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.20.0-rc.0/packages/governance/src/governor/extensions/governor_counting_simple.cairo[{github-icon},role=heading-link]
+
+[.hljs-theme-dark]
+```cairo
+use openzeppelin_governance::governor::extensions::GovernorCountingSimpleComponent;
+```
+
+Extension of {GovernorComponent} for simple vote counting with three options.
+
+[.contract-index]
+.Extension traits implementations
+--
+.GovernorCounting
+
+* xref:#GovernorCountingSimpleComponent-counting_mode[`counting_mode(self)`]
+* xref:#GovernorCountingSimpleComponent-count_vote[`count_vote(self, proposal_id, account, support, total_weight, params)`]
+* xref:#GovernorCountingSimpleComponent-has_voted[`has_voted(self, proposal_id, account)`]
+* xref:#GovernorCountingSimpleComponent-quorum_reached[`quorum_reached(self, proposal_id)`]
+* xref:#GovernorCountingSimpleComponent-vote_succeeded[`vote_succeeded(self, proposal_id)`]
+--
+
+[#GovernorCountingSimpleComponent-Extension-Traits-Functions]
+==== Extension traits functions
+
+[.contract-item]
+[[GovernorCountingSimpleComponent-counting_mode]]
+==== `[.contract-item-name]#++counting_mode++#++(self: @ContractState) → ByteArray++` [.item-kind]#internal#
+
+Returns `"support=bravo&quorum=for,abstain"`.
+
+- `support=bravo` indicates that the support follows the Governor Bravo format where voters can vote For, Against, or Abstain
+- `quorum=for,abstain` indicates that both For and Abstain votes count toward quorum
+
+[.contract-item]
+[[GovernorCountingSimpleComponent-count_vote]]
+==== `[.contract-item-name]#++count_vote++#++(ref self: ContractState, proposal_id: felt252, account: ContractAddress, support: u8, total_weight: u256, params: Span<felt252>) → u256++` [.item-kind]#internal#
+
+Records a vote for a proposal.
+
+The support value follows the `VoteType` enum (0=Against, 1=For, 2=Abstain).
+
+Returns the weight that was counted.
+
+[.contract-item]
+[[GovernorCountingSimpleComponent-has_voted]]
+==== `[.contract-item-name]#++has_voted++#++(self: @ContractState, proposal_id: felt252, account: ContractAddress) → bool++` [.item-kind]#internal#
+
+Returns whether an account has cast a vote on a proposal.
+
+[.contract-item]
+[[GovernorCountingSimpleComponent-quorum_reached]]
+==== `[.contract-item-name]#++quorum_reached++#++(self: @ContractState, proposal_id: felt252) → bool++` [.item-kind]#internal#
+
+Returns whether a proposal has reached quorum.
+
+In this implementation, both For and Abstain votes count toward quorum.
+
+[.contract-item]
+[[GovernorCountingSimpleComponent-vote_succeeded]]
+==== `[.contract-item-name]#++vote_succeeded++#++(self: @ContractState, proposal_id: felt252) → bool++` [.item-kind]#internal#
+
+Returns whether a proposal has succeeded.
+
+In this implementation, the For votes must be strictly greater than Against votes.
+
+[.contract]
+[[GovernorSettingsComponent]]
+=== `++GovernorSettingsComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.20.0-rc.0/packages/governance/src/governor/extensions/governor_settings.cairo[{github-icon},role=heading-link]
+
+[.hljs-theme-dark]
+```cairo
+use openzeppelin_governance::governor::extensions::GovernorSettingsComponent;
+```
+
+Extension of {GovernorComponent} for settings updatable through governance.
+
+[.contract-index]
+.Extension traits implementations
+--
+.GovernorSettings
+
+* xref:#GovernorSettingsComponent-voting_delay[`++voting_delay(self)++`]
+* xref:#GovernorSettingsComponent-voting_period[`++voting_period(self)++`]
+* xref:#GovernorSettingsComponent-proposal_threshold[`++proposal_threshold(self)++`]
+--
+
+[.contract-index]
+.Embeddable implementations
+--
+.GovernorSettingsAdminImpl
+
+* xref:#GovernorSettingsComponent-set_voting_delay[`++set_voting_delay(self, new_voting_delay)++`]
+* xref:#GovernorSettingsComponent-set_voting_period[`++set_voting_period(self, new_voting_period)++`]
+* xref:#GovernorSettingsComponent-set_proposal_threshold[`++set_proposal_threshold(self, new_proposal_threshold)++`]
+--
+
+[.contract-index]
+.Internal implementations
+--
+.InternalImpl
+
+* xref:#GovernorSettingsComponent-initializer[`++initializer(self, new_voting_delay, new_voting_period, new_proposal_threshold)++`]
+* xref:#GovernorSettingsComponent-assert_only_governance[`++assert_only_governance(self)++`]
+* xref:#GovernorSettingsComponent-_set_voting_delay[`++_set_voting_delay(self, new_voting_delay)++`]
+* xref:#GovernorSettingsComponent-_set_voting_period[`++_set_voting_period(self, new_voting_period)++`]
+* xref:#GovernorSettingsComponent-_set_proposal_threshold[`++_set_proposal_threshold(self, new_proposal_threshold)++`]
+--
+
+[.contract-index]
+.Events
+--
+* xref:#GovernorSettingsComponent-VotingDelayUpdated[`++VotingDelayUpdated(old_voting_delay, new_voting_delay)++`]
+* xref:#GovernorSettingsComponent-VotingPeriodUpdated[`++VotingPeriodUpdated(old_voting_period, new_voting_period)++`]
+* xref:#GovernorSettingsComponent-ProposalThresholdUpdated[`++ProposalThresholdUpdated(old_proposal_threshold, new_proposal_threshold)++`]
+--
+
+[#GovernorSettings-Extension-Traits-Functions]
+==== Extension traits functions
+
+[.contract-item]
+[[GovernorSettingsComponent-voting_delay]]
+==== `[.contract-item-name]#++voting_delay++#++(self: @ContractState) → u64++` [.item-kind]#internal#
+
+Returns the delay, between when a proposal is created and when voting starts.
+
+[.contract-item]
+[[GovernorSettingsComponent-voting_period]]
+==== `[.contract-item-name]#++voting_period++#++(self: @ContractState) → u64++` [.item-kind]#internal#
+
+Returns the period, during which votes can be cast.
+
+[.contract-item]
+[[GovernorSettingsComponent-proposal_threshold]]
+==== `[.contract-item-name]#++proposal_threshold++#++(self: @ContractState) → u256++` [.item-kind]#internal#
+
+Returns the minimum number of votes required for an account to create a proposal.
+
+[#GovernorSettings-Embeddable-Functions]
+==== Embeddable functions
+
+:VotingDelayUpdated: xref:#GovernorSettingsComponent-VotingDelayUpdated[VotingDelayUpdated]
+:VotingPeriodUpdated: xref:#GovernorSettingsComponent-VotingPeriodUpdated[VotingPeriodUpdated]
+:ProposalThresholdUpdated: xref:#GovernorSettingsComponent-ProposalThresholdUpdated[ProposalThresholdUpdated]
+
+[.contract-item]
+[[GovernorSettingsComponent-set_voting_delay]]
+==== `[.contract-item-name]#++set_voting_delay++#++(ref self: ContractState, new_voting_delay: u64)++` [.item-kind]#external#
+
+Sets the voting delay.
+
+Requirements:
+
+- Caller must be the governance executor.
+
+NOTE: This function does not emit an event if the new voting delay is the same as the old one.
+
+May emit a {VotingDelayUpdated} event.
+
+[.contract-item]
+[[GovernorSettingsComponent-set_voting_period]]
+==== `[.contract-item-name]#++set_voting_period++#++(ref self: ContractState, new_voting_period: u64)++` [.item-kind]#external#
+
+Sets the voting period.
+
+NOTE: This function does not emit an event if the new voting period is the same as the
+old one.
+
+Requirements:
+
+- Caller must be the governance executor.
+- `new_voting_period` must be greater than 0.
+
+May emit a {VotingPeriodUpdated} event.
+
+[.contract-item]
+[[GovernorSettingsComponent-set_proposal_threshold]]
+==== `[.contract-item-name]#++set_proposal_threshold++#++(ref self: ContractState, new_proposal_threshold: u256)++` [.item-kind]#external#
+
+Sets the proposal threshold.
+
+NOTE: This function does not emit an event if the new proposal threshold is the same as
+the old one.
+
+Requirements:
+
+- Caller must be the governance executor.
+
+May emit a {ProposalThresholdUpdated} event.
+
+[#GovernorSettingsComponent-Internal-Functions]
+==== Internal functions
+
+[.contract-item]
+[[GovernorSettingsComponent-initializer]]
+==== `[.contract-item-name]#++initializer++#++(ref self: ContractState, initial_voting_delay: u64, initial_voting_period: u64, initial_proposal_threshold: u256)++` [.item-kind]#internal#
+
+Initializes the component by setting the default values.
+
+Requirements:
+
+- `new_voting_period` must be greater than 0.
+
+Emits a {VotingDelayUpdated}, {VotingPeriodUpdated}, and {ProposalThresholdUpdated} event.
+
+[.contract-item]
+[[GovernorSettingsComponent-assert_only_governance]]
+==== `[.contract-item-name]#++assert_only_governance++#++(ref self: ContractState)++` [.item-kind]#internal#
+
+Asserts that the caller is the governance executor.
+
+[.contract-item]
+[[GovernorSettingsComponent-_set_voting_delay]]
+==== `[.contract-item-name]#++_set_voting_delay++#++(ref self: ContractState, new_voting_delay: u64)++` [.item-kind]#internal#
+
+Internal function to update the voting delay.
+
+NOTE: This function does not emit an event if the new voting delay is the same as the
+old one.
+
+May emit a {VotingDelayUpdated} event.
+
+[.contract-item]
+[[GovernorSettingsComponent-_set_voting_period]]
+==== `[.contract-item-name]#++_set_voting_period++#++(ref self: ContractState, new_voting_period: u64)++` [.item-kind]#internal#
+
+Internal function to update the voting period.
+
+Requirements:
+
+- `new_voting_period` must be greater than 0.
+
+NOTE: This function does not emit an event if the new voting period is the same as the old one.
+
+May emit a {VotingPeriodUpdated} event.
+
+[.contract-item]
+[[GovernorSettingsComponent-_set_proposal_threshold]]
+==== `[.contract-item-name]#++_set_proposal_threshold++#++(ref self: ContractState, new_proposal_threshold: u256)++` [.item-kind]#internal#
+
+Internal function to update the proposal threshold.
+
+NOTE: This function does not emit an event if the new proposal threshold is the same as the old one.
+
+May emit a {ProposalThresholdUpdated} event.
+
+[#GovernorSettings-Events]
+==== Events
+
+[.contract-item]
+[[GovernorSettingsComponent-VotingDelayUpdated]]
+==== `[.contract-item-name]#++VotingDelayUpdated++#++(old_voting_delay: u64, new_voting_delay: u64)++` [.item-kind]#event#
+
+Emitted when the voting delay is updated.
+
+[.contract-item]
+[[GovernorSettingsComponent-VotingPeriodUpdated]]
+==== `[.contract-item-name]#++VotingPeriodUpdated++#++(old_voting_period: u64, new_voting_period: u64)++` [.item-kind]#event#
+
+Emitted when the voting period is updated.
+
+[.contract-item]
+[[GovernorSettingsComponent-ProposalThresholdUpdated]]
+==== `[.contract-item-name]#++ProposalThresholdUpdated++#++(old_proposal_threshold: u256, new_proposal_threshold: u256)++` [.item-kind]#event#
+
+Emitted when the proposal threshold is updated.
+
+[.contract]
+[[GovernorVotesComponent]]
+=== `++GovernorVotesComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.20.0-rc.0/packages/governance/src/governor/extensions/governor_votes.cairo[{github-icon},role=heading-link]
+
+[.hljs-theme-dark]
+```cairo
+use openzeppelin_governance::governor::extensions::GovernorVotesComponent;
+```
+
+Extension of {GovernorComponent} for voting weight extraction from a token with the {IVotes}
+extension.
+
+[.contract-index]
+.Extension traits implementations
+--
+.GovernorVotes
+
+* xref:#GovernorVotesComponent-clock[`++clock(self)++`]
+* xref:#GovernorVotesComponent-clock_mode[`++clock_mode(self)++`]
+* xref:#GovernorVotesComponent-get_votes[`++get_votes(self, account, timepoint, params)++`]
+--
+
+[.contract-index]
+.Embeddable implementations
+--
+.VotesTokenImpl
+
+* xref:#GovernorVotesComponent-token[`++token(self)++`]
+--
+
+[.contract-index]
+.Internal implementations
+--
+.InternalImpl
+
+* xref:#GovernorVotesComponent-initializer[`++initializer(self, votes_token)++`]
+--
+
+[#GovernorVotes-Extension-Traits-Functions]
+==== Extension traits functions
+
+[.contract-item]
+[[GovernorVotesComponent-clock]]
+==== `[.contract-item-name]#++clock++#++(self: @ContractState) → u64++` [.item-kind]#internal#
+
+Returns the current timepoint according to the mode the contract is operating in.
+
+In this implementation, returns the current block timestamp.
+
+NOTE: {VotesComponent} always uses the block timestamp for tracking checkpoints.
+This must be updated in order to allow for more flexible clock modes.
+
+[.contract-item]
+[[GovernorVotesComponent-clock_mode]]
+==== `[.contract-item-name]#++clock_mode++#++(self: @ContractState) → ByteArray++` [.item-kind]#internal#
+
+Returns `"mode=timestamp&from=starknet::SN_MAIN"`.
+
+See https://eips.ethereum.org/EIPS/eip-6372#clock_mode
+
+[.contract-item]
+[[GovernorVotesComponent-get_votes]]
+==== `[.contract-item-name]#++get_votes++#++(self: @ContractState, account: ContractAddress, timepoint: u64, params: Span<felt252>) → u256++` [.item-kind]#internal#
+
+Returns the voting power of `account` at a specific `timepoint` using the votes token.
+
+[[GovernorVotesComponent-Embeddable-Functions]]
+==== Embeddable functions
+
+[.contract-item]
+[[GovernorVotesComponent-token]]
+==== `[.contract-item-name]#++token++#++(self: @ContractState) → ContractAddress++` [.item-kind]#external#
+
+Returns the votes token that voting power is sourced from.
+
+[#GovernorVotesComponent-Internal-Functions]
+==== Internal functions
+
+[.contract-item]
+[[GovernorVotesComponent-initializer]]
+==== `[.contract-item-name]#++initializer++#++(ref self: ContractState, votes_token: ContractAddress)++` [.item-kind]#internal#
+
+Initializes the component by setting the votes token.
+
+[.contract]
+[[GovernorVotesQuorumFractionComponent]]
+=== `++GovernorVotesQuorumFractionComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.20.0-rc.0/packages/governance/src/governor/extensions/governor_votes_quorum_fraction.cairo[{github-icon},role=heading-link]
+
+[.hljs-theme-dark]
+```cairo
+use openzeppelin_governance::governor::extensions::GovernorVotesQuorumFractionComponent;
+```
+
+Extension of {GovernorComponent} for voting weight extraction from a token with the
+{IVotes} extension and a quorum expressed as a fraction of the total supply.
+
+[.contract-index]
+.Extension traits implementations
+--
+.GovernorQuorum
+
+* xref:#GovernorVotesQuorumFractionComponent-quorum[`++quorum(self, timepoint)++`]
+
+.GovernorVotes
+
+* xref:#GovernorVotesQuorumFractionComponent-clock[`++clock(self)++`]
+* xref:#GovernorVotesQuorumFractionComponent-clock_mode[`++clock_mode(self)++`]
+* xref:#GovernorVotesQuorumFractionComponent-get_votes[`++get_votes(self, account, timepoint, params)++`]
+--
+
+[.contract-index]
+.Embeddable implementations
+--
+.QuorumFractionImpl
+
+* xref:#GovernorVotesQuorumFractionComponent-token[`++token(self)++`]
+* xref:#GovernorVotesQuorumFractionComponent-current_quorum_numerator[`++current_quorum_numerator(self)++`]
+* xref:#GovernorVotesQuorumFractionComponent-quorum_numerator[`++quorum_numerator(self, timepoint)++`]
+* xref:#GovernorVotesQuorumFractionComponent-quorum_denominator[`++quorum_denominator(self)++`]
+--
+
+[.contract-index]
+.Internal implementations
+--
+.InternalImpl
+
+* xref:#GovernorVotesQuorumFractionComponent-initializer[`++initializer(self, votes_token, quorum_numerator)++`]
+* xref:#GovernorVotesQuorumFractionComponent-update_quorum_numerator[`++update_quorum_numerator(self, new_quorum_numerator)++`]
+--
+
+[.contract-index]
+.Events
+--
+* xref:#GovernorVotesQuorumFractionComponent-QuorumNumeratorUpdated[`++QuorumNumeratorUpdated(old_quorum_numerator, new_quorum_numerator)++`]
+--
+
+[#GovernorVotesQuorumFractionComponent-Extension-Traits-Functions]
+==== Extension traits functions
+
+[.contract-item]
+[[GovernorVotesQuorumFractionComponent-quorum]]
+==== `[.contract-item-name]#++quorum++#++(self: @ContractState, timepoint: u64) → u256++` [.item-kind]#internal#
+
+Returns a percentage of the votes token total supply at a given `timepoint` in the past.
+
+[.contract-item]
+[[GovernorVotesQuorumFractionComponent-clock]]
+==== `[.contract-item-name]#++clock++#++(self: @ContractState) → u64++` [.item-kind]#internal#
+
+Returns the current timepoint according to the mode the contract is operating in.
+
+In this implementation, returns the current block timestamp.
+
+[.contract-item]
+[[GovernorVotesQuorumFractionComponent-clock_mode]]
+==== `[.contract-item-name]#++clock_mode++#++(self: @ContractState) → ByteArray++` [.item-kind]#internal#
+
+Returns `"mode=timestamp&from=starknet::SN_MAIN"`.
+
+See https://eips.ethereum.org/EIPS/eip-6372#clock_mode
+
+[.contract-item]
+[[GovernorVotesQuorumFractionComponent-get_votes]]
+==== `[.contract-item-name]#++get_votes++#++(self: @ContractState, account: ContractAddress, timepoint: u64, params: Span<felt252>) → u256++` [.item-kind]#internal#
+
+Returns the voting power of `account` at a specific `timepoint` using the votes token.
+
+[#GovernorVotesQuorumFractionComponent-Embeddable-Functions]
+==== Embeddable functions
+
+[.contract-item]
+[[GovernorVotesQuorumFractionComponent-token]]
+==== `[.contract-item-name]#++token++#++(self: @ContractState) → ContractAddress++` [.item-kind]#external#
+
+Returns the address of the votes token used for voting power extraction.
+
+[.contract-item]
+[[GovernorVotesQuorumFractionComponent-current_quorum_numerator]]
+==== `[.contract-item-name]#++current_quorum_numerator++#++(self: @ContractState) → u256++` [.item-kind]#external#
+
+Returns the current quorum numerator value.
+
+[.contract-item]
+[[GovernorVotesQuorumFractionComponent-quorum_numerator]]
+==== `[.contract-item-name]#++quorum_numerator++#++(self: @ContractState, timepoint: u64) → u256++` [.item-kind]#external#
+
+Returns the quorum numerator value at a specific `timepoint` in the past.
+
+[.contract-item]
+[[GovernorVotesQuorumFractionComponent-quorum_denominator]]
+==== `[.contract-item-name]#++quorum_denominator++#++(self: @ContractState) → u256++` [.item-kind]#external#
+
+Returns the quorum denominator value.
+
+[#GovernorVotesQuorumFractionComponent-Internal-Functions]
+==== Internal functions
+
+[.contract-item]
+[[GovernorVotesQuorumFractionComponent-initializer]]
+==== `[.contract-item-name]#++initializer++#++(self: @ComponentState<TContractState>, votes_token: ContractAddress, quorum_numerator: u256)++` [.item-kind]#internal#
+
+Initializes the component by setting the votes token and the initial quorum numerator value.
+
+Requirements:
+
+* `votes_token` must not be zero.
+* `quorum_numerator` must be less than `quorum_denominator`.
+
+Emits a {QuorumNumeratorUpdated} event.
+
+[.contract-item]
+[[GovernorVotesQuorumFractionComponent-update_quorum_numerator]]
+==== `[.contract-item-name]#++update_quorum_numerator++#++(self: @ComponentState<TContractState>, new_quorum_numerator: u256)++` [.item-kind]#internal#
+
+Updates the quorum numerator.
+
+NOTE: This function does not emit an event if the new quorum numerator is the same as the old one.
+
+Requirements:
+
+* `new_quorum_numerator` must be less than `quorum_denominator`.
+
+May emit a {QuorumNumeratorUpdated} event.
+
+[#GovernorVotesQuorumFractionComponent-Events]
+==== Events
+
+[.contract-item]
+[[GovernorVotesQuorumFractionComponent-QuorumNumeratorUpdated]]
+==== `[.contract-item-name]#++QuorumNumeratorUpdated++#++(old_quorum_numerator: u256, new_quorum_numerator: u256)++` [.item-kind]#event#
+
+Emitted when the quorum numerator is updated.
+
+[.contract]
+[[GovernorTimelockExecutionComponent]]
+=== `++GovernorTimelockExecutionComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.20.0-rc.0/packages/governance/src/governor/extensions/governor_timelock_execution.cairo[{github-icon},role=heading-link]
+
+[.hljs-theme-dark]
+```cairo
+use openzeppelin_governance::governor::extensions::GovernorTimelockExecutionComponent;
+```
+
+Extension of {GovernorComponent} that binds the execution process to an instance of a contract
+implementing {TimelockControllerComponent}. This adds a delay, enforced by the timelock
+to all successful proposal (in addition to the voting duration).
+
+NOTE: The Governor needs the PROPOSER, EXECUTOR, and CANCELLER roles to work properly.
+
+Using this model means the proposal will be operated by the timelock and not by the
+governor. Thus, the assets and permissions must be attached to the timelock. Any asset
+sent to the governor will be inaccessible from a proposal, unless executed via
+`Governor::relay`.
+
+WARNING: Setting up the timelock to have additional proposers or cancellers besides
+the governor is very risky, as it grants them the ability to: 1) execute operations as the
+timelock, and thus possibly performing operations or accessing funds that are expected to only
+be accessible through a vote, and 2) block governance proposals that have been approved by the
+voters, effectively executing a Denial of Service attack.
+
+[.contract-index]
+.Extension traits implementations
+--
+.GovernorExecution
+
+* xref:#GovernorTimelockExecutionComponent-state[`++state(self, proposal_id)++`]
+* xref:#GovernorTimelockExecutionComponent-executor[`++executor(self)++`]
+* xref:#GovernorTimelockExecutionComponent-execute_operations[`++execute_operations(self, proposal_id, calls, description_hash)++`]
+* xref:#GovernorTimelockExecutionComponent-queue_operations[`++queue_operations(self, proposal_id, calls, description_hash)++`]
+* xref:#GovernorTimelockExecutionComponent-proposal_needs_queuing[`++proposal_needs_queuing(self, proposal_id)++`]
+* xref:#GovernorTimelockExecutionComponent-cancel_operations[`++cancel_operations(self, proposal_id, description_hash)++`]
+--
+
+[.contract-index]
+.Embeddable implementations
+--
+.TimelockedImpl
+
+* xref:#GovernorTimelockExecutionComponent-timelock[`++timelock(self)++`]
+* xref:#GovernorTimelockExecutionComponent-get_timelock_id[`++get_timelock_id(self, proposal_id)++`]
+* xref:#GovernorTimelockExecutionComponent-update_timelock[`++update_timelock(self, new_timelock)++`]
+--
+
+[.contract-index]
+.Internal implementations
+--
+.InternalImpl
+
+* xref:#GovernorTimelockExecutionComponent-initializer[`++initializer(self, timelock_controller)++`]
+* xref:#GovernorTimelockExecutionComponent-assert_only_governance[`++assert_only_governance(self)++`]
+* xref:#GovernorTimelockExecutionComponent-timelock_salt[`++timelock_salt(self, description_hash)++`]
+* xref:#GovernorTimelockExecutionComponent-get_timelock_dispatcher[`++get_timelock_dispatcher(self)++`]
+* xref:#GovernorTimelockExecutionComponent-_update_timelock[`++_update_timelock(self, new_timelock)++`]
+
+--
+
+[.contract-index]
+.Events
+--
+* xref:#GovernorTimelockExecutionComponent-TimelockUpdated[`++TimelockUpdated(old_timelock, new_timelock)++`]
+--
+
+[#GovernorTimelockExecutionComponent-Extension-Traits-Functions]
+==== Extension traits functions
+
+[.contract-item]
+[[GovernorTimelockExecutionComponent-state]]
+==== `[.contract-item-name]#++state++#++(self: @ContractState, proposal_id: felt252) → ProposalState++` [.item-kind]#internal#
+
+Returns the state of a proposal given its id.
+
+[.contract-item]
+[[GovernorTimelockExecutionComponent-executor]]
+==== `[.contract-item-name]#++executor++#++(self: @ContractState) → ContractAddress++` [.item-kind]#internal#
+
+Returns the executor address.
+
+In this module, the executor is the timelock controller.
+
+[.contract-item]
+[[GovernorTimelockExecutionComponent-execute_operations]]
+==== `[.contract-item-name]#++execute_operations++#++(ref self: ContractState, proposal_id: felt252, calls: Span<Call>, description_hash: felt252)++` [.item-kind]#internal#
+
+Runs the already queued proposal through the timelock.
+
+[.contract-item]
+[[GovernorTimelockExecutionComponent-queue_operations]]
+==== `[.contract-item-name]#++queue_operations++#++(ref self: ContractState, proposal_id: felt252, calls: Span<Call>, description_hash: felt252) → u64++` [.item-kind]#internal#
+
+Queue a proposal to the timelock.
+
+Returns the eta for the executionof the queued proposal.
+
+[.contract-item]
+[[GovernorTimelockExecutionComponent-proposal_needs_queuing]]
+==== `[.contract-item-name]#++proposal_needs_queuing++#++(self: @ContractState, proposal_id: felt252) → bool++` [.item-kind]#internal#
+
+In this implementation, it always returns true.
+
+[.contract-item]
+[[GovernorTimelockExecutionComponent-cancel_operations]]
+==== `[.contract-item-name]#++cancel_operations++#++(ref self: ContractState, proposal_id: felt252, description_hash: felt252)++` [.item-kind]#internal#
+
+Cancels the timelocked proposal if it has already been queued.
+
+[#GovernorTimelockExecutionComponent-Embeddable-Functions]
+==== Embeddable functions
+
+:TimelockUpdated: xref:#GovernorTimelockExecutionComponent-TimelockUpdated[TimelockUpdated]
+
+[.contract-item]
+[[GovernorTimelockExecutionComponent-timelock]]
+==== `[.contract-item-name]#++timelock++#++(self: @ContractState) → ContractAddress++` [.item-kind]#external#
+
+Returns the timelock controller address.
+
+[.contract-item]
+[[GovernorTimelockExecutionComponent-get_timelock_id]]
+==== `[.contract-item-name]#++get_timelock_id++#++(self: @ContractState) → felt252++` [.item-kind]#external#
+
+Returns the timelock proposal id for a given proposal id.
+
+[.contract-item]
+[[GovernorTimelockExecutionComponent-update_timelock]]
+==== `[.contract-item-name]#++update_timelock++#++(ref self: ContractState, new_timelock: ContractAddress)++` [.item-kind]#external#
+
+Updates the associated timelock.
+
+Requirements:
+
+- The caller must be the governance.
+
+Emits a {TimelockUpdated} event.
+
+[#GovernorTimelockExecutionComponent-Internal-Functions]
+==== Internal functions
+
+[.contract-item]
+[[GovernorTimelockExecutionComponent-initializer]]
+==== `[.contract-item-name]#++initializer++#++(ref self: ContractState, timelock: ContractAddress)++` [.item-kind]#internal#
+
+Initializes the timelock controller.
+
+Requirements:
+
+- The timelock must not be the zero address.
+
+[.contract-item]
+[[GovernorTimelockExecutionComponent-assert_only_governance]]
+==== `[.contract-item-name]#++assert_only_governance++#++(self: @ContractState)++` [.item-kind]#internal#
+
+Ensures the caller is the executor (the timelock controller in this case).
+
+[.contract-item]
+[[GovernorTimelockExecutionComponent-timelock_salt]]
+==== `[.contract-item-name]#++timelock_salt++#++(self: @ContractState, description_hash: felt252) → felt252++` [.item-kind]#internal#
+
+Computes the `TimelockController` operation salt.
+
+It is computed with the governor address itself to avoid collisions across
+governor instances using the same timelock.
+
+[.contract-item]
+[[GovernorTimelockExecutionComponent-get_timelock_dispatcher]]
+==== `[.contract-item-name]#++get_timelock_dispatcher++#++(self: @ContractState) → ITimelockDispatcher++` [.item-kind]#internal#
+
+Returns a dispatcher for interacting with the timelock controller.
+
+[.contract-item]
+[[GovernorTimelockExecutionComponent-_update_timelock]]
+==== `[.contract-item-name]#++_update_timelock++#++(ref self: ContractState, new_timelock: ContractAddress)++` [.item-kind]#internal#
+
+Internal function to update the timelock controller address.
+
+Emits a {TimelockUpdated} event.
+
+[#GovernorTimelockExecutionComponent-Events]
+==== Events
+
+[.contract-item]
+[[GovernorTimelockExecutionComponent-TimelockUpdated]]
+==== `[.contract-item-name]#++TimelockUpdated++#++(old_timelock: ContractAddress, new_timelock: ContractAddress)++` [.item-kind]#event#
+
+Emitted when the timelock controller is updated.
 
 == Timelock
 
@@ -1908,7 +2674,7 @@ NOTE: When using this module, your contract must implement the {VotingUnitsTrait
 
 [.contract-item]
 [[VotesComponent-ERC20VotesImpl-get_voting_units]]
-==== `[.contract-item-name]#++get_voting_units++#++(self: @ComponentState<TContractState>, account: ContractAddress) → u256++` [.item-kind]#internal#
+==== `[.contract-item-name]#++get_voting_units++#++(self: @ContractState, account: ContractAddress) → u256++` [.item-kind]#internal#
 
 Returns the number of voting units for a given account.
 
@@ -1927,7 +2693,7 @@ may compromise the internal vote accounting.
 
 [.contract-item]
 [[VotesComponent-ERC721VotesImpl-get_voting_units]]
-==== `[.contract-item-name]#++get_voting_units++#++(self: @ComponentState<TContractState>, account: ContractAddress) → u256++` [.item-kind]#internal#
+==== `[.contract-item-name]#++get_voting_units++#++(self: @ContractState, account: ContractAddress) → u256++` [.item-kind]#internal#
 
 Returns the number of voting units for a given account.
 
@@ -1947,13 +2713,13 @@ may compromise the internal vote accounting.
 
 [.contract-item]
 [[VotesComponent-get_votes]]
-==== `[.contract-item-name]#++get_votes++#++(self: @ComponentState<TContractState>, account: ContractAddress) → u256++` [.item-kind]#external#
+==== `[.contract-item-name]#++get_votes++#++(self: @ContractState, account: ContractAddress) → u256++` [.item-kind]#external#
 
 Returns the current amount of votes that `account` has.
 
 [.contract-item]
 [[VotesComponent-get_past_votes]]
-==== `[.contract-item-name]#++get_past_votes++#++(self: @ComponentState<TContractState>, account: ContractAddress, timepoint: u64) → u256++` [.item-kind]#external#
+==== `[.contract-item-name]#++get_past_votes++#++(self: @ContractState, account: ContractAddress, timepoint: u64) → u256++` [.item-kind]#external#
 
 Returns the amount of votes that `account` had at a specific moment in the past.
 
@@ -1963,7 +2729,7 @@ Requirements:
 
 [.contract-item]
 [[VotesComponent-get_past_total_supply]]
-==== `[.contract-item-name]#++get_past_total_supply++#++(self: @ComponentState<TContractState>, timepoint: u64) → u256++` [.item-kind]#external#
+==== `[.contract-item-name]#++get_past_total_supply++#++(self: @ContractState, timepoint: u64) → u256++` [.item-kind]#external#
 
 Returns the total supply of votes available at a specific moment in the past.
 
@@ -1977,13 +2743,13 @@ Requirements:
 
 [.contract-item]
 [[VotesComponent-delegates]]
-==== `[.contract-item-name]#++delegates++#++(self: @ComponentState<TContractState>, account: ContractAddress) → ContractAddress++` [.item-kind]#external#
+==== `[.contract-item-name]#++delegates++#++(self: @ContractState, account: ContractAddress) → ContractAddress++` [.item-kind]#external#
 
 Returns the delegate that `account` has chosen.
 
 [.contract-item]
 [[VotesComponent-delegate]]
-==== `[.contract-item-name]#++delegate++#++(ref self: ComponentState<TContractState>, delegatee: ContractAddress)++` [.item-kind]#external#
+==== `[.contract-item-name]#++delegate++#++(ref self: ContractState, delegatee: ContractAddress)++` [.item-kind]#external#
 
 Delegates votes from the sender to `delegatee`.
 
@@ -1993,7 +2759,7 @@ May emit one or two {DelegateVotesChanged} events.
 
 [.contract-item]
 [[VotesComponent-delegate_by_sig]]
-==== `[.contract-item-name]#++delegate_by_sig++#++(ref self: ComponentState<TContractState>, delegator: ContractAddress, delegatee: ContractAddress, nonce: felt252, expiry: u64, signature: Span<felt252>)++` [.item-kind]#external#
+==== `[.contract-item-name]#++delegate_by_sig++#++(ref self: ContractState, delegator: ContractAddress, delegatee: ContractAddress, nonce: felt252, expiry: u64, signature: Span<felt252>)++` [.item-kind]#external#
 
 Delegates votes from `delegator` to `delegatee` through a SNIP12 message signature validation.
 
@@ -2013,13 +2779,13 @@ May emit one or two {DelegateVotesChanged} events.
 
 [.contract-item]
 [[VotesComponent-get_total_supply]]
-==== `[.contract-item-name]#++get_total_supply++#++(self: @ComponentState<TContractState>) → u256++` [.item-kind]#internal#
+==== `[.contract-item-name]#++get_total_supply++#++(self: @ContractState) → u256++` [.item-kind]#internal#
 
 Returns the current total supply of votes.
 
 [.contract-item]
 [[VotesComponent-move_delegate_votes]]
-==== `[.contract-item-name]#++move_delegate_votes++#++(ref self: ComponentState<TContractState>, from: ContractAddress, to: ContractAddress, amount: u256)++` [.item-kind]#internal#
+==== `[.contract-item-name]#++move_delegate_votes++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, amount: u256)++` [.item-kind]#internal#
 
 Moves delegated votes from one delegate to another.
 
@@ -2027,7 +2793,7 @@ May emit one or two {DelegateVotesChanged} events.
 
 [.contract-item]
 [[VotesComponent-transfer_voting_units]]
-==== `[.contract-item-name]#++transfer_voting_units++#++(ref self: ComponentState<TContractState>, from: ContractAddress, to: ContractAddress, amount: u256)++` [.item-kind]#internal#
+==== `[.contract-item-name]#++transfer_voting_units++#++(ref self: ContractState, from: ContractAddress, to: ContractAddress, amount: u256)++` [.item-kind]#internal#
 
 Transfers, mints, or burns voting units.
 
@@ -2040,19 +2806,19 @@ May emit one or two {DelegateVotesChanged} events.
 
 [.contract-item]
 [[VotesComponent-num_checkpoints]]
-==== `[.contract-item-name]#++num_checkpoints++#++(self: @ComponentState<TContractState>, account: ContractAddress) → u64++` [.item-kind]#internal#
+==== `[.contract-item-name]#++num_checkpoints++#++(self: @ContractState, account: ContractAddress) → u64++` [.item-kind]#internal#
 
 Returns the number of checkpoints for `account`.
 
 [.contract-item]
 [[VotesComponent-checkpoints]]
-==== `[.contract-item-name]#++checkpoints++#++(self: @ComponentState<TContractState>, account: ContractAddress, pos: u64) → Checkpoint++` [.item-kind]#internal#
+==== `[.contract-item-name]#++checkpoints++#++(self: @ContractState, account: ContractAddress, pos: u64) → Checkpoint++` [.item-kind]#internal#
 
 Returns the `pos`-th checkpoint for `account`.
 
 [.contract-item]
 [[VotesComponent-_delegate]]
-==== `[.contract-item-name]#++_delegate++#++(ref self: ComponentState<TContractState>, account: ContractAddress, delegatee: ContractAddress)++` [.item-kind]#internal#
+==== `[.contract-item-name]#++_delegate++#++(ref self: ContractState, account: ContractAddress, delegatee: ContractAddress)++` [.item-kind]#internal#
 
 Delegates all of ``account``'s voting units to `delegatee`.
 

@@ -10,7 +10,7 @@ pub const IGOVERNOR_ID: felt252 = 0x1f; // TODO: Update this value.
 #[starknet::interface]
 pub trait IERC6372<TState> {
     /// Clock used for flagging checkpoints.
-    /// Can be overridden to implement timestamp based checkpoints (and voting).
+    /// Can be overridden to implement block number based checkpoints (and voting).
     fn clock(self: @TState) -> u64;
 
     /// Description of the clock.

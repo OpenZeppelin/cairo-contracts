@@ -40,7 +40,7 @@ block numbers instead.
 
 We will initially build a Governor without a timelock. The core logic is given by the {governor-component}, but we
 still need to choose: 1) how voting power is determined, 2) how many votes are needed for quorum, 3) what options
-people have when casting a vote and how those votes are counted, and 4) execution mechanism should be used. Each
+people have when casting a vote and how those votes are counted, and 4) the execution mechanism that should be used. Each
 of these aspects is customizable by writing your own extensions, or more easily choosing one from the library.
 
 **For 1)** we will use the GovernorVotes extension, which hooks to an {ivotes} instance to determine the voting power

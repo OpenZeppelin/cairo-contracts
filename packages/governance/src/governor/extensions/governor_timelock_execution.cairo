@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.19.0
+// OpenZeppelin Contracts for Cairo v0.20.0-rc.0
 // (governance/governor/extensions/governor_core_execution.cairo)
 
 /// # GovernorTimelockExecution Component

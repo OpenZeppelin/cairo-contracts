@@ -41,14 +41,14 @@ Edit `scarb.toml` and add:
 
 ```toml
 [dependencies]
-openzeppelin = "0.19.0"
+openzeppelin = "0.20.0-rc.0"
 ```
 
 The previous example would import the entire library. We can also add each package as a separate dependency to improve the building time by not including modules that won't be used:
 
 ```toml
 [dependencies]
-openzeppelin_token = "0.19.0"
+openzeppelin_token = "0.20.0-rc.0"
 ```
 
 Build the project to download it:

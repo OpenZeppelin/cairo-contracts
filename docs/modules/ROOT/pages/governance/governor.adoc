@@ -16,7 +16,7 @@ protocols, treasury management, grants, etc.
 
 This governance protocol is generally implemented in a special-purpose contract called “Governor”. In
 OpenZeppelin Contracts for Cairo, we set out to build a modular system of Governor components where different
-requirements can be accommodated by implementing small traits. You will find the most common requirements out of the box,
+requirements can be accommodated by implementing specific traits. You will find the most common requirements out of the box,
 but writing additional ones is simple, and we will be adding new features as requested by the community in future releases.
 
 == Usage and setup

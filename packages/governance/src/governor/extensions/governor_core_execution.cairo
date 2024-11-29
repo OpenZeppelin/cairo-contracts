@@ -36,6 +36,10 @@ pub mod GovernorCoreExecutionComponent {
         +Drop<TContractState>
     > of GovernorComponent::GovernorExecutionTrait<TContractState> {
         /// See `GovernorComponent::GovernorExecutionTrait::state`.
+        ///
+        /// Requirements:
+        ///
+        /// - The proposal must exist.
         fn state(
             self: @GovernorComponentState<TContractState>, proposal_id: felt252
         ) -> ProposalState {

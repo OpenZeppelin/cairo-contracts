@@ -6,7 +6,7 @@
 ///
 /// Extension of GovernorComponent that binds the execution process to an instance of a contract
 /// implementing TimelockControllerComponent. This adds a delay, enforced by the TimelockController
-/// to all successful proposal (in addition to the voting duration).
+/// to all successful proposals (in addition to the voting duration).
 ///
 /// NOTE: The Governor needs the PROPOSER, EXECUTOR, and CANCELLER roles to work properly.
 ///
@@ -80,6 +80,10 @@ pub mod GovernorTimelockExecutionComponent {
         +Drop<TContractState>
     > of GovernorComponent::GovernorExecutionTrait<TContractState> {
         /// See `GovernorComponent::GovernorExecutionTrait::state`.
+        ///
+        /// Requirements:
+        ///
+        /// - The proposal must exist.
         fn state(
             self: @GovernorComponentState<TContractState>, proposal_id: felt252
         ) -> ProposalState {

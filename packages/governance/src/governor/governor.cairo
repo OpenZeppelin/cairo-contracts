@@ -530,6 +530,7 @@ pub mod GovernorComponent {
         /// Requirements:
         ///
         /// - The proposal must be in the `Pending` state.
+        /// - The caller must be the proposer of the proposal.
         ///
         /// Emits a `ProposalCanceled` event.
         fn cancel(
@@ -877,6 +878,10 @@ pub mod GovernorComponent {
         }
 
         /// Returns the state of a proposal, given its id.
+        ///
+        /// Requirements:
+        ///
+        /// - The proposal must exist.
         fn _state(self: @ComponentState<TContractState>, proposal_id: felt252) -> ProposalState {
             let proposal = self.get_proposal(proposal_id);
 
@@ -959,7 +964,7 @@ pub mod GovernorComponent {
         /// Internal cancel mechanism with minimal restrictions.
         /// A proposal can be cancelled in any state other than Canceled or Executed.
         ///
-        /// NOTE: Once cancelled a proposal can't be re-submitted.
+        /// NOTE: Once cancelled, a proposal can't be re-submitted.
         fn _cancel(
             ref self: ComponentState<TContractState>,
             proposal_id: felt252,
@@ -991,10 +996,11 @@ pub mod GovernorComponent {
             self.count_vote(proposal_id, account, support, total_weight, params)
         }
 
-        /// Internal vote casting mechanism.
+        /// Internal vote-casting mechanism.
         ///
-        /// Checks that the vote is pending, that it has not been cast yet, retrieve
-        /// voting weight using `get_votes` and call the `_count_vote` internal function.
+        /// Checks that the vote is pending and that it has not been cast yet.
+        /// This function retrieves the voting weight using `get_votes` and then calls
+        /// the `_count_vote` internal function.
         ///
         /// Emits either:
         /// - `VoteCast` event if no params are provided.

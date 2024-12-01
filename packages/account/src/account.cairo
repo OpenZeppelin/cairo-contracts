@@ -41,12 +41,22 @@ pub mod AccountComponent {
         pub removed_owner_guid: felt252
     }
 
-    pub mod Errors {
-        pub const INVALID_CALLER: felt252 = 'Account: invalid caller';
-        pub const INVALID_SIGNATURE: felt252 = 'Account: invalid signature';
-        pub const INVALID_TX_VERSION: felt252 = 'Account: invalid tx version';
-        pub const UNAUTHORIZED: felt252 = 'Account: unauthorized';
-    }
+    use core::hash::PoseidonTrait;
+
+     pub mod Errors {
+         pub const INVALID_CALLER: felt252 = PoseidonTrait::new()
+        .update_with("Account: invalid caller")
+        .finalize();
+         pub const INVALID_SIGNATURE: felt252 = PoseidonTrait::new()
+        .update_with("Account: invalid signature")
+        .finalize();
+        pub const INVALID_TX_VERSION: felt252 = PoseidonTrait::new()
+        .update_with("Account: invalid tx version")
+        .finalize();
+        pub const UNAUTHORIZED: felt252 = PoseidonTrait::new()
+        .update_with("Account: unauthorized")
+        .finalize();
+}
 
     //
     // External

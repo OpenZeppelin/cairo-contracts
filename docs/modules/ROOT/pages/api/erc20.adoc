@@ -523,7 +523,7 @@ See <<IERC20-Approval,IERC20::Approval>>.
 use openzeppelin_token::erc20::interface::IERC20Permit;
 ```
 
-Interface of the ERC20Permit standard to support gasless token approvals as defined in {eip-2612}. 
+Interface of the ERC20Permit standard to support gasless token approvals as defined in {eip-2612}.
 
 [.contract-index]
 .Functions
@@ -553,8 +553,77 @@ whenever a signature for `permit` call is generated.
 [[IERC20Permit-DOMAIN_SEPARATOR]]
 ==== `[.contract-item-name]#++DOMAIN_SEPARATOR++#++() → felt252++` [.item-kind]#external#
 
-Returns the domain separator used in generating a message hash for `permit` signature. 
+Returns the domain separator used in generating a message hash for `permit` signature.
 The domain hashing logic follows the {snip-12} standard.
+
+[.contract]
+[[ERC4626Component]]
+=== `++ERC4626Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.20.0-rc.0/packages/token/src/erc20/extensions/erc4626/interface.cairo#L19[{github-icon},role=heading-link]
+
+[.hljs-theme-dark]
+```cairo
+use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component;
+```
+
+Extension of ERC20 that implements the IERC4626 interface which allows the minting and burning of "shares" in exchange for an underlying "asset."
+The component leverages traits to configure fees, limits, and decimals.
+
+[.contract-index]
+.Hooks
+--
+[.sub-index#ERC4626Component-ERC4626HooksTrait]
+.ERC4626HooksTrait
+* xref:#ERC4626Component-before_withdraw[`++before_withdraw(self, assets, shares)++`]
+* xref:#ERC4626Component-after_deposit[`++after_deposit(self, assets, shares)++`]
+--
+
+[.contract-index#ERC4626Component-Embeddable-Impls]
+.Embeddable Implementations
+--
+
+.ERC4626Impl
+* xref:#ERC4626Component-asset[`++asset(self)++`]
+* xref:#ERC4626Component-total_assets[`++total_assets(self)++`]
+* xref:#ERC4626Component-convert_to_shares[`++convert_to_shares(self, assets)++`]
+* xref:#ERC4626Component-convert_to_assets[`++convert_to_assets(self, shares)++`]
+* xref:#ERC4626Component-max_deposit[`++max_deposit(self, receiver)++`]
+* xref:#ERC4626Component-preview_deposit[`++preview_deposit(self, assets)++`]
+* xref:#ERC4626Component-deposit[`++deposit(self, assets, receiver)++`]
+* xref:#ERC4626Component-max_mint[`++max_mint(self, receiver)++`]
+* xref:#ERC4626Component-preview_mint[`++preview_mint(self, shares)++`]
+* xref:#ERC4626Component-mint[`++mint(self, shares, receiver)++`]
+* xref:#ERC4626Component-max_withdraw[`++max_withdraw(self, owner)++`]
+* xref:#ERC4626Component-preview_withdraw[`++preview_withdraw(self, assets)++`]
+* xref:#ERC4626Component-withdraw[`++withdraw(self, assets, receiver, owner)++`]
+* xref:#ERC4626Component-max_redeem[`++max_redeem(self, owner)++`]
+* xref:#ERC4626Component-preview_redeem[`++preview_redeem(self, shares)++`]
+* xref:#ERC4626Component-redeem[`++redeem(self, shares, receiver, owner)++`]
+
+.ERC20Impl
+* xref:#ERC20Component-total_supply[`++total_supply(self)++`]
+* xref:#ERC20Component-balance_of[`++balance_of(self, account)++`]
+* xref:#ERC20Component-allowance[`++allowance(self, owner, spender)++`]
+* xref:#ERC20Component-transfer[`++transfer(self, recipient, amount)++`]
+* xref:#ERC20Component-transfer_from[`++transfer_from(self, sender, recipient, amount)++`]
+* xref:#ERC20Component-approve[`++approve(self, spender, amount)++`]
+
+.ERC4626MetadataImpl
+* xref:#ERC4626Component-name[`++name(self)++`]
+* xref:#ERC4626Component-symbol[`++symbol(self)++`]
+* xref:#ERC4626Component-decimals[`++decimals(self)++`]
+
+--
+
+[.contract-index]
+.Internal functions
+--
+.InternalImpl
+* xref:#ERC4626Component-initializer[`++initializer(self, asset_address)++`]
+* xref:#ERC4626Component-_deposit[`++_deposit(self, caller, receiver, assets, shares)++`]
+* xref:#ERC4626Component-_withdraw[`++_withdraw(self, caller, receiver, owner, assets, shares)++`]
+* xref:#ERC4626Component-_convert_to_shares[`++_convert_to_shares(self, assets, rounding)++`]
+* xref:#ERC4626Component-_convert_to_assets[`++_convert_to_assets(self, shares, rounding)++`]
+--
 
 == Presets
 

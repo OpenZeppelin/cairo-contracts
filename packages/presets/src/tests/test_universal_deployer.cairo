@@ -1,12 +1,12 @@
-use crate::universal_deployer::UniversalDeployer::ContractDeployed;
 use crate::universal_deployer::UniversalDeployer;
+use crate::universal_deployer::UniversalDeployer::ContractDeployed;
 use openzeppelin_testing as utils;
-use openzeppelin_testing::constants::{NAME, SYMBOL, SUPPLY, SALT, CALLER, RECIPIENT};
+use openzeppelin_testing::constants::{CALLER, NAME, RECIPIENT, SALT, SUPPLY, SYMBOL};
 use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use openzeppelin_utils::deployments::{DeployerInfo, calculate_contract_address_from_udc};
 use openzeppelin_utils::interfaces::{
-    IUniversalDeployerDispatcher, IUniversalDeployerDispatcherTrait
+    IUniversalDeployerDispatcher, IUniversalDeployerDispatcherTrait,
 };
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{EventSpy, spy_events, start_cheat_caller_address};
@@ -48,7 +48,7 @@ fn test_deploy_from_zero() {
 
     // Check address
     let expected_addr = calculate_contract_address_from_udc(
-        salt, erc20_class_hash, erc20_calldata, Option::None
+        salt, erc20_class_hash, erc20_calldata, Option::None,
     );
     let deployed_addr = udc.deploy_contract(erc20_class_hash, salt, from_zero, erc20_calldata);
     assert_eq!(expected_addr, deployed_addr);
@@ -63,7 +63,7 @@ fn test_deploy_from_zero() {
             from_zero,
             erc20_class_hash,
             erc20_calldata,
-            salt
+            salt,
         );
 
     // Check deployment
@@ -91,7 +91,7 @@ fn test_deploy_not_from_zero() {
         salt,
         erc20_class_hash,
         erc20_calldata,
-        Option::Some(DeployerInfo { caller_address: caller, udc_address: udc.contract_address })
+        Option::Some(DeployerInfo { caller_address: caller, udc_address: udc.contract_address }),
     );
     let deployed_addr = udc.deploy_contract(erc20_class_hash, salt, from_zero, erc20_calldata);
     assert_eq!(expected_addr, deployed_addr);
@@ -106,7 +106,7 @@ fn test_deploy_not_from_zero() {
             from_zero,
             erc20_class_hash,
             erc20_calldata,
-            salt
+            salt,
         );
 
     // Check deployment
@@ -129,10 +129,10 @@ impl UniversalDeployerHelpersImpl of UniversalDeployerSpyHelpers {
         from_zero: bool,
         class_hash: ClassHash,
         calldata: Span<felt252>,
-        salt: felt252
+        salt: felt252,
     ) {
         let expected = UniversalDeployer::Event::ContractDeployed(
-            ContractDeployed { address, deployer, from_zero, class_hash, calldata, salt }
+            ContractDeployed { address, deployer, from_zero, class_hash, calldata, salt },
         );
         self.assert_only_event(contract, expected);
     }

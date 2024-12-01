@@ -31,7 +31,7 @@ pub mod ERC20VotesMock {
         #[substorage(v0)]
         pub erc20: ERC20Component::Storage,
         #[substorage(v0)]
-        pub nonces: NoncesComponent::Storage
+        pub nonces: NoncesComponent::Storage,
     }
 
     #[event]
@@ -42,7 +42,7 @@ pub mod ERC20VotesMock {
         #[flat]
         ERC20Event: ERC20Component::Event,
         #[flat]
-        NoncesEvent: NoncesComponent::Event
+        NoncesEvent: NoncesComponent::Event,
     }
 
     /// Required for hash computation.
@@ -60,7 +60,7 @@ pub mod ERC20VotesMock {
             ref self: ERC20Component::ComponentState<ContractState>,
             from: ContractAddress,
             recipient: ContractAddress,
-            amount: u256
+            amount: u256,
         ) {
             let mut contract_state = self.get_contract_mut();
             contract_state.erc20_votes.transfer_voting_units(from, recipient, amount);
@@ -110,7 +110,7 @@ pub mod ERC721VotesMock {
         #[substorage(v0)]
         pub src5: SRC5Component::Storage,
         #[substorage(v0)]
-        pub nonces: NoncesComponent::Storage
+        pub nonces: NoncesComponent::Storage,
     }
 
     #[event]
@@ -123,7 +123,7 @@ pub mod ERC721VotesMock {
         #[flat]
         SRC5Event: SRC5Component::Event,
         #[flat]
-        NoncesEvent: NoncesComponent::Event
+        NoncesEvent: NoncesComponent::Event,
     }
 
     /// Required for hash computation.
@@ -143,7 +143,7 @@ pub mod ERC721VotesMock {
             ref self: ERC721Component::ComponentState<ContractState>,
             to: ContractAddress,
             token_id: u256,
-            auth: ContractAddress
+            auth: ContractAddress,
         ) {
             let mut contract_state = self.get_contract_mut();
 

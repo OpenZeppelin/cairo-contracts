@@ -2,7 +2,7 @@
 // OpenZeppelin Contracts for Cairo v0.20.0-rc.0 (utils/bytearray.cairo)
 
 use core::byte_array::ByteArrayTrait;
-use core::hash::{HashStateTrait, HashStateExTrait};
+use core::hash::{HashStateExTrait, HashStateTrait};
 use core::pedersen::PedersenTrait;
 use core::to_byte_array::FormatAsByteArray;
 
@@ -28,7 +28,7 @@ pub fn read_n_bytes(data: @ByteArray, start: u32, n: u32) -> ByteArray {
 ///
 /// - `base` cannot be zero.
 pub fn to_byte_array<T, +Into<T, felt252>, +Copy<T>>(
-    value: @T, base: u8, padding: u16
+    value: @T, base: u8, padding: u16,
 ) -> ByteArray {
     let value: felt252 = (*value).into();
     let base: felt252 = base.into();
@@ -81,7 +81,7 @@ pub impl ByteArrayExtImpl of ByteArrayExtTrait {
     ///
     /// - `base` cannot be zero.
     fn to_byte_array<T, +Into<T, felt252>, +Copy<T>>(
-        self: @T, base: u8, padding: u16
+        self: @T, base: u8, padding: u16,
     ) -> ByteArray {
         to_byte_array(self, base, padding)
     }

@@ -6,16 +6,16 @@
 /// Core of the governance system.
 #[starknet::component]
 pub mod GovernorComponent {
-    use core::hash::{HashStateTrait, HashStateExTrait};
+    use core::hash::{HashStateExTrait, HashStateTrait};
     use core::num::traits::Zero;
     use core::pedersen::PedersenTrait;
     use crate::governor::ProposalCore;
-    use crate::governor::interface::{ProposalState, IGovernor, IGOVERNOR_ID};
+    use crate::governor::interface::{IGOVERNOR_ID, IGovernor, ProposalState};
     use crate::governor::vote::{Vote, VoteWithReasonAndParams};
     use crate::utils::call_impls::{HashCallImpl, HashCallsImpl};
     use openzeppelin_account::interface::{ISRC6Dispatcher, ISRC6DispatcherTrait};
-    use openzeppelin_introspection::src5::SRC5Component::InternalImpl as SRC5InternalImpl;
     use openzeppelin_introspection::src5::SRC5Component;
+    use openzeppelin_introspection::src5::SRC5Component::InternalImpl as SRC5InternalImpl;
     use openzeppelin_utils::bytearray::ByteArrayExtTrait;
     use openzeppelin_utils::cryptography::snip12::{OffchainMessageHash, SNIP12Metadata};
     use starknet::account::Call;
@@ -27,7 +27,7 @@ pub mod GovernorComponent {
     #[storage]
     pub struct Storage {
         pub Governor_proposals: Map<ProposalId, ProposalCore>,
-        pub Governor_nonces: Map<ContractAddress, felt252>
+        pub Governor_nonces: Map<ContractAddress, felt252>,
     }
 
     #[event]
@@ -38,7 +38,7 @@ pub mod GovernorComponent {
         ProposalExecuted: ProposalExecuted,
         ProposalCanceled: ProposalCanceled,
         VoteCast: VoteCast,
-        VoteCastWithParams: VoteCastWithParams
+        VoteCastWithParams: VoteCastWithParams,
     }
 
     /// Emitted when `call` is scheduled as part of operation `id`.
@@ -52,7 +52,7 @@ pub mod GovernorComponent {
         pub signatures: Span<Span<felt252>>,
         pub vote_start: u64,
         pub vote_end: u64,
-        pub description: ByteArray
+        pub description: ByteArray,
     }
 
     /// Emitted when a proposal is queued.
@@ -60,21 +60,21 @@ pub mod GovernorComponent {
     pub struct ProposalQueued {
         #[key]
         pub proposal_id: felt252,
-        pub eta_seconds: u64
+        pub eta_seconds: u64,
     }
 
     /// Emitted when a proposal is executed.
     #[derive(Drop, starknet::Event)]
     pub struct ProposalExecuted {
         #[key]
-        pub proposal_id: felt252
+        pub proposal_id: felt252,
     }
 
     /// Emitted when a proposal is canceled.
     #[derive(Drop, starknet::Event)]
     pub struct ProposalCanceled {
         #[key]
-        pub proposal_id: felt252
+        pub proposal_id: felt252,
     }
 
     /// Emitted when a vote is cast without params.
@@ -85,7 +85,7 @@ pub mod GovernorComponent {
         pub proposal_id: felt252,
         pub support: u8,
         pub weight: u256,
-        pub reason: ByteArray
+        pub reason: ByteArray,
     }
 
     /// Emitted when a vote is cast with params.
@@ -101,7 +101,7 @@ pub mod GovernorComponent {
         pub support: u8,
         pub weight: u256,
         pub reason: ByteArray,
-        pub params: Span<felt252>
+        pub params: Span<felt252>,
     }
 
     pub mod Errors {
@@ -161,12 +161,12 @@ pub mod GovernorComponent {
             account: ContractAddress,
             support: u8,
             total_weight: u256,
-            params: Span<felt252>
+            params: Span<felt252>,
         ) -> u256;
 
         /// See `interface::IGovernor::has_voted`.
         fn has_voted(
-            self: @ComponentState<TContractState>, proposal_id: felt252, account: ContractAddress
+            self: @ComponentState<TContractState>, proposal_id: felt252, account: ContractAddress,
         ) -> bool;
 
         /// Returns whether amount of votes already cast passes the threshold limit.
@@ -188,7 +188,7 @@ pub mod GovernorComponent {
             self: @ComponentState<TContractState>,
             account: ContractAddress,
             timepoint: u64,
-            params: Span<felt252>
+            params: Span<felt252>,
         ) -> u256;
     }
 
@@ -216,7 +216,7 @@ pub mod GovernorComponent {
             ref self: ComponentState<TContractState>,
             proposal_id: felt252,
             calls: Span<Call>,
-            description_hash: felt252
+            description_hash: felt252,
         );
 
         /// Queuing mechanism. Can be used to modify the way queuing is
@@ -231,12 +231,12 @@ pub mod GovernorComponent {
             ref self: ComponentState<TContractState>,
             proposal_id: felt252,
             calls: Span<Call>,
-            description_hash: felt252
+            description_hash: felt252,
         ) -> u64;
 
         /// See `interface::IGovernor::proposal_needs_queuing`.
         fn proposal_needs_queuing(
-            self: @ComponentState<TContractState>, proposal_id: felt252
+            self: @ComponentState<TContractState>, proposal_id: felt252,
         ) -> bool;
 
         /// Cancel mechanism. Can be used to modify the way canceling is
@@ -244,7 +244,7 @@ pub mod GovernorComponent {
         fn cancel_operations(
             ref self: ComponentState<TContractState>,
             proposal_id: felt252,
-            description_hash: felt252
+            description_hash: felt252,
         );
     }
 
@@ -306,7 +306,7 @@ pub mod GovernorComponent {
 
         /// Hashing function used to (re)build the proposal id from the proposal details.
         fn hash_proposal(
-            self: @ComponentState<TContractState>, calls: Span<Call>, description_hash: felt252
+            self: @ComponentState<TContractState>, calls: Span<Call>, description_hash: felt252,
         ) -> felt252 {
             self._hash_proposal(calls, description_hash)
         }
@@ -336,7 +336,7 @@ pub mod GovernorComponent {
 
         /// The account that created a proposal.
         fn proposal_proposer(
-            self: @ComponentState<TContractState>, proposal_id: felt252
+            self: @ComponentState<TContractState>, proposal_id: felt252,
         ) -> ContractAddress {
             self._proposal_proposer(proposal_id)
         }
@@ -350,7 +350,7 @@ pub mod GovernorComponent {
 
         /// Whether a proposal needs to be queued before execution.
         fn proposal_needs_queuing(
-            self: @ComponentState<TContractState>, proposal_id: felt252
+            self: @ComponentState<TContractState>, proposal_id: felt252,
         ) -> bool {
             GovernorExecution::proposal_needs_queuing(self, proposal_id)
         }
@@ -390,7 +390,7 @@ pub mod GovernorComponent {
         /// NOTE: this can be implemented in a number of ways, for example by reading the delegated
         /// balance from one (or multiple) `ERC20Votes` tokens.
         fn get_votes(
-            self: @ComponentState<TContractState>, account: ContractAddress, timepoint: u64
+            self: @ComponentState<TContractState>, account: ContractAddress, timepoint: u64,
         ) -> u256 {
             self._get_votes(account, timepoint, Immutable::DEFAULT_PARAMS())
         }
@@ -401,14 +401,14 @@ pub mod GovernorComponent {
             self: @ComponentState<TContractState>,
             account: ContractAddress,
             timepoint: u64,
-            params: Span<felt252>
+            params: Span<felt252>,
         ) -> u256 {
             self._get_votes(account, timepoint, params)
         }
 
         /// Returns whether `account` has cast a vote on `proposal_id`.
         fn has_voted(
-            self: @ComponentState<TContractState>, proposal_id: felt252, account: ContractAddress
+            self: @ComponentState<TContractState>, proposal_id: felt252, account: ContractAddress,
         ) -> bool {
             GovernorCounting::has_voted(self, proposal_id, account)
         }
@@ -435,14 +435,14 @@ pub mod GovernorComponent {
         ///
         /// Emits a `ProposalCreated` event.
         fn propose(
-            ref self: ComponentState<TContractState>, calls: Span<Call>, description: ByteArray
+            ref self: ComponentState<TContractState>, calls: Span<Call>, description: ByteArray,
         ) -> felt252 {
             let proposer = starknet::get_caller_address();
 
             // Check description for restricted proposer
             assert(
                 self.is_valid_description_for_proposer(proposer, @description),
-                Errors::RESTRICTED_PROPOSER
+                Errors::RESTRICTED_PROPOSER,
             );
 
             // Check proposal threshold
@@ -470,7 +470,7 @@ pub mod GovernorComponent {
         ///
         /// Emits a `ProposalQueued` event.
         fn queue(
-            ref self: ComponentState<TContractState>, calls: Span<Call>, description_hash: felt252
+            ref self: ComponentState<TContractState>, calls: Span<Call>, description_hash: felt252,
         ) -> felt252 {
             let proposal_id = self._hash_proposal(calls, description_hash);
             self.validate_state(proposal_id, array![ProposalState::Succeeded].span());
@@ -502,12 +502,12 @@ pub mod GovernorComponent {
         ///
         /// Emits a `ProposalExecuted` event.
         fn execute(
-            ref self: ComponentState<TContractState>, calls: Span<Call>, description_hash: felt252
+            ref self: ComponentState<TContractState>, calls: Span<Call>, description_hash: felt252,
         ) -> felt252 {
             let proposal_id = self._hash_proposal(calls, description_hash);
             self
                 .validate_state(
-                    proposal_id, array![ProposalState::Succeeded, ProposalState::Queued].span()
+                    proposal_id, array![ProposalState::Succeeded, ProposalState::Queued].span(),
                 );
 
             // Mark proposal as executed to avoid reentrancy
@@ -533,14 +533,14 @@ pub mod GovernorComponent {
         ///
         /// Emits a `ProposalCanceled` event.
         fn cancel(
-            ref self: ComponentState<TContractState>, calls: Span<Call>, description_hash: felt252
+            ref self: ComponentState<TContractState>, calls: Span<Call>, description_hash: felt252,
         ) -> felt252 {
             let proposal_id = self._hash_proposal(calls, description_hash);
             self.validate_state(proposal_id, array![ProposalState::Pending].span());
 
             assert(
                 starknet::get_caller_address() == self.proposal_proposer(proposal_id),
-                Errors::PROPOSER_ONLY
+                Errors::PROPOSER_ONLY,
             );
             self.cancel_operations(proposal_id, description_hash);
 
@@ -557,7 +557,7 @@ pub mod GovernorComponent {
         ///
         /// Emits a `VoteCast` event.
         fn cast_vote(
-            ref self: ComponentState<TContractState>, proposal_id: felt252, support: u8
+            ref self: ComponentState<TContractState>, proposal_id: felt252, support: u8,
         ) -> u256 {
             let voter = starknet::get_caller_address();
             self._cast_vote(proposal_id, voter, support, "", Immutable::DEFAULT_PARAMS())
@@ -574,7 +574,7 @@ pub mod GovernorComponent {
             ref self: ComponentState<TContractState>,
             proposal_id: felt252,
             support: u8,
-            reason: ByteArray
+            reason: ByteArray,
         ) -> u256 {
             let voter = starknet::get_caller_address();
             self._cast_vote(proposal_id, voter, support, reason, Immutable::DEFAULT_PARAMS())
@@ -594,7 +594,7 @@ pub mod GovernorComponent {
             proposal_id: felt252,
             support: u8,
             reason: ByteArray,
-            params: Span<felt252>
+            params: Span<felt252>,
         ) -> u256 {
             let voter = starknet::get_caller_address();
             self._cast_vote(proposal_id, voter, support, reason, params)
@@ -615,7 +615,7 @@ pub mod GovernorComponent {
             proposal_id: felt252,
             support: u8,
             voter: ContractAddress,
-            signature: Span<felt252>
+            signature: Span<felt252>,
         ) -> u256 {
             // 1. Get and increase current nonce
             let nonce = self.use_nonce(voter);
@@ -658,7 +658,7 @@ pub mod GovernorComponent {
             voter: ContractAddress,
             reason: ByteArray,
             params: Span<felt252>,
-            signature: Span<felt252>
+            signature: Span<felt252>,
         ) -> u256 {
             // 1. Get and increase current nonce
             let nonce = self.use_nonce(voter);
@@ -667,7 +667,7 @@ pub mod GovernorComponent {
             let verifying_contract = starknet::get_contract_address();
             let reason_hash = reason.hash();
             let vote = VoteWithReasonAndParams {
-                verifying_contract, nonce, proposal_id, support, voter, reason_hash, params
+                verifying_contract, nonce, proposal_id, support, voter, reason_hash, params,
             };
             let hash = vote.get_message_hash(voter);
 
@@ -713,7 +713,7 @@ pub mod GovernorComponent {
         TContractState,
         +HasComponent<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of InternalTrait<TContractState> {
         /// Initializes the contract by registering the supported interface id.
         fn initializer(ref self: ComponentState<TContractState>) {
@@ -723,7 +723,7 @@ pub mod GovernorComponent {
 
         /// Returns the proposal object given its id.
         fn get_proposal(
-            self: @ComponentState<TContractState>, proposal_id: felt252
+            self: @ComponentState<TContractState>, proposal_id: felt252,
         ) -> ProposalCore {
             self.Governor_proposals.read(proposal_id)
         }
@@ -753,7 +753,7 @@ pub mod GovernorComponent {
         fn is_valid_description_for_proposer(
             self: @ComponentState<TContractState>,
             proposer: ContractAddress,
-            description: @ByteArray
+            description: @ByteArray,
         ) -> bool {
             let length = description.len();
 
@@ -777,7 +777,7 @@ pub mod GovernorComponent {
 
         /// Returns a hash of the proposal using the Pedersen hashing algorithm.
         fn _hash_proposal(
-            self: @ComponentState<TContractState>, calls: Span<Call>, description_hash: felt252
+            self: @ComponentState<TContractState>, calls: Span<Call>, description_hash: felt252,
         ) -> felt252 {
             PedersenTrait::new(0).update_with(calls).update_with(description_hash).finalize()
         }
@@ -798,7 +798,7 @@ pub mod GovernorComponent {
 
         /// The account that created a proposal.
         fn _proposal_proposer(
-            self: @ComponentState<TContractState>, proposal_id: felt252
+            self: @ComponentState<TContractState>, proposal_id: felt252,
         ) -> ContractAddress {
             self.Governor_proposals.read(proposal_id).proposer
         }
@@ -820,7 +820,7 @@ pub mod GovernorComponent {
         +GovernorExecutionTrait<TContractState>,
         impl GovernorSettings: GovernorSettingsTrait<TContractState>,
         impl GovernorVotes: GovernorVotesTrait<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of InternalExtendedTrait<TContractState> {
         /// Asserts that the caller is the governance executor.
         ///
@@ -838,7 +838,7 @@ pub mod GovernorComponent {
         fn validate_state(
             self: @ComponentState<TContractState>,
             proposal_id: felt252,
-            allowed_states: Span<ProposalState>
+            allowed_states: Span<ProposalState>,
         ) {
             let current_state = self.state(proposal_id);
             let mut found = false;
@@ -866,7 +866,7 @@ pub mod GovernorComponent {
             self: @ComponentState<TContractState>,
             account: ContractAddress,
             timepoint: u64,
-            params: Span<felt252>
+            params: Span<felt252>,
         ) -> u256 {
             GovernorVotes::get_votes(self, account, timepoint, params)
         }
@@ -919,12 +919,13 @@ pub mod GovernorComponent {
             ref self: ComponentState<TContractState>,
             calls: Span<Call>,
             description: @ByteArray,
-            proposer: ContractAddress
+            proposer: ContractAddress,
         ) -> felt252 {
             let proposal_id = self._hash_proposal(calls, description.hash());
 
             assert(
-                self.Governor_proposals.read(proposal_id).vote_start == 0, Errors::EXISTENT_PROPOSAL
+                self.Governor_proposals.read(proposal_id).vote_start == 0,
+                Errors::EXISTENT_PROPOSAL,
             );
 
             let snapshot = self.clock() + self.voting_delay();
@@ -936,7 +937,7 @@ pub mod GovernorComponent {
                 vote_duration: duration,
                 executed: false,
                 canceled: false,
-                eta_seconds: 0
+                eta_seconds: 0,
             };
 
             self.Governor_proposals.write(proposal_id, proposal);
@@ -949,8 +950,8 @@ pub mod GovernorComponent {
                         signatures: array![].span(),
                         vote_start: snapshot,
                         vote_end: snapshot + duration,
-                        description: description.clone()
-                    }
+                        description: description.clone(),
+                    },
                 );
 
             proposal_id
@@ -963,14 +964,14 @@ pub mod GovernorComponent {
         fn _cancel(
             ref self: ComponentState<TContractState>,
             proposal_id: felt252,
-            description_hash: felt252
+            description_hash: felt252,
         ) {
             let valid_states = array![
                 ProposalState::Pending,
                 ProposalState::Active,
                 ProposalState::Defeated,
                 ProposalState::Succeeded,
-                ProposalState::Queued
+                ProposalState::Queued,
             ];
             self.validate_state(proposal_id, valid_states.span());
 
@@ -986,7 +987,7 @@ pub mod GovernorComponent {
             account: ContractAddress,
             support: u8,
             total_weight: u256,
-            params: Span<felt252>
+            params: Span<felt252>,
         ) -> u256 {
             self.count_vote(proposal_id, account, support, total_weight, params)
         }
@@ -1005,7 +1006,7 @@ pub mod GovernorComponent {
             voter: ContractAddress,
             support: u8,
             reason: ByteArray,
-            params: Span<felt252>
+            params: Span<felt252>,
         ) -> u256 {
             self.validate_state(proposal_id, array![ProposalState::Active].span());
 
@@ -1019,8 +1020,8 @@ pub mod GovernorComponent {
                 self
                     .emit(
                         VoteCastWithParams {
-                            voter, proposal_id, support, weight: voted_weight, reason, params
-                        }
+                            voter, proposal_id, support, weight: voted_weight, reason, params,
+                        },
                     );
             }
 

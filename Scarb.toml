@@ -20,6 +20,7 @@ name = "openzeppelin"
 readme = "README.md"
 version.workspace = true
 keywords.workspace = true
+edition = "2024_07"
 
 [workspace.package]
 version = "0.20.0-rc.0"
@@ -40,8 +41,8 @@ keywords = [
 ]
 
 [workspace.dependencies]
-assert_macros = "2.8.5"
-starknet = "2.8.5"
+assert_macros = "2.9.1"
+starknet = "2.9.1"
 snforge_std = "0.33.0"
 
 [dependencies]

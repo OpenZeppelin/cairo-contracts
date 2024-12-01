@@ -15,13 +15,13 @@ pub mod UpgradeableComponent {
     #[event]
     #[derive(Drop, PartialEq, starknet::Event)]
     pub enum Event {
-        Upgraded: Upgraded
+        Upgraded: Upgraded,
     }
 
     /// Emitted when the contract is upgraded.
     #[derive(Drop, PartialEq, starknet::Event)]
     pub struct Upgraded {
-        pub class_hash: ClassHash
+        pub class_hash: ClassHash,
     }
 
     pub mod Errors {
@@ -34,7 +34,7 @@ pub mod UpgradeableComponent {
 
     #[generate_trait]
     pub impl InternalImpl<
-        TContractState, +HasComponent<TContractState>
+        TContractState, +HasComponent<TContractState>,
     > of InternalTrait<TContractState> {
         /// Replaces the contract's class hash with `new_class_hash`.
         ///
@@ -63,7 +63,7 @@ pub mod UpgradeableComponent {
             ref self: ComponentState<TContractState>,
             new_class_hash: ClassHash,
             selector: felt252,
-            calldata: Span<felt252>
+            calldata: Span<felt252>,
         ) -> Span<felt252> {
             self.upgrade(new_class_hash);
             let this = starknet::get_contract_address();

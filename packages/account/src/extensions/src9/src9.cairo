@@ -15,14 +15,14 @@ pub mod SRC9Component {
     use crate::extensions::src9::snip12_utils::OutsideExecutionStructHash;
     use crate::utils::execute_calls;
     use openzeppelin_account::interface::{ISRC6Dispatcher, ISRC6DispatcherTrait};
-    use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin_introspection::src5::SRC5Component;
+    use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin_utils::cryptography::snip12::{OffchainMessageHash, SNIP12Metadata};
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
 
     #[storage]
     pub struct Storage {
-        pub SRC9_nonces: Map<felt252, bool>
+        pub SRC9_nonces: Map<felt252, bool>,
     }
 
     pub mod Errors {
@@ -52,7 +52,7 @@ pub mod SRC9Component {
         TContractState,
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of interface::ISRC9_V2<ComponentState<TContractState>> {
         /// Allows anyone to submit a transaction on behalf of the account as long as they
         /// provide the relevant signatures.
@@ -84,7 +84,7 @@ pub mod SRC9Component {
             if outside_execution.caller.into() != 'ANY_CALLER' {
                 assert(
                     starknet::get_caller_address() == outside_execution.caller,
-                    Errors::INVALID_CALLER
+                    Errors::INVALID_CALLER,
                 );
             }
 
@@ -120,7 +120,7 @@ pub mod SRC9Component {
 
         /// Returns the status of a given nonce. `true` if the nonce is available to use.
         fn is_valid_outside_execution_nonce(
-            self: @ComponentState<TContractState>, nonce: felt252
+            self: @ComponentState<TContractState>, nonce: felt252,
         ) -> bool {
             self.SRC9_nonces.read(nonce) == false
         }
@@ -135,7 +135,7 @@ pub mod SRC9Component {
         TContractState,
         +HasComponent<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of InternalTrait<TContractState> {
         /// Initializes the account by registering the ISRC9_V2 interface ID.
         fn initializer(ref self: ComponentState<TContractState>) {

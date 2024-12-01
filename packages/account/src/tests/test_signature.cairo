@@ -1,11 +1,11 @@
 use crate::interface::P256PublicKey;
 use crate::utils::signature::{
-    is_valid_stark_signature, is_valid_eth_signature, is_valid_p256_signature
+    is_valid_eth_signature, is_valid_p256_signature, is_valid_stark_signature,
 };
 use openzeppelin_account::utils::signature::Secp256Signature;
 use openzeppelin_test_common::account::SIGNED_TX_DATA as stark_signature_data;
 use openzeppelin_test_common::eth_account::SIGNED_TX_DATA as eth_signature_data;
-use openzeppelin_testing::constants::{TRANSACTION_HASH, stark, secp256k1, secp256r1};
+use openzeppelin_testing::constants::{TRANSACTION_HASH, secp256k1, secp256r1, stark};
 use openzeppelin_testing::signing::{Secp256r1KeyPair, Secp256r1SerializedSigning};
 use snforge_std::signature::secp256r1_curve::Secp256r1CurveSignerImpl;
 use starknet::secp256_trait::Secp256Trait;
@@ -59,7 +59,7 @@ fn test_is_valid_eth_signature_good_sig() {
     data.signature.serialize(ref serialized_good_signature);
 
     let is_valid = is_valid_eth_signature(
-        data.tx_hash, key_pair.public_key, serialized_good_signature.span()
+        data.tx_hash, key_pair.public_key, serialized_good_signature.span(),
     );
     assert!(is_valid);
 }
@@ -77,7 +77,7 @@ fn test_is_valid_eth_signature_bad_sig() {
     bad_signature.serialize(ref serialized_bad_signature);
 
     let is_invalid = !is_valid_eth_signature(
-        data.tx_hash, key_pair.public_key, serialized_bad_signature.span()
+        data.tx_hash, key_pair.public_key, serialized_bad_signature.span(),
     );
     assert!(is_invalid);
 }
@@ -107,7 +107,7 @@ fn test_eth_signature_r_out_of_range() {
     bad_signature.serialize(ref serialized_bad_signature);
 
     let is_invalid = !is_valid_eth_signature(
-        data.tx_hash, key_pair.public_key, serialized_bad_signature.span()
+        data.tx_hash, key_pair.public_key, serialized_bad_signature.span(),
     );
     assert!(is_invalid);
 }
@@ -127,7 +127,7 @@ fn test_eth_signature_s_out_of_range() {
     bad_signature.serialize(ref serialized_bad_signature);
 
     let is_invalid = !is_valid_eth_signature(
-        data.tx_hash, key_pair.public_key, serialized_bad_signature.span()
+        data.tx_hash, key_pair.public_key, serialized_bad_signature.span(),
     );
     assert!(is_invalid);
 }
@@ -141,7 +141,7 @@ pub struct SignedTransactionData {
     pub private_key: u256,
     pub public_key: P256PublicKey,
     pub tx_hash: felt252,
-    pub signature: Secp256Signature
+    pub signature: Secp256Signature,
 }
 
 fn p256_signature_data(key_pair: Secp256r1KeyPair) -> SignedTransactionData {
@@ -151,7 +151,7 @@ fn p256_signature_data(key_pair: Secp256r1KeyPair) -> SignedTransactionData {
         private_key: key_pair.secret_key,
         public_key: key_pair.public_key,
         tx_hash,
-        signature: Secp256Signature { r, s }
+        signature: Secp256Signature { r, s },
     }
 }
 
@@ -164,7 +164,7 @@ fn test_is_valid_p256_signature_good_sig() {
     data.signature.serialize(ref serialized_good_signature);
 
     let is_valid = is_valid_p256_signature(
-        data.tx_hash, key_pair.public_key, serialized_good_signature.span()
+        data.tx_hash, key_pair.public_key, serialized_good_signature.span(),
     );
     assert!(is_valid);
 }
@@ -182,7 +182,7 @@ fn test_is_valid_p256_signature_bad_sig() {
     bad_signature.serialize(ref serialized_bad_signature);
 
     let is_invalid = !is_valid_p256_signature(
-        data.tx_hash, key_pair.public_key, serialized_bad_signature.span()
+        data.tx_hash, key_pair.public_key, serialized_bad_signature.span(),
     );
     assert!(is_invalid);
 }
@@ -212,7 +212,7 @@ fn test_p256_signature_r_out_of_range() {
     bad_signature.serialize(ref serialized_bad_signature);
 
     let is_invalid = !is_valid_p256_signature(
-        data.tx_hash, key_pair.public_key, serialized_bad_signature.span()
+        data.tx_hash, key_pair.public_key, serialized_bad_signature.span(),
     );
     assert!(is_invalid);
 }
@@ -232,7 +232,7 @@ fn test_p256_signature_s_out_of_range() {
     bad_signature.serialize(ref serialized_bad_signature);
 
     let is_invalid = !is_valid_p256_signature(
-        data.tx_hash, key_pair.public_key, serialized_bad_signature.span()
+        data.tx_hash, key_pair.public_key, serialized_bad_signature.span(),
     );
     assert!(is_invalid);
 }

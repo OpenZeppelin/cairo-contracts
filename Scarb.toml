@@ -20,7 +20,7 @@ name = "openzeppelin"
 readme = "README.md"
 version.workspace = true
 keywords.workspace = true
-edition = "2024_07"
+edition.workspace = true
 
 [workspace.package]
 version = "0.20.0-rc.0"

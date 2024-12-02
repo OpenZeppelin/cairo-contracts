@@ -319,7 +319,7 @@ Returns the weight of the vote.
 [[IGovernor-cast_vote_with_reason_and_params_by_sig]]
 ==== `[.contract-item-name]#++cast_vote_with_reason_and_params_by_sig++#++(proposal_id: felt252, support: u8, voter: ContractAddress, reason: ByteArray, params: Span<felt252>, signature: Span<felt252>) → u256++` [.item-kind]#external#
 
-Cast a vote on a proposal with a reason and additional encoded parameters using the voter's signature.
+Cast a vote on a proposal with a reason and additional encoded parameters using the ``voter``'s signature.
 
 Returns the weight of the vote.
 
@@ -954,7 +954,7 @@ Emits a {VoteCast} event.
 [[GovernorComponent-cast_vote_with_reason_and_params_by_sig]]
 ==== `[.contract-item-name]#++cast_vote_with_reason_and_params_by_sig++#++(proposal_id: felt252, support: u8, voter: ContractAddress, reason: ByteArray, params: Span<felt252>, signature: Span<felt252>) → u256++` [.item-kind]#external#
 
-Cast a vote with a `reason` and additional serialized `params` using the `voter`'s
+Cast a vote with a `reason` and additional serialized `params` using the ``voter``'s
 signature.
 
 Requirements:
@@ -1953,7 +1953,8 @@ Ensures the caller is the executor (the timelock controller in this case).
 [[GovernorTimelockExecutionComponent-timelock_salt]]
 ==== `[.contract-item-name]#++timelock_salt++#++(self: @ContractState, description_hash: felt252) → felt252++` [.item-kind]#internal#
 
-Computes the `TimelockController` operation salt.
+Computes the `TimelockController` operation salt as the XOR of
+the governor address and `description_hash`.
 
 It is computed with the governor address itself to avoid collisions across
 governor instances using the same timelock.

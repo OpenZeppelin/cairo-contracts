@@ -10,7 +10,6 @@ pub const IGOVERNOR_ID: felt252 = 0x1100a1f8546595b5bd75a6cd8fcc5b015370655e66f2
 #[starknet::interface]
 pub trait IERC6372<TState> {
     /// Clock used for flagging checkpoints.
-    /// Can be overridden to implement block number based checkpoints (and voting).
     fn clock(self: @TState) -> u64;
 
     /// Description of the clock.
@@ -214,75 +213,4 @@ pub trait IGovernor<TState> {
     ///
     /// NOTE: If the executor is simply the governor itself, use of `relay` is redundant.
     fn relay(ref self: TState, call: Call);
-}
-
-pub trait IGovernor2 {
-    fn name() -> felt252;
-
-    fn version() -> felt252;
-
-    fn COUNTING_MODE() -> ByteArray;
-
-    fn hash_proposal(calls: Span<Call>, description_hash: felt252) -> felt252;
-
-    // fn state(proposal_id: felt252) -> ProposalState;
-
-    fn proposal_threshold() -> u256;
-
-    fn proposal_snapshot(proposal_id: felt252) -> u64;
-
-    fn proposal_deadline(proposal_id: felt252) -> u64;
-
-    fn proposal_proposer(proposal_id: felt252) -> ContractAddress;
-
-    fn proposal_eta(proposal_id: felt252) -> u64;
-
-    fn proposal_needs_queuing(proposal_id: felt252) -> bool;
-
-    fn voting_delay() -> u64;
-
-    fn voting_period() -> u64;
-
-    fn quorum(timepoint: u64) -> u256;
-
-    fn get_votes(account: ContractAddress, timepoint: u64) -> u256;
-
-    fn get_votes_with_params(
-        account: ContractAddress, timepoint: u64, params: Span<felt252>
-    ) -> u256;
-
-    fn has_voted(proposal_id: felt252, account: ContractAddress) -> bool;
-
-    fn propose(calls: Span<Call>, description: ByteArray) -> felt252;
-
-    fn queue(calls: Span<Call>, description_hash: felt252) -> felt252;
-
-    fn execute(calls: Span<Call>, description_hash: felt252) -> felt252;
-
-    fn cancel(calls: Span<Call>, description_hash: felt252) -> felt252;
-
-    fn cast_vote(proposal_id: felt252, support: u8) -> u256;
-
-    fn cast_vote_with_reason(proposal_id: felt252, support: u8, reason: ByteArray) -> u256;
-
-    fn cast_vote_with_reason_and_params(
-        proposal_id: felt252, support: u8, reason: ByteArray, params: Span<felt252>
-    ) -> u256;
-
-    fn cast_vote_by_sig(
-        proposal_id: felt252, support: u8, voter: ContractAddress, signature: Span<felt252>
-    ) -> u256;
-
-    fn cast_vote_with_reason_and_params_by_sig(
-        proposal_id: felt252,
-        support: u8,
-        voter: ContractAddress,
-        reason: ByteArray,
-        params: Span<felt252>,
-        signature: Span<felt252>
-    ) -> u256;
-
-    fn nonces(voter: ContractAddress) -> felt252;
-
-    fn relay(call: Call);
 }

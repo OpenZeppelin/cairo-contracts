@@ -276,7 +276,8 @@ pub mod GovernorTimelockExecutionComponent {
             governor_component.assert_only_governance();
         }
 
-        /// Computes the `TimelockController` operation salt.
+        /// Computes the `TimelockController` operation salt as the XOR of
+        /// the governor address and `description_hash`.
         ///
         /// It is computed with the governor address itself to avoid collisions across
         /// governor instances using the same timelock.

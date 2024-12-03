@@ -625,6 +625,254 @@ The component leverages traits to configure fees, limits, and decimals.
 * xref:#ERC4626Component-_convert_to_assets[`++_convert_to_assets(self, shares, rounding)++`]
 --
 
+[#ERC4626Component-Hooks]
+==== Hooks
+
+Hooks are functions which implementations can extend the functionality of the component source code.
+Every contract using ERC4626Component is expected to provide an implementation of the ERC4626HooksTrait.
+For basic token contracts, an empty implementation with no logic must be provided.
+
+TIP: You can use `openzeppelin_token::erc20::extensions::erc4626::ERC4626HooksEmptyImpl` which is already available as part of the library for this purpose.
+
+[.contract-item]
+[[ERC4626Component-before_withdraw]]
+==== `[.contract-item-name]#++before_withdraw++#++(ref self: ContractState, assets: u256, shares: u256)++` [.item-kind]#hook#
+
+Function executed at the beginning of the xref:#ERC4626Component-withdraw[withdraw] and xref:#ERC4626Component-redeem[redeem] functions prior to any other logic.
+
+[.contract-item]
+[[ERC4626Component-after_deposit]]
+==== `[.contract-item-name]#++after_deposit++#++(ref self: ContractState, assets: u256, shares: u256)++` [.item-kind]#hook#
+
+Function executed at the end of the xref:#ERC4626Component-deposit[deposit] and xref:#ERC4626Component-mint[mint] functions after all other logic.
+
+==== Embeddable functions
+
+[.contract-item]
+[[ERC4626Component-asset]]
+==== `[.contract-item-name]#++asset++#++(self: @ContractState) → ContractAddress++` [.item-kind]#external#
+
+Returns the address of the underlying token used for the Vault for accounting, depositing, and withdrawing.
+
+[.contract-item]
+[[ERC4626Component-total_assets]]
+==== `[.contract-item-name]#++total_assets++#++(self: @ContractState) → u256++` [.item-kind]#external#
+
+Returns the total amount of the underlying asset that is “managed” by Vault.
+
+[.contract-item]
+[[ERC4626Component-convert_to_shares]]
+==== `[.contract-item-name]#++convert_to_shares++#++(self: @ContractState, assets: u256) → u256++` [.item-kind]#external#
+
+Returns the amount of shares that the Vault would exchange for the amount of assets provided,
+in an ideal scenario where all the conditions are met.
+
+[.contract-item]
+[[ERC4626Component-convert_to_assets]]
+==== `[.contract-item-name]#++convert_to_assets++#++(self: @ContractState, shares: u256) → u256++` [.item-kind]#external#
+
+Returns the amount of assets that the Vault would exchange for the amount of shares provided,
+in an ideal scenario where all the conditions are met.
+
+[.contract-item]
+[[ERC4626Component-max_deposit]]
+==== `[.contract-item-name]#++max_deposit++#++(self: @ContractState, receiver: ContractAddress) → u256++` [.item-kind]#external#
+
+Returns the maximum amount of the underlying asset that can be deposited into the Vault for the receiver,
+through a deposit call.
+
+If the `LimitConfigTrait` is not defined for deposits, returns 2 ** 256 - 1.
+
+[.contract-item]
+[[ERC4626Component-preview_deposit]]
+==== `[.contract-item-name]#++preview_deposit++#++(self: @ContractState, assets: u256) → u256++` [.item-kind]#external#
+
+Allows an on-chain or off-chain user to simulate the effects of their deposit at the current block,
+given current on-chain conditions.
+
+If the `FeeConfigTrait` is not defined for deposits, returns the full amount of shares.
+
+[.contract-item]
+[[ERC4626Component-deposit]]
+==== `[.contract-item-name]#++deposit++#++(ref self: ContractState, assets: u256, receiver: ContractAddress) → u256++` [.item-kind]#external#
+
+Mints Vault shares to `receiver` by depositing exactly `assets` of underlying tokens.
+Returns the amount of newly-minted shares.
+
+Requirements:
+
+- `assets` is less than or equal to the max deposit amount for `receiver`.
+
+Emits a `Deposit` event.
+
+[.contract-item]
+[[ERC4626Component-max_mint]]
+==== `[.contract-item-name]#++max_mint++#++(self: @ContractState, receiver: ContractAddress) → u256++` [.item-kind]#external#
+
+Returns the maximum amount of the Vault shares that can be minted for `receiver` through a `mint` call.
+
+If the `LimitConfigTrait` is not defined for mints, returns 2 ** 256 - 1.
+
+[.contract-item]
+[[ERC4626Component-preview_mint]]
+==== `[.contract-item-name]#++preview_mint++#++(self: @ContractState, shares: u256) → u256++` [.item-kind]#external#
+
+Allows an on-chain or off-chain user to simulate the effects of their mint at the current block,
+given current on-chain conditions.
+
+If the `FeeConfigTrait` is not defined for mints, returns the full amount of assets.
+
+[.contract-item]
+[[ERC4626Component-mint]]
+==== `[.contract-item-name]#++mint++#++(self: @ContractState, shares: u256, receiver: ContractAddress) → u256++` [.item-kind]#external#
+
+Mints exactly Vault `shares` to `receiver` by depositing amount of underlying tokens.
+Returns the amount deposited assets.
+
+Requirements:
+
+- `shares` is less than or equal to the max shares amount for `receiver`.
+
+Emits a `Deposit` event.
+
+[.contract-item]
+[[ERC4626Component-max_withdraw]]
+==== `[.contract-item-name]#++max_withdraw++#++(self: @ContractState, owner: ContractAddress) → u256++` [.item-kind]#external#
+
+Returns the maximum amount of the underlying asset that can be withdrawn from the owner balance in the Vault,
+through a `withdraw` call.
+
+If the `LimitConfigTrait` is not defined for withdraws,
+returns the full balance of assets for `owner` (converted to shares).
+
+[.contract-item]
+[[ERC4626Component-preview_withdraw]]
+==== `[.contract-item-name]#++preview_withdraw++#++(self: @ContractState, assets: u256) → u256++` [.item-kind]#external#
+
+Allows an on-chain or off-chain user to simulate the effects of their withdrawal at the current block,
+given current on-chain conditions.
+
+If the `FeeConfigTrait` is not defined for withdraws, returns the full amount of shares.
+
+[.contract-item]
+[[ERC4626Component-withdraw]]
+==== `[.contract-item-name]#++withdraw++#++(self: @ContractState, assets: u256, receiver: ContractAddress, owner: ContractAddress) → u256++` [.item-kind]#external#
+
+Burns shares from `owner` and sends exactly `assets` of underlying tokens to `receiver`.
+
+Requirements:
+
+- `assets` is less than or equal to the max withdraw amount of `owner`.
+
+Emits a `Withdraw` event.
+
+[.contract-item]
+[[ERC4626Component-max_redeem]]
+==== `[.contract-item-name]#++max_redeem++#++(self: @ContractState, owner: ContractAddress) → u256++` [.item-kind]#external#
+
+Returns the maximum amount of Vault shares that can be redeemed from the owner balance in the Vault,
+through a `redeem` call.
+
+If the `LimitConfigTrait` is not defined for redeems, returns the full balance of assets for `owner`.
+
+[.contract-item]
+[[ERC4626Component-preview_redeem]]
+==== `[.contract-item-name]#++preview_redeem++#++(self: @ContractState, shares: u256) → u256++` [.item-kind]#external#
+
+Allows an on-chain or off-chain user to simulate the effects of their redeemption at the current block,
+given current on-chain conditions.
+
+If the `FeeConfigTrait` is not defined for redeems, returns the full amount of assets.
+
+[.contract-item]
+[[ERC4626Component-redeem]]
+==== `[.contract-item-name]#++redeem++#++(self: @ContractState, shares: u256, receiver: ContractAddress, owner: ContractAddress) → u256++` [.item-kind]#external#
+
+Burns exactly `shares` from `owner` and sends assets of underlying tokens to `receiver`.
+
+Requirements:
+
+- `shares` is less than or equal to the max redeem amount of `owner`.
+
+Emits a `Withdraw` event.
+
+[.contract-item]
+[[ERC4626Component-name]]
+==== `[.contract-item-name]#++name++#++(self: @ContractState) → ByteArray++` [.item-kind]#external#
+
+Returns the name of the token.
+
+[.contract-item]
+[[ERC4626Component-symbol]]
+==== `[.contract-item-name]#++symbol++#++(self: @ContractState) → ByteArray++` [.item-kind]#external#
+
+Returns the ticker symbol of the token, usually a shorter version of the name.
+
+[.contract-item]
+[[ERC4626Component-decimals]]
+==== `[.contract-item-name]#++decimals++#++(self: @ContractState) → u8++` [.item-kind]#external#
+
+Returns the cumulative number of decimals which includes both `UNDERLYING_DECIMALS` and `OFFSET_DECIMALS`.
+Both of which must be defined in the `ImmutableConfig` inside the implementing contract.
+
+==== Internal functions
+
+[.contract-item]
+[[ERC4626Component-initializer]]
+==== `[.contract-item-name]#++initializer++#++(ref self: ContractState, asset_address: ContractAddress)++` [.item-kind]#internal#
+
+Validates the `ImmutableConfig` constants and sets the `asset_address` to the vault.
+This should be set in the contract's constructor.
+
+Requirements:
+
+- `asset_address` cannot be the zero address.
+
+[.contract-item]
+[[ERC4626Component-_deposit]]
+==== `[.contract-item-name]#++_deposit++#++(ref self: ContractState, caller: ContractAddress, receiver: ContractAddress, assets: u256, shares: u256)++` [.item-kind]#internal#
+
+Business logic for <<ERC4626Component-deposit, deposit>> and <<ERC4626Component-mint, mint>>.
+Transfers `assets` from `caller` to the Vault contract then mints `shares` to `receiver`.
+Fees can be transferred in the `ERC4626Hooks::after_deposit` hook which is executed after the business logic.
+
+Requirements:
+
+- `ERC20::transfer_from` must return true.
+
+Emits two `ERC20::Transfer` events (`ERC20::mint` and `ERC20::transfer_from`).
+
+Emits a `Deposit` event.
+
+[.contract-item]
+[[ERC4626Component-_withdraw]]
+==== `[.contract-item-name]#++_withdraw++#++(ref self: ContractState, caller: ContractAddress, receiver: ContractAddress, owner: ContractAddress, assets: u256, shares: u256)++` [.item-kind]#internal#
+
+Business logic for <<ERC4626Component-withdraw, withdraw>> and <<ERC4626Component-redeem, redeem>>.
+Burns `shares` from `owner` and then transfers `assets` to `receiver`.
+Fees can be transferred in the `ERC4626Hooks::before_withdraw` hook which is executed
+before the business logic.
+
+Requirements:
+
+- `ERC20::transfer` must return true.
+
+Emits two `ERC20::Transfer` events (`ERC20::burn` and `ERC20::transfer`).
+
+Emits a `Withdraw` event.
+
+[.contract-item]
+[[ERC4626Component-_convert_to_shares]]
+==== `[.contract-item-name]#++_convert_to_shares++#++(self: @ContractState, assets: u256, rounding: Rounding) -> u256++` [.item-kind]#internal#
+
+Internal conversion function (from assets to shares) with support for `rounding` direction.
+
+[.contract-item]
+[[ERC4626Component-_convert_to_assets]]
+==== `[.contract-item-name]#++_convert_to_assets++#++(self: @ContractState, shares: u256, rounding: Rounding) -> u256++` [.item-kind]#internal#
+
+Internal conversion function (from shares to assets) with support for `rounding` direction.
+
 == Presets
 
 [.contract]

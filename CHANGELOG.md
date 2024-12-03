@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- ERC4626Component (#1170)
+- `Math::u256_mul_div` (#1170)
 - SRC9 (Outside Execution) integration to account presets (#1201)
 - `SNIP12HashSpanImpl` to `openzeppelin_utils::cryptography::snip12` (#1180)
 - GovernorComponent with the following extensions: (#1180)

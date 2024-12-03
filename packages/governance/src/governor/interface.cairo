@@ -4,13 +4,12 @@
 use starknet::ContractAddress;
 use starknet::account::Call;
 
-pub const IGOVERNOR_ID: felt252 = 0x1f; // TODO: Update this value.
+pub const IGOVERNOR_ID: felt252 = 0x1100a1f8546595b5bd75a6cd8fcc5b015370655e66f275963321c5cd0357ac9;
 
 /// Interface for a contract that implements the ERC-6372 standard.
 #[starknet::interface]
 pub trait IERC6372<TState> {
     /// Clock used for flagging checkpoints.
-    /// Can be overridden to implement timestamp based checkpoints (and voting).
     fn clock(self: @TState) -> u64;
 
     /// Description of the clock.
@@ -116,7 +115,7 @@ pub trait IGovernor<TState> {
 
     /// Voting power of an `account` at a specific `timepoint`.
     ///
-    /// NOTE: this can be implemented in a number of ways, for example by reading the delegated
+    /// NOTE: This can be implemented in a number of ways, for example by reading the delegated
     /// balance from one (or multiple) `ERC20Votes` tokens.
     fn get_votes(self: @TState, account: ContractAddress, timepoint: u64) -> u256;
 

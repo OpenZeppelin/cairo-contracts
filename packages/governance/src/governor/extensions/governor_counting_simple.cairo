@@ -133,6 +133,8 @@ pub mod GovernorCountingSimpleComponent {
         }
 
         /// See `GovernorComponent::GovernorCountingTrait::quorum_reached`.
+        ///
+        /// In this implementation, both For and Abstain votes count toward quorum.
         fn quorum_reached(
             self: @GovernorComponentState<TContractState>, proposal_id: felt252
         ) -> bool {

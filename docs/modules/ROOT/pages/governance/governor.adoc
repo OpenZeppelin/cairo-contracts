@@ -66,9 +66,8 @@ This module requires the address of the token to be passed as an argument to the
 
 **For 2)** we will use {GovernorVotesQuorumFraction}. This works together with the {ivotes} instance to define the quorum as a
 percentage of the total supply at the block when a proposal’s voting power is retrieved. This requires an initializer
-parameter to set the percentage besides the votes token address. Most Governors nowadays use 4%, so we will initialize
-the module with parameter 40 since the quorum denominator is 1000 for precision (this indicates the percentage,
-resulting in 4%).
+parameter to set the percentage besides the votes token address. Most Governors nowadays use 4%. Since the quorum denominator
+is 1000 for precision, we initialize the module with a numerator of 40, resulting in a 4% quorum (40/1000 = 0.04 or 4%).
 
 **For 3)** we will use {GovernorCountingSimple}, an extension that offers 3 options to voters: For, Against, and Abstain,
 and where only For and Abstain votes are counted towards quorum.

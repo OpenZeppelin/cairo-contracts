@@ -1694,7 +1694,7 @@ Extension of {GovernorComponent} for voting weight extraction from a token with 
 [[GovernorVotesQuorumFractionComponent-quorum]]
 ==== `[.contract-item-name]#++quorum++#++(self: @ContractState, timepoint: u64) → u256++` [.item-kind]#internal#
 
-Returns a percentage of the votes token total supply at a given `timepoint` in the past.
+It is computed as a percentage of the votes token total supply at a given `timepoint` in the past.
 
 [.contract-item]
 [[GovernorVotesQuorumFractionComponent-clock]]

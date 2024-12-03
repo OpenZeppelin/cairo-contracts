@@ -49,10 +49,13 @@ jobs:
       - name: Cairo lint
         run: scarb fmt --check --workspace
 
-      - name: Run tests and generate coverage report
-        run: snforge test --workspace --coverage
+      - name: Run tests
+        run: snforge test --workspace
 
       # Issue with cairo-coverage. Re-add to CI once issues are fixed.
+      #
+      # - name: Run tests and generate coverage report
+      #   run: snforge test --workspace --coverage
       #
       # - name: Upload coverage to Codecov
       #   uses: codecov/codecov-action@v4

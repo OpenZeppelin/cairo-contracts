@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0-rc.0 (governance/governor/proposal_core.cairo)
+// OpenZeppelin Contracts for Cairo v1.0.0 (governance/governor/proposal_core.cairo)
 
 use core::traits::DivRem;
 use starknet::ContractAddress;

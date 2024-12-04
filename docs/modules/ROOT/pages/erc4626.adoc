@@ -4,5 +4,32 @@
 :eip4626: https://eips.ethereum.org/EIPS/eip-4626[EIP-4626]
 
 {eip4626} is an extension of {eip20} that proposes a standard interface for token vaults.
-This standard interface can be used by widely different contracts (including lending markets, aggregators, and intrinsically interest bearing tokens), which brings a number of subtleties.
+This standard interface can be used by widely different contracts (including lending markets, aggregators, and intrinsically interest-bearing tokens), which brings a number of subtleties.
 Navigating these potential issues is essential to implementing a compliant and composable token vault.
+
+== Security Concern
+
+In exchange for the assets deposited into an ERC-4626 vault, a user receives shares.
+These shares can later be burned to redeem the corresponding underlying assets.
+The number of shares a user gets depends on the amount of assets they put in and on the exchange rate of the vault.
+This exchange rate is defined by the current liquidity held by the vault.
+
+- If a vault has 100 tokens to back 200 shares, then each share is worth 0.5 assets.
+- If a vault has 200 tokens to back 100 shares, then each share is worth 2.0 assets.
+
+In other words, the exchange rate can be defined as the slope of the line that passes through the origin and the current number of assets and shares in the vault.
+Deposits and withdrawals move the vault in this line.
+
+image::erc4626-rate-linear.png[Exchange rates in linear scale]
+
+=== Visualizing the Vault
+
+=== The Attack
+
+=== Defending with a Virtual Offset
+
+== Usage
+
+=== Custom Behavior: Adding Fees
+
+== Interface

@@ -36,6 +36,10 @@ pub mod GovernorCoreExecutionComponent {
         +Drop<TContractState>
     > of GovernorComponent::GovernorExecutionTrait<TContractState> {
         /// See `GovernorComponent::GovernorExecutionTrait::state`.
+        ///
+        /// Requirements:
+        ///
+        /// - The proposal must exist.
         fn state(
             self: @GovernorComponentState<TContractState>, proposal_id: felt252
         ) -> ProposalState {
@@ -43,11 +47,15 @@ pub mod GovernorCoreExecutionComponent {
         }
 
         /// See `GovernorComponent::GovernorExecutionTrait::executor`.
+        ///
+        /// Returns the governor contract address since execution is performed directly through it.
         fn executor(self: @GovernorComponentState<TContractState>) -> ContractAddress {
             starknet::get_contract_address()
         }
 
         /// See `GovernorComponent::GovernorExecutionTrait::execute_operations`.
+        ///
+        /// Executes the proposal's operations directly through the governor contract.
         fn execute_operations(
             ref self: GovernorComponentState<TContractState>,
             proposal_id: felt252,
@@ -61,6 +69,8 @@ pub mod GovernorCoreExecutionComponent {
         }
 
         /// See `GovernorComponent::GovernorExecutionTrait::queue_operations`.
+        ///
+        /// In this implementation, queuing is not required so it returns 0.
         fn queue_operations(
             ref self: GovernorComponentState<TContractState>,
             proposal_id: felt252,
@@ -71,6 +81,8 @@ pub mod GovernorCoreExecutionComponent {
         }
 
         /// See `GovernorComponent::GovernorExecutionTrait::proposal_needs_queuing`.
+        ///
+        /// In this implementation, it always returns false.
         fn proposal_needs_queuing(
             self: @GovernorComponentState<TContractState>, proposal_id: felt252
         ) -> bool {

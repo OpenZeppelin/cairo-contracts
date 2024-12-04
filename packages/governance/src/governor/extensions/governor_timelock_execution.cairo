@@ -6,7 +6,7 @@
 ///
 /// Extension of GovernorComponent that binds the execution process to an instance of a contract
 /// implementing TimelockControllerComponent. This adds a delay, enforced by the TimelockController
-/// to all successful proposal (in addition to the voting duration).
+/// to all successful proposals (in addition to the voting duration).
 ///
 /// NOTE: The Governor needs the PROPOSER, EXECUTOR, and CANCELLER roles to work properly.
 ///
@@ -80,6 +80,10 @@ pub mod GovernorTimelockExecutionComponent {
         +Drop<TContractState>
     > of GovernorComponent::GovernorExecutionTrait<TContractState> {
         /// See `GovernorComponent::GovernorExecutionTrait::state`.
+        ///
+        /// Requirements:
+        ///
+        /// - The proposal must exist.
         fn state(
             self: @GovernorComponentState<TContractState>, proposal_id: felt252
         ) -> ProposalState {
@@ -212,7 +216,7 @@ pub mod GovernorTimelockExecutionComponent {
         +GovernorComponent::HasComponent<TContractState>,
         +Drop<TContractState>
     > of ITimelocked<ComponentState<TContractState>> {
-        /// Returns the token that voting power is sourced from.
+        /// Returns the timelock controller address.
         fn timelock(self: @ComponentState<TContractState>) -> ContractAddress {
             self.Governor_timelock_controller.read()
         }
@@ -272,7 +276,8 @@ pub mod GovernorTimelockExecutionComponent {
             governor_component.assert_only_governance();
         }
 
-        /// Computes the `TimelockController` operation salt.
+        /// Computes the `TimelockController` operation salt as the XOR of
+        /// the governor address and `description_hash`.
         ///
         /// It is computed with the governor address itself to avoid collisions across
         /// governor instances using the same timelock.

@@ -4,7 +4,7 @@
 
 /// # GovernorSettings Component
 ///
-/// Extension of GovernorComponent for settings updatable through governance.
+/// Extension of GovernorComponent for settings that are updatable through governance.
 #[starknet::component]
 pub mod GovernorSettingsComponent {
     use crate::governor::GovernorComponent::{

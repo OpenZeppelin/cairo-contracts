@@ -6,7 +6,7 @@ use openzeppelin_test_common::upgrades::UpgradeableSpyHelpers;
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{CLASS_HASH_ZERO, FELT_VALUE as VALUE};
 use openzeppelin_testing::{declare_class, deploy};
-use snforge_std::{spy_events, ContractClass};
+use snforge_std::{ContractClass, spy_events};
 
 //
 // Setup
@@ -82,7 +82,7 @@ fn test_remove_selector_fails_in_v2() {
     let safe_dispatcher = IUpgradesV1SafeDispatcher { contract_address: v1.contract_address };
     let mut result = safe_dispatcher.remove_selector();
     utils::assert_entrypoint_not_found_error(
-        result, selector!("remove_selector"), v1.contract_address
+        result, selector!("remove_selector"), v1.contract_address,
     );
 }
 

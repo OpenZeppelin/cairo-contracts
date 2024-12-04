@@ -1,7 +1,7 @@
 #[starknet::contract]
 pub mod ERC2981Mock {
     use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_token::common::erc2981::{ERC2981Component, DefaultConfig};
+    use openzeppelin_token::common::erc2981::{DefaultConfig, ERC2981Component};
     use starknet::ContractAddress;
 
     component!(path: ERC2981Component, storage: erc2981, event: ERC2981Event);
@@ -22,7 +22,7 @@ pub mod ERC2981Mock {
         #[substorage(v0)]
         pub erc2981: ERC2981Component::Storage,
         #[substorage(v0)]
-        pub src5: SRC5Component::Storage
+        pub src5: SRC5Component::Storage,
     }
 
     #[event]
@@ -31,7 +31,7 @@ pub mod ERC2981Mock {
         #[flat]
         ERC2981Event: ERC2981Component::Event,
         #[flat]
-        SRC5Event: SRC5Component::Event
+        SRC5Event: SRC5Component::Event,
     }
 
     #[constructor]
@@ -39,7 +39,7 @@ pub mod ERC2981Mock {
         ref self: ContractState,
         owner: ContractAddress,
         default_receiver: ContractAddress,
-        default_royalty_fraction: u128
+        default_royalty_fraction: u128,
     ) {
         self.erc2981.initializer(default_receiver, default_royalty_fraction);
     }
@@ -49,7 +49,7 @@ pub mod ERC2981Mock {
 pub mod ERC2981OwnableMock {
     use openzeppelin_access::ownable::OwnableComponent;
     use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_token::common::erc2981::{ERC2981Component, DefaultConfig};
+    use openzeppelin_token::common::erc2981::{DefaultConfig, ERC2981Component};
     use starknet::ContractAddress;
 
     component!(path: ERC2981Component, storage: erc2981, event: ERC2981Event);
@@ -82,7 +82,7 @@ pub mod ERC2981OwnableMock {
         #[substorage(v0)]
         pub src5: SRC5Component::Storage,
         #[substorage(v0)]
-        pub ownable: OwnableComponent::Storage
+        pub ownable: OwnableComponent::Storage,
     }
 
     #[event]
@@ -101,7 +101,7 @@ pub mod ERC2981OwnableMock {
         ref self: ContractState,
         owner: ContractAddress,
         default_receiver: ContractAddress,
-        default_royalty_fraction: u128
+        default_royalty_fraction: u128,
     ) {
         self.erc2981.initializer(default_receiver, default_royalty_fraction);
         self.ownable.initializer(owner);
@@ -114,7 +114,7 @@ pub mod ERC2981AccessControlMock {
     use openzeppelin_access::accesscontrol::{AccessControlComponent, DEFAULT_ADMIN_ROLE};
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_token::common::erc2981::ERC2981Component::ROYALTY_ADMIN_ROLE;
-    use openzeppelin_token::common::erc2981::{ERC2981Component, DefaultConfig};
+    use openzeppelin_token::common::erc2981::{DefaultConfig, ERC2981Component};
     use starknet::ContractAddress;
 
     component!(path: ERC2981Component, storage: erc2981, event: ERC2981Event);
@@ -148,7 +148,7 @@ pub mod ERC2981AccessControlMock {
         #[substorage(v0)]
         pub src5: SRC5Component::Storage,
         #[substorage(v0)]
-        pub accesscontrol: AccessControlComponent::Storage
+        pub accesscontrol: AccessControlComponent::Storage,
     }
 
     #[event]
@@ -167,7 +167,7 @@ pub mod ERC2981AccessControlMock {
         ref self: ContractState,
         owner: ContractAddress,
         default_receiver: ContractAddress,
-        default_royalty_fraction: u128
+        default_royalty_fraction: u128,
     ) {
         self.erc2981.initializer(default_receiver, default_royalty_fraction);
         self.accesscontrol.initializer();

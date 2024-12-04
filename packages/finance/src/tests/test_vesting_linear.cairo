@@ -1,14 +1,14 @@
-use crate::tests::common::{VestingStrategy, TestData, setup, set_transfer_to_fail};
-use crate::vesting::VestingComponent::InternalImpl;
+use crate::tests::common::{TestData, VestingStrategy, set_transfer_to_fail, setup};
 use crate::vesting::VestingComponent;
+use crate::vesting::VestingComponent::InternalImpl;
 use crate::vesting::interface::IVestingDispatcherTrait;
 use openzeppelin_access::ownable::interface::{IOwnableDispatcher, IOwnableDispatcherTrait};
 use openzeppelin_test_common::mocks::vesting::LinearVestingMock;
 use openzeppelin_test_common::vesting::VestingSpyHelpers;
-use openzeppelin_testing::constants::{OWNER, OTHER};
+use openzeppelin_testing::constants::{OTHER, OWNER};
 use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-use snforge_std::{spy_events, start_cheat_caller_address, start_cheat_block_timestamp_global};
+use snforge_std::{spy_events, start_cheat_block_timestamp_global, start_cheat_caller_address};
 
 //
 // Setup
@@ -27,7 +27,7 @@ fn TEST_DATA() -> TestData {
         beneficiary: OWNER(),
         start: 30,
         duration: 100,
-        cliff_duration: 0
+        cliff_duration: 0,
     }
 }
 

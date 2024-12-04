@@ -6,7 +6,7 @@
 /// The Universal Deployer Contract is a standardized generic factory of Starknet contracts.
 #[starknet::contract]
 pub mod UniversalDeployer {
-    use core::hash::{HashStateTrait, HashStateExTrait};
+    use core::hash::{HashStateExTrait, HashStateTrait};
     use core::poseidon::PoseidonTrait;
     use openzeppelin_utils::interfaces::IUniversalDeployer;
     use starknet::ClassHash;
@@ -20,7 +20,7 @@ pub mod UniversalDeployer {
     #[event]
     #[derive(Drop, PartialEq, starknet::Event)]
     pub(crate) enum Event {
-        ContractDeployed: ContractDeployed
+        ContractDeployed: ContractDeployed,
     }
 
     #[derive(Drop, PartialEq, starknet::Event)]
@@ -40,7 +40,7 @@ pub mod UniversalDeployer {
             class_hash: ClassHash,
             salt: felt252,
             from_zero: bool,
-            calldata: Span<felt252>
+            calldata: Span<felt252>,
         ) -> ContractAddress {
             let deployer: ContractAddress = get_caller_address();
             let mut _salt: felt252 = salt;
@@ -49,13 +49,13 @@ pub mod UniversalDeployer {
             }
 
             let (address, _) = starknet::syscalls::deploy_syscall(
-                class_hash, _salt, calldata, from_zero
+                class_hash, _salt, calldata, from_zero,
             )
                 .unwrap_syscall();
 
             self
                 .emit(
-                    ContractDeployed { address, deployer, from_zero, class_hash, calldata, salt }
+                    ContractDeployed { address, deployer, from_zero, class_hash, calldata, salt },
                 );
             return address;
         }

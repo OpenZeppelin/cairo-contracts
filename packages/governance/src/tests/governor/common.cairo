@@ -1,6 +1,6 @@
-use core::hash::{HashStateTrait, HashStateExTrait};
+use core::hash::{HashStateExTrait, HashStateTrait};
 use core::pedersen::PedersenTrait;
-use crate::governor::GovernorComponent::{InternalImpl, InternalExtendedImpl};
+use crate::governor::GovernorComponent::{InternalExtendedImpl, InternalImpl};
 use crate::governor::interface::{IGovernor, ProposalState};
 use crate::governor::{DefaultConfig, GovernorComponent, ProposalCore};
 use crate::utils::call_impls::{HashCallImpl, HashCallsImpl};
@@ -11,7 +11,7 @@ use openzeppelin_utils::bytearray::ByteArrayExtTrait;
 use snforge_std::{start_cheat_block_timestamp_global, start_mock_call};
 use starknet::ContractAddress;
 use starknet::account::Call;
-use starknet::storage::{StoragePathEntry, StoragePointerWriteAccess, StorageMapWriteAccess};
+use starknet::storage::{StorageMapWriteAccess, StoragePathEntry, StoragePointerWriteAccess};
 
 pub type ComponentState = GovernorComponent::ComponentState<GovernorMock::ContractState>;
 pub type ComponentStateTimelocked =
@@ -58,7 +58,7 @@ pub fn get_proposal_with_id(calls: Span<Call>, description: @ByteArray) -> (felt
         vote_duration,
         executed: false,
         canceled: false,
-        eta_seconds: 0
+        eta_seconds: 0,
     };
 
     (proposal_id, proposal)
@@ -77,7 +77,7 @@ pub fn get_calls(to: ContractAddress, mock_syscalls: bool) -> Span<Call> {
 }
 
 pub fn get_state(
-    state: @ComponentState, id: felt252, external_state_version: bool
+    state: @ComponentState, id: felt252, external_state_version: bool,
 ) -> ProposalState {
     if external_state_version {
         state.state(id)
@@ -87,7 +87,7 @@ pub fn get_state(
 }
 
 pub fn get_mock_state(
-    mock_state: @GovernorMock::ContractState, id: felt252, external_state_version: bool
+    mock_state: @GovernorMock::ContractState, id: felt252, external_state_version: bool,
 ) -> ProposalState {
     if external_state_version {
         mock_state.governor.state(id)
@@ -97,7 +97,7 @@ pub fn get_mock_state(
 }
 
 pub fn set_executor(
-    ref mock_state: GovernorTimelockedMock::ContractState, executor: ContractAddress
+    ref mock_state: GovernorTimelockedMock::ContractState, executor: ContractAddress,
 ) {
     mock_state.governor_timelock_execution.Governor_timelock_controller.write(executor);
 }
@@ -107,7 +107,7 @@ pub fn set_executor(
 //
 
 pub fn setup_pending_proposal(
-    ref state: ComponentState, external_state_version: bool
+    ref state: ComponentState, external_state_version: bool,
 ) -> (felt252, ProposalCore) {
     let (id, proposal) = get_proposal_info();
 
@@ -122,7 +122,7 @@ pub fn setup_pending_proposal(
 }
 
 pub fn setup_active_proposal(
-    ref state: ComponentState, external_state_version: bool
+    ref state: ComponentState, external_state_version: bool,
 ) -> (felt252, ProposalCore) {
     let (id, proposal) = get_proposal_info();
 
@@ -140,7 +140,7 @@ pub fn setup_active_proposal(
 }
 
 pub fn setup_queued_proposal(
-    ref mock_state: GovernorMock::ContractState, external_state_version: bool
+    ref mock_state: GovernorMock::ContractState, external_state_version: bool,
 ) -> (felt252, ProposalCore) {
     let (id, mut proposal) = get_proposal_info();
 
@@ -166,7 +166,7 @@ pub fn setup_queued_proposal(
 }
 
 pub fn setup_canceled_proposal(
-    ref state: ComponentState, external_state_version: bool
+    ref state: ComponentState, external_state_version: bool,
 ) -> (felt252, ProposalCore) {
     let (id, proposal) = get_proposal_info();
 
@@ -182,7 +182,7 @@ pub fn setup_canceled_proposal(
 }
 
 pub fn setup_defeated_proposal(
-    ref mock_state: GovernorMock::ContractState, external_state_version: bool
+    ref mock_state: GovernorMock::ContractState, external_state_version: bool,
 ) -> (felt252, ProposalCore) {
     let (id, proposal) = get_proposal_info();
 
@@ -204,7 +204,7 @@ pub fn setup_defeated_proposal(
 }
 
 pub fn setup_succeeded_proposal(
-    ref mock_state: GovernorMock::ContractState, external_state_version: bool
+    ref mock_state: GovernorMock::ContractState, external_state_version: bool,
 ) -> (felt252, ProposalCore) {
     let (id, proposal) = get_proposal_info();
 
@@ -230,7 +230,7 @@ pub fn setup_succeeded_proposal(
 }
 
 pub fn setup_executed_proposal(
-    ref state: ComponentState, external_state_version: bool
+    ref state: ComponentState, external_state_version: bool,
 ) -> (felt252, ProposalCore) {
     let (id, mut proposal) = get_proposal_info();
 

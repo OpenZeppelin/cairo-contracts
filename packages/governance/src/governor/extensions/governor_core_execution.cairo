@@ -9,10 +9,10 @@
 /// GovernorTimelockExecutionComponent.
 #[starknet::component]
 pub mod GovernorCoreExecutionComponent {
-    use crate::governor::GovernorComponent::{
-        InternalExtendedTrait, ComponentState as GovernorComponentState
-    };
     use crate::governor::GovernorComponent;
+    use crate::governor::GovernorComponent::{
+        ComponentState as GovernorComponentState, InternalExtendedTrait,
+    };
     use crate::governor::interface::ProposalState;
     use openzeppelin_introspection::src5::SRC5Component;
     use starknet::account::Call;
@@ -33,7 +33,7 @@ pub mod GovernorCoreExecutionComponent {
         +GovernorComponent::GovernorVotesTrait<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         impl GovernorCoreExecution: HasComponent<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of GovernorComponent::GovernorExecutionTrait<TContractState> {
         /// See `GovernorComponent::GovernorExecutionTrait::state`.
         ///
@@ -41,7 +41,7 @@ pub mod GovernorCoreExecutionComponent {
         ///
         /// - The proposal must exist.
         fn state(
-            self: @GovernorComponentState<TContractState>, proposal_id: felt252
+            self: @GovernorComponentState<TContractState>, proposal_id: felt252,
         ) -> ProposalState {
             self._state(proposal_id)
         }
@@ -60,7 +60,7 @@ pub mod GovernorCoreExecutionComponent {
             ref self: GovernorComponentState<TContractState>,
             proposal_id: felt252,
             calls: Span<Call>,
-            description_hash: felt252
+            description_hash: felt252,
         ) {
             for call in calls {
                 let Call { to, selector, calldata } = *call;
@@ -75,7 +75,7 @@ pub mod GovernorCoreExecutionComponent {
             ref self: GovernorComponentState<TContractState>,
             proposal_id: felt252,
             calls: Span<Call>,
-            description_hash: felt252
+            description_hash: felt252,
         ) -> u64 {
             0
         }
@@ -84,7 +84,7 @@ pub mod GovernorCoreExecutionComponent {
         ///
         /// In this implementation, it always returns false.
         fn proposal_needs_queuing(
-            self: @GovernorComponentState<TContractState>, proposal_id: felt252
+            self: @GovernorComponentState<TContractState>, proposal_id: felt252,
         ) -> bool {
             false
         }
@@ -93,7 +93,7 @@ pub mod GovernorCoreExecutionComponent {
         fn cancel_operations(
             ref self: GovernorComponentState<TContractState>,
             proposal_id: felt252,
-            description_hash: felt252
+            description_hash: felt252,
         ) {
             self._cancel(proposal_id, description_hash);
         }

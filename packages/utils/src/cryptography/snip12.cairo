@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.20.0-rc.0 (utils/cryptography/snip12.cairo)
 
-use core::hash::{HashStateTrait, HashStateExTrait, Hash};
-use core::poseidon::{PoseidonTrait, HashState};
+use core::hash::{Hash, HashStateExTrait, HashStateTrait};
+use core::poseidon::{HashState, PoseidonTrait};
 use starknet::{ContractAddress, get_tx_info};
 
 // selector!(
@@ -60,14 +60,14 @@ pub trait SNIP12Metadata {
 /// - `signer` of the message.
 /// - Hashed struct of the message.
 pub(crate) impl OffchainMessageHashImpl<
-    T, +StructHash<T>, impl metadata: SNIP12Metadata
+    T, +StructHash<T>, impl metadata: SNIP12Metadata,
 > of OffchainMessageHash<T> {
     fn get_message_hash(self: @T, signer: ContractAddress) -> felt252 {
         let domain = StarknetDomain {
             name: metadata::name(),
             version: metadata::version(),
             chain_id: get_tx_info().unbox().chain_id,
-            revision: 1
+            revision: 1,
         };
         let mut state = PoseidonTrait::new();
         state = state.update_with('StarkNet Message');

@@ -1,7 +1,7 @@
-use core::hash::{HashStateTrait, HashStateExTrait};
+use core::hash::{HashStateExTrait, HashStateTrait};
 use core::poseidon::{PoseidonTrait, poseidon_hash_span};
 use crate::cryptography::snip12::{
-    STARKNET_DOMAIN_TYPE_HASH, StarknetDomain, StructHash, OffchainMessageHashImpl, SNIP12Metadata
+    OffchainMessageHashImpl, SNIP12Metadata, STARKNET_DOMAIN_TYPE_HASH, StarknetDomain, StructHash,
 };
 use openzeppelin_testing::constants::{OWNER, RECIPIENT};
 use snforge_std::{start_cheat_chain_id, test_address};
@@ -15,7 +15,7 @@ struct Message {
     recipient: ContractAddress,
     amount: u256,
     nonce: felt252,
-    expiry: u64
+    expiry: u64,
 }
 
 impl StructHashImpl of StructHash<Message> {
@@ -37,7 +37,7 @@ impl SNIP12MetadataImpl of SNIP12Metadata {
 #[test]
 fn test_starknet_domain_type_hash() {
     let expected = selector!(
-        "\"StarknetDomain\"(\"name\":\"shortstring\",\"version\":\"shortstring\",\"chainId\":\"shortstring\",\"revision\":\"shortstring\")"
+        "\"StarknetDomain\"(\"name\":\"shortstring\",\"version\":\"shortstring\",\"chainId\":\"shortstring\",\"revision\":\"shortstring\")",
     );
     assert_eq!(STARKNET_DOMAIN_TYPE_HASH, expected);
 }
@@ -48,9 +48,13 @@ fn test_StructHashStarknetDomainImpl() {
 
     let expected = poseidon_hash_span(
         array![
-            STARKNET_DOMAIN_TYPE_HASH, domain.name, domain.version, domain.chain_id, domain.revision
+            STARKNET_DOMAIN_TYPE_HASH,
+            domain.name,
+            domain.version,
+            domain.chain_id,
+            domain.revision,
         ]
-            .span()
+            .span(),
     );
     assert_eq!(domain.hash_struct(), expected);
 }
@@ -65,7 +69,7 @@ fn test_OffchainMessageHashImpl() {
 
     let expected = poseidon_hash_span(
         array!['StarkNet Message', domain.hash_struct(), OWNER().into(), message.hash_struct()]
-            .span()
+            .span(),
     );
     assert_eq!(message.get_message_hash(OWNER()), expected);
 }

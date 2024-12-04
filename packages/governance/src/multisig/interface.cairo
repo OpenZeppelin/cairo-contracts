@@ -12,7 +12,7 @@ pub enum TransactionState {
     NotFound,
     Pending,
     Confirmed,
-    Executed
+    Executed,
 }
 
 /// Interface of a contract providing the Multisig functionality.
@@ -32,14 +32,14 @@ pub trait IMultisig<TState> {
         to: ContractAddress,
         selector: felt252,
         calldata: Span<felt252>,
-        salt: felt252
+        salt: felt252,
     ) -> TransactionID;
     fn hash_transaction_batch(self: @TState, calls: Span<Call>, salt: felt252) -> TransactionID;
 
     fn add_signers(ref self: TState, new_quorum: u32, signers_to_add: Span<ContractAddress>);
     fn remove_signers(ref self: TState, new_quorum: u32, signers_to_remove: Span<ContractAddress>);
     fn replace_signer(
-        ref self: TState, signer_to_remove: ContractAddress, signer_to_add: ContractAddress
+        ref self: TState, signer_to_remove: ContractAddress, signer_to_add: ContractAddress,
     );
     fn change_quorum(ref self: TState, new_quorum: u32);
     fn submit_transaction(
@@ -50,7 +50,7 @@ pub trait IMultisig<TState> {
         salt: felt252,
     ) -> TransactionID;
     fn submit_transaction_batch(
-        ref self: TState, calls: Span<Call>, salt: felt252
+        ref self: TState, calls: Span<Call>, salt: felt252,
     ) -> TransactionID;
     fn confirm_transaction(ref self: TState, id: TransactionID);
     fn revoke_confirmation(ref self: TState, id: TransactionID);
@@ -59,7 +59,7 @@ pub trait IMultisig<TState> {
         to: ContractAddress,
         selector: felt252,
         calldata: Span<felt252>,
-        salt: felt252
+        salt: felt252,
     );
     fn execute_transaction_batch(ref self: TState, calls: Span<Call>, salt: felt252);
 }

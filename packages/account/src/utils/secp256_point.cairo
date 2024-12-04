@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.20.0-rc.0 (account/utils/secp256_point.cairo)
 
-use core::fmt::{Formatter, Error};
+use core::fmt::{Error, Formatter};
 use starknet::SyscallResultTrait;
-use starknet::secp256_trait::{Secp256Trait, Secp256PointTrait};
+use starknet::secp256_trait::{Secp256PointTrait, Secp256Trait};
 use starknet::storage_access::StorePacking;
 
 /// Packs a Secp256Point into a (felt252, felt252).
@@ -14,7 +14,7 @@ use starknet::storage_access::StorePacking;
 /// - Second felt contains x.high and the parity bit, at the least significant bits (2 * x.high +
 /// parity).
 pub impl Secp256PointStorePacking<
-    Secp256Point, +Secp256Trait<Secp256Point>, +Secp256PointTrait<Secp256Point>
+    Secp256Point, +Secp256Trait<Secp256Point>, +Secp256PointTrait<Secp256Point>,
 > of StorePacking<Secp256Point, (felt252, felt252)> {
     fn pack(value: Secp256Point) -> (felt252, felt252) {
         let (x, y) = value.get_coordinates().unwrap_syscall();
@@ -43,7 +43,7 @@ pub impl Secp256PointStorePacking<
 }
 
 pub impl Secp256PointPartialEq<
-    Secp256Point, +Secp256PointTrait<Secp256Point>, +Copy<Secp256Point>
+    Secp256Point, +Secp256PointTrait<Secp256Point>, +Copy<Secp256Point>,
 > of PartialEq<Secp256Point> {
     #[inline(always)]
     fn eq(lhs: @Secp256Point, rhs: @Secp256Point) -> bool {
@@ -56,7 +56,7 @@ pub impl Secp256PointPartialEq<
 }
 
 pub impl DebugSecp256Point<
-    Secp256Point, +Secp256PointTrait<Secp256Point>, +Copy<Secp256Point>
+    Secp256Point, +Secp256PointTrait<Secp256Point>, +Copy<Secp256Point>,
 > of core::fmt::Debug<Secp256Point> {
     fn fmt(self: @Secp256Point, ref f: Formatter) -> Result<(), Error> {
         let (x, y) = (*self).get_coordinates().unwrap_syscall();

@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.20.0-rc.0 (governance/votes/delegation.cairo)
 
-use core::hash::{HashStateTrait, HashStateExTrait};
+use core::hash::{HashStateExTrait, HashStateTrait};
 use core::poseidon::PoseidonTrait;
 use openzeppelin_utils::cryptography::snip12::{StructHash};
 use starknet::ContractAddress;
@@ -20,7 +20,7 @@ pub struct Delegation {
     pub verifying_contract: ContractAddress,
     pub delegatee: ContractAddress,
     pub nonce: felt252,
-    pub expiry: u64
+    pub expiry: u64,
 }
 
 impl StructHashImpl of StructHash<Delegation> {

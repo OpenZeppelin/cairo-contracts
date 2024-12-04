@@ -1,36 +1,37 @@
 use core::num::traits::{Bounded, Zero};
-use crate::governor::GovernorComponent::{InternalImpl, InternalExtendedImpl};
-use crate::governor::interface::{IGovernor, IGOVERNOR_ID, ProposalState};
+use crate::governor::GovernorComponent::{InternalExtendedImpl, InternalImpl};
+use crate::governor::interface::{IGOVERNOR_ID, IGovernor, ProposalState};
 use crate::governor::interface::{IGovernorDispatcher, IGovernorDispatcherTrait};
 use crate::governor::vote::{Vote, VoteWithReasonAndParams};
 use crate::governor::{DefaultConfig, GovernorComponent, ProposalCore};
-use crate::tests::governor::common::{
-    hash_proposal, get_state, get_mock_state, get_proposal_info, get_calls
-};
-use crate::tests::governor::common::{
-    setup_pending_proposal, setup_active_proposal, setup_queued_proposal, setup_canceled_proposal,
-    setup_defeated_proposal, setup_succeeded_proposal, setup_executed_proposal
-};
 use crate::tests::governor::common::{COMPONENT_STATE, CONTRACT_STATE};
+use crate::tests::governor::common::{
+    get_calls, get_mock_state, get_proposal_info, get_state, hash_proposal,
+};
+use crate::tests::governor::common::{
+    setup_active_proposal, setup_canceled_proposal, setup_defeated_proposal,
+    setup_executed_proposal, setup_pending_proposal, setup_queued_proposal,
+    setup_succeeded_proposal,
+};
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
-use openzeppelin_test_common::mocks::governor::GovernorMock::SNIP12MetadataImpl;
 use openzeppelin_test_common::mocks::governor::GovernorMock;
+use openzeppelin_test_common::mocks::governor::GovernorMock::SNIP12MetadataImpl;
 use openzeppelin_test_common::mocks::timelock::{
-    IMockContractDispatcher, IMockContractDispatcherTrait
+    IMockContractDispatcher, IMockContractDispatcherTrait,
 };
 use openzeppelin_testing as utils;
-use openzeppelin_testing::constants::{ADMIN, OTHER, ZERO, VOTES_TOKEN};
+use openzeppelin_testing::constants::{ADMIN, OTHER, VOTES_TOKEN, ZERO};
 use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_utils::bytearray::ByteArrayExtTrait;
 use openzeppelin_utils::cryptography::snip12::OffchainMessageHash;
 use snforge_std::signature::stark_curve::{StarkCurveKeyPairImpl, StarkCurveSignerImpl};
-use snforge_std::{
-    start_cheat_caller_address, start_cheat_block_timestamp_global, start_cheat_chain_id_global,
-    start_mock_call
-};
 use snforge_std::{EventSpy, spy_events, test_address};
+use snforge_std::{
+    start_cheat_block_timestamp_global, start_cheat_caller_address, start_cheat_chain_id_global,
+    start_mock_call,
+};
 use starknet::account::Call;
-use starknet::storage::{StoragePathEntry, StoragePointerWriteAccess, StorageMapWriteAccess};
+use starknet::storage::{StorageMapWriteAccess, StoragePathEntry, StoragePointerWriteAccess};
 use starknet::{ContractAddress, contract_address_const};
 
 //
@@ -427,7 +428,7 @@ fn test_propose_external_version(external_state_version: bool) {
             array![].span(),
             vote_start,
             vote_end,
-            description_snap
+            description_snap,
         );
 
     // 3. Check proposal
@@ -438,7 +439,7 @@ fn test_propose_external_version(external_state_version: bool) {
         vote_duration: GovernorMock::VOTING_PERIOD,
         executed: false,
         canceled: false,
-        eta_seconds: 0
+        eta_seconds: 0,
     };
 
     assert_eq!(proposal, expected);
@@ -512,7 +513,7 @@ fn test_execute() {
     let call = Call {
         to: target.contract_address,
         selector: selector!("set_number"),
-        calldata: array![new_number].span()
+        calldata: array![new_number].span(),
     };
     let calls = array![call].span();
     let description = "proposal description";
@@ -568,7 +569,7 @@ fn test_execute_panics() {
     let call = Call {
         to: target.contract_address,
         selector: selector!("failing_function"),
-        calldata: array![].span()
+        calldata: array![].span(),
     };
     let calls = array![call].span();
     let description = "proposal description";
@@ -1013,7 +1014,7 @@ fn test_cast_vote_with_reason_and_params_active() {
 
     spy
         .assert_only_event_vote_cast_with_params(
-            contract_address, OTHER(), id, 0, expected_weight, @reason, params
+            contract_address, OTHER(), id, 0, expected_weight, @reason, params,
         );
 }
 
@@ -1088,7 +1089,7 @@ fn test_cast_vote_with_reason_and_params_executed() {
 //
 
 fn prepare_governor_and_signature(
-    nonce: felt252
+    nonce: felt252,
 ) -> (IGovernorDispatcher, felt252, felt252, felt252, u8, ContractAddress, u256) {
     let mut governor = deploy_governor();
     let calls = get_calls(OTHER(), false);
@@ -1133,7 +1134,7 @@ fn test_cast_vote_by_sig() {
 
     spy
         .assert_only_event_vote_cast(
-            governor.contract_address, voter, proposal_id, support, quorum, @""
+            governor.contract_address, voter, proposal_id, support, quorum, @"",
         );
 }
 
@@ -1189,7 +1190,7 @@ fn test_cast_vote_by_sig_hash_generation() {
 //
 
 fn prepare_governor_and_signature_with_reason_and_params(
-    reason: @ByteArray, params: Span<felt252>, nonce: felt252
+    reason: @ByteArray, params: Span<felt252>, nonce: felt252,
 ) -> (IGovernorDispatcher, felt252, felt252, felt252, u8, ContractAddress, u256) {
     let mut governor = deploy_governor();
     let calls = get_calls(OTHER(), false);
@@ -1219,7 +1220,7 @@ fn prepare_governor_and_signature_with_reason_and_params(
 
     // 5. Create and sign the vote message
     let vote = VoteWithReasonAndParams {
-        verifying_contract, nonce, proposal_id, support, voter, reason_hash, params
+        verifying_contract, nonce, proposal_id, support, voter, reason_hash, params,
     };
     let msg_hash = vote.get_message_hash(voter);
     let (r, s) = key_pair.sign(msg_hash).unwrap();
@@ -1234,19 +1235,19 @@ fn test_cast_vote_with_reason_and_params_by_sig() {
 
     let (governor, r, s, proposal_id, support, voter, quorum) =
         prepare_governor_and_signature_with_reason_and_params(
-        @reason, params, 0
+        @reason, params, 0,
     );
 
     // Set up event spy and cast vote
     let mut spy = spy_events();
     governor
         .cast_vote_with_reason_and_params_by_sig(
-            proposal_id, support, voter, reason.clone(), params, array![r, s].span()
+            proposal_id, support, voter, reason.clone(), params, array![r, s].span(),
         );
 
     spy
         .assert_only_event_vote_cast_with_params(
-            governor.contract_address, voter, proposal_id, support, quorum, @reason, params
+            governor.contract_address, voter, proposal_id, support, quorum, @reason, params,
         );
 }
 
@@ -1257,19 +1258,19 @@ fn test_cast_vote_with_reason_and_params_by_sig_empty_params() {
 
     let (governor, r, s, proposal_id, support, voter, quorum) =
         prepare_governor_and_signature_with_reason_and_params(
-        @reason, params, 0
+        @reason, params, 0,
     );
 
     // Set up event spy and cast vote
     let mut spy = spy_events();
     governor
         .cast_vote_with_reason_and_params_by_sig(
-            proposal_id, support, voter, reason.clone(), params, array![r, s].span()
+            proposal_id, support, voter, reason.clone(), params, array![r, s].span(),
         );
 
     spy
         .assert_only_event_vote_cast(
-            governor.contract_address, voter, proposal_id, support, quorum, @reason
+            governor.contract_address, voter, proposal_id, support, quorum, @reason,
         );
 }
 
@@ -1281,13 +1282,13 @@ fn test_cast_vote_with_reason_and_params_by_sig_invalid_signature() {
 
     let (governor, r, s, proposal_id, support, voter, _) =
         prepare_governor_and_signature_with_reason_and_params(
-        @reason, params, 0
+        @reason, params, 0,
     );
 
     // Cast vote with invalid signature
     governor
         .cast_vote_with_reason_and_params_by_sig(
-            proposal_id, support, voter, reason.clone(), params, array![r + 1, s].span()
+            proposal_id, support, voter, reason.clone(), params, array![r + 1, s].span(),
         );
 }
 
@@ -1301,13 +1302,13 @@ fn test_cast_vote_with_reason_and_params_by_sig_invalid_msg_hash() {
     let invalid_nonce = 1;
     let (governor, r, s, proposal_id, support, voter, _) =
         prepare_governor_and_signature_with_reason_and_params(
-        @reason, params, invalid_nonce
+        @reason, params, invalid_nonce,
     );
 
     // Cast vote with invalid msg hash
     governor
         .cast_vote_with_reason_and_params_by_sig(
-            proposal_id, support, voter, reason.clone(), params, array![r, s].span()
+            proposal_id, support, voter, reason.clone(), params, array![r, s].span(),
         );
 }
 
@@ -1323,7 +1324,7 @@ fn test_cast_vote_with_reason_and_params_by_sig_hash_generation() {
     let reason_hash = 'hash';
     let params = array!['param'].span();
     let vote = VoteWithReasonAndParams {
-        verifying_contract, nonce, proposal_id, support, voter, reason_hash, params
+        verifying_contract, nonce, proposal_id, support, voter, reason_hash, params,
     };
     let hash = vote.get_message_hash(voter);
 
@@ -1372,7 +1373,7 @@ fn test_relay() {
     let call = Call {
         to: target.contract_address,
         selector: selector!("set_number"),
-        calldata: array![new_number].span()
+        calldata: array![new_number].span(),
     };
 
     let number = target.get_number();
@@ -1394,7 +1395,7 @@ fn test_relay_panics() {
     let call = Call {
         to: target.contract_address,
         selector: selector!("failing_function"),
-        calldata: array![].span()
+        calldata: array![].span(),
     };
 
     start_cheat_caller_address(contract_address, contract_address);
@@ -1626,7 +1627,7 @@ fn test_validate_state() {
     state.validate_state(id, valid_states.span());
 
     let valid_states = array![
-        ProposalState::Executed, ProposalState::Active, ProposalState::Pending
+        ProposalState::Executed, ProposalState::Active, ProposalState::Pending,
     ];
     state.validate_state(id, valid_states.span());
 }
@@ -1888,7 +1889,7 @@ fn test__cast_vote_active_with_params() {
 
     spy
         .assert_event_vote_cast_with_params(
-            contract_address, OTHER(), id, 0, expected_weight, @"reason", params
+            contract_address, OTHER(), id, 0, expected_weight, @"reason", params,
         );
 }
 
@@ -1957,7 +1958,7 @@ pub(crate) impl GovernorSpyHelpersImpl of GovernorSpyHelpers {
         signatures: Span<Span<felt252>>,
         vote_start: u64,
         vote_end: u64,
-        description: @ByteArray
+        description: @ByteArray,
     ) {
         let expected = GovernorComponent::Event::ProposalCreated(
             GovernorComponent::ProposalCreated {
@@ -1967,8 +1968,8 @@ pub(crate) impl GovernorSpyHelpersImpl of GovernorSpyHelpers {
                 signatures,
                 vote_start,
                 vote_end,
-                description: description.clone()
-            }
+                description: description.clone(),
+            },
         );
         self.assert_emitted_single(contract, expected);
     }
@@ -1982,7 +1983,7 @@ pub(crate) impl GovernorSpyHelpersImpl of GovernorSpyHelpers {
         signatures: Span<Span<felt252>>,
         vote_start: u64,
         vote_end: u64,
-        description: @ByteArray
+        description: @ByteArray,
     ) {
         self
             .assert_event_proposal_created(
@@ -1993,7 +1994,7 @@ pub(crate) impl GovernorSpyHelpersImpl of GovernorSpyHelpers {
                 signatures,
                 vote_start,
                 vote_end,
-                description
+                description,
             );
         self.assert_no_events_left_from(contract);
     }
@@ -2005,12 +2006,12 @@ pub(crate) impl GovernorSpyHelpersImpl of GovernorSpyHelpers {
         proposal_id: felt252,
         support: u8,
         weight: u256,
-        reason: @ByteArray
+        reason: @ByteArray,
     ) {
         let expected = GovernorComponent::Event::VoteCast(
             GovernorComponent::VoteCast {
-                voter, proposal_id, support, weight, reason: reason.clone()
-            }
+                voter, proposal_id, support, weight, reason: reason.clone(),
+            },
         );
         self.assert_emitted_single(contract, expected);
     }
@@ -2022,7 +2023,7 @@ pub(crate) impl GovernorSpyHelpersImpl of GovernorSpyHelpers {
         proposal_id: felt252,
         support: u8,
         weight: u256,
-        reason: @ByteArray
+        reason: @ByteArray,
     ) {
         self.assert_event_vote_cast(contract, voter, proposal_id, support, weight, reason);
         self.assert_no_events_left_from(contract);
@@ -2036,12 +2037,12 @@ pub(crate) impl GovernorSpyHelpersImpl of GovernorSpyHelpers {
         support: u8,
         weight: u256,
         reason: @ByteArray,
-        params: Span<felt252>
+        params: Span<felt252>,
     ) {
         let expected = GovernorComponent::Event::VoteCastWithParams(
             GovernorComponent::VoteCastWithParams {
-                voter, proposal_id, support, weight, reason: reason.clone(), params
-            }
+                voter, proposal_id, support, weight, reason: reason.clone(), params,
+            },
         );
         self.assert_emitted_single(contract, expected);
     }
@@ -2054,58 +2055,58 @@ pub(crate) impl GovernorSpyHelpersImpl of GovernorSpyHelpers {
         support: u8,
         weight: u256,
         reason: @ByteArray,
-        params: Span<felt252>
+        params: Span<felt252>,
     ) {
         self
             .assert_event_vote_cast_with_params(
-                contract, voter, proposal_id, support, weight, reason, params
+                contract, voter, proposal_id, support, weight, reason, params,
             );
         self.assert_no_events_left_from(contract);
     }
 
     fn assert_event_proposal_queued(
-        ref self: EventSpy, contract: ContractAddress, proposal_id: felt252, eta_seconds: u64
+        ref self: EventSpy, contract: ContractAddress, proposal_id: felt252, eta_seconds: u64,
     ) {
         let expected = GovernorComponent::Event::ProposalQueued(
-            GovernorComponent::ProposalQueued { proposal_id, eta_seconds }
+            GovernorComponent::ProposalQueued { proposal_id, eta_seconds },
         );
         self.assert_emitted_single(contract, expected);
     }
 
     fn assert_only_event_proposal_queued(
-        ref self: EventSpy, contract: ContractAddress, proposal_id: felt252, eta_seconds: u64
+        ref self: EventSpy, contract: ContractAddress, proposal_id: felt252, eta_seconds: u64,
     ) {
         self.assert_event_proposal_queued(contract, proposal_id, eta_seconds);
         self.assert_no_events_left_from(contract);
     }
 
     fn assert_event_proposal_executed(
-        ref self: EventSpy, contract: ContractAddress, proposal_id: felt252
+        ref self: EventSpy, contract: ContractAddress, proposal_id: felt252,
     ) {
         let expected = GovernorComponent::Event::ProposalExecuted(
-            GovernorComponent::ProposalExecuted { proposal_id }
+            GovernorComponent::ProposalExecuted { proposal_id },
         );
         self.assert_emitted_single(contract, expected);
     }
 
     fn assert_only_event_proposal_executed(
-        ref self: EventSpy, contract: ContractAddress, proposal_id: felt252
+        ref self: EventSpy, contract: ContractAddress, proposal_id: felt252,
     ) {
         self.assert_event_proposal_executed(contract, proposal_id);
         self.assert_no_events_left_from(contract);
     }
 
     fn assert_event_proposal_canceled(
-        ref self: EventSpy, contract: ContractAddress, proposal_id: felt252
+        ref self: EventSpy, contract: ContractAddress, proposal_id: felt252,
     ) {
         let expected = GovernorComponent::Event::ProposalCanceled(
-            GovernorComponent::ProposalCanceled { proposal_id }
+            GovernorComponent::ProposalCanceled { proposal_id },
         );
         self.assert_emitted_single(contract, expected);
     }
 
     fn assert_only_event_proposal_canceled(
-        ref self: EventSpy, contract: ContractAddress, proposal_id: felt252
+        ref self: EventSpy, contract: ContractAddress, proposal_id: felt252,
     ) {
         self.assert_event_proposal_canceled(contract, proposal_id);
         self.assert_no_events_left_from(contract);

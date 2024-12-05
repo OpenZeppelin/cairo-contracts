@@ -27,8 +27,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix Scarb manifest dependencies (#1249):
   - Move `openzeppelin_utils` from dev dep to dep in governance manifest
   - Remove `openzeppelin_utils` as dep in access package
-  - Change `openzeppelin_account` import to `crate`
-  - Change `openzeppelin_finance` import to `crate`
 - Remove `mut` from `data` param in `compute_hash_on_elements` (#1206)
 - Remove `mut` from `calls` param in `__execute__` function of Account and EthAccount components (#1224)
 - Remove `mut` from `calls` param in `__validate__` function of Account and EthAccount components (#1224)

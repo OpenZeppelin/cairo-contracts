@@ -44,6 +44,7 @@ use crate::votes::VotesComponent::VotingUnitsTrait;
 - Scarb manifest dependencies (#1249):
   - Move `openzeppelin_utils` from dev dep to dep in governance manifest
   - Remove `openzeppelin_utils` as dep in access package
+  - Change `openzeppelin_account` to `crate` in `src9.cairo`
 
 ## 0.19.0 (2024-11-08)
 

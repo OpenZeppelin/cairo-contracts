@@ -24,13 +24,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Fix Scarb manifest dependencies (#1249):
+  - Move `openzeppelin_utils` from dev dep to dep in governance manifest
+  - Remove `openzeppelin_utils` as dep in access package
+  - Change `openzeppelin_account` import to `crate`
+  - Change `openzeppelin_finance` import to `crate`
 - Remove `mut` from `data` param in `compute_hash_on_elements` (#1206)
 - Remove `mut` from `calls` param in `__execute__` function of Account and EthAccount components (#1224)
 - Remove `mut` from `calls` param in `__validate__` function of Account and EthAccount components (#1224)
 
 ### Changed (Breaking)
 
-- Move `openzeppelin_utils` from dev-dep to dep in governance manifest (#)
 - Bump snforge_std to v0.34.0 (#1239)
 - Bump scarb to v2.9.1 (#1239)
 - The initializer in `OwnableComponent` now checks that `owner` is not the zero address (#1221)

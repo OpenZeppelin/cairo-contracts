@@ -13,8 +13,8 @@ pub mod SRC9Component {
     use crate::extensions::src9::OutsideExecution;
     use crate::extensions::src9::interface;
     use crate::extensions::src9::snip12_utils::OutsideExecutionStructHash;
+    use crate::interface::{ISRC6Dispatcher, ISRC6DispatcherTrait};
     use crate::utils::execute_calls;
-    use openzeppelin_account::interface::{ISRC6Dispatcher, ISRC6DispatcherTrait};
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin_utils::cryptography::snip12::{OffchainMessageHash, SNIP12Metadata};

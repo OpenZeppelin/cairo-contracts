@@ -39,6 +39,13 @@ use crate::votes::VotesComponent::VotingUnitsTrait;
 - VestingComponent `release` function won't emit an event or attempt to transfer when the amount is zero (#1209)
 - Bump snforge_std to v0.33.0 (#1203)
 
+### Fixed
+
+- Scarb manifest dependencies (#1249):
+  - Move `openzeppelin_utils` from dev dep to dep in governance manifest
+  - Remove `openzeppelin_utils` as dep in access package
+  - Change `openzeppelin_account` to `crate` in `src9.cairo`
+
 ## 0.19.0 (2024-11-08)
 
 ### Added

@@ -24,9 +24,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Fix Scarb manifest dependencies (#1249):
-  - Move `openzeppelin_utils` from dev dep to dep in governance manifest
-  - Remove `openzeppelin_utils` as dep in access package
 - Remove `mut` from `data` param in `compute_hash_on_elements` (#1206)
 - Remove `mut` from `calls` param in `__execute__` function of Account and EthAccount components (#1224)
 - Remove `mut` from `calls` param in `__validate__` function of Account and EthAccount components (#1224)
@@ -41,6 +38,12 @@ use crate::votes::VotesComponent::VotingUnitsTrait;
 - VotingUnitsTrait moved from `openzeppelin_governance::votes::votes` to `openzeppelin_governance::votes::VotesComponent` (#1214)
 - VestingComponent `release` function won't emit an event or attempt to transfer when the amount is zero (#1209)
 - Bump snforge_std to v0.33.0 (#1203)
+
+### Fixed
+
+- Scarb manifest dependencies (#1249):
+  - Move `openzeppelin_utils` from dev dep to dep in governance manifest
+  - Remove `openzeppelin_utils` as dep in access package
 
 ## 0.19.0 (2024-11-08)
 

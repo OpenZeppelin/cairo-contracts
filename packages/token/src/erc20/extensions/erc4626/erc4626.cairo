@@ -203,7 +203,8 @@ pub mod ERC4626Component {
         /// Returns the total amount of the underlying asset that is “managed” by Vault.
         fn total_assets(self: @ComponentState<TContractState>) -> u256 {
             let this = starknet::get_contract_address();
-            IERC20Dispatcher { contract_address: self.ERC4626_asset.read() }.balance_of(this)
+            let asset_dispatcher = IERC20Dispatcher { contract_address: self.ERC4626_asset.read() };
+            asset_dispatcher.balance_of(this)
         }
 
         /// Returns the amount of shares that the Vault would exchange for the amount of assets

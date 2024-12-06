@@ -58,7 +58,7 @@ Install the library by declaring it as a dependency in the project's `Scarb.toml
 [,text]
 ----
 [dependencies]
-openzeppelin = "0.20.0-rc.0"
+openzeppelin = "0.20.0"
 ----
 
 WARNING: Make sure the tag matches the target release.

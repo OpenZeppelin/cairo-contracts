@@ -6,10 +6,11 @@ This crate includes primitives for on-chain governance.
 
 ### Interfaces
 
+- [`IGovernor`](https://docs.openzeppelin.com/contracts-cairo/0.20.0-rc.0/api/governance#IGovernor)
 - [`ITimelock`](https://docs.openzeppelin.com/contracts-cairo/0.20.0-rc.0/api/governance#ITimelock)
 - [`IVotes`](https://docs.openzeppelin.com/contracts-cairo/0.20.0-rc.0/api/governance#IVotes)
 
 ### Components
 
-- [`TimelockControllerComponent`](https://docs.openzeppelin.com/contracts-cairo/0.20.0-rc.0/api/governance#TimelockControllerComponent)
+- [`GovernorComponent`](https://docs.openzeppelin.com/contracts-cairo/0.20.0-rc.0/api/governance#GovernorComponent)
 - [`VotesComponent`](https://docs.openzeppelin.com/contracts-cairo/0.20.0-rc.0/api/governance#VotesComponent)

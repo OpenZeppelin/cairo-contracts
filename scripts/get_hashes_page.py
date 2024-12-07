@@ -22,8 +22,7 @@ def main():
 
 def generate_doc_file(cmp_version, contracts):
     header = f"""// Version
-:class-hash-cairo-version: \
-https://crates.io/crates/cairo-lang-compiler/{cmp_version}[cairo {cmp_version}]
+:class-hash-cairo-version: https://crates.io/crates/cairo-lang-compiler/{cmp_version} [cairo {cmp_version}]
 """
     hashes = "// Class Hashes\n"
     contracts['contracts'] = remove_prefix_from_names(contracts['contracts'])

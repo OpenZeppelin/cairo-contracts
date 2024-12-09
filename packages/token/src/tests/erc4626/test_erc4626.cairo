@@ -179,6 +179,18 @@ fn deploy_vault_limits(asset_address: ContractAddress) -> ERC4626ABIDispatcher {
 }
 
 //
+// initializer
+//
+
+#[test]
+#[should_panic(expected: 'ERC4626: asset address set to 0')]
+fn test_initializer_zero_address_asset() {
+    let mut state = COMPONENT_STATE();
+
+    state.initializer(ZERO());
+}
+
+//
 // asset
 //
 

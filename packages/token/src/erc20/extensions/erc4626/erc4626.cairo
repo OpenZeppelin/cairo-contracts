@@ -32,7 +32,7 @@
 /// losses to the detriment to the last users who  will experience bigger losses.
 #[starknet::component]
 pub mod ERC4626Component {
-    use core::num::traits::{Bounded, Zero};
+    use core::num::traits::{Bounded, Pow, Zero};
     use crate::erc20::ERC20Component;
     use crate::erc20::ERC20Component::InternalImpl as ERC20InternalImpl;
     use crate::erc20::extensions::erc4626::interface::IERC4626;
@@ -525,7 +525,8 @@ pub mod ERC4626Component {
 
             math::u256_mul_div(
                 assets,
-                total_supply + math::power(10, Immutable::DECIMALS_OFFSET.into()),
+                //total_supply + math::power(10, Immutable::DECIMALS_OFFSET.into()),
+                total_supply + 10_u256.pow(Immutable::DECIMALS_OFFSET.into()),
                 self.total_assets() + 1,
                 rounding,
             )
@@ -542,7 +543,7 @@ pub mod ERC4626Component {
             math::u256_mul_div(
                 shares,
                 self.total_assets() + 1,
-                total_supply + math::power(10, Immutable::DECIMALS_OFFSET.into()),
+                total_supply + 10_u256.pow(Immutable::DECIMALS_OFFSET.into()),
                 rounding,
             )
         }

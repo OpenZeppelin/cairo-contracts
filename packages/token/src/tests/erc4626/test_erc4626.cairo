@@ -1,4 +1,4 @@
-use core::num::traits::Bounded;
+use core::num::traits::{Bounded, Pow};
 use crate::erc20::ERC20Component::InternalImpl as ERC20InternalImpl;
 use crate::erc20::extensions::erc4626::DefaultConfig;
 use crate::erc20::extensions::erc4626::ERC4626Component;
@@ -16,7 +16,6 @@ use openzeppelin_test_common::mocks::erc4626::ERC4626Mock;
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{NAME, OTHER, RECIPIENT, SPENDER, SYMBOL, ZERO};
 use openzeppelin_testing::events::EventSpyExt;
-use openzeppelin_utils::math;
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{CheatSpan, EventSpy, cheat_caller_address, spy_events};
 use starknet::{ContractAddress, contract_address_const};
@@ -46,11 +45,11 @@ const NO_OFFSET_DECIMALS: u8 = 0;
 const OFFSET_DECIMALS: u8 = 1;
 
 fn parse_token(token: u256) -> u256 {
-    token * math::power(10, DEFAULT_DECIMALS.into())
+    token * 10_u256.pow(DEFAULT_DECIMALS.into())
 }
 
-fn parse_share_offset(share: u256) -> u256 {
-    share * math::power(10, DEFAULT_DECIMALS.into() + OFFSET_DECIMALS.into())
+fn parse_share_offset(shares: u256) -> u256 {
+    shares * 10_u256.pow(DEFAULT_DECIMALS.into() + OFFSET_DECIMALS.into())
 }
 
 //
@@ -407,7 +406,7 @@ fn test_inflation_attack_deposit() {
     let (asset, vault) = setup_inflation_attack();
     let virtual_assets = 1;
     let offset = 1;
-    let virtual_shares = math::power(10, offset);
+    let virtual_shares = 10_u256.pow(offset);
 
     let effective_assets = vault.total_assets() + virtual_assets;
     let effective_shares = vault.total_supply() + virtual_shares;
@@ -456,7 +455,7 @@ fn test_inflation_attack_mint() {
     let (asset, vault) = setup_inflation_attack();
     let virtual_assets = 1;
     let offset = 1;
-    let virtual_shares = math::power(10, offset);
+    let virtual_shares = 10_u256.pow(offset);
 
     let effective_assets = vault.total_assets() + virtual_assets;
     let effective_shares = vault.total_supply() + virtual_shares;
@@ -594,7 +593,7 @@ fn test_full_vault_deposit() {
 
     let virtual_assets = 1;
     let offset = 1;
-    let virtual_shares = math::power(10, offset);
+    let virtual_shares = 10_u256.pow(offset);
 
     let effective_assets = vault.total_assets() + virtual_assets;
     let effective_shares = vault.total_supply() + virtual_shares;
@@ -644,7 +643,7 @@ fn test_full_vault_mint() {
 
     let virtual_assets = 1;
     let offset = 1;
-    let virtual_shares = math::power(10, offset);
+    let virtual_shares = 10_u256.pow(offset);
 
     let effective_assets = vault.total_assets() + virtual_assets;
     let effective_shares = vault.total_supply() + virtual_shares;
@@ -693,7 +692,7 @@ fn test_full_vault_withdraw() {
 
     let virtual_assets = 1;
     let offset = 1;
-    let virtual_shares = math::power(10, offset);
+    let virtual_shares = 10_u256.pow(offset);
 
     let effective_assets = vault.total_assets() + virtual_assets;
     let effective_shares = vault.total_supply() + virtual_shares;
@@ -746,7 +745,7 @@ fn test_full_vault_withdraw_with_approval() {
 
     let virtual_assets = 1;
     let offset = 1;
-    let virtual_shares = math::power(10, offset);
+    let virtual_shares = 10_u256.pow(offset);
 
     let effective_assets = vault.total_assets() + virtual_assets;
     let effective_shares = vault.total_supply() + virtual_shares;
@@ -793,7 +792,7 @@ fn test_full_vault_redeem() {
 
     let virtual_assets = 1;
     let offset = 1;
-    let virtual_shares = math::power(10, offset);
+    let virtual_shares = 10_u256.pow(offset);
 
     let effective_assets = vault.total_assets() + virtual_assets;
     let effective_shares = vault.total_supply() + virtual_shares;
@@ -840,7 +839,7 @@ fn test_full_vault_redeem_with_approval() {
 
     let virtual_assets = 1;
     let offset = 1;
-    let virtual_shares = math::power(10, offset);
+    let virtual_shares = 10_u256.pow(offset);
 
     let effective_assets = vault.total_assets() + virtual_assets;
     let effective_shares = vault.total_supply() + virtual_shares;

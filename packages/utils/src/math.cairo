@@ -22,25 +22,6 @@ pub fn average<
     (a & b) + (a ^ b) / 2_u8.into()
 }
 
-/// TMP. Raises `base` to the power of `exp`. Will panic if the result is greater than 2 ** 256 - 1.
-///
-/// NOTE: This should be removed in favor of the corelib's Pow implementation when available.
-/// https://github.com/starkware-libs/cairo/pull/6694
-pub fn power<T, +Drop<T>, +PartialEq<T>, +TryInto<u256, T>, +Into<T, u256>, +Into<u8, T>>(
-    base: T, exp: T,
-) -> T {
-    assert!(base != 0_u8.into(), "Math: base cannot be zero");
-    let base: u256 = base.into();
-    let exp: u256 = exp.into();
-    let mut result: u256 = 1;
-
-    for _ in 0..exp {
-        result *= base;
-    };
-
-    result.try_into().unwrap()
-}
-
 #[derive(Drop, Copy, Debug)]
 pub enum Rounding {
     Floor, // Toward negative infinity

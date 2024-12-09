@@ -337,7 +337,7 @@ with new external functions (#1173)
 
 ### Removed
 
-- Non standard increase_allowance and decrease_allowance functions in ERC20 contract (#881)
+- Non-standard increase_allowance and decrease_allowance functions in ERC20 contract (#881)
 
 ## 0.8.1 (2024-01-23)
 

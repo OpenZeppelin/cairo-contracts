@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0-rc.0 (governance/votes/votes.cairo)
+// OpenZeppelin Contracts for Cairo v0.20.0 (governance/votes/votes.cairo)
 
 /// # Votes Component
 ///
@@ -20,7 +20,7 @@
 /// purpose, as shown in the following ERC20 example:
 ///
 /// See [the documentation]
-/// (https://docs.openzeppelin.com/contracts-cairo/0.20.0-rc.0/governance.html#usage_2)
+/// (https://docs.openzeppelin.com/contracts-cairo/0.20.0/governance.html#usage_2)
 /// for examples and more details.
 #[starknet::component]
 pub mod VotesComponent {
@@ -34,11 +34,11 @@ pub mod VotesComponent {
     use openzeppelin_token::erc721::ERC721Component;
     use openzeppelin_token::erc721::interface::IERC721;
     use openzeppelin_utils::cryptography::snip12::{OffchainMessageHash, SNIP12Metadata};
-    use openzeppelin_utils::nonces::NoncesComponent::InternalTrait as NoncesInternalTrait;
     use openzeppelin_utils::nonces::NoncesComponent;
+    use openzeppelin_utils::nonces::NoncesComponent::InternalTrait as NoncesInternalTrait;
     use openzeppelin_utils::structs::checkpoint::{Checkpoint, Trace, TraceTrait};
     use starknet::ContractAddress;
-    use starknet::storage::{Map, StoragePathEntry, StorageMapReadAccess, StorageMapWriteAccess};
+    use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePathEntry};
 
     #[storage]
     pub struct Storage {
@@ -62,7 +62,7 @@ pub mod VotesComponent {
         #[key]
         pub from_delegate: ContractAddress,
         #[key]
-        pub to_delegate: ContractAddress
+        pub to_delegate: ContractAddress,
     }
 
     /// Emitted when `delegate` votes are updated from `previous_votes` to `new_votes`.
@@ -71,7 +71,7 @@ pub mod VotesComponent {
         #[key]
         pub delegate: ContractAddress,
         pub previous_votes: u256,
-        pub new_votes: u256
+        pub new_votes: u256,
     }
 
     pub mod Errors {
@@ -106,7 +106,7 @@ pub mod VotesComponent {
         impl Nonces: NoncesComponent::HasComponent<TContractState>,
         +VotingUnitsTrait<ComponentState<TContractState>>,
         +SNIP12Metadata,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of IVotes<ComponentState<TContractState>> {
         /// Returns the current amount of votes that `account` has.
         fn get_votes(self: @ComponentState<TContractState>, account: ContractAddress) -> u256 {
@@ -119,7 +119,7 @@ pub mod VotesComponent {
         ///
         /// - `timepoint` must be in the past.
         fn get_past_votes(
-            self: @ComponentState<TContractState>, account: ContractAddress, timepoint: u64
+            self: @ComponentState<TContractState>, account: ContractAddress, timepoint: u64,
         ) -> u256 {
             let current_timepoint = starknet::get_block_timestamp();
             assert(timepoint < current_timepoint, Errors::FUTURE_LOOKUP);
@@ -139,7 +139,7 @@ pub mod VotesComponent {
 
         /// Returns the delegate that `account` has chosen.
         fn delegates(
-            self: @ComponentState<TContractState>, account: ContractAddress
+            self: @ComponentState<TContractState>, account: ContractAddress,
         ) -> ContractAddress {
             self.Votes_delegatee.read(account)
         }
@@ -171,7 +171,7 @@ pub mod VotesComponent {
             delegatee: ContractAddress,
             nonce: felt252,
             expiry: u64,
-            signature: Span<felt252>
+            signature: Span<felt252>,
         ) {
             assert(starknet::get_block_timestamp() <= expiry, Errors::EXPIRED_SIGNATURE);
 
@@ -206,7 +206,7 @@ pub mod VotesComponent {
         TContractState,
         +HasComponent<TContractState>,
         impl ERC20: ERC20Component::HasComponent<TContractState>,
-        +ERC20Component::ERC20HooksTrait<TContractState>
+        +ERC20Component::ERC20HooksTrait<TContractState>,
     > of VotingUnitsTrait<ComponentState<TContractState>> {
         /// Returns the number of voting units for a given account.
         ///
@@ -220,7 +220,7 @@ pub mod VotesComponent {
         /// Any deviation from this formula when transferring voting units (e.g. by using hooks)
         /// may compromise the internal vote accounting.
         fn get_voting_units(
-            self: @ComponentState<TContractState>, account: ContractAddress
+            self: @ComponentState<TContractState>, account: ContractAddress,
         ) -> u256 {
             let erc20_component = get_dep_component!(self, ERC20);
             erc20_component.balance_of(account)
@@ -233,7 +233,7 @@ pub mod VotesComponent {
         +SRC5Component::HasComponent<TContractState>,
         impl ERC721: ERC721Component::HasComponent<TContractState>,
         +ERC721Component::ERC721HooksTrait<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of VotingUnitsTrait<ComponentState<TContractState>> {
         /// Returns the number of voting units for a given account.
         ///
@@ -248,7 +248,7 @@ pub mod VotesComponent {
         /// Any deviation from this formula when transferring voting units (e.g. by using hooks)
         /// may compromise the internal vote accounting.
         fn get_voting_units(
-            self: @ComponentState<TContractState>, account: ContractAddress
+            self: @ComponentState<TContractState>, account: ContractAddress,
         ) -> u256 {
             let erc721_component = get_dep_component!(self, ERC721);
             erc721_component.balance_of(account).into()
@@ -262,7 +262,7 @@ pub mod VotesComponent {
         +VotingUnitsTrait<ComponentState<TContractState>>,
         +NoncesComponent::HasComponent<TContractState>,
         +SNIP12Metadata,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of InternalTrait<TContractState> {
         /// Returns the current total supply of votes.
         fn get_total_supply(self: @ComponentState<TContractState>) -> u256 {
@@ -276,7 +276,7 @@ pub mod VotesComponent {
             ref self: ComponentState<TContractState>,
             from: ContractAddress,
             to: ContractAddress,
-            amount: u256
+            amount: u256,
         ) {
             let block_timestamp = starknet::get_block_timestamp();
             if from != to && amount > 0 {
@@ -310,7 +310,7 @@ pub mod VotesComponent {
             ref self: ComponentState<TContractState>,
             from: ContractAddress,
             to: ContractAddress,
-            amount: u256
+            amount: u256,
         ) {
             let block_timestamp = starknet::get_block_timestamp();
             if from.is_zero() {
@@ -331,7 +331,7 @@ pub mod VotesComponent {
 
         /// Returns the `pos`-th checkpoint for `account`.
         fn checkpoints(
-            self: @ComponentState<TContractState>, account: ContractAddress, pos: u64
+            self: @ComponentState<TContractState>, account: ContractAddress, pos: u64,
         ) -> Checkpoint {
             self.Votes_delegate_checkpoints.entry(account).at(pos)
         }
@@ -343,13 +343,13 @@ pub mod VotesComponent {
         fn _delegate(
             ref self: ComponentState<TContractState>,
             account: ContractAddress,
-            delegatee: ContractAddress
+            delegatee: ContractAddress,
         ) {
             let from_delegate = self.delegates(account);
             self.Votes_delegatee.write(account, delegatee);
             self
                 .emit(
-                    DelegateChanged { delegator: account, from_delegate, to_delegate: delegatee }
+                    DelegateChanged { delegator: account, from_delegate, to_delegate: delegatee },
                 );
             self.move_delegate_votes(from_delegate, delegatee, self.get_voting_units(account));
         }

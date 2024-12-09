@@ -1,24 +1,24 @@
 use core::num::traits::Bounded;
 use crate::erc20::ERC20Component::InternalImpl as ERC20InternalImpl;
 use crate::erc20::extensions::erc4626::DefaultConfig;
-use crate::erc20::extensions::erc4626::ERC4626Component::{
-    ERC4626Impl, ERC4626MetadataImpl, InternalImpl
-};
-use crate::erc20::extensions::erc4626::ERC4626Component::{Deposit, Withdraw};
 use crate::erc20::extensions::erc4626::ERC4626Component;
+use crate::erc20::extensions::erc4626::ERC4626Component::{Deposit, Withdraw};
+use crate::erc20::extensions::erc4626::ERC4626Component::{
+    ERC4626Impl, ERC4626MetadataImpl, InternalImpl,
+};
 use crate::erc20::extensions::erc4626::interface::{ERC4626ABIDispatcher, ERC4626ABIDispatcherTrait};
 use openzeppelin_test_common::erc20::ERC20SpyHelpers;
 use openzeppelin_test_common::mocks::erc20::Type;
 use openzeppelin_test_common::mocks::erc20::{
-    IERC20ReentrantDispatcher, IERC20ReentrantDispatcherTrait
+    IERC20ReentrantDispatcher, IERC20ReentrantDispatcherTrait,
 };
 use openzeppelin_test_common::mocks::erc4626::ERC4626Mock;
 use openzeppelin_testing as utils;
-use openzeppelin_testing::constants::{NAME, SYMBOL, OTHER, RECIPIENT, ZERO, SPENDER};
+use openzeppelin_testing::constants::{NAME, OTHER, RECIPIENT, SPENDER, SYMBOL, ZERO};
 use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_utils::math;
 use openzeppelin_utils::serde::SerializedAppend;
-use snforge_std::{cheat_caller_address, CheatSpan, spy_events, EventSpy};
+use snforge_std::{CheatSpan, EventSpy, cheat_caller_address, spy_events};
 use starknet::{ContractAddress, contract_address_const};
 
 fn ASSET() -> ContractAddress {
@@ -91,7 +91,7 @@ fn deploy_vault(asset_address: ContractAddress) -> ERC4626ABIDispatcher {
 }
 
 fn deploy_vault_offset_minted_shares(
-    asset_address: ContractAddress, shares: u256, recipient: ContractAddress
+    asset_address: ContractAddress, shares: u256, recipient: ContractAddress,
 ) -> ERC4626ABIDispatcher {
     let mut vault_calldata: Array<felt252> = array![];
     vault_calldata.append_serde(VAULT_NAME());
@@ -114,7 +114,7 @@ fn deploy_vault_fees(asset_address: ContractAddress) -> ERC4626ABIDispatcher {
 }
 
 fn deploy_vault_fees_with_shares(
-    asset_address: ContractAddress, shares: u256, recipient: ContractAddress
+    asset_address: ContractAddress, shares: u256, recipient: ContractAddress,
 ) -> ERC4626ABIDispatcher {
     let fee_basis_points = 500_u256; // 5%
     let _value_without_fees = 10_000_u256;
@@ -140,7 +140,7 @@ fn deploy_vault_fees_with_shares(
 }
 
 fn deploy_vault_exit_fees_with_shares(
-    asset_address: ContractAddress, shares: u256, recipient: ContractAddress
+    asset_address: ContractAddress, shares: u256, recipient: ContractAddress,
 ) -> ERC4626ABIDispatcher {
     let fee_basis_points = 500_u256; // 5%
     let _value_without_fees = 10_000_u256;
@@ -315,12 +315,12 @@ fn test_mint() {
     // Check events
     spy
         .assert_event_transfer(
-            asset.contract_address, HOLDER(), vault.contract_address, parse_token(1)
+            asset.contract_address, HOLDER(), vault.contract_address, parse_token(1),
         );
     spy.assert_event_transfer(vault.contract_address, ZERO(), RECIPIENT(), parse_share_offset(1));
     spy
         .assert_only_event_deposit(
-            vault.contract_address, HOLDER(), RECIPIENT(), parse_token(1), parse_share_offset(1)
+            vault.contract_address, HOLDER(), RECIPIENT(), parse_token(1), parse_share_offset(1),
         );
 }
 
@@ -442,12 +442,12 @@ fn test_inflation_attack_deposit() {
     // Check events
     spy
         .assert_event_transfer(
-            asset.contract_address, HOLDER(), vault.contract_address, deposit_assets
+            asset.contract_address, HOLDER(), vault.contract_address, deposit_assets,
         );
     spy.assert_event_transfer(vault.contract_address, ZERO(), RECIPIENT(), shares);
     spy
         .assert_only_event_deposit(
-            vault.contract_address, HOLDER(), RECIPIENT(), deposit_assets, expected_shares
+            vault.contract_address, HOLDER(), RECIPIENT(), deposit_assets, expected_shares,
         );
 }
 
@@ -489,12 +489,12 @@ fn test_inflation_attack_mint() {
     // Check events
     spy
         .assert_event_transfer(
-            asset.contract_address, HOLDER(), vault.contract_address, expected_assets
+            asset.contract_address, HOLDER(), vault.contract_address, expected_assets,
         );
     spy.assert_event_transfer(vault.contract_address, ZERO(), RECIPIENT(), mint_shares);
     spy
         .assert_only_event_deposit(
-            vault.contract_address, HOLDER(), RECIPIENT(), expected_assets, mint_shares
+            vault.contract_address, HOLDER(), RECIPIENT(), expected_assets, mint_shares,
         );
 }
 
@@ -629,12 +629,12 @@ fn test_full_vault_deposit() {
     // Check events
     spy
         .assert_event_transfer(
-            asset.contract_address, HOLDER(), vault.contract_address, deposit_assets
+            asset.contract_address, HOLDER(), vault.contract_address, deposit_assets,
         );
     spy.assert_event_transfer(vault.contract_address, ZERO(), RECIPIENT(), shares);
     spy
         .assert_only_event_deposit(
-            vault.contract_address, HOLDER(), RECIPIENT(), deposit_assets, expected_shares
+            vault.contract_address, HOLDER(), RECIPIENT(), deposit_assets, expected_shares,
         );
 }
 
@@ -678,12 +678,12 @@ fn test_full_vault_mint() {
     // Check events
     spy
         .assert_event_transfer(
-            asset.contract_address, HOLDER(), vault.contract_address, expected_assets
+            asset.contract_address, HOLDER(), vault.contract_address, expected_assets,
         );
     spy.assert_event_transfer(vault.contract_address, ZERO(), RECIPIENT(), mint_shares);
     spy
         .assert_only_event_deposit(
-            vault.contract_address, HOLDER(), RECIPIENT(), expected_assets, mint_shares
+            vault.contract_address, HOLDER(), RECIPIENT(), expected_assets, mint_shares,
         );
 }
 
@@ -727,7 +727,7 @@ fn test_full_vault_withdraw() {
     spy.assert_event_transfer(vault.contract_address, HOLDER(), ZERO(), expected_shares);
     spy
         .assert_event_transfer(
-            asset.contract_address, vault.contract_address, RECIPIENT(), withdraw_assets
+            asset.contract_address, vault.contract_address, RECIPIENT(), withdraw_assets,
         );
     spy
         .assert_only_event_withdraw(
@@ -736,7 +736,7 @@ fn test_full_vault_withdraw() {
             RECIPIENT(),
             HOLDER(),
             withdraw_assets,
-            expected_shares
+            expected_shares,
         );
 }
 
@@ -764,7 +764,7 @@ fn test_full_vault_withdraw_with_approval() {
     spy.assert_event_transfer(vault.contract_address, HOLDER(), ZERO(), expected_shares);
     spy
         .assert_event_transfer(
-            asset.contract_address, vault.contract_address, RECIPIENT(), withdraw_assets
+            asset.contract_address, vault.contract_address, RECIPIENT(), withdraw_assets,
         );
     spy
         .assert_only_event_withdraw(
@@ -773,7 +773,7 @@ fn test_full_vault_withdraw_with_approval() {
             RECIPIENT(),
             HOLDER(),
             withdraw_assets,
-            expected_shares
+            expected_shares,
         );
 }
 
@@ -826,11 +826,11 @@ fn test_full_vault_redeem() {
     spy.assert_event_transfer(vault.contract_address, HOLDER(), ZERO(), redeem_shares);
     spy
         .assert_event_transfer(
-            asset.contract_address, vault.contract_address, RECIPIENT(), expected_assets
+            asset.contract_address, vault.contract_address, RECIPIENT(), expected_assets,
         );
     spy
         .assert_only_event_withdraw(
-            vault.contract_address, HOLDER(), RECIPIENT(), HOLDER(), expected_assets, redeem_shares
+            vault.contract_address, HOLDER(), RECIPIENT(), HOLDER(), expected_assets, redeem_shares,
         );
 }
 
@@ -873,11 +873,16 @@ fn test_full_vault_redeem_with_approval() {
     spy.assert_event_transfer(vault.contract_address, HOLDER(), ZERO(), redeem_shares);
     spy
         .assert_event_transfer(
-            asset.contract_address, vault.contract_address, RECIPIENT(), expected_assets
+            asset.contract_address, vault.contract_address, RECIPIENT(), expected_assets,
         );
     spy
         .assert_only_event_withdraw(
-            vault.contract_address, SPENDER(), RECIPIENT(), HOLDER(), expected_assets, redeem_shares
+            vault.contract_address,
+            SPENDER(),
+            RECIPIENT(),
+            HOLDER(),
+            expected_assets,
+            redeem_shares,
         );
 }
 
@@ -929,7 +934,7 @@ fn test_share_price_with_reentrancy_before_deposit() {
     calldata.append_serde(HOLDER());
     asset
         .schedule_reenter(
-            Type::Before, vault.contract_address, selector!("deposit"), calldata.span()
+            Type::Before, vault.contract_address, selector!("deposit"), calldata.span(),
         );
 
     let shares_for_deposit = vault.preview_deposit(value);
@@ -948,7 +953,7 @@ fn test_share_price_with_reentrancy_before_deposit() {
     // Reentered events come first because they're called in mock ERC20 `before_update` hook
     spy
         .assert_event_transfer(
-            asset.contract_address, asset.contract_address, vault.contract_address, reenter_value
+            asset.contract_address, asset.contract_address, vault.contract_address, reenter_value,
         );
     spy.assert_event_transfer(vault.contract_address, ZERO(), HOLDER(), shares_for_reenter);
     spy
@@ -957,14 +962,14 @@ fn test_share_price_with_reentrancy_before_deposit() {
             asset.contract_address,
             HOLDER(),
             reenter_value,
-            shares_for_reenter
+            shares_for_reenter,
         );
 
     spy.assert_event_transfer(asset.contract_address, HOLDER(), vault.contract_address, value);
     spy.assert_event_transfer(vault.contract_address, ZERO(), HOLDER(), shares_for_deposit);
     spy
         .assert_only_event_deposit(
-            vault.contract_address, HOLDER(), HOLDER(), value, shares_for_deposit
+            vault.contract_address, HOLDER(), HOLDER(), value, shares_for_deposit,
         );
 }
 
@@ -989,7 +994,7 @@ fn test_share_price_with_reentrancy_after_withdraw() {
     calldata.append_serde(asset.contract_address);
     asset
         .schedule_reenter(
-            Type::After, vault.contract_address, selector!("withdraw"), calldata.span()
+            Type::After, vault.contract_address, selector!("withdraw"), calldata.span(),
         );
 
     let shares_for_withdraw = vault.preview_withdraw(value);
@@ -1007,7 +1012,7 @@ fn test_share_price_with_reentrancy_after_withdraw() {
     // Main withdraw event
     spy
         .assert_event_withdraw(
-            vault.contract_address, HOLDER(), HOLDER(), HOLDER(), value, shares_for_withdraw
+            vault.contract_address, HOLDER(), HOLDER(), HOLDER(), value, shares_for_withdraw,
         );
     // Reentrant withdraw event → uses same price
     spy
@@ -1017,7 +1022,7 @@ fn test_share_price_with_reentrancy_after_withdraw() {
             HOLDER(),
             asset.contract_address,
             reenter_value,
-            shares_for_reenter
+            shares_for_reenter,
         );
 }
 
@@ -1034,7 +1039,7 @@ fn test_price_change_during_reentrancy_doesnt_affect_deposit() {
     calldata.append_serde(reenter_value);
     asset
         .schedule_reenter(
-            Type::Before, asset.contract_address, selector!("unsafe_mint"), calldata.span()
+            Type::Before, asset.contract_address, selector!("unsafe_mint"), calldata.span(),
         );
 
     let shares_before = vault.preview_deposit(value);
@@ -1070,7 +1075,7 @@ fn test_price_change_during_reentrancy_doesnt_affect_withdraw() {
     calldata.append_serde(reenter_value);
     asset
         .schedule_reenter(
-            Type::After, asset.contract_address, selector!("unsafe_burn"), calldata.span()
+            Type::After, asset.contract_address, selector!("unsafe_burn"), calldata.span(),
         );
 
     let shares_before = vault.preview_withdraw(value);
@@ -1083,7 +1088,7 @@ fn test_price_change_during_reentrancy_doesnt_affect_withdraw() {
     // Check main event to ensure price is as previewed
     spy
         .assert_event_withdraw(
-            vault.contract_address, HOLDER(), HOLDER(), HOLDER(), value, shares_before
+            vault.contract_address, HOLDER(), HOLDER(), HOLDER(), value, shares_before,
         );
 
     // Check that price is modified after reentrant tx
@@ -1202,12 +1207,12 @@ fn test_input_fees_deposit() {
     // Check events
     spy
         .assert_event_transfer(
-            asset.contract_address, HOLDER(), vault.contract_address, VALUE_WITH_FEES
+            asset.contract_address, HOLDER(), vault.contract_address, VALUE_WITH_FEES,
         );
     spy.assert_event_transfer(vault.contract_address, ZERO(), RECIPIENT(), VALUE_WITHOUT_FEES);
     spy
         .assert_event_deposit(
-            vault.contract_address, HOLDER(), RECIPIENT(), VALUE_WITH_FEES, VALUE_WITHOUT_FEES
+            vault.contract_address, HOLDER(), RECIPIENT(), VALUE_WITH_FEES, VALUE_WITHOUT_FEES,
         );
     spy.assert_event_transfer(asset.contract_address, vault.contract_address, TREASURY(), FEES);
 }
@@ -1242,12 +1247,12 @@ fn test_input_fees_mint() {
     // Check events
     spy
         .assert_event_transfer(
-            asset.contract_address, HOLDER(), vault.contract_address, VALUE_WITH_FEES
+            asset.contract_address, HOLDER(), vault.contract_address, VALUE_WITH_FEES,
         );
     spy.assert_event_transfer(vault.contract_address, ZERO(), RECIPIENT(), VALUE_WITHOUT_FEES);
     spy
         .assert_event_deposit(
-            vault.contract_address, HOLDER(), RECIPIENT(), VALUE_WITH_FEES, VALUE_WITHOUT_FEES
+            vault.contract_address, HOLDER(), RECIPIENT(), VALUE_WITH_FEES, VALUE_WITHOUT_FEES,
         );
     spy.assert_event_transfer(asset.contract_address, vault.contract_address, TREASURY(), FEES);
 }
@@ -1286,7 +1291,7 @@ fn test_output_fees_redeem() {
     spy.assert_event_transfer(vault.contract_address, HOLDER(), ZERO(), VALUE_WITH_FEES);
     spy
         .assert_event_transfer(
-            asset.contract_address, vault.contract_address, RECIPIENT(), VALUE_WITHOUT_FEES
+            asset.contract_address, vault.contract_address, RECIPIENT(), VALUE_WITHOUT_FEES,
         );
     spy
         .assert_only_event_withdraw(
@@ -1295,7 +1300,7 @@ fn test_output_fees_redeem() {
             RECIPIENT(),
             HOLDER(),
             VALUE_WITHOUT_FEES,
-            VALUE_WITH_FEES
+            VALUE_WITH_FEES,
         );
 }
 
@@ -1333,7 +1338,7 @@ fn test_output_fees_withdraw() {
     spy.assert_event_transfer(vault.contract_address, HOLDER(), ZERO(), VALUE_WITH_FEES);
     spy
         .assert_event_transfer(
-            asset.contract_address, vault.contract_address, RECIPIENT(), VALUE_WITHOUT_FEES
+            asset.contract_address, vault.contract_address, RECIPIENT(), VALUE_WITHOUT_FEES,
         );
     spy
         .assert_only_event_withdraw(
@@ -1342,7 +1347,7 @@ fn test_output_fees_withdraw() {
             RECIPIENT(),
             HOLDER(),
             VALUE_WITHOUT_FEES,
-            VALUE_WITH_FEES
+            VALUE_WITH_FEES,
         );
 }
 
@@ -1541,14 +1546,14 @@ fn test_multiple_txs_part_2() {
 //
 
 fn assert_expected_shares(
-    vault: ERC4626ABIDispatcher, account: ContractAddress, expected_shares: u256
+    vault: ERC4626ABIDispatcher, account: ContractAddress, expected_shares: u256,
 ) {
     let actual_shares = vault.balance_of(account);
     assert_eq!(actual_shares, expected_shares);
 }
 
 fn assert_expected_assets(
-    asset: IERC20ReentrantDispatcher, account: ContractAddress, expected_assets: u256
+    asset: IERC20ReentrantDispatcher, account: ContractAddress, expected_assets: u256,
 ) {
     let actual_assets = asset.balance_of(account);
     assert_eq!(actual_assets, expected_assets);
@@ -1562,7 +1567,7 @@ pub impl ERC4626SpyHelpersImpl of ERC4626SpyHelpers {
         sender: ContractAddress,
         owner: ContractAddress,
         assets: u256,
-        shares: u256
+        shares: u256,
     ) {
         let expected = ERC4626Component::Event::Deposit(Deposit { sender, owner, assets, shares });
         self.assert_emitted_single(contract, expected);
@@ -1574,7 +1579,7 @@ pub impl ERC4626SpyHelpersImpl of ERC4626SpyHelpers {
         sender: ContractAddress,
         owner: ContractAddress,
         assets: u256,
-        shares: u256
+        shares: u256,
     ) {
         self.assert_event_deposit(contract, sender, owner, assets, shares);
         self.assert_no_events_left_from(contract);
@@ -1587,10 +1592,10 @@ pub impl ERC4626SpyHelpersImpl of ERC4626SpyHelpers {
         receiver: ContractAddress,
         owner: ContractAddress,
         assets: u256,
-        shares: u256
+        shares: u256,
     ) {
         let expected = ERC4626Component::Event::Withdraw(
-            Withdraw { sender, receiver, owner, assets, shares }
+            Withdraw { sender, receiver, owner, assets, shares },
         );
         self.assert_emitted_single(contract, expected);
     }
@@ -1602,7 +1607,7 @@ pub impl ERC4626SpyHelpersImpl of ERC4626SpyHelpers {
         receiver: ContractAddress,
         owner: ContractAddress,
         assets: u256,
-        shares: u256
+        shares: u256,
     ) {
         self.assert_event_withdraw(contract, sender, receiver, owner, assets, shares);
         self.assert_no_events_left_from(contract);

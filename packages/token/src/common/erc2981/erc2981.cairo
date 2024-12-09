@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0-rc.0 (token/common/erc2981/erc2981.cairo)
+// OpenZeppelin Contracts for Cairo v0.20.0 (token/common/erc2981/erc2981.cairo)
 
 /// # ERC2981 Component
 ///
@@ -20,19 +20,19 @@
 #[starknet::component]
 pub mod ERC2981Component {
     use core::num::traits::Zero;
-    use crate::common::erc2981::interface::IERC2981_ID;
     use crate::common::erc2981::interface;
-    use openzeppelin_access::accesscontrol::AccessControlComponent::InternalTrait as AccessControlInternalTrait;
+    use crate::common::erc2981::interface::IERC2981_ID;
     use openzeppelin_access::accesscontrol::AccessControlComponent;
-    use openzeppelin_access::ownable::OwnableComponent::InternalTrait as OwnableInternalTrait;
+    use openzeppelin_access::accesscontrol::AccessControlComponent::InternalTrait as AccessControlInternalTrait;
     use openzeppelin_access::ownable::OwnableComponent;
+    use openzeppelin_access::ownable::OwnableComponent::InternalTrait as OwnableInternalTrait;
+    use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
-    use openzeppelin_introspection::src5::SRC5Component;
     use starknet::ContractAddress;
     use starknet::storage::{
         Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
-        StoragePointerWriteAccess
+        StoragePointerWriteAccess,
     };
 
     /// Role for the admin responsible for managing royalty settings.
@@ -98,7 +98,7 @@ pub mod ERC2981Component {
         /// - `t.0`: The receiver of the royalty payment.
         /// - `t.1`: The amount of royalty payment.
         fn royalty_info(
-            self: @ComponentState<TContractState>, token_id: u256, sale_price: u256
+            self: @ComponentState<TContractState>, token_id: u256, sale_price: u256,
         ) -> (ContractAddress, u256) {
             let token_royalty_info = self.ERC2981_token_royalty_info.read(token_id);
 
@@ -145,7 +145,7 @@ pub mod ERC2981Component {
         /// - `t.1`: The numerator of the royalty fraction.
         /// - `t.2`: The denominator of the royalty fraction.
         fn token_royalty(
-            self: @ComponentState<TContractState>, token_id: u256
+            self: @ComponentState<TContractState>, token_id: u256,
         ) -> (ContractAddress, u128, u128) {
             self._token_royalty(token_id)
         }
@@ -172,7 +172,9 @@ pub mod ERC2981Component {
         /// - `receiver` cannot be the zero address.
         /// - `fee_numerator` cannot be greater than the fee denominator.
         fn set_default_royalty(
-            ref self: ComponentState<TContractState>, receiver: ContractAddress, fee_numerator: u128
+            ref self: ComponentState<TContractState>,
+            receiver: ContractAddress,
+            fee_numerator: u128,
         ) {
             get_dep_component!(@self, Ownable).assert_only_owner();
             self._set_default_royalty(receiver, fee_numerator)
@@ -200,7 +202,7 @@ pub mod ERC2981Component {
             ref self: ComponentState<TContractState>,
             token_id: u256,
             receiver: ContractAddress,
-            fee_numerator: u128
+            fee_numerator: u128,
         ) {
             get_dep_component!(@self, Ownable).assert_only_owner();
             self._set_token_royalty(token_id, receiver, fee_numerator)
@@ -238,7 +240,9 @@ pub mod ERC2981Component {
         /// - `receiver` cannot be the zero address.
         /// - `fee_numerator` cannot be greater than the fee denominator.
         fn set_default_royalty(
-            ref self: ComponentState<TContractState>, receiver: ContractAddress, fee_numerator: u128
+            ref self: ComponentState<TContractState>,
+            receiver: ContractAddress,
+            fee_numerator: u128,
         ) {
             get_dep_component!(@self, AccessControl).assert_only_role(ROYALTY_ADMIN_ROLE);
             self._set_default_royalty(receiver, fee_numerator)
@@ -266,7 +270,7 @@ pub mod ERC2981Component {
             ref self: ComponentState<TContractState>,
             token_id: u256,
             receiver: ContractAddress,
-            fee_numerator: u128
+            fee_numerator: u128,
         ) {
             get_dep_component!(@self, AccessControl).assert_only_role(ROYALTY_ADMIN_ROLE);
             self._set_token_royalty(token_id, receiver, fee_numerator)
@@ -293,7 +297,7 @@ pub mod ERC2981Component {
         +HasComponent<TContractState>,
         impl Immutable: ImmutableConfig,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of InternalTrait<TContractState> {
         /// Initializes the contract by setting the default royalty.
         ///
@@ -307,7 +311,7 @@ pub mod ERC2981Component {
         fn initializer(
             ref self: ComponentState<TContractState>,
             default_receiver: ContractAddress,
-            default_royalty_fraction: u128
+            default_royalty_fraction: u128,
         ) {
             Immutable::validate();
 
@@ -325,7 +329,7 @@ pub mod ERC2981Component {
         /// - `t.1`: The numerator of the royalty fraction.
         /// - `t.2`: The denominator of the royalty fraction.
         fn _default_royalty(
-            self: @ComponentState<TContractState>
+            self: @ComponentState<TContractState>,
         ) -> (ContractAddress, u128, u128) {
             let royalty_info = self.ERC2981_default_royalty_info.read();
             (royalty_info.receiver, royalty_info.royalty_fraction, Immutable::FEE_DENOMINATOR)
@@ -338,7 +342,9 @@ pub mod ERC2981Component {
         /// - `receiver` cannot be the zero address.
         /// - `fee_numerator` cannot be greater than the fee denominator.
         fn _set_default_royalty(
-            ref self: ComponentState<TContractState>, receiver: ContractAddress, fee_numerator: u128
+            ref self: ComponentState<TContractState>,
+            receiver: ContractAddress,
+            fee_numerator: u128,
         ) {
             let fee_denominator = Immutable::FEE_DENOMINATOR;
             assert(fee_numerator <= fee_denominator, Errors::INVALID_ROYALTY);
@@ -364,7 +370,7 @@ pub mod ERC2981Component {
         /// - `t.1`: The numerator of the royalty fraction.
         /// - `t.2`: The denominator of the royalty fraction.
         fn _token_royalty(
-            self: @ComponentState<TContractState>, token_id: u256
+            self: @ComponentState<TContractState>, token_id: u256,
         ) -> (ContractAddress, u128, u128) {
             let token_royalty_info = self.ERC2981_token_royalty_info.read(token_id);
 
@@ -389,7 +395,7 @@ pub mod ERC2981Component {
             ref self: ComponentState<TContractState>,
             token_id: u256,
             receiver: ContractAddress,
-            fee_numerator: u128
+            fee_numerator: u128,
         ) {
             let fee_denominator = Immutable::FEE_DENOMINATOR;
             assert(fee_numerator <= fee_denominator, Errors::INVALID_ROYALTY);
@@ -397,14 +403,14 @@ pub mod ERC2981Component {
 
             self
                 .ERC2981_token_royalty_info
-                .write(token_id, RoyaltyInfo { receiver, royalty_fraction: fee_numerator },)
+                .write(token_id, RoyaltyInfo { receiver, royalty_fraction: fee_numerator })
         }
 
         /// Resets royalty information for the token id back to unset.
         fn _reset_token_royalty(ref self: ComponentState<TContractState>, token_id: u256) {
             self
                 .ERC2981_token_royalty_info
-                .write(token_id, RoyaltyInfo { receiver: Zero::zero(), royalty_fraction: 0 },)
+                .write(token_id, RoyaltyInfo { receiver: Zero::zero(), royalty_fraction: 0 })
         }
     }
 }
@@ -424,8 +430,8 @@ pub impl DefaultConfig of ERC2981Component::ImmutableConfig {
 mod tests {
     use openzeppelin_test_common::mocks::erc2981::ERC2981Mock;
     use starknet::contract_address_const;
-    use super::ERC2981Component::InternalImpl;
     use super::ERC2981Component;
+    use super::ERC2981Component::InternalImpl;
 
     type ComponentState = ERC2981Component::ComponentState<ERC2981Mock::ContractState>;
 

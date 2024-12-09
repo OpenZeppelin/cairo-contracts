@@ -1,8 +1,8 @@
 #[starknet::contract]
 pub mod ERC4626Mock {
     use openzeppelin_token::erc20::extensions::erc4626::DefaultConfig;
-    use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component::InternalTrait as ERC4626InternalTrait;
     use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component;
+    use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component::InternalTrait as ERC4626InternalTrait;
     use openzeppelin_token::erc20::extensions::erc4626::ERC4626DefaultLimits;
     use openzeppelin_token::erc20::extensions::erc4626::ERC4626DefaultNoFees;
     use openzeppelin_token::erc20::extensions::erc4626::ERC4626HooksEmptyImpl;
@@ -33,7 +33,7 @@ pub mod ERC4626Mock {
         #[substorage(v0)]
         pub erc4626: ERC4626Component::Storage,
         #[substorage(v0)]
-        pub erc20: ERC20Component::Storage
+        pub erc20: ERC20Component::Storage,
     }
 
     #[event]
@@ -42,7 +42,7 @@ pub mod ERC4626Mock {
         #[flat]
         ERC4626Event: ERC4626Component::Event,
         #[flat]
-        ERC20Event: ERC20Component::Event
+        ERC20Event: ERC20Component::Event,
     }
 
     #[constructor]
@@ -52,7 +52,7 @@ pub mod ERC4626Mock {
         symbol: ByteArray,
         underlying_asset: ContractAddress,
         initial_supply: u256,
-        recipient: ContractAddress
+        recipient: ContractAddress,
     ) {
         self.erc20.initializer(name, symbol);
         self.erc20.mint(recipient, initial_supply);
@@ -62,8 +62,8 @@ pub mod ERC4626Mock {
 
 #[starknet::contract]
 pub mod ERC4626OffsetMock {
-    use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component::InternalTrait as ERC4626InternalTrait;
     use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component;
+    use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component::InternalTrait as ERC4626InternalTrait;
     use openzeppelin_token::erc20::extensions::erc4626::ERC4626DefaultLimits;
     use openzeppelin_token::erc20::extensions::erc4626::ERC4626DefaultNoFees;
     use openzeppelin_token::erc20::extensions::erc4626::ERC4626HooksEmptyImpl;
@@ -94,7 +94,7 @@ pub mod ERC4626OffsetMock {
         #[substorage(v0)]
         pub erc4626: ERC4626Component::Storage,
         #[substorage(v0)]
-        pub erc20: ERC20Component::Storage
+        pub erc20: ERC20Component::Storage,
     }
 
     #[event]
@@ -103,7 +103,7 @@ pub mod ERC4626OffsetMock {
         #[flat]
         ERC4626Event: ERC4626Component::Event,
         #[flat]
-        ERC20Event: ERC20Component::Event
+        ERC20Event: ERC20Component::Event,
     }
 
     pub impl OffsetConfig of ERC4626Component::ImmutableConfig {
@@ -118,7 +118,7 @@ pub mod ERC4626OffsetMock {
         symbol: ByteArray,
         underlying_asset: ContractAddress,
         initial_supply: u256,
-        recipient: ContractAddress
+        recipient: ContractAddress,
     ) {
         self.erc20.initializer(name, symbol);
         self.erc20.mint(recipient, initial_supply);
@@ -128,8 +128,8 @@ pub mod ERC4626OffsetMock {
 
 #[starknet::contract]
 pub mod ERC4626LimitsMock {
-    use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component::InternalTrait as ERC4626InternalTrait;
     use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component;
+    use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component::InternalTrait as ERC4626InternalTrait;
     use openzeppelin_token::erc20::extensions::erc4626::ERC4626DefaultNoFees;
     use openzeppelin_token::erc20::extensions::erc4626::ERC4626HooksEmptyImpl;
     use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
@@ -159,7 +159,7 @@ pub mod ERC4626LimitsMock {
         #[substorage(v0)]
         pub erc4626: ERC4626Component::Storage,
         #[substorage(v0)]
-        pub erc20: ERC20Component::Storage
+        pub erc20: ERC20Component::Storage,
     }
 
     #[event]
@@ -168,7 +168,7 @@ pub mod ERC4626LimitsMock {
         #[flat]
         ERC4626Event: ERC4626Component::Event,
         #[flat]
-        ERC20Event: ERC20Component::Event
+        ERC20Event: ERC20Component::Event,
     }
 
     pub impl OffsetConfig of ERC4626Component::ImmutableConfig {
@@ -181,13 +181,13 @@ pub mod ERC4626LimitsMock {
 
     impl ERC4626LimitsImpl of ERC4626Component::LimitConfigTrait<ContractState> {
         fn deposit_limit(
-            self: @ERC4626Component::ComponentState<ContractState>, receiver: ContractAddress
+            self: @ERC4626Component::ComponentState<ContractState>, receiver: ContractAddress,
         ) -> Option::<u256> {
             Option::Some(MAX_DEPOSIT)
         }
 
         fn mint_limit(
-            self: @ERC4626Component::ComponentState<ContractState>, receiver: ContractAddress
+            self: @ERC4626Component::ComponentState<ContractState>, receiver: ContractAddress,
         ) -> Option::<u256> {
             Option::Some(MAX_MINT)
         }
@@ -200,7 +200,7 @@ pub mod ERC4626LimitsMock {
         symbol: ByteArray,
         underlying_asset: ContractAddress,
         initial_supply: u256,
-        recipient: ContractAddress
+        recipient: ContractAddress,
     ) {
         self.erc20.initializer(name, symbol);
         self.erc20.mint(recipient, initial_supply);
@@ -210,13 +210,13 @@ pub mod ERC4626LimitsMock {
 
 #[starknet::contract]
 pub mod ERC4626FeesMock {
+    use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component;
     use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component::FeeConfigTrait;
     use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component::InternalTrait as ERC4626InternalTrait;
-    use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component;
     use openzeppelin_token::erc20::extensions::erc4626::ERC4626DefaultLimits;
     use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
-    use openzeppelin_utils::math::Rounding;
     use openzeppelin_utils::math;
+    use openzeppelin_utils::math::Rounding;
     use openzeppelin_utils::serde::SerializedAppend;
     use starknet::ContractAddress;
     use starknet::SyscallResultTrait;
@@ -250,7 +250,7 @@ pub mod ERC4626FeesMock {
         pub entry_fee_basis_point_value: u256,
         pub entry_fee_recipient: ContractAddress,
         pub exit_fee_basis_point_value: u256,
-        pub exit_fee_recipient: ContractAddress
+        pub exit_fee_recipient: ContractAddress,
     }
 
     #[event]
@@ -259,7 +259,7 @@ pub mod ERC4626FeesMock {
         #[flat]
         ERC4626Event: ERC4626Component::Event,
         #[flat]
-        ERC20Event: ERC20Component::Event
+        ERC20Event: ERC20Component::Event,
     }
 
     const _BASIS_POINT_SCALE: u256 = 10_000;
@@ -273,7 +273,7 @@ pub mod ERC4626FeesMock {
     /// Hooks
     impl ERC4626HooksEmptyImpl of ERC4626Component::ERC4626HooksTrait<ContractState> {
         fn after_deposit(
-            ref self: ERC4626Component::ComponentState<ContractState>, assets: u256, shares: u256
+            ref self: ERC4626Component::ComponentState<ContractState>, assets: u256, shares: u256,
         ) {
             let mut contract_state = ERC4626Component::HasComponent::get_contract_mut(ref self);
             let entry_basis_points = contract_state.entry_fee_basis_point_value.read();
@@ -286,7 +286,7 @@ pub mod ERC4626FeesMock {
         }
 
         fn before_withdraw(
-            ref self: ERC4626Component::ComponentState<ContractState>, assets: u256, shares: u256
+            ref self: ERC4626Component::ComponentState<ContractState>, assets: u256, shares: u256,
         ) {
             let mut contract_state = ERC4626Component::HasComponent::get_contract_mut(ref self);
             let exit_basis_points = contract_state.exit_fee_basis_point_value.read();
@@ -302,28 +302,28 @@ pub mod ERC4626FeesMock {
     /// Adjust fees
     impl AdjustFeesImpl of FeeConfigTrait<ContractState> {
         fn adjust_deposit(
-            self: @ERC4626Component::ComponentState<ContractState>, assets: u256
+            self: @ERC4626Component::ComponentState<ContractState>, assets: u256,
         ) -> u256 {
             let contract_state = ERC4626Component::HasComponent::get_contract(self);
             contract_state.remove_fee_from_deposit(assets)
         }
 
         fn adjust_mint(
-            self: @ERC4626Component::ComponentState<ContractState>, assets: u256
+            self: @ERC4626Component::ComponentState<ContractState>, assets: u256,
         ) -> u256 {
             let contract_state = ERC4626Component::HasComponent::get_contract(self);
             contract_state.add_fee_to_mint(assets)
         }
 
         fn adjust_withdraw(
-            self: @ERC4626Component::ComponentState<ContractState>, assets: u256
+            self: @ERC4626Component::ComponentState<ContractState>, assets: u256,
         ) -> u256 {
             let contract_state = ERC4626Component::HasComponent::get_contract(self);
             contract_state.add_fee_to_withdraw(assets)
         }
 
         fn adjust_redeem(
-            self: @ERC4626Component::ComponentState<ContractState>, assets: u256
+            self: @ERC4626Component::ComponentState<ContractState>, assets: u256,
         ) -> u256 {
             let contract_state = ERC4626Component::HasComponent::get_contract(self);
             contract_state.remove_fee_from_redeem(assets)
@@ -341,7 +341,7 @@ pub mod ERC4626FeesMock {
         entry_fee: u256,
         entry_treasury: ContractAddress,
         exit_fee: u256,
-        exit_treasury: ContractAddress
+        exit_treasury: ContractAddress,
     ) {
         self.erc20.initializer(name, symbol);
         self.erc20.mint(recipient, initial_supply);
@@ -363,7 +363,7 @@ pub mod ERC4626FeesMock {
             calldata.append_serde(fee);
 
             let ret = starknet::syscalls::call_contract_syscall(
-                asset_addr, selector, calldata.span()
+                asset_addr, selector, calldata.span(),
             )
                 .unwrap_syscall();
             assert_eq!(*ret.at(0), 1); // true
@@ -402,7 +402,7 @@ pub mod ERC4626FeesMock {
         /// Used in IERC4626::deposit and IERC4626::redeem operations.
         fn fee_on_total(self: @ContractState, assets: u256, fee_basis_points: u256) -> u256 {
             math::u256_mul_div(
-                assets, fee_basis_points, fee_basis_points + _BASIS_POINT_SCALE, Rounding::Ceil
+                assets, fee_basis_points, fee_basis_points + _BASIS_POINT_SCALE, Rounding::Ceil,
             )
         }
     }

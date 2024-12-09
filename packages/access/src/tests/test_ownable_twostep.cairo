@@ -1,10 +1,10 @@
 use core::num::traits::Zero;
-use crate::ownable::OwnableComponent::{InternalTrait, OwnershipTransferStarted};
 use crate::ownable::OwnableComponent;
+use crate::ownable::OwnableComponent::{InternalTrait, OwnershipTransferStarted};
 use crate::ownable::interface::{IOwnableTwoStep, IOwnableTwoStepCamelOnly};
 use openzeppelin_test_common::mocks::access::DualCaseTwoStepOwnableMock;
 use openzeppelin_test_common::ownable::OwnableSpyHelpers;
-use openzeppelin_testing::constants::{ZERO, OWNER, OTHER, NEW_OWNER};
+use openzeppelin_testing::constants::{NEW_OWNER, OTHER, OWNER, ZERO};
 use openzeppelin_testing::events::EventSpyExt;
 use snforge_std::{EventSpy, spy_events, start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
@@ -289,10 +289,10 @@ impl TwoStepSpyHelpersImpl of TwoStepSpyHelpers {
         ref self: EventSpy,
         from_address: ContractAddress,
         previous_owner: ContractAddress,
-        new_owner: ContractAddress
+        new_owner: ContractAddress,
     ) {
         let expected = OwnableComponent::Event::OwnershipTransferStarted(
-            OwnershipTransferStarted { previous_owner, new_owner }
+            OwnershipTransferStarted { previous_owner, new_owner },
         );
         self.assert_emitted_single(from_address, expected);
     }

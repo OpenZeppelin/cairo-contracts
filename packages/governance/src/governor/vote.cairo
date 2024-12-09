@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0-rc.0 (governance/governor/vote.cairo)
+// OpenZeppelin Contracts for Cairo v0.20.0 (governance/governor/vote.cairo)
 
-use core::hash::{HashStateTrait, HashStateExTrait};
+use core::hash::{HashStateExTrait, HashStateTrait};
 use core::poseidon::PoseidonTrait;
-use openzeppelin_utils::cryptography::snip12::{StructHash, SNIP12HashSpanImpl};
+use openzeppelin_utils::cryptography::snip12::{SNIP12HashSpanImpl, StructHash};
 use starknet::ContractAddress;
 
 // sn_keccak(
@@ -82,7 +82,7 @@ mod tests {
     #[test]
     fn test_vote_type_hash() {
         let expected = selector!(
-            "\"Vote\"(\"verifying_contract\":\"ContractAddress\",\"nonce\":\"felt\",\"proposal_id\":\"felt\",\"support\":\"u128\",\"voter\":\"ContractAddress\")"
+            "\"Vote\"(\"verifying_contract\":\"ContractAddress\",\"nonce\":\"felt\",\"proposal_id\":\"felt\",\"support\":\"u128\",\"voter\":\"ContractAddress\")",
         );
         assert_eq!(VOTE_TYPE_HASH, expected);
     }
@@ -90,7 +90,7 @@ mod tests {
     #[test]
     fn test_vote_with_reason_and_params_type_hash() {
         let expected = selector!(
-            "\"VoteWithReasonAndParams\"(\"verifying_contract\":\"ContractAddress\",\"nonce\":\"felt\",\"proposal_id\":\"felt\",\"support\":\"u128\",\"voter\":\"ContractAddress\",\"reason_hash\":\"felt\",\"params\":\"felt*\")"
+            "\"VoteWithReasonAndParams\"(\"verifying_contract\":\"ContractAddress\",\"nonce\":\"felt\",\"proposal_id\":\"felt\",\"support\":\"u128\",\"voter\":\"ContractAddress\",\"reason_hash\":\"felt\",\"params\":\"felt*\")",
         );
         assert_eq!(VOTE_WITH_REASON_AND_PARAMS_TYPE_HASH, expected);
     }

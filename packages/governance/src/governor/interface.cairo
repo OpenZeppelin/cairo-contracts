@@ -1,16 +1,15 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0-rc.0 (governance/governor/interface.cairo)
+// OpenZeppelin Contracts for Cairo v0.20.0 (governance/governor/interface.cairo)
 
 use starknet::ContractAddress;
 use starknet::account::Call;
 
-pub const IGOVERNOR_ID: felt252 = 0x1f; // TODO: Update this value.
+pub const IGOVERNOR_ID: felt252 = 0x1100a1f8546595b5bd75a6cd8fcc5b015370655e66f275963321c5cd0357ac9;
 
 /// Interface for a contract that implements the ERC-6372 standard.
 #[starknet::interface]
 pub trait IERC6372<TState> {
     /// Clock used for flagging checkpoints.
-    /// Can be overridden to implement timestamp based checkpoints (and voting).
     fn clock(self: @TState) -> u64;
 
     /// Description of the clock.
@@ -26,7 +25,7 @@ pub enum ProposalState {
     Defeated,
     Succeeded,
     Queued,
-    Executed
+    Executed,
 }
 
 #[starknet::interface]
@@ -116,13 +115,13 @@ pub trait IGovernor<TState> {
 
     /// Voting power of an `account` at a specific `timepoint`.
     ///
-    /// NOTE: this can be implemented in a number of ways, for example by reading the delegated
+    /// NOTE: This can be implemented in a number of ways, for example by reading the delegated
     /// balance from one (or multiple) `ERC20Votes` tokens.
     fn get_votes(self: @TState, account: ContractAddress, timepoint: u64) -> u256;
 
     /// Voting power of an `account` at a specific `timepoint` given additional encoded parameters.
     fn get_votes_with_params(
-        self: @TState, account: ContractAddress, timepoint: u64, params: Span<felt252>
+        self: @TState, account: ContractAddress, timepoint: u64, params: Span<felt252>,
     ) -> u256;
 
     /// Returns whether `account` has cast a vote on `proposal_id`.
@@ -170,7 +169,7 @@ pub trait IGovernor<TState> {
 
     /// Cast a vote with a `reason`.
     fn cast_vote_with_reason(
-        ref self: TState, proposal_id: felt252, support: u8, reason: ByteArray
+        ref self: TState, proposal_id: felt252, support: u8, reason: ByteArray,
     ) -> u256;
 
     /// Cast a vote with a `reason` and additional serialized `params`.
@@ -179,7 +178,7 @@ pub trait IGovernor<TState> {
         proposal_id: felt252,
         support: u8,
         reason: ByteArray,
-        params: Span<felt252>
+        params: Span<felt252>,
     ) -> u256;
 
     /// Cast a vote using the `voter`'s signature.
@@ -188,7 +187,7 @@ pub trait IGovernor<TState> {
         proposal_id: felt252,
         support: u8,
         voter: ContractAddress,
-        signature: Span<felt252>
+        signature: Span<felt252>,
     ) -> u256;
 
     /// Cast a vote with a `reason` and additional serialized `params` using the `voter`'s
@@ -200,7 +199,7 @@ pub trait IGovernor<TState> {
         voter: ContractAddress,
         reason: ByteArray,
         params: Span<felt252>,
-        signature: Span<felt252>
+        signature: Span<felt252>,
     ) -> u256;
 
     /// Returns the next unused nonce for an address.

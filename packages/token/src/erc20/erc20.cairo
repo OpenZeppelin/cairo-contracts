@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0-rc.0 (token/erc20/erc20.cairo)
+// OpenZeppelin Contracts for Cairo v0.20.0 (token/erc20/erc20.cairo)
 
 /// # ERC20 Component
 ///
@@ -8,7 +8,7 @@
 /// component is agnostic regarding how tokens are created, which means that developers
 /// must create their own token distribution mechanism.
 /// See [the documentation]
-/// (https://docs.openzeppelin.com/contracts-cairo/0.20.0-rc.0/guides/erc20-supply)
+/// (https://docs.openzeppelin.com/contracts-cairo/0.20.0/guides/erc20-supply)
 /// for examples.
 #[starknet::component]
 pub mod ERC20Component {
@@ -18,10 +18,10 @@ pub mod ERC20Component {
     use openzeppelin_account::interface::{ISRC6Dispatcher, ISRC6DispatcherTrait};
     use openzeppelin_utils::cryptography::interface::{INonces, ISNIP12Metadata};
     use openzeppelin_utils::cryptography::snip12::{
-        StructHash, OffchainMessageHash, SNIP12Metadata, StarknetDomain
+        OffchainMessageHash, SNIP12Metadata, StarknetDomain, StructHash,
     };
-    use openzeppelin_utils::nonces::NoncesComponent::InternalTrait as NoncesInternalTrait;
     use openzeppelin_utils::nonces::NoncesComponent;
+    use openzeppelin_utils::nonces::NoncesComponent::InternalTrait as NoncesInternalTrait;
     use starknet::ContractAddress;
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
@@ -49,7 +49,7 @@ pub mod ERC20Component {
         pub from: ContractAddress,
         #[key]
         pub to: ContractAddress,
-        pub value: u256
+        pub value: u256,
     }
 
     /// Emitted when the allowance of a `spender` for an `owner` is set by a call
@@ -60,7 +60,7 @@ pub mod ERC20Component {
         pub owner: ContractAddress,
         #[key]
         pub spender: ContractAddress,
-        pub value: u256
+        pub value: u256,
     }
 
     pub mod Errors {
@@ -85,14 +85,14 @@ pub mod ERC20Component {
             ref self: ComponentState<TContractState>,
             from: ContractAddress,
             recipient: ContractAddress,
-            amount: u256
+            amount: u256,
         ) {}
 
         fn after_update(
             ref self: ComponentState<TContractState>,
             from: ContractAddress,
             recipient: ContractAddress,
-            amount: u256
+            amount: u256,
         ) {}
     }
 
@@ -102,7 +102,7 @@ pub mod ERC20Component {
 
     #[embeddable_as(ERC20Impl)]
     impl ERC20<
-        TContractState, +HasComponent<TContractState>, +ERC20HooksTrait<TContractState>
+        TContractState, +HasComponent<TContractState>, +ERC20HooksTrait<TContractState>,
     > of interface::IERC20<ComponentState<TContractState>> {
         /// Returns the value of tokens in existence.
         fn total_supply(self: @ComponentState<TContractState>) -> u256 {
@@ -119,7 +119,7 @@ pub mod ERC20Component {
         /// This is zero by default.
         /// This value changes when `approve` or `transfer_from` are called.
         fn allowance(
-            self: @ComponentState<TContractState>, owner: ContractAddress, spender: ContractAddress
+            self: @ComponentState<TContractState>, owner: ContractAddress, spender: ContractAddress,
         ) -> u256 {
             self.ERC20_allowances.read((owner, spender))
         }
@@ -133,7 +133,7 @@ pub mod ERC20Component {
         ///
         /// Emits a `Transfer` event.
         fn transfer(
-            ref self: ComponentState<TContractState>, recipient: ContractAddress, amount: u256
+            ref self: ComponentState<TContractState>, recipient: ContractAddress, amount: u256,
         ) -> bool {
             let sender = starknet::get_caller_address();
             self._transfer(sender, recipient, amount);
@@ -155,7 +155,7 @@ pub mod ERC20Component {
             ref self: ComponentState<TContractState>,
             sender: ContractAddress,
             recipient: ContractAddress,
-            amount: u256
+            amount: u256,
         ) -> bool {
             let caller = starknet::get_caller_address();
             self._spend_allowance(sender, caller, amount);
@@ -171,7 +171,7 @@ pub mod ERC20Component {
         ///
         /// Emits an `Approval` event.
         fn approve(
-            ref self: ComponentState<TContractState>, spender: ContractAddress, amount: u256
+            ref self: ComponentState<TContractState>, spender: ContractAddress, amount: u256,
         ) -> bool {
             let caller = starknet::get_caller_address();
             self._approve(caller, spender, amount);
@@ -181,7 +181,7 @@ pub mod ERC20Component {
 
     #[embeddable_as(ERC20MetadataImpl)]
     impl ERC20Metadata<
-        TContractState, +HasComponent<TContractState>, +ERC20HooksTrait<TContractState>
+        TContractState, +HasComponent<TContractState>, +ERC20HooksTrait<TContractState>,
     > of interface::IERC20Metadata<ComponentState<TContractState>> {
         /// Returns the name of the token.
         fn name(self: @ComponentState<TContractState>) -> ByteArray {
@@ -202,7 +202,7 @@ pub mod ERC20Component {
     /// Adds camelCase support for `IERC20`.
     #[embeddable_as(ERC20CamelOnlyImpl)]
     impl ERC20CamelOnly<
-        TContractState, +HasComponent<TContractState>, +ERC20HooksTrait<TContractState>
+        TContractState, +HasComponent<TContractState>, +ERC20HooksTrait<TContractState>,
     > of interface::IERC20CamelOnly<ComponentState<TContractState>> {
         fn totalSupply(self: @ComponentState<TContractState>) -> u256 {
             ERC20::total_supply(self)
@@ -216,7 +216,7 @@ pub mod ERC20Component {
             ref self: ComponentState<TContractState>,
             sender: ContractAddress,
             recipient: ContractAddress,
-            amount: u256
+            amount: u256,
         ) -> bool {
             ERC20::transfer_from(ref self, sender, recipient, amount)
         }
@@ -224,7 +224,7 @@ pub mod ERC20Component {
 
     #[embeddable_as(ERC20MixinImpl)]
     impl ERC20Mixin<
-        TContractState, +HasComponent<TContractState>, +ERC20HooksTrait<TContractState>
+        TContractState, +HasComponent<TContractState>, +ERC20HooksTrait<TContractState>,
     > of interface::IERC20Mixin<ComponentState<TContractState>> {
         // IERC20
         fn total_supply(self: @ComponentState<TContractState>) -> u256 {
@@ -236,13 +236,13 @@ pub mod ERC20Component {
         }
 
         fn allowance(
-            self: @ComponentState<TContractState>, owner: ContractAddress, spender: ContractAddress
+            self: @ComponentState<TContractState>, owner: ContractAddress, spender: ContractAddress,
         ) -> u256 {
             ERC20::allowance(self, owner, spender)
         }
 
         fn transfer(
-            ref self: ComponentState<TContractState>, recipient: ContractAddress, amount: u256
+            ref self: ComponentState<TContractState>, recipient: ContractAddress, amount: u256,
         ) -> bool {
             ERC20::transfer(ref self, recipient, amount)
         }
@@ -251,13 +251,13 @@ pub mod ERC20Component {
             ref self: ComponentState<TContractState>,
             sender: ContractAddress,
             recipient: ContractAddress,
-            amount: u256
+            amount: u256,
         ) -> bool {
             ERC20::transfer_from(ref self, sender, recipient, amount)
         }
 
         fn approve(
-            ref self: ComponentState<TContractState>, spender: ContractAddress, amount: u256
+            ref self: ComponentState<TContractState>, spender: ContractAddress, amount: u256,
         ) -> bool {
             ERC20::approve(ref self, spender, amount)
         }
@@ -288,7 +288,7 @@ pub mod ERC20Component {
             ref self: ComponentState<TContractState>,
             sender: ContractAddress,
             recipient: ContractAddress,
-            amount: u256
+            amount: u256,
         ) -> bool {
             ERC20CamelOnly::transferFrom(ref self, sender, recipient, amount)
         }
@@ -319,7 +319,7 @@ pub mod ERC20Component {
         +ERC20HooksTrait<TContractState>,
         impl Nonces: NoncesComponent::HasComponent<TContractState>,
         impl Metadata: SNIP12Metadata,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of interface::IERC20Permit<ComponentState<TContractState>> {
         /// Sets `amount` as the allowance of `spender` over `owner`'s tokens after validating the
         /// signature.
@@ -340,7 +340,7 @@ pub mod ERC20Component {
             spender: ContractAddress,
             amount: u256,
             deadline: u64,
-            signature: Span<felt252>
+            signature: Span<felt252>,
         ) {
             // 1. Ensure the deadline is not missed
             assert(starknet::get_block_timestamp() <= deadline, Errors::EXPIRED_PERMIT_SIGNATURE);
@@ -351,7 +351,7 @@ pub mod ERC20Component {
 
             // 3. Make a call to the account to validate permit signature
             let permit = Permit {
-                token: starknet::get_contract_address(), spender, amount, nonce, deadline
+                token: starknet::get_contract_address(), spender, amount, nonce, deadline,
             };
             let permit_hash = permit.get_message_hash(owner);
             let is_valid_sig_felt = ISRC6Dispatcher { contract_address: owner }
@@ -379,7 +379,7 @@ pub mod ERC20Component {
                 name: Metadata::name(),
                 version: Metadata::version(),
                 chain_id: starknet::get_tx_info().unbox().chain_id,
-                revision: 1
+                revision: 1,
             };
             domain.hash_struct()
         }
@@ -387,7 +387,7 @@ pub mod ERC20Component {
 
     #[embeddable_as(SNIP12MetadataExternalImpl)]
     impl SNIP12MetadataExternal<
-        TContractState, +HasComponent<TContractState>, impl Metadata: SNIP12Metadata
+        TContractState, +HasComponent<TContractState>, impl Metadata: SNIP12Metadata,
     > of ISNIP12Metadata<ComponentState<TContractState>> {
         /// Returns the domain name and version used to generate the message hash for for permit
         /// signature.
@@ -407,13 +407,13 @@ pub mod ERC20Component {
 
     #[generate_trait]
     pub impl InternalImpl<
-        TContractState, +HasComponent<TContractState>, impl Hooks: ERC20HooksTrait<TContractState>
+        TContractState, +HasComponent<TContractState>, impl Hooks: ERC20HooksTrait<TContractState>,
     > of InternalTrait<TContractState> {
         /// Initializes the contract by setting the token name and symbol.
         /// To prevent reinitialization, this should only be used inside of a contract's
         /// constructor.
         fn initializer(
-            ref self: ComponentState<TContractState>, name: ByteArray, symbol: ByteArray
+            ref self: ComponentState<TContractState>, name: ByteArray, symbol: ByteArray,
         ) {
             self.ERC20_name.write(name);
             self.ERC20_symbol.write(symbol);
@@ -427,7 +427,7 @@ pub mod ERC20Component {
         ///
         /// Emits a `Transfer` event with `from` set to the zero address.
         fn mint(
-            ref self: ComponentState<TContractState>, recipient: ContractAddress, amount: u256
+            ref self: ComponentState<TContractState>, recipient: ContractAddress, amount: u256,
         ) {
             assert(!recipient.is_zero(), Errors::MINT_TO_ZERO);
             self.update(Zero::zero(), recipient, amount);
@@ -457,7 +457,7 @@ pub mod ERC20Component {
             ref self: ComponentState<TContractState>,
             from: ContractAddress,
             to: ContractAddress,
-            amount: u256
+            amount: u256,
         ) {
             Hooks::before_update(ref self, from, to, amount);
 
@@ -497,7 +497,7 @@ pub mod ERC20Component {
             ref self: ComponentState<TContractState>,
             sender: ContractAddress,
             recipient: ContractAddress,
-            amount: u256
+            amount: u256,
         ) {
             assert(!sender.is_zero(), Errors::TRANSFER_FROM_ZERO);
             assert(!recipient.is_zero(), Errors::TRANSFER_TO_ZERO);
@@ -517,7 +517,7 @@ pub mod ERC20Component {
             ref self: ComponentState<TContractState>,
             owner: ContractAddress,
             spender: ContractAddress,
-            amount: u256
+            amount: u256,
         ) {
             assert(!owner.is_zero(), Errors::APPROVE_FROM_ZERO);
             assert(!spender.is_zero(), Errors::APPROVE_TO_ZERO);
@@ -537,7 +537,7 @@ pub mod ERC20Component {
             ref self: ComponentState<TContractState>,
             owner: ContractAddress,
             spender: ContractAddress,
-            amount: u256
+            amount: u256,
         ) {
             let current_allowance = self.ERC20_allowances.read((owner, spender));
             if current_allowance != Bounded::MAX {

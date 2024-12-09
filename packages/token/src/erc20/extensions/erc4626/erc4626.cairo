@@ -33,13 +33,13 @@
 #[starknet::component]
 pub mod ERC4626Component {
     use core::num::traits::{Bounded, Zero};
-    use crate::erc20::ERC20Component::InternalImpl as ERC20InternalImpl;
     use crate::erc20::ERC20Component;
+    use crate::erc20::ERC20Component::InternalImpl as ERC20InternalImpl;
     use crate::erc20::extensions::erc4626::interface::IERC4626;
     use crate::erc20::interface::{IERC20, IERC20Metadata};
     use crate::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-    use openzeppelin_utils::math::Rounding;
     use openzeppelin_utils::math;
+    use openzeppelin_utils::math::Rounding;
     use starknet::ContractAddress;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 
@@ -50,7 +50,7 @@ pub mod ERC4626Component {
 
     #[storage]
     pub struct Storage {
-        ERC4626_asset: ContractAddress
+        ERC4626_asset: ContractAddress,
     }
 
     #[event]
@@ -69,7 +69,7 @@ pub mod ERC4626Component {
         #[key]
         pub owner: ContractAddress,
         pub assets: u256,
-        pub shares: u256
+        pub shares: u256,
     }
 
     /// Emitted when `sender` exchanges `shares`, owned by `owner`, for `assets` and transfers
@@ -83,7 +83,7 @@ pub mod ERC4626Component {
         #[key]
         pub owner: ContractAddress,
         pub assets: u256,
-        pub shares: u256
+        pub shares: u256,
     }
 
     pub mod Errors {
@@ -117,7 +117,7 @@ pub mod ERC4626Component {
         fn validate() {
             assert(
                 Bounded::MAX - Self::UNDERLYING_DECIMALS >= Self::DECIMALS_OFFSET,
-                Errors::DECIMALS_OVERFLOW
+                Errors::DECIMALS_OVERFLOW,
             )
         }
     }
@@ -147,25 +147,25 @@ pub mod ERC4626Component {
     /// level.
     pub trait LimitConfigTrait<TContractState> {
         fn deposit_limit(
-            self: @ComponentState<TContractState>, receiver: ContractAddress
+            self: @ComponentState<TContractState>, receiver: ContractAddress,
         ) -> Option::<u256> {
             Option::None
         }
 
         fn mint_limit(
-            self: @ComponentState<TContractState>, receiver: ContractAddress
+            self: @ComponentState<TContractState>, receiver: ContractAddress,
         ) -> Option::<u256> {
             Option::None
         }
 
         fn withdraw_limit(
-            self: @ComponentState<TContractState>, owner: ContractAddress
+            self: @ComponentState<TContractState>, owner: ContractAddress,
         ) -> Option::<u256> {
             Option::None
         }
 
         fn redeem_limit(
-            self: @ComponentState<TContractState>, owner: ContractAddress
+            self: @ComponentState<TContractState>, owner: ContractAddress,
         ) -> Option::<u256> {
             Option::None
         }
@@ -192,7 +192,7 @@ pub mod ERC4626Component {
         impl Immutable: ImmutableConfig,
         impl ERC20: ERC20Component::HasComponent<TContractState>,
         +ERC20Component::ERC20HooksTrait<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of IERC4626<ComponentState<TContractState>> {
         /// Returns the address of the underlying token used for the Vault for accounting,
         /// depositing, and withdrawing.
@@ -225,7 +225,7 @@ pub mod ERC4626Component {
         fn max_deposit(self: @ComponentState<TContractState>, receiver: ContractAddress) -> u256 {
             match Limit::deposit_limit(self, receiver) {
                 Option::Some(limit) => limit,
-                Option::None => Bounded::MAX
+                Option::None => Bounded::MAX,
             }
         }
 
@@ -246,7 +246,7 @@ pub mod ERC4626Component {
         ///
         /// Emits a `Deposit` event.
         fn deposit(
-            ref self: ComponentState<TContractState>, assets: u256, receiver: ContractAddress
+            ref self: ComponentState<TContractState>, assets: u256, receiver: ContractAddress,
         ) -> u256 {
             let max_assets = self.max_deposit(receiver);
             assert(assets <= max_assets, Errors::EXCEEDED_MAX_DEPOSIT);
@@ -264,7 +264,7 @@ pub mod ERC4626Component {
         fn max_mint(self: @ComponentState<TContractState>, receiver: ContractAddress) -> u256 {
             match Limit::mint_limit(self, receiver) {
                 Option::Some(limit) => limit,
-                Option::None => Bounded::MAX
+                Option::None => Bounded::MAX,
             }
         }
 
@@ -285,7 +285,7 @@ pub mod ERC4626Component {
         ///
         /// Emits a `Deposit` event.
         fn mint(
-            ref self: ComponentState<TContractState>, shares: u256, receiver: ContractAddress
+            ref self: ComponentState<TContractState>, shares: u256, receiver: ContractAddress,
         ) -> u256 {
             let max_shares = self.max_mint(receiver);
             assert(shares <= max_shares, Errors::EXCEEDED_MAX_MINT);
@@ -308,7 +308,7 @@ pub mod ERC4626Component {
                     let erc20_component = get_dep_component!(self, ERC20);
                     let owner_bal = erc20_component.balance_of(owner);
                     self._convert_to_assets(owner_bal, Rounding::Floor)
-                }
+                },
             }
         }
 
@@ -331,7 +331,7 @@ pub mod ERC4626Component {
             ref self: ComponentState<TContractState>,
             assets: u256,
             receiver: ContractAddress,
-            owner: ContractAddress
+            owner: ContractAddress,
         ) -> u256 {
             let max_assets = self.max_withdraw(owner);
             assert(assets <= max_assets, Errors::EXCEEDED_MAX_WITHDRAW);
@@ -353,7 +353,7 @@ pub mod ERC4626Component {
                 Option::None => {
                     let erc20_component = get_dep_component!(self, ERC20);
                     erc20_component.balance_of(owner)
-                }
+                },
             }
         }
 
@@ -376,7 +376,7 @@ pub mod ERC4626Component {
             ref self: ComponentState<TContractState>,
             shares: u256,
             receiver: ContractAddress,
-            owner: ContractAddress
+            owner: ContractAddress,
         ) -> u256 {
             let max_shares = self.max_redeem(owner);
             assert(shares <= max_shares, Errors::EXCEEDED_MAX_REDEEM);
@@ -430,7 +430,7 @@ pub mod ERC4626Component {
         +FeeConfigTrait<TContractState>,
         +LimitConfigTrait<TContractState>,
         +ERC20Component::ERC20HooksTrait<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of InternalTrait<TContractState> {
         /// Validates the `ImmutableConfig` constants and sets the `asset_address` to the vault.
         /// This should be set in the contract's constructor.
@@ -461,13 +461,13 @@ pub mod ERC4626Component {
             caller: ContractAddress,
             receiver: ContractAddress,
             assets: u256,
-            shares: u256
+            shares: u256,
         ) {
             // Transfer assets first
             let this = starknet::get_contract_address();
             let asset_dispatcher = IERC20Dispatcher { contract_address: self.ERC4626_asset.read() };
             assert(
-                asset_dispatcher.transfer_from(caller, this, assets), Errors::TOKEN_TRANSFER_FAILED
+                asset_dispatcher.transfer_from(caller, this, assets), Errors::TOKEN_TRANSFER_FAILED,
             );
 
             // Mint shares after transferring assets
@@ -496,7 +496,7 @@ pub mod ERC4626Component {
             receiver: ContractAddress,
             owner: ContractAddress,
             assets: u256,
-            shares: u256
+            shares: u256,
         ) {
             // Before withdraw hook
             Hooks::before_withdraw(ref self, assets, shares);
@@ -518,7 +518,7 @@ pub mod ERC4626Component {
         /// Internal conversion function (from assets to shares) with support for `rounding`
         /// direction.
         fn _convert_to_shares(
-            self: @ComponentState<TContractState>, assets: u256, rounding: Rounding
+            self: @ComponentState<TContractState>, assets: u256, rounding: Rounding,
         ) -> u256 {
             let mut erc20_component = get_dep_component!(self, ERC20);
             let total_supply = erc20_component.total_supply();
@@ -527,14 +527,14 @@ pub mod ERC4626Component {
                 assets,
                 total_supply + math::power(10, Immutable::DECIMALS_OFFSET.into()),
                 self.total_assets() + 1,
-                rounding
+                rounding,
             )
         }
 
         /// Internal conversion function (from shares to assets) with support for `rounding`
         /// direction.
         fn _convert_to_assets(
-            self: @ComponentState<TContractState>, shares: u256, rounding: Rounding
+            self: @ComponentState<TContractState>, shares: u256, rounding: Rounding,
         ) -> u256 {
             let mut erc20_component = get_dep_component!(self, ERC20);
             let total_supply = erc20_component.total_supply();
@@ -543,7 +543,7 @@ pub mod ERC4626Component {
                 shares,
                 self.total_assets() + 1,
                 total_supply + math::power(10, Immutable::DECIMALS_OFFSET.into()),
-                rounding
+                rounding,
             )
         }
     }
@@ -554,11 +554,11 @@ pub mod ERC4626Component {
 ///
 
 pub impl ERC4626HooksEmptyImpl<
-    TContractState
+    TContractState,
 > of ERC4626Component::ERC4626HooksTrait<TContractState> {}
 pub impl ERC4626DefaultNoFees<TContractState> of ERC4626Component::FeeConfigTrait<TContractState> {}
 pub impl ERC4626DefaultLimits<
-    TContractState
+    TContractState,
 > of ERC4626Component::LimitConfigTrait<TContractState> {}
 
 /// Implementation of the default `ERC4626Component::ImmutableConfig`.
@@ -576,8 +576,8 @@ pub impl DefaultConfig of ERC4626Component::ImmutableConfig {
 #[cfg(test)]
 mod Test {
     use openzeppelin_test_common::mocks::erc4626::ERC4626Mock;
-    use super::ERC4626Component::InternalImpl;
     use super::ERC4626Component;
+    use super::ERC4626Component::InternalImpl;
     use super::ERC4626DefaultLimits;
     use super::ERC4626DefaultNoFees;
 

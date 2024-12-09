@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0-rc.0 (utils/cryptography/nonces.cairo)
+// OpenZeppelin Contracts for Cairo v0.20.0 (utils/cryptography/nonces.cairo)
 
 /// # Nonces Component
 ///
@@ -14,7 +14,7 @@ pub mod NoncesComponent {
 
     #[storage]
     pub struct Storage {
-        pub Nonces_nonces: Map<ContractAddress, felt252>
+        pub Nonces_nonces: Map<ContractAddress, felt252>,
     }
 
     pub mod Errors {
@@ -23,7 +23,7 @@ pub mod NoncesComponent {
 
     #[embeddable_as(NoncesImpl)]
     impl Nonces<
-        TContractState, +HasComponent<TContractState>
+        TContractState, +HasComponent<TContractState>,
     > of INonces<ComponentState<TContractState>> {
         /// Returns the next unused nonce for an address.
         fn nonces(self: @ComponentState<TContractState>, owner: ContractAddress) -> felt252 {
@@ -33,7 +33,7 @@ pub mod NoncesComponent {
 
     #[generate_trait]
     pub impl InternalImpl<
-        TContractState, +HasComponent<TContractState>
+        TContractState, +HasComponent<TContractState>,
     > of InternalTrait<TContractState> {
         /// Consumes a nonce, returns the current value, and increments nonce.
         fn use_nonce(ref self: ComponentState<TContractState>, owner: ContractAddress) -> felt252 {
@@ -47,7 +47,7 @@ pub mod NoncesComponent {
 
         /// Same as `use_nonce` but checking that `nonce` is the next valid one for `owner`.
         fn use_checked_nonce(
-            ref self: ComponentState<TContractState>, owner: ContractAddress, nonce: felt252
+            ref self: ComponentState<TContractState>, owner: ContractAddress, nonce: felt252,
         ) -> felt252 {
             let current = self.use_nonce(owner);
             assert(nonce == current, Errors::INVALID_NONCE);

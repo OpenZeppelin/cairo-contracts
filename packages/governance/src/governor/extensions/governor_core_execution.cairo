@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0-rc.0
+// OpenZeppelin Contracts for Cairo v0.20.0
 // (governance/governor/extensions/governor_core_execution.cairo)
 
 /// # GovernorCoreExecution Component
@@ -9,10 +9,10 @@
 /// GovernorTimelockExecutionComponent.
 #[starknet::component]
 pub mod GovernorCoreExecutionComponent {
-    use crate::governor::GovernorComponent::{
-        InternalExtendedTrait, ComponentState as GovernorComponentState
-    };
     use crate::governor::GovernorComponent;
+    use crate::governor::GovernorComponent::{
+        ComponentState as GovernorComponentState, InternalExtendedTrait,
+    };
     use crate::governor::interface::ProposalState;
     use openzeppelin_introspection::src5::SRC5Component;
     use starknet::account::Call;
@@ -33,26 +33,34 @@ pub mod GovernorCoreExecutionComponent {
         +GovernorComponent::GovernorVotesTrait<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         impl GovernorCoreExecution: HasComponent<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of GovernorComponent::GovernorExecutionTrait<TContractState> {
         /// See `GovernorComponent::GovernorExecutionTrait::state`.
+        ///
+        /// Requirements:
+        ///
+        /// - The proposal must exist.
         fn state(
-            self: @GovernorComponentState<TContractState>, proposal_id: felt252
+            self: @GovernorComponentState<TContractState>, proposal_id: felt252,
         ) -> ProposalState {
             self._state(proposal_id)
         }
 
         /// See `GovernorComponent::GovernorExecutionTrait::executor`.
+        ///
+        /// Returns the governor contract address since execution is performed directly through it.
         fn executor(self: @GovernorComponentState<TContractState>) -> ContractAddress {
             starknet::get_contract_address()
         }
 
         /// See `GovernorComponent::GovernorExecutionTrait::execute_operations`.
+        ///
+        /// Executes the proposal's operations directly through the governor contract.
         fn execute_operations(
             ref self: GovernorComponentState<TContractState>,
             proposal_id: felt252,
             calls: Span<Call>,
-            description_hash: felt252
+            description_hash: felt252,
         ) {
             for call in calls {
                 let Call { to, selector, calldata } = *call;
@@ -61,18 +69,22 @@ pub mod GovernorCoreExecutionComponent {
         }
 
         /// See `GovernorComponent::GovernorExecutionTrait::queue_operations`.
+        ///
+        /// In this implementation, queuing is not required so it returns 0.
         fn queue_operations(
             ref self: GovernorComponentState<TContractState>,
             proposal_id: felt252,
             calls: Span<Call>,
-            description_hash: felt252
+            description_hash: felt252,
         ) -> u64 {
             0
         }
 
         /// See `GovernorComponent::GovernorExecutionTrait::proposal_needs_queuing`.
+        ///
+        /// In this implementation, it always returns false.
         fn proposal_needs_queuing(
-            self: @GovernorComponentState<TContractState>, proposal_id: felt252
+            self: @GovernorComponentState<TContractState>, proposal_id: felt252,
         ) -> bool {
             false
         }
@@ -81,7 +93,7 @@ pub mod GovernorCoreExecutionComponent {
         fn cancel_operations(
             ref self: GovernorComponentState<TContractState>,
             proposal_id: felt252,
-            description_hash: felt252
+            description_hash: felt252,
         ) {
             self._cancel(proposal_id, description_hash);
         }

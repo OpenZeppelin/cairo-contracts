@@ -152,7 +152,7 @@ pub trait IERC4626<TState> {
     /// may be performed.
     /// Those methods should be performed separately.
     fn withdraw(
-        ref self: TState, assets: u256, receiver: ContractAddress, owner: ContractAddress
+        ref self: TState, assets: u256, receiver: ContractAddress, owner: ContractAddress,
     ) -> u256;
     /// Returns the maximum amount of Vault shares that can be redeemed from the owner balance in
     /// the Vault, through a redeem call.
@@ -191,7 +191,7 @@ pub trait IERC4626<TState> {
     /// be performed.
     /// Those methods should be performed separately.
     fn redeem(
-        ref self: TState, shares: u256, receiver: ContractAddress, owner: ContractAddress
+        ref self: TState, shares: u256, receiver: ContractAddress, owner: ContractAddress,
     ) -> u256;
 }
 
@@ -211,12 +211,12 @@ pub trait ERC4626ABI<TState> {
     fn max_withdraw(self: @TState, owner: ContractAddress) -> u256;
     fn preview_withdraw(self: @TState, assets: u256) -> u256;
     fn withdraw(
-        ref self: TState, assets: u256, receiver: ContractAddress, owner: ContractAddress
+        ref self: TState, assets: u256, receiver: ContractAddress, owner: ContractAddress,
     ) -> u256;
     fn max_redeem(self: @TState, owner: ContractAddress) -> u256;
     fn preview_redeem(self: @TState, shares: u256) -> u256;
     fn redeem(
-        ref self: TState, shares: u256, receiver: ContractAddress, owner: ContractAddress
+        ref self: TState, shares: u256, receiver: ContractAddress, owner: ContractAddress,
     ) -> u256;
 
     // IERC20
@@ -225,7 +225,7 @@ pub trait ERC4626ABI<TState> {
     fn allowance(self: @TState, owner: ContractAddress, spender: ContractAddress) -> u256;
     fn transfer(ref self: TState, recipient: ContractAddress, amount: u256) -> bool;
     fn transfer_from(
-        ref self: TState, sender: ContractAddress, recipient: ContractAddress, amount: u256
+        ref self: TState, sender: ContractAddress, recipient: ContractAddress, amount: u256,
     ) -> bool;
     fn approve(ref self: TState, spender: ContractAddress, amount: u256) -> bool;
 
@@ -238,6 +238,6 @@ pub trait ERC4626ABI<TState> {
     fn totalSupply(self: @TState) -> u256;
     fn balanceOf(self: @TState, account: ContractAddress) -> u256;
     fn transferFrom(
-        ref self: TState, sender: ContractAddress, recipient: ContractAddress, amount: u256
+        ref self: TState, sender: ContractAddress, recipient: ContractAddress, amount: u256,
     ) -> bool;
 }

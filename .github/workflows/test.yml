@@ -48,7 +48,7 @@ jobs:
         run: scarb fmt --check --workspace
 
       - name: Run tests and generate coverage report
-        run: snforge test --workspace --coverage
+        run: snforge test --workspace --coverage --features fuzzing --fuzzer-runs 10000
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4

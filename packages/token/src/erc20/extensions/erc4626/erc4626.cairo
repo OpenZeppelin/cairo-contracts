@@ -148,25 +148,25 @@ pub mod ERC4626Component {
     pub trait LimitConfigTrait<TContractState> {
         fn deposit_limit(
             self: @ComponentState<TContractState>, receiver: ContractAddress,
-        ) -> Option::<u256> {
+        ) -> Option<u256> {
             Option::None
         }
 
         fn mint_limit(
             self: @ComponentState<TContractState>, receiver: ContractAddress,
-        ) -> Option::<u256> {
+        ) -> Option<u256> {
             Option::None
         }
 
         fn withdraw_limit(
             self: @ComponentState<TContractState>, owner: ContractAddress,
-        ) -> Option::<u256> {
+        ) -> Option<u256> {
             Option::None
         }
 
         fn redeem_limit(
             self: @ComponentState<TContractState>, owner: ContractAddress,
-        ) -> Option::<u256> {
+        ) -> Option<u256> {
             Option::None
         }
     }
@@ -223,7 +223,8 @@ pub mod ERC4626Component {
         /// for the receiver, through a deposit call.
         ///
         /// The default max deposit value is 2 ** 256 - 1.
-        /// This can be changed in the implementing contract by defining custom logic in `LimitConfigTrait::deposit_limit`.
+        /// This can be changed in the implementing contract by defining custom logic in
+        /// `LimitConfigTrait::deposit_limit`.
         fn max_deposit(self: @ComponentState<TContractState>, receiver: ContractAddress) -> u256 {
             match Limit::deposit_limit(self, receiver) {
                 Option::Some(limit) => limit,
@@ -235,7 +236,8 @@ pub mod ERC4626Component {
         /// current block, given current on-chain conditions.
         ///
         /// The default deposit preview value is the full amount of shares.
-        /// This can be changed in the implementing contract by defining custom logic in `FeeConfigTrait::adjust_deposit`.
+        /// This can be changed in the implementing contract by defining custom logic in
+        /// `FeeConfigTrait::adjust_deposit`.
         fn preview_deposit(self: @ComponentState<TContractState>, assets: u256) -> u256 {
             let adjusted_assets = Fee::adjust_deposit(self, assets);
             self._convert_to_shares(adjusted_assets, Rounding::Floor)
@@ -266,7 +268,8 @@ pub mod ERC4626Component {
         /// a `mint` call.
         ///
         /// The default max mint value is 2 ** 256 - 1.
-        /// This can be changed in the implementing contract by defining custom logic in `LimitConfigTrait::mint_limit`.
+        /// This can be changed in the implementing contract by defining custom logic in
+        /// `LimitConfigTrait::mint_limit`.
         fn max_mint(self: @ComponentState<TContractState>, receiver: ContractAddress) -> u256 {
             match Limit::mint_limit(self, receiver) {
                 Option::Some(limit) => limit,
@@ -278,7 +281,8 @@ pub mod ERC4626Component {
         /// current block, given current on-chain conditions.
         ///
         /// The default mint preview value is the full amount of assets.
-        /// This can be changed in the implementing contract by defining custom logic in `FeeConfigTrait::adjust_mint`.
+        /// This can be changed in the implementing contract by defining custom logic in
+        /// `FeeConfigTrait::adjust_mint`.
         fn preview_mint(self: @ComponentState<TContractState>, shares: u256) -> u256 {
             let full_assets = self._convert_to_assets(shares, Rounding::Ceil);
             Fee::adjust_mint(self, full_assets)
@@ -308,8 +312,10 @@ pub mod ERC4626Component {
         /// Returns the maximum amount of the underlying asset that can be withdrawn from the owner
         /// balance in the Vault, through a `withdraw` call.
         ///
-        /// The default max withdraw value is the full balance of assets for `owner` (converted from shares).
-        /// This can be changed in the implementing contract by defining custom logic in `LimitConfigTrait::withdraw_limit`.
+        /// The default max withdraw value is the full balance of assets for `owner` (converted from
+        /// shares).
+        /// This can be changed in the implementing contract by defining custom logic in
+        /// `LimitConfigTrait::withdraw_limit`.
         fn max_withdraw(self: @ComponentState<TContractState>, owner: ContractAddress) -> u256 {
             match Limit::withdraw_limit(self, owner) {
                 Option::Some(limit) => limit,
@@ -325,7 +331,8 @@ pub mod ERC4626Component {
         /// current block, given current on-chain conditions.
         ///
         /// The default withdraw preview value is the full amount of shares.
-        /// This can be changed in the implementing contract by defining custom logic in `FeeConfigTrait::adjust_withdraw`.
+        /// This can be changed in the implementing contract by defining custom logic in
+        /// `FeeConfigTrait::adjust_withdraw`.
         fn preview_withdraw(self: @ComponentState<TContractState>, assets: u256) -> u256 {
             let adjusted_assets = Fee::adjust_withdraw(self, assets);
             self._convert_to_shares(adjusted_assets, Rounding::Ceil)
@@ -358,7 +365,8 @@ pub mod ERC4626Component {
         /// in the Vault, through a `redeem` call.
         ///
         /// The default max redeem value is the full balance of assets for `owner`.
-        /// This can be changed in the implementing contract by defining custom logic in `LimitConfigTrait::redeem_limit`.
+        /// This can be changed in the implementing contract by defining custom logic in
+        /// `LimitConfigTrait::redeem_limit`.
         fn max_redeem(self: @ComponentState<TContractState>, owner: ContractAddress) -> u256 {
             match Limit::redeem_limit(self, owner) {
                 Option::Some(limit) => limit,
@@ -373,7 +381,8 @@ pub mod ERC4626Component {
         /// current block, given current on-chain conditions.
         ///
         /// The default redeem preview value is the full amount of assets.
-        /// This can be changed in the implementing contract by defining custom logic in `FeeConfigTrait::adjust_redeem`.
+        /// This can be changed in the implementing contract by defining custom logic in
+        /// `FeeConfigTrait::adjust_redeem`.
         fn preview_redeem(self: @ComponentState<TContractState>, shares: u256) -> u256 {
             let full_assets = self._convert_to_assets(shares, Rounding::Floor);
             Fee::adjust_redeem(self, full_assets)
@@ -454,7 +463,7 @@ pub mod ERC4626Component {
         /// - `asset_address` cannot be the zero address.
         fn initializer(ref self: ComponentState<TContractState>, asset_address: ContractAddress) {
             ImmutableConfig::validate();
-            assert(!asset_address.is_zero(), Errors::INVALID_ASSET_ADDRESS);
+            assert(asset_address.is_non_zero(), Errors::INVALID_ASSET_ADDRESS);
             self.ERC4626_asset.write(asset_address);
         }
 
@@ -517,7 +526,7 @@ pub mod ERC4626Component {
 
             // Burn shares first
             let mut erc20_component = get_dep_component_mut!(ref self, ERC20);
-            if (caller != owner) {
+            if caller != owner {
                 erc20_component._spend_allowance(owner, caller, shares);
             }
             erc20_component.burn(owner, shares);
@@ -534,7 +543,7 @@ pub mod ERC4626Component {
         fn _convert_to_shares(
             self: @ComponentState<TContractState>, assets: u256, rounding: Rounding,
         ) -> u256 {
-            let mut erc20_component = get_dep_component!(self, ERC20);
+            let erc20_component = get_dep_component!(self, ERC20);
             let total_supply = erc20_component.total_supply();
 
             math::u256_mul_div(
@@ -551,7 +560,7 @@ pub mod ERC4626Component {
         fn _convert_to_assets(
             self: @ComponentState<TContractState>, shares: u256, rounding: Rounding,
         ) -> u256 {
-            let mut erc20_component = get_dep_component!(self, ERC20);
+            let erc20_component = get_dep_component!(self, ERC20);
             let total_supply = erc20_component.total_supply();
 
             math::u256_mul_div(
@@ -591,10 +600,8 @@ pub impl DefaultConfig of ERC4626Component::ImmutableConfig {
 #[cfg(test)]
 mod Test {
     use openzeppelin_test_common::mocks::erc4626::ERC4626Mock;
-    use super::ERC4626Component;
     use super::ERC4626Component::InternalImpl;
-    use super::ERC4626DefaultLimits;
-    use super::ERC4626DefaultNoFees;
+    use super::{ERC4626Component, ERC4626DefaultLimits, ERC4626DefaultNoFees};
 
     type ComponentState = ERC4626Component::ComponentState<ERC4626Mock::ContractState>;
 

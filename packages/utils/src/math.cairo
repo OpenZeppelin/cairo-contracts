@@ -43,12 +43,14 @@ pub fn u256_mul_div(x: u256, y: u256, denominator: u256, rounding: Rounding) -> 
     let is_rounded_up = match rounding {
         Rounding::Ceil => 1,
         Rounding::Expand => 1,
-        _ => 0,
+        Rounding::Trunc => 0,
+        Rounding::Floor => 0,
     };
 
-    let has_remainder = match r > 0 {
-        true => 1,
-        false => 0,
+    let has_remainder = if r > 0 {
+        1
+    } else {
+        0
     };
 
     q + (is_rounded_up & has_remainder)

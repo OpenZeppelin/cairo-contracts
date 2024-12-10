@@ -2,6 +2,7 @@ pub mod common;
 pub mod constants;
 pub mod deployment;
 pub mod events;
+pub mod math;
 pub mod signing;
 
 pub use common::{

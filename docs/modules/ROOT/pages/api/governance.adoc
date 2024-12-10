@@ -12,7 +12,7 @@
 :ITimelock-CallSalt: xref:ITimelock-CallSalt[CallSalt]
 :ITimelock-CallCancelled: xref:ITimelock-CallCancelled[CallCancelled]
 :ITimelock-MinDelayChanged: xref:ITimelock-MinDelayChanged[MinDelayChanged]
-:ITimelock-RoleGranted: xref:api/access.adoc#IAccessControl-RoleGranted[IAccessControl::RoleGranted]
+:IAccessControl-RoleGranted: xref:api/access.adoc#IAccessControl-RoleGranted[IAccessControl::RoleGranted]
 :DelegateChanged: xref:VotesComponent-DelegateChanged[DelegateChanged]
 :DelegateVotesChanged: xref:VotesComponent-DelegateVotesChanged[DelegateVotesChanged]
 :VotingUnitsTrait: xref:VotingUnitsTrait[VotingUnitsTrait]
@@ -3040,12 +3040,12 @@ WARNING: The optional admin can aid with initial configuration of roles after de
 without being subject to delay, but this role should be subsequently renounced in favor of
 administration through timelocked proposals.
 
-Emits two {RoleGranted} events for each account in `proposers` with `PROPOSER_ROLE` and
+Emits two {IAccessControl-RoleGranted} events for each account in `proposers` with `PROPOSER_ROLE` and
 `CANCELLER_ROLE` roles.
 
-Emits a {RoleGranted} event for each account in `executors` with `EXECUTOR_ROLE` role.
+Emits a {IAccessControl-RoleGranted} event for each account in `executors` with `EXECUTOR_ROLE` role.
 
-May emit a {RoleGranted} event for `admin` with `DEFAULT_ADMIN_ROLE` role (if `admin` is
+May emit a {IAccessControl-RoleGranted} event for `admin` with `DEFAULT_ADMIN_ROLE` role (if `admin` is
 not zero).
 
 Emits {MinDelayChanged} event.

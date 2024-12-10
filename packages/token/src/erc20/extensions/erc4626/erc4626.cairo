@@ -148,7 +148,7 @@ pub mod ERC4626Component {
     pub trait LimitConfigTrait<TContractState> {
         fn deposit_limit(
             self: @ComponentState<TContractState>, receiver: ContractAddress
-        ) -> Option::<u256> {
+        ) -> Option<u256> {
             Option::None
         }
 
@@ -440,7 +440,7 @@ pub mod ERC4626Component {
         /// - `asset_address` cannot be the zero address.
         fn initializer(ref self: ComponentState<TContractState>, asset_address: ContractAddress) {
             ImmutableConfig::validate();
-            assert(!asset_address.is_zero(), Errors::INVALID_ASSET_ADDRESS);
+            assert(asset_address.is_non_zero(), Errors::INVALID_ASSET_ADDRESS);
             self.ERC4626_asset.write(asset_address);
         }
 
@@ -503,7 +503,7 @@ pub mod ERC4626Component {
 
             // Burn shares first
             let mut erc20_component = get_dep_component_mut!(ref self, ERC20);
-            if (caller != owner) {
+            if caller != owner {
                 erc20_component._spend_allowance(owner, caller, shares);
             }
             erc20_component.burn(owner, shares);
@@ -520,7 +520,7 @@ pub mod ERC4626Component {
         fn _convert_to_shares(
             self: @ComponentState<TContractState>, assets: u256, rounding: Rounding
         ) -> u256 {
-            let mut erc20_component = get_dep_component!(self, ERC20);
+            let erc20_component = get_dep_component!(self, ERC20);
             let total_supply = erc20_component.total_supply();
 
             math::u256_mul_div(
@@ -536,7 +536,7 @@ pub mod ERC4626Component {
         fn _convert_to_assets(
             self: @ComponentState<TContractState>, shares: u256, rounding: Rounding
         ) -> u256 {
-            let mut erc20_component = get_dep_component!(self, ERC20);
+            let erc20_component = get_dep_component!(self, ERC20);
             let total_supply = erc20_component.total_supply();
 
             math::u256_mul_div(
@@ -577,9 +577,7 @@ pub impl DefaultConfig of ERC4626Component::ImmutableConfig {
 mod Test {
     use openzeppelin_test_common::mocks::erc4626::ERC4626Mock;
     use super::ERC4626Component::InternalImpl;
-    use super::ERC4626Component;
-    use super::ERC4626DefaultLimits;
-    use super::ERC4626DefaultNoFees;
+    use super::{ERC4626Component, ERC4626DefaultLimits, ERC4626DefaultNoFees};
 
     type ComponentState = ERC4626Component::ComponentState<ERC4626Mock::ContractState>;
 

@@ -221,7 +221,9 @@ pub mod ERC4626Component {
 
         /// Returns the maximum amount of the underlying asset that can be deposited into the Vault
         /// for the receiver, through a deposit call.
-        /// If the `LimitConfigTrait` is not defined for deposits, returns 2 ** 256 - 1.
+        ///
+        /// The default max deposit value is 2 ** 256 - 1.
+        /// This can be changed in the implementing contract by defining custom logic in `LimitConfigTrait::deposit_limit`.
         fn max_deposit(self: @ComponentState<TContractState>, receiver: ContractAddress) -> u256 {
             match Limit::deposit_limit(self, receiver) {
                 Option::Some(limit) => limit,
@@ -231,7 +233,9 @@ pub mod ERC4626Component {
 
         /// Allows an on-chain or off-chain user to simulate the effects of their deposit at the
         /// current block, given current on-chain conditions.
-        /// If the `FeeConfigTrait` is not defined for deposits, returns the full amount of shares.
+        ///
+        /// The default deposit preview value is the full amount of shares.
+        /// This can be changed in the implementing contract by defining custom logic in `FeeConfigTrait::adjust_deposit`.
         fn preview_deposit(self: @ComponentState<TContractState>, assets: u256) -> u256 {
             let adjusted_assets = Fee::adjust_deposit(self, assets);
             self._convert_to_shares(adjusted_assets, Rounding::Floor)
@@ -260,7 +264,9 @@ pub mod ERC4626Component {
 
         /// Returns the maximum amount of the Vault shares that can be minted for `receiver` through
         /// a `mint` call.
-        /// If the `LimitConfigTrait` is not defined for mints, returns 2 ** 256 - 1.
+        ///
+        /// The default max mint value is 2 ** 256 - 1.
+        /// This can be changed in the implementing contract by defining custom logic in `LimitConfigTrait::mint_limit`.
         fn max_mint(self: @ComponentState<TContractState>, receiver: ContractAddress) -> u256 {
             match Limit::mint_limit(self, receiver) {
                 Option::Some(limit) => limit,
@@ -270,7 +276,9 @@ pub mod ERC4626Component {
 
         /// Allows an on-chain or off-chain user to simulate the effects of their mint at the
         /// current block, given current on-chain conditions.
-        /// If the `FeeConfigTrait` is not defined for mints, returns the full amount of assets.
+        ///
+        /// The default mint preview value is the full amount of assets.
+        /// This can be changed in the implementing contract by defining custom logic in `FeeConfigTrait::adjust_mint`.
         fn preview_mint(self: @ComponentState<TContractState>, shares: u256) -> u256 {
             let full_assets = self._convert_to_assets(shares, Rounding::Ceil);
             Fee::adjust_mint(self, full_assets)
@@ -299,8 +307,9 @@ pub mod ERC4626Component {
 
         /// Returns the maximum amount of the underlying asset that can be withdrawn from the owner
         /// balance in the Vault, through a `withdraw` call.
-        /// If the `LimitConfigTrait` is not defined for withdraws, returns the full balance of
-        /// assets for `owner` (converted to shares).
+        ///
+        /// The default max withdraw value is the full balance of assets for `owner` (converted from shares).
+        /// This can be changed in the implementing contract by defining custom logic in `LimitConfigTrait::withdraw_limit`.
         fn max_withdraw(self: @ComponentState<TContractState>, owner: ContractAddress) -> u256 {
             match Limit::withdraw_limit(self, owner) {
                 Option::Some(limit) => limit,
@@ -314,7 +323,9 @@ pub mod ERC4626Component {
 
         /// Allows an on-chain or off-chain user to simulate the effects of their withdrawal at the
         /// current block, given current on-chain conditions.
-        /// If the `FeeConfigTrait` is not defined for withdraws, returns the full amount of shares.
+        ///
+        /// The default withdraw preview value is the full amount of shares.
+        /// This can be changed in the implementing contract by defining custom logic in `FeeConfigTrait::adjust_withdraw`.
         fn preview_withdraw(self: @ComponentState<TContractState>, assets: u256) -> u256 {
             let adjusted_assets = Fee::adjust_withdraw(self, assets);
             self._convert_to_shares(adjusted_assets, Rounding::Ceil)
@@ -345,8 +356,9 @@ pub mod ERC4626Component {
 
         /// Returns the maximum amount of Vault shares that can be redeemed from the owner balance
         /// in the Vault, through a `redeem` call.
-        /// If the `LimitConfigTrait` is not defined for redeems, returns the full balance of assets
-        /// for `owner`.
+        ///
+        /// The default max redeem value is the full balance of assets for `owner`.
+        /// This can be changed in the implementing contract by defining custom logic in `LimitConfigTrait::redeem_limit`.
         fn max_redeem(self: @ComponentState<TContractState>, owner: ContractAddress) -> u256 {
             match Limit::redeem_limit(self, owner) {
                 Option::Some(limit) => limit,
@@ -359,7 +371,9 @@ pub mod ERC4626Component {
 
         /// Allows an on-chain or off-chain user to simulate the effects of their redeemption at the
         /// current block, given current on-chain conditions.
-        /// If the `FeeConfigTrait` is not defined for redeems, returns the full amount of assets.
+        ///
+        /// The default redeem preview value is the full amount of assets.
+        /// This can be changed in the implementing contract by defining custom logic in `FeeConfigTrait::adjust_redeem`.
         fn preview_redeem(self: @ComponentState<TContractState>, shares: u256) -> u256 {
             let full_assets = self._convert_to_assets(shares, Rounding::Floor);
             Fee::adjust_redeem(self, full_assets)

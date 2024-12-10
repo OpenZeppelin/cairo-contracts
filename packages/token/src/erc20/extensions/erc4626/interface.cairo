@@ -11,12 +11,14 @@ pub trait IERC4626<TState> {
     /// MUST be an ERC20 token contract.
     /// MUST NOT panic.
     fn asset(self: @TState) -> ContractAddress;
+
     /// Returns the total amount of the underlying asset that is “managed” by Vault.
     ///
     /// SHOULD include any compounding that occurs from yield.
     /// MUST be inclusive of any fees that are charged against assets in the Vault.
     /// MUST NOT panic.
     fn total_assets(self: @TState) -> u256;
+
     /// Returns the amount of shares that the Vault would exchange for the amount of assets
     /// provided, in an ideal scenario where all the conditions are met.
     ///
@@ -25,6 +27,7 @@ pub trait IERC4626<TState> {
     /// MUST NOT reflect slippage or other on-chain conditions, when performing the actual exchange.
     /// MUST NOT panic.
     fn convert_to_shares(self: @TState, assets: u256) -> u256;
+
     /// Returns the amount of assets that the Vault would exchange for the amount of shares
     /// provided, in an ideal scenario where all the conditions are met.
     ///
@@ -37,6 +40,7 @@ pub trait IERC4626<TState> {
     /// should reflect the “average-user’s” price-per-share, meaning what the average user
     /// should expect to see when exchanging to and from.
     fn convert_to_assets(self: @TState, shares: u256) -> u256;
+
     /// Returns the maximum amount of the underlying asset that can be deposited into the Vault for
     /// `receiver`, through a deposit call.
     ///
@@ -49,6 +53,7 @@ pub trait IERC4626<TState> {
     /// should reflect the “average-user’s” price-per-share, meaning what the average user
     /// should expect to see when exchanging to and from.
     fn max_deposit(self: @TState, receiver: ContractAddress) -> u256;
+
     /// Allows an on-chain or off-chain user to simulate the effects of their deposit at the current
     /// block, given current on-chain conditions.
     ///
@@ -66,6 +71,7 @@ pub trait IERC4626<TState> {
     /// SHOULD be considered slippage in share price or some other type of condition, meaning the
     /// depositor will lose assets by depositing.
     fn preview_deposit(self: @TState, assets: u256) -> u256;
+
     /// Mints Vault shares to `receiver` by depositing exactly amount of `assets`.
     ///
     /// MUST emit the Deposit event.
@@ -77,6 +83,7 @@ pub trait IERC4626<TState> {
     /// Note that most implementations will require pre-approval of the Vault with the Vault’s
     /// underlying asset token.
     fn deposit(ref self: TState, assets: u256, receiver: ContractAddress) -> u256;
+
     /// Returns the maximum amount of the Vault shares that can be minted for the receiver, through
     /// a mint call.
     ///
@@ -85,6 +92,7 @@ pub trait IERC4626<TState> {
     /// minted.
     /// MUST NOT panic.
     fn max_mint(self: @TState, receiver: ContractAddress) -> u256;
+
     /// Allows an on-chain or off-chain user to simulate the effects of their mint at the current
     /// block, given current on-chain conditions.
     ///
@@ -106,6 +114,7 @@ pub trait IERC4626<TState> {
     /// be considered slippage in share price or some other type of condition, meaning the depositor
     /// will lose assets by minting.
     fn preview_mint(self: @TState, shares: u256) -> u256;
+
     /// Mints exactly shares Vault shares to receiver by depositing amount of underlying tokens.
     ///
     /// MUST emit the `Deposit` event.
@@ -117,12 +126,14 @@ pub trait IERC4626<TState> {
     /// Note that most implementations will require pre-approval of the Vault with the Vault’s
     /// underlying asset token.
     fn mint(ref self: TState, shares: u256, receiver: ContractAddress) -> u256;
+
     /// Returns the maximum amount of the underlying asset that can be withdrawn from the owner
     /// balance in the Vault, through a withdraw call.
     ///
     /// MUST return a limited value if owner is subject to some withdrawal limit or timelock.
     /// MUST NOT panic.
     fn max_withdraw(self: @TState, owner: ContractAddress) -> u256;
+
     /// Allows an on-chain or off-chain user to simulate the effects of their withdrawal at the
     /// current block, given current on-chain conditions.
     ///
@@ -140,6 +151,7 @@ pub trait IERC4626<TState> {
     /// SHOULD be considered slippage in share price or some other type of condition, meaning the
     /// depositor will lose assets by depositing.
     fn preview_withdraw(self: @TState, assets: u256) -> u256;
+
     /// Burns shares from owner and sends exactly assets of underlying tokens to receiver.
     ///
     /// MUST emit the `Withdraw` event.
@@ -154,6 +166,7 @@ pub trait IERC4626<TState> {
     fn withdraw(
         ref self: TState, assets: u256, receiver: ContractAddress, owner: ContractAddress,
     ) -> u256;
+
     /// Returns the maximum amount of Vault shares that can be redeemed from the owner balance in
     /// the Vault, through a redeem call.
     ///
@@ -162,6 +175,7 @@ pub trait IERC4626<TState> {
     /// timelock.
     /// MUST NOT panic.
     fn max_redeem(self: @TState, owner: ContractAddress) -> u256;
+
     /// Allows an on-chain or off-chain user to simulate the effects of their redeemption at the
     /// current block, given current on-chain conditions.
     ///
@@ -179,6 +193,7 @@ pub trait IERC4626<TState> {
     /// considered slippage in share price or some other type of condition, meaning the depositor
     /// will lose assets by redeeming.
     fn preview_redeem(self: @TState, shares: u256) -> u256;
+
     /// Burns exactly shares from owner and sends assets of underlying tokens to receiver.
     ///
     /// MUST emit the `Withdraw` event.

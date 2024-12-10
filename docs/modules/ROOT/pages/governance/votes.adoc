@@ -4,7 +4,7 @@
 :delegate: xref:api/governance.adoc#VotesComponent-delegate[delegate]
 :delegate_by_sig: xref:api/governance.adoc#VotesComponent-delegate_by_sig[delegate_by_sig]
 :voting_units_trait: xref:api/governance.adoc#VotingUnitsTrait[VotingUnitsTrait]
-:votes-usage: xref:../governance.adoc#usage_2[usage]
+:votes-usage: xref:Usage[usage]
 :nonces-component: xref:api/utilities.adoc#NoncesComponent[NoncesComponent]
 :snip12-metadata: xref:api/utilities.adoc#snip12[SNIP12Metadata]
 

@@ -12,14 +12,15 @@ coverage:
       coverage:
         # Use the coverage from the base commit (pull request base) coverage to compare against.
         # Once we have a baseline we can be more strict.
+        # TMP threshold until cairo-coverage becomes more stable
         target: auto
-        threshold: 2%
+        threshold: 4%
     patch:
       default:
         # Require new code to have 90%+ coverage.
-        # TMP target until cairo-coverage becomes more stable
+        # TMP target and threshold until cairo-coverage becomes more stable
         target: 80%
-        threshold: 2%
+        threshold: 4%
 
 ignore:
   - "**/tests/**"

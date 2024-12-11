@@ -467,7 +467,7 @@ pub mod MultisigComponent {
         /// - `quorum` must be non-zero and less than or equal to the number of `signers`.
         ///
         /// Emits a `SignerAdded` event for each signer added.
-        /// Emits a `QuorumUpdated` event if the quorum changes.
+        /// Emits a `QuorumUpdated` event.
         fn initializer(
             ref self: ComponentState<TContractState>, quorum: u32, signers: Span<ContractAddress>,
         ) {

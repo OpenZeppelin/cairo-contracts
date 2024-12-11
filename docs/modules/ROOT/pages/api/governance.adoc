@@ -2390,7 +2390,7 @@ Returns a list of all current signers.
 [[MultisigComponent-is_confirmed]]
 ==== `[.contract-item-name]#++is_confirmed++#++(self: @ContractState, id: TransactionID) → bool++` [.item-kind]#external#
 
-Determines if the transaction with `id` is confirmed.
+Returns whether the transaction with the given `id` has been confirmed. A confirmed transaction has received the required number of confirmations (quorum).
 
 [.contract-item]
 [[MultisigComponent-is_confirmed_by]]

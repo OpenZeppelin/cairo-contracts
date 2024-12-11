@@ -2428,11 +2428,27 @@ Returns the block number when the transaction with `id` was submitted.
 
 Adds new signers and updates the quorum.
 
+Requirements:
+
+- The caller must be the contract itself.
+- `new_quorum` must be less than or equal to the total number of signers after addition.
+
+Emits a {IMultisig-SignerAdded} event for each signer added.
+Emits a {IMultisig-QuorumUpdated} event if the quorum changes.
+
 [.contract-item]
 [[MultisigComponent-remove_signers]]
 ==== `[.contract-item-name]#++remove_signers++#++(ref self: ContractState, new_quorum: u32, signers_to_remove: Span<ContractAddress>)++` [.item-kind]#external#
 
 Removes signers and updates the quorum.
+
+Requirements:
+
+- The caller must be the contract itself.
+- `new_quorum` must be less than or equal to the total number of signers after removal.
+
+Emits a {IMultisig-SignerRemoved} event for each signer removed.
+Emits a {IMultisig-QuorumUpdated} event if the quorum changes.
 
 [.contract-item]
 [[MultisigComponent-replace_signer]]
@@ -2440,11 +2456,28 @@ Removes signers and updates the quorum.
 
 Replaces an existing signer with a new signer.
 
+Requirements:
+
+- The caller must be the contract itself.
+- `signer_to_remove` must be an existing signer.
+- `signer_to_add` must not be an existing signer.
+
+Emits a {IMultisig-SignerRemoved} event for the removed signer.
+Emits a {IMultisig-SignerAdded} event for the new signer.
+
 [.contract-item]
 [[MultisigComponent-change_quorum]]
 ==== `[.contract-item-name]#++change_quorum++#++(ref self: ContractState, new_quorum: u32)++` [.item-kind]#external#
 
 Updates the quorum value to `new_quorum`.
+
+Requirements:
+
+- The caller must be the contract itself.
+- `new_quorum` must be non-zero.
+- `new_quorum` must be less than or equal to the total number of signers.
+
+Emits a {IMultisig-QuorumUpdated} event if the quorum changes.
 
 [.contract-item]
 [[MultisigComponent-submit_transaction]]
@@ -2452,11 +2485,27 @@ Updates the quorum value to `new_quorum`.
 
 Submits a new transaction for confirmation.
 
+Requirements:
+
+- The caller must be a registered signer.
+- The transaction must not have been submitted before.
+
+Emits a {IMultisig-TransactionSubmitted} event.
+Emits a {IMultisig-CallSalt} event if `salt` is not zero.
+
 [.contract-item]
 [[MultisigComponent-submit_transaction_batch]]
 ==== `[.contract-item-name]#++submit_transaction_batch++#++(ref self: ContractState, calls: Span<Call>, salt: felt252)++` [.item-kind]#external#
 
 Submits a new batch transaction for confirmation.
+
+Requirements:
+
+- The caller must be a registered signer.
+- The transaction must not have been submitted before.
+
+Emits a {IMultisig-TransactionSubmitted} event.
+Emits a {IMultisig-CallSalt} event if `salt` is not zero.
 
 [.contract-item]
 [[MultisigComponent-confirm_transaction]]
@@ -2464,11 +2513,26 @@ Submits a new batch transaction for confirmation.
 
 Confirms a transaction with the given `id`.
 
+Requirements:
+
+- The caller must be a registered signer.
+- The transaction must exist and not be executed.
+- The caller must not have already confirmed the transaction.
+
+Emits a {IMultisig-TransactionConfirmed} event.
+
 [.contract-item]
 [[MultisigComponent-revoke_confirmation]]
 ==== `[.contract-item-name]#++revoke_confirmation++#++(ref self: ContractState, id: TransactionID)++` [.item-kind]#external#
 
 Revokes a previous confirmation for a transaction with the given `id`.
+
+Requirements:
+
+- The transaction must exist and not be executed.
+- The caller must have previously confirmed the transaction.
+
+Emits a {IMultisig-ConfirmationRevoked} event.
 
 [.contract-item]
 [[MultisigComponent-execute_transaction]]
@@ -2476,11 +2540,25 @@ Revokes a previous confirmation for a transaction with the given `id`.
 
 Executes a confirmed transaction.
 
+Requirements:
+
+- The caller must be a registered signer.
+- The transaction must be confirmed and not yet executed.
+
+Emits a {IMultisig-TransactionExecuted} event.
+
 [.contract-item]
 [[MultisigComponent-execute_transaction_batch]]
 ==== `[.contract-item-name]#++execute_transaction_batch++#++(ref self: ContractState, calls: Span<Call>, salt: felt252)++` [.item-kind]#external#
 
 Executes a confirmed batch transaction.
+
+Requirements:
+
+- The caller must be a registered signer.
+- The transaction must be confirmed and not yet executed.
+
+Emits a {IMultisig-TransactionExecuted} event.
 
 [.contract-item]
 [[MultisigComponent-hash_transaction]]
@@ -2502,9 +2580,14 @@ Returns the computed identifier of a transaction containing a batch of calls.
 ==== `[.contract-item-name]#++initializer++#++(ref self: ContractState, quorum: u32, signers: Span<ContractAddress>)++` [.item-kind]#internal#
 
 Initializes the Multisig component with the initial `quorum` and `signers`.
+This function must be called during contract initialization to set up the initial state.
 
-Emits a `SignerAdded` event for each signer added.  
-Emits a `QuorumUpdated` event if the quorum changes.
+Requirements:
+
+- `quorum` must be non-zero and less than or equal to the number of `signers`.
+
+Emits a `SignerAdded` event for each signer added.
+Emits a `QuorumUpdated` event.
 
 [.contract-item]
 [[MultisigComponent-resolve_tx_state]]
@@ -2512,11 +2595,21 @@ Emits a `QuorumUpdated` event if the quorum changes.
 
 Resolves and returns the current state of the transaction with the given `id`.
 
+The possible states are:
+- `NotFound`: The transaction does not exist.
+- `Pending`: The transaction exists but hasn't reached the required confirmations.
+- `Confirmed`: The transaction has reached the required confirmations but hasn't been executed.
+- `Executed`: The transaction has been executed.
+
 [.contract-item]
 [[MultisigComponent-assert_one_of_signers]]
 ==== `[.contract-item-name]#++assert_one_of_signers++#++(self: @ContractState, caller: ContractAddress)++` [.item-kind]#internal#
 
 Asserts that the `caller` is one of the registered signers.
+
+Requirements:
+
+- The `caller` must be a registered signer.
 
 [.contract-item]
 [[MultisigComponent-assert_tx_exists]]
@@ -2524,11 +2617,19 @@ Asserts that the `caller` is one of the registered signers.
 
 Asserts that a transaction with the given `id` exists.
 
+Requirements:
+
+- The transaction with `id` must have been submitted.
+
 [.contract-item]
 [[MultisigComponent-assert_only_self]]
 ==== `[.contract-item-name]#++assert_only_self++#++(self: @ContractState)++` [.item-kind]#internal#
 
 Asserts that the caller is the contract itself.
+
+Requirements:
+
+- The caller must be the contract's own address.
 
 [.contract-item]
 [[MultisigComponent-_add_signers]]
@@ -2536,11 +2637,27 @@ Asserts that the caller is the contract itself.
 
 Adds new signers and updates the quorum.
 
+Requirements:
+
+- Each signer address must be non-zero.
+- `new_quorum` must be non-zero and less than or equal to the total number of signers after addition.
+
+Emits a `SignerAdded` event for each new signer added.
+Emits a `QuorumUpdated` event if the quorum changes.
+
 [.contract-item]
 [[MultisigComponent-_remove_signers]]
 ==== `[.contract-item-name]#++_remove_signers++#++(ref self: ContractState, new_quorum: u32, signers_to_remove: Span<ContractAddress>)++` [.item-kind]#internal#
 
 Removes existing signers and updates the quorum.
+
+Requirements:
+
+- `new_quorum` must be non-zero and less than or equal to the total number of signers
+after removal.
+
+Emits a `SignerRemoved` event for each signer removed.
+Emits a `QuorumUpdated` event if the quorum changes.
 
 [.contract-item]
 [[MultisigComponent-_replace_signer]]
@@ -2548,11 +2665,27 @@ Removes existing signers and updates the quorum.
 
 Replaces an existing signer with a new signer.
 
+Requirements:
+
+- `signer_to_remove` must be an existing signer.
+- `signer_to_add` must not be an existing signer.
+- `signer_to_add` must be a non-zero address.
+
+Emits a `SignerRemoved` event for the removed signer.
+Emits a `SignerAdded` event for the new signer.
+
 [.contract-item]
 [[MultisigComponent-_change_quorum]]
 ==== `[.contract-item-name]#++_change_quorum++#++(ref self: ContractState, new_quorum: u32)++` [.item-kind]#internal#
 
 Updates the quorum value to `new_quorum` if it differs from the current quorum.
+
+Requirements:
+
+- `new_quorum` must be non-zero.
+- `new_quorum` must be less than or equal to the total number of signers.
+
+Emits a `QuorumUpdated` event if the quorum changes.
 
 == Timelock
 

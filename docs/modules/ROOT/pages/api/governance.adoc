@@ -2108,6 +2108,7 @@ Returns the block number when the transaction with the given `id` was submitted.
 Adds new signers and updates the quorum.
 
 Requirements:
+
 - The caller must be the contract itself.
 - `new_quorum` must be less than or equal to the total number of signers after addition.
 
@@ -2121,6 +2122,7 @@ Emits a {IMultisig-QuorumUpdated} event if the quorum changes.
 Removes signers and updates the quorum.
 
 Requirements:
+
 - The caller must be the contract itself.
 - `new_quorum` must be less than or equal to the total number of signers after removal.
 
@@ -2134,6 +2136,7 @@ Emits a {IMultisig-QuorumUpdated} event if the quorum changes.
 Replaces an existing signer with a new signer.
 
 Requirements:
+
 - The caller must be the contract itself.
 - `signer_to_remove` must be an existing signer.
 - `signer_to_add` must not be an existing signer.
@@ -2148,6 +2151,7 @@ Emits a {IMultisig-SignerAdded} event for the new signer.
 Updates the quorum value to `new_quorum` if it differs from the current quorum.
 
 Requirements:
+
 - The caller must be the contract itself.
 - `new_quorum` must be non-zero.
 - `new_quorum` must be less than or equal to the total number of signers.
@@ -2161,6 +2165,7 @@ Emits a {IMultisig-QuorumUpdated} event if the quorum changes.
 Submits a new transaction for confirmation.
 
 Requirements:
+
 - The caller must be a registered signer.
 - The transaction must not have been submitted before.
 
@@ -2174,6 +2179,7 @@ Emits a {IMultisig-CallSalt} event if `salt` is not zero.
 Submits a new batch transaction for confirmation.
 
 Requirements:
+
 - The caller must be a registered signer.
 - The transaction must not have been submitted before.
 
@@ -2187,6 +2193,7 @@ Emits a {IMultisig-CallSalt} event if `salt` is not zero.
 Confirms a transaction with the given `id`.
 
 Requirements:
+
 - The caller must be a registered signer.
 - The transaction must exist and not be executed.
 - The caller must not have already confirmed the transaction.
@@ -2200,6 +2207,7 @@ Emits a {IMultisig-TransactionConfirmed} event.
 Revokes a previous confirmation for a transaction with the given `id`.
 
 Requirements:
+
 - The transaction must exist and not be executed.
 - The caller must have previously confirmed the transaction.
 
@@ -2212,6 +2220,7 @@ Emits a {IMultisig-ConfirmationRevoked} event.
 Executes a confirmed transaction.
 
 Requirements:
+
 - The caller must be a registered signer.
 - The transaction must be confirmed and not yet executed.
 
@@ -2224,6 +2233,7 @@ Emits a {IMultisig-TransactionExecuted} event.
 Executes a confirmed batch transaction.
 
 Requirements:
+
 - The caller must be a registered signer.
 - The transaction must be confirmed and not yet executed.
 

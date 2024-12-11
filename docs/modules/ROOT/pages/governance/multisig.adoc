@@ -41,7 +41,7 @@ A transaction in the Multisig component follows a specific lifecycle:
 
 `NotFound` → `Pending` → `Confirmed` → `Executed`
 
-The state of a transaction is respresented by `TransactionState` enum can be checked 
+The state of a transaction is represented by the `TransactionState` enum and can be checked 
 by calling the `get_transaction_state` function.
 
 - *NotFound*: The transaction does not exist.

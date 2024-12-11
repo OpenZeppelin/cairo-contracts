@@ -1,17 +1,4 @@
 :github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
-:IMultisig-CallSalt: xref:IMultisig-CallSalt[CallSalt]
-:IMultisig-SignerAdded: xref:IMultisig-CallSalt[SignerAdded]
-:IMultisig-SignerRemoved: xref:IMultisig-CallSalt[SignerRemoved]
-:IMultisig-QuorumUpdated: xref:IMultisig-CallSalt[QuorumUpdated]
-:IMultisig-TransactionSubmitted: xref:IMultisig-CallSalt[TransactionSubmitted]
-:IMultisig-TransactionConfirmed: xref:IMultisig-CallSalt[TransactionConfirmed]
-:IMultisig-ConfirmationRevoked: xref:IMultisig-CallSalt[ConfirmationRevoked]
-:IMultisig-TransactionExecuted: xref:IMultisig-CallSalt[TransactionExecuted]
-:ITimelock-CallScheduled: xref:ITimelock-CallScheduled[CallScheduled]
-:ITimelock-CallExecuted: xref:ITimelock-CallExecuted[CallExecuted]
-:ITimelock-CallSalt: xref:ITimelock-CallSalt[CallSalt]
-:ITimelock-CallCancelled: xref:ITimelock-CallCancelled[CallCancelled]
-:ITimelock-MinDelayChanged: xref:ITimelock-MinDelayChanged[MinDelayChanged]
 :IAccessControl-RoleGranted: xref:api/access.adoc#IAccessControl-RoleGranted[IAccessControl::RoleGranted]
 :VotesComponent-DelegateChanged: xref:VotesComponent-DelegateChanged[DelegateChanged]
 :VotesComponent-DelegateVotesChanged: xref:VotesComponent-DelegateVotesChanged[DelegateVotesChanged]
@@ -1992,11 +1979,20 @@ Emitted when the timelock controller is updated.
 
 == Multisig
 
-Description
+TODO: Add description
 
 [.contract]
 [[IMultisig]]
 === `++IMultisig++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.20.0/packages/governance/src/multisig/interface.cairo[{github-icon},role=heading-link]
+
+:IMultisig-CallSalt: xref:IMultisig-CallSalt[CallSalt]
+:IMultisig-SignerAdded: xref:IMultisig-CallSalt[SignerAdded]
+:IMultisig-SignerRemoved: xref:IMultisig-CallSalt[SignerRemoved]
+:IMultisig-QuorumUpdated: xref:IMultisig-CallSalt[QuorumUpdated]
+:IMultisig-TransactionSubmitted: xref:IMultisig-CallSalt[TransactionSubmitted]
+:IMultisig-TransactionConfirmed: xref:IMultisig-CallSalt[TransactionConfirmed]
+:IMultisig-ConfirmationRevoked: xref:IMultisig-CallSalt[ConfirmationRevoked]
+:IMultisig-TransactionExecuted: xref:IMultisig-CallSalt[TransactionExecuted]
 
 [.hljs-theme-dark]
 ```cairo
@@ -2306,6 +2302,15 @@ Emitted when a new transaction is submitted with non-zero salt.
 [[MultisigComponent]]
 === `++MultisigComponent++`
 
+:MultisigComponent-CallSalt: xref:MultisigComponent-CallSalt[CallSalt]
+:MultisigComponent-SignerAdded: xref:MultisigComponent-CallSalt[SignerAdded]
+:MultisigComponent-SignerRemoved: xref:MultisigComponent-CallSalt[SignerRemoved]
+:MultisigComponent-QuorumUpdated: xref:MultisigComponent-CallSalt[QuorumUpdated]
+:MultisigComponent-TransactionSubmitted: xref:MultisigComponent-CallSalt[TransactionSubmitted]
+:MultisigComponent-TransactionConfirmed: xref:MultisigComponent-CallSalt[TransactionConfirmed]
+:MultisigComponent-ConfirmationRevoked: xref:MultisigComponent-CallSalt[ConfirmationRevoked]
+:MultisigComponent-TransactionExecuted: xref:MultisigComponent-CallSalt[TransactionExecuted]
+
 Component that implements `IMultisig` and provides functionality for multisignature wallets, including transaction management, quorum handling, and signer operations.
 
 [.contract-index#MultisigComponent-Embeddable-Impls]
@@ -2433,8 +2438,8 @@ Requirements:
 - The caller must be the contract itself.
 - `new_quorum` must be less than or equal to the total number of signers after addition.
 
-Emits a {IMultisig-SignerAdded} event for each signer added.
-Emits a {IMultisig-QuorumUpdated} event if the quorum changes.
+Emits a {MultisigComponent-SignerAdded} event for each signer added.
+Emits a {MultisigComponent-QuorumUpdated} event if the quorum changes.
 
 [.contract-item]
 [[MultisigComponent-remove_signers]]
@@ -2447,8 +2452,8 @@ Requirements:
 - The caller must be the contract itself.
 - `new_quorum` must be less than or equal to the total number of signers after removal.
 
-Emits a {IMultisig-SignerRemoved} event for each signer removed.
-Emits a {IMultisig-QuorumUpdated} event if the quorum changes.
+Emits a {MultisigComponent-SignerRemoved} event for each signer removed.
+Emits a {MultisigComponent-QuorumUpdated} event if the quorum changes.
 
 [.contract-item]
 [[MultisigComponent-replace_signer]]
@@ -2462,8 +2467,8 @@ Requirements:
 - `signer_to_remove` must be an existing signer.
 - `signer_to_add` must not be an existing signer.
 
-Emits a {IMultisig-SignerRemoved} event for the removed signer.
-Emits a {IMultisig-SignerAdded} event for the new signer.
+Emits a {MultisigComponent-SignerRemoved} event for the removed signer.
+Emits a {MultisigComponent-SignerAdded} event for the new signer.
 
 [.contract-item]
 [[MultisigComponent-change_quorum]]
@@ -2477,7 +2482,7 @@ Requirements:
 - `new_quorum` must be non-zero.
 - `new_quorum` must be less than or equal to the total number of signers.
 
-Emits a {IMultisig-QuorumUpdated} event if the quorum changes.
+Emits a {MultisigComponent-QuorumUpdated} event if the quorum changes.
 
 [.contract-item]
 [[MultisigComponent-submit_transaction]]
@@ -2490,8 +2495,8 @@ Requirements:
 - The caller must be a registered signer.
 - The transaction must not have been submitted before.
 
-Emits a {IMultisig-TransactionSubmitted} event.
-Emits a {IMultisig-CallSalt} event if `salt` is not zero.
+Emits a {MultisigComponent-TransactionSubmitted} event.
+Emits a {MultisigComponent-CallSalt} event if `salt` is not zero.
 
 [.contract-item]
 [[MultisigComponent-submit_transaction_batch]]
@@ -2504,8 +2509,8 @@ Requirements:
 - The caller must be a registered signer.
 - The transaction must not have been submitted before.
 
-Emits a {IMultisig-TransactionSubmitted} event.
-Emits a {IMultisig-CallSalt} event if `salt` is not zero.
+Emits a {MultisigComponent-TransactionSubmitted} event.
+Emits a {MultisigComponent-CallSalt} event if `salt` is not zero.
 
 [.contract-item]
 [[MultisigComponent-confirm_transaction]]
@@ -2519,7 +2524,7 @@ Requirements:
 - The transaction must exist and not be executed.
 - The caller must not have already confirmed the transaction.
 
-Emits a {IMultisig-TransactionConfirmed} event.
+Emits a {MultisigComponent-TransactionConfirmed} event.
 
 [.contract-item]
 [[MultisigComponent-revoke_confirmation]]
@@ -2532,7 +2537,7 @@ Requirements:
 - The transaction must exist and not be executed.
 - The caller must have previously confirmed the transaction.
 
-Emits a {IMultisig-ConfirmationRevoked} event.
+Emits a {MultisigComponent-ConfirmationRevoked} event.
 
 [.contract-item]
 [[MultisigComponent-execute_transaction]]
@@ -2545,7 +2550,7 @@ Requirements:
 - The caller must be a registered signer.
 - The transaction must be confirmed and not yet executed.
 
-Emits a {IMultisig-TransactionExecuted} event.
+Emits a {MultisigComponent-TransactionExecuted} event.
 
 [.contract-item]
 [[MultisigComponent-execute_transaction_batch]]
@@ -2558,7 +2563,7 @@ Requirements:
 - The caller must be a registered signer.
 - The transaction must be confirmed and not yet executed.
 
-Emits a {IMultisig-TransactionExecuted} event.
+Emits a {MultisigComponent-TransactionExecuted} event.
 
 [.contract-item]
 [[MultisigComponent-hash_transaction]]
@@ -2586,8 +2591,8 @@ Requirements:
 
 - `quorum` must be non-zero and less than or equal to the number of `signers`.
 
-Emits a `SignerAdded` event for each signer added.
-Emits a `QuorumUpdated` event.
+Emits a {MultisigComponent-SignerAdded} event for each signer added.
+Emits a {MultisigComponent-QuorumUpdated} event.
 
 [.contract-item]
 [[MultisigComponent-resolve_tx_state]]
@@ -2642,8 +2647,8 @@ Requirements:
 - Each signer address must be non-zero.
 - `new_quorum` must be non-zero and less than or equal to the total number of signers after addition.
 
-Emits a `SignerAdded` event for each new signer added.
-Emits a `QuorumUpdated` event if the quorum changes.
+Emits a {MultisigComponent-SignerAdded} event for each new signer added.
+Emits a {MultisigComponent-QuorumUpdated} event if the quorum changes.
 
 [.contract-item]
 [[MultisigComponent-_remove_signers]]
@@ -2656,8 +2661,8 @@ Requirements:
 - `new_quorum` must be non-zero and less than or equal to the total number of signers
 after removal.
 
-Emits a `SignerRemoved` event for each signer removed.
-Emits a `QuorumUpdated` event if the quorum changes.
+Emits a {MultisigComponent-SignerRemoved} event for each signer removed.
+Emits a {MultisigComponent-QuorumUpdated} event if the quorum changes.
 
 [.contract-item]
 [[MultisigComponent-_replace_signer]]
@@ -2671,8 +2676,8 @@ Requirements:
 - `signer_to_add` must not be an existing signer.
 - `signer_to_add` must be a non-zero address.
 
-Emits a `SignerRemoved` event for the removed signer.
-Emits a `SignerAdded` event for the new signer.
+Emits a {MultisigComponent-SignerRemoved} event for the removed signer.
+Emits a {MultisigComponent-SignerAdded} event for the new signer.
 
 [.contract-item]
 [[MultisigComponent-_change_quorum]]
@@ -2685,7 +2690,58 @@ Requirements:
 - `new_quorum` must be non-zero.
 - `new_quorum` must be less than or equal to the total number of signers.
 
-Emits a `QuorumUpdated` event if the quorum changes.
+Emits a {MultisigComponent-QuorumUpdated} event if the quorum changes.
+
+[#MultisigComponent-Events]
+==== Events
+
+[.contract-item]
+[[MultisigComponent-SignerAdded]]
+==== `[.contract-item-name]#++SignerAdded++#++(signer: ContractAddress)++` [.item-kind]#event#
+
+Emitted when a new `signer` is added.
+
+[.contract-item]
+[[MultisigComponent-SignerRemoved]]
+==== `[.contract-item-name]#++SignerRemoved++#++(signer: ContractAddress)++` [.item-kind]#event#
+
+Emitted when a `signer` is removed.
+
+[.contract-item]
+[[MultisigComponent-QuorumUpdated]]
+==== `[.contract-item-name]#++QuorumUpdated++#++(old_quorum: u32, new_quorum: u32)++` [.item-kind]#event#
+
+Emitted when the `quorum` value is updated.
+
+[.contract-item]
+[[MultisigComponent-TransactionSubmitted]]
+==== `[.contract-item-name]#++TransactionSubmitted++#++(id: TransactionID, signer: ContractAddress)++` [.item-kind]#event#
+
+Emitted when a new transaction is submitted by a `signer`.
+
+[.contract-item]
+[[MultisigComponent-TransactionConfirmed]]
+==== `[.contract-item-name]#++TransactionConfirmed++#++(id: TransactionID, signer: ContractAddress)++` [.item-kind]#event#
+
+Emitted when a transaction is confirmed by a `signer`.
+
+[.contract-item]
+[[MultisigComponent-ConfirmationRevoked]]
+==== `[.contract-item-name]#++ConfirmationRevoked++#++(id: TransactionID, signer: ContractAddress)++` [.item-kind]#event#
+
+Emitted when a `signer` revokes his confirmation.
+
+[.contract-item]
+[[MultisigComponent-TransactionExecuted]]
+==== `[.contract-item-name]#++TransactionExecuted++#++(id: TransactionID)++` [.item-kind]#event#
+
+Emitted when a transaction is executed.
+
+[.contract-item]
+[[MultisigComponent-CallSalt]]
+==== `[.contract-item-name]#++CallSalt++#++(id: felt252, salt: felt252)++` [.item-kind]#event#
+
+Emitted when a new transaction is submitted with non-zero salt.
 
 == Timelock
 
@@ -2694,6 +2750,12 @@ In a governance system, `TimelockControllerComponent` is in charge of introducin
 [.contract]
 [[ITimelock]]
 === `++ITimelock++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.20.0/packages/governance/src/timelock/interface.cairo[{github-icon},role=heading-link]
+
+:ITimelock-CallScheduled: xref:ITimelock-CallScheduled[CallScheduled]
+:ITimelock-CallExecuted: xref:ITimelock-CallExecuted[CallExecuted]
+:ITimelock-CallSalt: xref:ITimelock-CallSalt[CallSalt]
+:ITimelock-CallCancelled: xref:ITimelock-CallCancelled[CallCancelled]
+:ITimelock-MinDelayChanged: xref:ITimelock-MinDelayChanged[MinDelayChanged]
 
 [.hljs-theme-dark]
 ```cairo
@@ -2921,6 +2983,12 @@ Emitted when the minimum delay for future operations is modified.
 [[TimelockControllerComponent]]
 === `++TimelockControllerComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.20.0/packages/governance/src/timelock/timelock_controller.cairo[{github-icon},role=heading-link]
 
+:TimelockComponent-CallScheduled: xref:TimelockControllerComponent-CallScheduled[CallScheduled]
+:TimelockComponent-CallExecuted: xref:TimelockControllerComponent-CallExecuted[CallExecuted]
+:TimelockComponent-CallSalt: xref:TimelockControllerComponent-CallSalt[CallSalt]
+:TimelockComponent-CallCancelled: xref:TimelockControllerComponent-CallCancelled[CallCancelled]
+:TimelockComponent-MinDelayChanged: xref:TimelockControllerComponent-MinDelayChanged[MinDelayChanged]
+
 include::../utils/_common.adoc[]
 
 [.hljs-theme-dark]
@@ -3082,8 +3150,8 @@ Requirements:
 - The proposal must not already exist.
 - `delay` must be greater than or equal to the min delay.
 
-Emits {CallScheduled} event.
-Emits {ITimelock-CallSalt} event if `salt` is not zero.
+Emits {TimelockComponent-CallScheduled} event.
+Emits {TimelockComponent-CallSalt} event if `salt` is not zero.
 
 [.contract-item]
 [[TimelockControllerComponent-schedule_batch]]
@@ -3097,8 +3165,8 @@ Requirements:
 - The proposal must not already exist.
 - `delay` must be greater than or equal to the min delay.
 
-Emits one {CallScheduled} event for each transaction in the batch.
-Emits {ITimelock-CallSalt} event if `salt` is not zero.
+Emits one {TimelockComponent-CallScheduled} event for each transaction in the batch.
+Emits {TimelockComponent-CallSalt} event if `salt` is not zero.
 
 [.contract-item]
 [[TimelockControllerComponent-cancel]]
@@ -3111,7 +3179,7 @@ Requirements:
 - The caller must have the `CANCELLER_ROLE` role.
 - `id` must be an operation.
 
-Emits a {CallCancelled} event.
+Emits a {TimelockComponent-CallCancelled} event.
 
 [.contract-item]
 [[TimelockControllerComponent-execute]]
@@ -3125,7 +3193,7 @@ Requirements:
 - `id` must be in Ready OperationState.
 - `predecessor` must either be `0` or in Done OperationState.
 
-Emits a {CallExecuted} event.
+Emits a {TimelockComponent-CallExecuted} event.
 
 NOTE: This function can reenter, but it doesn't pose a risk because <<TimelockControllerComponent-_after_call>>
 checks that the proposal is pending, thus any modifications to the operation during
@@ -3143,7 +3211,7 @@ Requirements:
 - `id` must be in Ready OperationState.
 - `predecessor` must either be `0` or in Done OperationState.
 
-Emits a {CallExecuted} event for each Call.
+Emits a {TimelockComponent-CallExecuted} event for each Call.
 
 NOTE: This function can reenter, but it doesn't pose a risk because `_after_call`
 checks that the proposal is pending, thus any modifications to the operation during
@@ -3161,7 +3229,7 @@ Requirements:
 and later executing an operation where the timelock is the target and the data
 is the serialized call to this function.
 
-Emits a {MinDelayChanged} event.
+Emits a {TimelockComponent-MinDelayChanged} event.
 
 [#TimelockControllerComponent-Internal-Functions]
 ==== Internal functions
@@ -3191,7 +3259,7 @@ Emits a {IAccessControl-RoleGranted} event for each account in `executors` with 
 May emit a {IAccessControl-RoleGranted} event for `admin` with `DEFAULT_ADMIN_ROLE` role (if `admin` is
 not zero).
 
-Emits {MinDelayChanged} event.
+Emits {TimelockComponent-MinDelayChanged} event.
 
 [.contract-item]
 [[TimelockControllerComponent-assert_only_role]]

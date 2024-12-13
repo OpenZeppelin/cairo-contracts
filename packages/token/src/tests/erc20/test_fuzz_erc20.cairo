@@ -1,14 +1,12 @@
 use ERC20Component::InternalTrait;
+use crate::erc20::ERC20Component;
 use crate::erc20::ERC20Component::{ERC20CamelOnlyImpl, ERC20Impl};
 use crate::erc20::ERC20Component::{ERC20MetadataImpl, InternalImpl};
-use openzeppelin_test_common::mocks::erc20::DualCaseERC20Mock;
-use crate::erc20::ERC20Component;
-use openzeppelin_testing::constants::{
-    OWNER, SPENDER, RECIPIENT, NAME, SYMBOL
-};
-use snforge_std::{test_address, start_cheat_caller_address};
-use starknet::ContractAddress;
 use openzeppelin_test_common::math::{is_overflow_add, is_overflow_sub};
+use openzeppelin_test_common::mocks::erc20::DualCaseERC20Mock;
+use openzeppelin_testing::constants::{NAME, OWNER, RECIPIENT, SPENDER, SYMBOL};
+use snforge_std::{start_cheat_caller_address, test_address};
+use starknet::ContractAddress;
 
 //
 // Setup
@@ -33,7 +31,9 @@ fn setup(supply: u256) -> ComponentState {
 
 #[test]
 fn test_mint(supply: u256, mint_amount: u256) {
-    if is_overflow_add(supply, mint_amount) { return; }
+    if is_overflow_add(supply, mint_amount) {
+        return;
+    }
     let mut state = setup(supply);
 
     assert_total_supply(supply);
@@ -46,8 +46,10 @@ fn test_mint(supply: u256, mint_amount: u256) {
 
 #[test]
 fn test_burn(supply: u256, burn_amount: u256) {
-    if is_overflow_sub(supply, burn_amount) { return; }
-    let mut state = setup(supply); 
+    if is_overflow_sub(supply, burn_amount) {
+        return;
+    }
+    let mut state = setup(supply);
 
     assert_total_supply(supply);
     assert_balance(OWNER(), supply);
@@ -59,8 +61,12 @@ fn test_burn(supply: u256, burn_amount: u256) {
 
 #[test]
 fn test_mint_burn(initial_supply: u256, mint_amount: u256, burn_amount: u256) {
-    if is_overflow_add(initial_supply, mint_amount) { return; }
-    if is_overflow_sub(mint_amount, burn_amount) { return; }
+    if is_overflow_add(initial_supply, mint_amount) {
+        return;
+    }
+    if is_overflow_sub(mint_amount, burn_amount) {
+        return;
+    }
     let mut state = setup(initial_supply);
     let (owner, recipient) = (OWNER(), RECIPIENT());
 
@@ -79,7 +85,9 @@ fn test_mint_burn(initial_supply: u256, mint_amount: u256, burn_amount: u256) {
 
 #[test]
 fn test_transfer(supply: u256, transfer_amount: u256) {
-    if is_overflow_sub(supply, transfer_amount) { return; }
+    if is_overflow_sub(supply, transfer_amount) {
+        return;
+    }
     let mut state = setup(supply);
     let (owner, recipient) = (OWNER(), RECIPIENT());
 
@@ -92,8 +100,10 @@ fn test_transfer(supply: u256, transfer_amount: u256) {
 
 #[test]
 fn test_transfer_from(supply: u256, transfer_amount: u256) {
-    if is_overflow_sub(supply, transfer_amount) { return; }
-    let mut state = setup(supply); 
+    if is_overflow_sub(supply, transfer_amount) {
+        return;
+    }
+    let mut state = setup(supply);
     let (owner, spender, recipient) = (OWNER(), SPENDER(), RECIPIENT());
     let contract_address = test_address();
 
@@ -114,7 +124,9 @@ fn test_transfer_from(supply: u256, transfer_amount: u256) {
 
 #[test]
 fn test__spend_allowance(supply: u256, spend_amount: u256) {
-    if is_overflow_sub(supply, spend_amount) { return; }
+    if is_overflow_sub(supply, spend_amount) {
+        return;
+    }
     let mut state = setup(supply);
     let (owner, spender) = (OWNER(), SPENDER());
     state._approve(owner, spender, supply);

@@ -1979,7 +1979,10 @@ Emitted when the timelock controller is updated.
 
 == Multisig
 
-TODO: Add description
+A Multisig module enhances security and decentralization by requiring multiple signers to 
+approve and execute transactions. Features include configurable quorum, signer management, 
+and self-administration, ensuring collective decision-making and transparency for critical 
+operations.
 
 [.contract]
 [[IMultisig]]

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0-rc.0
+// OpenZeppelin Contracts for Cairo v0.20.0
 // (governance/governor/extensions/governor_counting_simple.cairo)
 
 /// # GovernorCountingSimple Component
@@ -7,13 +7,13 @@
 /// Extension of GovernorComponent for simple vote counting with three options.
 #[starknet::component]
 pub mod GovernorCountingSimpleComponent {
-    use crate::governor::GovernorComponent::{
-        InternalTrait, ComponentState as GovernorComponentState
-    };
     use crate::governor::GovernorComponent;
+    use crate::governor::GovernorComponent::{
+        ComponentState as GovernorComponentState, InternalTrait,
+    };
     use openzeppelin_introspection::src5::SRC5Component;
     use starknet::ContractAddress;
-    use starknet::storage::{Map, StoragePathEntry, StorageMapReadAccess, StorageMapWriteAccess};
+    use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePathEntry};
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 
     type ProposalId = felt252;
@@ -28,7 +28,7 @@ pub mod GovernorCountingSimpleComponent {
     pub enum VoteType {
         Against,
         For,
-        Abstain
+        Abstain,
     }
 
     impl U8TryIntoVoteType of TryInto<u8, VoteType> {
@@ -47,7 +47,7 @@ pub mod GovernorCountingSimpleComponent {
             match self {
                 VoteType::Against => 0,
                 VoteType::For => 1,
-                VoteType::Abstain => 2
+                VoteType::Abstain => 2,
             }
         }
     }
@@ -57,7 +57,7 @@ pub mod GovernorCountingSimpleComponent {
         pub against_votes: u256,
         pub for_votes: u256,
         pub abstain_votes: u256,
-        pub has_voted: Map<ContractAddress, bool>
+        pub has_voted: Map<ContractAddress, bool>,
     }
 
     pub mod Errors {
@@ -75,7 +75,7 @@ pub mod GovernorCountingSimpleComponent {
         +GovernorComponent::GovernorQuorumTrait<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         impl GovernorCountingSimple: HasComponent<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of GovernorComponent::GovernorCountingTrait<TContractState> {
         /// See `GovernorComponent::GovernorCountingTrait::counting_mode`.
         fn counting_mode(self: @GovernorComponentState<TContractState>) -> ByteArray {
@@ -91,7 +91,7 @@ pub mod GovernorCountingSimpleComponent {
             account: ContractAddress,
             support: u8,
             total_weight: u256,
-            params: Span<felt252>
+            params: Span<felt252>,
         ) -> u256 {
             let mut contract = self.get_contract_mut();
             let mut this_component = GovernorCountingSimple::get_component_mut(ref contract);
@@ -114,7 +114,7 @@ pub mod GovernorCountingSimpleComponent {
                 VoteType::Abstain => {
                     let current_votes = proposal_votes.abstain_votes.read();
                     proposal_votes.abstain_votes.write(current_votes + total_weight);
-                }
+                },
             }
             total_weight
         }
@@ -123,7 +123,7 @@ pub mod GovernorCountingSimpleComponent {
         fn has_voted(
             self: @GovernorComponentState<TContractState>,
             proposal_id: felt252,
-            account: ContractAddress
+            account: ContractAddress,
         ) -> bool {
             let contract = self.get_contract();
             let this_component = GovernorCountingSimple::get_component(contract);
@@ -133,8 +133,10 @@ pub mod GovernorCountingSimpleComponent {
         }
 
         /// See `GovernorComponent::GovernorCountingTrait::quorum_reached`.
+        ///
+        /// In this implementation, both For and Abstain votes count toward quorum.
         fn quorum_reached(
-            self: @GovernorComponentState<TContractState>, proposal_id: felt252
+            self: @GovernorComponentState<TContractState>, proposal_id: felt252,
         ) -> bool {
             let contract = self.get_contract();
             let this_component = GovernorCountingSimple::get_component(contract);
@@ -150,7 +152,7 @@ pub mod GovernorCountingSimpleComponent {
         ///
         /// In this module, the `for_votes` must be strictly over the `against_votes`.
         fn vote_succeeded(
-            self: @GovernorComponentState<TContractState>, proposal_id: felt252
+            self: @GovernorComponentState<TContractState>, proposal_id: felt252,
         ) -> bool {
             let contract = self.get_contract();
             let this_component = GovernorCountingSimple::get_component(contract);

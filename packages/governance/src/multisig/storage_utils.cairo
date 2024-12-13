@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0-rc.0 (governance/multisig/storage_utils.cairo)
+// OpenZeppelin Contracts for Cairo v0.20.0 (governance/multisig/storage_utils.cairo)
 
 use core::integer::u128_safe_divmod;
 use starknet::storage_access::StorePacking;
@@ -11,7 +11,7 @@ const _2_POW_32: NonZero<u128> = 0xffffffff;
 #[derive(Drop)]
 pub struct TxInfo {
     pub is_executed: bool,
-    pub submitted_block: u64
+    pub submitted_block: u64,
 }
 
 /// Packs a `TxInfo` entity into a `u128` value.
@@ -42,7 +42,7 @@ pub impl TxInfoStorePacking of StorePacking<TxInfo, u128> {
 #[derive(Drop)]
 pub struct SignersInfo {
     pub quorum: u32,
-    pub signers_count: u32
+    pub signers_count: u32,
 }
 
 /// Packs a `SignersInfo` entity into a `u128` value.
@@ -59,7 +59,7 @@ pub impl SignersInfoStorePacking of StorePacking<SignersInfo, u128> {
     fn unpack(value: u128) -> SignersInfo {
         let (quorum, signers_count) = u128_safe_divmod(value, _2_POW_32);
         SignersInfo {
-            quorum: quorum.try_into().unwrap(), signers_count: signers_count.try_into().unwrap()
+            quorum: quorum.try_into().unwrap(), signers_count: signers_count.try_into().unwrap(),
         }
     }
 }

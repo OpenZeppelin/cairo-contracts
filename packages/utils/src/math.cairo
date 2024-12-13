@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0-rc.0 (utils/math.cairo)
+// OpenZeppelin Contracts for Cairo v0.20.0 (utils/math.cairo)
 
-use core::traits::{Into, BitAnd, BitXor};
+use core::traits::{BitAnd, BitXor, Into};
 
 /// Returns the average of two numbers. The result is rounded down.
 pub fn average<
@@ -12,9 +12,9 @@ pub fn average<
     impl TDiv: Div<T>,
     impl TBitAnd: BitAnd<T>,
     impl TBitXor: BitXor<T>,
-    impl TInto: Into<u8, T>
+    impl TInto: Into<u8, T>,
 >(
-    a: T, b: T
+    a: T, b: T,
 ) -> T {
     // (a + b) / 2 can overflow.
     (a & b) + (a ^ b) / 2_u8.into()

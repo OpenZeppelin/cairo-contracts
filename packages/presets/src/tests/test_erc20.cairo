@@ -1,7 +1,7 @@
 use core::num::traits::Bounded;
 use core::num::traits::Zero;
 use crate::interfaces::erc20::{
-    ERC20UpgradeableABISafeDispatcher, ERC20UpgradeableABISafeDispatcherTrait
+    ERC20UpgradeableABISafeDispatcher, ERC20UpgradeableABISafeDispatcherTrait,
 };
 use crate::interfaces::{ERC20UpgradeableABIDispatcher, ERC20UpgradeableABIDispatcherTrait};
 use openzeppelin_test_common::erc20::ERC20SpyHelpers;
@@ -10,12 +10,12 @@ use openzeppelin_test_common::upgrades::UpgradeableSpyHelpers;
 use openzeppelin_testing as utils;
 use openzeppelin_testing::common::IntoBase16String;
 use openzeppelin_testing::constants::{
-    ZERO, OWNER, SPENDER, RECIPIENT, OTHER, NAME, SYMBOL, DECIMALS, SUPPLY, VALUE, CLASS_HASH_ZERO
+    CLASS_HASH_ZERO, DECIMALS, NAME, OTHER, OWNER, RECIPIENT, SPENDER, SUPPLY, SYMBOL, VALUE, ZERO,
 };
 use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use openzeppelin_utils::serde::SerializedAppend;
-use snforge_std::{spy_events, EventSpy, start_cheat_caller_address};
+use snforge_std::{EventSpy, spy_events, start_cheat_caller_address};
 use starknet::ClassHash;
 
 fn V2_CLASS_HASH() -> ClassHash {
@@ -444,7 +444,7 @@ fn test_v2_missing_camel_selector() {
     v1.upgrade(v2_class_hash);
 
     let safe_dispatcher = ERC20UpgradeableABISafeDispatcher {
-        contract_address: v1.contract_address
+        contract_address: v1.contract_address,
     };
     let result = safe_dispatcher.totalSupply();
 

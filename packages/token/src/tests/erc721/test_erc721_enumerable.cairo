@@ -1,13 +1,13 @@
 use crate::erc721::ERC721Component::{ERC721Impl, InternalImpl as ERC721InternalImpl};
-use crate::erc721::extensions::erc721_enumerable::ERC721EnumerableComponent::{
-    ERC721EnumerableImpl, InternalImpl
-};
 use crate::erc721::extensions::erc721_enumerable::ERC721EnumerableComponent;
+use crate::erc721::extensions::erc721_enumerable::ERC721EnumerableComponent::{
+    ERC721EnumerableImpl, InternalImpl,
+};
 use crate::erc721::extensions::erc721_enumerable::interface::IERC721ENUMERABLE_ID;
 use openzeppelin_introspection::interface::ISRC5_ID;
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin_test_common::mocks::erc721::ERC721EnumerableMock;
-use openzeppelin_testing::constants::{OWNER, RECIPIENT, OTHER, ZERO};
+use openzeppelin_testing::constants::{OTHER, OWNER, RECIPIENT, ZERO};
 use starknet::ContractAddress;
 use starknet::storage::StorageMapReadAccess;
 

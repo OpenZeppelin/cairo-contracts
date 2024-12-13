@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0-rc.0 (token/erc20/snip12_utils/permit.cairo)
+// OpenZeppelin Contracts for Cairo v0.20.0 (token/erc20/snip12_utils/permit.cairo)
 
-use core::hash::{HashStateTrait, HashStateExTrait};
+use core::hash::{HashStateExTrait, HashStateTrait};
 use core::poseidon::PoseidonTrait;
 use openzeppelin_utils::cryptography::snip12::StructHash;
 use starknet::ContractAddress;

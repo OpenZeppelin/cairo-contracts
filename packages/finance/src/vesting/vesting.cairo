@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0-rc.0 (finance/vesting/vesting.cairo)
+// OpenZeppelin Contracts for Cairo v0.20.0 (finance/vesting/vesting.cairo)
 
 use starknet::ContractAddress;
 
@@ -30,8 +30,8 @@ use starknet::ContractAddress;
 #[starknet::component]
 pub mod VestingComponent {
     use crate::vesting::interface;
-    use openzeppelin_access::ownable::OwnableComponent::OwnableImpl;
     use openzeppelin_access::ownable::OwnableComponent;
+    use openzeppelin_access::ownable::OwnableComponent::OwnableImpl;
     use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
     use starknet::ContractAddress;
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
@@ -42,13 +42,13 @@ pub mod VestingComponent {
         pub Vesting_start: u64,
         pub Vesting_duration: u64,
         pub Vesting_cliff: u64,
-        pub Vesting_released: Map<ContractAddress, u256>
+        pub Vesting_released: Map<ContractAddress, u256>,
     }
 
     #[event]
     #[derive(Drop, PartialEq, starknet::Event)]
     pub enum Event {
-        AmountReleased: AmountReleased
+        AmountReleased: AmountReleased,
     }
 
     /// Emitted when vested tokens are released to the beneficiary.
@@ -88,7 +88,7 @@ pub mod VestingComponent {
         TContractState,
         +HasComponent<TContractState>,
         impl Ownable: OwnableComponent::HasComponent<TContractState>,
-        +VestingScheduleTrait<TContractState>
+        +VestingScheduleTrait<TContractState>,
     > of interface::IVesting<ComponentState<TContractState>> {
         /// Returns the timestamp marking the beginning of the vesting period.
         fn start(self: @ComponentState<TContractState>) -> u64 {
@@ -129,7 +129,7 @@ pub mod VestingComponent {
 
         /// Returns the total vested amount of a specified `token` at a given `timestamp`.
         fn vested_amount(
-            self: @ComponentState<TContractState>, token: ContractAddress, timestamp: u64
+            self: @ComponentState<TContractState>, token: ContractAddress, timestamp: u64,
         ) -> u256 {
             self.resolve_vested_amount(token, timestamp)
         }
@@ -153,7 +153,7 @@ pub mod VestingComponent {
                 let beneficiary = get_dep_component!(@self, Ownable).owner();
                 let token_dispatcher = IERC20Dispatcher { contract_address: token };
                 assert(
-                    token_dispatcher.transfer(beneficiary, amount), Errors::TOKEN_TRANSFER_FAILED
+                    token_dispatcher.transfer(beneficiary, amount), Errors::TOKEN_TRANSFER_FAILED,
                 );
             }
             amount
@@ -164,7 +164,7 @@ pub mod VestingComponent {
     pub impl InternalImpl<
         TContractState,
         +HasComponent<TContractState>,
-        impl VestingSchedule: VestingScheduleTrait<TContractState>
+        impl VestingSchedule: VestingScheduleTrait<TContractState>,
     > of InternalTrait<TContractState> {
         /// Initializes the component by setting the vesting `start`, `duration` and
         /// `cliff_duration`.
@@ -173,7 +173,10 @@ pub mod VestingComponent {
         ///
         /// - `cliff_duration` must be less than or equal to `duration`.
         fn initializer(
-            ref self: ComponentState<TContractState>, start: u64, duration: u64, cliff_duration: u64
+            ref self: ComponentState<TContractState>,
+            start: u64,
+            duration: u64,
+            cliff_duration: u64,
         ) {
             self.Vesting_start.write(start);
             self.Vesting_duration.write(duration);
@@ -185,7 +188,7 @@ pub mod VestingComponent {
         /// Returns the vested amount that's calculated using the `VestingScheduleTrait`
         /// implementation.
         fn resolve_vested_amount(
-            self: @ComponentState<TContractState>, token: ContractAddress, timestamp: u64
+            self: @ComponentState<TContractState>, token: ContractAddress, timestamp: u64,
         ) -> u256 {
             let released_amount = self.Vesting_released.read(token);
             let token_dispatcher = IERC20Dispatcher { contract_address: token };
@@ -198,7 +201,7 @@ pub mod VestingComponent {
                 timestamp,
                 self.Vesting_start.read(),
                 self.Vesting_duration.read(),
-                self.Vesting_cliff.read()
+                self.Vesting_cliff.read(),
             );
             vested_amount
         }
@@ -209,7 +212,7 @@ pub mod VestingComponent {
 /// It returns 0 before the cliff ends. After the cliff period, the vested amount returned
 /// is directly proportional to the time passed since the start of the vesting schedule.
 pub impl LinearVestingSchedule<
-    TContractState
+    TContractState,
 > of VestingComponent::VestingScheduleTrait<TContractState> {
     fn calculate_vested_amount(
         self: @VestingComponent::ComponentState<TContractState>,

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0-rc.0 (access/ownable/ownable.cairo)
+// OpenZeppelin Contracts for Cairo v0.20.0 (access/ownable/ownable.cairo)
 
 /// # Ownable Component
 ///
@@ -16,8 +16,8 @@
 #[starknet::component]
 pub mod OwnableComponent {
     use core::num::traits::Zero;
-    use crate::ownable::interface::IOwnableTwoStep;
     use crate::ownable::interface;
+    use crate::ownable::interface::IOwnableTwoStep;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
@@ -25,14 +25,14 @@ pub mod OwnableComponent {
     #[storage]
     pub struct Storage {
         pub Ownable_owner: ContractAddress,
-        pub Ownable_pending_owner: ContractAddress
+        pub Ownable_pending_owner: ContractAddress,
     }
 
     #[event]
     #[derive(Drop, PartialEq, starknet::Event)]
     pub enum Event {
         OwnershipTransferred: OwnershipTransferred,
-        OwnershipTransferStarted: OwnershipTransferStarted
+        OwnershipTransferStarted: OwnershipTransferStarted,
     }
 
     /// Emitted when `new_owner` is set as owner of the contract.
@@ -64,7 +64,7 @@ pub mod OwnableComponent {
 
     #[embeddable_as(OwnableImpl)]
     impl Ownable<
-        TContractState, +HasComponent<TContractState>
+        TContractState, +HasComponent<TContractState>,
     > of interface::IOwnable<ComponentState<TContractState>> {
         /// Returns the address of the current owner.
         fn owner(self: @ComponentState<TContractState>) -> ContractAddress {
@@ -80,7 +80,7 @@ pub mod OwnableComponent {
         ///
         /// Emits an `OwnershipTransferred` event.
         fn transfer_ownership(
-            ref self: ComponentState<TContractState>, new_owner: ContractAddress
+            ref self: ComponentState<TContractState>, new_owner: ContractAddress,
         ) {
             assert(!new_owner.is_zero(), Errors::ZERO_ADDRESS_OWNER);
             self.assert_only_owner();
@@ -104,7 +104,7 @@ pub mod OwnableComponent {
     /// Adds support for two step ownership transfer.
     #[embeddable_as(OwnableTwoStepImpl)]
     impl OwnableTwoStep<
-        TContractState, +HasComponent<TContractState>
+        TContractState, +HasComponent<TContractState>,
     > of interface::IOwnableTwoStep<ComponentState<TContractState>> {
         /// Returns the address of the current owner.
         fn owner(self: @ComponentState<TContractState>) -> ContractAddress {
@@ -141,7 +141,7 @@ pub mod OwnableComponent {
         ///
         /// Emits an `OwnershipTransferStarted` event.
         fn transfer_ownership(
-            ref self: ComponentState<TContractState>, new_owner: ContractAddress
+            ref self: ComponentState<TContractState>, new_owner: ContractAddress,
         ) {
             self.assert_only_owner();
             self._propose_owner(new_owner);
@@ -164,7 +164,7 @@ pub mod OwnableComponent {
     /// Adds camelCase support for `IOwnable`.
     #[embeddable_as(OwnableCamelOnlyImpl)]
     impl OwnableCamelOnly<
-        TContractState, +HasComponent<TContractState>
+        TContractState, +HasComponent<TContractState>,
     > of interface::IOwnableCamelOnly<ComponentState<TContractState>> {
         fn transferOwnership(ref self: ComponentState<TContractState>, newOwner: ContractAddress) {
             Ownable::transfer_ownership(ref self, newOwner);
@@ -178,7 +178,7 @@ pub mod OwnableComponent {
     /// Adds camelCase support for `IOwnableTwoStep`.
     #[embeddable_as(OwnableTwoStepCamelOnlyImpl)]
     impl OwnableTwoStepCamelOnly<
-        TContractState, +HasComponent<TContractState>
+        TContractState, +HasComponent<TContractState>,
     > of interface::IOwnableTwoStepCamelOnly<ComponentState<TContractState>> {
         fn pendingOwner(self: @ComponentState<TContractState>) -> ContractAddress {
             OwnableTwoStep::pending_owner(self)
@@ -199,7 +199,7 @@ pub mod OwnableComponent {
 
     #[embeddable_as(OwnableMixinImpl)]
     impl OwnableMixin<
-        TContractState, +HasComponent<TContractState>, +Drop<TContractState>
+        TContractState, +HasComponent<TContractState>, +Drop<TContractState>,
     > of interface::OwnableABI<ComponentState<TContractState>> {
         // IOwnable
         fn owner(self: @ComponentState<TContractState>) -> ContractAddress {
@@ -207,7 +207,7 @@ pub mod OwnableComponent {
         }
 
         fn transfer_ownership(
-            ref self: ComponentState<TContractState>, new_owner: ContractAddress
+            ref self: ComponentState<TContractState>, new_owner: ContractAddress,
         ) {
             Ownable::transfer_ownership(ref self, new_owner);
         }
@@ -228,7 +228,7 @@ pub mod OwnableComponent {
 
     #[embeddable_as(OwnableTwoStepMixinImpl)]
     impl OwnableTwoStepMixin<
-        TContractState, +HasComponent<TContractState>, +Drop<TContractState>
+        TContractState, +HasComponent<TContractState>, +Drop<TContractState>,
     > of interface::OwnableTwoStepABI<ComponentState<TContractState>> {
         // IOwnableTwoStep
         fn owner(self: @ComponentState<TContractState>) -> ContractAddress {
@@ -244,7 +244,7 @@ pub mod OwnableComponent {
         }
 
         fn transfer_ownership(
-            ref self: ComponentState<TContractState>, new_owner: ContractAddress
+            ref self: ComponentState<TContractState>, new_owner: ContractAddress,
         ) {
             OwnableTwoStep::transfer_ownership(ref self, new_owner);
         }
@@ -273,7 +273,7 @@ pub mod OwnableComponent {
 
     #[generate_trait]
     pub impl InternalImpl<
-        TContractState, +HasComponent<TContractState>
+        TContractState, +HasComponent<TContractState>,
     > of InternalTrait<TContractState> {
         /// Sets the contract's initial owner.
         ///
@@ -302,7 +302,7 @@ pub mod OwnableComponent {
         ///
         /// Emits an `OwnershipTransferred` event.
         fn _transfer_ownership(
-            ref self: ComponentState<TContractState>, new_owner: ContractAddress
+            ref self: ComponentState<TContractState>, new_owner: ContractAddress,
         ) {
             self.Ownable_pending_owner.write(Zero::zero());
 

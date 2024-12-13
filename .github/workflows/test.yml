@@ -34,8 +34,10 @@ jobs:
         with:
           starknet-foundry-version: ${{ env.FOUNDRY_VERSION }}
 
-      - name: Install cairo-coverage
-        run: curl -L https://raw.githubusercontent.com/software-mansion/cairo-coverage/main/scripts/install.sh | sh
+      # Issue with cairo-coverage. Re-add to CI once issues are fixed.
+      #
+      # - name: Install cairo-coverage
+      #   run: curl -L https://raw.githubusercontent.com/software-mansion/cairo-coverage/main/scripts/install.sh | sh
 
       - name: Markdown lint
         uses: DavidAnson/markdownlint-cli2-action@eb5ca3ab411449c66620fe7f1b3c9e10547144b0 # v16
@@ -47,11 +49,21 @@ jobs:
       - name: Cairo lint
         run: scarb fmt --check --workspace
 
+<<<<<<< HEAD
       - name: Run tests and generate coverage report
         run: snforge test --workspace --coverage --features fuzzing --fuzzer-runs 10000
+=======
+      - name: Run tests
+        run: snforge test --workspace
+>>>>>>> main
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          file: ./coverage.lcov
-          token: ${{ secrets.CODECOV_TOKEN }}
+      # Issue with cairo-coverage. Re-add to CI once issues are fixed.
+      #
+      # - name: Run tests and generate coverage report
+      #   run: snforge test --workspace --coverage
+      #
+      # - name: Upload coverage to Codecov
+      #   uses: codecov/codecov-action@v4
+      #   with:
+      #     file: ./coverage.lcov
+      #     token: ${{ secrets.CODECOV_TOKEN }}

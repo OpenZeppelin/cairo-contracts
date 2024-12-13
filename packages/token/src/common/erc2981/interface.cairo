@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0-rc.0 (token/common/erc2981/interface.cairo)
+// OpenZeppelin Contracts for Cairo v0.20.0 (token/common/erc2981/interface.cairo)
 
 use starknet::ContractAddress;
 
@@ -49,7 +49,7 @@ pub trait IERC2981Admin<TState> {
     /// Sets the royalty information for a specific token id that takes precedence over the global
     /// default.
     fn set_token_royalty(
-        ref self: TState, token_id: u256, receiver: ContractAddress, fee_numerator: u128
+        ref self: TState, token_id: u256, receiver: ContractAddress, fee_numerator: u128,
     );
 
     /// Resets royalty information for the token id back to unset.
@@ -70,7 +70,7 @@ pub trait IERC2981ABI<TState> {
     fn set_default_royalty(ref self: TState, receiver: ContractAddress, fee_numerator: u128);
     fn delete_default_royalty(ref self: TState);
     fn set_token_royalty(
-        ref self: TState, token_id: u256, receiver: ContractAddress, fee_numerator: u128
+        ref self: TState, token_id: u256, receiver: ContractAddress, fee_numerator: u128,
     );
     fn reset_token_royalty(ref self: TState, token_id: u256);
 }

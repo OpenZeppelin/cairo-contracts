@@ -4,15 +4,15 @@ pub mod GovernorMock {
     use openzeppelin_governance::governor::GovernorComponent::InternalTrait as GovernorInternalTrait;
     use openzeppelin_governance::governor::extensions::GovernorVotesComponent::InternalTrait;
     use openzeppelin_governance::governor::extensions::{
-        GovernorVotesComponent, GovernorCountingSimpleComponent, GovernorCoreExecutionComponent
+        GovernorCoreExecutionComponent, GovernorCountingSimpleComponent, GovernorVotesComponent,
     };
-    use openzeppelin_governance::governor::{GovernorComponent, DefaultConfig};
+    use openzeppelin_governance::governor::{DefaultConfig, GovernorComponent};
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
     use starknet::ContractAddress;
 
     pub const VOTING_DELAY: u64 = 86400; // 1 day
-    pub const VOTING_PERIOD: u64 = 432_000; // 1 week
+    pub const VOTING_PERIOD: u64 = 604800; // 1 week
     pub const PROPOSAL_THRESHOLD: u256 = 10;
     pub const QUORUM: u256 = 100_000_000;
 
@@ -21,12 +21,12 @@ pub mod GovernorMock {
     component!(
         path: GovernorCountingSimpleComponent,
         storage: governor_counting_simple,
-        event: GovernorCountingSimpleEvent
+        event: GovernorCountingSimpleEvent,
     );
     component!(
         path: GovernorCoreExecutionComponent,
         storage: governor_core_execution,
-        event: GovernorCoreExecutionEvent
+        event: GovernorCoreExecutionEvent,
     );
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
@@ -136,16 +136,16 @@ pub mod GovernorQuorumFractionMock {
     use openzeppelin_governance::governor::GovernorComponent::InternalTrait as GovernorInternalTrait;
     use openzeppelin_governance::governor::extensions::GovernorVotesQuorumFractionComponent::InternalTrait;
     use openzeppelin_governance::governor::extensions::{
-        GovernorVotesQuorumFractionComponent, GovernorCountingSimpleComponent,
-        GovernorCoreExecutionComponent,
+        GovernorCoreExecutionComponent, GovernorCountingSimpleComponent,
+        GovernorVotesQuorumFractionComponent,
     };
-    use openzeppelin_governance::governor::{GovernorComponent, DefaultConfig};
+    use openzeppelin_governance::governor::{DefaultConfig, GovernorComponent};
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
     use starknet::ContractAddress;
 
     pub const VOTING_DELAY: u64 = 86400; // 1 day
-    pub const VOTING_PERIOD: u64 = 432_000; // 1 week
+    pub const VOTING_PERIOD: u64 = 604800; // 1 week
     pub const PROPOSAL_THRESHOLD: u256 = 10;
     pub const QUORUM_NUMERATOR: u256 = 600; // 60%
 
@@ -153,17 +153,17 @@ pub mod GovernorQuorumFractionMock {
     component!(
         path: GovernorVotesQuorumFractionComponent,
         storage: governor_votes,
-        event: GovernorVotesEvent
+        event: GovernorVotesEvent,
     );
     component!(
         path: GovernorCountingSimpleComponent,
         storage: governor_counting_simple,
-        event: GovernorCountingSimpleEvent
+        event: GovernorCountingSimpleEvent,
     );
     component!(
         path: GovernorCoreExecutionComponent,
         storage: governor_core_execution,
-        event: GovernorCoreExecutionEvent
+        event: GovernorCoreExecutionEvent,
     );
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
@@ -266,33 +266,33 @@ pub mod GovernorTimelockedMock {
     use openzeppelin_governance::governor::extensions::GovernorTimelockExecutionComponent::InternalTrait as GovernorTimelockExecutionInternalTrait;
     use openzeppelin_governance::governor::extensions::GovernorVotesComponent::InternalTrait as GovernorVotesInternalTrait;
     use openzeppelin_governance::governor::extensions::{
-        GovernorVotesComponent, GovernorSettingsComponent, GovernorCountingSimpleComponent,
-        GovernorTimelockExecutionComponent
+        GovernorCountingSimpleComponent, GovernorSettingsComponent,
+        GovernorTimelockExecutionComponent, GovernorVotesComponent,
     };
-    use openzeppelin_governance::governor::{GovernorComponent, DefaultConfig};
+    use openzeppelin_governance::governor::{DefaultConfig, GovernorComponent};
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
     use starknet::ContractAddress;
 
     pub const VOTING_DELAY: u64 = 86400; // 1 day
-    pub const VOTING_PERIOD: u64 = 432_000; // 1 week
+    pub const VOTING_PERIOD: u64 = 604800; // 1 week
     pub const PROPOSAL_THRESHOLD: u256 = 10;
     pub const QUORUM: u256 = 100_000_000;
 
     component!(path: GovernorComponent, storage: governor, event: GovernorEvent);
     component!(path: GovernorVotesComponent, storage: governor_votes, event: GovernorVotesEvent);
     component!(
-        path: GovernorSettingsComponent, storage: governor_settings, event: GovernorSettingsEvent
+        path: GovernorSettingsComponent, storage: governor_settings, event: GovernorSettingsEvent,
     );
     component!(
         path: GovernorCountingSimpleComponent,
         storage: governor_counting_simple,
-        event: GovernorCountingSimpleEvent
+        event: GovernorCountingSimpleEvent,
     );
     component!(
         path: GovernorTimelockExecutionComponent,
         storage: governor_timelock_execution,
-        event: GovernorTimelockExecutionEvent
+        event: GovernorTimelockExecutionEvent,
     );
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
@@ -357,7 +357,7 @@ pub mod GovernorTimelockedMock {
 
     #[constructor]
     fn constructor(
-        ref self: ContractState, votes_token: ContractAddress, timelock_controller: ContractAddress
+        ref self: ContractState, votes_token: ContractAddress, timelock_controller: ContractAddress,
     ) {
         self.governor.initializer();
         self.governor_votes.initializer(votes_token);
@@ -395,7 +395,7 @@ pub mod GovernorTimelockedMock {
     impl ExternalImpl of ExternalTrait {
         #[external(v0)]
         fn cancel_operations(
-            ref self: ContractState, proposal_id: felt252, description_hash: felt252
+            ref self: ContractState, proposal_id: felt252, description_hash: felt252,
         ) {
             self.governor.cancel_operations(proposal_id, description_hash);
         }

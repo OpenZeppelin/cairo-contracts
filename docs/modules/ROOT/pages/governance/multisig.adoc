@@ -12,30 +12,30 @@ This component is designed to secure operations such as fund management or proto
 where collective decision-making is essential. The Multisig Component is self-administered, 
 meaning that changes to signers or quorum must be approved through the multisig process itself.
 
-== Key Features
+== Key features
 
-- *Multi-Signature Security*: Transactions must be approved by multiple signers, ensuring 
+- *Multi-Signature Security*: transactions must be approved by multiple signers, ensuring 
 distributed governance.
 
-- *Quorum Enforcement*: Defines the minimum number of approvals required for transaction execution.
+- *Quorum Enforcement*: defines the minimum number of approvals required for transaction execution.
 
-- *Self-Administration*: All modifications to the component (e.g., adding or removing signers) 
+- *Self-Administration*: all modifications to the component (e.g., adding or removing signers) 
 must pass through the multisig process.
 
-- *Event Logging*: Provides comprehensive event logging for transparency and auditability.
+- *Event Logging*: provides comprehensive event logging for transparency and auditability.
 
-== Signer Management
+== Signer management
 
 The Multisig component introduces the concept of signers and quorum:
 
-- *Signers*: Only registered signers can submit, confirm, revoke, or execute transactions. The Multisig 
+- *Signers*: only registered signers can submit, confirm, revoke, or execute transactions. The Multisig 
 Component supports adding, removing, or replacing signers.
-- *Quorum*: The quorum defines the minimum number of confirmations required to approve a transaction. 
+- *Quorum*: the quorum defines the minimum number of confirmations required to approve a transaction. 
 
 NOTE: To prevent unauthorized modifications, only the contract itself can add, remove, or replace signers or change the quorum. 
 This ensures that all modifications pass through the multisig approval process.
 
-== Transaction Lifecycle
+== Transaction lifecycle
 
 A transaction in the Multisig component follows a specific lifecycle:
 
@@ -44,10 +44,10 @@ A transaction in the Multisig component follows a specific lifecycle:
 The state of a transaction is represented by the `TransactionState` enum and can be checked 
 by calling the `get_transaction_state` function.
 
-- *NotFound*: The transaction does not exist.
-- *Pending*: The transaction exists but has not reached the required confirmations.
-- *Confirmed*: The transaction has reached the quorum but has not yet been executed.
-- *Executed*: The transaction has been successfully executed.
+- *NotFound*: the transaction does not exist.
+- *Pending*: the transaction exists but has not reached the required confirmations.
+- *Confirmed*: the transaction has reached the quorum but has not yet been executed.
+- *Executed*: the transaction has been successfully executed.
 
 == Usage
 

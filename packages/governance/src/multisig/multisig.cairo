@@ -193,11 +193,11 @@ pub mod MultisigComponent {
         /// Returns the current state of the transaction with the given `id`.
         ///
         /// The possible states are:
-        /// - `NotFound`: The transaction does not exist.
-        /// - `Pending`: The transaction exists but hasn't reached the required confirmations.
-        /// - `Confirmed`: The transaction has reached the required confirmations but hasn't been
+        /// - `NotFound`: the transaction does not exist.
+        /// - `Pending`: the transaction exists but hasn't reached the required confirmations.
+        /// - `Confirmed`: the transaction has reached the required confirmations but hasn't been
         /// executed.
-        /// - `Executed`: The transaction has been executed.
+        /// - `Executed`: the transaction has been executed.
         fn get_transaction_state(
             self: @ComponentState<TContractState>, id: TransactionID,
         ) -> TransactionState {
@@ -477,11 +477,11 @@ pub mod MultisigComponent {
         /// Resolves and returns the current state of the transaction with the given `id`.
         ///
         /// The possible states are:
-        /// - `NotFound`: The transaction does not exist.
-        /// - `Pending`: The transaction exists but hasn't reached the required confirmations.
-        /// - `Confirmed`: The transaction has reached the required confirmations but hasn't been
+        /// - `NotFound`: the transaction does not exist.
+        /// - `Pending`: the transaction exists but hasn't reached the required confirmations.
+        /// - `Confirmed`: the transaction has reached the required confirmations but hasn't been
         /// executed.
-        /// - `Executed`: The transaction has been executed.
+        /// - `Executed`: the transaction has been executed.
         fn resolve_tx_state(
             self: @ComponentState<TContractState>, id: TransactionID,
         ) -> TransactionState {
@@ -513,7 +513,7 @@ pub mod MultisigComponent {
         ///
         /// Requirements:
         ///
-        /// - The transaction with `id` must have been submitted.
+        /// - The transaction with the given `id` must have been submitted.
         fn assert_tx_exists(self: @ComponentState<TContractState>, id: TransactionID) {
             assert(self.get_submitted_block(id).is_non_zero(), Errors::TX_NOT_FOUND);
         }

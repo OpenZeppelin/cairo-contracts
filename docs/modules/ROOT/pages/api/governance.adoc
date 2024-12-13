@@ -2601,10 +2601,10 @@ Emits a {MultisigComponent-QuorumUpdated} event.
 Resolves and returns the current state of the transaction with the given `id`.
 
 The possible states are:
-- `NotFound`: The transaction does not exist.
-- `Pending`: The transaction exists but hasn't reached the required confirmations.
-- `Confirmed`: The transaction has reached the required confirmations but hasn't been executed.
-- `Executed`: The transaction has been executed.
+- `NotFound`: the transaction does not exist.
+- `Pending`: the transaction exists but hasn't reached the required confirmations.
+- `Confirmed`: the transaction has reached the required confirmations but hasn't been executed.
+- `Executed`: the transaction has been executed.
 
 [.contract-item]
 [[MultisigComponent-assert_one_of_signers]]
@@ -2624,7 +2624,7 @@ Asserts that a transaction with the given `id` exists.
 
 Requirements:
 
-- The transaction with `id` must have been submitted.
+- The transaction with the given `id` must have been submitted.
 
 [.contract-item]
 [[MultisigComponent-assert_only_self]]

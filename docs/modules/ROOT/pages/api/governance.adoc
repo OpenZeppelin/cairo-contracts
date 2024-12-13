@@ -2311,7 +2311,13 @@ Emitted when a new transaction is submitted with non-zero salt.
 :MultisigComponent-ConfirmationRevoked: xref:MultisigComponent-CallSalt[ConfirmationRevoked]
 :MultisigComponent-TransactionExecuted: xref:MultisigComponent-CallSalt[TransactionExecuted]
 
-Component that implements `IMultisig` and provides functionality for multisignature wallets, including transaction management, quorum handling, and signer operations.
+[.hljs-theme-dark]
+```cairo
+use openzeppelin_governance::multisig::MultisigComponent;
+```
+
+Component that implements `IMultisig` and provides functionality for multisignature wallets, 
+including transaction management, quorum handling, and signer operations.
 
 [.contract-index#MultisigComponent-Embeddable-Impls]
 .Embeddable Implementations

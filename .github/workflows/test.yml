@@ -49,13 +49,8 @@ jobs:
       - name: Cairo lint
         run: scarb fmt --check --workspace
 
-<<<<<<< HEAD
-      - name: Run tests and generate coverage report
-        run: snforge test --workspace --coverage --features fuzzing --fuzzer-runs 10000
-=======
       - name: Run tests
-        run: snforge test --workspace
->>>>>>> main
+        run: snforge test --workspace --coverage --features fuzzing --fuzzer-runs 10000
 
       # Issue with cairo-coverage. Re-add to CI once issues are fixed.
       #

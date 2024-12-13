@@ -8,7 +8,7 @@ use openzeppelin_testing::constants::{
 };
 use snforge_std::{test_address, start_cheat_caller_address};
 use starknet::ContractAddress;
-use openzeppelin_testing::math::{is_overflow_add, is_overflow_sub};
+use openzeppelin_test_common::math::{is_overflow_add, is_overflow_sub};
 
 //
 // Setup

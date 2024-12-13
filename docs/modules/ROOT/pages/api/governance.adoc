@@ -2080,6 +2080,12 @@ Returns whether the transaction with the given `id` has been confirmed by the sp
 Returns whether the transaction with the given `id` has been executed.
 
 [.contract-item]
+[[IMultisig-get_submitted_block]]
+==== `[.contract-item-name]#++get_submitted_block++#++(id: TransactionID) → u64++` [.item-kind]#external#
+
+Returns the block number when the transaction with the given `id` was submitted.
+
+[.contract-item]
 [[IMultisig-get_transaction_state]]
 ==== `[.contract-item-name]#++get_transaction_state++#++(id: TransactionID) → TransactionState++` [.item-kind]#external#
 
@@ -2092,10 +2098,16 @@ Returns the current state of the transaction with the given `id`.
 Returns the number of confirmations from registered signers for the transaction with the specified `id`.
 
 [.contract-item]
-[[IMultisig-get_submitted_block]]
-==== `[.contract-item-name]#++get_submitted_block++#++(id: TransactionID) → u64++` [.item-kind]#external#
+[[IMultisig-hash_transaction]]
+==== `[.contract-item-name]#++hash_transaction++#++(to: ContractAddress, selector: felt252, calldata: Span<felt252>, salt: felt252) → TransactionID++` [.item-kind]#external#
 
-Returns the block number when the transaction with the given `id` was submitted.
+Returns the computed identifier of a transaction containing a single call.
+
+[.contract-item]
+[[IMultisig-hash_transaction_batch]]
+==== `[.contract-item-name]#++hash_transaction_batch++#++(calls: Span<Call>, salt: felt252) → TransactionID++` [.item-kind]#external#
+
+Returns the computed identifier of a transaction containing a batch of calls.
 
 [.contract-item]
 [[IMultisig-add_signers]]
@@ -2235,18 +2247,6 @@ Requirements:
 
 Emits a {IMultisig-TransactionExecuted} event.
 
-[.contract-item]
-[[IMultisig-hash_transaction]]
-==== `[.contract-item-name]#++hash_transaction++#++(to: ContractAddress, selector: felt252, calldata: Span<felt252>, salt: felt252) → TransactionID++` [.item-kind]#external#
-
-Returns the computed identifier of a transaction containing a single call.
-
-[.contract-item]
-[[IMultisig-hash_transaction_batch]]
-==== `[.contract-item-name]#++hash_transaction_batch++#++(calls: Span<Call>, salt: felt252) → TransactionID++` [.item-kind]#external#
-
-Returns the computed identifier of a transaction containing a batch of calls.
-
 [#IMultisig-Events]
 ==== Events
 
@@ -2324,9 +2324,11 @@ Component that implements `IMultisig` and provides functionality for multisignat
 * xref:#MultisigComponent-is_confirmed[`++is_confirmed(self, id)++`]
 * xref:#MultisigComponent-is_confirmed_by[`++is_confirmed_by(self, id, signer)++`]
 * xref:#MultisigComponent-is_executed[`++is_executed(self, id)++`]
+* xref:#MultisigComponent-get_submitted_block[`++get_submitted_block(self, id)++`]
 * xref:#MultisigComponent-get_transaction_state[`++get_transaction_state(self, id)++`]
 * xref:#MultisigComponent-get_transaction_confirmations[`++get_transaction_confirmations(self, id)++`]
-* xref:#MultisigComponent-get_submitted_block[`++get_submitted_block(self, id)++`]
+* xref:#MultisigComponent-hash_transaction[`++hash_transaction(self, to, selector, calldata, salt)++`]
+* xref:#MultisigComponent-hash_transaction_batch[`++hash_transaction_batch(self, calls, salt)++`]
 * xref:#MultisigComponent-add_signers[`++add_signers(ref self, new_quorum, signers_to_add)++`]
 * xref:#MultisigComponent-remove_signers[`++remove_signers(ref self, new_quorum, signers_to_remove)++`]
 * xref:#MultisigComponent-replace_signer[`++replace_signer(ref self, signer_to_remove, signer_to_add)++`]
@@ -2337,8 +2339,6 @@ Component that implements `IMultisig` and provides functionality for multisignat
 * xref:#MultisigComponent-revoke_confirmation[`++revoke_confirmation(ref self, id)++`]
 * xref:#MultisigComponent-execute_transaction[`++execute_transaction(ref self, to, selector, calldata, salt)++`]
 * xref:#MultisigComponent-execute_transaction_batch[`++execute_transaction_batch(ref self, calls, salt)++`]
-* xref:#MultisigComponent-hash_transaction[`++hash_transaction(self, to, selector, calldata, salt)++`]
-* xref:#MultisigComponent-hash_transaction_batch[`++hash_transaction_batch(self, calls, salt)++`]
 --
 
 [.contract-index#MultisigComponent-Internal-Impls]
@@ -2401,31 +2401,43 @@ Returns whether the transaction with the given `id` has been confirmed. A confir
 [[MultisigComponent-is_confirmed_by]]
 ==== `[.contract-item-name]#++is_confirmed_by++#++(self: @ContractState, id: TransactionID, signer: ContractAddress) → bool++` [.item-kind]#external#
 
-Checks if the transaction with `id` has been confirmed by the specified `signer`.
+Returns whether the transaction with the given `id` has been confirmed by the specified `signer`.
 
 [.contract-item]
 [[MultisigComponent-is_executed]]
 ==== `[.contract-item-name]#++is_executed++#++(self: @ContractState, id: TransactionID) → bool++` [.item-kind]#external#
 
-Checks if the transaction with `id` has been executed.
-
-[.contract-item]
-[[MultisigComponent-get_transaction_state]]
-==== `[.contract-item-name]#++get_transaction_state++#++(self: @ContractState, id: TransactionID) → TransactionState++` [.item-kind]#external#
-
-Returns the current state of the transaction with `id`.
-
-[.contract-item]
-[[MultisigComponent-get_transaction_confirmations]]
-==== `[.contract-item-name]#++get_transaction_confirmations++#++(self: @ContractState, id: TransactionID) → u32++` [.item-kind]#external#
-
-Returns the number of confirmations from registered signers for the transaction with `id`.
+Returns whether the transaction with the given `id` has been executed.
 
 [.contract-item]
 [[MultisigComponent-get_submitted_block]]
 ==== `[.contract-item-name]#++get_submitted_block++#++(self: @ContractState, id: TransactionID) → u64++` [.item-kind]#external#
 
-Returns the block number when the transaction with `id` was submitted.
+Returns the block number when the transaction with the given `id` was submitted.
+
+[.contract-item]
+[[MultisigComponent-get_transaction_state]]
+==== `[.contract-item-name]#++get_transaction_state++#++(self: @ContractState, id: TransactionID) → TransactionState++` [.item-kind]#external#
+
+Returns the current state of the transaction with the given `id`.
+
+[.contract-item]
+[[MultisigComponent-get_transaction_confirmations]]
+==== `[.contract-item-name]#++get_transaction_confirmations++#++(self: @ContractState, id: TransactionID) → u32++` [.item-kind]#external#
+
+Returns the number of confirmations from registered signers for the transaction with the specified `id`.
+
+[.contract-item]
+[[MultisigComponent-hash_transaction]]
+==== `[.contract-item-name]#++hash_transaction++#++(self: @ContractState, to: ContractAddress, selector: felt252, calldata: Span<felt252>, salt: felt252)++` [.item-kind]#external#
+
+Returns the computed identifier of a transaction containing a single call.
+
+[.contract-item]
+[[MultisigComponent-hash_transaction_batch]]
+==== `[.contract-item-name]#++hash_transaction_batch++#++(self: @ContractState, calls: Span<Call>, salt: felt252)++` [.item-kind]#external#
+
+Returns the computed identifier of a transaction containing a batch of calls.
 
 [.contract-item]
 [[MultisigComponent-add_signers]]
@@ -2564,18 +2576,6 @@ Requirements:
 - The transaction must be confirmed and not yet executed.
 
 Emits a {MultisigComponent-TransactionExecuted} event.
-
-[.contract-item]
-[[MultisigComponent-hash_transaction]]
-==== `[.contract-item-name]#++hash_transaction++#++(self: @ContractState, to: ContractAddress, selector: felt252, calldata: Span<felt252>, salt: felt252)++` [.item-kind]#external#
-
-Returns the computed identifier of a transaction containing a single call.
-
-[.contract-item]
-[[MultisigComponent-hash_transaction_batch]]
-==== `[.contract-item-name]#++hash_transaction_batch++#++(self: @ContractState, calls: Span<Call>, salt: felt252)++` [.item-kind]#external#
-
-Returns the computed identifier of a transaction containing a batch of calls.
 
 [#MultisigComponent-Internal-Functions]
 ==== Internal functions

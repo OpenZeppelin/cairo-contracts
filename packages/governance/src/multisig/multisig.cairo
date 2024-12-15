@@ -190,6 +190,11 @@ pub mod MultisigComponent {
             self.Multisig_tx_info.read(id).is_executed
         }
 
+        /// Returns the block number when the transaction with the given `id` was submitted.
+        fn get_submitted_block(self: @ComponentState<TContractState>, id: TransactionID) -> u64 {
+            self.Multisig_tx_info.read(id).submitted_block
+        }
+
         /// Returns the current state of the transaction with the given `id`.
         ///
         /// The possible states are:
@@ -220,9 +225,23 @@ pub mod MultisigComponent {
             result
         }
 
-        /// Returns the block number when the transaction with the given `id` was submitted.
-        fn get_submitted_block(self: @ComponentState<TContractState>, id: TransactionID) -> u64 {
-            self.Multisig_tx_info.read(id).submitted_block
+        /// Returns the computed identifier of a transaction containing a single call.
+        fn hash_transaction(
+            self: @ComponentState<TContractState>,
+            to: ContractAddress,
+            selector: felt252,
+            calldata: Span<felt252>,
+            salt: felt252,
+        ) -> TransactionID {
+            let call = Call { to, selector, calldata };
+            self.hash_transaction_batch(array![call].span(), salt)
+        }
+
+        /// Returns the computed identifier of a transaction containing a batch of calls.
+        fn hash_transaction_batch(
+            self: @ComponentState<TContractState>, calls: Span<Call>, salt: felt252,
+        ) -> TransactionID {
+            PedersenTrait::new(0).update_with(calls).update_with(salt).finalize()
         }
 
         /// Adds new signers and updates the quorum.
@@ -430,25 +449,6 @@ pub mod MultisigComponent {
                     self.emit(TransactionExecuted { id });
                 },
             };
-        }
-
-        /// Returns the computed identifier of a transaction containing a single call.
-        fn hash_transaction(
-            self: @ComponentState<TContractState>,
-            to: ContractAddress,
-            selector: felt252,
-            calldata: Span<felt252>,
-            salt: felt252,
-        ) -> TransactionID {
-            let call = Call { to, selector, calldata };
-            self.hash_transaction_batch(array![call].span(), salt)
-        }
-
-        /// Returns the computed identifier of a transaction containing a batch of calls.
-        fn hash_transaction_batch(
-            self: @ComponentState<TContractState>, calls: Span<Call>, salt: felt252,
-        ) -> TransactionID {
-            PedersenTrait::new(0).update_with(calls).update_with(salt).finalize()
         }
     }
 

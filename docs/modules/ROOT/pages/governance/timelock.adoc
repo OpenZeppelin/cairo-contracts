@@ -4,7 +4,6 @@
 :accesscontrol-component: xref:api/access.adoc#AccessControlComponent[AccessControlComponent]
 :src5-component: xref:api/introspection.adoc#SRC5Component[SRC5Component]
 
-
 The Timelock Controller provides a means of enforcing time delays on the execution of transactions. This is considered good practice regarding governance systems because it allows users the opportunity to exit the system if they disagree with a decision before it is executed.
 
 NOTE: The Timelock contract itself executes transactions, not the user. The Timelock should, therefore, hold associated funds, ownership, and access control roles.

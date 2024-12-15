@@ -156,7 +156,7 @@ pub mod TimelockControllerComponent {
         ///
         /// The possible states are:
         ///
-        /// - `Unset`: The operation has not been scheduled or has been canceled.
+        /// - `Unset`: the operation has not been scheduled or has been canceled.
         /// - `Waiting`: the operation has been scheduled and is pending the minimum delay.
         /// - `Ready`: the timer has expired, and the operation is eligible for execution.
         /// - `Done`: the operation has been executed.

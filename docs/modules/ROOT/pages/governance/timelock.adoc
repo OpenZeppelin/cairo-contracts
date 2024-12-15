@@ -25,6 +25,11 @@ Timelocked operations follow a specific lifecycle:
 
 `Unset` → `Waiting` → `Ready` → `Done`
 
+- `Unset`: the operation has not been scheduled or has been canceled.
+- `Waiting`: the operation has been scheduled and is pending the minimum delay.
+- `Ready`: the timer has expired, and the operation is eligible for execution.
+- `Done`: the operation has been executed.
+
 == Timelock flow
 
 === Schedule

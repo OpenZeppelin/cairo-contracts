@@ -2322,7 +2322,7 @@ use openzeppelin_governance::multisig::MultisigComponent;
 Component that implements `IMultisig` and provides functionality for multisignature wallets, 
 including transaction management, quorum handling, and signer operations.
 
-[.contract-index#MultisigComponent-Embeddable-Impls]
+[.contract-index]
 .Embeddable Implementations
 --
 .MultisigImpl
@@ -2350,7 +2350,7 @@ including transaction management, quorum handling, and signer operations.
 * xref:#MultisigComponent-execute_transaction_batch[`++execute_transaction_batch(ref self, calls, salt)++`]
 --
 
-[.contract-index#MultisigComponent-Internal-Impls]
+[.contract-index]
 .Internal Implementations
 --
 .InternalImpl
@@ -2366,7 +2366,7 @@ including transaction management, quorum handling, and signer operations.
 * xref:#MultisigComponent-_change_quorum[`++_change_quorum(ref self, new_quorum)++`]
 --
 
-[.contract-index#MultisigComponent-Events]
+[.contract-index]
 .Events
 --
 * xref:#MultisigComponent-SignerAdded[`++SignerAdded(signer)++`]

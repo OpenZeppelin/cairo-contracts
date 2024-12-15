@@ -37,12 +37,19 @@ This ensures that all modifications pass through the multisig approval process.
 
 == Transaction lifecycle
 
+The state of a transaction is represented by the `TransactionState` enum and can be retrieved 
+by calling the `get_transaction_state` function with the transaction's identifier.
+
+The identifier of a multisig transaction is a `felt252` value, computed as the Pedersen hash 
+of the transaction's calls and salt. It can be computed by invoking the implementing contract's 
+`hash_transaction` method for single-call transactions or `hash_transaction_batch` for multi-call 
+transactions. Submitting a transaction with identical calls and the same salt value a second time 
+will fail, as transaction identifiers must be unique. To resolve this, use a different salt value 
+to generate a unique identifier.
+
 A transaction in the Multisig component follows a specific lifecycle:
 
 `NotFound` → `Pending` → `Confirmed` → `Executed`
-
-The state of a transaction is represented by the `TransactionState` enum and can be checked 
-by calling the `get_transaction_state` function.
 
 - *NotFound*: the transaction does not exist.
 - *Pending*: the transaction exists but has not reached the required confirmations.

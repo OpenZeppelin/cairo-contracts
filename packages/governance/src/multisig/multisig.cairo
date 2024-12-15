@@ -193,6 +193,7 @@ pub mod MultisigComponent {
         /// Returns the current state of the transaction with the given `id`.
         ///
         /// The possible states are:
+        ///
         /// - `NotFound`: the transaction does not exist.
         /// - `Pending`: the transaction exists but hasn't reached the required confirmations.
         /// - `Confirmed`: the transaction has reached the required confirmations but hasn't been
@@ -477,6 +478,7 @@ pub mod MultisigComponent {
         /// Resolves and returns the current state of the transaction with the given `id`.
         ///
         /// The possible states are:
+        ///
         /// - `NotFound`: the transaction does not exist.
         /// - `Pending`: the transaction exists but hasn't reached the required confirmations.
         /// - `Confirmed`: the transaction has reached the required confirmations but hasn't been

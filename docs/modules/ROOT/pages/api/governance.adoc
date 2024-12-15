@@ -2430,6 +2430,13 @@ Returns the block number when the transaction with the given `id` was submitted.
 
 Returns the current state of the transaction with the given `id`.
 
+The possible states are:
+
+- `NotFound`: the transaction does not exist.
+- `Pending`: the transaction exists but hasn't reached the required confirmations.
+- `Confirmed`: the transaction has reached the required confirmations but hasn't been executed.
+- `Executed`: the transaction has been executed.
+
 [.contract-item]
 [[MultisigComponent-get_transaction_confirmations]]
 ==== `[.contract-item-name]#++get_transaction_confirmations++#++(self: @ContractState, id: TransactionID) → u32++` [.item-kind]#external#

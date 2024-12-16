@@ -267,7 +267,7 @@ pub mod TimelockControllerComponent {
             }
         }
 
-        /// Cancels an operation.
+        /// Cancels an operation. A canceled operation returns to `Unset` OperationState.
         ///
         /// Requirements:
         ///

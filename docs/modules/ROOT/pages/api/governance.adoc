@@ -2911,12 +2911,12 @@ Emits {ITimelock-CallSalt} event if `salt` is not zero.
 [[ITimelock-cancel]]
 ==== `[.contract-item-name]#++cancel++#++(id: felt252)++` [.item-kind]#external#
 
-Cancel an operation.
+Cancels an operation. A canceled operation returns to `Unset` OperationState.
 
 Requirements:
 
 - The caller must have the `CANCELLER_ROLE` role.
-- `id` must be an operation.
+- `id` must be a pending operation.
 
 Emits a {ITimelock-CallCancelled} event.
 
@@ -3203,12 +3203,12 @@ Emits {TimelockComponent-CallSalt} event if `salt` is not zero.
 [[TimelockControllerComponent-cancel]]
 ==== `[.contract-item-name]#++cancel++#++(ref self: ContractState, id: felt252)++` [.item-kind]#external#
 
-Cancel an operation.
+Cancels an operation. A canceled operation returns to `Unset` OperationState.
 
 Requirements:
 
 - The caller must have the `CANCELLER_ROLE` role.
-- `id` must be an operation.
+- `id` must be a pending operation.
 
 Emits a {TimelockComponent-CallCancelled} event.
 

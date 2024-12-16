@@ -21,8 +21,8 @@ before proceeding, and run the following command to check that the installation 
 ----
 $ scarb --version
 
-scarb 2.9.1 (aba4f604a 2024-11-29)
-cairo: 2.9.1 (https://crates.io/crates/cairo-lang-compiler/2.9.1)
+scarb 2.9.2 (5070ff374 2024-12-11)
+cairo: 2.9.2 (https://crates.io/crates/cairo-lang-compiler/2.9.2)
 sierra: 1.6.0
 ----
 

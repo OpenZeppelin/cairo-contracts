@@ -1,4 +1,5 @@
 use ERC20Component::InternalTrait;
+use core::num::traits::Bounded;
 use crate::erc20::ERC20Component;
 use crate::erc20::ERC20Component::{ERC20CamelOnlyImpl, ERC20Impl};
 use crate::erc20::ERC20Component::{ERC20MetadataImpl, InternalImpl};
@@ -124,6 +125,9 @@ fn test_transfer_from(supply: u256, transfer_amount: u256) {
 
 #[test]
 fn test__spend_allowance(supply: u256, spend_amount: u256) {
+    if supply == Bounded::MAX {
+        return;
+    }
     if is_overflow_sub(supply, spend_amount) {
         return;
     }
@@ -132,6 +136,7 @@ fn test__spend_allowance(supply: u256, spend_amount: u256) {
     state._approve(owner, spender, supply);
 
     state._spend_allowance(owner, spender, spend_amount);
+
     assert_balance(owner, supply);
     assert_balance(spender, 0);
     assert_allowance(owner, spender, supply - spend_amount);

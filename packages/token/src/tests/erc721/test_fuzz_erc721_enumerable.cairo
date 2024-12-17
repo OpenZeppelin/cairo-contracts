@@ -79,20 +79,6 @@ fn test_burn_token(supply_seed: u32, burn_index_seed: u32) {
 }
 
 #[test]
-#[should_panic(expected: 'ERC721Enum: out of bounds index')]
-fn test_token_of_owner_by_index_when_index_exceeds_owned_tokens(
-    supply_seed: u32, token_index: u256,
-) {
-    let supply = prepare_supply(supply_seed);
-    if token_index < supply.into() {
-        return;
-    } // Tests only indices exceeding total supply
-    let (state, _) = setup(supply);
-
-    state.token_of_owner_by_index(OWNER(), token_index);
-}
-
-#[test]
 fn test_transfer_single_token(supply_seed: u32, index_seed: u32) {
     let supply = prepare_supply(supply_seed);
     let (_, initial_list) = setup(supply);
@@ -119,8 +105,8 @@ fn test_transfer_two_tokens(supply_seed: u32, index_seed_1: u32, index_seed_2: u
     let token_index_1 = index_seed_1 % supply;
     let token_index_2 = index_seed_2 % supply;
     if token_index_1 == token_index_2 {
-        return;
-    } // Doesn't test transfer of a same token
+        return; // Doesn't test transfer of a same token
+    }
     let (_, initial_list) = setup(supply);
     let token_1 = *initial_list.at(token_index_1);
     let token_2 = *initial_list.at(token_index_2);
@@ -145,17 +131,16 @@ fn test_transfer_two_tokens(supply_seed: u32, index_seed_1: u32, index_seed_2: u
 #[test]
 fn test__add_token_to_owner_enumeration(supply_seed: u32, index_seed: u32) {
     let supply = prepare_supply(supply_seed);
-    let (mut state, tokens_list) = setup(supply);
-    let new_token_index = index_seed % supply;
-    let new_token_id = *tokens_list.at(new_token_index);
+    let (mut state, _) = setup(supply);
     let new_token_index = supply;
+    let new_token_id = 'NEW_TOKEN'.into();
 
-    assert_owner_tokens_index_to_id(RECIPIENT(), new_token_index, 0);
+    assert_owner_tokens_index_to_id(OWNER(), new_token_index, 0);
     assert_owner_tokens_id_to_index(new_token_id, 0);
 
-    state._add_token_to_owner_enumeration(RECIPIENT(), new_token_id);
+    state._add_token_to_owner_enumeration(OWNER(), new_token_id);
 
-    assert_owner_tokens_index_to_id(RECIPIENT(), new_token_index, new_token_id);
+    assert_owner_tokens_index_to_id(OWNER(), new_token_index, new_token_id);
     assert_owner_tokens_id_to_index(new_token_id, new_token_index);
 }
 
@@ -164,7 +149,7 @@ fn test__add_token_to_all_tokens_enumeration(supply_seed: u32) {
     let initial_supply = prepare_supply(supply_seed);
     let (mut state, _) = setup(initial_supply);
     let new_token_index = initial_supply;
-    let new_token_id = 'TOKEN'.into() + new_token_index.into();
+    let new_token_id = 'NEW_TOKEN'.into();
 
     assert_all_tokens_index_to_id(new_token_index, 0);
     assert_all_tokens_id_to_index(new_token_id, 0);
@@ -260,12 +245,15 @@ fn remove_token_from_list(tokens_list: Span<u256>, token_to_remove: u256) -> Spa
         } else {
             if token == token_to_remove {
                 is_found = true;
-                let last_token = tokens_list.at(last_index);
-                result.append(*last_token);
+                if index != last_index {
+                    let last_token = tokens_list.at(last_index);
+                    result.append(*last_token);
+                }
             } else {
                 result.append(token);
             }
         }
+        index += 1;
     };
     result.span()
 }

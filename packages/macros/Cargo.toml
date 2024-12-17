@@ -1,0 +1,10 @@
+[package]
+name = "openzeppelin_macros"
+version = "0.20.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+cairo-lang-macro = "0.1"

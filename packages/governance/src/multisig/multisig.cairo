@@ -252,6 +252,7 @@ pub mod MultisigComponent {
         /// - `new_quorum` must be less than or equal to the total number of signers after addition.
         ///
         /// Emits a `SignerAdded` event for each signer added.
+        ///
         /// Emits a `QuorumUpdated` event if the quorum changes.
         fn add_signers(
             ref self: ComponentState<TContractState>,
@@ -270,6 +271,7 @@ pub mod MultisigComponent {
         /// - `new_quorum` must be less than or equal to the total number of signers after removal.
         ///
         /// Emits a `SignerRemoved` event for each signer removed.
+        ///
         /// Emits a `QuorumUpdated` event if the quorum changes.
         fn remove_signers(
             ref self: ComponentState<TContractState>,
@@ -290,6 +292,7 @@ pub mod MultisigComponent {
         /// - `signer_to_add` must be a non-zero address.
         ///
         /// Emits a `SignerRemoved` event for the removed signer.
+        ///
         /// Emits a `SignerAdded` event for the new signer.
         fn replace_signer(
             ref self: ComponentState<TContractState>,
@@ -322,6 +325,7 @@ pub mod MultisigComponent {
         /// - The transaction must not have been submitted before.
         ///
         /// Emits a `TransactionSubmitted` event.
+        ///
         /// Emits a `CallSalt` event if `salt` is not zero.
         fn submit_transaction(
             ref self: ComponentState<TContractState>,
@@ -342,6 +346,7 @@ pub mod MultisigComponent {
         /// - The transaction must not have been submitted before.
         ///
         /// Emits a `TransactionSubmitted` event.
+        ///
         /// Emits a `CallSalt` event if `salt` is not zero.
         fn submit_transaction_batch(
             ref self: ComponentState<TContractState>, calls: Span<Call>, salt: felt252,
@@ -468,6 +473,7 @@ pub mod MultisigComponent {
         /// - `quorum` must be non-zero and less than or equal to the number of `signers`.
         ///
         /// Emits a `SignerAdded` event for each signer added.
+        ///
         /// Emits a `QuorumUpdated` event.
         fn initializer(
             ref self: ComponentState<TContractState>, quorum: u32, signers: Span<ContractAddress>,
@@ -540,6 +546,7 @@ pub mod MultisigComponent {
         /// after addition.
         ///
         /// Emits a `SignerAdded` event for each new signer added.
+        ///
         /// Emits a `QuorumUpdated` event if the quorum changes.
         fn _add_signers(
             ref self: ComponentState<TContractState>,
@@ -575,6 +582,7 @@ pub mod MultisigComponent {
         /// after removal.
         ///
         /// Emits a `SignerRemoved` event for each signer removed.
+        ///
         /// Emits a `QuorumUpdated` event if the quorum changes.
         fn _remove_signers(
             ref self: ComponentState<TContractState>,
@@ -618,6 +626,7 @@ pub mod MultisigComponent {
         /// - `signer_to_add` must be a non-zero address.
         ///
         /// Emits a `SignerRemoved` event for the removed signer.
+        ///
         /// Emits a `SignerAdded` event for the new signer.
         fn _replace_signer(
             ref self: ComponentState<TContractState>,

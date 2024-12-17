@@ -1989,13 +1989,13 @@ operations.
 === `++IMultisig++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.20.0/packages/governance/src/multisig/interface.cairo[{github-icon},role=heading-link]
 
 :IMultisig-CallSalt: xref:IMultisig-CallSalt[CallSalt]
-:IMultisig-SignerAdded: xref:IMultisig-CallSalt[SignerAdded]
-:IMultisig-SignerRemoved: xref:IMultisig-CallSalt[SignerRemoved]
-:IMultisig-QuorumUpdated: xref:IMultisig-CallSalt[QuorumUpdated]
-:IMultisig-TransactionSubmitted: xref:IMultisig-CallSalt[TransactionSubmitted]
-:IMultisig-TransactionConfirmed: xref:IMultisig-CallSalt[TransactionConfirmed]
-:IMultisig-ConfirmationRevoked: xref:IMultisig-CallSalt[ConfirmationRevoked]
-:IMultisig-TransactionExecuted: xref:IMultisig-CallSalt[TransactionExecuted]
+:IMultisig-SignerAdded: xref:IMultisig-SignerAdded[SignerAdded]
+:IMultisig-SignerRemoved: xref:IMultisig-SignerRemoved[SignerRemoved]
+:IMultisig-QuorumUpdated: xref:IMultisig-QuorumUpdated[QuorumUpdated]
+:IMultisig-TransactionSubmitted: xref:IMultisig-TransactionSubmitted[TransactionSubmitted]
+:IMultisig-TransactionConfirmed: xref:IMultisig-TransactionConfirmed[TransactionConfirmed]
+:IMultisig-ConfirmationRevoked: xref:IMultisig-ConfirmationRevoked[ConfirmationRevoked]
+:IMultisig-TransactionExecuted: xref:IMultisig-TransactionExecuted[TransactionExecuted]
 
 [.hljs-theme-dark]
 ```cairo
@@ -2306,13 +2306,13 @@ Emitted when a new transaction is submitted with non-zero salt.
 === `++MultisigComponent++`
 
 :MultisigComponent-CallSalt: xref:MultisigComponent-CallSalt[CallSalt]
-:MultisigComponent-SignerAdded: xref:MultisigComponent-CallSalt[SignerAdded]
-:MultisigComponent-SignerRemoved: xref:MultisigComponent-CallSalt[SignerRemoved]
-:MultisigComponent-QuorumUpdated: xref:MultisigComponent-CallSalt[QuorumUpdated]
-:MultisigComponent-TransactionSubmitted: xref:MultisigComponent-CallSalt[TransactionSubmitted]
-:MultisigComponent-TransactionConfirmed: xref:MultisigComponent-CallSalt[TransactionConfirmed]
-:MultisigComponent-ConfirmationRevoked: xref:MultisigComponent-CallSalt[ConfirmationRevoked]
-:MultisigComponent-TransactionExecuted: xref:MultisigComponent-CallSalt[TransactionExecuted]
+:MultisigComponent-SignerAdded: xref:MultisigComponent-SignerAdded[SignerAdded]
+:MultisigComponent-SignerRemoved: xref:MultisigComponent-SignerRemoved[SignerRemoved]
+:MultisigComponent-QuorumUpdated: xref:MultisigComponent-QuorumUpdated[QuorumUpdated]
+:MultisigComponent-TransactionSubmitted: xref:MultisigComponent-TransactionSubmitted[TransactionSubmitted]
+:MultisigComponent-TransactionConfirmed: xref:MultisigComponent-TransactionConfirmed[TransactionConfirmed]
+:MultisigComponent-ConfirmationRevoked: xref:MultisigComponent-ConfirmationRevoked[ConfirmationRevoked]
+:MultisigComponent-TransactionExecuted: xref:MultisigComponent-TransactionExecuted[TransactionExecuted]
 
 [.hljs-theme-dark]
 ```cairo

@@ -2124,6 +2124,7 @@ Requirements:
 - `new_quorum` must be less than or equal to the total number of signers after addition.
 
 Emits a {IMultisig-SignerAdded} event for each signer added.
+
 Emits a {IMultisig-QuorumUpdated} event if the quorum changes.
 
 [.contract-item]
@@ -2138,6 +2139,7 @@ Requirements:
 - `new_quorum` must be less than or equal to the total number of signers after removal.
 
 Emits a {IMultisig-SignerRemoved} event for each signer removed.
+
 Emits a {IMultisig-QuorumUpdated} event if the quorum changes.
 
 [.contract-item]
@@ -2153,6 +2155,7 @@ Requirements:
 - `signer_to_add` must not be an existing signer.
 
 Emits a {IMultisig-SignerRemoved} event for the removed signer.
+
 Emits a {IMultisig-SignerAdded} event for the new signer.
 
 [.contract-item]
@@ -2181,6 +2184,7 @@ Requirements:
 - The transaction must not have been submitted before.
 
 Emits a {IMultisig-TransactionSubmitted} event.
+
 Emits a {IMultisig-CallSalt} event if `salt` is not zero.
 
 [.contract-item]
@@ -2195,6 +2199,7 @@ Requirements:
 - The transaction must not have been submitted before.
 
 Emits a {IMultisig-TransactionSubmitted} event.
+
 Emits a {IMultisig-CallSalt} event if `salt` is not zero.
 
 [.contract-item]
@@ -2319,7 +2324,7 @@ Emitted when a new transaction is submitted with non-zero salt.
 use openzeppelin_governance::multisig::MultisigComponent;
 ```
 
-Component that implements `IMultisig` and provides functionality for multisignature wallets, 
+Component that implements <<IMultisig, IMultisig>> and provides functionality for multisignature wallets, 
 including transaction management, quorum handling, and signer operations.
 
 [.contract-index]
@@ -2467,6 +2472,7 @@ Requirements:
 - `new_quorum` must be less than or equal to the total number of signers after addition.
 
 Emits a {MultisigComponent-SignerAdded} event for each signer added.
+
 Emits a {MultisigComponent-QuorumUpdated} event if the quorum changes.
 
 [.contract-item]
@@ -2481,6 +2487,7 @@ Requirements:
 - `new_quorum` must be less than or equal to the total number of signers after removal.
 
 Emits a {MultisigComponent-SignerRemoved} event for each signer removed.
+
 Emits a {MultisigComponent-QuorumUpdated} event if the quorum changes.
 
 [.contract-item]
@@ -2496,6 +2503,7 @@ Requirements:
 - `signer_to_add` must not be an existing signer.
 
 Emits a {MultisigComponent-SignerRemoved} event for the removed signer.
+
 Emits a {MultisigComponent-SignerAdded} event for the new signer.
 
 [.contract-item]
@@ -2524,6 +2532,7 @@ Requirements:
 - The transaction must not have been submitted before.
 
 Emits a {MultisigComponent-TransactionSubmitted} event.
+
 Emits a {MultisigComponent-CallSalt} event if `salt` is not zero.
 
 [.contract-item]
@@ -2538,6 +2547,7 @@ Requirements:
 - The transaction must not have been submitted before.
 
 Emits a {MultisigComponent-TransactionSubmitted} event.
+
 Emits a {MultisigComponent-CallSalt} event if `salt` is not zero.
 
 [.contract-item]
@@ -2608,6 +2618,7 @@ Requirements:
 - `quorum` must be non-zero and less than or equal to the number of `signers`.
 
 Emits a {MultisigComponent-SignerAdded} event for each signer added.
+
 Emits a {MultisigComponent-QuorumUpdated} event.
 
 [.contract-item]
@@ -2665,6 +2676,7 @@ Requirements:
 - `new_quorum` must be non-zero and less than or equal to the total number of signers after addition.
 
 Emits a {MultisigComponent-SignerAdded} event for each new signer added.
+
 Emits a {MultisigComponent-QuorumUpdated} event if the quorum changes.
 
 [.contract-item]
@@ -2679,6 +2691,7 @@ Requirements:
 after removal.
 
 Emits a {MultisigComponent-SignerRemoved} event for each signer removed.
+
 Emits a {MultisigComponent-QuorumUpdated} event if the quorum changes.
 
 [.contract-item]
@@ -2694,6 +2707,7 @@ Requirements:
 - `signer_to_add` must be a non-zero address.
 
 Emits a {MultisigComponent-SignerRemoved} event for the removed signer.
+
 Emits a {MultisigComponent-SignerAdded} event for the new signer.
 
 [.contract-item]

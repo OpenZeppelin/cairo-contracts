@@ -322,7 +322,7 @@ pub mod ERC20ReentrantMock {
         ) {
             let mut contract_state = self.get_contract_mut();
 
-            if (contract_state.reenter_type.read() == Type::Before) {
+            if contract_state.reenter_type.read() == Type::Before {
                 contract_state.reenter_type.write(Type::No);
                 contract_state.function_call();
             }
@@ -336,7 +336,7 @@ pub mod ERC20ReentrantMock {
         ) {
             let mut contract_state = self.get_contract_mut();
 
-            if (contract_state.reenter_type.read() == Type::After) {
+            if contract_state.reenter_type.read() == Type::After {
                 contract_state.reenter_type.write(Type::No);
                 contract_state.function_call();
             }

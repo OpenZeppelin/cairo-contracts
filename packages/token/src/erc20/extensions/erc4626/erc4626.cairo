@@ -29,7 +29,7 @@
 /// The drawback of this approach is that the virtual shares do capture (a very small) part of the
 /// value being accrued to the vault. Also, if the vault experiences losses and users try to exit
 /// the vault, the virtual shares and assets will cause the first exiting user to experience reduced
-/// losses to the detriment to the last users who  will experience bigger losses.
+/// losses to the detriment to the last users who will experience bigger losses.
 #[starknet::component]
 pub mod ERC4626Component {
     use core::num::traits::{Bounded, Pow, Zero};
@@ -512,6 +512,7 @@ pub mod ERC4626Component {
         /// - `ERC20::transfer` must return true.
         ///
         /// Emits two `ERC20::Transfer` events (`ERC20::burn` and `ERC20::transfer`).
+        ///
         /// Emits a `Withdraw` event.
         fn _withdraw(
             ref self: ComponentState<TContractState>,
@@ -548,7 +549,6 @@ pub mod ERC4626Component {
 
             math::u256_mul_div(
                 assets,
-                //total_supply + math::power(10, Immutable::DECIMALS_OFFSET.into()),
                 total_supply + 10_u256.pow(Immutable::DECIMALS_OFFSET.into()),
                 self.total_assets() + 1,
                 rounding,
@@ -573,9 +573,9 @@ pub mod ERC4626Component {
     }
 }
 
-///
-/// Default (empty) traits
-///
+//
+// Default (empty) traits
+//
 
 pub impl ERC4626HooksEmptyImpl<
     TContractState,

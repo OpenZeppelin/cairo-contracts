@@ -5,7 +5,7 @@
 ///
 /// The ERC4626 component is an extension of ERC20 and provides an implementation of the IERC4626
 /// interface which allows the minting and burning of "shares" in exchange for an underlying
-/// "asset." The component leverages traits to configure fees, limits, and decimals.
+/// "asset". The component leverages traits to configure fees, limits, and decimals.
 ///
 /// CAUTION: In empty (or nearly empty) ERC-4626 vaults, deposits are at high risk of being stolen
 /// through frontrunning with a "donation" to the vault that inflates the price of a share. This is
@@ -108,8 +108,7 @@ pub mod ERC4626Component {
     ///
     /// Requirements:
     ///
-    /// - `UNDERLYING_DECIMALS`+ `DECIMALS_OFFSET` cannot exceed 255 (max u8).
-    ///
+    /// - `UNDERLYING_DECIMALS`  + `DECIMALS_OFFSET` cannot exceed 255 (max u8).
     pub trait ImmutableConfig {
         const UNDERLYING_DECIMALS: u8;
         const DECIMALS_OFFSET: u8;
@@ -329,8 +328,8 @@ pub mod ERC4626Component {
                 Option::Some(limit) => limit,
                 Option::None => {
                     let erc20_component = get_dep_component!(self, ERC20);
-                    let owner_bal = erc20_component.balance_of(owner);
-                    self._convert_to_assets(owner_bal, Rounding::Floor)
+                    let owner_shares = erc20_component.balance_of(owner);
+                    self._convert_to_assets(owner_shares, Rounding::Floor)
                 },
             }
         }

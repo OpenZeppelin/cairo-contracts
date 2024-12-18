@@ -1,4 +1,5 @@
 = Governor
+
 :votes-component: xref:api/governance.adoc#VotesComponent[VotesComponent]
 :governor-component: xref:api/governance.adoc#GovernorComponent[GovernorComponent]
 :access-control: xref:access.adoc#role_based_accesscontrol[AccessControl]

@@ -190,14 +190,20 @@ pub mod MultisigComponent {
             self.Multisig_tx_info.read(id).is_executed
         }
 
+        /// Returns the block number when the transaction with the given `id` was submitted.
+        fn get_submitted_block(self: @ComponentState<TContractState>, id: TransactionID) -> u64 {
+            self.Multisig_tx_info.read(id).submitted_block
+        }
+
         /// Returns the current state of the transaction with the given `id`.
         ///
         /// The possible states are:
-        /// - `NotFound`: The transaction does not exist.
-        /// - `Pending`: The transaction exists but hasn't reached the required confirmations.
-        /// - `Confirmed`: The transaction has reached the required confirmations but hasn't been
+        ///
+        /// - `NotFound`: the transaction does not exist.
+        /// - `Pending`: the transaction exists but hasn't reached the required confirmations.
+        /// - `Confirmed`: the transaction has reached the required confirmations but hasn't been
         /// executed.
-        /// - `Executed`: The transaction has been executed.
+        /// - `Executed`: the transaction has been executed.
         fn get_transaction_state(
             self: @ComponentState<TContractState>, id: TransactionID,
         ) -> TransactionState {
@@ -219,9 +225,23 @@ pub mod MultisigComponent {
             result
         }
 
-        /// Returns the block number when the transaction with the given `id` was submitted.
-        fn get_submitted_block(self: @ComponentState<TContractState>, id: TransactionID) -> u64 {
-            self.Multisig_tx_info.read(id).submitted_block
+        /// Returns the computed identifier of a transaction containing a single call.
+        fn hash_transaction(
+            self: @ComponentState<TContractState>,
+            to: ContractAddress,
+            selector: felt252,
+            calldata: Span<felt252>,
+            salt: felt252,
+        ) -> TransactionID {
+            let call = Call { to, selector, calldata };
+            self.hash_transaction_batch(array![call].span(), salt)
+        }
+
+        /// Returns the computed identifier of a transaction containing a batch of calls.
+        fn hash_transaction_batch(
+            self: @ComponentState<TContractState>, calls: Span<Call>, salt: felt252,
+        ) -> TransactionID {
+            PedersenTrait::new(0).update_with(calls).update_with(salt).finalize()
         }
 
         /// Adds new signers and updates the quorum.
@@ -232,6 +252,7 @@ pub mod MultisigComponent {
         /// - `new_quorum` must be less than or equal to the total number of signers after addition.
         ///
         /// Emits a `SignerAdded` event for each signer added.
+        ///
         /// Emits a `QuorumUpdated` event if the quorum changes.
         fn add_signers(
             ref self: ComponentState<TContractState>,
@@ -250,6 +271,7 @@ pub mod MultisigComponent {
         /// - `new_quorum` must be less than or equal to the total number of signers after removal.
         ///
         /// Emits a `SignerRemoved` event for each signer removed.
+        ///
         /// Emits a `QuorumUpdated` event if the quorum changes.
         fn remove_signers(
             ref self: ComponentState<TContractState>,
@@ -270,6 +292,7 @@ pub mod MultisigComponent {
         /// - `signer_to_add` must be a non-zero address.
         ///
         /// Emits a `SignerRemoved` event for the removed signer.
+        ///
         /// Emits a `SignerAdded` event for the new signer.
         fn replace_signer(
             ref self: ComponentState<TContractState>,
@@ -302,6 +325,7 @@ pub mod MultisigComponent {
         /// - The transaction must not have been submitted before.
         ///
         /// Emits a `TransactionSubmitted` event.
+        ///
         /// Emits a `CallSalt` event if `salt` is not zero.
         fn submit_transaction(
             ref self: ComponentState<TContractState>,
@@ -322,6 +346,7 @@ pub mod MultisigComponent {
         /// - The transaction must not have been submitted before.
         ///
         /// Emits a `TransactionSubmitted` event.
+        ///
         /// Emits a `CallSalt` event if `salt` is not zero.
         fn submit_transaction_batch(
             ref self: ComponentState<TContractState>, calls: Span<Call>, salt: felt252,
@@ -430,25 +455,6 @@ pub mod MultisigComponent {
                 },
             };
         }
-
-        /// Returns the computed identifier of a transaction containing a single call.
-        fn hash_transaction(
-            self: @ComponentState<TContractState>,
-            to: ContractAddress,
-            selector: felt252,
-            calldata: Span<felt252>,
-            salt: felt252,
-        ) -> TransactionID {
-            let call = Call { to, selector, calldata };
-            self.hash_transaction_batch(array![call].span(), salt)
-        }
-
-        /// Returns the computed identifier of a transaction containing a batch of calls.
-        fn hash_transaction_batch(
-            self: @ComponentState<TContractState>, calls: Span<Call>, salt: felt252,
-        ) -> TransactionID {
-            PedersenTrait::new(0).update_with(calls).update_with(salt).finalize()
-        }
     }
 
     //
@@ -467,7 +473,8 @@ pub mod MultisigComponent {
         /// - `quorum` must be non-zero and less than or equal to the number of `signers`.
         ///
         /// Emits a `SignerAdded` event for each signer added.
-        /// Emits a `QuorumUpdated` event if the quorum changes.
+        ///
+        /// Emits a `QuorumUpdated` event.
         fn initializer(
             ref self: ComponentState<TContractState>, quorum: u32, signers: Span<ContractAddress>,
         ) {
@@ -477,11 +484,12 @@ pub mod MultisigComponent {
         /// Resolves and returns the current state of the transaction with the given `id`.
         ///
         /// The possible states are:
-        /// - `NotFound`: The transaction does not exist.
-        /// - `Pending`: The transaction exists but hasn't reached the required confirmations.
-        /// - `Confirmed`: The transaction has reached the required confirmations but hasn't been
+        ///
+        /// - `NotFound`: the transaction does not exist.
+        /// - `Pending`: the transaction exists but hasn't reached the required confirmations.
+        /// - `Confirmed`: the transaction has reached the required confirmations but hasn't been
         /// executed.
-        /// - `Executed`: The transaction has been executed.
+        /// - `Executed`: the transaction has been executed.
         fn resolve_tx_state(
             self: @ComponentState<TContractState>, id: TransactionID,
         ) -> TransactionState {
@@ -513,7 +521,7 @@ pub mod MultisigComponent {
         ///
         /// Requirements:
         ///
-        /// - The transaction with `id` must have been submitted.
+        /// - The transaction with the given `id` must have been submitted.
         fn assert_tx_exists(self: @ComponentState<TContractState>, id: TransactionID) {
             assert(self.get_submitted_block(id).is_non_zero(), Errors::TX_NOT_FOUND);
         }
@@ -538,6 +546,7 @@ pub mod MultisigComponent {
         /// after addition.
         ///
         /// Emits a `SignerAdded` event for each new signer added.
+        ///
         /// Emits a `QuorumUpdated` event if the quorum changes.
         fn _add_signers(
             ref self: ComponentState<TContractState>,
@@ -573,6 +582,7 @@ pub mod MultisigComponent {
         /// after removal.
         ///
         /// Emits a `SignerRemoved` event for each signer removed.
+        ///
         /// Emits a `QuorumUpdated` event if the quorum changes.
         fn _remove_signers(
             ref self: ComponentState<TContractState>,
@@ -616,6 +626,7 @@ pub mod MultisigComponent {
         /// - `signer_to_add` must be a non-zero address.
         ///
         /// Emits a `SignerRemoved` event for the removed signer.
+        ///
         /// Emits a `SignerAdded` event for the new signer.
         fn _replace_signer(
             ref self: ComponentState<TContractState>,

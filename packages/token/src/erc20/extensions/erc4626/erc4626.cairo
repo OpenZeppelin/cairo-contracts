@@ -122,7 +122,7 @@ pub mod ERC4626Component {
         }
     }
 
-    /// Adjustments for fees expected to be defined on the contract level.
+    /// Adjustments for fees expected to be defined at the contract level.
     /// Defaults to no entry or exit fees.
     /// To transfer fees, this trait needs to be coordinated with `ERC4626Component::ERC4626Hooks`.
     pub trait FeeConfigTrait<TContractState> {

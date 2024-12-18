@@ -4,19 +4,15 @@
 
 **A library for secure smart contract development** written in Cairo for [Starknet](https://starkware.co/product/starknet/), a decentralized ZK Rollup.
 
-> [!WARNING]
-> This repo contains highly experimental code.
-> It has no code coverage checks.
-> It hasn't been audited.
-> **Use at your own risk.**
-
 > [!TIP]
 > :mage: **Not sure how to get started?** Check out [Contracts Wizard for Cairo](https://wizard.openzeppelin.com/cairo) — an interactive smart contract generator.
 
 ## Usage
 
-> **Warning**
-> Expect rapid iteration.
+> [!WARNING]
+> This repo contains highly experimental code.
+> It hasn't been audited.
+> **Use at your own risk.**
 
 ### Prepare the environment
 

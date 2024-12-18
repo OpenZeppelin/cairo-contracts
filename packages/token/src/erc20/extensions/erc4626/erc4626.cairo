@@ -124,7 +124,7 @@ pub mod ERC4626Component {
     /// Adjustments for fees expected to be defined at the contract level.
     /// Defaults to no entry or exit fees.
     /// To transfer fees, this trait needs to be coordinated with `ERC4626Component::ERC4626Hooks`.
-    pub trait FeeConfigTrait<TContractState> {
+    pub trait FeeConfigTrait<TContractState, +HasComponent<TContractState>> {
         fn adjust_deposit(self: @ComponentState<TContractState>, assets: u256) -> u256 {
             assets
         }
@@ -144,7 +144,7 @@ pub mod ERC4626Component {
 
     /// Sets limits to the target exchange type and is expected to be defined at the contract
     /// level.
-    pub trait LimitConfigTrait<TContractState> {
+    pub trait LimitConfigTrait<TContractState, +HasComponent<TContractState>> {
         /// The max deposit allowed.
         /// Defaults (`Option::None`) to 2 ** 256 - 1.
         fn deposit_limit(
@@ -180,7 +180,7 @@ pub mod ERC4626Component {
 
     /// Allows contracts to hook logic into deposit and withdraw transactions.
     /// This is where contracts can transfer fees.
-    pub trait ERC4626HooksTrait<TContractState> {
+    pub trait ERC4626HooksTrait<TContractState, +HasComponent<TContractState>> {
         fn before_withdraw(ref self: ComponentState<TContractState>, assets: u256, shares: u256) {}
         fn after_deposit(ref self: ComponentState<TContractState>, assets: u256, shares: u256) {}
     }
@@ -586,10 +586,12 @@ pub mod ERC4626Component {
 
 pub impl ERC4626HooksEmptyImpl<
     TContractState,
+    +ERC4626Component::HasComponent<TContractState>
 > of ERC4626Component::ERC4626HooksTrait<TContractState> {}
-pub impl ERC4626DefaultNoFees<TContractState> of ERC4626Component::FeeConfigTrait<TContractState> {}
+pub impl ERC4626DefaultNoFees<TContractState, +ERC4626Component::HasComponent<TContractState>> of ERC4626Component::FeeConfigTrait<TContractState> {}
 pub impl ERC4626DefaultLimits<
     TContractState,
+    +ERC4626Component::HasComponent<TContractState>
 > of ERC4626Component::LimitConfigTrait<TContractState> {}
 
 /// Implementation of the default `ERC4626Component::ImmutableConfig`.

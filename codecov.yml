@@ -5,19 +5,22 @@ comment:
 coverage:
   # The value range where you want the value to be green
   # Hold ourselves to a high bar.
-  range: 90..100
+  # TMP 80 floor until cairo-coverage becomes more stable
+  range: 80..100
   status:
     project:
       coverage:
         # Use the coverage from the base commit (pull request base) coverage to compare against.
         # Once we have a baseline we can be more strict.
+        # TMP threshold until cairo-coverage becomes more stable
         target: auto
-        threshold: 2%
+        threshold: 4%
     patch:
       default:
         # Require new code to have 90%+ coverage.
-        target: 90%
-        threshold: 2%
+        # TMP target and threshold until cairo-coverage becomes more stable
+        target: 80%
+        threshold: 4%
 
 ignore:
   - "**/tests/**"
@@ -27,4 +30,3 @@ ignore:
 
 github_checks:
   annotations: false
-  

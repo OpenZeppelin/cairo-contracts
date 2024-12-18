@@ -585,13 +585,13 @@ pub mod ERC4626Component {
 //
 
 pub impl ERC4626HooksEmptyImpl<
-    TContractState,
-    +ERC4626Component::HasComponent<TContractState>
+    TContractState, +ERC4626Component::HasComponent<TContractState>,
 > of ERC4626Component::ERC4626HooksTrait<TContractState> {}
-pub impl ERC4626DefaultNoFees<TContractState, +ERC4626Component::HasComponent<TContractState>> of ERC4626Component::FeeConfigTrait<TContractState> {}
+pub impl ERC4626DefaultNoFees<
+    TContractState, +ERC4626Component::HasComponent<TContractState>,
+> of ERC4626Component::FeeConfigTrait<TContractState> {}
 pub impl ERC4626DefaultLimits<
-    TContractState,
-    +ERC4626Component::HasComponent<TContractState>
+    TContractState, +ERC4626Component::HasComponent<TContractState>,
 > of ERC4626Component::LimitConfigTrait<TContractState> {}
 
 /// Implementation of the default `ERC4626Component::ImmutableConfig`.

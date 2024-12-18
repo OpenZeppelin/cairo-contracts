@@ -143,27 +143,35 @@ pub mod ERC4626Component {
         }
     }
 
-    /// Sets custom limits to the target exchange type and is expected to be defined at the contract
+    /// Sets limits to the target exchange type and is expected to be defined at the contract
     /// level.
     pub trait LimitConfigTrait<TContractState> {
+        /// The max deposit allowed.
+        /// Defaults (`Option::None`) to 2 ** 256 - 1.
         fn deposit_limit(
             self: @ComponentState<TContractState>, receiver: ContractAddress,
         ) -> Option<u256> {
             Option::None
         }
 
+        /// The max deposit allowed.
+        /// Defaults (`Option::None`) to 2 ** 256 - 1.
         fn mint_limit(
             self: @ComponentState<TContractState>, receiver: ContractAddress,
         ) -> Option<u256> {
             Option::None
         }
 
+        /// The max withdraw allowed.
+        /// Defaults (`Option::None`) to the full asset balance of `owner` converted from shares.
         fn withdraw_limit(
             self: @ComponentState<TContractState>, owner: ContractAddress,
         ) -> Option<u256> {
             Option::None
         }
 
+        /// The max deposit allowed.
+        /// Defaults (`Option::None`) to the full asset balance of `owner`.
         fn redeem_limit(
             self: @ComponentState<TContractState>, owner: ContractAddress,
         ) -> Option<u256> {

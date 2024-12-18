@@ -8,3 +8,6 @@ crate-type = ["cdylib"]
 
 [dependencies]
 cairo-lang-macro = "0.1"
+cairo-lang-parser = "2.9"
+cairo-lang-syntax = "2.9"
+regex = "1.11.1"

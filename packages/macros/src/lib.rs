@@ -1,1 +1,1 @@
-mod echo;
+mod oz_component;

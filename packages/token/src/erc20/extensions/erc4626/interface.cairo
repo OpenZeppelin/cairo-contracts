@@ -20,25 +20,29 @@ pub trait IERC4626<TState> {
     fn total_assets(self: @TState) -> u256;
 
     /// Returns the amount of shares that the Vault would exchange for the amount of assets
-    /// provided, in an ideal scenario where all the conditions are met.
+    /// provided irrespective of slippage or fees.
     ///
     /// MUST NOT be inclusive of any fees that are charged against assets in the Vault.
     /// MUST NOT show any variations depending on the caller.
     /// MUST NOT reflect slippage or other on-chain conditions, when performing the actual exchange.
     /// MUST NOT panic.
+    ///
+    /// NOTE: This calculation MAY NOT reflect the "per-user" price-per-share, and instead should reflect the
+    /// "average-user's" price-per-share, meaning what the average user should expect to see when exchanging
+    /// to and from.
     fn convert_to_shares(self: @TState, assets: u256) -> u256;
 
     /// Returns the amount of assets that the Vault would exchange for the amount of shares
-    /// provided, in an ideal scenario where all the conditions are met.
+    /// provided irrespective of slippage or fees.
     ///
     /// MUST NOT be inclusive of any fees that are charged against assets in the Vault.
     /// MUST NOT show any variations depending on the caller.
     /// MUST NOT reflect slippage or other on-chain conditions, when performing the actual exchange.
     /// MUST NOT panic.
     ///
-    /// Note that this calculation MAY NOT reflect the “per-user” price-per-share, and instead
-    /// should reflect the “average-user’s” price-per-share, meaning what the average user
-    /// should expect to see when exchanging to and from.
+    /// NOTE: This calculation MAY NOT reflect the “per-user” price-per-share, and instead should reflect
+    /// the “average-user’s” price-per-share, meaning what the average user  should expect to see when exchanging
+    /// to and from.
     fn convert_to_assets(self: @TState, shares: u256) -> u256;
 
     /// Returns the maximum amount of the underlying asset that can be deposited into the Vault for
@@ -48,10 +52,6 @@ pub trait IERC4626<TState> {
     /// MUST return 2 ** 256 - 1 if there is no limit on the maximum amount of assets that may be
     /// deposited.
     /// MUST NOT panic.
-    ///
-    /// Note that this calculation MAY NOT reflect the “per-user” price-per-share, and instead
-    /// should reflect the “average-user’s” price-per-share, meaning what the average user
-    /// should expect to see when exchanging to and from.
     fn max_deposit(self: @TState, receiver: ContractAddress) -> u256;
 
     /// Allows an on-chain or off-chain user to simulate the effects of their deposit at the current
@@ -67,7 +67,7 @@ pub trait IERC4626<TState> {
     /// fees.
     /// MUST NOT panic.
     ///
-    /// Note that any unfavorable discrepancy between `convert_to_shares` and `preview_deposit`
+    /// NOTE: Any unfavorable discrepancy between `convert_to_shares` and `preview_deposit`
     /// SHOULD be considered slippage in share price or some other type of condition, meaning the
     /// depositor will lose assets by depositing.
     fn preview_deposit(self: @TState, assets: u256) -> u256;
@@ -80,7 +80,7 @@ pub trait IERC4626<TState> {
     /// MUST panic if all of assets cannot be deposited (due to deposit limit being reached,
     /// slippage, the user not approving enough underlying tokens to the Vault contract, etc).
     ///
-    /// Note that most implementations will require pre-approval of the Vault with the Vault’s
+    /// NOTE: Most implementations will require pre-approval of the Vault with the Vault’s
     /// underlying asset token.
     fn deposit(ref self: TState, assets: u256, receiver: ContractAddress) -> u256;
 
@@ -109,10 +109,6 @@ pub trait IERC4626<TState> {
     /// NOTE: Any unfavorable discrepancy between convertToAssets and previewMint SHOULD be
     /// considered slippage in share price or some other type of condition, meaning the depositor
     /// will lose assets by minting.
-    ///
-    /// Note that any unfavorable discrepancy between `convert_to_assets` and `preview_mint` SHOULD
-    /// be considered slippage in share price or some other type of condition, meaning the depositor
-    /// will lose assets by minting.
     fn preview_mint(self: @TState, shares: u256) -> u256;
 
     /// Mints exactly shares Vault shares to receiver by depositing amount of underlying tokens.
@@ -123,7 +119,7 @@ pub trait IERC4626<TState> {
     /// MUST panic if all of shares cannot be minted (due to deposit limit being reached, slippage,
     /// the user not approving enough underlying tokens to the Vault contract, etc).
     ///
-    /// Note that most implementations will require pre-approval of the Vault with the Vault’s
+    /// NOTE: Most implementations will require pre-approval of the Vault with the Vault’s
     /// underlying asset token.
     fn mint(ref self: TState, shares: u256, receiver: ContractAddress) -> u256;
 
@@ -147,7 +143,7 @@ pub trait IERC4626<TState> {
     /// withdrawal fees.
     /// MUST not panic.
     ///
-    /// Note that any unfavorable discrepancy between `convert_to_shares` and `preview_withdraw`
+    /// NOTE: Any unfavorable discrepancy between `convert_to_shares` and `preview_withdraw`
     /// SHOULD be considered slippage in share price or some other type of condition, meaning the
     /// depositor will lose assets by depositing.
     fn preview_withdraw(self: @TState, assets: u256) -> u256;
@@ -160,7 +156,7 @@ pub trait IERC4626<TState> {
     /// MUST revert if all of assets cannot be withdrawn (due to withdrawal limit being reached,
     /// slippage, the owner not having enough shares, etc).
     ///
-    /// Note that some implementations will require pre-requesting to the Vault before a withdrawal
+    /// NOTE: Some implementations will require pre-requesting to the Vault before a withdrawal
     /// may be performed.
     /// Those methods should be performed separately.
     fn withdraw(
@@ -189,7 +185,7 @@ pub trait IERC4626<TState> {
     /// withdrawal fees.
     /// MUST NOT panic.
     ///
-    /// Note any unfavorable discrepancy between `convert_to_assets` and `preview_redeem` SHOULD be
+    /// NOTE: Any unfavorable discrepancy between `convert_to_assets` and `preview_redeem` SHOULD be
     /// considered slippage in share price or some other type of condition, meaning the depositor
     /// will lose assets by redeeming.
     fn preview_redeem(self: @TState, shares: u256) -> u256;
@@ -202,7 +198,7 @@ pub trait IERC4626<TState> {
     /// MUST revert if all of shares cannot be redeemed (due to withdrawal limit being reached,
     /// slippage, the owner not having enough shares, etc).
     ///
-    /// Note some implementations will require pre-requesting to the Vault before a withdrawal may
+    /// NOTE: Some implementations will require pre-requesting to the Vault before a withdrawal may
     /// be performed.
     /// Those methods should be performed separately.
     fn redeem(

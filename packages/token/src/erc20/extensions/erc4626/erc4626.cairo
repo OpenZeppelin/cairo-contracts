@@ -215,13 +215,13 @@ pub mod ERC4626Component {
         }
 
         /// Returns the amount of shares that the Vault would exchange for the amount of assets
-        /// provided, in an ideal scenario where all the conditions are met.
+        /// provided irrespective of slippage or fees.
         fn convert_to_shares(self: @ComponentState<TContractState>, assets: u256) -> u256 {
             self._convert_to_shares(assets, Rounding::Floor)
         }
 
         /// Returns the amount of assets that the Vault would exchange for the amount of shares
-        /// provided, in an ideal scenario where all the conditions are met.
+        /// provided irrespective of slippage or fees.
         fn convert_to_assets(self: @ComponentState<TContractState>, shares: u256) -> u256 {
             self._convert_to_assets(shares, Rounding::Floor)
         }

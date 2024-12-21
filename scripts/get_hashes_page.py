@@ -11,11 +11,20 @@ KNOWN_ORDER = [
 ]
 
 def main():
-    # Required compiler version argument
+    if len(sys.argv) < 2:
+        print("Usage: script.py <compiler_version>")
+        sys.exit(1)
+
     cmp_version = sys.argv[1]
 
-    # Read class hashes from stdin
-    contracts = json.load(sys.stdin)
+    try:
+        contracts = json.load(sys.stdin)
+    except json.JSONDecodeError:
+        print("Error: Invalid JSON input")
+        sys.exit(1)
+
+    if 'contracts' not in contracts or not isinstance(contracts['contracts'], list):
+        raise ValueError("Invalid input: 'contracts' key missing or not a list")
 
     print(generate_doc_file(cmp_version, contracts))
 
@@ -31,11 +40,8 @@ https://crates.io/crates/cairo-lang-compiler/{cmp_version}[cairo {cmp_version}]
 
     hashes += get_known_order_hashes(contracts['contracts'])
     for contract in contracts['contracts']:
-        # Avoid the already added contracts in the known order
         if contract['name'] in KNOWN_ORDER:
             continue
-        # Avoid adding mocks
-        # TODO: remove this after mocks are removed from the artifacts built outside tests
         if "Mock" in contract['name']:
             continue
         hashes += f":{contract['name']}-class-hash: {normalize_len(contract['sierra'])}\n"
@@ -48,7 +54,7 @@ https://crates.io/crates/cairo-lang-compiler/{cmp_version}[cairo {cmp_version}]
 
 def remove_prefix_from_names(contracts):
     for contract in contracts:
-        contract.update([("name", remove_prefix(contract['name'], 'openzeppelin_presets_'))])
+        contract['name'] = remove_prefix(contract['name'], 'openzeppelin_presets_')
     return contracts
 
 
@@ -68,6 +74,8 @@ def get_known_order_hashes(contracts):
 
 
 def normalize_len(sierra_hash):
+    if len(sierra_hash) >= 66:
+        return sierra_hash
     return "0x" + "0" * (66 - len(sierra_hash)) + sierra_hash[2:]
 
 

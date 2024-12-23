@@ -193,14 +193,18 @@ pub mod ERC4626Component {
     /// This is where contracts can transfer fees.
     ///
     /// NOTE: ERC4626 preview methods must be inclusive of any entry or exit fees.
-    /// The AdjustFeesTrait will adjust these values accordingly; therefore,
-    /// fees must be set in the AdjustFeesTrait if the using contract enforces
+    /// The `AdjustFeesTrait` will adjust these values accordingly; therefore,
+    /// fees must be set in the `AdjustFeesTrait` if the using contract enforces
     /// entry or exit fees.
     ///
     /// See the example:
     /// https://github.com/OpenZeppelin/cairo-contracts/tree/main/packages/test_common/src/mocks/erc4626.cairo
     pub trait ERC4626HooksTrait<TContractState, +HasComponent<TContractState>> {
+        /// Hooks into `InternalImpl::_withdraw`.
+        /// Executes logic before burning shares and transferring assets.
         fn before_withdraw(ref self: ComponentState<TContractState>, assets: u256, shares: u256) {}
+        /// Hooks into `InternalImpl::_deposit`.
+        /// Executes logic after transferring assets and minting shares.
         fn after_deposit(ref self: ComponentState<TContractState>, assets: u256, shares: u256) {}
     }
 

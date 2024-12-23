@@ -16,6 +16,11 @@ pub trait IAccessControl<TState> {
 }
 
 #[starknet::interface]
+pub trait IAccessControlWithDelay<TState> {
+    fn grant_role_with_delay(ref self: TState, role: felt252, account: ContractAddress, delay: u64);
+}
+
+#[starknet::interface]
 pub trait IAccessControlCamel<TState> {
     fn hasRole(self: @TState, role: felt252, account: ContractAddress) -> bool;
     fn getRoleAdmin(self: @TState, role: felt252) -> felt252;

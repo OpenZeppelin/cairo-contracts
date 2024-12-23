@@ -215,11 +215,10 @@ pub mod ERC4626FeesMock {
     use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component::InternalTrait as ERC4626InternalTrait;
     use openzeppelin_token::erc20::extensions::erc4626::ERC4626DefaultLimits;
     use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
+    use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
     use openzeppelin_utils::math;
     use openzeppelin_utils::math::Rounding;
-    use openzeppelin_utils::serde::SerializedAppend;
     use starknet::ContractAddress;
-    use starknet::SyscallResultTrait;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 
     component!(path: ERC4626Component, storage: erc4626, event: ERC4626Event);
@@ -356,17 +355,9 @@ pub mod ERC4626FeesMock {
     #[generate_trait]
     pub impl InternalImpl of InternalTrait {
         fn transfer_fees(ref self: ContractState, recipient: ContractAddress, fee: u256) {
-            let asset_addr = self.asset();
-            let selector = selector!("transfer");
-            let mut calldata: Array<felt252> = array![];
-            calldata.append_serde(recipient);
-            calldata.append_serde(fee);
-
-            let ret = starknet::syscalls::call_contract_syscall(
-                asset_addr, selector, calldata.span(),
-            )
-                .unwrap_syscall();
-            assert_eq!(*ret.at(0), 1); // true
+            let asset_address = self.asset();
+            let asset_dispatcher = IERC20Dispatcher { contract_address: asset_address };
+            assert(asset_dispatcher.transfer(recipient, fee), 'Fee transfer failed');
         }
 
         fn remove_fee_from_deposit(self: @ContractState, assets: u256) -> u256 {

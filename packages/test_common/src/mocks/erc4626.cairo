@@ -214,8 +214,8 @@ pub mod ERC4626FeesMock {
     use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component::FeeConfigTrait;
     use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component::InternalTrait as ERC4626InternalTrait;
     use openzeppelin_token::erc20::extensions::erc4626::ERC4626DefaultLimits;
-    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     use openzeppelin_utils::math;
     use openzeppelin_utils::math::Rounding;
     use starknet::ContractAddress;

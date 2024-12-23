@@ -27,9 +27,9 @@ pub trait IERC4626<TState> {
     /// MUST NOT reflect slippage or other on-chain conditions, when performing the actual exchange.
     /// MUST NOT panic.
     ///
-    /// NOTE: This calculation MAY NOT reflect the "per-user" price-per-share, and instead should reflect the
-    /// "average-user's" price-per-share, meaning what the average user should expect to see when exchanging
-    /// to and from.
+    /// NOTE: This calculation MAY NOT reflect the "per-user" price-per-share, and instead should
+    /// reflect the "average-user's" price-per-share, meaning what the average user should expect to
+    /// see when exchanging to and from.
     fn convert_to_shares(self: @TState, assets: u256) -> u256;
 
     /// Returns the amount of assets that the Vault would exchange for the amount of shares
@@ -40,9 +40,9 @@ pub trait IERC4626<TState> {
     /// MUST NOT reflect slippage or other on-chain conditions, when performing the actual exchange.
     /// MUST NOT panic.
     ///
-    /// NOTE: This calculation MAY NOT reflect the “per-user” price-per-share, and instead should reflect
-    /// the “average-user’s” price-per-share, meaning what the average user  should expect to see when exchanging
-    /// to and from.
+    /// NOTE: This calculation MAY NOT reflect the “per-user” price-per-share, and instead
+    /// should reflect the “average-user’s” price-per-share, meaning what the average user
+    /// should expect to see when exchanging to and from.
     fn convert_to_assets(self: @TState, shares: u256) -> u256;
 
     /// Returns the maximum amount of the underlying asset that can be deposited into the Vault for

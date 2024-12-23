@@ -124,19 +124,30 @@ pub mod ERC4626Component {
     /// Adjustments for fees expected to be defined at the contract level.
     /// Defaults to no entry or exit fees.
     /// To transfer fees, this trait needs to be coordinated with `ERC4626Component::ERC4626Hooks`.
+    ///
+    /// See the example:
+    /// https://github.com/OpenZeppelin/cairo-contracts/tree/main/packages/test_common/src/mocks/erc4626.cairo
     pub trait FeeConfigTrait<TContractState, +HasComponent<TContractState>> {
+        /// Adjusts deposits within `preview_deposit` to account for entry fees.
+        /// Entry fees should be transferred in the `after_deposit` hook.
         fn adjust_deposit(self: @ComponentState<TContractState>, assets: u256) -> u256 {
             assets
         }
 
+        /// Adjusts mints within `preview_mint` to account for entry fees.
+        /// Entry fees should be transferred in the `after_deposit` hook.
         fn adjust_mint(self: @ComponentState<TContractState>, assets: u256) -> u256 {
             assets
         }
 
+        /// Adjusts withdraws within `preview_withdraw` to account for exit fees.
+        /// Exit fees should be transferred in the `before_withdraw` hook.
         fn adjust_withdraw(self: @ComponentState<TContractState>, assets: u256) -> u256 {
             assets
         }
 
+        /// Adjusts redeems within `preview_redeem` to account for exit fees.
+        /// Exit fees should be transferred in the `before_withdraw` hook.
         fn adjust_redeem(self: @ComponentState<TContractState>, assets: u256) -> u256 {
             assets
         }
@@ -180,6 +191,14 @@ pub mod ERC4626Component {
 
     /// Allows contracts to hook logic into deposit and withdraw transactions.
     /// This is where contracts can transfer fees.
+    ///
+    /// NOTE: ERC4626 preview methods must be inclusive of any entry or exit fees.
+    /// The AdjustFeesTrait will adjust these values accordingly; therefore,
+    /// fees must be set in the AdjustFeesTrait if the using contract enforces
+    /// entry or exit fees.
+    ///
+    /// See the example:
+    /// https://github.com/OpenZeppelin/cairo-contracts/tree/main/packages/test_common/src/mocks/erc4626.cairo
     pub trait ERC4626HooksTrait<TContractState, +HasComponent<TContractState>> {
         fn before_withdraw(ref self: ComponentState<TContractState>, assets: u256, shares: u256) {}
         fn after_deposit(ref self: ComponentState<TContractState>, assets: u256, shares: u256) {}
@@ -243,8 +262,10 @@ pub mod ERC4626Component {
         /// current block, given current on-chain conditions.
         ///
         /// The default deposit preview value is the full amount of shares.
-        /// This can be changed in the implementing contract by defining custom logic in
-        /// `FeeConfigTrait::adjust_deposit`.
+        /// This can be changed to account for fees, for example, in the implementing contract by defining
+        /// custom logic in `FeeConfigTrait::adjust_deposit`.
+        ///
+        /// NOTE: `preview_deposit` must be inclusive of entry fees to be compliant with the IERC4626 spec.
         fn preview_deposit(self: @ComponentState<TContractState>, assets: u256) -> u256 {
             let adjusted_assets = Fee::adjust_deposit(self, assets);
             self._convert_to_shares(adjusted_assets, Rounding::Floor)
@@ -288,8 +309,10 @@ pub mod ERC4626Component {
         /// current block, given current on-chain conditions.
         ///
         /// The default mint preview value is the full amount of assets.
-        /// This can be changed in the implementing contract by defining custom logic in
-        /// `FeeConfigTrait::adjust_mint`.
+        /// This can be changed to account for fees, for example, in the implementing contract by defining
+        /// custom logic in `FeeConfigTrait::adjust_mint`.
+        ///
+        /// NOTE: `preview_mint` must be inclusive of entry fees to be compliant with the IERC4626 spec.
         fn preview_mint(self: @ComponentState<TContractState>, shares: u256) -> u256 {
             let full_assets = self._convert_to_assets(shares, Rounding::Ceil);
             Fee::adjust_mint(self, full_assets)
@@ -338,8 +361,10 @@ pub mod ERC4626Component {
         /// current block, given current on-chain conditions.
         ///
         /// The default withdraw preview value is the full amount of shares.
-        /// This can be changed in the implementing contract by defining custom logic in
-        /// `FeeConfigTrait::adjust_withdraw`.
+        /// This can be changed to account for fees, for example, in the implementing contract by defining
+        /// custom logic in `FeeConfigTrait::adjust_withdraw`.
+        ///
+        /// NOTE: `preview_withdraw` must be inclusive of exit fees to be compliant with the IERC4626 spec.
         fn preview_withdraw(self: @ComponentState<TContractState>, assets: u256) -> u256 {
             let adjusted_assets = Fee::adjust_withdraw(self, assets);
             self._convert_to_shares(adjusted_assets, Rounding::Ceil)
@@ -388,8 +413,10 @@ pub mod ERC4626Component {
         /// current block, given current on-chain conditions.
         ///
         /// The default redeem preview value is the full amount of assets.
-        /// This can be changed in the implementing contract by defining custom logic in
-        /// `FeeConfigTrait::adjust_redeem`.
+        /// This can be changed to account for fees, for example, in the implementing contract by defining
+        /// custom logic in `FeeConfigTrait::adjust_redeem`.
+        ///
+        /// NOTE: `preview_redeem` must be inclusive of exit fees to be compliant with the IERC4626 spec.
         fn preview_redeem(self: @ComponentState<TContractState>, shares: u256) -> u256 {
             let full_assets = self._convert_to_assets(shares, Rounding::Floor);
             Fee::adjust_redeem(self, full_assets)
@@ -474,11 +501,11 @@ pub mod ERC4626Component {
             self.ERC4626_asset.write(asset_address);
         }
 
-        /// Business logic for `deposit` and `mint`.
+        /// Internal logic for `deposit` and `mint`.
         /// Transfers `assets` from `caller` to the Vault contract then mints `shares` to
         /// `receiver`.
         /// Fees can be transferred in the `ERC4626Hooks::after_deposit` hook which is executed
-        /// after the business logic.
+        /// after assets are transferred and shares are minted.
         ///
         /// Requirements:
         ///
@@ -509,10 +536,10 @@ pub mod ERC4626Component {
             Hooks::after_deposit(ref self, assets, shares);
         }
 
-        /// Business logic for `withdraw` and `redeem`.
+        /// Internal logic for `withdraw` and `redeem`.
         /// Burns `shares` from `owner` and then transfers `assets` to `receiver`.
         /// Fees can be transferred in the `ERC4626Hooks::before_withdraw` hook which is executed
-        /// before the business logic.
+        /// before shares are burned and assets are transferred.
         ///
         /// Requirements:
         ///

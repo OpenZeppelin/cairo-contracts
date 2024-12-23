@@ -4,16 +4,15 @@
 
 **A library for secure smart contract development** written in Cairo for [Starknet](https://starkware.co/product/starknet/), a decentralized ZK Rollup.
 
-> **Warning**
-> This repo contains highly experimental code.
-> It has no code coverage checks.
-> It hasn't been audited.
-> **Use at your own risk.**
+> [!TIP]
+> :mage: **Not sure how to get started?** Check out [Contracts Wizard for Cairo](https://wizard.openzeppelin.com/cairo) — an interactive smart contract generator.
 
 ## Usage
 
-> **Warning**
-> Expect rapid iteration.
+> [!WARNING]
+> This repo contains highly experimental code.
+> It hasn't been audited.
+> **Use at your own risk.**
 
 ### Prepare the environment
 
@@ -127,7 +126,8 @@ Check out the [full documentation site](https://docs.openzeppelin.com/contracts-
 
 ## Development
 
-> **Note**: You can track our roadmap and future milestones in our [Github Project](https://github.com/orgs/OpenZeppelin/projects/29/).
+> [!NOTE]
+> You can track our roadmap and future milestones in our [Github Project](https://github.com/orgs/OpenZeppelin/projects/29/).
 
 OpenZeppelin Contracts for Cairo exists thanks to its contributors. There are many ways you can participate and help build high quality software, make sure to check out the [contribution](CONTRIBUTING.md) guide in advance.
 
@@ -154,7 +154,7 @@ snforge test -w
 
 ## Security
 
-> ⚠️ Warning! ⚠️
+> [!WARNING]
 > This project is still in a very early and experimental phase. It has never been audited nor thoroughly reviewed for security vulnerabilities. Do not use in production.
 
 Refer to [SECURITY.md](SECURITY.md) for more details.

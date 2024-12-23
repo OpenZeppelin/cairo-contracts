@@ -1,12 +1,7 @@
 :github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
-:CallScheduled: xref:ITimelock-CallScheduled[CallScheduled]
-:CallExecuted: xref:ITimelock-CallExecuted[CallExecuted]
-:CallSalt: xref:ITimelock-CallSalt[CallSalt]
-:CallCancelled: xref:ITimelock-CallCancelled[CallCancelled]
-:MinDelayChanged: xref:ITimelock-MinDelayChanged[MinDelayChanged]
-:RoleGranted: xref:api/access.adoc#IAccessControl-RoleGranted[IAccessControl::RoleGranted]
-:DelegateChanged: xref:VotesComponent-DelegateChanged[DelegateChanged]
-:DelegateVotesChanged: xref:VotesComponent-DelegateVotesChanged[DelegateVotesChanged]
+:IAccessControl-RoleGranted: xref:api/access.adoc#IAccessControl-RoleGranted[IAccessControl::RoleGranted]
+:VotesComponent-DelegateChanged: xref:VotesComponent-DelegateChanged[DelegateChanged]
+:VotesComponent-DelegateVotesChanged: xref:VotesComponent-DelegateVotesChanged[DelegateVotesChanged]
 :VotingUnitsTrait: xref:VotingUnitsTrait[VotingUnitsTrait]
 :VotesComponent: xref:VotesComponent[VotesComponent]
 :IVotes: xref:IVotes[IVotes]
@@ -1982,6 +1977,803 @@ Emits a {TimelockUpdated} event.
 
 Emitted when the timelock controller is updated.
 
+== Multisig
+
+A Multisig module enhances security and decentralization by requiring multiple signers to 
+approve and execute transactions. Features include configurable quorum, signer management, 
+and self-administration, ensuring collective decision-making and transparency for critical 
+operations.
+
+[.contract]
+[[IMultisig]]
+=== `++IMultisig++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.20.0/packages/governance/src/multisig/interface.cairo[{github-icon},role=heading-link]
+
+:IMultisig-CallSalt: xref:IMultisig-CallSalt[CallSalt]
+:IMultisig-SignerAdded: xref:IMultisig-SignerAdded[SignerAdded]
+:IMultisig-SignerRemoved: xref:IMultisig-SignerRemoved[SignerRemoved]
+:IMultisig-QuorumUpdated: xref:IMultisig-QuorumUpdated[QuorumUpdated]
+:IMultisig-TransactionSubmitted: xref:IMultisig-TransactionSubmitted[TransactionSubmitted]
+:IMultisig-TransactionConfirmed: xref:IMultisig-TransactionConfirmed[TransactionConfirmed]
+:IMultisig-ConfirmationRevoked: xref:IMultisig-ConfirmationRevoked[ConfirmationRevoked]
+:IMultisig-TransactionExecuted: xref:IMultisig-TransactionExecuted[TransactionExecuted]
+
+[.hljs-theme-dark]
+```cairo
+use openzeppelin_governance::multisig::interface::IMultisig;
+```
+
+Interface of a multisig contract.
+
+[.contract-index]
+.Functions
+--
+* xref:#IMultisig-get_quorum[`++get_quorum()++`]
+* xref:#IMultisig-is_signer[`++is_signer(signer)++`]
+* xref:#IMultisig-get_signers[`++get_signers()++`]
+* xref:#IMultisig-is_confirmed[`++is_confirmed(id)++`]
+* xref:#IMultisig-is_confirmed_by[`++is_confirmed_by(id, signer)++`]
+* xref:#IMultisig-is_executed[`++is_executed(id)++`]
+* xref:#IMultisig-get_submitted_block[`++get_submitted_block(id)++`]
+* xref:#IMultisig-get_transaction_state[`++get_transaction_state(id)++`]
+* xref:#IMultisig-get_transaction_confirmations[`++get_transaction_confirmations(id)++`]
+* xref:#IMultisig-hash_transaction[`++hash_transaction(to, selector, calldata, salt)++`]
+* xref:#IMultisig-hash_transaction_batch[`++hash_transaction_batch(calls, salt)++`]
+* xref:#IMultisig-add_signers[`++add_signers(new_quorum, signers_to_add)++`]
+* xref:#IMultisig-remove_signers[`++remove_signers(new_quorum, signers_to_remove)++`]
+* xref:#IMultisig-replace_signer[`++replace_signer(signer_to_remove, signer_to_add)++`]
+* xref:#IMultisig-change_quorum[`++change_quorum(new_quorum)++`]
+* xref:#IMultisig-submit_transaction[`++submit_transaction(to, selector, calldata, salt)++`]
+* xref:#IMultisig-submit_transaction_batch[`++submit_transaction_batch(calls, salt)++`]
+* xref:#IMultisig-confirm_transaction[`++confirm_transaction(id)++`]
+* xref:#IMultisig-revoke_confirmation[`++revoke_confirmation(id)++`]
+* xref:#IMultisig-execute_transaction[`++execute_transaction(to, selector, calldata, salt)++`]
+* xref:#IMultisig-execute_transaction_batch[`++execute_transaction_batch(calls, salt)++`]
+--
+
+[.contract-index]
+.Events
+--
+* xref:#IMultisig-SignerAdded[`++SignerAdded(signer)++`]
+* xref:#IMultisig-SignerRemoved[`++SignerRemoved(signer)++`]
+* xref:#IMultisig-QuorumUpdated[`++QuorumUpdated(old_quorum, new_quorum)++`]
+* xref:#IMultisig-TransactionSubmitted[`++TransactionSubmitted(id, signer)++`]
+* xref:#IMultisig-TransactionConfirmed[`++TransactionConfirmed(id, signer)++`]
+* xref:#IMultisig-ConfirmationRevoked[`++ConfirmationRevoked(id, signer)++`]
+* xref:#IMultisig-TransactionExecuted[`++TransactionExecuted(id)++`]
+* xref:#IMultisig-CallSalt[`++CallSalt(id, salt)++`]
+--
+
+[#IMultisig-Functions]
+==== Functions
+
+[.contract-item]
+[[IMultisig-get_quorum]]
+==== `[.contract-item-name]#++get_quorum++#++() → u32++` [.item-kind]#external#
+
+Returns the current quorum value. The quorum is the minimum number of confirmations required to approve a transaction.
+
+[.contract-item]
+[[IMultisig-is_signer]]
+==== `[.contract-item-name]#++is_signer++#++(signer: ContractAddress) → bool++` [.item-kind]#external#
+
+Returns whether the given `signer` is registered. Only registered signers can submit, confirm, or execute transactions.
+
+[.contract-item]
+[[IMultisig-get_signers]]
+==== `[.contract-item-name]#++get_signers++#++() → Span<ContractAddress>++` [.item-kind]#external#
+
+Returns the list of all current signers.
+
+[.contract-item]
+[[IMultisig-is_confirmed]]
+==== `[.contract-item-name]#++is_confirmed++#++(id: TransactionID) → bool++` [.item-kind]#external#
+
+Returns whether the transaction with the given `id` has been confirmed.
+
+[.contract-item]
+[[IMultisig-is_confirmed_by]]
+==== `[.contract-item-name]#++is_confirmed_by++#++(id: TransactionID, signer: ContractAddress) → bool++` [.item-kind]#external#
+
+Returns whether the transaction with the given `id` has been confirmed by the specified `signer`.
+
+[.contract-item]
+[[IMultisig-is_executed]]
+==== `[.contract-item-name]#++is_executed++#++(id: TransactionID) → bool++` [.item-kind]#external#
+
+Returns whether the transaction with the given `id` has been executed.
+
+[.contract-item]
+[[IMultisig-get_submitted_block]]
+==== `[.contract-item-name]#++get_submitted_block++#++(id: TransactionID) → u64++` [.item-kind]#external#
+
+Returns the block number when the transaction with the given `id` was submitted.
+
+[.contract-item]
+[[IMultisig-get_transaction_state]]
+==== `[.contract-item-name]#++get_transaction_state++#++(id: TransactionID) → TransactionState++` [.item-kind]#external#
+
+Returns the current state of the transaction with the given `id`.
+
+[.contract-item]
+[[IMultisig-get_transaction_confirmations]]
+==== `[.contract-item-name]#++get_transaction_confirmations++#++(id: TransactionID) → u32++` [.item-kind]#external#
+
+Returns the number of confirmations from registered signers for the transaction with the specified `id`.
+
+[.contract-item]
+[[IMultisig-hash_transaction]]
+==== `[.contract-item-name]#++hash_transaction++#++(to: ContractAddress, selector: felt252, calldata: Span<felt252>, salt: felt252) → TransactionID++` [.item-kind]#external#
+
+Returns the computed identifier of a transaction containing a single call.
+
+[.contract-item]
+[[IMultisig-hash_transaction_batch]]
+==== `[.contract-item-name]#++hash_transaction_batch++#++(calls: Span<Call>, salt: felt252) → TransactionID++` [.item-kind]#external#
+
+Returns the computed identifier of a transaction containing a batch of calls.
+
+[.contract-item]
+[[IMultisig-add_signers]]
+==== `[.contract-item-name]#++add_signers++#++(new_quorum: u32, signers_to_add: Span<ContractAddress>)++` [.item-kind]#external#
+
+Adds new signers and updates the quorum.
+
+Requirements:
+
+- The caller must be the contract itself.
+- `new_quorum` must be less than or equal to the total number of signers after addition.
+
+Emits a {IMultisig-SignerAdded} event for each signer added.
+
+Emits a {IMultisig-QuorumUpdated} event if the quorum changes.
+
+[.contract-item]
+[[IMultisig-remove_signers]]
+==== `[.contract-item-name]#++remove_signers++#++(new_quorum: u32, signers_to_remove: Span<ContractAddress>)++` [.item-kind]#external#
+
+Removes signers and updates the quorum.
+
+Requirements:
+
+- The caller must be the contract itself.
+- `new_quorum` must be less than or equal to the total number of signers after removal.
+
+Emits a {IMultisig-SignerRemoved} event for each signer removed.
+
+Emits a {IMultisig-QuorumUpdated} event if the quorum changes.
+
+[.contract-item]
+[[IMultisig-replace_signer]]
+==== `[.contract-item-name]#++replace_signer++#++(signer_to_remove: ContractAddress, signer_to_add: ContractAddress)++` [.item-kind]#external#
+
+Replaces an existing signer with a new signer.
+
+Requirements:
+
+- The caller must be the contract itself.
+- `signer_to_remove` must be an existing signer.
+- `signer_to_add` must not be an existing signer.
+
+Emits a {IMultisig-SignerRemoved} event for the removed signer.
+
+Emits a {IMultisig-SignerAdded} event for the new signer.
+
+[.contract-item]
+[[IMultisig-change_quorum]]
+==== `[.contract-item-name]#++change_quorum++#++(new_quorum: u32)++` [.item-kind]#external#
+
+Updates the quorum value to `new_quorum` if it differs from the current quorum.
+
+Requirements:
+
+- The caller must be the contract itself.
+- `new_quorum` must be non-zero.
+- `new_quorum` must be less than or equal to the total number of signers.
+
+Emits a {IMultisig-QuorumUpdated} event if the quorum changes.
+
+[.contract-item]
+[[IMultisig-submit_transaction]]
+==== `[.contract-item-name]#++submit_transaction++#++(to: ContractAddress, selector: felt252, calldata: Span<felt252>, salt: felt252) → TransactionID++` [.item-kind]#external#
+
+Submits a new transaction for confirmation.
+
+Requirements:
+
+- The caller must be a registered signer.
+- The transaction must not have been submitted before.
+
+Emits a {IMultisig-TransactionSubmitted} event.
+
+Emits a {IMultisig-CallSalt} event if `salt` is not zero.
+
+[.contract-item]
+[[IMultisig-submit_transaction_batch]]
+==== `[.contract-item-name]#++submit_transaction_batch++#++(calls: Span<Call>, salt: felt252) → TransactionID++` [.item-kind]#external#
+
+Submits a new batch transaction for confirmation.
+
+Requirements:
+
+- The caller must be a registered signer.
+- The transaction must not have been submitted before.
+
+Emits a {IMultisig-TransactionSubmitted} event.
+
+Emits a {IMultisig-CallSalt} event if `salt` is not zero.
+
+[.contract-item]
+[[IMultisig-confirm_transaction]]
+==== `[.contract-item-name]#++confirm_transaction++#++(id: TransactionID)++` [.item-kind]#external#
+
+Confirms a transaction with the given `id`.
+
+Requirements:
+
+- The caller must be a registered signer.
+- The transaction must exist and not be executed.
+- The caller must not have already confirmed the transaction.
+
+Emits a {IMultisig-TransactionConfirmed} event.
+
+[.contract-item]
+[[IMultisig-revoke_confirmation]]
+==== `[.contract-item-name]#++revoke_confirmation++#++(id: TransactionID)++` [.item-kind]#external#
+
+Revokes a previous confirmation for a transaction with the given `id`.
+
+Requirements:
+
+- The transaction must exist and not be executed.
+- The caller must have previously confirmed the transaction.
+
+Emits a {IMultisig-ConfirmationRevoked} event.
+
+[.contract-item]
+[[IMultisig-execute_transaction]]
+==== `[.contract-item-name]#++execute_transaction++#++(to: ContractAddress, selector: felt252, calldata: Span<felt252>, salt: felt252)++` [.item-kind]#external#
+
+Executes a confirmed transaction.
+
+Requirements:
+
+- The caller must be a registered signer.
+- The transaction must be confirmed and not yet executed.
+
+Emits a {IMultisig-TransactionExecuted} event.
+
+[.contract-item]
+[[IMultisig-execute_transaction_batch]]
+==== `[.contract-item-name]#++execute_transaction_batch++#++(calls: Span<Call>, salt: felt252)++` [.item-kind]#external#
+
+Executes a confirmed batch transaction.
+
+Requirements:
+
+- The caller must be a registered signer.
+- The transaction must be confirmed and not yet executed.
+
+Emits a {IMultisig-TransactionExecuted} event.
+
+[#IMultisig-Events]
+==== Events
+
+[.contract-item]
+[[IMultisig-SignerAdded]]
+==== `[.contract-item-name]#++SignerAdded++#++(signer: ContractAddress)++` [.item-kind]#event#
+
+Emitted when a new `signer` is added.
+
+[.contract-item]
+[[IMultisig-SignerRemoved]]
+==== `[.contract-item-name]#++SignerRemoved++#++(signer: ContractAddress)++` [.item-kind]#event#
+
+Emitted when a `signer` is removed.
+
+[.contract-item]
+[[IMultisig-QuorumUpdated]]
+==== `[.contract-item-name]#++QuorumUpdated++#++(old_quorum: u32, new_quorum: u32)++` [.item-kind]#event#
+
+Emitted when the `quorum` value is updated.
+
+[.contract-item]
+[[IMultisig-TransactionSubmitted]]
+==== `[.contract-item-name]#++TransactionSubmitted++#++(id: TransactionID, signer: ContractAddress)++` [.item-kind]#event#
+
+Emitted when a new transaction is submitted by a `signer`.
+
+[.contract-item]
+[[IMultisig-TransactionConfirmed]]
+==== `[.contract-item-name]#++TransactionConfirmed++#++(id: TransactionID, signer: ContractAddress)++` [.item-kind]#event#
+
+Emitted when a transaction is confirmed by a `signer`.
+
+[.contract-item]
+[[IMultisig-ConfirmationRevoked]]
+==== `[.contract-item-name]#++ConfirmationRevoked++#++(id: TransactionID, signer: ContractAddress)++` [.item-kind]#event#
+
+Emitted when a `signer` revokes his confirmation.
+
+[.contract-item]
+[[IMultisig-TransactionExecuted]]
+==== `[.contract-item-name]#++TransactionExecuted++#++(id: TransactionID)++` [.item-kind]#event#
+
+Emitted when a transaction is executed.
+
+[.contract-item]
+[[IMultisig-CallSalt]]
+==== `[.contract-item-name]#++CallSalt++#++(id: felt252, salt: felt252)++` [.item-kind]#event#
+
+Emitted when a new transaction is submitted with non-zero salt.
+
+[.contract]
+[[MultisigComponent]]
+=== `++MultisigComponent++`
+
+:MultisigComponent-CallSalt: xref:MultisigComponent-CallSalt[CallSalt]
+:MultisigComponent-SignerAdded: xref:MultisigComponent-SignerAdded[SignerAdded]
+:MultisigComponent-SignerRemoved: xref:MultisigComponent-SignerRemoved[SignerRemoved]
+:MultisigComponent-QuorumUpdated: xref:MultisigComponent-QuorumUpdated[QuorumUpdated]
+:MultisigComponent-TransactionSubmitted: xref:MultisigComponent-TransactionSubmitted[TransactionSubmitted]
+:MultisigComponent-TransactionConfirmed: xref:MultisigComponent-TransactionConfirmed[TransactionConfirmed]
+:MultisigComponent-ConfirmationRevoked: xref:MultisigComponent-ConfirmationRevoked[ConfirmationRevoked]
+:MultisigComponent-TransactionExecuted: xref:MultisigComponent-TransactionExecuted[TransactionExecuted]
+
+[.hljs-theme-dark]
+```cairo
+use openzeppelin_governance::multisig::MultisigComponent;
+```
+
+Component that implements <<IMultisig, IMultisig>> and provides functionality for multisignature wallets, 
+including transaction management, quorum handling, and signer operations.
+
+[.contract-index]
+.Embeddable Implementations
+--
+.MultisigImpl
+
+* xref:#MultisigComponent-get_quorum[`++get_quorum(self)++`]
+* xref:#MultisigComponent-is_signer[`++is_signer(self, signer)++`]
+* xref:#MultisigComponent-get_signers[`++get_signers(self)++`]
+* xref:#MultisigComponent-is_confirmed[`++is_confirmed(self, id)++`]
+* xref:#MultisigComponent-is_confirmed_by[`++is_confirmed_by(self, id, signer)++`]
+* xref:#MultisigComponent-is_executed[`++is_executed(self, id)++`]
+* xref:#MultisigComponent-get_submitted_block[`++get_submitted_block(self, id)++`]
+* xref:#MultisigComponent-get_transaction_state[`++get_transaction_state(self, id)++`]
+* xref:#MultisigComponent-get_transaction_confirmations[`++get_transaction_confirmations(self, id)++`]
+* xref:#MultisigComponent-hash_transaction[`++hash_transaction(self, to, selector, calldata, salt)++`]
+* xref:#MultisigComponent-hash_transaction_batch[`++hash_transaction_batch(self, calls, salt)++`]
+* xref:#MultisigComponent-add_signers[`++add_signers(ref self, new_quorum, signers_to_add)++`]
+* xref:#MultisigComponent-remove_signers[`++remove_signers(ref self, new_quorum, signers_to_remove)++`]
+* xref:#MultisigComponent-replace_signer[`++replace_signer(ref self, signer_to_remove, signer_to_add)++`]
+* xref:#MultisigComponent-change_quorum[`++change_quorum(ref self, new_quorum)++`]
+* xref:#MultisigComponent-submit_transaction[`++submit_transaction(ref self, to, selector, calldata, salt)++`]
+* xref:#MultisigComponent-submit_transaction_batch[`++submit_transaction_batch(ref self, calls, salt)++`]
+* xref:#MultisigComponent-confirm_transaction[`++confirm_transaction(ref self, id)++`]
+* xref:#MultisigComponent-revoke_confirmation[`++revoke_confirmation(ref self, id)++`]
+* xref:#MultisigComponent-execute_transaction[`++execute_transaction(ref self, to, selector, calldata, salt)++`]
+* xref:#MultisigComponent-execute_transaction_batch[`++execute_transaction_batch(ref self, calls, salt)++`]
+--
+
+[.contract-index]
+.Internal Implementations
+--
+.InternalImpl
+
+* xref:#MultisigComponent-initializer[`++initializer(ref self, quorum, signers)++`]
+* xref:#MultisigComponent-resolve_tx_state[`++resolve_tx_state(self, id)++`]
+* xref:#MultisigComponent-assert_one_of_signers[`++assert_one_of_signers(self, caller)++`]
+* xref:#MultisigComponent-assert_tx_exists[`++assert_tx_exists(self, id)++`]
+* xref:#MultisigComponent-assert_only_self[`++assert_only_self(self)++`]
+* xref:#MultisigComponent-_add_signers[`++_add_signers(ref self, new_quorum, signers_to_add)++`]
+* xref:#MultisigComponent-_remove_signers[`++_remove_signers(ref self, new_quorum, signers_to_remove)++`]
+* xref:#MultisigComponent-_replace_signer[`++_replace_signer(ref self, signer_to_remove, signer_to_add)++`]
+* xref:#MultisigComponent-_change_quorum[`++_change_quorum(ref self, new_quorum)++`]
+--
+
+[.contract-index]
+.Events
+--
+* xref:#MultisigComponent-SignerAdded[`++SignerAdded(signer)++`]
+* xref:#MultisigComponent-SignerRemoved[`++SignerRemoved(signer)++`]
+* xref:#MultisigComponent-QuorumUpdated[`++QuorumUpdated(old_quorum, new_quorum)++`]
+* xref:#MultisigComponent-TransactionSubmitted[`++TransactionSubmitted(id, signer)++`]
+* xref:#MultisigComponent-TransactionConfirmed[`++TransactionConfirmed(id, signer)++`]
+* xref:#MultisigComponent-ConfirmationRevoked[`++ConfirmationRevoked(id, signer)++`]
+* xref:#MultisigComponent-TransactionExecuted[`++TransactionExecuted(id)++`]
+* xref:#MultisigComponent-CallSalt[`++CallSalt(id, salt)++`]
+--
+
+[#MultisigComponent-Functions]
+==== Embeddable functions
+
+[.contract-item]
+[[MultisigComponent-get_quorum]]
+==== `[.contract-item-name]#++get_quorum++#++(self: @ContractState) → u32++` [.item-kind]#external#
+
+Returns the current quorum value.
+
+[.contract-item]
+[[MultisigComponent-is_signer]]
+==== `[.contract-item-name]#++is_signer++#++(self: @ContractState, signer: ContractAddress) → bool++` [.item-kind]#external#
+
+Checks if a given `signer` is registered.
+
+[.contract-item]
+[[MultisigComponent-get_signers]]
+==== `[.contract-item-name]#++get_signers++#++(self: @ContractState) → Span<ContractAddress>++` [.item-kind]#external#
+
+Returns a list of all current signers.
+
+[.contract-item]
+[[MultisigComponent-is_confirmed]]
+==== `[.contract-item-name]#++is_confirmed++#++(self: @ContractState, id: TransactionID) → bool++` [.item-kind]#external#
+
+Returns whether the transaction with the given `id` has been confirmed. A confirmed transaction has received the required number of confirmations (quorum).
+
+[.contract-item]
+[[MultisigComponent-is_confirmed_by]]
+==== `[.contract-item-name]#++is_confirmed_by++#++(self: @ContractState, id: TransactionID, signer: ContractAddress) → bool++` [.item-kind]#external#
+
+Returns whether the transaction with the given `id` has been confirmed by the specified `signer`.
+
+[.contract-item]
+[[MultisigComponent-is_executed]]
+==== `[.contract-item-name]#++is_executed++#++(self: @ContractState, id: TransactionID) → bool++` [.item-kind]#external#
+
+Returns whether the transaction with the given `id` has been executed.
+
+[.contract-item]
+[[MultisigComponent-get_submitted_block]]
+==== `[.contract-item-name]#++get_submitted_block++#++(self: @ContractState, id: TransactionID) → u64++` [.item-kind]#external#
+
+Returns the block number when the transaction with the given `id` was submitted.
+
+[.contract-item]
+[[MultisigComponent-get_transaction_state]]
+==== `[.contract-item-name]#++get_transaction_state++#++(self: @ContractState, id: TransactionID) → TransactionState++` [.item-kind]#external#
+
+Returns the current state of the transaction with the given `id`.
+
+The possible states are:
+
+- `NotFound`: the transaction does not exist.
+- `Pending`: the transaction exists but hasn't reached the required confirmations.
+- `Confirmed`: the transaction has reached the required confirmations but hasn't been executed.
+- `Executed`: the transaction has been executed.
+
+[.contract-item]
+[[MultisigComponent-get_transaction_confirmations]]
+==== `[.contract-item-name]#++get_transaction_confirmations++#++(self: @ContractState, id: TransactionID) → u32++` [.item-kind]#external#
+
+Returns the number of confirmations from registered signers for the transaction with the specified `id`.
+
+[.contract-item]
+[[MultisigComponent-hash_transaction]]
+==== `[.contract-item-name]#++hash_transaction++#++(self: @ContractState, to: ContractAddress, selector: felt252, calldata: Span<felt252>, salt: felt252)++` [.item-kind]#external#
+
+Returns the computed identifier of a transaction containing a single call.
+
+[.contract-item]
+[[MultisigComponent-hash_transaction_batch]]
+==== `[.contract-item-name]#++hash_transaction_batch++#++(self: @ContractState, calls: Span<Call>, salt: felt252)++` [.item-kind]#external#
+
+Returns the computed identifier of a transaction containing a batch of calls.
+
+[.contract-item]
+[[MultisigComponent-add_signers]]
+==== `[.contract-item-name]#++add_signers++#++(ref self: ContractState, new_quorum: u32, signers_to_add: Span<ContractAddress>)++` [.item-kind]#external#
+
+Adds new signers and updates the quorum.
+
+Requirements:
+
+- The caller must be the contract itself.
+- `new_quorum` must be less than or equal to the total number of signers after addition.
+
+Emits a {MultisigComponent-SignerAdded} event for each signer added.
+
+Emits a {MultisigComponent-QuorumUpdated} event if the quorum changes.
+
+[.contract-item]
+[[MultisigComponent-remove_signers]]
+==== `[.contract-item-name]#++remove_signers++#++(ref self: ContractState, new_quorum: u32, signers_to_remove: Span<ContractAddress>)++` [.item-kind]#external#
+
+Removes signers and updates the quorum.
+
+Requirements:
+
+- The caller must be the contract itself.
+- `new_quorum` must be less than or equal to the total number of signers after removal.
+
+Emits a {MultisigComponent-SignerRemoved} event for each signer removed.
+
+Emits a {MultisigComponent-QuorumUpdated} event if the quorum changes.
+
+[.contract-item]
+[[MultisigComponent-replace_signer]]
+==== `[.contract-item-name]#++replace_signer++#++(ref self: ContractState, signer_to_remove: ContractAddress, signer_to_add: ContractAddress)++` [.item-kind]#external#
+
+Replaces an existing signer with a new signer.
+
+Requirements:
+
+- The caller must be the contract itself.
+- `signer_to_remove` must be an existing signer.
+- `signer_to_add` must not be an existing signer.
+
+Emits a {MultisigComponent-SignerRemoved} event for the removed signer.
+
+Emits a {MultisigComponent-SignerAdded} event for the new signer.
+
+[.contract-item]
+[[MultisigComponent-change_quorum]]
+==== `[.contract-item-name]#++change_quorum++#++(ref self: ContractState, new_quorum: u32)++` [.item-kind]#external#
+
+Updates the quorum value to `new_quorum`.
+
+Requirements:
+
+- The caller must be the contract itself.
+- `new_quorum` must be non-zero.
+- `new_quorum` must be less than or equal to the total number of signers.
+
+Emits a {MultisigComponent-QuorumUpdated} event if the quorum changes.
+
+[.contract-item]
+[[MultisigComponent-submit_transaction]]
+==== `[.contract-item-name]#++submit_transaction++#++(ref self: ContractState, to: ContractAddress, selector: felt252, calldata: Span<felt252>, salt: felt252)++` [.item-kind]#external#
+
+Submits a new transaction for confirmation.
+
+Requirements:
+
+- The caller must be a registered signer.
+- The transaction must not have been submitted before.
+
+Emits a {MultisigComponent-TransactionSubmitted} event.
+
+Emits a {MultisigComponent-CallSalt} event if `salt` is not zero.
+
+[.contract-item]
+[[MultisigComponent-submit_transaction_batch]]
+==== `[.contract-item-name]#++submit_transaction_batch++#++(ref self: ContractState, calls: Span<Call>, salt: felt252)++` [.item-kind]#external#
+
+Submits a new batch transaction for confirmation.
+
+Requirements:
+
+- The caller must be a registered signer.
+- The transaction must not have been submitted before.
+
+Emits a {MultisigComponent-TransactionSubmitted} event.
+
+Emits a {MultisigComponent-CallSalt} event if `salt` is not zero.
+
+[.contract-item]
+[[MultisigComponent-confirm_transaction]]
+==== `[.contract-item-name]#++confirm_transaction++#++(ref self: ContractState, id: TransactionID)++` [.item-kind]#external#
+
+Confirms a transaction with the given `id`.
+
+Requirements:
+
+- The caller must be a registered signer.
+- The transaction must exist and not be executed.
+- The caller must not have already confirmed the transaction.
+
+Emits a {MultisigComponent-TransactionConfirmed} event.
+
+[.contract-item]
+[[MultisigComponent-revoke_confirmation]]
+==== `[.contract-item-name]#++revoke_confirmation++#++(ref self: ContractState, id: TransactionID)++` [.item-kind]#external#
+
+Revokes a previous confirmation for a transaction with the given `id`.
+
+Requirements:
+
+- The transaction must exist and not be executed.
+- The caller must have previously confirmed the transaction.
+
+Emits a {MultisigComponent-ConfirmationRevoked} event.
+
+[.contract-item]
+[[MultisigComponent-execute_transaction]]
+==== `[.contract-item-name]#++execute_transaction++#++(ref self: ContractState, to: ContractAddress, selector: felt252, calldata: Span<felt252>, salt: felt252)++` [.item-kind]#external#
+
+Executes a confirmed transaction.
+
+Requirements:
+
+- The caller must be a registered signer.
+- The transaction must be confirmed and not yet executed.
+
+Emits a {MultisigComponent-TransactionExecuted} event.
+
+[.contract-item]
+[[MultisigComponent-execute_transaction_batch]]
+==== `[.contract-item-name]#++execute_transaction_batch++#++(ref self: ContractState, calls: Span<Call>, salt: felt252)++` [.item-kind]#external#
+
+Executes a confirmed batch transaction.
+
+Requirements:
+
+- The caller must be a registered signer.
+- The transaction must be confirmed and not yet executed.
+
+Emits a {MultisigComponent-TransactionExecuted} event.
+
+[#MultisigComponent-Internal-Functions]
+==== Internal functions
+
+[.contract-item]
+[[MultisigComponent-initializer]]
+==== `[.contract-item-name]#++initializer++#++(ref self: ContractState, quorum: u32, signers: Span<ContractAddress>)++` [.item-kind]#internal#
+
+Initializes the Multisig component with the initial `quorum` and `signers`.
+This function must be called during contract initialization to set up the initial state.
+
+Requirements:
+
+- `quorum` must be non-zero and less than or equal to the number of `signers`.
+
+Emits a {MultisigComponent-SignerAdded} event for each signer added.
+
+Emits a {MultisigComponent-QuorumUpdated} event.
+
+[.contract-item]
+[[MultisigComponent-resolve_tx_state]]
+==== `[.contract-item-name]#++resolve_tx_state++#++(self: @ContractState, id: TransactionID) → TransactionState++` [.item-kind]#internal#
+
+Resolves and returns the current state of the transaction with the given `id`.
+
+The possible states are:
+
+- `NotFound`: the transaction does not exist.
+- `Pending`: the transaction exists but hasn't reached the required confirmations.
+- `Confirmed`: the transaction has reached the required confirmations but hasn't been executed.
+- `Executed`: the transaction has been executed.
+
+[.contract-item]
+[[MultisigComponent-assert_one_of_signers]]
+==== `[.contract-item-name]#++assert_one_of_signers++#++(self: @ContractState, caller: ContractAddress)++` [.item-kind]#internal#
+
+Asserts that the `caller` is one of the registered signers.
+
+Requirements:
+
+- The `caller` must be a registered signer.
+
+[.contract-item]
+[[MultisigComponent-assert_tx_exists]]
+==== `[.contract-item-name]#++assert_tx_exists++#++(self: @ContractState, id: TransactionID)++` [.item-kind]#internal#
+
+Asserts that a transaction with the given `id` exists.
+
+Requirements:
+
+- The transaction with the given `id` must have been submitted.
+
+[.contract-item]
+[[MultisigComponent-assert_only_self]]
+==== `[.contract-item-name]#++assert_only_self++#++(self: @ContractState)++` [.item-kind]#internal#
+
+Asserts that the caller is the contract itself.
+
+Requirements:
+
+- The caller must be the contract's own address.
+
+[.contract-item]
+[[MultisigComponent-_add_signers]]
+==== `[.contract-item-name]#++_add_signers++#++(ref self: ContractState, new_quorum: u32, signers_to_add: Span<ContractAddress>)++` [.item-kind]#internal#
+
+Adds new signers and updates the quorum.
+
+Requirements:
+
+- Each signer address must be non-zero.
+- `new_quorum` must be non-zero and less than or equal to the total number of signers after addition.
+
+Emits a {MultisigComponent-SignerAdded} event for each new signer added.
+
+Emits a {MultisigComponent-QuorumUpdated} event if the quorum changes.
+
+[.contract-item]
+[[MultisigComponent-_remove_signers]]
+==== `[.contract-item-name]#++_remove_signers++#++(ref self: ContractState, new_quorum: u32, signers_to_remove: Span<ContractAddress>)++` [.item-kind]#internal#
+
+Removes existing signers and updates the quorum.
+
+Requirements:
+
+- `new_quorum` must be non-zero and less than or equal to the total number of signers
+after removal.
+
+Emits a {MultisigComponent-SignerRemoved} event for each signer removed.
+
+Emits a {MultisigComponent-QuorumUpdated} event if the quorum changes.
+
+[.contract-item]
+[[MultisigComponent-_replace_signer]]
+==== `[.contract-item-name]#++_replace_signer++#++(ref self: ContractState, signer_to_remove: ContractAddress, signer_to_add: ContractAddress)++` [.item-kind]#internal#
+
+Replaces an existing signer with a new signer.
+
+Requirements:
+
+- `signer_to_remove` must be an existing signer.
+- `signer_to_add` must not be an existing signer.
+- `signer_to_add` must be a non-zero address.
+
+Emits a {MultisigComponent-SignerRemoved} event for the removed signer.
+
+Emits a {MultisigComponent-SignerAdded} event for the new signer.
+
+[.contract-item]
+[[MultisigComponent-_change_quorum]]
+==== `[.contract-item-name]#++_change_quorum++#++(ref self: ContractState, new_quorum: u32)++` [.item-kind]#internal#
+
+Updates the quorum value to `new_quorum` if it differs from the current quorum.
+
+Requirements:
+
+- `new_quorum` must be non-zero.
+- `new_quorum` must be less than or equal to the total number of signers.
+
+Emits a {MultisigComponent-QuorumUpdated} event if the quorum changes.
+
+[#MultisigComponent-Events]
+==== Events
+
+[.contract-item]
+[[MultisigComponent-SignerAdded]]
+==== `[.contract-item-name]#++SignerAdded++#++(signer: ContractAddress)++` [.item-kind]#event#
+
+Emitted when a new `signer` is added.
+
+[.contract-item]
+[[MultisigComponent-SignerRemoved]]
+==== `[.contract-item-name]#++SignerRemoved++#++(signer: ContractAddress)++` [.item-kind]#event#
+
+Emitted when a `signer` is removed.
+
+[.contract-item]
+[[MultisigComponent-QuorumUpdated]]
+==== `[.contract-item-name]#++QuorumUpdated++#++(old_quorum: u32, new_quorum: u32)++` [.item-kind]#event#
+
+Emitted when the `quorum` value is updated.
+
+[.contract-item]
+[[MultisigComponent-TransactionSubmitted]]
+==== `[.contract-item-name]#++TransactionSubmitted++#++(id: TransactionID, signer: ContractAddress)++` [.item-kind]#event#
+
+Emitted when a new transaction is submitted by a `signer`.
+
+[.contract-item]
+[[MultisigComponent-TransactionConfirmed]]
+==== `[.contract-item-name]#++TransactionConfirmed++#++(id: TransactionID, signer: ContractAddress)++` [.item-kind]#event#
+
+Emitted when a transaction is confirmed by a `signer`.
+
+[.contract-item]
+[[MultisigComponent-ConfirmationRevoked]]
+==== `[.contract-item-name]#++ConfirmationRevoked++#++(id: TransactionID, signer: ContractAddress)++` [.item-kind]#event#
+
+Emitted when a `signer` revokes his confirmation.
+
+[.contract-item]
+[[MultisigComponent-TransactionExecuted]]
+==== `[.contract-item-name]#++TransactionExecuted++#++(id: TransactionID)++` [.item-kind]#event#
+
+Emitted when a transaction is executed.
+
+[.contract-item]
+[[MultisigComponent-CallSalt]]
+==== `[.contract-item-name]#++CallSalt++#++(id: felt252, salt: felt252)++` [.item-kind]#event#
+
+Emitted when a new transaction is submitted with non-zero salt.
+
 == Timelock
 
 In a governance system, `TimelockControllerComponent` is in charge of introducing a delay between a proposal and its execution.
@@ -1989,6 +2781,12 @@ In a governance system, `TimelockControllerComponent` is in charge of introducin
 [.contract]
 [[ITimelock]]
 === `++ITimelock++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.20.0/packages/governance/src/timelock/interface.cairo[{github-icon},role=heading-link]
+
+:ITimelock-CallScheduled: xref:ITimelock-CallScheduled[CallScheduled]
+:ITimelock-CallExecuted: xref:ITimelock-CallExecuted[CallExecuted]
+:ITimelock-CallSalt: xref:ITimelock-CallSalt[CallSalt]
+:ITimelock-CallCancelled: xref:ITimelock-CallCancelled[CallCancelled]
+:ITimelock-MinDelayChanged: xref:ITimelock-MinDelayChanged[MinDelayChanged]
 
 [.hljs-theme-dark]
 ```cairo
@@ -2069,7 +2867,14 @@ is `Done`.
 [[ITimelock-get_operation_state]]
 ==== `[.contract-item-name]#++get_operation_state++#++(id: felt252) → OperationState++` [.item-kind]#external#
 
-Returns the OperationState for `id`.
+Returns the current state of the operation with the given `id`.
+
+The possible states are:
+
+- `Unset`: the operation has not been scheduled or has been canceled.
+- `Waiting`: the operation has been scheduled and is pending the scheduled delay.
+- `Ready`: the timer has expired, and the operation is eligible for execution.
+- `Done`: the operation has been executed.
 
 [.contract-item]
 [[ITimelock-get_min_delay]]
@@ -2100,8 +2905,8 @@ Requirements:
 
 - The caller must have the `PROPOSER_ROLE` role.
 
-Emits {CallScheduled} event.
-Emits {CallSalt} event if `salt` is not zero.
+Emits {ITimelock-CallScheduled} event.
+Emits {ITimelock-CallSalt} event if `salt` is not zero.
 
 [.contract-item]
 [[ITimelock-schedule_batch]]
@@ -2113,21 +2918,21 @@ Requirements:
 
 - The caller must have the `PROPOSER_ROLE` role.
 
-Emits one {CallScheduled} event for each transaction in the batch.
-Emits {CallSalt} event if `salt` is not zero.
+Emits one {ITimelock-CallScheduled} event for each transaction in the batch.
+Emits {ITimelock-CallSalt} event if `salt` is not zero.
 
 [.contract-item]
 [[ITimelock-cancel]]
 ==== `[.contract-item-name]#++cancel++#++(id: felt252)++` [.item-kind]#external#
 
-Cancel an operation.
+Cancels an operation. A canceled operation returns to `Unset` OperationState.
 
 Requirements:
 
 - The caller must have the `CANCELLER_ROLE` role.
-- `id` must be an operation.
+- `id` must be a pending operation.
 
-Emits a {CallCancelled} event.
+Emits a {ITimelock-CallCancelled} event.
 
 [.contract-item]
 [[ITimelock-execute]]
@@ -2141,7 +2946,7 @@ Requirements:
 - `id` must be in Ready OperationState.
 - `predecessor` must either be `0` or in Done OperationState.
 
-Emits a {CallExecuted} event.
+Emits a {ITimelock-CallExecuted} event.
 
 NOTE: This function can reenter, but it doesn't pose a risk because <<TimelockControllerComponent-_after_call>>
 checks that the proposal is pending, thus any modifications to the operation during
@@ -2159,7 +2964,7 @@ Requirements:
 - `id` must be in Ready OperationState.
 - `predecessor` must either be `0` or in Done OperationState.
 
-Emits a {CallExecuted} event for each Call.
+Emits a {ITimelock-CallExecuted} event for each Call.
 
 NOTE: This function can reenter, but it doesn't pose a risk because `_after_call`
 checks that the proposal is pending, thus any modifications to the operation during
@@ -2177,7 +2982,7 @@ Requirements:
 and later executing an operation where the timelock is the target and the data
 is the serialized call to this function.
 
-Emits a {MinDelayChanged} event.
+Emits a {ITimelock-MinDelayChanged} event.
 
 [#ITimelock-Events]
 ==== Events
@@ -2215,6 +3020,12 @@ Emitted when the minimum delay for future operations is modified.
 [.contract]
 [[TimelockControllerComponent]]
 === `++TimelockControllerComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.20.0/packages/governance/src/timelock/timelock_controller.cairo[{github-icon},role=heading-link]
+
+:TimelockComponent-CallScheduled: xref:TimelockControllerComponent-CallScheduled[CallScheduled]
+:TimelockComponent-CallExecuted: xref:TimelockControllerComponent-CallExecuted[CallExecuted]
+:TimelockComponent-CallSalt: xref:TimelockControllerComponent-CallSalt[CallSalt]
+:TimelockComponent-CallCancelled: xref:TimelockControllerComponent-CallCancelled[CallCancelled]
+:TimelockComponent-MinDelayChanged: xref:TimelockControllerComponent-MinDelayChanged[MinDelayChanged]
 
 include::../utils/_common.adoc[]
 
@@ -2344,7 +3155,14 @@ is `Done`.
 [[TimelockControllerComponent-get_operation_state]]
 ==== `[.contract-item-name]#++get_operation_state++#++(self: @ContractState, id: felt252) → OperationState++` [.item-kind]#external#
 
-Returns the OperationState for `id`.
+Returns the current state of the operation with the given `id`.
+
+The possible states are:
+
+- `Unset`: the operation has not been scheduled or has been canceled.
+- `Waiting`: the operation has been scheduled and is pending the scheduled delay.
+- `Ready`: the timer has expired, and the operation is eligible for execution.
+- `Done`: the operation has been executed.
 
 [.contract-item]
 [[TimelockControllerComponent-get_min_delay]]
@@ -2377,8 +3195,8 @@ Requirements:
 - The proposal must not already exist.
 - `delay` must be greater than or equal to the min delay.
 
-Emits {CallScheduled} event.
-Emits {CallSalt} event if `salt` is not zero.
+Emits {TimelockComponent-CallScheduled} event.
+Emits {TimelockComponent-CallSalt} event if `salt` is not zero.
 
 [.contract-item]
 [[TimelockControllerComponent-schedule_batch]]
@@ -2392,21 +3210,21 @@ Requirements:
 - The proposal must not already exist.
 - `delay` must be greater than or equal to the min delay.
 
-Emits one {CallScheduled} event for each transaction in the batch.
-Emits {CallSalt} event if `salt` is not zero.
+Emits one {TimelockComponent-CallScheduled} event for each transaction in the batch.
+Emits {TimelockComponent-CallSalt} event if `salt` is not zero.
 
 [.contract-item]
 [[TimelockControllerComponent-cancel]]
 ==== `[.contract-item-name]#++cancel++#++(ref self: ContractState, id: felt252)++` [.item-kind]#external#
 
-Cancel an operation.
+Cancels an operation. A canceled operation returns to `Unset` OperationState.
 
 Requirements:
 
 - The caller must have the `CANCELLER_ROLE` role.
-- `id` must be an operation.
+- `id` must be a pending operation.
 
-Emits a {CallCancelled} event.
+Emits a {TimelockComponent-CallCancelled} event.
 
 [.contract-item]
 [[TimelockControllerComponent-execute]]
@@ -2420,7 +3238,7 @@ Requirements:
 - `id` must be in Ready OperationState.
 - `predecessor` must either be `0` or in Done OperationState.
 
-Emits a {CallExecuted} event.
+Emits a {TimelockComponent-CallExecuted} event.
 
 NOTE: This function can reenter, but it doesn't pose a risk because <<TimelockControllerComponent-_after_call>>
 checks that the proposal is pending, thus any modifications to the operation during
@@ -2438,7 +3256,7 @@ Requirements:
 - `id` must be in Ready OperationState.
 - `predecessor` must either be `0` or in Done OperationState.
 
-Emits a {CallExecuted} event for each Call.
+Emits a {TimelockComponent-CallExecuted} event for each Call.
 
 NOTE: This function can reenter, but it doesn't pose a risk because `_after_call`
 checks that the proposal is pending, thus any modifications to the operation during
@@ -2456,7 +3274,7 @@ Requirements:
 and later executing an operation where the timelock is the target and the data
 is the serialized call to this function.
 
-Emits a {MinDelayChanged} event.
+Emits a {TimelockComponent-MinDelayChanged} event.
 
 [#TimelockControllerComponent-Internal-Functions]
 ==== Internal functions
@@ -2478,15 +3296,15 @@ WARNING: The optional admin can aid with initial configuration of roles after de
 without being subject to delay, but this role should be subsequently renounced in favor of
 administration through timelocked proposals.
 
-Emits two {RoleGranted} events for each account in `proposers` with `PROPOSER_ROLE` and
+Emits two {IAccessControl-RoleGranted} events for each account in `proposers` with `PROPOSER_ROLE` and
 `CANCELLER_ROLE` roles.
 
-Emits a {RoleGranted} event for each account in `executors` with `EXECUTOR_ROLE` role.
+Emits a {IAccessControl-RoleGranted} event for each account in `executors` with `EXECUTOR_ROLE` role.
 
-May emit a {RoleGranted} event for `admin` with `DEFAULT_ADMIN_ROLE` role (if `admin` is
+May emit a {IAccessControl-RoleGranted} event for `admin` with `DEFAULT_ADMIN_ROLE` role (if `admin` is
 not zero).
 
-Emits {MinDelayChanged} event.
+Emits {TimelockComponent-MinDelayChanged} event.
 
 [.contract-item]
 [[TimelockControllerComponent-assert_only_role]]
@@ -2785,9 +3603,9 @@ Returns the delegate that `account` has chosen.
 
 Delegates votes from the sender to `delegatee`.
 
-Emits a {DelegateChanged} event.
+Emits a {VotesComponent-DelegateChanged} event.
 
-May emit one or two {DelegateVotesChanged} events.
+May emit one or two {VotesComponent-DelegateVotesChanged} events.
 
 [.contract-item]
 [[VotesComponent-delegate_by_sig]]
@@ -2802,9 +3620,9 @@ Requirements:
 - `delegator` must implement `SRC6::is_valid_signature`.
 - `signature` should be valid for the message hash.
 
-Emits a {DelegateChanged} event.
+Emits a {VotesComponent-DelegateChanged} event.
 
-May emit one or two {DelegateVotesChanged} events.
+May emit one or two {VotesComponent-DelegateVotesChanged} events.
 
 [#VotesComponent-Internal-functions]
 ==== Internal functions
@@ -2821,7 +3639,7 @@ Returns the current total supply of votes.
 
 Moves delegated votes from one delegate to another.
 
-May emit one or two {DelegateVotesChanged} events.
+May emit one or two {VotesComponent-DelegateVotesChanged} events.
 
 [.contract-item]
 [[VotesComponent-transfer_voting_units]]
@@ -2834,7 +3652,7 @@ should be zero. Total supply of voting units will be adjusted with mints and bur
 
 WARNING: If voting units are based on an underlying transferable asset (like a token), you must call this function every time the asset is transferred to keep the internal voting power accounting in sync. For ERC20 and ERC721 tokens, this is typically handled using hooks.
 
-May emit one or two {DelegateVotesChanged} events.
+May emit one or two {VotesComponent-DelegateVotesChanged} events.
 
 [.contract-item]
 [[VotesComponent-num_checkpoints]]
@@ -2854,9 +3672,9 @@ Returns the `pos`-th checkpoint for `account`.
 
 Delegates all of ``account``'s voting units to `delegatee`.
 
-Emits a {DelegateChanged} event.
+Emits a {VotesComponent-DelegateChanged} event.
 
-May emit one or two {DelegateVotesChanged} events.
+May emit one or two {VotesComponent-DelegateVotesChanged} events.
 
 [#VotesComponent-Events]
 ==== Events

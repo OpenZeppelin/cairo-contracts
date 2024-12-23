@@ -4,16 +4,30 @@
 :accesscontrol-component: xref:api/access.adoc#AccessControlComponent[AccessControlComponent]
 :src5-component: xref:api/introspection.adoc#SRC5Component[SRC5Component]
 
-
 The Timelock Controller provides a means of enforcing time delays on the execution of transactions. This is considered good practice regarding governance systems because it allows users the opportunity to exit the system if they disagree with a decision before it is executed.
 
 NOTE: The Timelock contract itself executes transactions, not the user. The Timelock should, therefore, hold associated funds, ownership, and access control roles.
 
 == Operation lifecycle
 
-Timelocked operations are identified by a unique id (their hash) and follow a specific `OperationState` lifecycle:
+The state of an operation is represented by the `OperationState` enum and can be retrieved 
+by calling the `get_operation_state` function with the operation's identifier.
+
+The identifier of an operation is a `felt252` value, computed as the Pedersen hash of the 
+operation's call or calls, its predecessor, and salt. It can be computed by invoking the 
+implementing contract's `hash_operation` function for single-call operations or 
+`hash_operation_batch` for multi-call operations. Submitting an operation with identical calls, 
+predecessor, and the same salt value a second time will fail, as operation identifiers must be 
+unique. To resolve this, use a different salt value to generate a unique identifier.
+
+Timelocked operations follow a specific lifecycle:
 
 `Unset` → `Waiting` → `Ready` → `Done`
+
+- `Unset`: the operation has not been scheduled or has been canceled.
+- `Waiting`: the operation has been scheduled and is pending the scheduled delay.
+- `Ready`: the timer has expired, and the operation is eligible for execution.
+- `Done`: the operation has been executed.
 
 == Timelock flow
 

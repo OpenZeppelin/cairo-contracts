@@ -125,13 +125,17 @@ pub mod ERC4626Component {
     /// Defaults to no entry or exit fees.
     ///
     /// NOTE: The FeeConfigTrait hooks directly into the preview methods of the ERC4626 component.
-    /// The preview methods must return as close to the exact amount of shares or assets as possible if the
-    /// actual (previewed) operation occurred in the same transaction (according to IERC4626 spec).
-    /// All operations use their corresponding preview method as the value of assets or shares being moved.
+    /// The preview methods must return as close to the exact amount of shares or assets as possible
+    /// if the actual (previewed) operation occurred in the same transaction (according to IERC4626
+    /// spec).
+    /// All operations use their corresponding preview method as the value of assets or shares being
+    /// moved.
     /// Therefore, adjusting an operation's assets in FeeConfigTrait consequently adjusts the assets
-    /// (or assets to be converted into shares) in both the preview operation and the actual operation.
+    /// (or assets to be converted into shares) in both the preview operation and the actual
+    /// operation.
     ///
-    /// NOTE: To transfer fees, this trait needs to be coordinated with `ERC4626Component::ERC4626Hooks`.
+    /// NOTE: To transfer fees, this trait needs to be coordinated with
+    /// `ERC4626Component::ERC4626Hooks`.
     /// See the ERC4626FeesMock example:
     /// https://github.com/OpenZeppelin/cairo-contracts/tree/main/packages/test_common/src/mocks/erc4626.cairo
     pub trait FeeConfigTrait<TContractState, +HasComponent<TContractState>> {

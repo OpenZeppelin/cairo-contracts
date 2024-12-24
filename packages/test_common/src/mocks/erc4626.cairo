@@ -209,8 +209,8 @@ pub mod ERC4626LimitsMock {
 }
 
 /// The mock contract charges fees in terms of assets, not shares.
-/// This means that the fees are calculated based on the amount of assets that are being deposited or withdrawn,
-/// and not based on the amount of shares that are being minted or redeemed.
+/// This means that the fees are calculated based on the amount of assets that are being deposited
+/// or withdrawn, and not based on the amount of shares that are being minted or redeemed.
 /// This is an opinionated design decision for the purpose of testing.
 /// DO NOT USE IN PRODUCTION
 #[starknet::contract]

@@ -266,10 +266,11 @@ pub mod ERC4626Component {
         /// current block, given current on-chain conditions.
         ///
         /// The default deposit preview value is the full amount of shares.
-        /// This can be changed to account for fees, for example, in the implementing contract by defining
-        /// custom logic in `FeeConfigTrait::adjust_deposit`.
+        /// This can be changed to account for fees, for example, in the implementing contract by
+        /// defining custom logic in `FeeConfigTrait::adjust_deposit`.
         ///
-        /// NOTE: `preview_deposit` must be inclusive of entry fees to be compliant with the IERC4626 spec.
+        /// NOTE: `preview_deposit` must be inclusive of entry fees to be compliant with the
+        /// IERC4626 spec.
         fn preview_deposit(self: @ComponentState<TContractState>, assets: u256) -> u256 {
             let adjusted_assets = Fee::adjust_deposit(self, assets);
             self._convert_to_shares(adjusted_assets, Rounding::Floor)
@@ -313,10 +314,11 @@ pub mod ERC4626Component {
         /// current block, given current on-chain conditions.
         ///
         /// The default mint preview value is the full amount of assets.
-        /// This can be changed to account for fees, for example, in the implementing contract by defining
-        /// custom logic in `FeeConfigTrait::adjust_mint`.
+        /// This can be changed to account for fees, for example, in the implementing contract by
+        /// defining custom logic in `FeeConfigTrait::adjust_mint`.
         ///
-        /// NOTE: `preview_mint` must be inclusive of entry fees to be compliant with the IERC4626 spec.
+        /// NOTE: `preview_mint` must be inclusive of entry fees to be compliant with the IERC4626
+        /// spec.
         fn preview_mint(self: @ComponentState<TContractState>, shares: u256) -> u256 {
             let full_assets = self._convert_to_assets(shares, Rounding::Ceil);
             Fee::adjust_mint(self, full_assets)
@@ -365,10 +367,11 @@ pub mod ERC4626Component {
         /// current block, given current on-chain conditions.
         ///
         /// The default withdraw preview value is the full amount of shares.
-        /// This can be changed to account for fees, for example, in the implementing contract by defining
-        /// custom logic in `FeeConfigTrait::adjust_withdraw`.
+        /// This can be changed to account for fees, for example, in the implementing contract by
+        /// defining custom logic in `FeeConfigTrait::adjust_withdraw`.
         ///
-        /// NOTE: `preview_withdraw` must be inclusive of exit fees to be compliant with the IERC4626 spec.
+        /// NOTE: `preview_withdraw` must be inclusive of exit fees to be compliant with the
+        /// IERC4626 spec.
         fn preview_withdraw(self: @ComponentState<TContractState>, assets: u256) -> u256 {
             let adjusted_assets = Fee::adjust_withdraw(self, assets);
             self._convert_to_shares(adjusted_assets, Rounding::Ceil)
@@ -417,10 +420,11 @@ pub mod ERC4626Component {
         /// current block, given current on-chain conditions.
         ///
         /// The default redeem preview value is the full amount of assets.
-        /// This can be changed to account for fees, for example, in the implementing contract by defining
-        /// custom logic in `FeeConfigTrait::adjust_redeem`.
+        /// This can be changed to account for fees, for example, in the implementing contract by
+        /// defining custom logic in `FeeConfigTrait::adjust_redeem`.
         ///
-        /// NOTE: `preview_redeem` must be inclusive of exit fees to be compliant with the IERC4626 spec.
+        /// NOTE: `preview_redeem` must be inclusive of exit fees to be compliant with the IERC4626
+        /// spec.
         fn preview_redeem(self: @ComponentState<TContractState>, shares: u256) -> u256 {
             let full_assets = self._convert_to_assets(shares, Rounding::Floor);
             Fee::adjust_redeem(self, full_assets)

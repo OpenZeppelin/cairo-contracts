@@ -258,6 +258,7 @@ NOTE: See xref:#ERC721Component-Hooks[Hooks] to understand how are hooks used.
 --
 .InternalImpl
 * xref:#ERC721Component-initializer[`++initializer(self, name, symbol, base_uri)++`]
+* xref:#ERC721Component-initializer_no_metadata[`++initializer_no_metadata(self)++`]
 * xref:#ERC721Component-exists[`++exists(self, token_id)++`]
 * xref:#ERC721Component-transfer[`++transfer(self, from, to, token_id)++`]
 * xref:#ERC721Component-mint[`++mint(self, to, token_id)++`]
@@ -468,6 +469,25 @@ See <<ERC721Component-token_uri,ERC721Component::token_uri>>.
 
 Initializes the contract by setting the token name and symbol.
 This should be used inside the contract's constructor.
+
+WARNING: Most ERC721 contracts expose the <<IERC721Metadata,IERC721Metadata>> interface which
+is what this initializer is meant to support.
+If the contract DOES NOT expose the <<IERC721Metadata,IERC721Metadata>> interface,
+meaning the token does not have a name, symbol, or URI,
+the contract must instead use <<ERC721Component-initializer_no_metadata,initializer_no_metadata>> in the constructor.
+Failure to abide by these instructions can lead to unexpected issues especially with
+UIs.
+
+[.contract-item]
+[[ERC721Component-initializer_no_metadata]]
+==== `[.contract-item-name]#++initializer_no_metadata++#++(ref self: ContractState)++` [.item-kind]#internal#
+
+Initializes the contract with no metadata by registering only the IERC721 interface.
+
+WARNING: This initializer should ONLY be used during construction in the very
+specific instance when the contract does NOT expose the <<IERC721Metadata,IERC721Metadata>> interface.
+Initializing a contract with this initializer means that tokens will not
+have a name, symbol, or URI.
 
 [.contract-item]
 [[ERC721Component-exists]]

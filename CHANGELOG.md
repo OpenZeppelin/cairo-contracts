@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- ERC721Component `initializer_no_metadata` (#)
+- ERC721Component `initializer_no_metadata` (#1276)
 - SRC9 (Outside Execution) integration to account presets (#1201)
 - `SNIP12HashSpanImpl` to `openzeppelin_utils::cryptography::snip12` (#1180)
 - GovernorComponent with the following extensions: (#1180)

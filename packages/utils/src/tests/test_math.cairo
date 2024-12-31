@@ -1,8 +1,8 @@
 use core::integer::{u512, u512_safe_div_rem_by_u256};
 use core::num::traits::Bounded;
 use core::num::traits::OverflowingAdd;
-use crate::math::Rounding;
 use crate::math;
+use crate::math::Rounding;
 
 //
 // average
@@ -129,7 +129,7 @@ fn test_mul_div_round_down_large_values() {
         (17, u256_max, u256_max, 17),
         (u256_max - 1, u256_max - 1, u256_max, u256_max - 2),
         (u256_max, u256_max - 1, u256_max, u256_max - 1),
-        (u256_max, u256_max, u256_max, u256_max)
+        (u256_max, u256_max, u256_max, u256_max),
     ]
         .span();
 
@@ -166,7 +166,7 @@ fn test_mul_div_round_up_large_values() {
         (17, u256_max, u256_max, 17),
         (u256_max - 1, u256_max - 1, u256_max, u256_max - 1),
         (u256_max, u256_max - 1, u256_max, u256_max - 1),
-        (u256_max, u256_max, u256_max, u256_max)
+        (u256_max, u256_max, u256_max, u256_max),
     ]
         .span();
 

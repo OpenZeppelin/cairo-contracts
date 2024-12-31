@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0-rc.0 (account/utils/signature.cairo)
+// OpenZeppelin Contracts for Cairo v0.20.0 (account/utils/signature.cairo)
 
 use core::ecdsa::check_ecdsa_signature;
 use crate::interface::{EthPublicKey, P256PublicKey};
-use starknet::secp256_trait::{Secp256Trait, Secp256PointTrait};
 use starknet::secp256_trait;
+use starknet::secp256_trait::{Secp256PointTrait, Secp256Trait};
 
 /// A signature format compatible with the family of secp256 curves.
 #[derive(Copy, Drop, Serde)]
@@ -19,7 +19,7 @@ pub struct Secp256Signature {
 /// it's not protected against signature malleability.
 /// See https://github.com/OpenZeppelin/cairo-contracts/issues/889.
 pub fn is_valid_stark_signature(
-    msg_hash: felt252, public_key: felt252, signature: Span<felt252>
+    msg_hash: felt252, public_key: felt252, signature: Span<felt252>,
 ) -> bool {
     let valid_length = signature.len() == 2;
 
@@ -36,7 +36,7 @@ pub fn is_valid_stark_signature(
 /// it's not protected against signature malleability.
 /// See https://github.com/OpenZeppelin/cairo-contracts/issues/889.
 pub fn is_valid_eth_signature(
-    msg_hash: felt252, public_key: EthPublicKey, signature: Span<felt252>
+    msg_hash: felt252, public_key: EthPublicKey, signature: Span<felt252>,
 ) -> bool {
     is_valid_secp256_signature(msg_hash, public_key, signature)
 }
@@ -47,16 +47,19 @@ pub fn is_valid_eth_signature(
 /// it's not protected against signature malleability.
 /// See https://github.com/OpenZeppelin/cairo-contracts/issues/889.
 pub fn is_valid_p256_signature(
-    msg_hash: felt252, public_key: P256PublicKey, signature: Span<felt252>
+    msg_hash: felt252, public_key: P256PublicKey, signature: Span<felt252>,
 ) -> bool {
     is_valid_secp256_signature(msg_hash, public_key, signature)
 }
 
 /// Verifies a Secp256 compatible signature for a valid point in the corresponding curve.
 fn is_valid_secp256_signature<
-    Secp256Point, +Secp256Trait<Secp256Point>, +Secp256PointTrait<Secp256Point>, +Drop<Secp256Point>
+    Secp256Point,
+    +Secp256Trait<Secp256Point>,
+    +Secp256PointTrait<Secp256Point>,
+    +Drop<Secp256Point>,
 >(
-    msg_hash: felt252, public_key: Secp256Point, signature: Span<felt252>
+    msg_hash: felt252, public_key: Secp256Point, signature: Span<felt252>,
 ) -> bool {
     let mut signature = signature;
     let signature: Secp256Signature = Serde::deserialize(ref signature)

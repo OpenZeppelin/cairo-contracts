@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0-rc.0 (governance/governor/proposal_core.cairo)
+// OpenZeppelin Contracts for Cairo v0.20.0 (governance/governor/proposal_core.cairo)
 
 use core::traits::DivRem;
 use starknet::ContractAddress;
@@ -13,7 +13,7 @@ pub struct ProposalCore {
     pub vote_duration: u64,
     pub executed: bool,
     pub canceled: bool,
-    pub eta_seconds: u64
+    pub eta_seconds: u64,
 }
 
 const _2_POW_184: felt252 = 0x10000000000000000000000000000000000000000000000;
@@ -74,7 +74,7 @@ impl ProposalCoreStorePacking of StorePacking<ProposalCore, (felt252, felt252)> 
             vote_duration: vote_duration.try_into().unwrap(),
             executed: executed > 0,
             canceled: canceled > 0,
-            eta_seconds: eta_seconds.try_into().unwrap()
+            eta_seconds: eta_seconds.try_into().unwrap(),
         }
     }
 }
@@ -93,7 +93,7 @@ mod tests {
             vote_duration: 200,
             executed: false,
             canceled: true,
-            eta_seconds: 300
+            eta_seconds: 300,
         };
         let packed = ProposalCoreStorePacking::pack(proposal);
         let unpacked = ProposalCoreStorePacking::unpack(packed);
@@ -108,7 +108,7 @@ mod tests {
             vote_duration: Bounded::MAX,
             executed: true,
             canceled: true,
-            eta_seconds: Bounded::MAX
+            eta_seconds: Bounded::MAX,
         };
         let packed = ProposalCoreStorePacking::pack(proposal);
         let unpacked = ProposalCoreStorePacking::unpack(packed);

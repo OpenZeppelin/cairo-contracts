@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0-rc.0 (account/extensions/src9/interface.cairo)
+// OpenZeppelin Contracts for Cairo v0.20.0 (account/extensions/src9/interface.cairo)
 
 use starknet::ContractAddress;
 use starknet::account::Call;
@@ -12,7 +12,7 @@ pub struct OutsideExecution {
     pub nonce: felt252,
     pub execute_after: u64,
     pub execute_before: u64,
-    pub calls: Span<Call>
+    pub calls: Span<Call>,
 }
 
 #[starknet::interface]

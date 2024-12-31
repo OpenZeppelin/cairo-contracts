@@ -18,14 +18,14 @@ pub mod DualCaseERC20Mock {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        pub erc20: ERC20Component::Storage
+        pub erc20: ERC20Component::Storage,
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        ERC20Event: ERC20Component::Event
+        ERC20Event: ERC20Component::Event,
     }
 
     #[constructor]
@@ -34,7 +34,7 @@ pub mod DualCaseERC20Mock {
         name: ByteArray,
         symbol: ByteArray,
         initial_supply: u256,
-        recipient: ContractAddress
+        recipient: ContractAddress,
     ) {
         self.erc20.initializer(name, symbol);
         self.erc20.mint(recipient, initial_supply);
@@ -57,14 +57,14 @@ pub mod SnakeERC20Mock {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        pub erc20: ERC20Component::Storage
+        pub erc20: ERC20Component::Storage,
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        ERC20Event: ERC20Component::Event
+        ERC20Event: ERC20Component::Event,
     }
 
     #[constructor]
@@ -73,7 +73,7 @@ pub mod SnakeERC20Mock {
         name: ByteArray,
         symbol: ByteArray,
         initial_supply: u256,
-        recipient: ContractAddress
+        recipient: ContractAddress,
     ) {
         self.erc20.initializer(name, symbol);
         self.erc20.mint(recipient, initial_supply);
@@ -98,7 +98,7 @@ pub mod SnakeERC20MockWithHooks {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        pub erc20: ERC20Component::Storage
+        pub erc20: ERC20Component::Storage,
     }
 
     #[event]
@@ -107,7 +107,7 @@ pub mod SnakeERC20MockWithHooks {
         #[flat]
         ERC20Event: ERC20Component::Event,
         BeforeUpdate: BeforeUpdate,
-        AfterUpdate: AfterUpdate
+        AfterUpdate: AfterUpdate,
     }
 
     /// Event used to test that `before_update` hook is called.
@@ -115,7 +115,7 @@ pub mod SnakeERC20MockWithHooks {
     pub struct BeforeUpdate {
         pub from: ContractAddress,
         pub recipient: ContractAddress,
-        pub amount: u256
+        pub amount: u256,
     }
 
     /// Event used to test that `after_update` hook is called.
@@ -123,7 +123,7 @@ pub mod SnakeERC20MockWithHooks {
     pub struct AfterUpdate {
         pub from: ContractAddress,
         pub recipient: ContractAddress,
-        pub amount: u256
+        pub amount: u256,
     }
 
     #[constructor]
@@ -132,7 +132,7 @@ pub mod SnakeERC20MockWithHooks {
         name: ByteArray,
         symbol: ByteArray,
         initial_supply: u256,
-        recipient: ContractAddress
+        recipient: ContractAddress,
     ) {
         self.erc20.initializer(name, symbol);
         self.erc20.mint(recipient, initial_supply);
@@ -143,7 +143,7 @@ pub mod SnakeERC20MockWithHooks {
             ref self: ERC20Component::ComponentState<ContractState>,
             from: ContractAddress,
             recipient: ContractAddress,
-            amount: u256
+            amount: u256,
         ) {
             let mut contract_state = self.get_contract_mut();
             contract_state.emit(BeforeUpdate { from, recipient, amount });
@@ -153,7 +153,7 @@ pub mod SnakeERC20MockWithHooks {
             ref self: ERC20Component::ComponentState<ContractState>,
             from: ContractAddress,
             recipient: ContractAddress,
-            amount: u256
+            amount: u256,
         ) {
             let mut contract_state = self.get_contract_mut();
             contract_state.emit(AfterUpdate { from, recipient, amount });
@@ -190,7 +190,7 @@ pub mod DualCaseERC20PermitMock {
         #[substorage(v0)]
         pub erc20: ERC20Component::Storage,
         #[substorage(v0)]
-        pub nonces: NoncesComponent::Storage
+        pub nonces: NoncesComponent::Storage,
     }
 
     #[event]
@@ -199,7 +199,7 @@ pub mod DualCaseERC20PermitMock {
         #[flat]
         ERC20Event: ERC20Component::Event,
         #[flat]
-        NoncesEvent: NoncesComponent::Event
+        NoncesEvent: NoncesComponent::Event,
     }
 
     /// Required for hash computation.
@@ -220,7 +220,7 @@ pub mod DualCaseERC20PermitMock {
         name: ByteArray,
         symbol: ByteArray,
         initial_supply: u256,
-        recipient: ContractAddress
+        recipient: ContractAddress,
     ) {
         self.erc20.initializer(name, symbol);
         self.erc20.mint(recipient, initial_supply);
@@ -231,7 +231,7 @@ pub mod DualCaseERC20PermitMock {
 pub enum Type {
     No,
     Before,
-    After
+    After,
 }
 
 #[starknet::interface]
@@ -241,7 +241,7 @@ pub trait IERC20ReentrantHelpers<TState> {
         when: Type,
         target: ContractAddress,
         selector: felt252,
-        calldata: Span<felt252>
+        calldata: Span<felt252>,
     );
     fn function_call(ref self: TState);
     fn unsafe_mint(ref self: TState, recipient: ContractAddress, amount: u256);
@@ -255,7 +255,7 @@ pub trait IERC20Reentrant<TState> {
         when: Type,
         target: ContractAddress,
         selector: felt252,
-        calldata: Span<felt252>
+        calldata: Span<felt252>,
     );
     fn function_call(ref self: TState);
     fn unsafe_mint(ref self: TState, recipient: ContractAddress, amount: u256);
@@ -267,7 +267,7 @@ pub trait IERC20Reentrant<TState> {
     fn allowance(self: @TState, owner: ContractAddress, spender: ContractAddress) -> u256;
     fn transfer(ref self: TState, recipient: ContractAddress, amount: u256) -> bool;
     fn transfer_from(
-        ref self: TState, sender: ContractAddress, recipient: ContractAddress, amount: u256
+        ref self: TState, sender: ContractAddress, recipient: ContractAddress, amount: u256,
     ) -> bool;
     fn approve(ref self: TState, spender: ContractAddress, amount: u256) -> bool;
 }
@@ -277,8 +277,8 @@ pub mod ERC20ReentrantMock {
     use openzeppelin_token::erc20::ERC20Component;
     use starknet::ContractAddress;
     use starknet::SyscallResultTrait;
+    use starknet::storage::{MutableVecTrait, Vec};
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
-    use starknet::storage::{Vec, MutableVecTrait};
     use starknet::syscalls::call_contract_syscall;
     use super::Type;
 
@@ -299,14 +299,14 @@ pub mod ERC20ReentrantMock {
         reenter_type: Type,
         reenter_target: ContractAddress,
         reenter_selector: felt252,
-        reenter_calldata: Vec<felt252>
+        reenter_calldata: Vec<felt252>,
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        ERC20Event: ERC20Component::Event
+        ERC20Event: ERC20Component::Event,
     }
 
     //
@@ -318,11 +318,11 @@ pub mod ERC20ReentrantMock {
             ref self: ERC20Component::ComponentState<ContractState>,
             from: ContractAddress,
             recipient: ContractAddress,
-            amount: u256
+            amount: u256,
         ) {
             let mut contract_state = self.get_contract_mut();
 
-            if (contract_state.reenter_type.read() == Type::Before) {
+            if contract_state.reenter_type.read() == Type::Before {
                 contract_state.reenter_type.write(Type::No);
                 contract_state.function_call();
             }
@@ -332,11 +332,11 @@ pub mod ERC20ReentrantMock {
             ref self: ERC20Component::ComponentState<ContractState>,
             from: ContractAddress,
             recipient: ContractAddress,
-            amount: u256
+            amount: u256,
         ) {
             let mut contract_state = self.get_contract_mut();
 
-            if (contract_state.reenter_type.read() == Type::After) {
+            if contract_state.reenter_type.read() == Type::After {
                 contract_state.reenter_type.write(Type::No);
                 contract_state.function_call();
             }
@@ -350,7 +350,7 @@ pub mod ERC20ReentrantMock {
             when: Type,
             target: ContractAddress,
             selector: felt252,
-            calldata: Span<felt252>
+            calldata: Span<felt252>,
         ) {
             self.reenter_type.write(when);
             self.reenter_target.write(target);
@@ -364,12 +364,9 @@ pub mod ERC20ReentrantMock {
             let target = self.reenter_target.read();
             let selector = self.reenter_selector.read();
             let mut calldata = array![];
-            for i in 0
-                ..self
-                    .reenter_calldata
-                    .len() {
-                        calldata.append(self.reenter_calldata.at(i).read());
-                    };
+            for i in 0..self.reenter_calldata.len() {
+                calldata.append(self.reenter_calldata.at(i).read());
+            };
             call_contract_syscall(target, selector, calldata.span()).unwrap_syscall();
         }
 

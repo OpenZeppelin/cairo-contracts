@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0-rc.0 (governance/votes/interface.cairo)
+// OpenZeppelin Contracts for Cairo v0.20.0 (governance/votes/interface.cairo)
 
 use starknet::ContractAddress;
 
@@ -33,7 +33,7 @@ pub trait IVotes<TState> {
         delegatee: ContractAddress,
         nonce: felt252,
         expiry: u64,
-        signature: Span<felt252>
+        signature: Span<felt252>,
     );
 }
 
@@ -52,7 +52,7 @@ pub trait VotesABI<TState> {
         delegatee: ContractAddress,
         nonce: felt252,
         expiry: u64,
-        signature: Span<felt252>
+        signature: Span<felt252>,
     );
 
     // Nonces

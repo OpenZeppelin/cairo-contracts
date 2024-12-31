@@ -20,7 +20,11 @@
 ** xref:finance.adoc[Finance]
 *** xref:/api/finance.adoc[API Reference]
 
-** xref:governance.adoc[Governance]
+** Governance
+*** xref:/governance/governor.adoc[Governor]
+*** xref:/governance/multisig.adoc[Multisig]
+*** xref:/governance/timelock.adoc[Timelock Controller]
+*** xref:/governance/votes.adoc[Votes]
 *** xref:/api/governance.adoc[API Reference]
 
 ** xref:introspection.adoc[Introspection]
@@ -33,7 +37,7 @@
 *** xref:/api/security.adoc[API Reference]
 
 ** Tokens
-*** xref:erc20.adoc[ERC20]
+*** xref:/erc20.adoc[ERC20]
 **** xref:/guides/erc20-supply.adoc[Creating Supply]
 **** xref:/guides/erc20-permit.adoc[ERC20Permit]
 **** xref:/api/erc20.adoc[API Reference]

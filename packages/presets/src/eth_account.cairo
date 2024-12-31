@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0-rc.0 (presets/eth_account.cairo)
+// OpenZeppelin Contracts for Cairo v0.20.0 (presets/eth_account.cairo)
 
 /// # EthAccount Preset
 ///
@@ -45,7 +45,7 @@ pub(crate) mod EthAccountUpgradeable {
         #[substorage(v0)]
         pub src9: SRC9Component::Storage,
         #[substorage(v0)]
-        pub upgradeable: UpgradeableComponent::Storage
+        pub upgradeable: UpgradeableComponent::Storage,
     }
 
     #[event]
@@ -58,7 +58,7 @@ pub(crate) mod EthAccountUpgradeable {
         #[flat]
         SRC9Event: SRC9Component::Event,
         #[flat]
-        UpgradeableEvent: UpgradeableComponent::Event
+        UpgradeableEvent: UpgradeableComponent::Event,
     }
 
     #[constructor]

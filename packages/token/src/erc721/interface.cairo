@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0-rc.0 (token/erc721/interface.cairo)
+// OpenZeppelin Contracts for Cairo v0.20.0 (token/erc721/interface.cairo)
 
 use starknet::ContractAddress;
 
@@ -18,14 +18,14 @@ pub trait IERC721<TState> {
         from: ContractAddress,
         to: ContractAddress,
         token_id: u256,
-        data: Span<felt252>
+        data: Span<felt252>,
     );
     fn transfer_from(ref self: TState, from: ContractAddress, to: ContractAddress, token_id: u256);
     fn approve(ref self: TState, to: ContractAddress, token_id: u256);
     fn set_approval_for_all(ref self: TState, operator: ContractAddress, approved: bool);
     fn get_approved(self: @TState, token_id: u256) -> ContractAddress;
     fn is_approved_for_all(
-        self: @TState, owner: ContractAddress, operator: ContractAddress
+        self: @TState, owner: ContractAddress, operator: ContractAddress,
     ) -> bool;
 }
 
@@ -45,7 +45,7 @@ pub trait IERC721CamelOnly<TState> {
         from: ContractAddress,
         to: ContractAddress,
         tokenId: u256,
-        data: Span<felt252>
+        data: Span<felt252>,
     );
     fn transferFrom(ref self: TState, from: ContractAddress, to: ContractAddress, tokenId: u256);
     fn setApprovalForAll(ref self: TState, operator: ContractAddress, approved: bool);
@@ -72,14 +72,14 @@ pub trait ERC721ABI<TState> {
         from: ContractAddress,
         to: ContractAddress,
         token_id: u256,
-        data: Span<felt252>
+        data: Span<felt252>,
     );
     fn transfer_from(ref self: TState, from: ContractAddress, to: ContractAddress, token_id: u256);
     fn approve(ref self: TState, to: ContractAddress, token_id: u256);
     fn set_approval_for_all(ref self: TState, operator: ContractAddress, approved: bool);
     fn get_approved(self: @TState, token_id: u256) -> ContractAddress;
     fn is_approved_for_all(
-        self: @TState, owner: ContractAddress, operator: ContractAddress
+        self: @TState, owner: ContractAddress, operator: ContractAddress,
     ) -> bool;
 
     // ISRC5
@@ -98,7 +98,7 @@ pub trait ERC721ABI<TState> {
         from: ContractAddress,
         to: ContractAddress,
         tokenId: u256,
-        data: Span<felt252>
+        data: Span<felt252>,
     );
     fn transferFrom(ref self: TState, from: ContractAddress, to: ContractAddress, tokenId: u256);
     fn setApprovalForAll(ref self: TState, operator: ContractAddress, approved: bool);
@@ -120,7 +120,7 @@ pub trait IERC721Receiver<TState> {
         operator: ContractAddress,
         from: ContractAddress,
         token_id: u256,
-        data: Span<felt252>
+        data: Span<felt252>,
     ) -> felt252;
 }
 
@@ -131,7 +131,7 @@ pub trait IERC721ReceiverCamel<TState> {
         operator: ContractAddress,
         from: ContractAddress,
         tokenId: u256,
-        data: Span<felt252>
+        data: Span<felt252>,
     ) -> felt252;
 }
 
@@ -143,7 +143,7 @@ pub trait ERC721ReceiverMixin<TState> {
         operator: ContractAddress,
         from: ContractAddress,
         token_id: u256,
-        data: Span<felt252>
+        data: Span<felt252>,
     ) -> felt252;
 
     // IERC721ReceiverCamel
@@ -152,7 +152,7 @@ pub trait ERC721ReceiverMixin<TState> {
         operator: ContractAddress,
         from: ContractAddress,
         tokenId: u256,
-        data: Span<felt252>
+        data: Span<felt252>,
     ) -> felt252;
 
     // ISRC5

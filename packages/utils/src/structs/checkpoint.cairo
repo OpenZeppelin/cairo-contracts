@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0-rc.0 (utils/structs/checkpoint.cairo)
+// OpenZeppelin Contracts for Cairo v0.20.0 (utils/structs/checkpoint.cairo)
 
 use core::num::traits::Sqrt;
 use crate::math;
-use starknet::storage::{StoragePath, StorageAsPath, Vec, VecTrait, Mutable, MutableVecTrait};
+use starknet::storage::{Mutable, MutableVecTrait, StorageAsPath, StoragePath, Vec, VecTrait};
 use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 use starknet::storage_access::StorePacking;
 
@@ -11,14 +11,14 @@ use starknet::storage_access::StorePacking;
 /// time, and later looking up past values by block timestamp.
 #[starknet::storage_node]
 pub struct Trace {
-    pub checkpoints: Vec<Checkpoint>
+    pub checkpoints: Vec<Checkpoint>,
 }
 
 /// Generic checkpoint representation.
 #[derive(Copy, Drop, Serde)]
 pub struct Checkpoint {
     pub key: u64,
-    pub value: u256
+    pub value: u256,
 }
 
 #[generate_trait]
@@ -140,7 +140,7 @@ impl CheckpointImpl of CheckpointTrait {
     /// the search key, or `high` if there is none. `low` and `high` define a section where to do
     /// the search, with inclusive `low` and exclusive `high`.
     fn _upper_binary_lookup(
-        self: StoragePath<Vec<Checkpoint>>, key: u64, low: u64, high: u64
+        self: StoragePath<Vec<Checkpoint>>, key: u64, low: u64, high: u64,
     ) -> u64 {
         let mut _low = low;
         let mut _high = high;

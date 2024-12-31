@@ -4,5 +4,5 @@ pub mod interface;
 pub mod proposal_core;
 pub mod vote;
 
-pub use governor::{GovernorComponent, DefaultConfig};
+pub use governor::{DefaultConfig, GovernorComponent};
 pub use proposal_core::ProposalCore;

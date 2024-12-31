@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0-rc.0 (utils/deployments/interface.cairo)
+// OpenZeppelin Contracts for Cairo v0.20.0 (utils/deployments/interface.cairo)
 
 use starknet::{ClassHash, ContractAddress};
 
@@ -10,6 +10,6 @@ pub trait IUniversalDeployer<TState> {
         class_hash: ClassHash,
         salt: felt252,
         from_zero: bool,
-        calldata: Span<felt252>
+        calldata: Span<felt252>,
     ) -> ContractAddress;
 }

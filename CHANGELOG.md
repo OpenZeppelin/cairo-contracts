@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Changed (Breaking)
+
+- Bump scarb to v2.9.2 (#1239)
+
+## 0.20.0 (2024-12-06)
+
 ### Added
 
 - ERC4626Component (#1170)
@@ -32,12 +38,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed (Breaking)
 
+- Bump snforge_std to v0.34.0 (#1239)
+- Bump scarb to v2.9.1 (#1239)
 - The initializer in `OwnableComponent` now checks that `owner` is not the zero address (#1221)
 - Add `verifying_contract` member to the `Delegation` struct used in Votes `delegate_by_sig` (#1214)
 use crate::votes::VotesComponent::VotingUnitsTrait;
 - VotingUnitsTrait moved from `openzeppelin_governance::votes::votes` to `openzeppelin_governance::votes::VotesComponent` (#1214)
 - VestingComponent `release` function won't emit an event or attempt to transfer when the amount is zero (#1209)
 - Bump snforge_std to v0.33.0 (#1203)
+
+### Fixed
+
+- Scarb manifest dependencies (#1249):
+  - Move `openzeppelin_utils` from dev dep to dep in governance manifest
+  - Remove `openzeppelin_utils` as dep in access package
+  - Change `openzeppelin_account` to `crate` in `src9.cairo`
 
 ## 0.19.0 (2024-11-08)
 

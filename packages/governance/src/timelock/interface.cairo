@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0-rc.0 (governance/timelock/interface.cairo)
+// OpenZeppelin Contracts for Cairo v0.20.0 (governance/timelock/interface.cairo)
 
 use starknet::ContractAddress;
 use starknet::account::Call;
@@ -9,7 +9,7 @@ pub enum OperationState {
     Unset,
     Waiting,
     Ready,
-    Done
+    Done,
 }
 
 #[starknet::interface]
@@ -23,11 +23,11 @@ pub trait ITimelock<TState> {
     fn get_min_delay(self: @TState) -> u64;
     fn hash_operation(self: @TState, call: Call, predecessor: felt252, salt: felt252) -> felt252;
     fn hash_operation_batch(
-        self: @TState, calls: Span<Call>, predecessor: felt252, salt: felt252
+        self: @TState, calls: Span<Call>, predecessor: felt252, salt: felt252,
     ) -> felt252;
     fn schedule(ref self: TState, call: Call, predecessor: felt252, salt: felt252, delay: u64);
     fn schedule_batch(
-        ref self: TState, calls: Span<Call>, predecessor: felt252, salt: felt252, delay: u64
+        ref self: TState, calls: Span<Call>, predecessor: felt252, salt: felt252, delay: u64,
     );
     fn cancel(ref self: TState, id: felt252);
     fn execute(ref self: TState, call: Call, predecessor: felt252, salt: felt252);
@@ -46,11 +46,11 @@ pub trait TimelockABI<TState> {
     fn get_min_delay(self: @TState) -> u64;
     fn hash_operation(self: @TState, call: Call, predecessor: felt252, salt: felt252) -> felt252;
     fn hash_operation_batch(
-        self: @TState, calls: Span<Call>, predecessor: felt252, salt: felt252
+        self: @TState, calls: Span<Call>, predecessor: felt252, salt: felt252,
     ) -> felt252;
     fn schedule(ref self: TState, call: Call, predecessor: felt252, salt: felt252, delay: u64);
     fn schedule_batch(
-        ref self: TState, calls: Span<Call>, predecessor: felt252, salt: felt252, delay: u64
+        ref self: TState, calls: Span<Call>, predecessor: felt252, salt: felt252, delay: u64,
     );
     fn cancel(ref self: TState, id: felt252);
     fn execute(ref self: TState, call: Call, predecessor: felt252, salt: felt252);

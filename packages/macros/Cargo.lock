@@ -51,6 +51,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "cairo-lang-defs"
+version = "2.9.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b4d29dc5a3cafe94ea4397d41b00cd54a9dffbe9bc3a3092a9ea617ea737bc6e"
+dependencies = [
+ "cairo-lang-debug",
+ "cairo-lang-diagnostics",
+ "cairo-lang-filesystem",
+ "cairo-lang-parser",
+ "cairo-lang-syntax",
+ "cairo-lang-utils",
+ "itertools 0.12.1",
+ "rust-analyzer-salsa",
+ "smol_str",
+]
+
+[[package]]
 name = "cairo-lang-diagnostics"
 version = "2.9.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -59,7 +76,7 @@ dependencies = [
  "cairo-lang-debug",
  "cairo-lang-filesystem",
  "cairo-lang-utils",
- "itertools",
+ "itertools 0.12.1",
 ]
 
 [[package]]
@@ -118,7 +135,7 @@ dependencies = [
  "cairo-lang-syntax-codegen",
  "cairo-lang-utils",
  "colored",
- "itertools",
+ "itertools 0.12.1",
  "num-bigint",
  "num-traits",
  "rust-analyzer-salsa",
@@ -167,7 +184,7 @@ checksum = "ff5d7609abc99c15de7d7f90b8441b27e2bd52e930a3014c95a9b620e5d3211a"
 dependencies = [
  "hashbrown 0.14.5",
  "indexmap",
- "itertools",
+ "itertools 0.12.1",
  "num-bigint",
  "num-traits",
  "serde",
@@ -264,10 +281,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "indoc"
+version = "2.0.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b248f5224d1d606005e02c97f5aa4e88eeb230488bcc03bc9ca4d7991399f2b5"
+
+[[package]]
 name = "itertools"
 version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ba291022dbbd398a455acf126c1e341954079855bc60dfdda641363bd6922569"
+dependencies = [
+ "either",
+]
+
+[[package]]
+name = "itertools"
+version = "0.14.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2b192c782037fadd9cfa75548310488aabdbf3d2da73885b31bd0abd03351285"
 dependencies = [
  "either",
 ]
@@ -365,9 +397,12 @@ checksum = "b410bbe7e14ab526a0e86877eb47c6996a2bd7746f027ba551028c925390e4e9"
 name = "openzeppelin_macros"
 version = "0.20.0"
 dependencies = [
+ "cairo-lang-defs",
  "cairo-lang-macro",
  "cairo-lang-parser",
  "cairo-lang-syntax",
+ "indoc",
+ "itertools 0.14.0",
  "regex",
 ]
 

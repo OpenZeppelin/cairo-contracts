@@ -85,6 +85,31 @@ fn test_initializer() {
     assert!(supports_isrc5);
 }
 
+#[test]
+fn test_initializer_no_metadata() {
+    let mut state = COMPONENT_STATE();
+    let mock_state = CONTRACT_STATE();
+
+    state.initializer_no_metadata();
+
+    let empty_str = "";
+    assert_eq!(state.name(), empty_str);
+    assert_eq!(state.symbol(), empty_str);
+    assert_eq!(state._base_uri(), empty_str);
+    assert!(state.balance_of(OWNER()).is_zero());
+
+    let supports_ierc721 = mock_state.supports_interface(erc721::interface::IERC721_ID);
+    assert!(supports_ierc721);
+
+    let does_not_support_ierc721_metadata = !mock_state
+        .supports_interface(erc721::interface::IERC721_METADATA_ID);
+    assert!(does_not_support_ierc721_metadata);
+
+    let supports_isrc5 = mock_state
+        .supports_interface(openzeppelin_introspection::interface::ISRC5_ID);
+    assert!(supports_isrc5);
+}
+
 //
 // Getters
 //

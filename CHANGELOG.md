@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Bump scarb to v2.9.2 (#1239)
 
+### Fixed
+
+- Fixed message type hash in SNIP12 doc (#1274)
+
 ## 0.20.0 (2024-12-06)
 
 ### Added

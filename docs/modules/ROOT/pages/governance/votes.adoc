@@ -4,10 +4,9 @@
 :delegate: xref:api/governance.adoc#VotesComponent-delegate[delegate]
 :delegate_by_sig: xref:api/governance.adoc#VotesComponent-delegate_by_sig[delegate_by_sig]
 :voting_units_trait: xref:api/governance.adoc#VotingUnitsTrait[VotingUnitsTrait]
-:votes-usage: xref:../governance.adoc#usage_2[usage]
+:votes-usage: xref:Usage[usage]
 :nonces-component: xref:api/utilities.adoc#NoncesComponent[NoncesComponent]
 :snip12-metadata: xref:api/utilities.adoc#snip12[SNIP12Metadata]
-
 
 The {votes-component} provides a flexible system for tracking and delegating voting power. This system allows users to delegate their voting power to other addresses, enabling more active participation in governance.
 
@@ -15,7 +14,7 @@ NOTE: By default, token balance does not account for voting power. This makes tr
 
 IMPORTANT: The transferring of voting units must be handled by the implementing contract. In the case of `ERC20` and `ERC721` this is usually done via the hooks. You can check the {votes-usage} section for examples of how to implement this.
 
-== Key Features
+== Key features
 
 1. *Delegation*: Users can delegate their voting power to any address, including themselves. Vote power can be delegated either by calling the {delegate} function directly, or by providing a signature to be used with {delegate_by_sig}.
 2. *Historical lookups*: The system keeps track of historical snapshots for each account, which allows the voting power of an account to be queried at a specific timestamp. +
@@ -28,7 +27,6 @@ For simplicity, this module already provides two implementations for `ERC20` and
 Additionally, you must implement the {nonces-component} and the {snip12-metadata} trait to enable delegation by signatures.
 
 Here's an example of how to structure a simple ERC20Votes contract:
-
 
 [source,cairo]
 ----

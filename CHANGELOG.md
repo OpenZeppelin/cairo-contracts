@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Fixed message type hash in SNIP12 doc (#1274)
-- Permit and Message SNIP12 hashes (#)
+- Permit and Message SNIP12 hashes (#1283)
 
 ## 0.20.0 (2024-12-06)
 

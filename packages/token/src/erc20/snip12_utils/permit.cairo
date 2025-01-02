@@ -17,16 +17,19 @@ pub struct Permit {
 
 // Since there's no u64 type in SNIP-12, the type used for `deadline` parameter is u128
 // selector!(
-//     "\"Permit\"(
-//         \"token\":\"ContractAddress\",
-//         \"spender\":\"ContractAddress\",
-//         \"amount\":\"u256\",
-//         \"nonce\":\"felt\",
-//         \"deadline\":\"u128\"
-//     )"
+//   "\"Permit\"(
+//     \"token\":\"ContractAddress\",
+//     \"spender\":\"ContractAddress\",
+//     \"amount\":\"u256\",
+//     \"nonce\":\"felt\",
+//     \"deadline\":\"u128\"
+//   )\"u256\"(
+//     \"low\":\"u128\",
+//     \"high\":\"u128\"
+//   )"
 // );
 pub const PERMIT_TYPE_HASH: felt252 =
-    0x2a8eb238e7cde741a544afcc79fe945d4292b089875fd068633854927fd5a96;
+    0x3210d4fa611411fccef9213585061fbd533f82d1ea2bd3c1b3b6b589448d5cf;
 
 impl StructHashImpl of StructHash<Permit> {
     fn hash_struct(self: @Permit) -> felt252 {

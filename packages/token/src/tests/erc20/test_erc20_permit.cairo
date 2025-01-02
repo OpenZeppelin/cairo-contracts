@@ -239,7 +239,7 @@ fn test_domain_separator() {
 #[test]
 fn test_permit_type_hash() {
     let expected_type_hash = selector!(
-        "\"Permit\"(\"token\":\"ContractAddress\",\"spender\":\"ContractAddress\",\"amount\":\"u256\",\"nonce\":\"felt\",\"deadline\":\"u128\")",
+        "\"Permit\"(\"token\":\"ContractAddress\",\"spender\":\"ContractAddress\",\"amount\":\"u256\",\"nonce\":\"felt\",\"deadline\":\"u128\")\"u256\"(\"low\":\"u128\",\"high\":\"u128\")",
     );
     assert_eq!(PERMIT_TYPE_HASH, expected_type_hash);
 }

@@ -7,8 +7,20 @@ use openzeppelin_testing::constants::{OWNER, RECIPIENT};
 use snforge_std::{start_cheat_chain_id, test_address};
 use starknet::ContractAddress;
 
+// Since there's no u64 type in SNIP-12, the type used for `expiry` parameter is u128
+// selector!(
+//   "\"Message\"(
+//     \"recipient\":\"ContractAddress\",
+//     \"amount\":\"u256\",
+//     \"nonce\":\"felt\",
+//     \"expiry\":\"u128\"
+//   )\"u256\"(
+//     \"low\":\"u128\",
+//     \"high\":\"u128\"
+//   )"
+// );
 const MESSAGE_TYPE_HASH: felt252 =
-    0x120ae1bdaf7c1e48349da94bb8dad27351ca115d6605ce345aee02d68d99ec1;
+    0x28bf13f11bba405c77ce010d2781c5903cbed100f01f72fcff1664f98343eb6;
 
 #[derive(Copy, Drop, Hash)]
 struct Message {

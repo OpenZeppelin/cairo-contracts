@@ -33,3 +33,57 @@ image::erc4626-rate-linear.png[Exchange rates in linear scale]
 === Custom Behavior: Adding Fees
 
 == Interface
+
+The following interface represents the full ABI of the Contracts for Cairo ERC4626Component.
+The interface includes the both the {ierc20-interface} and {ierc20metadata-interface}.
+Note that implementing the IERC20Metadata interface is a requirement of IERC4626.
+
+[,cairo]
+----
+#[starknet::interface]
+pub trait ERC4626ABI {
+    // IERC4626
+    fn asset() -> ContractAddress;
+    fn total_assets() -> u256;
+    fn convert_to_shares(assets: u256) -> u256;
+    fn convert_to_assets(shares: u256) -> u256;
+    fn max_deposit(receiver: ContractAddress) -> u256;
+    fn preview_deposit(assets: u256) -> u256;
+    fn deposit(assets: u256, receiver: ContractAddress) -> u256;
+    fn max_mint(receiver: ContractAddress) -> u256;
+    fn preview_mint(shares: u256) -> u256;
+    fn mint(shares: u256, receiver: ContractAddress) -> u256;
+    fn max_withdraw(owner: ContractAddress) -> u256;
+    fn preview_withdraw(assets: u256) -> u256;
+    fn withdraw(
+        assets: u256, receiver: ContractAddress, owner: ContractAddress,
+    ) -> u256;
+    fn max_redeem(owner: ContractAddress) -> u256;
+    fn preview_redeem(shares: u256) -> u256;
+    fn redeem(
+        shares: u256, receiver: ContractAddress, owner: ContractAddress,
+    ) -> u256;
+
+    // IERC20
+    fn total_supply() -> u256;
+    fn balance_of(account: ContractAddress) -> u256;
+    fn allowance(owner: ContractAddress, spender: ContractAddress) -> u256;
+    fn transfer(recipient: ContractAddress, amount: u256) -> bool;
+    fn transfer_from(
+        sender: ContractAddress, recipient: ContractAddress, amount: u256,
+    ) -> bool;
+    fn approve(spender: ContractAddress, amount: u256) -> bool;
+
+    // IERC20Metadata
+    fn name() -> ByteArray;
+    fn symbol() -> ByteArray;
+    fn decimals() -> u8;
+
+    // IERC20CamelOnly
+    fn totalSupply() -> u256;
+    fn balanceOf(account: ContractAddress) -> u256;
+    fn transferFrom(
+        sender: ContractAddress, recipient: ContractAddress, amount: u256,
+    ) -> bool;
+}
+----

@@ -34,8 +34,7 @@ pub impl PedersenCHasher of CommutativeHasher {
 
 /// Computes the Poseidon commutative hash of a sorted pair of felt252 values.
 pub impl PoseidonCHasher of CommutativeHasher {
-    /// Computes the Poseidon hash by directly using hades_permutation with the two values
-    /// and a length indicator, sorting the pair first.
+    /// Computes the Poseidon hash of two values, sorting the pair first.
     fn commutative_hash(a: felt252, b: felt252) -> felt252 {
         let (result, _, _) = if a < b {
             hades_permutation(a, b, 2)

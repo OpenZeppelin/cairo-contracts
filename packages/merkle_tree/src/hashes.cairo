@@ -4,8 +4,8 @@
 use core::hash::HashStateTrait;
 use core::pedersen::PedersenTrait;
 use core::poseidon::PoseidonTrait;
-use core::traits::PartialOrd;
 use core::poseidon::hades_permutation;
+use core::traits::PartialOrd;
 
 /// Computes a commutative hash of a sorted pair of felt252 values.
 ///

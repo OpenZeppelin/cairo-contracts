@@ -279,7 +279,7 @@ pub mod ERC4626FeesMock {
         fn after_deposit(
             ref self: ERC4626Component::ComponentState<ContractState>, assets: u256, shares: u256,
         ) {
-            let mut contract_state =self.get_contract_mut();
+            let mut contract_state = self.get_contract_mut();
             let entry_basis_points = contract_state.entry_fee_basis_point_value.read();
             let fee = contract_state.fee_on_total(assets, entry_basis_points);
             let recipient = contract_state.entry_fee_recipient.read();

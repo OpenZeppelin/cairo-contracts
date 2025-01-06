@@ -229,6 +229,7 @@ pub mod DualCaseERC20PermitMock {
 
 #[derive(Drop, Serde, PartialEq, Debug, starknet::Store)]
 pub enum Type {
+    #[default]
     No,
     Before,
     After,

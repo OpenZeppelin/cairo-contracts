@@ -116,9 +116,6 @@ fn deploy_vault_fees_with_shares(
     asset_address: ContractAddress, shares: u256, recipient: ContractAddress,
 ) -> ERC4626ABIDispatcher {
     let fee_basis_points = 500_u256; // 5%
-    let _value_without_fees = 10_000_u256;
-    let _fees = (_value_without_fees * fee_basis_points) / 10_000_u256;
-    let _value_with_fees = _value_without_fees - _fees;
 
     let mut vault_calldata: Array<felt252> = array![];
     vault_calldata.append_serde(VAULT_NAME());
@@ -142,9 +139,6 @@ fn deploy_vault_exit_fees_with_shares(
     asset_address: ContractAddress, shares: u256, recipient: ContractAddress,
 ) -> ERC4626ABIDispatcher {
     let fee_basis_points = 500_u256; // 5%
-    let _value_without_fees = 10_000_u256;
-    let _fees = (_value_without_fees * fee_basis_points) / 10_000_u256;
-    let _value_with_fees = _value_without_fees - _fees;
 
     let mut vault_calldata: Array<felt252> = array![];
     vault_calldata.append_serde(VAULT_NAME());

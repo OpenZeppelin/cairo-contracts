@@ -125,9 +125,6 @@ fn test_transfer_from(supply: u256, transfer_amount: u256) {
 
 #[test]
 fn test__spend_allowance(supply: u256, spend_amount: u256) {
-    if supply == Bounded::MAX {
-        return;
-    }
     if is_overflow_sub(supply, spend_amount) {
         return;
     }
@@ -137,9 +134,15 @@ fn test__spend_allowance(supply: u256, spend_amount: u256) {
 
     state._spend_allowance(owner, spender, spend_amount);
 
+    // Allowance doesn't change if it's set to maximum
+    let expected_allowance = if supply == Bounded::MAX {
+        supply
+    } else {
+        supply - spend_amount
+    };
     assert_balance(owner, supply);
     assert_balance(spender, 0);
-    assert_allowance(owner, spender, supply - spend_amount);
+    assert_allowance(owner, spender, expected_allowance);
 }
 
 //

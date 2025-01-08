@@ -11,15 +11,15 @@ pub mod MyToken {
     use starknet::ContractAddress;
 
     #[storage]
-    pub struct Storage {        #[substorage(v0)]
+    pub struct Storage {
+        #[substorage(v0)]
         erc20: ERC20Component::Storage,
         #[substorage(v0)]
         ownable: OwnableComponent::Storage,
-}
+    }
 
     #[constructor]
-    fn constructor(ref self: ContractState) {
-    }
+    fn constructor(ref self: ContractState) {}
 
     use openzeppelin_token::erc20::ERC20Component;
     use openzeppelin_access::ownable::OwnableComponent;
@@ -37,7 +37,8 @@ pub mod MyToken {
         ERC20Event: ERC20Component::Event,
         #[flat]
         OwnableEvent: OwnableComponent::Event,
-    }}
+    }
+}
 
 
 Diagnostics:

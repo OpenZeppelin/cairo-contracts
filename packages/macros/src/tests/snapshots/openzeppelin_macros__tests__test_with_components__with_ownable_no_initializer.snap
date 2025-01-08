@@ -10,13 +10,13 @@ pub mod Owned {
     use starknet::ContractAddress;
 
     #[storage]
-    pub struct Storage {        #[substorage(v0)]
+    pub struct Storage {
+        #[substorage(v0)]
         ownable: OwnableComponent::Storage,
-}
+    }
 
     #[constructor]
-    fn constructor(ref self: ContractState) {
-    }
+    fn constructor(ref self: ContractState) {}
 
     use openzeppelin_access::ownable::OwnableComponent;
 
@@ -29,7 +29,8 @@ pub mod Owned {
     enum Event {
         #[flat]
         OwnableEvent: OwnableComponent::Event,
-    }}
+    }
+}
 
 
 Diagnostics:

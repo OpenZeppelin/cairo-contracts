@@ -11,9 +11,10 @@ pub mod MyToken {
     use starknet::ContractAddress;
 
     #[storage]
-    pub struct Storage {        #[substorage(v0)]
+    pub struct Storage {
+        #[substorage(v0)]
         erc20: ERC20Component::Storage,
-}
+    }
 
     #[constructor]
     fn constructor(ref self: ContractState) {
@@ -31,7 +32,8 @@ pub mod MyToken {
     enum Event {
         #[flat]
         ERC20Event: ERC20Component::Event,
-    }}
+    }
+}
 
 
 Diagnostics:

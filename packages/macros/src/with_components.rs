@@ -4,6 +4,7 @@ use crate::constants::{
 };
 use crate::utils::tabs;
 use cairo_lang_defs::patcher::{PatchBuilder, RewriteNode};
+use cairo_lang_formatter::format_string;
 use cairo_lang_macro::{attribute_macro, Diagnostic, Diagnostics, ProcMacroResult, TokenStream};
 use cairo_lang_parser::utils::SimpleParserDatabase;
 use cairo_lang_syntax::node::ast::MaybeModuleBody;
@@ -44,7 +45,13 @@ pub fn with_components(attribute_stream: TokenStream, item_stream: TokenStream) 
     let node = parsed.unwrap();
     let (content, diagnostics) = build_patch(&db, node, components_info);
 
-    ProcMacroResult::new(TokenStream::new(content)).with_diagnostics(diagnostics)
+    let formatted_content = if content.len() > 0 {
+        format_string(&db, content)
+    } else {
+        content
+    };
+
+    ProcMacroResult::new(TokenStream::new(formatted_content)).with_diagnostics(diagnostics)
 }
 
 /// Parses the arguments from the attribute stream.

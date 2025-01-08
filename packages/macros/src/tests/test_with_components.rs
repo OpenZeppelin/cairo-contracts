@@ -163,6 +163,116 @@ fn test_with_two_components_no_constructor() {
 }
 
 #[test]
+fn test_with_access_control() {
+    let attribute = "(AccessControl)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod Contract {
+            use openzeppelin_access::accesscontrol::DEFAULT_ADMIN_ROLE;
+            use starknet::ContractAddress;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState, default_admin: ContractAddress) {
+                self.accesscontrol.initializer();
+
+                self.accesscontrol._grant_role(DEFAULT_ADMIN_ROLE, default_admin);
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_access_control_no_initializer() {
+    let attribute = "(AccessControl)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod Contract {
+            use openzeppelin_access::accesscontrol::DEFAULT_ADMIN_ROLE;
+            use starknet::ContractAddress;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState) {
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_vesting() {
+    let attribute = "(Vesting, Ownable)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod VestingWallet {
+            use openzeppelin_finance::vesting::LinearVestingSchedule;
+            use starknet::ContractAddress;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(
+                ref self: ContractState,
+                beneficiary: ContractAddress,
+                start: u64,
+                duration: u64,
+                cliff_duration: u64,
+            ) {
+                self.ownable.initializer(beneficiary);
+                self.vesting.initializer(start, duration, cliff_duration);
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_vesting_no_initializer() {
+    let attribute = "(Vesting, Ownable)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod VestingWallet {
+            use openzeppelin_finance::vesting::LinearVestingSchedule;
+            use starknet::ContractAddress;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(
+                ref self: ContractState,
+                beneficiary: ContractAddress,
+                start: u64,
+                duration: u64,
+                cliff_duration: u64,
+            ) {
+                self.ownable.initializer(beneficiary);
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
 fn test_with_no_contract_attribute() {
     let attribute = "(Ownable)";
     let item = indoc!(

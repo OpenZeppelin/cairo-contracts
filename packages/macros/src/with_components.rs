@@ -15,7 +15,7 @@ use indoc::{formatdoc, indoc};
 use itertools::Itertools;
 use regex::Regex;
 
-const ALLOWED_COMPONENTS: [&str; 2] = ["ERC20", "Ownable"];
+const ALLOWED_COMPONENTS: [&str; 4] = ["ERC20", "AccessControl", "Ownable", "Vesting"];
 
 /// Inserts multiple component dependencies into a modules codebase.
 #[attribute_macro]
@@ -43,7 +43,13 @@ pub fn with_components(attribute_stream: TokenStream, item_stream: TokenStream) 
 
     // 3. Build the patch
     let node = parsed.unwrap();
-    let (content, diagnostics) = build_patch(&db, node, components_info);
+    let (content, mut diagnostics) = build_patch(&db, node, components_info.clone());
+
+    // 4. Add warnings for each component
+    for component_info in components_info.iter() {
+        let component_warnings = add_per_component_warnings(&content, component_info);
+        diagnostics.extend(component_warnings);
+    }
 
     let formatted_content = if content.len() > 0 {
         format_string(&db, content)
@@ -127,7 +133,7 @@ fn validate_contract_module(
             return (vec![error], vec![]);
         }
 
-        // 3. Check that the module has the corresponding initializers (warning)
+        // 4. Check that the module has the corresponding initializers (warning)
         let components_with_initializer = components_info
             .iter()
             .filter(|c| c.has_initializer)
@@ -180,6 +186,44 @@ fn validate_contract_module(
     }
 
     (vec![], vec![])
+}
+
+/// Adds warnings that may be helpful for users.
+fn add_per_component_warnings(code: &str, component_info: &ComponentInfo) -> Vec<Diagnostic> {
+    let mut warnings = vec![];
+
+    match component_info.short_name().as_str() {
+        "ERC20" => {
+            // 1. Check that the ERC20HooksTrait is implemented
+            let hooks_trait_used = code.contains("ERC20HooksTrait");
+            let hooks_empty_impl_used = code.contains("ERC20HooksEmptyImpl");
+            if !hooks_trait_used && !hooks_empty_impl_used {
+                let warning = Diagnostic::warn(indoc! {"
+                    The ERC20 component requires an implementation of the ERC20HooksTrait in scope. It looks like this implementation is missing.
+
+                    You can use the ERC20HooksEmptyImpl implementation by importing it:
+                    `use openzeppelin_token::erc20::ERC20HooksEmptyImpl;`
+                "});
+                warnings.push(warning);
+            }
+        }
+        "Vesting" => {
+            // 1. Check that the VestingScheduleTrait is implemented
+            let linear_impl_used = code.contains("LinearVestingSchedule");
+            let vesting_trait_used = code.contains("VestingScheduleTrait");
+            if !linear_impl_used && !vesting_trait_used {
+                let warning = Diagnostic::warn(indoc! {"
+                    The Vesting component requires an implementation of the VestingScheduleTrait in scope. It looks like this implementation is missing.
+
+                    You can use the LinearVestingSchedule implementation by importing it:
+                    `use openzeppelin_finance::vesting::LinearVestingSchedule;`
+                "});
+                warnings.push(warning);
+            }
+        }
+        _ => {}
+    }
+    warnings
 }
 
 /// Iterates over the items in the body node and processes them.
@@ -338,6 +382,22 @@ fn get_component_info(name: &str) -> (Option<ComponentInfo>, Diagnostics) {
             has_initializer: true,
             internal_impls: vec!["InternalImpl".to_string()],
         }),
+        "AccessControl" => Some(ComponentInfo {
+            name: format!("AccessControlComponent"),
+            path: format!("openzeppelin_access::accesscontrol::AccessControlComponent"),
+            storage: format!("accesscontrol"),
+            event: format!("AccessControlEvent"),
+            has_initializer: true,
+            internal_impls: vec!["InternalImpl".to_string()],
+        }),
+        "Vesting" => Some(ComponentInfo {
+            name: format!("VestingComponent"),
+            path: format!("openzeppelin_finance::vesting::VestingComponent"),
+            storage: format!("vesting"),
+            event: format!("VestingEvent"),
+            has_initializer: true,
+            internal_impls: vec!["InternalImpl".to_string()],
+        }),
         _ => None,
     };
     if info.is_none() {
@@ -476,7 +536,7 @@ impl ComponentsGenerationData<'_> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    use super::parse_args;
 
     #[test]
     fn test_parse_args() {

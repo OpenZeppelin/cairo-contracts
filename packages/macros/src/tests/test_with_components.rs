@@ -32,19 +32,42 @@ fn test_with_erc20_no_initializer() {
     let attribute = "(ERC20)";
     let item = indoc!(
         "
-      #[starknet::contract]
-      pub mod MyToken {
-          use openzeppelin_token::erc20::ERC20HooksEmptyImpl;
-          use starknet::ContractAddress;
+        #[starknet::contract]
+        pub mod MyToken {
+            use openzeppelin_token::erc20::ERC20HooksEmptyImpl;
+            use starknet::ContractAddress;
 
-          #[storage]
-          pub struct Storage {}
+            #[storage]
+            pub struct Storage {}
 
-          #[constructor]
-          fn constructor(ref self: ContractState) {
-          }
-      }
-      "
+            #[constructor]
+            fn constructor(ref self: ContractState) {
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_erc20_no_hooks_impl() {
+    let attribute = "(ERC20)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyToken {
+            use starknet::ContractAddress;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState) {
+                self.erc20.initializer(\"MyToken\", \"MTK\");
+            }
+        }
+        "
     );
     let result = get_string_result(attribute, item);
     assert_snapshot!(result);
@@ -264,6 +287,36 @@ fn test_with_vesting_no_initializer() {
                 cliff_duration: u64,
             ) {
                 self.ownable.initializer(beneficiary);
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_vesting_no_schedule() {
+    let attribute = "(Vesting, Ownable)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod VestingWallet {
+            use starknet::ContractAddress;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(
+                ref self: ContractState,
+                beneficiary: ContractAddress,
+                start: u64,
+                duration: u64,
+                cliff_duration: u64,
+            ) {
+                self.ownable.initializer(beneficiary);
+                self.vesting.initializer(start, duration, cliff_duration);
             }
         }
         "

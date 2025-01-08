@@ -44,8 +44,6 @@ pub fn with_components(attribute_stream: TokenStream, item_stream: TokenStream) 
     let node = parsed.unwrap();
     let (content, diagnostics) = build_patch(&db, node, components_info);
 
-    println!("\n\ncontent: {}\n\n", content);
-
     ProcMacroResult::new(TokenStream::new(content)).with_diagnostics(diagnostics)
 }
 
@@ -108,15 +106,17 @@ fn validate_contract_module(
 
         // 1. Check that the module has a body (error)
         let MaybeModuleBody::Some(body) = item.body(db) else {
-            let error = Diagnostic::error("Contract module must have a body");
+            let error = Diagnostic::error(indoc! {"
+                Contract module must have a body.
+            "});
             return (vec![error], vec![]);
         };
 
         // 2. Check that the module has the `#[starknet::contract]` attribute (error)
         if !item.has_attr(db, CONTRACT_ATTRIBUTE) {
-            let error = Diagnostic::error(
-                "Contract module must have the `#[starknet::contract]` attribute",
-            );
+            let error = Diagnostic::error(formatdoc! {"
+                Contract module must have the `#[{CONTRACT_ATTRIBUTE}]` attribute.
+            "});
             return (vec![error], vec![]);
         }
 
@@ -464,5 +464,25 @@ impl ComponentsGenerationData<'_> {
             }
         }
         RewriteNode::Text(entries.join("\n"))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_parse_args() {
+        let attribute = "(ERC20, Ownable)";
+        let result = parse_args(attribute);
+        assert_eq!(result, vec!["ERC20", "Ownable"]);
+
+        let attribute = "ERC20";
+        let result = parse_args(attribute);
+        assert_eq!(result, vec!["ERC20"]);
+
+        let attribute = "(Ownable, ERC20, Other, Another)";
+        let result = parse_args(attribute);
+        assert_eq!(result, vec!["Ownable", "ERC20", "Other", "Another"]);
     }
 }

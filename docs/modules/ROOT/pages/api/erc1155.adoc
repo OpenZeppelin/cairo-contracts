@@ -415,8 +415,7 @@ Initializes the contract with no metadata by registering only the IERC1155 inter
 
 WARNING: This initializer should ONLY be used during construction in the very
 specific instance when the contract does NOT expose the <<IERC1155MetadataURI,IERC1155MetadataURI>> interface.
-Initializing a contract with this initializer means that tokens will not
-have a URI.
+Initializing a contract with this initializer means that tokens will not have a URI.
 
 [.contract-item]
 [[ERC1155Component-mint_with_acceptance_check]]

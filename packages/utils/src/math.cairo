@@ -59,7 +59,7 @@ pub fn u256_mul_div(x: u256, y: u256, denominator: u256, rounding: Rounding) -> 
 fn _raw_u256_mul_div(x: u256, y: u256, denominator: u256) -> (u256, u256) {
     let denominator = denominator.try_into().expect('mul_div division by zero');
     let p = x.wide_mul(y);
-    let (mut q, r) = u512_safe_div_rem_by_u256(p, denominator);
+    let (q, r) = u512_safe_div_rem_by_u256(p, denominator);
     let q = q.try_into().expect('mul_div quotient > u256');
     (q, r)
 }

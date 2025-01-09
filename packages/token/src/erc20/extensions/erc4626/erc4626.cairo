@@ -515,7 +515,7 @@ pub mod ERC4626Component {
         ///
         /// - `asset_address` cannot be the zero address.
         fn initializer(ref self: ComponentState<TContractState>, asset_address: ContractAddress) {
-            ImmutableConfig::validate();
+            Immutable::validate();
             assert(asset_address.is_non_zero(), Errors::INVALID_ASSET_ADDRESS);
             self.ERC4626_asset.write(asset_address);
         }

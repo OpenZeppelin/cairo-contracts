@@ -50,7 +50,7 @@ jobs:
         run: scarb fmt --check --workspace
 
       - name: Run tests
-        run: snforge test --workspace
+        run: snforge test --workspace --features fuzzing --fuzzer-runs 500
 
       # Issue with cairo-coverage. Re-add to CI once issues are fixed.
       #

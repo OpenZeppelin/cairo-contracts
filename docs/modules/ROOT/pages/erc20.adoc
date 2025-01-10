@@ -23,7 +23,7 @@ Here's what that looks like:
 ----
 #[starknet::contract]
 mod MyToken {
-    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
+    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl, DefaultConfig};
     use starknet::ContractAddress;
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
@@ -164,7 +164,7 @@ impl ERC20MetadataImpl of interface::IERC20Metadata<ContractState> {
 
 For more complex scenarios, such as a factory deploying multiple tokens with differing values for decimals, a flexible solution might be appropriate.
 
-TIP: Note that we are not using the MixinImpl in this case, since we need to customize the IERC20Metadata implementation.
+TIP: Note that we are not using the MixinImpl or the DefaultConfig in this case, since we need to customize the IERC20Metadata implementation.
 
 [,cairo]
 ----

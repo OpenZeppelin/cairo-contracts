@@ -12,6 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed (Breaking)
 
 - Bump scarb to v2.9.2 (#1239)
+- Add SRC-107 to ERC20Component (#1294)
+  - `decimals` are now configurable using the ImmutableConfig trait
 
 ### Fixed
 

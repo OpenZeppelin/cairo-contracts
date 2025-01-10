@@ -50,6 +50,9 @@ pub struct SignersInfo {
 /// The packing is done as follows:
 /// - `quorum` value occupies 32 bits in bit range [64..95].
 /// - `signers_count` value occupies the highest 32 bits in bit range [96..127].
+///
+/// WARNING: If `signers_count` equals the maximum u32 value (0xffffffff or 4_294_967_295), 
+/// the unpacked quorum value will be invalid, exceeding the expected value by 1.
 pub impl SignersInfoStorePacking of StorePacking<SignersInfo, u128> {
     fn pack(value: SignersInfo) -> u128 {
         let SignersInfo { quorum, signers_count } = value;

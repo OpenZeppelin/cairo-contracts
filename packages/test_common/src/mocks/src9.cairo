@@ -22,7 +22,7 @@ pub mod SRC9AccountMock {
         SRC9Component::OutsideExecutionV2Impl<ContractState>;
     impl OutsideExecutionInternalImpl = SRC9Component::InternalImpl<ContractState>;
 
-    // SCR5
+    // SRC5
     #[abi(embed_v0)]
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 

@@ -13,7 +13,7 @@ fn test_push_multiple(len_seed: u64, key_step_seed: u64) {
 
     let mut mock_trace = CONTRACT_STATE();
     let checkpoints = build_checkpoints_array(len, key_step);
-    
+
     let mut expected_prev = 0;
     for point in checkpoints {
         let (prev, new) = mock_trace.push_checkpoint(*point.key, *point.value);
@@ -94,7 +94,7 @@ fn test_pack_unpack(key: u64, value: u256) {
 
     let packed_value = StorePacking::pack(initial_checkpoint);
     let unpacked_checkpoint: Checkpoint = StorePacking::unpack(packed_value);
-    
+
     assert!(initial_checkpoint == unpacked_checkpoint);
 }
 

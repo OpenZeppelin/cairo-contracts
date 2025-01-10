@@ -1,12 +1,14 @@
 use crate::deployments::calculate_contract_address_from_deploy_syscall;
-use starknet::ClassHash;
 use snforge_std::{ContractClass, ContractClassTrait, test_address};
+use starknet::ClassHash;
 
 #[test]
-fn test_compute_contract_address(class_hash: felt252, arg_1: felt252, arg_2: felt252, arg_3: felt252) {
+fn test_compute_contract_address(
+    class_hash: felt252, arg_1: felt252, arg_2: felt252, arg_3: felt252,
+) {
     let class_hash: ClassHash = match class_hash.try_into() {
         Option::Some(class_hash) => class_hash,
-        Option::None => { return; }
+        Option::None => { return; },
     };
     let deployer_address = test_address();
     let contract_class = ContractClass { class_hash };
@@ -15,10 +17,7 @@ fn test_compute_contract_address(class_hash: felt252, arg_1: felt252, arg_2: fel
     let expected_address = contract_class.precalculate_address(@constructor_calldata);
 
     let computed_address = calculate_contract_address_from_deploy_syscall(
-        salt, 
-        class_hash, 
-        constructor_calldata.span(),
-        deployer_address
+        salt, class_hash, constructor_calldata.span(), deployer_address,
     );
     assert_eq!(computed_address, expected_address);
 }

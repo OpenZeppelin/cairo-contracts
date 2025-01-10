@@ -4,6 +4,7 @@ use crate::utils::secp256_point::{
 use starknet::SyscallResultTrait;
 use starknet::secp256_trait::{Secp256PointTrait, Secp256Trait};
 use starknet::secp256k1::Secp256k1Point;
+use starknet::secp256r1::Secp256r1Point;
 
 #[test]
 fn test_pack_big_secp256k1_points() {
@@ -55,6 +56,50 @@ fn test_unpack_big_secp256k1_points() {
     let (xlow, xhigh_and_parity) = StorePacking::pack(big_point_2);
     let point: Secp256k1Point = StorePacking::unpack((xlow, xhigh_and_parity));
     let (x, _) = point.get_coordinates().unwrap_syscall();
+
+    assert_eq!(x, expected_x);
+    assert_eq!(y, expected_y);
+}
+
+#[test]
+#[cfg(feature: 'fuzzing')]
+fn test_pack_unpack_secp256k1_point(x: u256, y_parity_val: u8) {
+    let y_parity = y_parity_val % 2 == 0;
+    let point: Secp256k1Point =
+        match Secp256Trait::secp256_ec_get_point_from_x_syscall(x, y_parity) {
+        Result::Ok(point) => match point {
+            Option::Some(point) => point,
+            Option::None => { return; },
+        },
+        Result::Err => { return; },
+    };
+
+    let (expected_x, expected_y) = point.get_coordinates().unwrap_syscall();
+    let packed_value = StorePacking::pack(point);
+    let unpacked_point: Secp256k1Point = StorePacking::unpack(packed_value);
+    let (x, y) = unpacked_point.get_coordinates().unwrap_syscall();
+
+    assert_eq!(x, expected_x);
+    assert_eq!(y, expected_y);
+}
+
+#[test]
+#[cfg(feature: 'fuzzing')]
+fn test_pack_unpack_secp256r1_point(x: u256, y_parity_val: u8) {
+    let y_parity = y_parity_val % 2 == 0;
+    let point: Secp256r1Point =
+        match Secp256Trait::secp256_ec_get_point_from_x_syscall(x, y_parity) {
+        Result::Ok(point) => match point {
+            Option::Some(point) => point,
+            Option::None => { return; },
+        },
+        Result::Err => { return; },
+    };
+
+    let (expected_x, expected_y) = point.get_coordinates().unwrap_syscall();
+    let packed_value = StorePacking::pack(point);
+    let unpacked_point: Secp256r1Point = StorePacking::unpack(packed_value);
+    let (x, y) = unpacked_point.get_coordinates().unwrap_syscall();
 
     assert_eq!(x, expected_x);
     assert_eq!(y, expected_y);

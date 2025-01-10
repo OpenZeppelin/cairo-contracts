@@ -5,11 +5,16 @@ use crate::erc20::ERC20Component::{ERC20MetadataImpl, InternalImpl};
 use openzeppelin_test_common::erc20::ERC20SpyHelpers;
 use openzeppelin_test_common::mocks::erc20::{DualCaseERC20Mock, SnakeERC20MockWithHooks};
 use openzeppelin_testing::constants::{
-    DECIMALS, NAME, OWNER, RECIPIENT, SPENDER, SUPPLY, SYMBOL, VALUE, ZERO,
+    NAME, OWNER, RECIPIENT, SPENDER, SUPPLY, SYMBOL, VALUE, ZERO,
 };
 use openzeppelin_testing::events::EventSpyExt;
 use snforge_std::{EventSpy, spy_events, start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
+
+// Custom implementation of the ERC20Component ImmutableConfig used for testing.
+impl ERC20ImmutableConfig of ERC20Component::ImmutableConfig {
+    const DECIMALS: u8 = 6;
+}
 
 //
 // Setup
@@ -52,7 +57,7 @@ fn test_initializer() {
 
     assert_eq!(state.name(), NAME());
     assert_eq!(state.symbol(), SYMBOL());
-    assert_eq!(state.decimals(), DECIMALS);
+    assert_eq!(state.decimals(), ERC20ImmutableConfig::DECIMALS);
     assert_eq!(state.total_supply(), 0);
 }
 

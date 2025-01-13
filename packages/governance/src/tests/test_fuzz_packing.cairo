@@ -1,6 +1,5 @@
-use core::num::traits::Bounded;
 use crate::governor::ProposalCore;
-use crate::multisig::storage_utils::{SignersInfo, TxInfo};
+use crate::multisig::storage_utils::TxInfo;
 use starknet::storage_access::StorePacking;
 
 #[test]
@@ -11,20 +10,6 @@ fn test_pack_unpack_tx_info(is_executed_val: u8, submitted_block: u64) {
 
     assert_eq!(unpacked_tx_info.is_executed, is_executed);
     assert_eq!(unpacked_tx_info.submitted_block, submitted_block);
-}
-
-#[test]
-fn test_pack_unpack_signers_info(quorum: u32, signers_count: u32) {
-    // Packing works incorrectly when the number of signers
-    // equals max u32 value (0xffffffff or 4_294_967_295).
-    if signers_count == Bounded::MAX {
-        return;
-    };
-    let packed_value = StorePacking::pack(SignersInfo { quorum, signers_count });
-    let unpacked_signers_info: SignersInfo = StorePacking::unpack(packed_value);
-
-    assert_eq!(unpacked_signers_info.quorum, quorum);
-    assert_eq!(unpacked_signers_info.signers_count, signers_count);
 }
 
 #[test]

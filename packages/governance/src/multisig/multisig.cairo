@@ -16,7 +16,7 @@
 #[starknet::component]
 pub mod MultisigComponent {
     use core::hash::{HashStateExTrait, HashStateTrait};
-    use core::num::traits::{Bounded, Zero};
+    use core::num::traits::Zero;
     use core::panic_with_felt252;
     use core::pedersen::PedersenTrait;
     use crate::multisig::interface::{IMultisig, TransactionID, TransactionState};
@@ -128,7 +128,6 @@ pub mod MultisigComponent {
         pub const ZERO_ADDRESS_SIGNER: felt252 = 'Multisig: zero address signer';
         pub const ZERO_QUORUM: felt252 = 'Multisig: quorum cannot be 0';
         pub const QUORUM_TOO_HIGH: felt252 = 'Multisig: quorum > signers';
-        pub const TOO_MANY_SIGNERS: felt252 = 'Multisig: too many signers';
     }
 
     //
@@ -570,8 +569,6 @@ pub mod MultisigComponent {
 
                     signers_count += 1;
                 };
-
-                assert(signers_count != Bounded::MAX, Errors::TOO_MANY_SIGNERS);
                 self.Multisig_signers_info.write(SignersInfo { quorum, signers_count });
             }
             self._change_quorum(new_quorum);

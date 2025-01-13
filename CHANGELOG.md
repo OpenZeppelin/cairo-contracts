@@ -35,6 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Fix minor severity issue of `SignersInfo` packing impl in Multisig component (#1301)
 - Remove `mut` from `data` param in `compute_hash_on_elements` (#1206)
 - Remove `mut` from `calls` param in `__execute__` function of Account and EthAccount components (#1224)
 - Remove `mut` from `calls` param in `__validate__` function of Account and EthAccount components (#1224)

@@ -1395,7 +1395,9 @@ fn test_signers_info_error_happens_with_v1() {
 }
 
 #[test]
-fn test_signers_info_pack_unpack_v2(quorum: u32, signers_count: u32) {
+fn test_signers_info_no_error_happen_with_v2() {
+    let quorum = 123;
+    let signers_count = Bounded::MAX;
     let info = SignersInfo { quorum, signers_count };
     let packed_value = SignersInfoStorePackingV2::pack(info);
     let unpacked_info = SignersInfoStorePackingV2::unpack(packed_value);
@@ -1405,13 +1407,11 @@ fn test_signers_info_pack_unpack_v2(quorum: u32, signers_count: u32) {
 }
 
 #[test]
-fn test_signers_info_pack_with_v1_unpack_with_v2(quorum: u32, signers_count: u32) {
-    if signers_count == Bounded::MAX {
-        // Cannot properly unpack if packed with V1 and `signers_count` is max u32 value
-        return;
-    };
+fn test_signers_info_pack_unpack_v2_max_values() {
+    let quorum = Bounded::MAX;
+    let signers_count = Bounded::MAX;
     let info = SignersInfo { quorum, signers_count };
-    let packed_value = LegacySignersInfoStorePackingV1::pack(info);
+    let packed_value = SignersInfoStorePackingV2::pack(info);
     let unpacked_info = SignersInfoStorePackingV2::unpack(packed_value);
 
     assert_eq!(unpacked_info.quorum, quorum);

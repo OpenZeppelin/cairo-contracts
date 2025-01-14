@@ -178,6 +178,7 @@ fn test_hash_operation() {
 
     // Manually set hash elements
     let mut expected_hash = PedersenTrait::new(0)
+        .update_with(1) // number of calls
         .update_with(target.contract_address) // call::to
         .update_with(selector!("set_number")) // call::selector
         .update_with(1) // call::calldata.len

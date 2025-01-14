@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Fixed message type hash in SNIP12 doc (#1274)
 - Permit and Message SNIP12 hashes (#1283)
+- Fix Multisig component issue arising when removing signers with unchanged quorum (#1300)
 
 ## 0.20.0 (2024-12-06)
 
@@ -41,7 +42,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed (Breaking)
 
-- Fix Multisig component issue arising when removing signers with unchanged quorum (#1300)
 - Bump snforge_std to v0.34.0 (#1239)
 - Bump scarb to v2.9.1 (#1239)
 - The initializer in `OwnableComponent` now checks that `owner` is not the zero address (#1221)

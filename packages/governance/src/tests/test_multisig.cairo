@@ -1418,6 +1418,15 @@ fn test_signers_info_pack_with_v1_unpack_with_v2(quorum: u32, signers_count: u32
     assert_eq!(unpacked_info.signers_count, signers_count);
 }
 
+#[test]
+fn test_signers_info_unpack_zero_value_v2() {
+    let packed_value = 0;
+    let unpacked_info = SignersInfoStorePackingV2::unpack(packed_value);
+
+    assert_eq!(unpacked_info.quorum, 0);
+    assert_eq!(unpacked_info.signers_count, 0);
+}
+
 //
 // Helpers
 //

@@ -26,6 +26,10 @@ pub mod ERC20Component {
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 
+    // This default decimals is only used when the DefaultConfig
+    // is in scope in the implementing contract.
+    pub const DEFAULT_DECIMALS: u8 = 18;
+
     #[storage]
     pub struct Storage {
         pub ERC20_name: ByteArray,
@@ -74,6 +78,14 @@ pub mod ERC20Component {
         pub const INSUFFICIENT_ALLOWANCE: felt252 = 'ERC20: insufficient allowance';
         pub const EXPIRED_PERMIT_SIGNATURE: felt252 = 'ERC20: expired permit signature';
         pub const INVALID_PERMIT_SIGNATURE: felt252 = 'ERC20: invalid permit signature';
+    }
+
+    /// Constants expected to be defined at the contract level used to configure the component
+    /// behaviour.
+    ///
+    /// - `DECIMALS`: Returns the number of decimals the token uses.
+    pub trait ImmutableConfig {
+        const DECIMALS: u8;
     }
 
     //
@@ -181,7 +193,10 @@ pub mod ERC20Component {
 
     #[embeddable_as(ERC20MetadataImpl)]
     impl ERC20Metadata<
-        TContractState, +HasComponent<TContractState>, +ERC20HooksTrait<TContractState>,
+        TContractState,
+        +HasComponent<TContractState>,
+        impl Immutable: ImmutableConfig,
+        +ERC20HooksTrait<TContractState>,
     > of interface::IERC20Metadata<ComponentState<TContractState>> {
         /// Returns the name of the token.
         fn name(self: @ComponentState<TContractState>) -> ByteArray {
@@ -195,7 +210,7 @@ pub mod ERC20Component {
 
         /// Returns the number of decimals used to get its user representation.
         fn decimals(self: @ComponentState<TContractState>) -> u8 {
-            18
+            Immutable::DECIMALS
         }
     }
 
@@ -224,7 +239,10 @@ pub mod ERC20Component {
 
     #[embeddable_as(ERC20MixinImpl)]
     impl ERC20Mixin<
-        TContractState, +HasComponent<TContractState>, +ERC20HooksTrait<TContractState>,
+        TContractState,
+        +HasComponent<TContractState>,
+        +ImmutableConfig,
+        +ERC20HooksTrait<TContractState>,
     > of interface::IERC20Mixin<ComponentState<TContractState>> {
         // IERC20
         fn total_supply(self: @ComponentState<TContractState>) -> u256 {
@@ -546,6 +564,16 @@ pub mod ERC20Component {
             }
         }
     }
+}
+
+/// Implementation of the default ERC20Component ImmutableConfig.
+///
+/// See
+/// https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-107.md#defaultconfig-implementation
+///
+/// The default decimals is set to `DEFAULT_DECIMALS`.
+pub impl DefaultConfig of ERC20Component::ImmutableConfig {
+    const DECIMALS: u8 = ERC20Component::DEFAULT_DECIMALS;
 }
 
 /// An empty implementation of the ERC20 hooks to be used in basic ERC20 preset contracts.

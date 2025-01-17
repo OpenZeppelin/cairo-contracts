@@ -286,7 +286,7 @@ mod MyContract {
 === Immutable Config
 
 :erc2981-component: xref:/api/token_common.adoc#ERC2981Component[ERC2981Component]
-:SRC-107: https://github.com/starknet-io/SNIPs/blob/963848f0752bde75c7087c2446d83b7da8118b25/SNIPS/snip-107.md[SRC-107]
+:SRC-107: https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-107.md[SRC-107]
 
 While initializers help set up the component's initial state, some require configuration that may be defined
 as constants, saving gas by avoiding the necessity of reading from storage each time the variable needs to be used. The
@@ -397,7 +397,7 @@ mod MyContract {
 
 ==== `validate` function
 
-:validate-section: https://github.com/starknet-io/SNIPs/blob/963848f0752bde75c7087c2446d83b7da8118b25/SNIPS/snip-107.md#validate-function[validate section of the SRC-107]
+:validate-section: https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-107.md#validate-function[validate section of the SRC-107]
 
 The `ImmutableConfig` trait may also include a `validate` function with a default implementation, which
 asserts that the configuration is correct, and must not be overridden by the implementing contract. For more information
@@ -483,7 +483,7 @@ The following snippet leverages the `before_update` hook to include this behavio
 mod MyToken {
     use openzeppelin_security::pausable::PausableComponent::InternalTrait;
     use openzeppelin_security::pausable::PausableComponent;
-    use openzeppelin_token::erc20::ERC20Component;
+    use openzeppelin_token::erc20::{ERC20Component, DefaultConfig};
     use starknet::ContractAddress;
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
@@ -535,7 +535,7 @@ The using contract just needs to bring the implementation into scope like this:
 ----
 #[starknet::contract]
 mod MyToken {
-    use openzeppelin_token::erc20::ERC20Component;
+    use openzeppelin_token::erc20::{ERC20Component, DefaultConfig};
     use openzeppelin_token::erc20::ERC20HooksEmptyImpl;
 
     (...)
@@ -559,7 +559,7 @@ Here's the setup:
 #[starknet::contract]
 mod ERC20Pausable {
     use openzeppelin_security::pausable::PausableComponent;
-    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
+    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl, DefaultConfig};
     // Import the ERC20 interfaces to create custom implementations
     use openzeppelin_token::erc20::interface::{IERC20, IERC20CamelOnly};
     use starknet::ContractAddress;
@@ -650,8 +650,6 @@ This is why the contract defined the `ERC20Impl` from the component in the previ
 
 Creating a custom implementation of an interface must define *all* methods from that interface.
 This is true even if the behavior of a method does not change from the component implementation (as `total_supply` exemplifies in this example).
-
-TIP: The ERC20 documentation provides another custom implementation guide for {custom-decimals}.
 
 === Accessing component storage
 

@@ -69,7 +69,7 @@ For example, this is how to write an ERC20-compliant contract:
 ```cairo
 #[starknet::contract]
 mod MyToken {
-    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
+    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl, DefaultConfig};
     use starknet::ContractAddress;
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);

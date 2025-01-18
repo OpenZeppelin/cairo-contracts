@@ -29,9 +29,9 @@ use openzeppelin_utils::bytearray::ByteArrayExtTrait;
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{start_cheat_block_timestamp_global, start_cheat_caller_address};
 use snforge_std::{start_mock_call, spy_events, store, EventSpy};
-use starknet::{ContractAddress, contract_address_const};
 use starknet::account::Call;
 use starknet::storage::{StoragePathEntry, StoragePointerWriteAccess, StorageMapWriteAccess};
+use starknet::{ContractAddress, contract_address_const};
 
 const MIN_DELAY: u64 = 100;
 

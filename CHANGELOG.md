@@ -13,6 +13,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - ERC721Component `initializer_no_metadata` (#1278)
 - ERC1155Component `initializer_no_metadata` (#1287)
+
+### Changed (Breaking)
+
+- Fix SNIP12 Permit signature (#1285)
+- Bump scarb to v2.9.2 (#1239)
+
+### Fixed
+
+- Fixed message type hash in SNIP12 doc (#1274)
+- Permit and Message SNIP12 hashes (#1283)
+- Fix Multisig component issue arising when removing signers with unchanged quorum (#1300)
+
+## 0.20.0 (2024-12-06)
+
+### Added
+
 - SRC9 (Outside Execution) integration to account presets (#1201)
 - `SNIP12HashSpanImpl` to `openzeppelin_utils::cryptography::snip12` (#1180)
 - GovernorComponent with the following extensions: (#1180)
@@ -32,13 +48,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed (Breaking)
 
-- Fix SNIP12 Permit signature (#1285)
+- Bump snforge_std to v0.34.0 (#1239)
+- Bump scarb to v2.9.1 (#1239)
 - The initializer in `OwnableComponent` now checks that `owner` is not the zero address (#1221)
 - Add `verifying_contract` member to the `Delegation` struct used in Votes `delegate_by_sig` (#1214)
 use crate::votes::VotesComponent::VotingUnitsTrait;
 - VotingUnitsTrait moved from `openzeppelin_governance::votes::votes` to `openzeppelin_governance::votes::VotesComponent` (#1214)
 - VestingComponent `release` function won't emit an event or attempt to transfer when the amount is zero (#1209)
 - Bump snforge_std to v0.33.0 (#1203)
+
+### Fixed
+
+- Scarb manifest dependencies (#1249):
+  - Move `openzeppelin_utils` from dev dep to dep in governance manifest
+  - Remove `openzeppelin_utils` as dep in access package
+  - Change `openzeppelin_account` to `crate` in `src9.cairo`
 
 ## 0.19.0 (2024-11-08)
 

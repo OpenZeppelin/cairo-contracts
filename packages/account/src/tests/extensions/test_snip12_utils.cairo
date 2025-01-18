@@ -1,14 +1,14 @@
 use crate::extensions::src9::interface::OutsideExecution;
+use crate::extensions::src9::snip12_utils::{CALL_TYPE_HASH, OUTSIDE_EXECUTION_TYPE_HASH};
 use crate::extensions::src9::snip12_utils::{CallStructHash, OutsideExecutionStructHash};
-use crate::extensions::src9::snip12_utils::{OUTSIDE_EXECUTION_TYPE_HASH, CALL_TYPE_HASH};
-use openzeppelin_testing::constants::{RECIPIENT, OWNER};
+use openzeppelin_testing::constants::{OWNER, RECIPIENT};
 use snforge_std::start_cheat_chain_id_global;
 use starknet::account::Call;
 
 #[test]
 fn test_outside_execution_type_hash() {
     let expected = selector!(
-        "\"OutsideExecution\"(\"Caller\":\"ContractAddress\",\"Nonce\":\"felt\",\"Execute After\":\"u128\",\"Execute Before\":\"u128\",\"Calls\":\"Call*\")\"Call\"(\"To\":\"ContractAddress\",\"Selector\":\"selector\",\"Calldata\":\"felt*\")"
+        "\"OutsideExecution\"(\"Caller\":\"ContractAddress\",\"Nonce\":\"felt\",\"Execute After\":\"u128\",\"Execute Before\":\"u128\",\"Calls\":\"Call*\")\"Call\"(\"To\":\"ContractAddress\",\"Selector\":\"selector\",\"Calldata\":\"felt*\")",
     );
     assert_eq!(OUTSIDE_EXECUTION_TYPE_HASH, expected);
 }
@@ -16,7 +16,7 @@ fn test_outside_execution_type_hash() {
 #[test]
 fn test_call_type_hash() {
     let expected = selector!(
-        "\"Call\"(\"To\":\"ContractAddress\",\"Selector\":\"selector\",\"Calldata\":\"felt*\")"
+        "\"Call\"(\"To\":\"ContractAddress\",\"Selector\":\"selector\",\"Calldata\":\"felt*\")",
     );
     assert_eq!(CALL_TYPE_HASH, expected);
 }
@@ -58,7 +58,7 @@ fn test_outside_execution_struct_hash_generation() {
     let execute_before = 20;
     let calls = array![call].span();
     let outside_execution = OutsideExecution {
-        caller, nonce, execute_after, execute_before, calls
+        caller, nonce, execute_after, execute_before, calls,
     };
 
     let hash = outside_execution.hash_struct();

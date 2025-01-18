@@ -19,9 +19,9 @@
 #[starknet::component]
 pub mod AccessControlComponent {
     use crate::accesscontrol::interface;
+    use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_introspection::src5::SRC5Component::InternalImpl as SRC5InternalImpl;
     use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
-    use openzeppelin_introspection::src5::SRC5Component;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
@@ -48,7 +48,7 @@ pub mod AccessControlComponent {
     pub struct RoleGranted {
         pub role: felt252,
         pub account: ContractAddress,
-        pub sender: ContractAddress
+        pub sender: ContractAddress,
     }
 
     /// Emitted when `role` is revoked for `account`.
@@ -60,7 +60,7 @@ pub mod AccessControlComponent {
     pub struct RoleRevoked {
         pub role: felt252,
         pub account: ContractAddress,
-        pub sender: ContractAddress
+        pub sender: ContractAddress,
     }
 
     /// Emitted when `new_admin_role` is set as `role`'s admin role, replacing `previous_admin_role`
@@ -71,7 +71,7 @@ pub mod AccessControlComponent {
     pub struct RoleAdminChanged {
         pub role: felt252,
         pub previous_admin_role: felt252,
-        pub new_admin_role: felt252
+        pub new_admin_role: felt252,
     }
 
     pub mod Errors {
@@ -84,11 +84,11 @@ pub mod AccessControlComponent {
         TContractState,
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of interface::IAccessControl<ComponentState<TContractState>> {
         /// Returns whether `account` has been granted `role`.
         fn has_role(
-            self: @ComponentState<TContractState>, role: felt252, account: ContractAddress
+            self: @ComponentState<TContractState>, role: felt252, account: ContractAddress,
         ) -> bool {
             self.AccessControl_role_member.read((role, account))
         }
@@ -106,7 +106,7 @@ pub mod AccessControlComponent {
         ///
         /// - The caller must have `role`'s admin role.
         fn grant_role(
-            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
+            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress,
         ) {
             let admin = Self::get_role_admin(@self, role);
             self.assert_only_role(admin);
@@ -121,7 +121,7 @@ pub mod AccessControlComponent {
         ///
         /// - The caller must have `role`'s admin role.
         fn revoke_role(
-            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
+            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress,
         ) {
             let admin = Self::get_role_admin(@self, role);
             self.assert_only_role(admin);
@@ -141,7 +141,7 @@ pub mod AccessControlComponent {
         ///
         /// - The caller must be `account`.
         fn renounce_role(
-            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
+            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress,
         ) {
             let caller = get_caller_address();
             assert(caller == account, Errors::INVALID_CALLER);
@@ -155,10 +155,10 @@ pub mod AccessControlComponent {
         TContractState,
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of interface::IAccessControlCamel<ComponentState<TContractState>> {
         fn hasRole(
-            self: @ComponentState<TContractState>, role: felt252, account: ContractAddress
+            self: @ComponentState<TContractState>, role: felt252, account: ContractAddress,
         ) -> bool {
             AccessControl::has_role(self, role, account)
         }
@@ -168,19 +168,19 @@ pub mod AccessControlComponent {
         }
 
         fn grantRole(
-            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
+            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress,
         ) {
             AccessControl::grant_role(ref self, role, account);
         }
 
         fn revokeRole(
-            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
+            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress,
         ) {
             AccessControl::revoke_role(ref self, role, account);
         }
 
         fn renounceRole(
-            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
+            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress,
         ) {
             AccessControl::renounce_role(ref self, role, account);
         }
@@ -191,7 +191,7 @@ pub mod AccessControlComponent {
         TContractState,
         +HasComponent<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of InternalTrait<TContractState> {
         /// Initializes the contract by registering the IAccessControl interface ID.
         fn initializer(ref self: ComponentState<TContractState>) {
@@ -212,7 +212,7 @@ pub mod AccessControlComponent {
         ///
         /// Emits a `RoleAdminChanged` event.
         fn set_role_admin(
-            ref self: ComponentState<TContractState>, role: felt252, admin_role: felt252
+            ref self: ComponentState<TContractState>, role: felt252, admin_role: felt252,
         ) {
             let previous_admin_role: felt252 = AccessControl::get_role_admin(@self, role);
             self.AccessControl_role_admin.write(role, admin_role);
@@ -225,7 +225,7 @@ pub mod AccessControlComponent {
         ///
         /// May emit a `RoleGranted` event.
         fn _grant_role(
-            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
+            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress,
         ) {
             if !AccessControl::has_role(@self, role, account) {
                 let caller: ContractAddress = get_caller_address();
@@ -240,7 +240,7 @@ pub mod AccessControlComponent {
         ///
         /// May emit a `RoleRevoked` event.
         fn _revoke_role(
-            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
+            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress,
         ) {
             if AccessControl::has_role(@self, role, account) {
                 let caller: ContractAddress = get_caller_address();
@@ -255,11 +255,11 @@ pub mod AccessControlComponent {
         TContractState,
         +HasComponent<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of interface::AccessControlABI<ComponentState<TContractState>> {
         // IAccessControl
         fn has_role(
-            self: @ComponentState<TContractState>, role: felt252, account: ContractAddress
+            self: @ComponentState<TContractState>, role: felt252, account: ContractAddress,
         ) -> bool {
             AccessControl::has_role(self, role, account)
         }
@@ -269,26 +269,26 @@ pub mod AccessControlComponent {
         }
 
         fn grant_role(
-            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
+            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress,
         ) {
             AccessControl::grant_role(ref self, role, account);
         }
 
         fn revoke_role(
-            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
+            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress,
         ) {
             AccessControl::revoke_role(ref self, role, account);
         }
 
         fn renounce_role(
-            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
+            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress,
         ) {
             AccessControl::renounce_role(ref self, role, account);
         }
 
         // IAccessControlCamel
         fn hasRole(
-            self: @ComponentState<TContractState>, role: felt252, account: ContractAddress
+            self: @ComponentState<TContractState>, role: felt252, account: ContractAddress,
         ) -> bool {
             AccessControlCamel::hasRole(self, role, account)
         }
@@ -298,26 +298,26 @@ pub mod AccessControlComponent {
         }
 
         fn grantRole(
-            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
+            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress,
         ) {
             AccessControlCamel::grantRole(ref self, role, account);
         }
 
         fn revokeRole(
-            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
+            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress,
         ) {
             AccessControlCamel::revokeRole(ref self, role, account);
         }
 
         fn renounceRole(
-            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
+            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress,
         ) {
             AccessControlCamel::renounceRole(ref self, role, account);
         }
 
         // ISRC5
         fn supports_interface(
-            self: @ComponentState<TContractState>, interface_id: felt252
+            self: @ComponentState<TContractState>, interface_id: felt252,
         ) -> bool {
             let src5 = get_dep_component!(self, SRC5);
             src5.supports_interface(interface_id)

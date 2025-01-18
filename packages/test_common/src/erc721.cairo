@@ -1,6 +1,6 @@
 use openzeppelin_testing::events::EventSpyExt;
-use openzeppelin_token::erc721::ERC721Component::{Approval, ApprovalForAll, Transfer};
 use openzeppelin_token::erc721::ERC721Component;
+use openzeppelin_token::erc721::ERC721Component::{Approval, ApprovalForAll, Transfer};
 use snforge_std::EventSpy;
 use starknet::ContractAddress;
 
@@ -11,10 +11,10 @@ pub impl ERC721SpyHelpersImpl of ERC721SpyHelpers {
         contract: ContractAddress,
         owner: ContractAddress,
         operator: ContractAddress,
-        approved: bool
+        approved: bool,
     ) {
         let expected = ERC721Component::Event::ApprovalForAll(
-            ApprovalForAll { owner, operator, approved }
+            ApprovalForAll { owner, operator, approved },
         );
         self.assert_emitted_single(contract, expected);
     }
@@ -24,7 +24,7 @@ pub impl ERC721SpyHelpersImpl of ERC721SpyHelpers {
         contract: ContractAddress,
         owner: ContractAddress,
         operator: ContractAddress,
-        approved: bool
+        approved: bool,
     ) {
         self.assert_event_approval_for_all(contract, owner, operator, approved);
         self.assert_no_events_left_from(contract);
@@ -35,7 +35,7 @@ pub impl ERC721SpyHelpersImpl of ERC721SpyHelpers {
         contract: ContractAddress,
         owner: ContractAddress,
         approved: ContractAddress,
-        token_id: u256
+        token_id: u256,
     ) {
         let expected = ERC721Component::Event::Approval(Approval { owner, approved, token_id });
         self.assert_emitted_single(contract, expected);
@@ -46,7 +46,7 @@ pub impl ERC721SpyHelpersImpl of ERC721SpyHelpers {
         contract: ContractAddress,
         owner: ContractAddress,
         approved: ContractAddress,
-        token_id: u256
+        token_id: u256,
     ) {
         self.assert_event_approval(contract, owner, approved, token_id);
         self.assert_no_events_left_from(contract);
@@ -57,7 +57,7 @@ pub impl ERC721SpyHelpersImpl of ERC721SpyHelpers {
         contract: ContractAddress,
         from: ContractAddress,
         to: ContractAddress,
-        token_id: u256
+        token_id: u256,
     ) {
         let expected = ERC721Component::Event::Transfer(Transfer { from, to, token_id });
         self.assert_emitted_single(contract, expected);
@@ -68,7 +68,7 @@ pub impl ERC721SpyHelpersImpl of ERC721SpyHelpers {
         contract: ContractAddress,
         from: ContractAddress,
         to: ContractAddress,
-        token_id: u256
+        token_id: u256,
     ) {
         self.assert_event_transfer(contract, from, to, token_id);
         self.assert_no_events_left_from(contract);

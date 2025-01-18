@@ -4,7 +4,7 @@ use starknet::ClassHash;
 pub trait IUpgradesV1<TState> {
     fn upgrade(ref self: TState, new_class_hash: ClassHash);
     fn upgrade_and_call(
-        ref self: TState, new_class_hash: ClassHash, selector: felt252, calldata: Span<felt252>
+        ref self: TState, new_class_hash: ClassHash, selector: felt252, calldata: Span<felt252>,
     ) -> Span<felt252>;
     fn set_value(ref self: TState, val: felt252);
     fn get_value(self: @TState) -> felt252;
@@ -25,14 +25,14 @@ pub mod UpgradesV1 {
     pub struct Storage {
         #[substorage(v0)]
         pub upgradeable: UpgradeableComponent::Storage,
-        pub value: felt252
+        pub value: felt252,
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        UpgradeableEvent: UpgradeableComponent::Event
+        UpgradeableEvent: UpgradeableComponent::Event,
     }
 
     #[abi(embed_v0)]
@@ -45,7 +45,7 @@ pub mod UpgradesV1 {
             ref self: ContractState,
             new_class_hash: ClassHash,
             selector: felt252,
-            calldata: Span<felt252>
+            calldata: Span<felt252>,
         ) -> Span<felt252> {
             self.upgradeable.upgrade_and_call(new_class_hash, selector, calldata)
         }
@@ -66,7 +66,7 @@ pub mod UpgradesV1 {
 pub trait IUpgradesV2<TState> {
     fn upgrade(ref self: TState, new_class_hash: ClassHash);
     fn upgrade_and_call(
-        ref self: TState, new_class_hash: ClassHash, selector: felt252, calldata: Span<felt252>
+        ref self: TState, new_class_hash: ClassHash, selector: felt252, calldata: Span<felt252>,
     ) -> Span<felt252>;
     fn set_value(ref self: TState, val: felt252);
     fn set_value2(ref self: TState, val: felt252);
@@ -89,14 +89,14 @@ pub mod UpgradesV2 {
         #[substorage(v0)]
         pub upgradeable: UpgradeableComponent::Storage,
         pub value: felt252,
-        pub value2: felt252
+        pub value2: felt252,
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        UpgradeableEvent: UpgradeableComponent::Event
+        UpgradeableEvent: UpgradeableComponent::Event,
     }
 
     #[abi(embed_v0)]
@@ -109,7 +109,7 @@ pub mod UpgradesV2 {
             ref self: ContractState,
             new_class_hash: ClassHash,
             selector: felt252,
-            calldata: Span<felt252>
+            calldata: Span<felt252>,
         ) -> Span<felt252> {
             self.upgradeable.upgrade_and_call(new_class_hash, selector, calldata)
         }

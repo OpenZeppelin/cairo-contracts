@@ -8,12 +8,12 @@
 #[starknet::component]
 pub mod ERC721Component {
     use core::num::traits::Zero;
-    use crate::erc721::interface::{IERC721ReceiverDispatcher, IERC721ReceiverDispatcherTrait};
     use crate::erc721::interface;
+    use crate::erc721::interface::{IERC721ReceiverDispatcher, IERC721ReceiverDispatcherTrait};
     use openzeppelin_introspection::interface::{ISRC5Dispatcher, ISRC5DispatcherTrait};
+    use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
-    use openzeppelin_introspection::src5::SRC5Component;
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
     use starknet::{ContractAddress, get_caller_address};
@@ -26,7 +26,7 @@ pub mod ERC721Component {
         pub ERC721_balances: Map<ContractAddress, u256>,
         pub ERC721_token_approvals: Map<u256, ContractAddress>,
         pub ERC721_operator_approvals: Map<(ContractAddress, ContractAddress), bool>,
-        pub ERC721_base_uri: ByteArray
+        pub ERC721_base_uri: ByteArray,
     }
 
     #[event]
@@ -45,7 +45,7 @@ pub mod ERC721Component {
         #[key]
         pub to: ContractAddress,
         #[key]
-        pub token_id: u256
+        pub token_id: u256,
     }
 
     /// Emitted when `owner` enables `approved` to manage the `token_id` token.
@@ -56,7 +56,7 @@ pub mod ERC721Component {
         #[key]
         pub approved: ContractAddress,
         #[key]
-        pub token_id: u256
+        pub token_id: u256,
     }
 
     /// Emitted when `owner` enables or disables (`approved`) `operator` to manage
@@ -67,7 +67,7 @@ pub mod ERC721Component {
         pub owner: ContractAddress,
         #[key]
         pub operator: ContractAddress,
-        pub approved: bool
+        pub approved: bool,
     }
 
     pub mod Errors {
@@ -91,14 +91,14 @@ pub mod ERC721Component {
             ref self: ComponentState<TContractState>,
             to: ContractAddress,
             token_id: u256,
-            auth: ContractAddress
+            auth: ContractAddress,
         ) {}
 
         fn after_update(
             ref self: ComponentState<TContractState>,
             to: ContractAddress,
             token_id: u256,
-            auth: ContractAddress
+            auth: ContractAddress,
         ) {}
     }
 
@@ -112,7 +112,7 @@ pub mod ERC721Component {
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +ERC721HooksTrait<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of interface::IERC721<ComponentState<TContractState>> {
         /// Returns the number of NFTs owned by `account`.
         fn balance_of(self: @ComponentState<TContractState>, account: ContractAddress) -> u256 {
@@ -151,11 +151,11 @@ pub mod ERC721Component {
             from: ContractAddress,
             to: ContractAddress,
             token_id: u256,
-            data: Span<felt252>
+            data: Span<felt252>,
         ) {
             Self::transfer_from(ref self, from, to, token_id);
             assert(
-                _check_on_erc721_received(from, to, token_id, data), Errors::SAFE_TRANSFER_FAILED
+                _check_on_erc721_received(from, to, token_id, data), Errors::SAFE_TRANSFER_FAILED,
             );
         }
 
@@ -176,7 +176,7 @@ pub mod ERC721Component {
             ref self: ComponentState<TContractState>,
             from: ContractAddress,
             to: ContractAddress,
-            token_id: u256
+            token_id: u256,
         ) {
             assert(!to.is_zero(), Errors::INVALID_RECEIVER);
 
@@ -209,7 +209,7 @@ pub mod ERC721Component {
         ///
         /// Emits an `Approval` event.
         fn set_approval_for_all(
-            ref self: ComponentState<TContractState>, operator: ContractAddress, approved: bool
+            ref self: ComponentState<TContractState>, operator: ContractAddress, approved: bool,
         ) {
             self._set_approval_for_all(get_caller_address(), operator, approved)
         }
@@ -226,7 +226,9 @@ pub mod ERC721Component {
 
         /// Query if `operator` is an authorized operator for `owner`.
         fn is_approved_for_all(
-            self: @ComponentState<TContractState>, owner: ContractAddress, operator: ContractAddress
+            self: @ComponentState<TContractState>,
+            owner: ContractAddress,
+            operator: ContractAddress,
         ) -> bool {
             self.ERC721_operator_approvals.read((owner, operator))
         }
@@ -238,7 +240,7 @@ pub mod ERC721Component {
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +ERC721HooksTrait<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of interface::IERC721Metadata<ComponentState<TContractState>> {
         /// Returns the NFT name.
         fn name(self: @ComponentState<TContractState>) -> ByteArray {
@@ -274,7 +276,7 @@ pub mod ERC721Component {
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +ERC721HooksTrait<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of interface::IERC721CamelOnly<ComponentState<TContractState>> {
         fn balanceOf(self: @ComponentState<TContractState>, account: ContractAddress) -> u256 {
             ERC721::balance_of(self, account)
@@ -289,7 +291,7 @@ pub mod ERC721Component {
             from: ContractAddress,
             to: ContractAddress,
             tokenId: u256,
-            data: Span<felt252>
+            data: Span<felt252>,
         ) {
             ERC721::safe_transfer_from(ref self, from, to, tokenId, data)
         }
@@ -298,13 +300,13 @@ pub mod ERC721Component {
             ref self: ComponentState<TContractState>,
             from: ContractAddress,
             to: ContractAddress,
-            tokenId: u256
+            tokenId: u256,
         ) {
             ERC721::transfer_from(ref self, from, to, tokenId)
         }
 
         fn setApprovalForAll(
-            ref self: ComponentState<TContractState>, operator: ContractAddress, approved: bool
+            ref self: ComponentState<TContractState>, operator: ContractAddress, approved: bool,
         ) {
             ERC721::set_approval_for_all(ref self, operator, approved)
         }
@@ -314,7 +316,9 @@ pub mod ERC721Component {
         }
 
         fn isApprovedForAll(
-            self: @ComponentState<TContractState>, owner: ContractAddress, operator: ContractAddress
+            self: @ComponentState<TContractState>,
+            owner: ContractAddress,
+            operator: ContractAddress,
         ) -> bool {
             ERC721::is_approved_for_all(self, owner, operator)
         }
@@ -327,7 +331,7 @@ pub mod ERC721Component {
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +ERC721HooksTrait<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of interface::IERC721MetadataCamelOnly<ComponentState<TContractState>> {
         fn tokenURI(self: @ComponentState<TContractState>, tokenId: u256) -> ByteArray {
             ERC721Metadata::token_uri(self, tokenId)
@@ -340,7 +344,7 @@ pub mod ERC721Component {
         +HasComponent<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
         +ERC721HooksTrait<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of interface::ERC721ABI<ComponentState<TContractState>> {
         // IERC721
         fn balance_of(self: @ComponentState<TContractState>, account: ContractAddress) -> u256 {
@@ -356,7 +360,7 @@ pub mod ERC721Component {
             from: ContractAddress,
             to: ContractAddress,
             token_id: u256,
-            data: Span<felt252>
+            data: Span<felt252>,
         ) {
             ERC721::safe_transfer_from(ref self, from, to, token_id, data);
         }
@@ -365,7 +369,7 @@ pub mod ERC721Component {
             ref self: ComponentState<TContractState>,
             from: ContractAddress,
             to: ContractAddress,
-            token_id: u256
+            token_id: u256,
         ) {
             ERC721::transfer_from(ref self, from, to, token_id);
         }
@@ -375,7 +379,7 @@ pub mod ERC721Component {
         }
 
         fn set_approval_for_all(
-            ref self: ComponentState<TContractState>, operator: ContractAddress, approved: bool
+            ref self: ComponentState<TContractState>, operator: ContractAddress, approved: bool,
         ) {
             ERC721::set_approval_for_all(ref self, operator, approved);
         }
@@ -385,7 +389,9 @@ pub mod ERC721Component {
         }
 
         fn is_approved_for_all(
-            self: @ComponentState<TContractState>, owner: ContractAddress, operator: ContractAddress
+            self: @ComponentState<TContractState>,
+            owner: ContractAddress,
+            operator: ContractAddress,
         ) -> bool {
             ERC721::is_approved_for_all(self, owner, operator)
         }
@@ -417,7 +423,7 @@ pub mod ERC721Component {
             from: ContractAddress,
             to: ContractAddress,
             tokenId: u256,
-            data: Span<felt252>
+            data: Span<felt252>,
         ) {
             ERC721CamelOnly::safeTransferFrom(ref self, from, to, tokenId, data);
         }
@@ -426,13 +432,13 @@ pub mod ERC721Component {
             ref self: ComponentState<TContractState>,
             from: ContractAddress,
             to: ContractAddress,
-            tokenId: u256
+            tokenId: u256,
         ) {
             ERC721CamelOnly::transferFrom(ref self, from, to, tokenId);
         }
 
         fn setApprovalForAll(
-            ref self: ComponentState<TContractState>, operator: ContractAddress, approved: bool
+            ref self: ComponentState<TContractState>, operator: ContractAddress, approved: bool,
         ) {
             ERC721CamelOnly::setApprovalForAll(ref self, operator, approved);
         }
@@ -442,7 +448,9 @@ pub mod ERC721Component {
         }
 
         fn isApprovedForAll(
-            self: @ComponentState<TContractState>, owner: ContractAddress, operator: ContractAddress
+            self: @ComponentState<TContractState>,
+            owner: ContractAddress,
+            operator: ContractAddress,
         ) -> bool {
             ERC721CamelOnly::isApprovedForAll(self, owner, operator)
         }
@@ -454,7 +462,7 @@ pub mod ERC721Component {
 
         // ISRC5
         fn supports_interface(
-            self: @ComponentState<TContractState>, interface_id: felt252
+            self: @ComponentState<TContractState>, interface_id: felt252,
         ) -> bool {
             let src5 = get_dep_component!(self, SRC5);
             src5.supports_interface(interface_id)
@@ -471,7 +479,7 @@ pub mod ERC721Component {
         +HasComponent<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
         impl Hooks: ERC721HooksTrait<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of InternalTrait<TContractState> {
         /// Initializes the contract by setting the token name, symbol, and base URI.
         /// This should only be used inside the contract's constructor.
@@ -487,7 +495,7 @@ pub mod ERC721Component {
             ref self: ComponentState<TContractState>,
             name: ByteArray,
             symbol: ByteArray,
-            base_uri: ByteArray
+            base_uri: ByteArray,
         ) {
             self.ERC721_name.write(name);
             self.ERC721_symbol.write(symbol);
@@ -532,7 +540,7 @@ pub mod ERC721Component {
             ref self: ComponentState<TContractState>,
             from: ContractAddress,
             to: ContractAddress,
-            token_id: u256
+            token_id: u256,
         ) {
             assert(!to.is_zero(), Errors::INVALID_RECEIVER);
 
@@ -583,11 +591,11 @@ pub mod ERC721Component {
             from: ContractAddress,
             to: ContractAddress,
             token_id: u256,
-            data: Span<felt252>
+            data: Span<felt252>,
         ) {
             self.transfer(from, to, token_id);
             assert(
-                _check_on_erc721_received(from, to, token_id, data), Errors::SAFE_TRANSFER_FAILED
+                _check_on_erc721_received(from, to, token_id, data), Errors::SAFE_TRANSFER_FAILED,
             );
         }
 
@@ -608,12 +616,12 @@ pub mod ERC721Component {
             ref self: ComponentState<TContractState>,
             to: ContractAddress,
             token_id: u256,
-            data: Span<felt252>
+            data: Span<felt252>,
         ) {
             self.mint(to, token_id);
             assert(
                 _check_on_erc721_received(Zero::zero(), to, token_id, data),
-                Errors::SAFE_MINT_FAILED
+                Errors::SAFE_MINT_FAILED,
             );
         }
 
@@ -649,7 +657,7 @@ pub mod ERC721Component {
             ref self: ComponentState<TContractState>,
             to: ContractAddress,
             token_id: u256,
-            auth: ContractAddress
+            auth: ContractAddress,
         ) -> ContractAddress {
             Hooks::before_update(ref self, to, token_id, auth);
 
@@ -688,7 +696,7 @@ pub mod ERC721Component {
         ///
         /// - `token_id` exists.
         fn _require_owned(
-            self: @ComponentState<TContractState>, token_id: u256
+            self: @ComponentState<TContractState>, token_id: u256,
         ) -> ContractAddress {
             let owner = self._owner_of(token_id);
             assert(!owner.is_zero(), Errors::INVALID_TOKEN_ID);
@@ -706,7 +714,7 @@ pub mod ERC721Component {
             ref self: ComponentState<TContractState>,
             to: ContractAddress,
             token_id: u256,
-            auth: ContractAddress
+            auth: ContractAddress,
         ) {
             self._approve_with_optional_event(to, token_id, auth, true);
         }
@@ -728,7 +736,7 @@ pub mod ERC721Component {
             to: ContractAddress,
             token_id: u256,
             auth: ContractAddress,
-            emit_event: bool
+            emit_event: bool,
         ) {
             if emit_event || !auth.is_zero() {
                 let owner = self._require_owned(token_id);
@@ -758,7 +766,7 @@ pub mod ERC721Component {
             ref self: ComponentState<TContractState>,
             owner: ContractAddress,
             operator: ContractAddress,
-            approved: bool
+            approved: bool,
         ) {
             assert(!operator.is_zero(), Errors::INVALID_OPERATOR);
             self.ERC721_operator_approvals.write((owner, operator), approved);
@@ -788,7 +796,7 @@ pub mod ERC721Component {
             self: @ComponentState<TContractState>,
             owner: ContractAddress,
             spender: ContractAddress,
-            token_id: u256
+            token_id: u256,
         ) -> bool {
             let is_approved_for_all = ERC721::is_approved_for_all(self, owner, spender);
 
@@ -813,7 +821,7 @@ pub mod ERC721Component {
             self: @ComponentState<TContractState>,
             owner: ContractAddress,
             spender: ContractAddress,
-            token_id: u256
+            token_id: u256,
         ) {
             // Non-existent token
             assert(!owner.is_zero(), Errors::INVALID_TOKEN_ID);
@@ -824,14 +832,14 @@ pub mod ERC721Component {
     /// Checks if `to` either is an account contract or has registered support
     /// for the `IERC721Receiver` interface through SRC5.
     fn _check_on_erc721_received(
-        from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>
+        from: ContractAddress, to: ContractAddress, token_id: u256, data: Span<felt252>,
     ) -> bool {
         let src5_dispatcher = ISRC5Dispatcher { contract_address: to };
 
         if src5_dispatcher.supports_interface(interface::IERC721_RECEIVER_ID) {
             IERC721ReceiverDispatcher { contract_address: to }
                 .on_erc721_received(
-                    get_caller_address(), from, token_id, data
+                    get_caller_address(), from, token_id, data,
                 ) == interface::IERC721_RECEIVER_ID
         } else {
             src5_dispatcher.supports_interface(openzeppelin_account::interface::ISRC6_ID)
@@ -841,5 +849,5 @@ pub mod ERC721Component {
 
 /// An empty implementation of the ERC721 hooks to be used in basic ERC721 preset contracts.
 pub impl ERC721HooksEmptyImpl<
-    TContractState
+    TContractState,
 > of ERC721Component::ERC721HooksTrait<TContractState> {}

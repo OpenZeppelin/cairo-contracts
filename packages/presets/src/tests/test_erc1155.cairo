@@ -2,25 +2,25 @@ use core::num::traits::Zero;
 use crate::interfaces::{ERC1155UpgradeableABIDispatcher, ERC1155UpgradeableABIDispatcherTrait};
 use openzeppelin_test_common::erc1155::ERC1155SpyHelpers;
 use openzeppelin_test_common::erc1155::{
-    setup_account, setup_receiver, deploy_another_account_at, setup_src5
+    deploy_another_account_at, setup_account, setup_receiver, setup_src5,
 };
-use openzeppelin_test_common::erc1155::{get_ids_and_values, get_ids_and_split_values};
+use openzeppelin_test_common::erc1155::{get_ids_and_split_values, get_ids_and_values};
 use openzeppelin_test_common::ownable::OwnableSpyHelpers;
 use openzeppelin_test_common::upgrades::UpgradeableSpyHelpers;
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{
-    EMPTY_DATA, ZERO, OWNER, RECIPIENT, CLASS_HASH_ZERO, OPERATOR, OTHER, TOKEN_ID, TOKEN_ID_2,
-    TOKEN_VALUE, TOKEN_VALUE_2
+    CLASS_HASH_ZERO, EMPTY_DATA, OPERATOR, OTHER, OWNER, RECIPIENT, TOKEN_ID, TOKEN_ID_2,
+    TOKEN_VALUE, TOKEN_VALUE_2, ZERO,
 };
 use openzeppelin_testing::events::EventSpyExt;
+use openzeppelin_token::erc1155;
 use openzeppelin_token::erc1155::interface::{
-    IERC1155CamelSafeDispatcher, IERC1155CamelSafeDispatcherTrait
+    IERC1155CamelSafeDispatcher, IERC1155CamelSafeDispatcherTrait,
 };
 use openzeppelin_token::erc1155::interface::{IERC1155Dispatcher, IERC1155DispatcherTrait};
-use openzeppelin_token::erc1155;
 use openzeppelin_utils::serde::SerializedAppend;
-use snforge_std::{spy_events, EventSpy, start_cheat_caller_address};
-use starknet::{ContractAddress, ClassHash};
+use snforge_std::{EventSpy, spy_events, start_cheat_caller_address};
+use starknet::{ClassHash, ContractAddress};
 
 fn V2_CLASS_HASH() -> ClassHash {
     utils::declare_class("SnakeERC1155Mock").class_hash
@@ -232,7 +232,7 @@ fn test_safe_transfer_from_approved_operator() {
     dispatcher.safe_transfer_from(owner, recipient, TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
     spy
         .assert_only_event_transfer_single(
-            contract, operator, owner, recipient, TOKEN_ID, TOKEN_VALUE
+            contract, operator, owner, recipient, TOKEN_ID, TOKEN_VALUE,
         );
 
     assert_state_after_transfer_single(dispatcher, owner, recipient, TOKEN_ID);
@@ -256,7 +256,7 @@ fn test_safeTransferFrom_approved_operator() {
     dispatcher.safeTransferFrom(owner, recipient, TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
     spy
         .assert_only_event_transfer_single(
-            contract, operator, owner, recipient, TOKEN_ID, TOKEN_VALUE
+            contract, operator, owner, recipient, TOKEN_ID, TOKEN_VALUE,
         );
 
     assert_state_after_transfer_single(dispatcher, owner, recipient, TOKEN_ID);
@@ -806,7 +806,7 @@ fn assert_state_before_transfer_single(
     dispatcher: ERC1155UpgradeableABIDispatcher,
     sender: ContractAddress,
     recipient: ContractAddress,
-    token_id: u256
+    token_id: u256,
 ) {
     assert_eq!(dispatcher.balance_of(sender, token_id), TOKEN_VALUE);
     assert!(dispatcher.balance_of(recipient, token_id).is_zero());
@@ -816,7 +816,7 @@ fn assert_state_after_transfer_single(
     dispatcher: ERC1155UpgradeableABIDispatcher,
     sender: ContractAddress,
     recipient: ContractAddress,
-    token_id: u256
+    token_id: u256,
 ) {
     assert!(dispatcher.balance_of(sender, token_id).is_zero());
     assert_eq!(dispatcher.balance_of(recipient, token_id), TOKEN_VALUE);
@@ -827,7 +827,7 @@ fn assert_state_before_transfer_batch(
     sender: ContractAddress,
     recipient: ContractAddress,
     token_ids: Span<u256>,
-    values: Span<u256>
+    values: Span<u256>,
 ) {
     let mut index = 0;
     loop {
@@ -848,7 +848,7 @@ fn assert_state_after_transfer_batch(
     sender: ContractAddress,
     recipient: ContractAddress,
     token_ids: Span<u256>,
-    values: Span<u256>
+    values: Span<u256>,
 ) {
     let mut index = 0;
     loop {

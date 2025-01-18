@@ -1,7 +1,7 @@
-use crate::ReentrancyGuardComponent::InternalImpl;
 use crate::ReentrancyGuardComponent;
+use crate::ReentrancyGuardComponent::InternalImpl;
 use openzeppelin_test_common::mocks::security::{
-    ReentrancyMock, IReentrancyMockDispatcher, IReentrancyMockDispatcherTrait
+    IReentrancyMockDispatcher, IReentrancyMockDispatcherTrait, ReentrancyMock,
 };
 use openzeppelin_testing as utils;
 use starknet::storage::StoragePointerReadAccess;

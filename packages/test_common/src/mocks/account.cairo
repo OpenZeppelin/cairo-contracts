@@ -26,7 +26,7 @@ pub mod DualCaseAccountMock {
         #[substorage(v0)]
         pub account: AccountComponent::Storage,
         #[substorage(v0)]
-        pub src5: SRC5Component::Storage
+        pub src5: SRC5Component::Storage,
     }
 
     #[event]
@@ -35,7 +35,7 @@ pub mod DualCaseAccountMock {
         #[flat]
         AccountEvent: AccountComponent::Event,
         #[flat]
-        SRC5Event: SRC5Component::Event
+        SRC5Event: SRC5Component::Event,
     }
 
     #[constructor]
@@ -68,7 +68,7 @@ pub mod SnakeAccountMock {
         #[substorage(v0)]
         pub account: AccountComponent::Storage,
         #[substorage(v0)]
-        pub src5: SRC5Component::Storage
+        pub src5: SRC5Component::Storage,
     }
 
     #[event]
@@ -77,7 +77,7 @@ pub mod SnakeAccountMock {
         #[flat]
         AccountEvent: AccountComponent::Event,
         #[flat]
-        SRC5Event: SRC5Component::Event
+        SRC5Event: SRC5Component::Event,
     }
 
     #[constructor]
@@ -112,7 +112,7 @@ pub mod DualCaseEthAccountMock {
         #[substorage(v0)]
         pub eth_account: EthAccountComponent::Storage,
         #[substorage(v0)]
-        pub src5: SRC5Component::Storage
+        pub src5: SRC5Component::Storage,
     }
 
     #[event]
@@ -121,7 +121,7 @@ pub mod DualCaseEthAccountMock {
         #[flat]
         EthAccountEvent: EthAccountComponent::Event,
         #[flat]
-        SRC5Event: SRC5Component::Event
+        SRC5Event: SRC5Component::Event,
     }
 
     #[constructor]
@@ -152,7 +152,7 @@ pub mod SnakeEthAccountMock {
         #[substorage(v0)]
         pub eth_account: EthAccountComponent::Storage,
         #[substorage(v0)]
-        pub src5: SRC5Component::Storage
+        pub src5: SRC5Component::Storage,
     }
 
     #[event]
@@ -161,7 +161,7 @@ pub mod SnakeEthAccountMock {
         #[flat]
         EthAccountEvent: EthAccountComponent::Event,
         #[flat]
-        SRC5Event: SRC5Component::Event
+        SRC5Event: SRC5Component::Event,
     }
 
     #[constructor]

@@ -22,7 +22,7 @@ pub mod TimelockControllerMock {
         #[substorage(v0)]
         pub src5: SRC5Component::Storage,
         #[substorage(v0)]
-        pub timelock: TimelockControllerComponent::Storage
+        pub timelock: TimelockControllerComponent::Storage,
     }
 
     #[event]
@@ -33,7 +33,7 @@ pub mod TimelockControllerMock {
         #[flat]
         SRC5Event: SRC5Component::Event,
         #[flat]
-        TimelockEvent: TimelockControllerComponent::Event
+        TimelockEvent: TimelockControllerComponent::Event,
     }
 
     #[constructor]
@@ -42,7 +42,7 @@ pub mod TimelockControllerMock {
         min_delay: u64,
         proposers: Span<ContractAddress>,
         executors: Span<ContractAddress>,
-        admin: ContractAddress
+        admin: ContractAddress,
     ) {
         self.timelock.initializer(min_delay, proposers, executors, admin);
     }
@@ -90,7 +90,7 @@ pub trait ITimelockAttacker<TState> {
 #[starknet::contract]
 pub mod TimelockAttackerMock {
     use openzeppelin_governance::timelock::interface::{
-        ITimelockDispatcher, ITimelockDispatcherTrait
+        ITimelockDispatcher, ITimelockDispatcherTrait,
     };
     use starknet::account::Call;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
@@ -102,7 +102,7 @@ pub mod TimelockAttackerMock {
     #[storage]
     pub struct Storage {
         pub balance: felt252,
-        pub count: felt252
+        pub count: felt252,
     }
 
     #[abi(embed_v0)]
@@ -119,7 +119,7 @@ pub mod TimelockAttackerMock {
                 self.count.write(current_count + 1);
 
                 let reentrant_call = Call {
-                    to: this, selector: selector!("reenter"), calldata: array![].span()
+                    to: this, selector: selector!("reenter"), calldata: array![].span(),
                 };
 
                 let timelock = ITimelockDispatcher { contract_address: sender };
@@ -139,7 +139,7 @@ pub mod TimelockAttackerMock {
                 self.count.write(current_count + 1);
 
                 let reentrant_call = Call {
-                    to: this, selector: selector!("reenter_batch"), calldata: array![].span()
+                    to: this, selector: selector!("reenter_batch"), calldata: array![].span(),
                 };
 
                 let calls = array![reentrant_call].span();

@@ -26,7 +26,7 @@ pub mod DualCaseERC1155Mock {
         #[substorage(v0)]
         pub erc1155: ERC1155Component::Storage,
         #[substorage(v0)]
-        pub src5: SRC5Component::Storage
+        pub src5: SRC5Component::Storage,
     }
 
     #[event]
@@ -35,7 +35,7 @@ pub mod DualCaseERC1155Mock {
         #[flat]
         ERC1155Event: ERC1155Component::Event,
         #[flat]
-        SRC5Event: SRC5Component::Event
+        SRC5Event: SRC5Component::Event,
     }
 
     #[constructor]
@@ -44,7 +44,7 @@ pub mod DualCaseERC1155Mock {
         base_uri: ByteArray,
         recipient: ContractAddress,
         token_id: u256,
-        value: u256
+        value: u256,
     ) {
         self.erc1155.initializer(base_uri);
         self.erc1155.mint_with_acceptance_check(recipient, token_id, value, array![].span());
@@ -77,7 +77,7 @@ pub mod SnakeERC1155Mock {
         #[substorage(v0)]
         pub erc1155: ERC1155Component::Storage,
         #[substorage(v0)]
-        pub src5: SRC5Component::Storage
+        pub src5: SRC5Component::Storage,
     }
 
     #[event]
@@ -86,7 +86,7 @@ pub mod SnakeERC1155Mock {
         #[flat]
         ERC1155Event: ERC1155Component::Event,
         #[flat]
-        SRC5Event: SRC5Component::Event
+        SRC5Event: SRC5Component::Event,
     }
 
     #[constructor]
@@ -95,7 +95,7 @@ pub mod SnakeERC1155Mock {
         base_uri: ByteArray,
         recipient: ContractAddress,
         token_id: u256,
-        value: u256
+        value: u256,
     ) {
         self.erc1155.initializer(base_uri);
         self.erc1155.mint_with_acceptance_check(recipient, token_id, value, array![].span());
@@ -130,7 +130,7 @@ pub mod SnakeERC1155MockWithHooks {
         #[substorage(v0)]
         pub erc1155: ERC1155Component::Storage,
         #[substorage(v0)]
-        pub src5: SRC5Component::Storage
+        pub src5: SRC5Component::Storage,
     }
 
     #[event]
@@ -141,7 +141,7 @@ pub mod SnakeERC1155MockWithHooks {
         #[flat]
         SRC5Event: SRC5Component::Event,
         BeforeUpdate: BeforeUpdate,
-        AfterUpdate: AfterUpdate
+        AfterUpdate: AfterUpdate,
     }
 
     /// Event used to test that `before_update` hook is called.
@@ -150,7 +150,7 @@ pub mod SnakeERC1155MockWithHooks {
         pub from: ContractAddress,
         pub to: ContractAddress,
         pub token_ids: Span<u256>,
-        pub values: Span<u256>
+        pub values: Span<u256>,
     }
 
     /// Event used to test that `after_update` hook is called.
@@ -159,7 +159,7 @@ pub mod SnakeERC1155MockWithHooks {
         pub from: ContractAddress,
         pub to: ContractAddress,
         pub token_ids: Span<u256>,
-        pub values: Span<u256>
+        pub values: Span<u256>,
     }
 
     #[constructor]
@@ -168,7 +168,7 @@ pub mod SnakeERC1155MockWithHooks {
         base_uri: ByteArray,
         recipient: ContractAddress,
         token_id: u256,
-        value: u256
+        value: u256,
     ) {
         self.erc1155.initializer(base_uri);
         self.erc1155.mint_with_acceptance_check(recipient, token_id, value, array![].span());
@@ -180,7 +180,7 @@ pub mod SnakeERC1155MockWithHooks {
             from: ContractAddress,
             to: ContractAddress,
             token_ids: Span<u256>,
-            values: Span<u256>
+            values: Span<u256>,
         ) {
             let mut contract_state = self.get_contract_mut();
             contract_state.emit(BeforeUpdate { from, to, token_ids, values });
@@ -191,7 +191,7 @@ pub mod SnakeERC1155MockWithHooks {
             from: ContractAddress,
             to: ContractAddress,
             token_ids: Span<u256>,
-            values: Span<u256>
+            values: Span<u256>,
         ) {
             let mut contract_state = self.get_contract_mut();
             contract_state.emit(AfterUpdate { from, to, token_ids, values });
@@ -206,7 +206,7 @@ pub mod DualCaseERC1155ReceiverMock {
 
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
     component!(
-        path: ERC1155ReceiverComponent, storage: erc1155_receiver, event: ERC1155ReceiverEvent
+        path: ERC1155ReceiverComponent, storage: erc1155_receiver, event: ERC1155ReceiverEvent,
     );
 
     // ERC1155Receiver Mixin
@@ -220,7 +220,7 @@ pub mod DualCaseERC1155ReceiverMock {
         #[substorage(v0)]
         pub erc1155_receiver: ERC1155ReceiverComponent::Storage,
         #[substorage(v0)]
-        pub src5: SRC5Component::Storage
+        pub src5: SRC5Component::Storage,
     }
 
     #[event]
@@ -229,7 +229,7 @@ pub mod DualCaseERC1155ReceiverMock {
         #[flat]
         ERC1155ReceiverEvent: ERC1155ReceiverComponent::Event,
         #[flat]
-        SRC5Event: SRC5Component::Event
+        SRC5Event: SRC5Component::Event,
     }
 
     #[constructor]

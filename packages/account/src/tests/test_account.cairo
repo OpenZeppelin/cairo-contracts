@@ -1,8 +1,8 @@
 use core::num::traits::Zero;
+use crate::AccountComponent;
 use crate::AccountComponent::{InternalTrait, SRC6CamelOnlyImpl};
 use crate::AccountComponent::{PublicKeyCamelImpl, PublicKeyImpl};
-use crate::AccountComponent;
-use crate::interface::{AccountABIDispatcherTrait, AccountABIDispatcher};
+use crate::interface::{AccountABIDispatcher, AccountABIDispatcherTrait};
 use crate::interface::{ISRC6, ISRC6_ID};
 use openzeppelin_introspection::interface::{ISRC5, ISRC5_ID};
 use openzeppelin_test_common::account::{AccountSpyHelpers, SignedTransactionData};
@@ -11,11 +11,11 @@ use openzeppelin_test_common::mocks::account::DualCaseAccountMock;
 use openzeppelin_test_common::mocks::simple::{ISimpleMockDispatcher, ISimpleMockDispatcherTrait};
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::stark::{KEY_PAIR, KEY_PAIR_2};
-use openzeppelin_testing::constants::{SALT, QUERY_OFFSET, QUERY_VERSION, MIN_TRANSACTION_VERSION};
-use openzeppelin_testing::constants::{ZERO, OTHER, CALLER};
+use openzeppelin_testing::constants::{CALLER, OTHER, ZERO};
+use openzeppelin_testing::constants::{MIN_TRANSACTION_VERSION, QUERY_OFFSET, QUERY_VERSION, SALT};
 use openzeppelin_testing::signing::StarkKeyPair;
 use snforge_std::{spy_events, start_cheat_signature_global, start_cheat_transaction_hash_global};
-use snforge_std::{test_address, start_cheat_caller_address, start_cheat_transaction_version_global};
+use snforge_std::{start_cheat_caller_address, start_cheat_transaction_version_global, test_address};
 use starknet::account::Call;
 
 //
@@ -39,7 +39,7 @@ fn setup(key_pair: StarkKeyPair) -> ComponentState {
 }
 
 fn setup_dispatcher(
-    key_pair: StarkKeyPair, data: SignedTransactionData
+    key_pair: StarkKeyPair, data: SignedTransactionData,
 ) -> (AccountABIDispatcher, felt252) {
     let contract_class = utils::declare_class("DualCaseAccountMock");
 
@@ -200,7 +200,7 @@ fn test_execute_with_version(version: Option<felt252>) {
     let amount = 200;
     let calldata = array![amount];
     let call = Call {
-        to: contract_address, selector: selector!("increase_balance"), calldata: calldata.span()
+        to: contract_address, selector: selector!("increase_balance"), calldata: calldata.span(),
     };
     let calls = array![call];
 
@@ -289,14 +289,14 @@ fn test_multicall() {
     let amount1 = 300;
     let calldata1 = array![amount1];
     let call1 = Call {
-        to: contract_address, selector: selector!("increase_balance"), calldata: calldata1.span()
+        to: contract_address, selector: selector!("increase_balance"), calldata: calldata1.span(),
     };
 
     // Craft 2nd call
     let amount2 = 500;
     let calldata2 = array![amount2];
     let call2 = Call {
-        to: contract_address, selector: selector!("increase_balance"), calldata: calldata2.span()
+        to: contract_address, selector: selector!("increase_balance"), calldata: calldata2.span(),
     };
 
     // Bundle calls and execute
@@ -358,7 +358,7 @@ fn test_public_key_setter_and_getter() {
     // Set key
     let mut spy = spy_events();
     let signature = get_accept_ownership_signature(
-        account_address, key_pair.public_key, new_key_pair
+        account_address, key_pair.public_key, new_key_pair,
     );
     state.set_public_key(new_key_pair.public_key, signature);
 
@@ -397,7 +397,7 @@ fn test_public_key_setter_and_getter_camel() {
     // Set key
     let mut spy = spy_events();
     let signature = get_accept_ownership_signature(
-        account_address, key_pair.public_key, new_key_pair
+        account_address, key_pair.public_key, new_key_pair,
     );
     state.setPublicKey(new_key_pair.public_key, signature);
 
@@ -469,7 +469,7 @@ fn test_assert_valid_new_owner() {
 
     let new_key_pair = KEY_PAIR_2();
     let signature = get_accept_ownership_signature(
-        account_address, key_pair.public_key, new_key_pair
+        account_address, key_pair.public_key, new_key_pair,
     );
 
     state.assert_valid_new_owner(key_pair.public_key, new_key_pair.public_key, signature);

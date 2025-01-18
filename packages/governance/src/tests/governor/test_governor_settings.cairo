@@ -1,13 +1,13 @@
 use crate::governor::DefaultConfig;
 use crate::governor::GovernorComponent::InternalImpl;
+use crate::governor::extensions::GovernorSettingsComponent;
 use crate::governor::extensions::GovernorSettingsComponent::InternalImpl as GovernorSettingsInternalImpl;
 use crate::governor::extensions::GovernorSettingsComponent::{
-    GovernorSettings, GovernorSettingsAdminImpl
+    GovernorSettings, GovernorSettingsAdminImpl,
 };
-use crate::governor::extensions::GovernorSettingsComponent;
 use crate::tests::governor::common::set_executor;
 use crate::tests::governor::common::{
-    COMPONENT_STATE_TIMELOCKED as COMPONENT_STATE, CONTRACT_STATE_TIMELOCKED as CONTRACT_STATE
+    COMPONENT_STATE_TIMELOCKED as COMPONENT_STATE, CONTRACT_STATE_TIMELOCKED as CONTRACT_STATE,
 };
 use openzeppelin_test_common::mocks::governor::GovernorTimelockedMock::SNIP12MetadataImpl;
 use openzeppelin_testing::constants::OTHER;
@@ -395,16 +395,16 @@ fn test__set_proposal_threshold_no_change() {
 #[generate_trait]
 pub(crate) impl GovernorSettingsSpyHelpersImpl of GovernorSettingsSpyHelpers {
     fn assert_event_voting_delay_updated(
-        ref self: EventSpy, contract: ContractAddress, old_voting_delay: u64, new_voting_delay: u64
+        ref self: EventSpy, contract: ContractAddress, old_voting_delay: u64, new_voting_delay: u64,
     ) {
         let expected = GovernorSettingsComponent::Event::VotingDelayUpdated(
-            GovernorSettingsComponent::VotingDelayUpdated { old_voting_delay, new_voting_delay }
+            GovernorSettingsComponent::VotingDelayUpdated { old_voting_delay, new_voting_delay },
         );
         self.assert_emitted_single(contract, expected);
     }
 
     fn assert_only_event_voting_delay_updated(
-        ref self: EventSpy, contract: ContractAddress, old_voting_delay: u64, new_voting_delay: u64
+        ref self: EventSpy, contract: ContractAddress, old_voting_delay: u64, new_voting_delay: u64,
     ) {
         self.assert_event_voting_delay_updated(contract, old_voting_delay, new_voting_delay);
         self.assert_no_events_left_from(contract);
@@ -414,10 +414,10 @@ pub(crate) impl GovernorSettingsSpyHelpersImpl of GovernorSettingsSpyHelpers {
         ref self: EventSpy,
         contract: ContractAddress,
         old_voting_period: u64,
-        new_voting_period: u64
+        new_voting_period: u64,
     ) {
         let expected = GovernorSettingsComponent::Event::VotingPeriodUpdated(
-            GovernorSettingsComponent::VotingPeriodUpdated { old_voting_period, new_voting_period }
+            GovernorSettingsComponent::VotingPeriodUpdated { old_voting_period, new_voting_period },
         );
         self.assert_emitted_single(contract, expected);
     }
@@ -426,7 +426,7 @@ pub(crate) impl GovernorSettingsSpyHelpersImpl of GovernorSettingsSpyHelpers {
         ref self: EventSpy,
         contract: ContractAddress,
         old_voting_period: u64,
-        new_voting_period: u64
+        new_voting_period: u64,
     ) {
         self.assert_event_voting_period_updated(contract, old_voting_period, new_voting_period);
         self.assert_no_events_left_from(contract);
@@ -436,12 +436,12 @@ pub(crate) impl GovernorSettingsSpyHelpersImpl of GovernorSettingsSpyHelpers {
         ref self: EventSpy,
         contract: ContractAddress,
         old_proposal_threshold: u256,
-        new_proposal_threshold: u256
+        new_proposal_threshold: u256,
     ) {
         let expected = GovernorSettingsComponent::Event::ProposalThresholdUpdated(
             GovernorSettingsComponent::ProposalThresholdUpdated {
-                old_proposal_threshold, new_proposal_threshold
-            }
+                old_proposal_threshold, new_proposal_threshold,
+            },
         );
         self.assert_emitted_single(contract, expected);
     }
@@ -450,11 +450,11 @@ pub(crate) impl GovernorSettingsSpyHelpersImpl of GovernorSettingsSpyHelpers {
         ref self: EventSpy,
         contract: ContractAddress,
         old_proposal_threshold: u256,
-        new_proposal_threshold: u256
+        new_proposal_threshold: u256,
     ) {
         self
             .assert_event_proposal_threshold_updated(
-                contract, old_proposal_threshold, new_proposal_threshold
+                contract, old_proposal_threshold, new_proposal_threshold,
             );
         self.assert_no_events_left_from(contract);
     }

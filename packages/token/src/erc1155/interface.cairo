@@ -13,7 +13,7 @@ pub const IERC1155_RECEIVER_ID: felt252 =
 pub trait IERC1155<TState> {
     fn balance_of(self: @TState, account: ContractAddress, token_id: u256) -> u256;
     fn balance_of_batch(
-        self: @TState, accounts: Span<ContractAddress>, token_ids: Span<u256>
+        self: @TState, accounts: Span<ContractAddress>, token_ids: Span<u256>,
     ) -> Span<u256>;
     fn safe_transfer_from(
         ref self: TState,
@@ -21,7 +21,7 @@ pub trait IERC1155<TState> {
         to: ContractAddress,
         token_id: u256,
         value: u256,
-        data: Span<felt252>
+        data: Span<felt252>,
     );
     fn safe_batch_transfer_from(
         ref self: TState,
@@ -29,10 +29,10 @@ pub trait IERC1155<TState> {
         to: ContractAddress,
         token_ids: Span<u256>,
         values: Span<u256>,
-        data: Span<felt252>
+        data: Span<felt252>,
     );
     fn is_approved_for_all(
-        self: @TState, owner: ContractAddress, operator: ContractAddress
+        self: @TState, owner: ContractAddress, operator: ContractAddress,
     ) -> bool;
     fn set_approval_for_all(ref self: TState, operator: ContractAddress, approved: bool);
 }
@@ -46,7 +46,7 @@ pub trait IERC1155MetadataURI<TState> {
 pub trait IERC1155Camel<TState> {
     fn balanceOf(self: @TState, account: ContractAddress, tokenId: u256) -> u256;
     fn balanceOfBatch(
-        self: @TState, accounts: Span<ContractAddress>, tokenIds: Span<u256>
+        self: @TState, accounts: Span<ContractAddress>, tokenIds: Span<u256>,
     ) -> Span<u256>;
     fn safeTransferFrom(
         ref self: TState,
@@ -54,7 +54,7 @@ pub trait IERC1155Camel<TState> {
         to: ContractAddress,
         tokenId: u256,
         value: u256,
-        data: Span<felt252>
+        data: Span<felt252>,
     );
     fn safeBatchTransferFrom(
         ref self: TState,
@@ -62,7 +62,7 @@ pub trait IERC1155Camel<TState> {
         to: ContractAddress,
         tokenIds: Span<u256>,
         values: Span<u256>,
-        data: Span<felt252>
+        data: Span<felt252>,
     );
     fn isApprovedForAll(self: @TState, owner: ContractAddress, operator: ContractAddress) -> bool;
     fn setApprovalForAll(ref self: TState, operator: ContractAddress, approved: bool);
@@ -77,7 +77,7 @@ pub trait ERC1155ABI<TState> {
     // IERC1155
     fn balance_of(self: @TState, account: ContractAddress, token_id: u256) -> u256;
     fn balance_of_batch(
-        self: @TState, accounts: Span<ContractAddress>, token_ids: Span<u256>
+        self: @TState, accounts: Span<ContractAddress>, token_ids: Span<u256>,
     ) -> Span<u256>;
     fn safe_transfer_from(
         ref self: TState,
@@ -85,7 +85,7 @@ pub trait ERC1155ABI<TState> {
         to: ContractAddress,
         token_id: u256,
         value: u256,
-        data: Span<felt252>
+        data: Span<felt252>,
     );
     fn safe_batch_transfer_from(
         ref self: TState,
@@ -93,10 +93,10 @@ pub trait ERC1155ABI<TState> {
         to: ContractAddress,
         token_ids: Span<u256>,
         values: Span<u256>,
-        data: Span<felt252>
+        data: Span<felt252>,
     );
     fn is_approved_for_all(
-        self: @TState, owner: ContractAddress, operator: ContractAddress
+        self: @TState, owner: ContractAddress, operator: ContractAddress,
     ) -> bool;
     fn set_approval_for_all(ref self: TState, operator: ContractAddress, approved: bool);
 
@@ -109,7 +109,7 @@ pub trait ERC1155ABI<TState> {
     // IERC1155Camel
     fn balanceOf(self: @TState, account: ContractAddress, tokenId: u256) -> u256;
     fn balanceOfBatch(
-        self: @TState, accounts: Span<ContractAddress>, tokenIds: Span<u256>
+        self: @TState, accounts: Span<ContractAddress>, tokenIds: Span<u256>,
     ) -> Span<u256>;
     fn safeTransferFrom(
         ref self: TState,
@@ -117,7 +117,7 @@ pub trait ERC1155ABI<TState> {
         to: ContractAddress,
         tokenId: u256,
         value: u256,
-        data: Span<felt252>
+        data: Span<felt252>,
     );
     fn safeBatchTransferFrom(
         ref self: TState,
@@ -125,7 +125,7 @@ pub trait ERC1155ABI<TState> {
         to: ContractAddress,
         tokenIds: Span<u256>,
         values: Span<u256>,
-        data: Span<felt252>
+        data: Span<felt252>,
     );
     fn isApprovedForAll(self: @TState, owner: ContractAddress, operator: ContractAddress) -> bool;
     fn setApprovalForAll(ref self: TState, operator: ContractAddress, approved: bool);
@@ -143,7 +143,7 @@ pub trait IERC1155Receiver<TState> {
         from: ContractAddress,
         token_id: u256,
         value: u256,
-        data: Span<felt252>
+        data: Span<felt252>,
     ) -> felt252;
     fn on_erc1155_batch_received(
         self: @TState,
@@ -151,7 +151,7 @@ pub trait IERC1155Receiver<TState> {
         from: ContractAddress,
         token_ids: Span<u256>,
         values: Span<u256>,
-        data: Span<felt252>
+        data: Span<felt252>,
     ) -> felt252;
 }
 
@@ -163,7 +163,7 @@ pub trait IERC1155ReceiverCamel<TState> {
         from: ContractAddress,
         tokenId: u256,
         value: u256,
-        data: Span<felt252>
+        data: Span<felt252>,
     ) -> felt252;
     fn onERC1155BatchReceived(
         self: @TState,
@@ -171,7 +171,7 @@ pub trait IERC1155ReceiverCamel<TState> {
         from: ContractAddress,
         tokenIds: Span<u256>,
         values: Span<u256>,
-        data: Span<felt252>
+        data: Span<felt252>,
     ) -> felt252;
 }
 
@@ -184,7 +184,7 @@ pub trait ERC1155ReceiverABI<TState> {
         from: ContractAddress,
         token_id: u256,
         value: u256,
-        data: Span<felt252>
+        data: Span<felt252>,
     ) -> felt252;
     fn on_erc1155_batch_received(
         self: @TState,
@@ -192,7 +192,7 @@ pub trait ERC1155ReceiverABI<TState> {
         from: ContractAddress,
         token_ids: Span<u256>,
         values: Span<u256>,
-        data: Span<felt252>
+        data: Span<felt252>,
     ) -> felt252;
 
     // IERC1155ReceiverCamel
@@ -202,7 +202,7 @@ pub trait ERC1155ReceiverABI<TState> {
         from: ContractAddress,
         tokenId: u256,
         value: u256,
-        data: Span<felt252>
+        data: Span<felt252>,
     ) -> felt252;
     fn onERC1155BatchReceived(
         self: @TState,
@@ -210,7 +210,7 @@ pub trait ERC1155ReceiverABI<TState> {
         from: ContractAddress,
         tokenIds: Span<u256>,
         values: Span<u256>,
-        data: Span<felt252>
+        data: Span<felt252>,
     ) -> felt252;
 
     // ISRC5

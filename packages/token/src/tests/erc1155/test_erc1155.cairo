@@ -1,23 +1,23 @@
 use core::num::traits::Zero;
+use crate::erc1155;
+use crate::erc1155::ERC1155Component;
 use crate::erc1155::ERC1155Component::ERC1155CamelImpl;
 use crate::erc1155::ERC1155Component::{ERC1155Impl, ERC1155MetadataURIImpl, InternalImpl};
-use crate::erc1155::ERC1155Component;
-use crate::erc1155;
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin_test_common::erc1155::{
-    ERC1155SpyHelpers, get_ids_and_values, get_ids_and_split_values
+    ERC1155SpyHelpers, get_ids_and_split_values, get_ids_and_values,
 };
 use openzeppelin_test_common::erc1155::{
-    setup_account, deploy_another_account_at, setup_src5, setup_receiver
+    deploy_another_account_at, setup_account, setup_receiver, setup_src5,
 };
 use openzeppelin_test_common::mocks::erc1155::{DualCaseERC1155Mock, SnakeERC1155MockWithHooks};
 use openzeppelin_testing::constants::{
-    EMPTY_DATA, ZERO, OWNER, RECIPIENT, OPERATOR, OTHER, TOKEN_ID, TOKEN_ID_2, TOKEN_VALUE,
-    TOKEN_VALUE_2
+    EMPTY_DATA, OPERATOR, OTHER, OWNER, RECIPIENT, TOKEN_ID, TOKEN_ID_2, TOKEN_VALUE, TOKEN_VALUE_2,
+    ZERO,
 };
 use openzeppelin_testing::events::EventSpyExt;
 
-use snforge_std::{EventSpy, spy_events, test_address, start_cheat_caller_address};
+use snforge_std::{EventSpy, spy_events, start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
 use starknet::storage::StoragePointerReadAccess;
 
@@ -195,7 +195,7 @@ fn test_safe_transfer_from_owner_to_receiver() {
     state.safe_transfer_from(owner, recipient, TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
     spy
         .assert_only_event_transfer_single(
-            contract_address, owner, owner, recipient, TOKEN_ID, TOKEN_VALUE
+            contract_address, owner, owner, recipient, TOKEN_ID, TOKEN_VALUE,
         );
 
     assert_state_after_transfer_single(owner, recipient, TOKEN_ID);
@@ -214,7 +214,7 @@ fn test_safeTransferFrom_owner_to_receiver() {
     state.safeTransferFrom(owner, recipient, TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
     spy
         .assert_only_event_transfer_single(
-            contract_address, owner, owner, recipient, TOKEN_ID, TOKEN_VALUE
+            contract_address, owner, owner, recipient, TOKEN_ID, TOKEN_VALUE,
         );
 
     assert_state_after_transfer_single(owner, recipient, TOKEN_ID);
@@ -234,7 +234,7 @@ fn test_safe_transfer_from_owner_to_account() {
     state.safe_transfer_from(owner, recipient, TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
     spy
         .assert_only_event_transfer_single(
-            contract_address, owner, owner, recipient, TOKEN_ID, TOKEN_VALUE
+            contract_address, owner, owner, recipient, TOKEN_ID, TOKEN_VALUE,
         );
 
     assert_state_after_transfer_single(owner, recipient, TOKEN_ID);
@@ -254,7 +254,7 @@ fn test_safeTransferFrom_owner_to_account() {
     state.safeTransferFrom(owner, recipient, TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
     spy
         .assert_only_event_transfer_single(
-            contract_address, owner, owner, recipient, TOKEN_ID, TOKEN_VALUE
+            contract_address, owner, owner, recipient, TOKEN_ID, TOKEN_VALUE,
         );
 
     assert_state_after_transfer_single(owner, recipient, TOKEN_ID);
@@ -279,7 +279,7 @@ fn test_safe_transfer_from_approved_operator() {
     state.safe_transfer_from(owner, recipient, TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
     spy
         .assert_only_event_transfer_single(
-            contract_address, operator, owner, recipient, TOKEN_ID, TOKEN_VALUE
+            contract_address, operator, owner, recipient, TOKEN_ID, TOKEN_VALUE,
         );
 
     assert_state_after_transfer_single(owner, recipient, TOKEN_ID);
@@ -304,7 +304,7 @@ fn test_safeTransferFrom_approved_operator() {
     state.safeTransferFrom(owner, recipient, TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
     spy
         .assert_only_event_transfer_single(
-            contract_address, operator, owner, recipient, TOKEN_ID, TOKEN_VALUE
+            contract_address, operator, owner, recipient, TOKEN_ID, TOKEN_VALUE,
         );
 
     assert_state_after_transfer_single(owner, recipient, TOKEN_ID);
@@ -420,7 +420,7 @@ fn test_safe_batch_transfer_from_owner_to_receiver() {
     state.safe_batch_transfer_from(owner, recipient, token_ids, values, EMPTY_DATA());
     spy
         .assert_only_event_transfer_batch(
-            contract_address, owner, owner, recipient, token_ids, values
+            contract_address, owner, owner, recipient, token_ids, values,
         );
 
     assert_state_after_transfer_batch(owner, recipient, token_ids, values);
@@ -440,7 +440,7 @@ fn test_safeBatchTransferFrom_owner_to_receiver() {
     state.safeBatchTransferFrom(owner, recipient, token_ids, values, EMPTY_DATA());
     spy
         .assert_only_event_transfer_batch(
-            contract_address, owner, owner, recipient, token_ids, values
+            contract_address, owner, owner, recipient, token_ids, values,
         );
 
     assert_state_after_transfer_batch(owner, recipient, token_ids, values);
@@ -461,7 +461,7 @@ fn test_safe_batch_transfer_from_owner_to_account() {
     state.safe_batch_transfer_from(owner, recipient, token_ids, values, EMPTY_DATA());
     spy
         .assert_only_event_transfer_batch(
-            contract_address, owner, owner, recipient, token_ids, values
+            contract_address, owner, owner, recipient, token_ids, values,
         );
 
     assert_state_after_transfer_batch(owner, recipient, token_ids, values);
@@ -482,7 +482,7 @@ fn test_safeBatchTransferFrom_owner_to_account() {
     state.safeBatchTransferFrom(owner, recipient, token_ids, values, EMPTY_DATA());
     spy
         .assert_only_event_transfer_batch(
-            contract_address, owner, owner, recipient, token_ids, values
+            contract_address, owner, owner, recipient, token_ids, values,
         );
 
     assert_state_after_transfer_batch(owner, recipient, token_ids, values);
@@ -509,7 +509,7 @@ fn test_safe_batch_transfer_from_approved_operator() {
     state.safe_batch_transfer_from(owner, recipient, token_ids, values, EMPTY_DATA());
     spy
         .assert_only_event_transfer_batch(
-            contract_address, operator, owner, recipient, token_ids, values
+            contract_address, operator, owner, recipient, token_ids, values,
         );
 
     assert_state_after_transfer_batch(owner, recipient, token_ids, values);
@@ -535,7 +535,7 @@ fn test_safeBatchTransferFrom_approved_operator() {
     state.safeBatchTransferFrom(owner, recipient, token_ids, values, EMPTY_DATA());
     spy
         .assert_only_event_transfer_batch(
-            contract_address, operator, owner, recipient, token_ids, values
+            contract_address, operator, owner, recipient, token_ids, values,
         );
 
     assert_state_after_transfer_batch(owner, recipient, token_ids, values);
@@ -754,7 +754,7 @@ fn test_update_single_from_non_zero_to_non_zero() {
     state.update(owner, recipient, token_ids, values);
     spy
         .assert_only_event_transfer_single(
-            contract_address, owner, owner, recipient, TOKEN_ID, TOKEN_VALUE
+            contract_address, owner, owner, recipient, TOKEN_ID, TOKEN_VALUE,
         );
 
     assert_state_after_transfer_single(owner, recipient, TOKEN_ID);
@@ -774,7 +774,7 @@ fn test_update_batch_from_non_zero_to_non_zero() {
     state.update(owner, recipient, token_ids, values);
     spy
         .assert_only_event_transfer_batch(
-            contract_address, owner, owner, recipient, token_ids, values
+            contract_address, owner, owner, recipient, token_ids, values,
         );
 
     assert_state_after_transfer_batch(owner, recipient, token_ids, values);
@@ -794,7 +794,7 @@ fn test_update_from_non_zero_to_zero() {
     state.update(owner, recipient, token_ids, values);
     spy
         .assert_only_event_transfer_batch(
-            contract_address, owner, owner, recipient, token_ids, values
+            contract_address, owner, owner, recipient, token_ids, values,
         );
 
     assert_state_after_transfer_to_zero_batch(owner, recipient, token_ids);
@@ -815,7 +815,7 @@ fn test_update_from_zero_to_non_zero() {
     state.update(sender, recipient, token_ids, values);
     spy
         .assert_only_event_transfer_batch(
-            contract_address, owner, sender, recipient, token_ids, values
+            contract_address, owner, sender, recipient, token_ids, values,
         );
 
     assert_state_after_transfer_from_zero_batch(sender, recipient, token_ids, values);
@@ -902,7 +902,7 @@ fn test_update_wac_single_from_non_zero_to_non_zero() {
     state.update_with_acceptance_check(owner, recipient, token_ids, values, EMPTY_DATA());
     spy
         .assert_only_event_transfer_single(
-            contract_address, owner, owner, recipient, TOKEN_ID, TOKEN_VALUE
+            contract_address, owner, owner, recipient, TOKEN_ID, TOKEN_VALUE,
         );
 
     assert_state_after_transfer_single(owner, recipient, TOKEN_ID);
@@ -924,7 +924,7 @@ fn test_update_wac_single_from_non_zero_to_non_zero_account() {
     state.update_with_acceptance_check(owner, recipient, token_ids, values, EMPTY_DATA());
     spy
         .assert_only_event_transfer_single(
-            contract_address, owner, owner, recipient, TOKEN_ID, TOKEN_VALUE
+            contract_address, owner, owner, recipient, TOKEN_ID, TOKEN_VALUE,
         );
 
     assert_state_after_transfer_single(owner, recipient, TOKEN_ID);
@@ -944,7 +944,7 @@ fn test_update_wac_batch_from_non_zero_to_non_zero() {
     state.update_with_acceptance_check(owner, recipient, token_ids, values, EMPTY_DATA());
     spy
         .assert_only_event_transfer_batch(
-            contract_address, owner, owner, recipient, token_ids, values
+            contract_address, owner, owner, recipient, token_ids, values,
         );
 
     assert_state_after_transfer_batch(owner, recipient, token_ids, values);
@@ -965,7 +965,7 @@ fn test_update_wac_batch_from_non_zero_to_non_zero_account() {
     state.update_with_acceptance_check(owner, recipient, token_ids, values, EMPTY_DATA());
     spy
         .assert_only_event_transfer_batch(
-            contract_address, owner, owner, recipient, token_ids, values
+            contract_address, owner, owner, recipient, token_ids, values,
         );
 
     assert_state_after_transfer_batch(owner, recipient, token_ids, values);
@@ -997,7 +997,7 @@ fn test_update_wac_from_zero_to_non_zero() {
     state.update_with_acceptance_check(sender, recipient, token_ids, values, EMPTY_DATA());
     spy
         .assert_only_event_transfer_batch(
-            contract_address, owner, sender, recipient, token_ids, values
+            contract_address, owner, sender, recipient, token_ids, values,
         );
 
     assert_state_after_transfer_from_zero_batch(sender, recipient, token_ids, values);
@@ -1019,7 +1019,7 @@ fn test_update_wac_from_zero_to_non_zero_account() {
     state.update_with_acceptance_check(sender, recipient, token_ids, values, EMPTY_DATA());
     spy
         .assert_only_event_transfer_batch(
-            contract_address, owner, sender, recipient, token_ids, values
+            contract_address, owner, sender, recipient, token_ids, values,
         );
 
     assert_state_after_transfer_from_zero_batch(sender, recipient, token_ids, values);
@@ -1100,7 +1100,7 @@ fn test_mint_wac_to_receiver() {
     state.mint_with_acceptance_check(recipient, TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
     spy
         .assert_only_event_transfer_single(
-            contract_address, OTHER(), ZERO(), recipient, TOKEN_ID, TOKEN_VALUE
+            contract_address, OTHER(), ZERO(), recipient, TOKEN_ID, TOKEN_VALUE,
         );
 
     let balance_of_recipient = state.balance_of(recipient, TOKEN_ID);
@@ -1122,7 +1122,7 @@ fn test_mint_wac_to_account() {
     state.mint_with_acceptance_check(recipient, TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
     spy
         .assert_only_event_transfer_single(
-            contract_address, OTHER(), ZERO(), recipient, TOKEN_ID, TOKEN_VALUE
+            contract_address, OTHER(), ZERO(), recipient, TOKEN_ID, TOKEN_VALUE,
         );
 
     let balance_of_recipient = state.balance_of(recipient, TOKEN_ID);
@@ -1169,7 +1169,7 @@ fn test_batch_mint_wac_to_receiver() {
     state.batch_mint_with_acceptance_check(recipient, token_ids, values, EMPTY_DATA());
     spy
         .assert_only_event_transfer_batch(
-            contract_address, OTHER(), ZERO(), recipient, token_ids, values
+            contract_address, OTHER(), ZERO(), recipient, token_ids, values,
         );
 
     let balance_of_recipient_token_1_after = state.balance_of(recipient, TOKEN_ID);
@@ -1196,7 +1196,7 @@ fn test_batch_mint_wac_to_account() {
     state.batch_mint_with_acceptance_check(recipient, token_ids, values, EMPTY_DATA());
     spy
         .assert_only_event_transfer_batch(
-            contract_address, OTHER(), ZERO(), recipient, token_ids, values
+            contract_address, OTHER(), ZERO(), recipient, token_ids, values,
         );
 
     let balance_of_recipient_token_1_after = state.balance_of(recipient, TOKEN_ID);
@@ -1243,7 +1243,7 @@ fn test_burn() {
     state.burn(owner, TOKEN_ID, TOKEN_VALUE);
     spy
         .assert_only_event_transfer_single(
-            contract_address, owner, owner, ZERO(), TOKEN_ID, TOKEN_VALUE
+            contract_address, owner, owner, ZERO(), TOKEN_ID, TOKEN_VALUE,
         );
 
     let balance_of_owner = state.balance_of(owner, TOKEN_ID);
@@ -1294,7 +1294,7 @@ fn test_batch_burn_from_zero() {
 //
 
 fn assert_state_before_transfer_single(
-    sender: ContractAddress, recipient: ContractAddress, token_id: u256
+    sender: ContractAddress, recipient: ContractAddress, token_id: u256,
 ) {
     let state = COMPONENT_STATE();
     assert_eq!(state.balance_of(sender, token_id), TOKEN_VALUE);
@@ -1302,7 +1302,7 @@ fn assert_state_before_transfer_single(
 }
 
 fn assert_state_after_transfer_single(
-    sender: ContractAddress, recipient: ContractAddress, token_id: u256
+    sender: ContractAddress, recipient: ContractAddress, token_id: u256,
 ) {
     let state = COMPONENT_STATE();
     assert!(state.balance_of(sender, token_id).is_zero());
@@ -1310,7 +1310,7 @@ fn assert_state_after_transfer_single(
 }
 
 fn assert_state_before_transfer_batch(
-    sender: ContractAddress, recipient: ContractAddress, token_ids: Span<u256>, values: Span<u256>
+    sender: ContractAddress, recipient: ContractAddress, token_ids: Span<u256>, values: Span<u256>,
 ) {
     let state = COMPONENT_STATE();
     let mut index = 0;
@@ -1328,7 +1328,7 @@ fn assert_state_before_transfer_batch(
 }
 
 fn assert_state_before_transfer_from_zero_batch(
-    sender: ContractAddress, recipient: ContractAddress, token_ids: Span<u256>
+    sender: ContractAddress, recipient: ContractAddress, token_ids: Span<u256>,
 ) {
     let state = COMPONENT_STATE();
     let mut index = 0;
@@ -1346,7 +1346,7 @@ fn assert_state_before_transfer_from_zero_batch(
 }
 
 fn assert_state_after_transfer_batch(
-    sender: ContractAddress, recipient: ContractAddress, token_ids: Span<u256>, values: Span<u256>
+    sender: ContractAddress, recipient: ContractAddress, token_ids: Span<u256>, values: Span<u256>,
 ) {
     let state = COMPONENT_STATE();
     let mut index = 0;
@@ -1364,7 +1364,7 @@ fn assert_state_after_transfer_batch(
 }
 
 fn assert_state_after_transfer_to_zero_batch(
-    sender: ContractAddress, recipient: ContractAddress, token_ids: Span<u256>
+    sender: ContractAddress, recipient: ContractAddress, token_ids: Span<u256>,
 ) {
     let state = COMPONENT_STATE();
     let mut index = 0;
@@ -1382,7 +1382,7 @@ fn assert_state_after_transfer_to_zero_batch(
 }
 
 fn assert_state_after_transfer_from_zero_batch(
-    sender: ContractAddress, recipient: ContractAddress, token_ids: Span<u256>, values: Span<u256>
+    sender: ContractAddress, recipient: ContractAddress, token_ids: Span<u256>, values: Span<u256>,
 ) {
     let state = COMPONENT_STATE();
     let mut index = 0;
@@ -1407,10 +1407,10 @@ impl ERC1155HooksSpyHelpersImpl of ERC1155HooksSpyHelpers {
         from: ContractAddress,
         to: ContractAddress,
         token_ids: Span<u256>,
-        values: Span<u256>
+        values: Span<u256>,
     ) {
         let expected = SnakeERC1155MockWithHooks::Event::BeforeUpdate(
-            SnakeERC1155MockWithHooks::BeforeUpdate { from, to, token_ids, values }
+            SnakeERC1155MockWithHooks::BeforeUpdate { from, to, token_ids, values },
         );
         self.assert_emitted_single(contract, expected);
     }
@@ -1421,10 +1421,10 @@ impl ERC1155HooksSpyHelpersImpl of ERC1155HooksSpyHelpers {
         from: ContractAddress,
         to: ContractAddress,
         token_ids: Span<u256>,
-        values: Span<u256>
+        values: Span<u256>,
     ) {
         let expected = SnakeERC1155MockWithHooks::Event::AfterUpdate(
-            SnakeERC1155MockWithHooks::AfterUpdate { from, to, token_ids, values }
+            SnakeERC1155MockWithHooks::AfterUpdate { from, to, token_ids, values },
         );
         self.assert_emitted_single(contract, expected);
     }

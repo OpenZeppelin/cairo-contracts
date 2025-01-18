@@ -19,7 +19,7 @@ pub mod DualCaseAccessControlMock {
         #[substorage(v0)]
         pub accesscontrol: AccessControlComponent::Storage,
         #[substorage(v0)]
-        pub src5: SRC5Component::Storage
+        pub src5: SRC5Component::Storage,
     }
 
     #[event]
@@ -28,7 +28,7 @@ pub mod DualCaseAccessControlMock {
         #[flat]
         AccessControlEvent: AccessControlComponent::Event,
         #[flat]
-        SRC5Event: SRC5Component::Event
+        SRC5Event: SRC5Component::Event,
     }
 
     #[constructor]
@@ -52,14 +52,14 @@ pub mod DualCaseOwnableMock {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        pub ownable: OwnableComponent::Storage
+        pub ownable: OwnableComponent::Storage,
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        OwnableEvent: OwnableComponent::Event
+        OwnableEvent: OwnableComponent::Event,
     }
 
     #[constructor]
@@ -83,14 +83,14 @@ pub mod DualCaseTwoStepOwnableMock {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        ownable: OwnableComponent::Storage
+        ownable: OwnableComponent::Storage,
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        OwnableEvent: OwnableComponent::Event
+        OwnableEvent: OwnableComponent::Event,
     }
 
     #[constructor]

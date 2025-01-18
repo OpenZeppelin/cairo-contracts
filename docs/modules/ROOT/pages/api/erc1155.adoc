@@ -220,6 +220,7 @@ NOTE: See xref:#ERC1155Component-Hooks[Hooks] to understand how are hooks used.
 --
 .InternalImpl
 * xref:#ERC1155Component-initializer[`++initializer(self, base_uri)++`]
+* xref:#ERC1155Component-initializer_no_metadata[`++initializer_no_metadata(self)++`]
 * xref:#ERC1155Component-mint_with_acceptance_check[`++mint_with_acceptance_check(self, to, token_id, value, data)++`]
 * xref:#ERC1155Component-batch_mint_with_acceptance_check[`++batch_mint_with_acceptance_check(self, to, token_ids, values, data)++`]
 * xref:#ERC1155Component-burn[`++burn(self, from, token_id, value)++`]
@@ -400,6 +401,21 @@ See <<ERC1155Component-is_approved_for_all,ERC1155Component::is_approved_for_all
 
 Initializes the contract by setting the token's base URI as `base_uri`, and registering the supported interfaces.
 This should only be used inside the contract's constructor.
+
+WARNING: Most ERC1155 contracts expose the <<IERC1155MetadataURI,IERC1155MetadataURI>> interface which is what this initializer is meant to support.
+If the contract DOES NOT expose the <<IERC1155MetadataURI,IERC1155MetadataURI>> interface, meaning tokens do not have a URI,
+the contract must instead use <<ERC1155Component-initializer_no_metadata,initializer_no_metadata>> in the constructor.
+Failure to abide by these instructions can lead to unexpected issues especially with UIs.
+
+[.contract-item]
+[[ERC1155Component-initializer_no_metadata]]
+==== `[.contract-item-name]#++initializer_no_metadata++#++(ref self: ContractState)++` [.item-kind]#internal#
+
+Initializes the contract with no metadata by registering only the IERC1155 interface.
+
+WARNING: This initializer should ONLY be used during construction in the very
+specific instance when the contract does NOT expose the <<IERC1155MetadataURI,IERC1155MetadataURI>> interface.
+Initializing a contract with this initializer means that tokens will not have a URI.
 
 [.contract-item]
 [[ERC1155Component-mint_with_acceptance_check]]

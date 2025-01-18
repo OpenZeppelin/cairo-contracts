@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - ERC721Component `initializer_no_metadata` (#1278)
+- ERC1155Component `initializer_no_metadata` (#1287)
 - SRC9 (Outside Execution) integration to account presets (#1201)
 - `SNIP12HashSpanImpl` to `openzeppelin_utils::cryptography::snip12` (#1180)
 - GovernorComponent with the following extensions: (#1180)
@@ -31,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed (Breaking)
 
+- Fix SNIP12 Permit signature (#1285)
 - The initializer in `OwnableComponent` now checks that `owner` is not the zero address (#1221)
 - Add `verifying_contract` member to the `Delegation` struct used in Votes `delegate_by_sig` (#1214)
 use crate::votes::VotesComponent::VotingUnitsTrait;

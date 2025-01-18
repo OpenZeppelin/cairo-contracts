@@ -54,18 +54,18 @@ pub impl IntoBase16String<T, +Into<T, felt252>> of IntoBase16StringTrait<T> {
 /// Asserts that the syscall result of a call failed with an "Entrypoint not found" error,
 /// following the Starknet Foundry emitted error format.
 pub fn assert_entrypoint_not_found_error<T, +Drop<T>>(
-    result: SyscallResult<T>, selector: felt252, contract_address: ContractAddress
+    result: SyscallResult<T>, selector: felt252, contract_address: ContractAddress,
 ) {
     if let Result::Err(panic_data) = result {
         let expected_panic_message = format!(
             "Entry point selector {} not found in contract {}",
             selector.into_base_16_string_no_padding(),
-            contract_address.into_base_16_string_no_padding()
+            contract_address.into_base_16_string_no_padding(),
         );
         let actual_panic_message = panic_data_to_byte_array(panic_data);
         assert!(
             actual_panic_message == expected_panic_message,
-            "Got unexpected panic message: {actual_panic_message}"
+            "Got unexpected panic message: {actual_panic_message}",
         );
     } else {
         panic!("{selector} call was expected to fail, but succeeded");

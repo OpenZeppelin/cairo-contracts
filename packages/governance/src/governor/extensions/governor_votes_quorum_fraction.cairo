@@ -9,8 +9,8 @@
 #[starknet::component]
 pub mod GovernorVotesQuorumFractionComponent {
     use core::num::traits::Zero;
-    use crate::governor::GovernorComponent::ComponentState as GovernorComponentState;
     use crate::governor::GovernorComponent;
+    use crate::governor::GovernorComponent::ComponentState as GovernorComponentState;
     use crate::governor::extensions::interface::IQuorumFraction;
     use crate::votes::interface::{IVotesDispatcher, IVotesDispatcherTrait};
     use openzeppelin_introspection::src5::SRC5Component;
@@ -27,14 +27,14 @@ pub mod GovernorVotesQuorumFractionComponent {
     #[event]
     #[derive(Drop, starknet::Event)]
     pub enum Event {
-        QuorumNumeratorUpdated: QuorumNumeratorUpdated
+        QuorumNumeratorUpdated: QuorumNumeratorUpdated,
     }
 
     /// Emitted when the quorum numerator is updated.
     #[derive(Drop, starknet::Event)]
     pub struct QuorumNumeratorUpdated {
         pub old_quorum_numerator: u256,
-        pub new_quorum_numerator: u256
+        pub new_quorum_numerator: u256,
     }
 
     pub mod Errors {
@@ -51,7 +51,7 @@ pub mod GovernorVotesQuorumFractionComponent {
         +GovernorComponent::HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         impl GovernorVotesQuorumFraction: HasComponent<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of GovernorComponent::GovernorQuorumTrait<TContractState> {
         /// See `GovernorComponent::GovernorQuorumTrait::quorum`.
         ///
@@ -77,7 +77,7 @@ pub mod GovernorVotesQuorumFractionComponent {
         +GovernorComponent::HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         impl GovernorVotesQuorumFraction: HasComponent<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of GovernorComponent::GovernorVotesTrait<TContractState> {
         /// See `GovernorComponent::GovernorVotesTrait::clock`.
         fn clock(self: @GovernorComponentState<TContractState>) -> u64 {
@@ -96,7 +96,7 @@ pub mod GovernorVotesQuorumFractionComponent {
             self: @GovernorComponentState<TContractState>,
             account: ContractAddress,
             timepoint: u64,
-            params: Span<felt252>
+            params: Span<felt252>,
         ) -> u256 {
             let contract = self.get_contract();
             let this_component = GovernorVotesQuorumFraction::get_component(contract);
@@ -114,7 +114,7 @@ pub mod GovernorVotesQuorumFractionComponent {
 
     #[embeddable_as(QuorumFractionImpl)]
     impl QuorumFraction<
-        TContractState, +HasComponent<TContractState>, +Drop<TContractState>
+        TContractState, +HasComponent<TContractState>, +Drop<TContractState>,
     > of IQuorumFraction<ComponentState<TContractState>> {
         /// Returns the token that voting power is sourced from.
         fn token(self: @ComponentState<TContractState>) -> ContractAddress {
@@ -159,7 +159,7 @@ pub mod GovernorVotesQuorumFractionComponent {
         +HasComponent<TContractState>,
         +GovernorComponent::GovernorVotesTrait<TContractState>,
         impl Governor: GovernorComponent::HasComponent<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of InternalTrait<TContractState> {
         /// Initializes the component by setting the votes token and the
         /// initial quorum numerator value.
@@ -173,7 +173,7 @@ pub mod GovernorVotesQuorumFractionComponent {
         fn initializer(
             ref self: ComponentState<TContractState>,
             votes_token: ContractAddress,
-            quorum_numerator: u256
+            quorum_numerator: u256,
         ) {
             assert(votes_token.is_non_zero(), Errors::INVALID_TOKEN);
 
@@ -192,7 +192,7 @@ pub mod GovernorVotesQuorumFractionComponent {
         ///
         /// May emit a `QuorumNumeratorUpdated` event.
         fn update_quorum_numerator(
-            ref self: ComponentState<TContractState>, new_quorum_numerator: u256
+            ref self: ComponentState<TContractState>, new_quorum_numerator: u256,
         ) {
             let denominator = self.quorum_denominator();
 

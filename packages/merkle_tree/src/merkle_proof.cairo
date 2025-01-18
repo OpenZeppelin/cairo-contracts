@@ -20,7 +20,7 @@ use crate::hashes::{CommutativeHasher, PedersenCHasher, PoseidonCHasher};
 /// sibling hashes on the branch from the leaf to the root of the tree. Each
 /// pair of leaves and each pair of pre-images are assumed to be sorted.
 pub fn verify<impl Hasher: CommutativeHasher>(
-    proof: Span<felt252>, root: felt252, leaf: felt252
+    proof: Span<felt252>, root: felt252, leaf: felt252,
 ) -> bool {
     process_proof::<Hasher>(proof, leaf) == root
 }
@@ -40,7 +40,7 @@ pub fn verify_poseidon(proof: Span<felt252>, root: felt252, leaf: felt252) -> bo
 /// hash matches the root of the tree. When processing the proof, the pairs
 /// of leaves & pre-images are assumed to be sorted.
 pub fn process_proof<impl Hasher: CommutativeHasher>(
-    proof: Span<felt252>, leaf: felt252
+    proof: Span<felt252>, leaf: felt252,
 ) -> felt252 {
     let mut computed_hash = leaf;
     for hash in proof {
@@ -59,7 +59,7 @@ pub fn process_proof<impl Hasher: CommutativeHasher>(
 ///
 /// The `leaves` must be validated independently. See `process_multi_proof`.
 pub fn verify_multi_proof<impl Hasher: CommutativeHasher>(
-    proof: Span<felt252>, proof_flags: Span<bool>, root: felt252, leaves: Span<felt252>
+    proof: Span<felt252>, proof_flags: Span<bool>, root: felt252, leaves: Span<felt252>,
 ) -> bool {
     process_multi_proof::<Hasher>(proof, proof_flags, leaves) == root
 }
@@ -78,7 +78,7 @@ pub fn verify_multi_proof<impl Hasher: CommutativeHasher>(
 /// considered a no-op, and therefore a valid multiproof (i.e. it returns `proof.at(0)`). Consider
 /// disallowing this case if you're not validating the leaves elsewhere.
 pub fn process_multi_proof<impl Hasher: CommutativeHasher>(
-    proof: Span<felt252>, proof_flags: Span<bool>, leaves: Span<felt252>
+    proof: Span<felt252>, proof_flags: Span<bool>, leaves: Span<felt252>,
 ) -> felt252 {
     // This function rebuilds the root hash by traversing the tree up from the leaves. The root is
     // rebuilt by consuming and producing values on a queue. The queue starts with the `leaves`
@@ -104,31 +104,30 @@ pub fn process_multi_proof<impl Hasher: CommutativeHasher>(
     // otherwise we get the next hash.
     // 2. Depending on the flag, either another value from the "main queue" (merging branches) or an
     // element from the `proof` array.
-    for i in 0
-        ..proof_flags_len {
-            let a = if leaf_pos < leaves_len {
+    for i in 0..proof_flags_len {
+        let a = if leaf_pos < leaves_len {
+            leaf_pos += 1;
+            leaves.at(leaf_pos - 1)
+        } else {
+            hash_pos += 1;
+            hashes.at(hash_pos - 1)
+        };
+
+        let b = if *proof_flags.at(i) {
+            if leaf_pos < leaves_len {
                 leaf_pos += 1;
                 leaves.at(leaf_pos - 1)
             } else {
                 hash_pos += 1;
                 hashes.at(hash_pos - 1)
-            };
-
-            let b = if *proof_flags.at(i) {
-                if leaf_pos < leaves_len {
-                    leaf_pos += 1;
-                    leaves.at(leaf_pos - 1)
-                } else {
-                    hash_pos += 1;
-                    hashes.at(hash_pos - 1)
-                }
-            } else {
-                proof_pos += 1;
-                proof.at(proof_pos - 1)
-            };
-
-            hashes.append(Hasher::commutative_hash(*a, *b));
+            }
+        } else {
+            proof_pos += 1;
+            proof.at(proof_pos - 1)
         };
+
+        hashes.append(Hasher::commutative_hash(*a, *b));
+    };
 
     let root = if proof_flags_len > 0 {
         hashes.at(proof_flags_len - 1)

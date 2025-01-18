@@ -4,7 +4,7 @@
 #[starknet::contract]
 pub mod VestingWallet {
     use openzeppelin_access::ownable::OwnableComponent;
-    use openzeppelin_finance::vesting::{VestingComponent, LinearVestingSchedule};
+    use openzeppelin_finance::vesting::{LinearVestingSchedule, VestingComponent};
     use starknet::ContractAddress;
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
@@ -25,7 +25,7 @@ pub mod VestingWallet {
         #[substorage(v0)]
         pub ownable: OwnableComponent::Storage,
         #[substorage(v0)]
-        pub vesting: VestingComponent::Storage
+        pub vesting: VestingComponent::Storage,
     }
 
     #[event]
@@ -34,7 +34,7 @@ pub mod VestingWallet {
         #[flat]
         OwnableEvent: OwnableComponent::Event,
         #[flat]
-        VestingEvent: VestingComponent::Event
+        VestingEvent: VestingComponent::Event,
     }
 
     /// Initializes the vesting component by setting the vesting `start`, `duration` and
@@ -50,7 +50,7 @@ pub mod VestingWallet {
         beneficiary: ContractAddress,
         start: u64,
         duration: u64,
-        cliff_duration: u64
+        cliff_duration: u64,
     ) {
         self.ownable.initializer(beneficiary);
         self.vesting.initializer(start, duration, cliff_duration);

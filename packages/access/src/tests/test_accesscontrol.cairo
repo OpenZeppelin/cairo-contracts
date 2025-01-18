@@ -1,12 +1,12 @@
 use crate::accesscontrol::AccessControlComponent::{
-    InternalImpl, RoleAdminChanged, RoleGranted, RoleRevoked
+    InternalImpl, RoleAdminChanged, RoleGranted, RoleRevoked,
 };
-use crate::accesscontrol::interface::{IAccessControl, IAccessControlCamel, IACCESSCONTROL_ID};
+use crate::accesscontrol::interface::{IACCESSCONTROL_ID, IAccessControl, IAccessControlCamel};
 use crate::accesscontrol::{AccessControlComponent, DEFAULT_ADMIN_ROLE};
 use openzeppelin_introspection::interface::ISRC5;
 use openzeppelin_test_common::mocks::access::DualCaseAccessControlMock;
 use openzeppelin_testing::constants::{
-    ADMIN, AUTHORIZED, OTHER, OTHER_ADMIN, ROLE, OTHER_ROLE, ZERO
+    ADMIN, AUTHORIZED, OTHER, OTHER_ADMIN, OTHER_ROLE, ROLE, ZERO,
 };
 use openzeppelin_testing::events::EventSpyExt;
 use snforge_std::{EventSpy, spy_events, start_cheat_caller_address, test_address};
@@ -382,7 +382,7 @@ fn test_set_role_admin() {
 
     spy
         .assert_only_event_role_admin_changed(
-            contract_address, ROLE, DEFAULT_ADMIN_ROLE, OTHER_ROLE
+            contract_address, ROLE, DEFAULT_ADMIN_ROLE, OTHER_ROLE,
         );
 
     let current_admin_role = state.get_role_admin(ROLE);
@@ -470,10 +470,10 @@ impl AccessControlSpyHelpersImpl of AccessControlSpyHelpers {
         contract: ContractAddress,
         role: felt252,
         account: ContractAddress,
-        sender: ContractAddress
+        sender: ContractAddress,
     ) {
         let expected = AccessControlComponent::Event::RoleRevoked(
-            RoleRevoked { role, account, sender }
+            RoleRevoked { role, account, sender },
         );
         self.assert_only_event(contract, expected);
     }
@@ -483,10 +483,10 @@ impl AccessControlSpyHelpersImpl of AccessControlSpyHelpers {
         contract: ContractAddress,
         role: felt252,
         account: ContractAddress,
-        sender: ContractAddress
+        sender: ContractAddress,
     ) {
         let expected = AccessControlComponent::Event::RoleGranted(
-            RoleGranted { role, account, sender }
+            RoleGranted { role, account, sender },
         );
         self.assert_only_event(contract, expected);
     }
@@ -496,10 +496,10 @@ impl AccessControlSpyHelpersImpl of AccessControlSpyHelpers {
         from_address: ContractAddress,
         role: felt252,
         previous_admin_role: felt252,
-        new_admin_role: felt252
+        new_admin_role: felt252,
     ) {
         let expected = AccessControlComponent::Event::RoleAdminChanged(
-            RoleAdminChanged { role, previous_admin_role, new_admin_role }
+            RoleAdminChanged { role, previous_admin_role, new_admin_role },
         );
         self.assert_only_event(from_address, expected);
     }

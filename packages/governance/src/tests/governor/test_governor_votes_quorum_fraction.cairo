@@ -1,16 +1,16 @@
 use crate::governor::DefaultConfig;
-use crate::governor::GovernorComponent::InternalImpl;
 use crate::governor::GovernorComponent;
-use crate::governor::extensions::GovernorVotesQuorumFractionComponent::{
-    GovernorQuorum, GovernorVotes, QuorumFractionImpl, InternalTrait
-};
+use crate::governor::GovernorComponent::InternalImpl;
 use crate::governor::extensions::GovernorVotesQuorumFractionComponent;
-use openzeppelin_test_common::mocks::governor::GovernorQuorumFractionMock::SNIP12MetadataImpl;
+use crate::governor::extensions::GovernorVotesQuorumFractionComponent::{
+    GovernorQuorum, GovernorVotes, InternalTrait, QuorumFractionImpl,
+};
 use openzeppelin_test_common::mocks::governor::GovernorQuorumFractionMock;
-use openzeppelin_testing::constants::{VOTES_TOKEN, OTHER, ZERO};
+use openzeppelin_test_common::mocks::governor::GovernorQuorumFractionMock::SNIP12MetadataImpl;
+use openzeppelin_testing::constants::{OTHER, VOTES_TOKEN, ZERO};
 use openzeppelin_testing::events::EventSpyExt;
-use snforge_std::{EventSpy, store, test_address, spy_events};
-use snforge_std::{start_mock_call, start_cheat_block_timestamp_global};
+use snforge_std::{EventSpy, spy_events, store, test_address};
+use snforge_std::{start_cheat_block_timestamp_global, start_mock_call};
 use starknet::ContractAddress;
 
 pub type ComponentState =
@@ -166,14 +166,14 @@ fn test_update_quorum_numerator() {
     mock_state.governor_votes.update_quorum_numerator(new_quorum_numerator_2);
     spy
         .assert_only_event_quorum_numerator_updated(
-            contract_address, new_quorum_numerator_1, new_quorum_numerator_2
+            contract_address, new_quorum_numerator_1, new_quorum_numerator_2,
         );
 
     start_cheat_block_timestamp_global(ts3);
     mock_state.governor_votes.update_quorum_numerator(new_quorum_numerator_3);
     spy
         .assert_only_event_quorum_numerator_updated(
-            contract_address, new_quorum_numerator_2, new_quorum_numerator_3
+            contract_address, new_quorum_numerator_2, new_quorum_numerator_3,
         );
 
     // 2. Check the current quorum numerator
@@ -207,12 +207,12 @@ pub(crate) impl GovernorSettingsSpyHelpersImpl of GovernorSettingsSpyHelpers {
         ref self: EventSpy,
         contract: ContractAddress,
         old_quorum_numerator: u256,
-        new_quorum_numerator: u256
+        new_quorum_numerator: u256,
     ) {
         let expected = GovernorVotesQuorumFractionComponent::Event::QuorumNumeratorUpdated(
             GovernorVotesQuorumFractionComponent::QuorumNumeratorUpdated {
-                old_quorum_numerator, new_quorum_numerator
-            }
+                old_quorum_numerator, new_quorum_numerator,
+            },
         );
         self.assert_emitted_single(contract, expected);
     }
@@ -221,11 +221,11 @@ pub(crate) impl GovernorSettingsSpyHelpersImpl of GovernorSettingsSpyHelpers {
         ref self: EventSpy,
         contract: ContractAddress,
         old_quorum_numerator: u256,
-        new_quorum_numerator: u256
+        new_quorum_numerator: u256,
     ) {
         self
             .assert_event_quorum_numerator_updated(
-                contract, old_quorum_numerator, new_quorum_numerator
+                contract, old_quorum_numerator, new_quorum_numerator,
             );
         self.assert_no_events_left_from(contract);
     }

@@ -1,6 +1,6 @@
 use core::num::traits::Zero;
-use crate::ERC721Upgradeable::InternalImpl;
 use crate::ERC721Upgradeable;
+use crate::ERC721Upgradeable::InternalImpl;
 use crate::interfaces::{ERC721UpgradeableABIDispatcher, ERC721UpgradeableABIDispatcherTrait};
 use openzeppelin_introspection::interface::ISRC5_ID;
 use openzeppelin_test_common::erc721::ERC721SpyHelpers;
@@ -9,19 +9,19 @@ use openzeppelin_test_common::upgrades::UpgradeableSpyHelpers;
 use openzeppelin_testing as utils;
 use openzeppelin_testing::common::IntoBase16String;
 use openzeppelin_testing::constants::{
-    ZERO, DATA, OWNER, SPENDER, RECIPIENT, OTHER, OPERATOR, CLASS_HASH_ZERO, PUBKEY, NAME, SYMBOL,
-    BASE_URI
+    BASE_URI, CLASS_HASH_ZERO, DATA, NAME, OPERATOR, OTHER, OWNER, PUBKEY, RECIPIENT, SPENDER,
+    SYMBOL, ZERO,
 };
 use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_token::erc721::ERC721Component::ERC721Impl;
 use openzeppelin_token::erc721::interface::{
-    IERC721CamelOnlySafeDispatcher, IERC721CamelOnlySafeDispatcherTrait
+    IERC721CamelOnlySafeDispatcher, IERC721CamelOnlySafeDispatcherTrait,
 };
 use openzeppelin_token::erc721::interface::{IERC721Dispatcher, IERC721DispatcherTrait};
 use openzeppelin_token::erc721::interface::{IERC721_ID, IERC721_METADATA_ID};
 use openzeppelin_utils::serde::SerializedAppend;
-use snforge_std::{spy_events, EventSpy, start_cheat_caller_address};
-use starknet::{ContractAddress, ClassHash};
+use snforge_std::{EventSpy, spy_events, start_cheat_caller_address};
+use starknet::{ClassHash, ContractAddress};
 
 
 // Token IDs
@@ -906,7 +906,7 @@ fn assert_state_before_transfer(
     dispatcher: ERC721UpgradeableABIDispatcher,
     owner: ContractAddress,
     recipient: ContractAddress,
-    token_id: u256
+    token_id: u256,
 ) {
     assert_eq!(dispatcher.owner_of(token_id), owner);
     assert_eq!(dispatcher.balance_of(owner), TOKENS_LEN);
@@ -917,7 +917,7 @@ fn assert_state_after_transfer(
     dispatcher: ERC721UpgradeableABIDispatcher,
     owner: ContractAddress,
     recipient: ContractAddress,
-    token_id: u256
+    token_id: u256,
 ) {
     let current_owner = dispatcher.owner_of(token_id);
     assert_eq!(current_owner, recipient);
@@ -932,7 +932,7 @@ fn assert_state_transfer_to_self(
     dispatcher: ERC721UpgradeableABIDispatcher,
     target: ContractAddress,
     token_id: u256,
-    token_balance: u256
+    token_balance: u256,
 ) {
     assert_eq!(dispatcher.owner_of(token_id), target);
     assert_eq!(dispatcher.balance_of(target), token_balance);

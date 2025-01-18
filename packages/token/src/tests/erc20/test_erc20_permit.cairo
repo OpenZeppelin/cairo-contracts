@@ -1,15 +1,15 @@
-use core::hash::{HashStateTrait, HashStateExTrait};
+use core::hash::{HashStateExTrait, HashStateTrait};
 use core::poseidon::PoseidonTrait;
+use crate::erc20::ERC20Component;
 use crate::erc20::ERC20Component::{ERC20MixinImpl, InternalImpl};
 use crate::erc20::ERC20Component::{ERC20PermitImpl, SNIP12MetadataExternalImpl};
-use crate::erc20::ERC20Component;
-use crate::erc20::snip12_utils::permit::{Permit, PERMIT_TYPE_HASH};
-use openzeppelin_test_common::mocks::erc20::DualCaseERC20PermitMock::SNIP12MetadataImpl;
+use crate::erc20::snip12_utils::permit::{PERMIT_TYPE_HASH, Permit};
 use openzeppelin_test_common::mocks::erc20::DualCaseERC20PermitMock;
+use openzeppelin_test_common::mocks::erc20::DualCaseERC20PermitMock::SNIP12MetadataImpl;
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants;
 use openzeppelin_testing::signing::{StarkKeyPair, StarkSerializedSigning};
-use openzeppelin_utils::cryptography::snip12::{StructHash, StarknetDomain};
+use openzeppelin_utils::cryptography::snip12::{StarknetDomain, StructHash};
 use snforge_std::signature::stark_curve::StarkCurveSignerImpl;
 use snforge_std::{start_cheat_block_timestamp, start_cheat_chain_id_global};
 use snforge_std::{start_cheat_caller_address, test_address};
@@ -33,7 +33,7 @@ struct TestData {
     metadata_name: felt252,
     metadata_version: felt252,
     chain_id: felt252,
-    revision: felt252
+    revision: felt252,
 }
 
 fn TEST_DATA() -> TestData {
@@ -68,7 +68,7 @@ fn setup(data: TestData) -> ComponentState {
     start_cheat_chain_id_global(data.chain_id);
 
     utils::declare_and_deploy_at(
-        "DualCaseAccountMock", data.owner, array![data.key_pair.public_key]
+        "DualCaseAccountMock", data.owner, array![data.key_pair.public_key],
     );
 
     let mut state = COMPONENT_STATE();
@@ -159,7 +159,7 @@ fn test_spend_half_permit() {
 fn test_subsequent_permits() {
     let mut data = TEST_DATA();
     let (owner, spender, amount_1, deadline) = (
-        data.owner, data.spender, data.amount, data.deadline
+        data.owner, data.spender, data.amount, data.deadline,
     );
     let mut state = setup(data);
 
@@ -226,7 +226,7 @@ fn test_domain_separator() {
         name: data.metadata_name,
         version: data.metadata_version,
         chain_id: data.chain_id,
-        revision: data.revision
+        revision: data.revision,
     };
     let expected_domain_separator = sn_domain.hash_struct();
     assert_eq!(state.DOMAIN_SEPARATOR(), expected_domain_separator);
@@ -451,14 +451,14 @@ fn prepare_permit_signature(data: TestData, nonce: felt252) -> Span<felt252> {
         name: data.metadata_name,
         version: data.metadata_version,
         chain_id: data.chain_id,
-        revision: data.revision
+        revision: data.revision,
     };
     let permit = Permit {
         token: data.token_address,
         spender: data.spender,
         amount: data.amount,
         nonce,
-        deadline: data.deadline
+        deadline: data.deadline,
     };
     let msg_hash = PoseidonTrait::new()
         .update_with('StarkNet Message')

@@ -19,7 +19,7 @@ pub mod MultisigWalletMock {
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        MultisigEvent: MultisigComponent::Event
+        MultisigEvent: MultisigComponent::Event,
     }
 
     #[constructor]

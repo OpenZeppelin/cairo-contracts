@@ -25,7 +25,7 @@ pub enum ProposalState {
     Defeated,
     Succeeded,
     Queued,
-    Executed
+    Executed,
 }
 
 #[starknet::interface]
@@ -121,7 +121,7 @@ pub trait IGovernor<TState> {
 
     /// Voting power of an `account` at a specific `timepoint` given additional encoded parameters.
     fn get_votes_with_params(
-        self: @TState, account: ContractAddress, timepoint: u64, params: Span<felt252>
+        self: @TState, account: ContractAddress, timepoint: u64, params: Span<felt252>,
     ) -> u256;
 
     /// Returns whether `account` has cast a vote on `proposal_id`.
@@ -169,7 +169,7 @@ pub trait IGovernor<TState> {
 
     /// Cast a vote with a `reason`.
     fn cast_vote_with_reason(
-        ref self: TState, proposal_id: felt252, support: u8, reason: ByteArray
+        ref self: TState, proposal_id: felt252, support: u8, reason: ByteArray,
     ) -> u256;
 
     /// Cast a vote with a `reason` and additional serialized `params`.
@@ -178,7 +178,7 @@ pub trait IGovernor<TState> {
         proposal_id: felt252,
         support: u8,
         reason: ByteArray,
-        params: Span<felt252>
+        params: Span<felt252>,
     ) -> u256;
 
     /// Cast a vote using the `voter`'s signature.
@@ -187,7 +187,7 @@ pub trait IGovernor<TState> {
         proposal_id: felt252,
         support: u8,
         voter: ContractAddress,
-        signature: Span<felt252>
+        signature: Span<felt252>,
     ) -> u256;
 
     /// Cast a vote with a `reason` and additional serialized `params` using the `voter`'s
@@ -199,7 +199,7 @@ pub trait IGovernor<TState> {
         voter: ContractAddress,
         reason: ByteArray,
         params: Span<felt252>,
-        signature: Span<felt252>
+        signature: Span<felt252>,
     ) -> u256;
 
     /// Returns the next unused nonce for an address.

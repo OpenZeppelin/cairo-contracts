@@ -23,13 +23,13 @@
 #[starknet::component]
 pub mod GovernorTimelockExecutionComponent {
     use core::num::traits::Zero;
-    use crate::governor::GovernorComponent::{
-        InternalExtendedTrait, ComponentState as GovernorComponentState
-    };
     use crate::governor::GovernorComponent;
+    use crate::governor::GovernorComponent::{
+        ComponentState as GovernorComponentState, InternalExtendedTrait,
+    };
     use crate::governor::extensions::interface::ITimelocked;
     use crate::governor::interface::ProposalState;
-    use crate::timelock::interface::{OperationState, ITimelockDispatcher, ITimelockDispatcherTrait};
+    use crate::timelock::interface::{ITimelockDispatcher, ITimelockDispatcherTrait, OperationState};
     use openzeppelin_introspection::src5::SRC5Component;
     use starknet::ContractAddress;
     use starknet::account::Call;
@@ -42,7 +42,7 @@ pub mod GovernorTimelockExecutionComponent {
     #[storage]
     pub struct Storage {
         pub Governor_timelock_controller: ContractAddress,
-        pub Governor_timelock_ids: Map<ProposalId, TimelockProposalId>
+        pub Governor_timelock_ids: Map<ProposalId, TimelockProposalId>,
     }
 
     #[event]
@@ -55,7 +55,7 @@ pub mod GovernorTimelockExecutionComponent {
     #[derive(Drop, starknet::Event)]
     pub struct TimelockUpdated {
         pub old_timelock: ContractAddress,
-        pub new_timelock: ContractAddress
+        pub new_timelock: ContractAddress,
     }
 
     pub mod Errors {
@@ -77,7 +77,7 @@ pub mod GovernorTimelockExecutionComponent {
         +GovernorComponent::GovernorVotesTrait<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         impl GovernorCoreExecution: HasComponent<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of GovernorComponent::GovernorExecutionTrait<TContractState> {
         /// See `GovernorComponent::GovernorExecutionTrait::state`.
         ///
@@ -85,7 +85,7 @@ pub mod GovernorTimelockExecutionComponent {
         ///
         /// - The proposal must exist.
         fn state(
-            self: @GovernorComponentState<TContractState>, proposal_id: felt252
+            self: @GovernorComponentState<TContractState>, proposal_id: felt252,
         ) -> ProposalState {
             let current_state = self._state(proposal_id);
 
@@ -132,7 +132,7 @@ pub mod GovernorTimelockExecutionComponent {
             ref self: GovernorComponentState<TContractState>,
             proposal_id: felt252,
             calls: Span<Call>,
-            description_hash: felt252
+            description_hash: felt252,
         ) {
             let mut contract = self.get_contract_mut();
             let mut this_component = GovernorCoreExecution::get_component_mut(ref contract);
@@ -153,7 +153,7 @@ pub mod GovernorTimelockExecutionComponent {
             ref self: GovernorComponentState<TContractState>,
             proposal_id: felt252,
             calls: Span<Call>,
-            description_hash: felt252
+            description_hash: felt252,
         ) -> u64 {
             let mut contract = self.get_contract_mut();
             let mut this_component = GovernorCoreExecution::get_component_mut(ref contract);
@@ -173,7 +173,7 @@ pub mod GovernorTimelockExecutionComponent {
 
         /// See `GovernorComponent::GovernorExecutionTrait::proposal_needs_queuing`.
         fn proposal_needs_queuing(
-            self: @GovernorComponentState<TContractState>, proposal_id: felt252
+            self: @GovernorComponentState<TContractState>, proposal_id: felt252,
         ) -> bool {
             true
         }
@@ -184,7 +184,7 @@ pub mod GovernorTimelockExecutionComponent {
         fn cancel_operations(
             ref self: GovernorComponentState<TContractState>,
             proposal_id: felt252,
-            description_hash: felt252
+            description_hash: felt252,
         ) {
             self._cancel(proposal_id, description_hash);
 
@@ -214,7 +214,7 @@ pub mod GovernorTimelockExecutionComponent {
         +GovernorComponent::GovernorVotesTrait<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +GovernorComponent::HasComponent<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of ITimelocked<ComponentState<TContractState>> {
         /// Returns the timelock controller address.
         fn timelock(self: @ComponentState<TContractState>) -> ContractAddress {
@@ -223,7 +223,7 @@ pub mod GovernorTimelockExecutionComponent {
 
         /// Returns the timelock proposal id for a given proposal id.
         fn get_timelock_id(
-            self: @ComponentState<TContractState>, proposal_id: felt252
+            self: @ComponentState<TContractState>, proposal_id: felt252,
         ) -> TimelockProposalId {
             self.Governor_timelock_ids.read(proposal_id)
         }
@@ -236,7 +236,7 @@ pub mod GovernorTimelockExecutionComponent {
         ///
         /// Emits a `TimelockUpdated` event.
         fn update_timelock(
-            ref self: ComponentState<TContractState>, new_timelock: ContractAddress
+            ref self: ComponentState<TContractState>, new_timelock: ContractAddress,
         ) {
             self.assert_only_governance();
             self._update_timelock(new_timelock);
@@ -256,7 +256,7 @@ pub mod GovernorTimelockExecutionComponent {
         +GovernorComponent::GovernorVotesTrait<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         impl Governor: GovernorComponent::HasComponent<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of InternalTrait<TContractState> {
         /// Initializes the component by setting the timelock contract address.
         ///
@@ -264,7 +264,7 @@ pub mod GovernorTimelockExecutionComponent {
         ///
         /// - `timelock_controller` must not be zero.
         fn initializer(
-            ref self: ComponentState<TContractState>, timelock_controller: ContractAddress
+            ref self: ComponentState<TContractState>, timelock_controller: ContractAddress,
         ) {
             assert(timelock_controller.is_non_zero(), Errors::INVALID_TIMELOCK_CONTROLLER);
             self._update_timelock(timelock_controller);
@@ -282,7 +282,7 @@ pub mod GovernorTimelockExecutionComponent {
         /// It is computed with the governor address itself to avoid collisions across
         /// governor instances using the same timelock.
         fn timelock_salt(
-            self: @ComponentState<TContractState>, description_hash: felt252
+            self: @ComponentState<TContractState>, description_hash: felt252,
         ) -> felt252 {
             let description_hash: u256 = description_hash.into();
             let this: felt252 = starknet::get_contract_address().into();
@@ -301,7 +301,7 @@ pub mod GovernorTimelockExecutionComponent {
         ///
         /// Emits a `TimelockUpdated` event.
         fn _update_timelock(
-            ref self: ComponentState<TContractState>, new_timelock: ContractAddress
+            ref self: ComponentState<TContractState>, new_timelock: ContractAddress,
         ) {
             let old_timelock = self.Governor_timelock_controller.read();
             self.emit(TimelockUpdated { old_timelock, new_timelock });

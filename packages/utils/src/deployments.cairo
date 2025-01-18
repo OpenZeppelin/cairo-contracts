@@ -3,7 +3,7 @@
 
 pub mod interface;
 
-use core::hash::{HashStateTrait, HashStateExTrait};
+use core::hash::{HashStateExTrait, HashStateTrait};
 use core::num::traits::Zero;
 use core::pedersen::PedersenTrait;
 use core::poseidon::PoseidonTrait;
@@ -25,7 +25,7 @@ pub fn calculate_contract_address_from_deploy_syscall(
     salt: felt252,
     class_hash: ClassHash,
     constructor_calldata: Span<felt252>,
-    deployer_address: ContractAddress
+    deployer_address: ContractAddress,
 ) -> ContractAddress {
     let constructor_calldata_hash = compute_hash_on_elements(constructor_calldata);
 
@@ -58,7 +58,7 @@ fn compute_hash_on_elements(data: Span<felt252>) -> felt252 {
 #[derive(Drop)]
 pub struct DeployerInfo {
     pub caller_address: ContractAddress,
-    pub udc_address: ContractAddress
+    pub udc_address: ContractAddress,
 }
 
 /// Returns the calculated contract address for contracts deployed through the UDC.
@@ -68,7 +68,7 @@ pub fn calculate_contract_address_from_udc(
     salt: felt252,
     class_hash: ClassHash,
     constructor_calldata: Span<felt252>,
-    deployer_info: Option<DeployerInfo>
+    deployer_info: Option<DeployerInfo>,
 ) -> ContractAddress {
     match deployer_info {
         Option::Some(deployer_info) => {
@@ -78,11 +78,11 @@ pub fn calculate_contract_address_from_udc(
                 .update_with(salt)
                 .finalize();
             calculate_contract_address_from_deploy_syscall(
-                hashed_salt, class_hash, constructor_calldata, deployer_info.udc_address
+                hashed_salt, class_hash, constructor_calldata, deployer_info.udc_address,
             )
         },
         Option::None => calculate_contract_address_from_deploy_syscall(
-            salt, class_hash, constructor_calldata, Zero::zero()
+            salt, class_hash, constructor_calldata, Zero::zero(),
         ),
     }
 }

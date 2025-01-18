@@ -1,12 +1,12 @@
 use crate::governor::DefaultConfig;
 use crate::governor::GovernorComponent::InternalImpl;
 use crate::governor::extensions::GovernorVotesComponent::{
-    GovernorVotes, VotesTokenImpl, InternalTrait
+    GovernorVotes, InternalTrait, VotesTokenImpl,
 };
 use crate::tests::governor::common::{COMPONENT_STATE, CONTRACT_STATE};
 use openzeppelin_test_common::mocks::governor::GovernorMock::SNIP12MetadataImpl;
-use openzeppelin_testing::constants::{VOTES_TOKEN, OTHER, ZERO};
-use snforge_std::{start_mock_call, start_cheat_block_timestamp_global};
+use openzeppelin_testing::constants::{OTHER, VOTES_TOKEN, ZERO};
+use snforge_std::{start_cheat_block_timestamp_global, start_mock_call};
 use snforge_std::{store, test_address};
 
 //

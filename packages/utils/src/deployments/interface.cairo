@@ -10,6 +10,6 @@ pub trait IUniversalDeployer<TState> {
         class_hash: ClassHash,
         salt: felt252,
         from_zero: bool,
-        calldata: Span<felt252>
+        calldata: Span<felt252>,
     ) -> ContractAddress;
 }

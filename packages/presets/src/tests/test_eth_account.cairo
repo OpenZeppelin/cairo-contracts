@@ -1,14 +1,14 @@
 use core::num::traits::Zero;
 use crate::EthAccountUpgradeable;
 use crate::interfaces::eth_account::{
-    EthAccountUpgradeableABISafeDispatcher, EthAccountUpgradeableABISafeDispatcherTrait
+    EthAccountUpgradeableABISafeDispatcher, EthAccountUpgradeableABISafeDispatcherTrait,
 };
 use crate::interfaces::{
-    EthAccountUpgradeableABIDispatcher, EthAccountUpgradeableABIDispatcherTrait
+    EthAccountUpgradeableABIDispatcher, EthAccountUpgradeableABIDispatcherTrait,
 };
 use openzeppelin_account::eth_account::EthAccountComponent::EthAccountMixinImpl;
 use openzeppelin_account::extensions::SRC9Component::{OutsideExecutionV2Impl, SNIP12MetadataImpl};
-use openzeppelin_account::extensions::src9::interface::{OutsideExecution, ISRC9_V2_ID};
+use openzeppelin_account::extensions::src9::interface::{ISRC9_V2_ID, OutsideExecution};
 use openzeppelin_account::extensions::src9::snip12_utils::OutsideExecutionStructHash;
 use openzeppelin_account::interface::ISRC6_ID;
 use openzeppelin_account::utils::secp256_point::{DebugSecp256Point, Secp256PointPartialEq};
@@ -16,30 +16,30 @@ use openzeppelin_introspection::interface::ISRC5_ID;
 use openzeppelin_test_common::erc20::deploy_erc20;
 use openzeppelin_test_common::eth_account::EthAccountSpyHelpers;
 use openzeppelin_test_common::eth_account::{
-    SIGNED_TX_DATA, SignedTransactionData, get_accept_ownership_signature
+    SIGNED_TX_DATA, SignedTransactionData, get_accept_ownership_signature,
 };
 use openzeppelin_test_common::upgrades::UpgradeableSpyHelpers;
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::secp256k1::{KEY_PAIR, KEY_PAIR_2};
-use openzeppelin_testing::constants::{CLASS_HASH_ZERO, ZERO, RECIPIENT, CALLER, OTHER, FELT_VALUE};
-use openzeppelin_testing::constants::{SALT, QUERY_VERSION, MIN_TRANSACTION_VERSION};
+use openzeppelin_testing::constants::{CALLER, CLASS_HASH_ZERO, FELT_VALUE, OTHER, RECIPIENT, ZERO};
+use openzeppelin_testing::constants::{MIN_TRANSACTION_VERSION, QUERY_VERSION, SALT};
 use openzeppelin_testing::signing::Secp256k1KeyPair;
 use openzeppelin_testing::signing::SerializedSigning;
 use openzeppelin_token::erc20::interface::IERC20DispatcherTrait;
 use openzeppelin_utils::cryptography::snip12::OffchainMessageHash;
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{
-    spy_events, test_address, load, CheatSpan, cheat_caller_address, start_cheat_caller_address
+    CheatSpan, cheat_caller_address, load, spy_events, start_cheat_caller_address, test_address,
 };
 use snforge_std::{
-    start_cheat_signature_global, start_cheat_transaction_version_global,
-    start_cheat_transaction_hash_global, start_cheat_block_timestamp_global
+    start_cheat_block_timestamp_global, start_cheat_signature_global,
+    start_cheat_transaction_hash_global, start_cheat_transaction_version_global,
 };
 use starknet::SyscallResultTrait;
 use starknet::account::Call;
 use starknet::secp256_trait::Secp256Trait;
 use starknet::secp256k1::Secp256k1Point;
-use starknet::{contract_address_const, ContractAddress, ClassHash};
+use starknet::{ClassHash, ContractAddress, contract_address_const};
 
 fn declare_v2_class() -> ClassHash {
     utils::declare_class("SnakeEthAccountMock").class_hash
@@ -50,7 +50,7 @@ fn declare_v2_class() -> ClassHash {
 //
 
 fn setup_dispatcher(
-    key_pair: Secp256k1KeyPair
+    key_pair: Secp256k1KeyPair,
 ) -> (ContractAddress, EthAccountUpgradeableABIDispatcher) {
     let mut calldata = array![];
     calldata.append_serde(key_pair.public_key);
@@ -62,7 +62,7 @@ fn setup_dispatcher(
 }
 
 fn setup_dispatcher_with_data(
-    key_pair: Secp256k1KeyPair, data: SignedTransactionData
+    key_pair: Secp256k1KeyPair, data: SignedTransactionData,
 ) -> (EthAccountUpgradeableABIDispatcher, felt252) {
     let mut calldata = array![];
     calldata.append_serde(key_pair.public_key);
@@ -124,7 +124,7 @@ fn test_public_key_setter_and_getter() {
 
     let new_key_pair = KEY_PAIR_2();
     let signature = get_accept_ownership_signature(
-        contract_address, key_pair.public_key, new_key_pair
+        contract_address, key_pair.public_key, new_key_pair,
     );
     start_cheat_caller_address(contract_address, contract_address);
     dispatcher.set_public_key(new_key_pair.public_key, signature);
@@ -144,7 +144,7 @@ fn test_public_key_setter_and_getter_camel() {
 
     let new_key_pair = KEY_PAIR_2();
     let signature = get_accept_ownership_signature(
-        contract_address, key_pair.public_key, new_key_pair
+        contract_address, key_pair.public_key, new_key_pair,
     );
     start_cheat_caller_address(contract_address, contract_address);
     dispatcher.setPublicKey(new_key_pair.public_key, signature);
@@ -294,7 +294,7 @@ fn test_validate_declare() {
     // value is already integrated in the tx hash. The class_hash argument in this
     // testing context is decoupled from the signature and has no effect on the test.
     let is_valid = account.__validate_declare__(class_hash);
-    assert_eq!(is_valid, starknet::VALIDATED,);
+    assert_eq!(is_valid, starknet::VALIDATED);
 }
 
 #[test]
@@ -343,7 +343,7 @@ fn test_execute_with_version(version: Option<felt252>) {
     calldata.append_serde(amount);
 
     let call = Call {
-        to: erc20.contract_address, selector: selector!("transfer"), calldata: calldata.span()
+        to: erc20.contract_address, selector: selector!("transfer"), calldata: calldata.span(),
     };
     let calls = array![call];
 
@@ -413,7 +413,7 @@ fn test_multicall() {
     calldata1.append_serde(recipient1);
     calldata1.append_serde(amount1);
     let call1 = Call {
-        to: erc20.contract_address, selector: selector!("transfer"), calldata: calldata1.span()
+        to: erc20.contract_address, selector: selector!("transfer"), calldata: calldata1.span(),
     };
 
     // Craft 2nd call
@@ -422,7 +422,7 @@ fn test_multicall() {
     calldata2.append_serde(recipient2);
     calldata2.append_serde(amount2);
     let call2 = Call {
-        to: erc20.contract_address, selector: selector!("transfer"), calldata: calldata2.span()
+        to: erc20.contract_address, selector: selector!("transfer"), calldata: calldata2.span(),
     };
 
     let calls = array![call1, call2];
@@ -522,7 +522,7 @@ fn test_state_persists_after_upgrade() {
 
     let new_key_pair = KEY_PAIR_2();
     let signature = get_accept_ownership_signature(
-        contract_address, key_pair.public_key, new_key_pair
+        contract_address, key_pair.public_key, new_key_pair,
     );
     dispatcher.set_public_key(new_key_pair.public_key, signature);
 
@@ -680,7 +680,7 @@ fn test_execute_from_outside_v2_invalid_signature() {
     let msg_hash = outside_execution.get_message_hash(account_address);
     let signature = key_pair.serialized_sign(msg_hash.into());
     let invalid_signature = array![
-        *signature.at(0), *signature.at(1), *signature.at(2), *signature.at(3) + 1
+        *signature.at(0), *signature.at(1), *signature.at(2), *signature.at(3) + 1,
     ];
 
     dispatcher.execute_from_outside_v2(outside_execution, invalid_signature.span());

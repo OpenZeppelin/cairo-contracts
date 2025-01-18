@@ -7,10 +7,10 @@
 /// Extension of GovernorComponent for settings that are updatable through governance.
 #[starknet::component]
 pub mod GovernorSettingsComponent {
-    use crate::governor::GovernorComponent::{
-        InternalExtendedTrait, ComponentState as GovernorComponentState
-    };
     use crate::governor::GovernorComponent;
+    use crate::governor::GovernorComponent::{
+        ComponentState as GovernorComponentState, InternalExtendedTrait,
+    };
     use crate::governor::extensions::interface::IGovernorSettingsAdmin;
     use openzeppelin_introspection::src5::SRC5Component;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
@@ -27,28 +27,28 @@ pub mod GovernorSettingsComponent {
     pub enum Event {
         VotingDelayUpdated: VotingDelayUpdated,
         VotingPeriodUpdated: VotingPeriodUpdated,
-        ProposalThresholdUpdated: ProposalThresholdUpdated
+        ProposalThresholdUpdated: ProposalThresholdUpdated,
     }
 
     /// Emitted when `Governor_voting_delay` is updated.
     #[derive(Drop, starknet::Event)]
     pub struct VotingDelayUpdated {
         pub old_voting_delay: u64,
-        pub new_voting_delay: u64
+        pub new_voting_delay: u64,
     }
 
     /// Emitted when `Governor_voting_period` is updated.
     #[derive(Drop, starknet::Event)]
     pub struct VotingPeriodUpdated {
         pub old_voting_period: u64,
-        pub new_voting_period: u64
+        pub new_voting_period: u64,
     }
 
     /// Emitted when `Governor_proposal_threshold` is updated.
     #[derive(Drop, starknet::Event)]
     pub struct ProposalThresholdUpdated {
         pub old_proposal_threshold: u256,
-        pub new_proposal_threshold: u256
+        pub new_proposal_threshold: u256,
     }
 
     pub mod Errors {
@@ -64,7 +64,7 @@ pub mod GovernorSettingsComponent {
         +GovernorComponent::HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         impl GovernorSettings: HasComponent<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of GovernorComponent::GovernorSettingsTrait<TContractState> {
         /// See `GovernorComponent::GovernorSettingsTrait::voting_delay`.
         fn voting_delay(self: @GovernorComponentState<TContractState>) -> u64 {
@@ -104,7 +104,7 @@ pub mod GovernorSettingsComponent {
         +GovernorComponent::GovernorExecutionTrait<TContractState>,
         +GovernorComponent::GovernorVotesTrait<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of IGovernorSettingsAdmin<ComponentState<TContractState>> {
         /// Sets the voting delay.
         ///
@@ -148,7 +148,7 @@ pub mod GovernorSettingsComponent {
         ///
         /// May emit a `ProposalThresholdUpdated` event.
         fn set_proposal_threshold(
-            ref self: ComponentState<TContractState>, new_proposal_threshold: u256
+            ref self: ComponentState<TContractState>, new_proposal_threshold: u256,
         ) {
             self.assert_only_governance();
             self._set_proposal_threshold(new_proposal_threshold);
@@ -168,7 +168,7 @@ pub mod GovernorSettingsComponent {
         +GovernorComponent::GovernorVotesTrait<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         impl Governor: GovernorComponent::HasComponent<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of InternalTrait<TContractState> {
         /// Initializes the component by setting the default values.
         ///
@@ -182,7 +182,7 @@ pub mod GovernorSettingsComponent {
             ref self: ComponentState<TContractState>,
             new_voting_delay: u64,
             new_voting_period: u64,
-            new_proposal_threshold: u256
+            new_proposal_threshold: u256,
         ) {
             self._set_voting_delay(new_voting_delay);
             self._set_voting_period(new_voting_period);
@@ -236,12 +236,12 @@ pub mod GovernorSettingsComponent {
         ///
         /// May emit a `ProposalThresholdUpdated` event.
         fn _set_proposal_threshold(
-            ref self: ComponentState<TContractState>, new_proposal_threshold: u256
+            ref self: ComponentState<TContractState>, new_proposal_threshold: u256,
         ) {
             let old_proposal_threshold = self.Governor_proposal_threshold.read();
             if old_proposal_threshold != new_proposal_threshold {
                 let event = ProposalThresholdUpdated {
-                    old_proposal_threshold, new_proposal_threshold
+                    old_proposal_threshold, new_proposal_threshold,
                 };
                 self.emit(event);
                 self.Governor_proposal_threshold.write(new_proposal_threshold);

@@ -10,7 +10,7 @@ pub trait IERC20<TState> {
     fn allowance(self: @TState, owner: ContractAddress, spender: ContractAddress) -> u256;
     fn transfer(ref self: TState, recipient: ContractAddress, amount: u256) -> bool;
     fn transfer_from(
-        ref self: TState, sender: ContractAddress, recipient: ContractAddress, amount: u256
+        ref self: TState, sender: ContractAddress, recipient: ContractAddress, amount: u256,
     ) -> bool;
     fn approve(ref self: TState, spender: ContractAddress, amount: u256) -> bool;
 }
@@ -29,7 +29,7 @@ pub trait IERC20Camel<TState> {
     fn allowance(self: @TState, owner: ContractAddress, spender: ContractAddress) -> u256;
     fn transfer(ref self: TState, recipient: ContractAddress, amount: u256) -> bool;
     fn transferFrom(
-        ref self: TState, sender: ContractAddress, recipient: ContractAddress, amount: u256
+        ref self: TState, sender: ContractAddress, recipient: ContractAddress, amount: u256,
     ) -> bool;
     fn approve(ref self: TState, spender: ContractAddress, amount: u256) -> bool;
 }
@@ -39,7 +39,7 @@ pub trait IERC20CamelOnly<TState> {
     fn totalSupply(self: @TState) -> u256;
     fn balanceOf(self: @TState, account: ContractAddress) -> u256;
     fn transferFrom(
-        ref self: TState, sender: ContractAddress, recipient: ContractAddress, amount: u256
+        ref self: TState, sender: ContractAddress, recipient: ContractAddress, amount: u256,
     ) -> bool;
 }
 
@@ -51,7 +51,7 @@ pub trait IERC20Mixin<TState> {
     fn allowance(self: @TState, owner: ContractAddress, spender: ContractAddress) -> u256;
     fn transfer(ref self: TState, recipient: ContractAddress, amount: u256) -> bool;
     fn transfer_from(
-        ref self: TState, sender: ContractAddress, recipient: ContractAddress, amount: u256
+        ref self: TState, sender: ContractAddress, recipient: ContractAddress, amount: u256,
     ) -> bool;
     fn approve(ref self: TState, spender: ContractAddress, amount: u256) -> bool;
 
@@ -64,7 +64,7 @@ pub trait IERC20Mixin<TState> {
     fn totalSupply(self: @TState) -> u256;
     fn balanceOf(self: @TState, account: ContractAddress) -> u256;
     fn transferFrom(
-        ref self: TState, sender: ContractAddress, recipient: ContractAddress, amount: u256
+        ref self: TState, sender: ContractAddress, recipient: ContractAddress, amount: u256,
     ) -> bool;
 }
 
@@ -76,7 +76,7 @@ pub trait IERC20Permit<TState> {
         spender: ContractAddress,
         amount: u256,
         deadline: u64,
-        signature: Span<felt252>
+        signature: Span<felt252>,
     );
     fn nonces(self: @TState, owner: ContractAddress) -> felt252;
     fn DOMAIN_SEPARATOR(self: @TState) -> felt252;
@@ -90,7 +90,7 @@ pub trait ERC20ABI<TState> {
     fn allowance(self: @TState, owner: ContractAddress, spender: ContractAddress) -> u256;
     fn transfer(ref self: TState, recipient: ContractAddress, amount: u256) -> bool;
     fn transfer_from(
-        ref self: TState, sender: ContractAddress, recipient: ContractAddress, amount: u256
+        ref self: TState, sender: ContractAddress, recipient: ContractAddress, amount: u256,
     ) -> bool;
     fn approve(ref self: TState, spender: ContractAddress, amount: u256) -> bool;
 
@@ -103,7 +103,7 @@ pub trait ERC20ABI<TState> {
     fn totalSupply(self: @TState) -> u256;
     fn balanceOf(self: @TState, account: ContractAddress) -> u256;
     fn transferFrom(
-        ref self: TState, sender: ContractAddress, recipient: ContractAddress, amount: u256
+        ref self: TState, sender: ContractAddress, recipient: ContractAddress, amount: u256,
     ) -> bool;
 
     // IERC20Permit
@@ -113,7 +113,7 @@ pub trait ERC20ABI<TState> {
         spender: ContractAddress,
         amount: u256,
         deadline: u64,
-        signature: Span<felt252>
+        signature: Span<felt252>,
     );
     fn nonces(self: @TState, owner: ContractAddress) -> felt252;
     fn DOMAIN_SEPARATOR(self: @TState) -> felt252;

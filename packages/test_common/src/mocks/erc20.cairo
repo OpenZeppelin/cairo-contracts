@@ -16,14 +16,14 @@ pub mod DualCaseERC20Mock {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        pub erc20: ERC20Component::Storage
+        pub erc20: ERC20Component::Storage,
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        ERC20Event: ERC20Component::Event
+        ERC20Event: ERC20Component::Event,
     }
 
     #[constructor]
@@ -32,7 +32,7 @@ pub mod DualCaseERC20Mock {
         name: ByteArray,
         symbol: ByteArray,
         initial_supply: u256,
-        recipient: ContractAddress
+        recipient: ContractAddress,
     ) {
         self.erc20.initializer(name, symbol);
         self.erc20.mint(recipient, initial_supply);
@@ -55,14 +55,14 @@ pub mod SnakeERC20Mock {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        pub erc20: ERC20Component::Storage
+        pub erc20: ERC20Component::Storage,
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        ERC20Event: ERC20Component::Event
+        ERC20Event: ERC20Component::Event,
     }
 
     #[constructor]
@@ -71,7 +71,7 @@ pub mod SnakeERC20Mock {
         name: ByteArray,
         symbol: ByteArray,
         initial_supply: u256,
-        recipient: ContractAddress
+        recipient: ContractAddress,
     ) {
         self.erc20.initializer(name, symbol);
         self.erc20.mint(recipient, initial_supply);
@@ -96,7 +96,7 @@ pub mod SnakeERC20MockWithHooks {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        pub erc20: ERC20Component::Storage
+        pub erc20: ERC20Component::Storage,
     }
 
     #[event]
@@ -105,7 +105,7 @@ pub mod SnakeERC20MockWithHooks {
         #[flat]
         ERC20Event: ERC20Component::Event,
         BeforeUpdate: BeforeUpdate,
-        AfterUpdate: AfterUpdate
+        AfterUpdate: AfterUpdate,
     }
 
     /// Event used to test that `before_update` hook is called.
@@ -113,7 +113,7 @@ pub mod SnakeERC20MockWithHooks {
     pub struct BeforeUpdate {
         pub from: ContractAddress,
         pub recipient: ContractAddress,
-        pub amount: u256
+        pub amount: u256,
     }
 
     /// Event used to test that `after_update` hook is called.
@@ -121,7 +121,7 @@ pub mod SnakeERC20MockWithHooks {
     pub struct AfterUpdate {
         pub from: ContractAddress,
         pub recipient: ContractAddress,
-        pub amount: u256
+        pub amount: u256,
     }
 
     #[constructor]
@@ -130,7 +130,7 @@ pub mod SnakeERC20MockWithHooks {
         name: ByteArray,
         symbol: ByteArray,
         initial_supply: u256,
-        recipient: ContractAddress
+        recipient: ContractAddress,
     ) {
         self.erc20.initializer(name, symbol);
         self.erc20.mint(recipient, initial_supply);
@@ -141,7 +141,7 @@ pub mod SnakeERC20MockWithHooks {
             ref self: ERC20Component::ComponentState<ContractState>,
             from: ContractAddress,
             recipient: ContractAddress,
-            amount: u256
+            amount: u256,
         ) {
             let mut contract_state = self.get_contract_mut();
             contract_state.emit(BeforeUpdate { from, recipient, amount });
@@ -151,7 +151,7 @@ pub mod SnakeERC20MockWithHooks {
             ref self: ERC20Component::ComponentState<ContractState>,
             from: ContractAddress,
             recipient: ContractAddress,
-            amount: u256
+            amount: u256,
         ) {
             let mut contract_state = self.get_contract_mut();
             contract_state.emit(AfterUpdate { from, recipient, amount });
@@ -188,7 +188,7 @@ pub mod DualCaseERC20PermitMock {
         #[substorage(v0)]
         pub erc20: ERC20Component::Storage,
         #[substorage(v0)]
-        pub nonces: NoncesComponent::Storage
+        pub nonces: NoncesComponent::Storage,
     }
 
     #[event]
@@ -197,7 +197,7 @@ pub mod DualCaseERC20PermitMock {
         #[flat]
         ERC20Event: ERC20Component::Event,
         #[flat]
-        NoncesEvent: NoncesComponent::Event
+        NoncesEvent: NoncesComponent::Event,
     }
 
     /// Required for hash computation.
@@ -218,7 +218,7 @@ pub mod DualCaseERC20PermitMock {
         name: ByteArray,
         symbol: ByteArray,
         initial_supply: u256,
-        recipient: ContractAddress
+        recipient: ContractAddress,
     ) {
         self.erc20.initializer(name, symbol);
         self.erc20.mint(recipient, initial_supply);

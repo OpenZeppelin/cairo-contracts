@@ -1,25 +1,25 @@
 use core::num::traits::Zero;
 use crate::AccountUpgradeable;
 use crate::interfaces::account::{
-    AccountUpgradeableABISafeDispatcher, AccountUpgradeableABISafeDispatcherTrait
+    AccountUpgradeableABISafeDispatcher, AccountUpgradeableABISafeDispatcherTrait,
 };
 use crate::interfaces::{AccountUpgradeableABIDispatcher, AccountUpgradeableABIDispatcherTrait};
 use openzeppelin_account::account::AccountComponent::AccountMixinImpl;
 use openzeppelin_account::extensions::SRC9Component::{OutsideExecutionV2Impl, SNIP12MetadataImpl};
-use openzeppelin_account::extensions::src9::interface::{OutsideExecution, ISRC9_V2_ID};
+use openzeppelin_account::extensions::src9::interface::{ISRC9_V2_ID, OutsideExecution};
 use openzeppelin_account::extensions::src9::snip12_utils::OutsideExecutionStructHash;
 use openzeppelin_account::interface::ISRC6_ID;
 use openzeppelin_introspection::interface::ISRC5_ID;
 use openzeppelin_test_common::account::{
-    SIGNED_TX_DATA, get_accept_ownership_signature, SignedTransactionData, AccountSpyHelpers
+    AccountSpyHelpers, SIGNED_TX_DATA, SignedTransactionData, get_accept_ownership_signature,
 };
 use openzeppelin_test_common::erc20::deploy_erc20;
 use openzeppelin_test_common::upgrades::UpgradeableSpyHelpers;
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::stark::{KEY_PAIR, KEY_PAIR_2};
 use openzeppelin_testing::constants::{
-    SALT, ZERO, CALLER, RECIPIENT, OTHER, QUERY_OFFSET, QUERY_VERSION, MIN_TRANSACTION_VERSION,
-    CLASS_HASH_ZERO, FELT_VALUE
+    CALLER, CLASS_HASH_ZERO, FELT_VALUE, MIN_TRANSACTION_VERSION, OTHER, QUERY_OFFSET,
+    QUERY_VERSION, RECIPIENT, SALT, ZERO,
 };
 use openzeppelin_testing::signing::SerializedSigning;
 use openzeppelin_testing::signing::StarkKeyPair;
@@ -27,14 +27,14 @@ use openzeppelin_token::erc20::interface::IERC20DispatcherTrait;
 use openzeppelin_utils::cryptography::snip12::OffchainMessageHash;
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{
-    spy_events, test_address, load, CheatSpan, start_cheat_caller_address, cheat_caller_address
+    CheatSpan, cheat_caller_address, load, spy_events, start_cheat_caller_address, test_address,
 };
 use snforge_std::{
-    start_cheat_signature_global, start_cheat_transaction_version_global,
-    start_cheat_transaction_hash_global, start_cheat_block_timestamp_global
+    start_cheat_block_timestamp_global, start_cheat_signature_global,
+    start_cheat_transaction_hash_global, start_cheat_transaction_version_global,
 };
 use starknet::account::Call;
-use starknet::{contract_address_const, ContractAddress, ClassHash};
+use starknet::{ClassHash, ContractAddress, contract_address_const};
 
 //
 // Setup
@@ -53,7 +53,7 @@ fn setup_dispatcher(key_pair: StarkKeyPair) -> (ContractAddress, AccountUpgradea
 }
 
 fn setup_dispatcher_with_data(
-    key_pair: StarkKeyPair, data: SignedTransactionData
+    key_pair: StarkKeyPair, data: SignedTransactionData,
 ) -> (AccountUpgradeableABIDispatcher, felt252) {
     let account_class = utils::declare_class("AccountUpgradeable");
     let calldata = array![key_pair.public_key];
@@ -111,7 +111,7 @@ fn test_public_key_setter_and_getter() {
 
     let new_key_pair = KEY_PAIR_2();
     let signature = get_accept_ownership_signature(
-        account_address, key_pair.public_key, new_key_pair
+        account_address, key_pair.public_key, new_key_pair,
     );
     start_cheat_caller_address(account_address, account_address);
     dispatcher.set_public_key(new_key_pair.public_key, signature);
@@ -130,7 +130,7 @@ fn test_public_key_setter_and_getter_camel() {
 
     let new_key_pair = KEY_PAIR_2();
     let signature = get_accept_ownership_signature(
-        account_address, key_pair.public_key, new_key_pair
+        account_address, key_pair.public_key, new_key_pair,
     );
     start_cheat_caller_address(account_address, account_address);
     dispatcher.setPublicKey(new_key_pair.public_key, signature);
@@ -149,7 +149,7 @@ fn test_set_public_key_different_account() {
 
     let new_key_pair = KEY_PAIR_2();
     let signature = get_accept_ownership_signature(
-        account_address, key_pair.public_key, new_key_pair
+        account_address, key_pair.public_key, new_key_pair,
     );
     dispatcher.set_public_key(new_key_pair.public_key, signature);
 }
@@ -162,7 +162,7 @@ fn test_setPublicKey_different_account() {
 
     let new_key_pair = KEY_PAIR_2();
     let signature = get_accept_ownership_signature(
-        account_address, key_pair.public_key, new_key_pair
+        account_address, key_pair.public_key, new_key_pair,
     );
     dispatcher.setPublicKey(new_key_pair.public_key, signature);
 }
@@ -364,7 +364,7 @@ fn test_execute_with_version(version: Option<felt252>) {
     calldata.append_serde(amount);
 
     let call = Call {
-        to: erc20.contract_address, selector: selector!("transfer"), calldata: calldata.span()
+        to: erc20.contract_address, selector: selector!("transfer"), calldata: calldata.span(),
     };
     let calls = array![call];
 
@@ -455,7 +455,7 @@ fn test_multicall() {
     calldata1.append_serde(recipient1);
     calldata1.append_serde(amount1);
     let call1 = Call {
-        to: erc20.contract_address, selector: selector!("transfer"), calldata: calldata1.span()
+        to: erc20.contract_address, selector: selector!("transfer"), calldata: calldata1.span(),
     };
 
     // Craft 2nd call
@@ -464,7 +464,7 @@ fn test_multicall() {
     calldata2.append_serde(recipient2);
     calldata2.append_serde(amount2);
     let call2 = Call {
-        to: erc20.contract_address, selector: selector!("transfer"), calldata: calldata2.span()
+        to: erc20.contract_address, selector: selector!("transfer"), calldata: calldata2.span(),
     };
 
     // Bundle calls and execute
@@ -568,7 +568,7 @@ fn test_state_persists_after_upgrade() {
 
     let new_key_pair = KEY_PAIR_2();
     let accept_ownership_sig = get_accept_ownership_signature(
-        account_address, key_pair.public_key, new_key_pair
+        account_address, key_pair.public_key, new_key_pair,
     );
     start_cheat_caller_address(account_address, account_address);
     v1_dispatcher.set_public_key(new_key_pair.public_key, accept_ownership_sig);

@@ -30,7 +30,7 @@ pub mod DualCaseERC721Mock {
         #[substorage(v0)]
         pub erc721: ERC721Component::Storage,
         #[substorage(v0)]
-        pub src5: SRC5Component::Storage
+        pub src5: SRC5Component::Storage,
     }
 
     #[event]
@@ -39,7 +39,7 @@ pub mod DualCaseERC721Mock {
         #[flat]
         ERC721Event: ERC721Component::Event,
         #[flat]
-        SRC5Event: SRC5Component::Event
+        SRC5Event: SRC5Component::Event,
     }
 
     #[constructor]
@@ -49,7 +49,7 @@ pub mod DualCaseERC721Mock {
         symbol: ByteArray,
         base_uri: ByteArray,
         recipient: ContractAddress,
-        token_id: u256
+        token_id: u256,
     ) {
         self.erc721.initializer(name, symbol, base_uri);
         self.erc721.mint(recipient, token_id);
@@ -81,7 +81,7 @@ pub mod SnakeERC721Mock {
         #[substorage(v0)]
         pub erc721: ERC721Component::Storage,
         #[substorage(v0)]
-        pub src5: SRC5Component::Storage
+        pub src5: SRC5Component::Storage,
     }
 
     #[event]
@@ -90,7 +90,7 @@ pub mod SnakeERC721Mock {
         #[flat]
         ERC721Event: ERC721Component::Event,
         #[flat]
-        SRC5Event: SRC5Component::Event
+        SRC5Event: SRC5Component::Event,
     }
 
     #[constructor]
@@ -100,7 +100,7 @@ pub mod SnakeERC721Mock {
         symbol: ByteArray,
         base_uri: ByteArray,
         recipient: ContractAddress,
-        token_id: u256
+        token_id: u256,
     ) {
         self.erc721.initializer(name, symbol, base_uri);
         self.erc721.mint(recipient, token_id);
@@ -134,7 +134,7 @@ pub mod SnakeERC721MockWithHooks {
         #[substorage(v0)]
         pub erc721: ERC721Component::Storage,
         #[substorage(v0)]
-        pub src5: SRC5Component::Storage
+        pub src5: SRC5Component::Storage,
     }
 
     #[event]
@@ -145,7 +145,7 @@ pub mod SnakeERC721MockWithHooks {
         #[flat]
         SRC5Event: SRC5Component::Event,
         BeforeUpdate: BeforeUpdate,
-        AfterUpdate: AfterUpdate
+        AfterUpdate: AfterUpdate,
     }
 
     /// Event used to test that `before_update` hook is called.
@@ -153,7 +153,7 @@ pub mod SnakeERC721MockWithHooks {
     pub struct BeforeUpdate {
         pub to: ContractAddress,
         pub token_id: u256,
-        pub auth: ContractAddress
+        pub auth: ContractAddress,
     }
 
     /// Event used to test that `after_update` hook is called.
@@ -161,7 +161,7 @@ pub mod SnakeERC721MockWithHooks {
     pub struct AfterUpdate {
         pub to: ContractAddress,
         pub token_id: u256,
-        pub auth: ContractAddress
+        pub auth: ContractAddress,
     }
 
     #[constructor]
@@ -171,7 +171,7 @@ pub mod SnakeERC721MockWithHooks {
         symbol: ByteArray,
         base_uri: ByteArray,
         recipient: ContractAddress,
-        token_id: u256
+        token_id: u256,
     ) {
         self.erc721.initializer(name, symbol, base_uri);
         self.erc721.mint(recipient, token_id);
@@ -182,7 +182,7 @@ pub mod SnakeERC721MockWithHooks {
             ref self: ERC721Component::ComponentState<ContractState>,
             to: ContractAddress,
             token_id: u256,
-            auth: ContractAddress
+            auth: ContractAddress,
         ) {
             let mut contract_state = self.get_contract_mut();
             contract_state.emit(BeforeUpdate { to, token_id, auth });
@@ -192,7 +192,7 @@ pub mod SnakeERC721MockWithHooks {
             ref self: ERC721Component::ComponentState<ContractState>,
             to: ContractAddress,
             token_id: u256,
-            auth: ContractAddress
+            auth: ContractAddress,
         ) {
             let mut contract_state = self.get_contract_mut();
             contract_state.emit(AfterUpdate { to, token_id, auth });
@@ -222,7 +222,7 @@ pub mod DualCaseERC721ReceiverMock {
         #[substorage(v0)]
         pub erc721_receiver: ERC721ReceiverComponent::Storage,
         #[substorage(v0)]
-        pub src5: SRC5Component::Storage
+        pub src5: SRC5Component::Storage,
     }
 
     #[event]
@@ -231,7 +231,7 @@ pub mod DualCaseERC721ReceiverMock {
         #[flat]
         ERC721ReceiverEvent: ERC721ReceiverComponent::Event,
         #[flat]
-        SRC5Event: SRC5Component::Event
+        SRC5Event: SRC5Component::Event,
     }
 
     #[constructor]
@@ -248,7 +248,7 @@ pub mod DualCaseERC721ReceiverMock {
             operator: ContractAddress,
             from: ContractAddress,
             token_id: u256,
-            data: Span<felt252>
+            data: Span<felt252>,
         ) -> felt252 {
             if *data.at(0) == super::SUCCESS {
                 self.erc721_receiver.on_erc721_received(operator, from, token_id, data)
@@ -263,7 +263,7 @@ pub mod DualCaseERC721ReceiverMock {
             operator: ContractAddress,
             from: ContractAddress,
             tokenId: u256,
-            data: Span<felt252>
+            data: Span<felt252>,
         ) -> felt252 {
             Self::on_erc721_received(self, operator, from, tokenId, data)
         }
@@ -274,13 +274,13 @@ pub mod DualCaseERC721ReceiverMock {
 pub mod ERC721EnumerableMock {
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_token::erc721::ERC721Component;
-    use openzeppelin_token::erc721::extensions::ERC721EnumerableComponent::InternalTrait;
     use openzeppelin_token::erc721::extensions::ERC721EnumerableComponent;
+    use openzeppelin_token::erc721::extensions::ERC721EnumerableComponent::InternalTrait;
     use starknet::ContractAddress;
 
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);
     component!(
-        path: ERC721EnumerableComponent, storage: erc721_enumerable, event: ERC721EnumerableEvent
+        path: ERC721EnumerableComponent, storage: erc721_enumerable, event: ERC721EnumerableEvent,
     );
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
@@ -306,7 +306,7 @@ pub mod ERC721EnumerableMock {
         #[substorage(v0)]
         pub erc721_enumerable: ERC721EnumerableComponent::Storage,
         #[substorage(v0)]
-        pub src5: SRC5Component::Storage
+        pub src5: SRC5Component::Storage,
     }
 
     #[event]
@@ -317,7 +317,7 @@ pub mod ERC721EnumerableMock {
         #[flat]
         ERC721EnumerableEvent: ERC721EnumerableComponent::Event,
         #[flat]
-        SRC5Event: SRC5Component::Event
+        SRC5Event: SRC5Component::Event,
     }
 
     impl ERC721HooksImpl of ERC721Component::ERC721HooksTrait<ContractState> {
@@ -325,7 +325,7 @@ pub mod ERC721EnumerableMock {
             ref self: ERC721Component::ComponentState<ContractState>,
             to: ContractAddress,
             token_id: u256,
-            auth: ContractAddress
+            auth: ContractAddress,
         ) {
             let mut contract_state = self.get_contract_mut();
             contract_state.erc721_enumerable.before_update(to, token_id);
@@ -348,7 +348,7 @@ pub mod ERC721EnumerableMock {
         symbol: ByteArray,
         base_uri: ByteArray,
         recipient: ContractAddress,
-        token_id: u256
+        token_id: u256,
     ) {
         self.erc721.initializer(name, symbol, base_uri);
         self.erc721_enumerable.initializer();

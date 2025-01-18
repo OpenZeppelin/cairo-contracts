@@ -12,7 +12,7 @@ pub struct OutsideExecution {
     pub nonce: felt252,
     pub execute_after: u64,
     pub execute_before: u64,
-    pub calls: Span<Call>
+    pub calls: Span<Call>,
 }
 
 #[starknet::interface]

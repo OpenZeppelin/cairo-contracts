@@ -1,11 +1,11 @@
-use snforge_std::{EventSpyTrait, EventSpy, EventSpyAssertionsTrait};
+use snforge_std::{EventSpy, EventSpyAssertionsTrait, EventSpyTrait};
 use starknet::ContractAddress;
 
 #[generate_trait]
 pub impl EventSpyExtImpl of EventSpyExt {
     /// Ensures that `from_address` has emitted only the `expected_event` and no additional events.
     fn assert_only_event<T, +starknet::Event<T>, +Drop<T>>(
-        ref self: EventSpy, from_address: ContractAddress, expected_event: T
+        ref self: EventSpy, from_address: ContractAddress, expected_event: T,
     ) {
         self.assert_emitted_single(from_address, expected_event);
         self.assert_no_events_left_from(from_address);
@@ -16,7 +16,7 @@ pub impl EventSpyExtImpl of EventSpyExt {
     /// consumes the event in the first position of the offset. This means
     /// that events must be asserted in the order that they're emitted.
     fn assert_emitted_single<T, +starknet::Event<T>, +Drop<T>>(
-        ref self: EventSpy, from_address: ContractAddress, expected_event: T
+        ref self: EventSpy, from_address: ContractAddress, expected_event: T,
     ) {
         self.assert_emitted(@array![(from_address, expected_event)]);
         self._event_offset += 1;
@@ -34,7 +34,7 @@ pub impl EventSpyExtImpl of EventSpyExt {
         let len = events.len();
         assert!(
             len >= number_to_drop,
-            "Not enough events to drop. ${len} events, ${number_to_drop} to drop"
+            "Not enough events to drop. ${len} events, ${number_to_drop} to drop",
         );
         self._event_offset += number_to_drop;
     }

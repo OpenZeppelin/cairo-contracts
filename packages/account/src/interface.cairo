@@ -27,7 +27,7 @@ pub trait IDeclarer<TState> {
 #[starknet::interface]
 pub trait IDeployable<TState> {
     fn __validate_deploy__(
-        self: @TState, class_hash: felt252, contract_address_salt: felt252, public_key: felt252
+        self: @TState, class_hash: felt252, contract_address_salt: felt252, public_key: felt252,
     ) -> felt252;
 }
 
@@ -67,7 +67,7 @@ pub trait AccountABI<TState> {
 
     // IDeployable
     fn __validate_deploy__(
-        self: @TState, class_hash: felt252, contract_address_salt: felt252, public_key: felt252
+        self: @TState, class_hash: felt252, contract_address_salt: felt252, public_key: felt252,
     ) -> felt252;
 
     // IPublicKey
@@ -89,7 +89,10 @@ pub trait AccountABI<TState> {
 #[starknet::interface]
 pub trait IEthDeployable<TState> {
     fn __validate_deploy__(
-        self: @TState, class_hash: felt252, contract_address_salt: felt252, public_key: EthPublicKey
+        self: @TState,
+        class_hash: felt252,
+        contract_address_salt: felt252,
+        public_key: EthPublicKey,
     ) -> felt252;
 }
 
@@ -125,7 +128,10 @@ pub trait EthAccountABI<TState> {
 
     // IEthDeployable
     fn __validate_deploy__(
-        self: @TState, class_hash: felt252, contract_address_salt: felt252, public_key: EthPublicKey
+        self: @TState,
+        class_hash: felt252,
+        contract_address_salt: felt252,
+        public_key: EthPublicKey,
     ) -> felt252;
 
     // IEthPublicKey

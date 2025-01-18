@@ -15,7 +15,7 @@ pub mod ERC721Upgradeable {
     use openzeppelin_token::erc721::{ERC721Component, ERC721HooksEmptyImpl};
     use openzeppelin_upgrades::UpgradeableComponent;
     use openzeppelin_upgrades::interface::IUpgradeable;
-    use starknet::{ContractAddress, ClassHash};
+    use starknet::{ClassHash, ContractAddress};
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);
@@ -44,7 +44,7 @@ pub mod ERC721Upgradeable {
         #[substorage(v0)]
         pub src5: SRC5Component::Storage,
         #[substorage(v0)]
-        pub upgradeable: UpgradeableComponent::Storage
+        pub upgradeable: UpgradeableComponent::Storage,
     }
 
     #[event]
@@ -57,7 +57,7 @@ pub mod ERC721Upgradeable {
         #[flat]
         SRC5Event: SRC5Component::Event,
         #[flat]
-        UpgradeableEvent: UpgradeableComponent::Event
+        UpgradeableEvent: UpgradeableComponent::Event,
     }
 
     /// Assigns `owner` as the contract owner.
@@ -72,7 +72,7 @@ pub mod ERC721Upgradeable {
         base_uri: ByteArray,
         recipient: ContractAddress,
         token_ids: Span<u256>,
-        owner: ContractAddress
+        owner: ContractAddress,
     ) {
         self.ownable.initializer(owner);
         self.erc721.initializer(name, symbol, base_uri);
@@ -93,7 +93,7 @@ pub mod ERC721Upgradeable {
     pub(crate) impl InternalImpl of InternalTrait {
         /// Mints `token_ids` to `recipient`.
         fn mint_assets(
-            ref self: ContractState, recipient: ContractAddress, mut token_ids: Span<u256>
+            ref self: ContractState, recipient: ContractAddress, mut token_ids: Span<u256>,
         ) {
             loop {
                 if token_ids.len() == 0 {

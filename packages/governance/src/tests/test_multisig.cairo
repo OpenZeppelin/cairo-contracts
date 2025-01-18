@@ -1,16 +1,16 @@
 use core::num::traits::Zero;
+use crate::multisig::MultisigComponent::{CallSalt, QuorumUpdated, SignerAdded, SignerRemoved};
 use crate::multisig::MultisigComponent::{ConfirmationRevoked, TransactionExecuted};
-use crate::multisig::MultisigComponent::{MultisigImpl, InternalImpl, Event};
-use crate::multisig::MultisigComponent::{SignerAdded, SignerRemoved, QuorumUpdated, CallSalt};
-use crate::multisig::MultisigComponent::{TransactionSubmitted, TransactionConfirmed};
+use crate::multisig::MultisigComponent::{Event, InternalImpl, MultisigImpl};
+use crate::multisig::MultisigComponent::{TransactionConfirmed, TransactionSubmitted};
 use crate::multisig::{MultisigComponent, TransactionID, TransactionState};
 use openzeppelin_test_common::mocks::multisig::IMultisigTargetMockDispatcherTrait;
-use openzeppelin_test_common::mocks::multisig::{MultisigWalletMock, IMultisigTargetMockDispatcher};
+use openzeppelin_test_common::mocks::multisig::{IMultisigTargetMockDispatcher, MultisigWalletMock};
 use openzeppelin_testing as utils;
-use openzeppelin_testing::constants::{ZERO, OTHER, ALICE, BOB, CHARLIE, SALT, BLOCK_NUMBER};
+use openzeppelin_testing::constants::{ALICE, BLOCK_NUMBER, BOB, CHARLIE, OTHER, SALT, ZERO};
 use openzeppelin_testing::events::EventSpyExt;
 use snforge_std::{EventSpy, spy_events, test_address};
-use snforge_std::{start_cheat_caller_address, start_cheat_block_number_global};
+use snforge_std::{start_cheat_block_number_global, start_cheat_caller_address};
 use starknet::account::Call;
 use starknet::{ContractAddress, contract_address_const};
 
@@ -135,7 +135,7 @@ fn test_submit_tx_batch() {
     let calls = array![
         build_call(MockCall::AddNumber(42)),
         build_call(MockCall::AddNumber(18)),
-        build_call(MockCall::AddNumber(40))
+        build_call(MockCall::AddNumber(40)),
     ]
         .span();
     let salt = 0;
@@ -162,7 +162,7 @@ fn test_submit_tx_batch_with_salt() {
     let calls = array![
         build_call(MockCall::AddNumber(42)),
         build_call(MockCall::AddNumber(18)),
-        build_call(MockCall::AddNumber(40))
+        build_call(MockCall::AddNumber(40)),
     ]
         .span();
     let salt = SALT;
@@ -190,7 +190,7 @@ fn test_submit_same_tx_batch_different_salt() {
     let calls = array![
         build_call(MockCall::AddNumber(42)),
         build_call(MockCall::AddNumber(18)),
-        build_call(MockCall::AddNumber(40))
+        build_call(MockCall::AddNumber(40)),
     ]
         .span();
     let salt_1 = 0;
@@ -235,7 +235,7 @@ fn test_cannot_submit_tx_batch_unauthorized() {
     let calls = array![
         build_call(MockCall::AddNumber(42)),
         build_call(MockCall::AddNumber(18)),
-        build_call(MockCall::AddNumber(40))
+        build_call(MockCall::AddNumber(40)),
     ]
         .span();
     let signer = OTHER();
@@ -265,7 +265,7 @@ fn test_cannot_submit_tx_batch_twice() {
     let calls = array![
         build_call(MockCall::AddNumber(42)),
         build_call(MockCall::AddNumber(18)),
-        build_call(MockCall::AddNumber(40))
+        build_call(MockCall::AddNumber(40)),
     ]
         .span();
     let signer = ALICE();
@@ -364,7 +364,7 @@ fn test_confirm_tx_batch() {
     let calls = array![
         build_call(MockCall::AddNumber(42)),
         build_call(MockCall::AddNumber(18)),
-        build_call(MockCall::AddNumber(40))
+        build_call(MockCall::AddNumber(40)),
     ]
         .span();
 
@@ -625,7 +625,7 @@ fn test_execute_tx_batch() {
     let calls = array![
         build_call(MockCall::AddNumber(42)),
         build_call(MockCall::AddNumber(18)),
-        build_call(MockCall::AddNumber(40))
+        build_call(MockCall::AddNumber(40)),
     ]
         .span();
     let salt = 0;
@@ -702,7 +702,7 @@ fn test_cannot_execute_batch_unauthorized() {
     let calls = array![
         build_call(MockCall::AddNumber(42)),
         build_call(MockCall::AddNumber(18)),
-        build_call(MockCall::AddNumber(40))
+        build_call(MockCall::AddNumber(40)),
     ]
         .span();
     let salt = 0;
@@ -845,7 +845,7 @@ fn test_tx_batch_hash_depends_on_salt() {
     let calls = array![
         build_call(MockCall::AddNumber(42)),
         build_call(MockCall::AddNumber(18)),
-        build_call(MockCall::AddNumber(40))
+        build_call(MockCall::AddNumber(40)),
     ]
         .span();
     start_cheat_caller_address(test_address(), ALICE());
@@ -1387,7 +1387,7 @@ fn test_cannot_change_quorum_when_not_multisig_itself() {
 enum MockCall {
     AddNumber: felt252,
     FailingFn,
-    BadSelector
+    BadSelector,
 }
 
 fn build_call(call: MockCall) -> Call {
@@ -1432,7 +1432,7 @@ fn assert_tx_state(id: TransactionID, expected_state: TransactionState) {
             assert!(is_confirmed);
             assert!(is_executed);
             assert!(tx_confirmations >= state.get_quorum());
-        }
+        },
     };
 }
 
@@ -1456,14 +1456,14 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
     //
 
     fn assert_event_signer_added(
-        ref self: EventSpy, contract: ContractAddress, signer: ContractAddress
+        ref self: EventSpy, contract: ContractAddress, signer: ContractAddress,
     ) {
         let expected = Event::SignerAdded(SignerAdded { signer });
         self.assert_emitted_single(contract, expected);
     }
 
     fn assert_only_event_signer_added(
-        ref self: EventSpy, contract: ContractAddress, signer: ContractAddress
+        ref self: EventSpy, contract: ContractAddress, signer: ContractAddress,
     ) {
         self.assert_event_signer_added(contract, signer);
         self.assert_no_events_left_from(contract);
@@ -1474,14 +1474,14 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
     //
 
     fn assert_event_signer_removed(
-        ref self: EventSpy, contract: ContractAddress, signer: ContractAddress
+        ref self: EventSpy, contract: ContractAddress, signer: ContractAddress,
     ) {
         let expected = Event::SignerRemoved(SignerRemoved { signer });
         self.assert_emitted_single(contract, expected);
     }
 
     fn assert_only_event_signer_removed(
-        ref self: EventSpy, contract: ContractAddress, signer: ContractAddress
+        ref self: EventSpy, contract: ContractAddress, signer: ContractAddress,
     ) {
         self.assert_event_signer_removed(contract, signer);
         self.assert_no_events_left_from(contract);
@@ -1492,14 +1492,14 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
     //
 
     fn assert_event_quorum_updated(
-        ref self: EventSpy, contract: ContractAddress, old_quorum: u32, new_quorum: u32
+        ref self: EventSpy, contract: ContractAddress, old_quorum: u32, new_quorum: u32,
     ) {
         let expected = Event::QuorumUpdated(QuorumUpdated { old_quorum, new_quorum });
         self.assert_emitted_single(contract, expected);
     }
 
     fn assert_only_event_quorum_updated(
-        ref self: EventSpy, contract: ContractAddress, old_quorum: u32, new_quorum: u32
+        ref self: EventSpy, contract: ContractAddress, old_quorum: u32, new_quorum: u32,
     ) {
         self.assert_event_quorum_updated(contract, old_quorum, new_quorum);
         self.assert_no_events_left_from(contract);
@@ -1510,14 +1510,14 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
     //
 
     fn assert_event_tx_submitted(
-        ref self: EventSpy, contract: ContractAddress, id: TransactionID, signer: ContractAddress
+        ref self: EventSpy, contract: ContractAddress, id: TransactionID, signer: ContractAddress,
     ) {
         let expected = Event::TransactionSubmitted(TransactionSubmitted { id, signer });
         self.assert_emitted_single(contract, expected);
     }
 
     fn assert_only_event_tx_submitted(
-        ref self: EventSpy, contract: ContractAddress, id: TransactionID, signer: ContractAddress
+        ref self: EventSpy, contract: ContractAddress, id: TransactionID, signer: ContractAddress,
     ) {
         self.assert_event_tx_submitted(contract, id, signer);
         self.assert_no_events_left_from(contract);
@@ -1528,14 +1528,14 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
     //
 
     fn assert_event_tx_confirmed(
-        ref self: EventSpy, contract: ContractAddress, id: TransactionID, signer: ContractAddress
+        ref self: EventSpy, contract: ContractAddress, id: TransactionID, signer: ContractAddress,
     ) {
         let expected = Event::TransactionConfirmed(TransactionConfirmed { id, signer });
         self.assert_emitted_single(contract, expected);
     }
 
     fn assert_only_event_tx_confirmed(
-        ref self: EventSpy, contract: ContractAddress, id: TransactionID, signer: ContractAddress
+        ref self: EventSpy, contract: ContractAddress, id: TransactionID, signer: ContractAddress,
     ) {
         self.assert_event_tx_confirmed(contract, id, signer);
         self.assert_no_events_left_from(contract);
@@ -1546,14 +1546,14 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
     //
 
     fn assert_event_confirmation_revoked(
-        ref self: EventSpy, contract: ContractAddress, id: TransactionID, signer: ContractAddress
+        ref self: EventSpy, contract: ContractAddress, id: TransactionID, signer: ContractAddress,
     ) {
         let expected = Event::ConfirmationRevoked(ConfirmationRevoked { id, signer });
         self.assert_emitted_single(contract, expected);
     }
 
     fn assert_only_event_confirmation_revoked(
-        ref self: EventSpy, contract: ContractAddress, id: TransactionID, signer: ContractAddress
+        ref self: EventSpy, contract: ContractAddress, id: TransactionID, signer: ContractAddress,
     ) {
         self.assert_event_confirmation_revoked(contract, id, signer);
         self.assert_no_events_left_from(contract);
@@ -1569,7 +1569,7 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
     }
 
     fn assert_only_event_tx_executed(
-        ref self: EventSpy, contract: ContractAddress, id: TransactionID
+        ref self: EventSpy, contract: ContractAddress, id: TransactionID,
     ) {
         self.assert_event_tx_executed(contract, id);
         self.assert_no_events_left_from(contract);
@@ -1580,7 +1580,7 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
     //
 
     fn assert_event_call_salt(
-        ref self: EventSpy, contract: ContractAddress, id: TransactionID, salt: felt252
+        ref self: EventSpy, contract: ContractAddress, id: TransactionID, salt: felt252,
     ) {
         let expected = Event::CallSalt(CallSalt { id, salt });
         self.assert_emitted_single(contract, expected);

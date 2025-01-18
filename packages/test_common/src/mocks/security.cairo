@@ -12,14 +12,14 @@ pub mod InitializableMock {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        pub initializable: InitializableComponent::Storage
+        pub initializable: InitializableComponent::Storage,
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        InitializableEvent: InitializableComponent::Event
+        InitializableEvent: InitializableComponent::Event,
     }
 }
 
@@ -36,14 +36,14 @@ pub mod PausableMock {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        pub pausable: PausableComponent::Storage
+        pub pausable: PausableComponent::Storage,
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        PausableEvent: PausableComponent::Event
+        PausableEvent: PausableComponent::Event,
     }
 }
 
@@ -74,7 +74,7 @@ pub mod ReentrancyMock {
     use super::IReentrancyGuardedDispatcherTrait;
 
     component!(
-        path: ReentrancyGuardComponent, storage: reentrancy_guard, event: ReentrancyGuardEvent
+        path: ReentrancyGuardComponent, storage: reentrancy_guard, event: ReentrancyGuardEvent,
     );
 
     impl InternalImpl = ReentrancyGuardComponent::InternalImpl<ContractState>;
@@ -83,14 +83,14 @@ pub mod ReentrancyMock {
     pub struct Storage {
         pub counter: felt252,
         #[substorage(v0)]
-        pub reentrancy_guard: ReentrancyGuardComponent::Storage
+        pub reentrancy_guard: ReentrancyGuardComponent::Storage,
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        ReentrancyGuardEvent: ReentrancyGuardComponent::Event
+        ReentrancyGuardEvent: ReentrancyGuardComponent::Event,
     }
 
     #[abi(embed_v0)]

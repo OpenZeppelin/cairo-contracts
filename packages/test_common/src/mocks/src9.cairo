@@ -34,7 +34,7 @@ pub mod SRC9AccountMock {
         #[substorage(v0)]
         pub src9: SRC9Component::Storage,
         #[substorage(v0)]
-        pub src5: SRC5Component::Storage
+        pub src5: SRC5Component::Storage,
     }
 
     #[event]
@@ -45,7 +45,7 @@ pub mod SRC9AccountMock {
         #[flat]
         SRC9Event: SRC9Component::Event,
         #[flat]
-        SRC5Event: SRC5Component::Event
+        SRC5Event: SRC5Component::Event,
     }
 
     #[constructor]

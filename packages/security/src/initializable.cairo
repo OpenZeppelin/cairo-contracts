@@ -13,7 +13,7 @@ pub mod InitializableComponent {
 
     #[storage]
     pub struct Storage {
-        pub Initializable_initialized: bool
+        pub Initializable_initialized: bool,
     }
 
     pub mod Errors {
@@ -22,7 +22,7 @@ pub mod InitializableComponent {
 
     #[embeddable_as(InitializableImpl)]
     impl Initializable<
-        TContractState, +HasComponent<TContractState>
+        TContractState, +HasComponent<TContractState>,
     > of IInitializable<ComponentState<TContractState>> {
         /// Returns whether the contract has been initialized.
         fn is_initialized(self: @ComponentState<TContractState>) -> bool {
@@ -32,7 +32,7 @@ pub mod InitializableComponent {
 
     #[generate_trait]
     pub impl InternalImpl<
-        TContractState, +HasComponent<TContractState>
+        TContractState, +HasComponent<TContractState>,
     > of InternalTrait<TContractState> {
         /// Ensures the calling function can only be called once.
         ///

@@ -1,18 +1,18 @@
 use core::num::traits::Zero;
-use crate::erc721::ERC721Component::{ERC721Impl, ERC721CamelOnlyImpl};
-use crate::erc721::ERC721Component::{ERC721MetadataImpl, InternalImpl};
-use crate::erc721::ERC721Component;
 use crate::erc721;
+use crate::erc721::ERC721Component;
+use crate::erc721::ERC721Component::{ERC721CamelOnlyImpl, ERC721Impl};
+use crate::erc721::ERC721Component::{ERC721MetadataImpl, InternalImpl};
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin_test_common::erc721::ERC721SpyHelpers;
 use openzeppelin_test_common::mocks::erc721::{DualCaseERC721Mock, SnakeERC721MockWithHooks};
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{
-    DATA, ZERO, OWNER, CALLER, RECIPIENT, SPENDER, OPERATOR, OTHER, NAME, SYMBOL, TOKEN_ID,
-    TOKEN_ID_2, PUBKEY, BASE_URI, BASE_URI_2
+    BASE_URI, BASE_URI_2, CALLER, DATA, NAME, OPERATOR, OTHER, OWNER, PUBKEY, RECIPIENT, SPENDER,
+    SYMBOL, TOKEN_ID, TOKEN_ID_2, ZERO,
 };
 use openzeppelin_testing::events::EventSpyExt;
-use snforge_std::{EventSpy, spy_events, test_address, start_cheat_caller_address};
+use snforge_std::{EventSpy, spy_events, start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
 use starknet::storage::StorageMapReadAccess;
 
@@ -1451,7 +1451,7 @@ fn test_update_calls_after_update_hook() {
 //
 
 fn assert_state_before_transfer(
-    owner: ContractAddress, recipient: ContractAddress, token_id: u256
+    owner: ContractAddress, recipient: ContractAddress, token_id: u256,
 ) {
     let state = COMPONENT_STATE();
     assert_eq!(state.owner_of(token_id), owner);
@@ -1486,10 +1486,10 @@ impl ERC721HooksSpyHelpersImpl of ERC721HooksSpyHelpers {
         contract: ContractAddress,
         to: ContractAddress,
         token_id: u256,
-        auth: ContractAddress
+        auth: ContractAddress,
     ) {
         let expected = SnakeERC721MockWithHooks::Event::BeforeUpdate(
-            SnakeERC721MockWithHooks::BeforeUpdate { to, token_id, auth }
+            SnakeERC721MockWithHooks::BeforeUpdate { to, token_id, auth },
         );
         self.assert_emitted_single(contract, expected);
     }
@@ -1499,10 +1499,10 @@ impl ERC721HooksSpyHelpersImpl of ERC721HooksSpyHelpers {
         contract: ContractAddress,
         to: ContractAddress,
         token_id: u256,
-        auth: ContractAddress
+        auth: ContractAddress,
     ) {
         let expected = SnakeERC721MockWithHooks::Event::AfterUpdate(
-            SnakeERC721MockWithHooks::AfterUpdate { to, token_id, auth }
+            SnakeERC721MockWithHooks::AfterUpdate { to, token_id, auth },
         );
         self.assert_emitted_single(contract, expected);
     }

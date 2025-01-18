@@ -1,27 +1,27 @@
 use crate::votes::Delegation;
-use crate::votes::VotesComponent::VotingUnitsTrait;
-use crate::votes::VotesComponent::{DelegateChanged, DelegateVotesChanged, VotesImpl, InternalImpl};
 use crate::votes::VotesComponent;
+use crate::votes::VotesComponent::VotingUnitsTrait;
+use crate::votes::VotesComponent::{DelegateChanged, DelegateVotesChanged, InternalImpl, VotesImpl};
 use openzeppelin_test_common::mocks::votes::ERC721VotesMock::SNIP12MetadataImpl;
-use openzeppelin_test_common::mocks::votes::{ERC721VotesMock, ERC20VotesMock};
+use openzeppelin_test_common::mocks::votes::{ERC20VotesMock, ERC721VotesMock};
 use openzeppelin_testing as utils;
-use openzeppelin_testing::constants::{SUPPLY, ZERO, DELEGATOR, DELEGATEE, OTHER, RECIPIENT};
+use openzeppelin_testing::constants::{DELEGATEE, DELEGATOR, OTHER, RECIPIENT, SUPPLY, ZERO};
 use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_token::erc20::ERC20Component::InternalTrait;
 use openzeppelin_token::erc20::interface::IERC20;
+use openzeppelin_token::erc721::ERC721Component::{ERC721CamelOnlyImpl, ERC721Impl};
 use openzeppelin_token::erc721::ERC721Component::{
     ERC721MetadataImpl, InternalImpl as ERC721InternalImpl,
 };
-use openzeppelin_token::erc721::ERC721Component::{ERC721Impl, ERC721CamelOnlyImpl};
 use openzeppelin_token::erc721::interface::IERC721;
 use openzeppelin_utils::cryptography::snip12::OffchainMessageHash;
 use openzeppelin_utils::structs::checkpoint::TraceTrait;
 use snforge_std::signature::stark_curve::{StarkCurveKeyPairImpl, StarkCurveSignerImpl};
-use snforge_std::{
-    start_cheat_block_timestamp_global, start_cheat_caller_address, spy_events, test_address,
-    start_cheat_chain_id_global
-};
 use snforge_std::{EventSpy};
+use snforge_std::{
+    spy_events, start_cheat_block_timestamp_global, start_cheat_caller_address,
+    start_cheat_chain_id_global, test_address,
+};
 use starknet::storage::StoragePathEntry;
 use starknet::{ContractAddress, contract_address_const};
 
@@ -195,7 +195,7 @@ fn test_self_delegate() {
     spy.assert_event_delegate_changed(contract_address, DELEGATOR(), ZERO(), DELEGATOR());
     spy
         .assert_only_event_delegate_votes_changed(
-            contract_address, DELEGATOR(), 0, ERC721_INITIAL_MINT
+            contract_address, DELEGATOR(), 0, ERC721_INITIAL_MINT,
         );
     assert_eq!(state.get_votes(DELEGATOR()), ERC721_INITIAL_MINT);
 }
@@ -211,7 +211,7 @@ fn test_delegate_to_delegatee_updates_votes() {
     spy.assert_event_delegate_changed(contract_address, DELEGATOR(), ZERO(), DELEGATEE());
     spy
         .assert_only_event_delegate_votes_changed(
-            contract_address, DELEGATEE(), 0, ERC721_INITIAL_MINT
+            contract_address, DELEGATEE(), 0, ERC721_INITIAL_MINT,
         );
     assert_eq!(state.get_votes(DELEGATEE()), ERC721_INITIAL_MINT);
     assert_eq!(state.get_votes(DELEGATOR()), 0);
@@ -289,7 +289,7 @@ fn test_delegate_by_sig_hash_generation() {
     let nonce = 0;
     let expiry = 'ts2';
     let delegator = contract_address_const::<
-        0x70b0526a4bfbc9ca717c96aeb5a8afac85181f4585662273668928585a0d628
+        0x70b0526a4bfbc9ca717c96aeb5a8afac85181f4585662273668928585a0d628,
     >();
     let verifying_contract = contract_address_const::<'VERIFIER'>();
     let delegatee = RECIPIENT();
@@ -485,7 +485,7 @@ fn test_erc20_burn_updates_votes() {
     start_cheat_block_timestamp_global('ts2');
     spy
         .assert_event_delegate_votes_changed(
-            contract_address, DELEGATOR(), SUPPLY, SUPPLY - burn_amount
+            contract_address, DELEGATOR(), SUPPLY, SUPPLY - burn_amount,
         );
     assert_eq!(state.get_votes(DELEGATOR()), SUPPLY - burn_amount);
     assert_eq!(state.get_past_total_supply('ts1'), SUPPLY - burn_amount);
@@ -504,17 +504,13 @@ fn test_erc721_burn_updates_votes() {
     // Set spy and burn some tokens
     let mut spy = spy_events();
     let burn_amount = 3;
-    for i in 0
-        ..burn_amount {
-            mock_state.erc721.burn(i);
-            spy
-                .assert_event_delegate_votes_changed(
-                    contract_address,
-                    DELEGATOR(),
-                    ERC721_INITIAL_MINT - i,
-                    ERC721_INITIAL_MINT - i - 1
-                );
-        };
+    for i in 0..burn_amount {
+        mock_state.erc721.burn(i);
+        spy
+            .assert_event_delegate_votes_changed(
+                contract_address, DELEGATOR(), ERC721_INITIAL_MINT - i, ERC721_INITIAL_MINT - i - 1,
+            );
+    };
 
     // We need to move the timestamp forward to be able to call get_past_total_supply
     start_cheat_block_timestamp_global('ts2');
@@ -581,7 +577,7 @@ fn test_erc_20_voting_units_update_with_partial_balance_transfer() {
 
     spy
         .assert_event_delegate_votes_changed(
-            contract_address, DELEGATOR(), SUPPLY, SUPPLY - partial_amount
+            contract_address, DELEGATOR(), SUPPLY, SUPPLY - partial_amount,
         );
     assert_eq!(state.get_votes(DELEGATOR()), SUPPLY - partial_amount);
     assert_eq!(state.get_votes(RECIPIENT()), 0); // RECIPIENT hasn't delegated yet
@@ -613,7 +609,7 @@ fn test_erc721_voting_units_update_with_single_token_transfer() {
 
     spy
         .assert_event_delegate_votes_changed(
-            contract_address, DELEGATOR(), ERC721_INITIAL_MINT, ERC721_INITIAL_MINT - 1
+            contract_address, DELEGATOR(), ERC721_INITIAL_MINT, ERC721_INITIAL_MINT - 1,
         );
 
     assert_eq!(state.get_votes(DELEGATOR()), ERC721_INITIAL_MINT - 1);
@@ -638,10 +634,10 @@ impl VotesSpyHelpersImpl of VotesSpyHelpers {
         contract: ContractAddress,
         delegator: ContractAddress,
         from_delegate: ContractAddress,
-        to_delegate: ContractAddress
+        to_delegate: ContractAddress,
     ) {
         let expected = VotesComponent::Event::DelegateChanged(
-            DelegateChanged { delegator, from_delegate, to_delegate }
+            DelegateChanged { delegator, from_delegate, to_delegate },
         );
         self.assert_emitted_single(contract, expected);
     }
@@ -651,10 +647,10 @@ impl VotesSpyHelpersImpl of VotesSpyHelpers {
         contract: ContractAddress,
         delegate: ContractAddress,
         previous_votes: u256,
-        new_votes: u256
+        new_votes: u256,
     ) {
         let expected = VotesComponent::Event::DelegateVotesChanged(
-            DelegateVotesChanged { delegate, previous_votes, new_votes }
+            DelegateVotesChanged { delegate, previous_votes, new_votes },
         );
         self.assert_emitted_single(contract, expected);
     }
@@ -664,7 +660,7 @@ impl VotesSpyHelpersImpl of VotesSpyHelpers {
         contract: ContractAddress,
         delegator: ContractAddress,
         from_delegate: ContractAddress,
-        to_delegate: ContractAddress
+        to_delegate: ContractAddress,
     ) {
         self.assert_event_delegate_changed(contract, delegator, from_delegate, to_delegate);
         self.assert_no_events_left_from(contract);
@@ -675,7 +671,7 @@ impl VotesSpyHelpersImpl of VotesSpyHelpers {
         contract: ContractAddress,
         delegate: ContractAddress,
         previous_votes: u256,
-        new_votes: u256
+        new_votes: u256,
     ) {
         self.assert_event_delegate_votes_changed(contract, delegate, previous_votes, new_votes);
         self.assert_no_events_left_from(contract);

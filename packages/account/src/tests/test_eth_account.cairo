@@ -1,25 +1,25 @@
+use crate::EthAccountComponent;
 use crate::EthAccountComponent::{InternalTrait, SRC6CamelOnlyImpl};
 use crate::EthAccountComponent::{PublicKeyCamelImpl, PublicKeyImpl};
-use crate::EthAccountComponent;
-use crate::interface::{EthAccountABIDispatcherTrait, EthAccountABIDispatcher};
+use crate::interface::{EthAccountABIDispatcher, EthAccountABIDispatcherTrait};
 use crate::interface::{ISRC6, ISRC6_ID};
 use crate::utils::secp256_point::{DebugSecp256Point, Secp256PointPartialEq};
 use crate::utils::signature::Secp256Signature;
 use openzeppelin_introspection::interface::{ISRC5, ISRC5_ID};
 use openzeppelin_test_common::eth_account::EthAccountSpyHelpers;
 use openzeppelin_test_common::eth_account::{
-    SIGNED_TX_DATA, SignedTransactionData, get_accept_ownership_signature
+    SIGNED_TX_DATA, SignedTransactionData, get_accept_ownership_signature,
 };
 use openzeppelin_test_common::mocks::account::DualCaseEthAccountMock;
 use openzeppelin_test_common::mocks::simple::{ISimpleMockDispatcher, ISimpleMockDispatcherTrait};
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::secp256k1::{KEY_PAIR, KEY_PAIR_2};
-use openzeppelin_testing::constants::{SALT, QUERY_VERSION, MIN_TRANSACTION_VERSION};
-use openzeppelin_testing::constants::{ZERO, OTHER, CALLER};
+use openzeppelin_testing::constants::{CALLER, OTHER, ZERO};
+use openzeppelin_testing::constants::{MIN_TRANSACTION_VERSION, QUERY_VERSION, SALT};
 use openzeppelin_testing::signing::Secp256k1KeyPair;
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{spy_events, start_cheat_signature_global, start_cheat_transaction_hash_global};
-use snforge_std::{test_address, start_cheat_caller_address, start_cheat_transaction_version_global};
+use snforge_std::{start_cheat_caller_address, start_cheat_transaction_version_global, test_address};
 use starknet::account::Call;
 
 //
@@ -43,7 +43,7 @@ fn setup(key_pair: Secp256k1KeyPair) -> ComponentState {
 }
 
 fn setup_dispatcher(
-    key_pair: Secp256k1KeyPair, data: SignedTransactionData
+    key_pair: Secp256k1KeyPair, data: SignedTransactionData,
 ) -> (EthAccountABIDispatcher, felt252) {
     let mut calldata = array![];
     calldata.append_serde(key_pair.public_key);
@@ -225,7 +225,7 @@ fn test_execute_with_version(version: Option<felt252>) {
     let amount = 200;
     let calldata = array![amount];
     let call = Call {
-        to: contract_address, selector: selector!("increase_balance"), calldata: calldata.span()
+        to: contract_address, selector: selector!("increase_balance"), calldata: calldata.span(),
     };
     let calls = array![call];
 
@@ -298,14 +298,14 @@ fn test_multicall() {
     let amount1 = 300;
     let calldata1 = array![amount1];
     let call1 = Call {
-        to: contract_address, selector: selector!("increase_balance"), calldata: calldata1.span()
+        to: contract_address, selector: selector!("increase_balance"), calldata: calldata1.span(),
     };
 
     // Craft 2nd call
     let amount2 = 500;
     let calldata2 = array![amount2];
     let call2 = Call {
-        to: contract_address, selector: selector!("increase_balance"), calldata: calldata2.span()
+        to: contract_address, selector: selector!("increase_balance"), calldata: calldata2.span(),
     };
 
     // Bundle calls and execute
@@ -386,7 +386,7 @@ fn test_public_key_setter_and_getter() {
     let mut spy = spy_events();
     let new_key_pair = KEY_PAIR_2();
     let signature = get_accept_ownership_signature(
-        contract_address, key_pair.public_key, new_key_pair
+        contract_address, key_pair.public_key, new_key_pair,
     );
     state.set_public_key(new_key_pair.public_key, signature);
 
@@ -407,7 +407,7 @@ fn test_public_key_setter_different_account() {
 
     let new_key_pair = KEY_PAIR_2();
     let signature = get_accept_ownership_signature(
-        contract_address, key_pair.public_key, new_key_pair
+        contract_address, key_pair.public_key, new_key_pair,
     );
     state.set_public_key(new_key_pair.public_key, signature);
 }
@@ -430,7 +430,7 @@ fn test_public_key_setter_and_getter_camel() {
     let mut spy = spy_events();
     let new_key_pair = KEY_PAIR_2();
     let signature = get_accept_ownership_signature(
-        contract_address, key_pair.public_key, new_key_pair
+        contract_address, key_pair.public_key, new_key_pair,
     );
     state.setPublicKey(new_key_pair.public_key, signature);
 
@@ -451,7 +451,7 @@ fn test_public_key_setter_different_account_camel() {
 
     let new_key_pair = KEY_PAIR_2();
     let signature = get_accept_ownership_signature(
-        contract_address, key_pair.public_key, new_key_pair
+        contract_address, key_pair.public_key, new_key_pair,
     );
     state.setPublicKey(new_key_pair.public_key, signature);
 }
@@ -505,7 +505,7 @@ fn test_assert_valid_new_owner() {
 
     let new_key_pair = KEY_PAIR_2();
     let signature = get_accept_ownership_signature(
-        contract_address, key_pair.public_key, new_key_pair
+        contract_address, key_pair.public_key, new_key_pair,
     );
 
     state.assert_valid_new_owner(key_pair.public_key, new_key_pair.public_key, signature);

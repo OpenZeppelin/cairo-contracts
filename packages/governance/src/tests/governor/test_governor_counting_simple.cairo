@@ -1,7 +1,7 @@
 use core::num::traits::Bounded;
 use crate::governor::DefaultConfig;
 use crate::governor::GovernorComponent::InternalImpl;
-use crate::governor::extensions::GovernorCountingSimpleComponent::{VoteType, GovernorCounting};
+use crate::governor::extensions::GovernorCountingSimpleComponent::{GovernorCounting, VoteType};
 use crate::governor::interface::IGovernor;
 use crate::tests::governor::common::{COMPONENT_STATE, CONTRACT_STATE};
 use openzeppelin_test_common::mocks::governor::GovernorMock::SNIP12MetadataImpl;
@@ -84,7 +84,7 @@ fn test_count_vote_against() {
     assert_eq!(proposal_votes.against_votes.read(), 0);
 
     let weight = GovernorCounting::count_vote(
-        ref state, proposal_id, account, support, total_weight, params
+        ref state, proposal_id, account, support, total_weight, params,
     );
     assert_eq!(weight, total_weight);
 
@@ -111,7 +111,7 @@ fn test_count_vote_for() {
     assert_eq!(proposal_votes.for_votes.read(), 0);
 
     let weight = GovernorCounting::count_vote(
-        ref state, proposal_id, account, support, total_weight, params
+        ref state, proposal_id, account, support, total_weight, params,
     );
     assert_eq!(weight, total_weight);
 
@@ -138,7 +138,7 @@ fn test_count_vote_abstain() {
     assert_eq!(proposal_votes.abstain_votes.read(), 0);
 
     let weight = GovernorCounting::count_vote(
-        ref state, proposal_id, account, support, total_weight, params
+        ref state, proposal_id, account, support, total_weight, params,
     );
     assert_eq!(weight, total_weight);
 

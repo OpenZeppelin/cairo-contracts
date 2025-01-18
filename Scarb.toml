@@ -18,9 +18,9 @@ members = [
 [package]
 name = "openzeppelin"
 readme = "README.md"
-edition.workspace = true
 version.workspace = true
 keywords.workspace = true
+edition.workspace = true
 
 [workspace.package]
 version = "1.0.0"

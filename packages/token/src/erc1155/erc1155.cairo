@@ -470,12 +470,31 @@ pub mod ERC1155Component {
         /// Initializes the contract by setting the `base_uri` for all tokens,
         /// and registering the supported interfaces.
         /// This should only be used inside the contract's constructor.
+        ///
+        /// WARNING: Most ERC1155 contracts expose the `IERC1155MetadataURI` interface which
+        /// is what this initializer is meant to support.
+        /// If the contract DOES NOT expose the `IERC1155MetadataURI` interface,
+        /// meaning the token does not have a URI, the contract must instead use
+        /// `initializer_no_metadata` in the constructor.
+        /// Failure to abide by these instructions can lead to unexpected issues especially with
+        /// UIs.
         fn initializer(ref self: ComponentState<TContractState>, base_uri: ByteArray) {
             self._set_base_uri(base_uri);
 
             let mut src5_component = get_dep_component_mut!(ref self, SRC5);
             src5_component.register_interface(interface::IERC1155_ID);
             src5_component.register_interface(interface::IERC1155_METADATA_URI_ID);
+        }
+
+        /// Initializes the contract with no metadata by registering only the IERC1155 interface.
+        ///
+        /// WARNING: This initializer should ONLY be used during construction in the very
+        /// specific instance when the contract does NOT expose the `IERC1155MetadataURI` interface.
+        /// Initializing a contract with this initializer means that tokens will not
+        /// have a URI.
+        fn initializer_no_metadata(ref self: ComponentState<TContractState>) {
+            let mut src5_component = get_dep_component_mut!(ref self, SRC5);
+            src5_component.register_interface(interface::IERC1155_ID);
         }
 
         /// Creates a `value` amount of tokens of type `token_id`, and assigns them to `to`.

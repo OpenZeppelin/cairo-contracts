@@ -295,6 +295,7 @@ pub mod GovernorTimelockExecutionComponent {
             let mut value = this.into() ^ description_hash;
             if value > max_felt {
                 // Get the value modulo P.
+                // Invariant: 2 * max_felt > 2 ** 252 - 1 >= value
                 value = value - max_felt - 1;
             }
             // Unwrap is safe since value is less or equal than MAX_FELT.

@@ -3,7 +3,7 @@
 
 use core::traits::{BitAnd, BitXor, Into};
 
-/// Returns the average of two numbers unsigned integers. The result is rounded down.
+/// Returns the average of two unsigned integers. The result is rounded down.
 pub fn average<
     T, +Unsigned<T>, +Add<T>, +Div<T>, +BitAnd<T>, +BitXor<T>, +Into<u8, T>, +Copy<T>, +Drop<T>,
 >(

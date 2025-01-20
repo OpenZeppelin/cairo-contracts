@@ -174,7 +174,7 @@ Module containing math utilities.
 [[math-average]]
 ==== `[.contract-item-name]#++average++#++(a: T, b: T) → T++` [.item-kind]#function#
 
-Returns the average of two values. The result is rounded down.
+Returns the average of two unsigned integers. The result is rounded down.
 
 NOTE: `T` is a generic value matching different numeric implementations.
 

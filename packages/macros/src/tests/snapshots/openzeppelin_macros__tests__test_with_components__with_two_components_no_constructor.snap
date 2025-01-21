@@ -45,7 +45,7 @@ Warning: It looks like the initilizers for the following components are missing:
 
 ERC20, Ownable
 
-This may lead to unexpected behavior. We recommend adding a constructor with the corresponding initializer calls.
+This may lead to unexpected behavior. We recommend adding the corresponding initializer calls to the constructor.
 ====
 
 AuxData:

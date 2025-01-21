@@ -12,10 +12,36 @@ use cairo_lang_syntax::node::db::SyntaxGroup;
 use cairo_lang_syntax::node::helpers::{BodyItems, QueryAttrs};
 use cairo_lang_syntax::node::{ast, SyntaxNode, Terminal, TypedSyntaxNode};
 use indoc::{formatdoc, indoc};
-use itertools::Itertools;
 use regex::Regex;
 
-const ALLOWED_COMPONENTS: [&str; 4] = ["ERC20", "AccessControl", "Ownable", "Vesting"];
+const ALLOWED_COMPONENTS: [&str; 26] = [
+    "AccessControl",
+    "Ownable",
+    "Vesting",
+    "SRC5",
+    "Initializable",
+    "Pausable",
+    "ReentrancyGuard",
+    "ERC20",
+    "ERC721",
+    "ERC721Enumerable",
+    "ERC721Receiver",
+    "ERC1155",
+    "ERC1155Receiver",
+    "ERC2981",
+    "Upgradeable",
+    "Nonces",
+    "Multisig",
+    "TimelockController",
+    "Votes",
+    "TODO:Governor",
+    "TODO:GovernorCoreExecution",
+    "TODO:GovernorCountingSimple",
+    "TODO:GovernorSettings",
+    "TODO:GovernorTimelockExecution",
+    "TODO:GovernorVotesQuorumFraction",
+    "TODO:GovernorVotes",
+];
 
 /// Inserts multiple component dependencies into a modules codebase.
 #[attribute_macro]
@@ -102,8 +128,10 @@ fn build_patch(
 ///
 /// - Has the `#[starknet::contract]` attribute.
 /// - Has a constructor calling the corresponding initializers.
+/// - Has the corresponding immutable configs.
 ///
-/// NOTE: Missing initializers are added as Warnings.
+/// NOTE: Missing initializers and configs are added as Warnings.
+/// NOTE: When an error is found, the functions doesn't return any warnings to avoid noise.
 ///
 /// # Returns
 ///
@@ -114,6 +142,8 @@ fn validate_contract_module(
     node: &mut RewriteNode,
     components_info: &Vec<ComponentInfo>,
 ) -> (Vec<Diagnostic>, Vec<Diagnostic>) {
+    let mut warnings = vec![];
+
     if let RewriteNode::Copied(copied) = node {
         let item = ast::ItemModule::from_syntax_node(db, copied.clone());
 
@@ -133,43 +163,33 @@ fn validate_contract_module(
             return (vec![error], vec![]);
         }
 
-        // 4. Check that the module has the corresponding initializers (warning)
+        // 3. Check that the module has the corresponding initializers (warning)
         let components_with_initializer = components_info
             .iter()
             .filter(|c| c.has_initializer)
             .collect::<Vec<&ComponentInfo>>();
+
         if components_with_initializer.len() > 0 {
-            // Check that the constructor is present
-            let Some(constructor) = body.items_vec(db).into_iter().find(|item| {
-              matches!(item, ast::ModuleItem::FreeFunction(function_ast) if function_ast.has_attr(db, CONSTRUCTOR_ATTRIBUTE))
-            }) else {
-                  let components_with_initializer_str = components_with_initializer.iter().map(|c| c.short_name()).join(", ");
-                  let warning = Diagnostic::warn(formatdoc! {"
-                      It looks like the initilizers for the following components are missing:
+            let mut constructor_code = String::new();
+            let constructor = body.items_vec(db).into_iter().find(|item| {
+                matches!(item, ast::ModuleItem::FreeFunction(function_ast) if function_ast.has_attr(db, CONSTRUCTOR_ATTRIBUTE))
+            });
+            if constructor.is_some() {
+                // Get the constructor code (maybe we can do this without the builder)
+                let constructor_ast = constructor.unwrap().as_syntax_node();
+                let typed = ast::ModuleItem::from_syntax_node(db, constructor_ast.clone());
+                let constructor_rnode = RewriteNode::from_ast(&typed);
 
-                      {components_with_initializer_str}
-
-                      This may lead to unexpected behavior. We recommend adding a constructor with the corresponding initializer calls.
-                  "});
-                  return (vec![], vec![warning]);
-            };
-
-            // Get the constructor code (maybe we can do this without the builder)
-            let constructor_ast = constructor.as_syntax_node();
-            let typed = ast::ModuleItem::from_syntax_node(db, constructor_ast.clone());
-            let constructor_rnode = RewriteNode::from_ast(&typed);
-
-            let mut builder = PatchBuilder::new_ex(db, &constructor_ast);
-            builder.add_modified(constructor_rnode);
-            let (constructor_code, _) = builder.build();
-
+                let mut builder = PatchBuilder::new_ex(db, &constructor_ast);
+                builder.add_modified(constructor_rnode);
+                (constructor_code, _) = builder.build();
+            }
             let mut components_with_initializer_missing = vec![];
             for component in components_with_initializer.iter() {
                 if !constructor_code.contains(&format!("self.{}.initializer(", component.storage)) {
                     components_with_initializer_missing.push(component.short_name());
                 }
             }
-
             let components_with_initializer_missing_str =
                 components_with_initializer_missing.join(", ");
             if components_with_initializer_missing.len() > 0 {
@@ -180,12 +200,47 @@ fn validate_contract_module(
 
                     This may lead to unexpected behavior. We recommend adding the corresponding initializer calls to the constructor.
                 "});
-                return (vec![], vec![warning]);
+                warnings.push(warning);
+            }
+        }
+
+        // 4. Check that the contract has the corresponding immutable configs
+        for component in components_info.iter().filter(|c| c.has_immutable_config) {
+            // Get the body code (maybe we can do this without the builder)
+            let body_ast = body.as_syntax_node();
+            let typed = ast::ModuleBody::from_syntax_node(db, body_ast.clone());
+            let body_rnode = RewriteNode::from_ast(&typed);
+
+            let mut builder = PatchBuilder::new_ex(db, &body_ast);
+            builder.add_modified(body_rnode);
+            let (code, _) = builder.build();
+
+            // Check if the DefaultConfig is used
+            let component_parent_path = component
+                .path
+                .strip_suffix(&component.name)
+                .expect("Component path must end with the component name");
+            let default_config_path = format!("{}DefaultConfig", component_parent_path);
+            let default_config_used = code.contains(&default_config_path);
+            if !default_config_used {
+                // Check if the ImmutableConfig is implemented
+                let immutable_config_implemented =
+                    code.contains(&format!("of {}::ImmutableConfig", component.name));
+                if !immutable_config_implemented {
+                    let warning = Diagnostic::warn(formatdoc! {"
+                    The {} component requires an ImmutableConfig implementation in scope. It looks like this implementation is missing.
+
+                    You can use the default implementation by importing:
+
+                    `use {};`
+                ", component.short_name(), default_config_path});
+                    warnings.push(warning);
+                }
             }
         }
     }
 
-    (vec![], vec![])
+    (vec![], warnings)
 }
 
 /// Adds warnings that may be helpful for users.
@@ -193,20 +248,6 @@ fn add_per_component_warnings(code: &str, component_info: &ComponentInfo) -> Vec
     let mut warnings = vec![];
 
     match component_info.short_name().as_str() {
-        "ERC20" => {
-            // 1. Check that the ERC20HooksTrait is implemented
-            let hooks_trait_used = code.contains("ERC20HooksTrait");
-            let hooks_empty_impl_used = code.contains("ERC20HooksEmptyImpl");
-            if !hooks_trait_used && !hooks_empty_impl_used {
-                let warning = Diagnostic::warn(indoc! {"
-                    The ERC20 component requires an implementation of the ERC20HooksTrait in scope. It looks like this implementation is missing.
-
-                    You can use the ERC20HooksEmptyImpl implementation by importing it:
-                    `use openzeppelin_token::erc20::ERC20HooksEmptyImpl;`
-                "});
-                warnings.push(warning);
-            }
-        }
         "Vesting" => {
             // 1. Check that the VestingScheduleTrait is implemented
             let linear_impl_used = code.contains("LinearVestingSchedule");
@@ -216,7 +257,77 @@ fn add_per_component_warnings(code: &str, component_info: &ComponentInfo) -> Vec
                     The Vesting component requires an implementation of the VestingScheduleTrait in scope. It looks like this implementation is missing.
 
                     You can use the LinearVestingSchedule implementation by importing it:
+
                     `use openzeppelin_finance::vesting::LinearVestingSchedule;`
+                "});
+                warnings.push(warning);
+            }
+        }
+        "Initializable" => {
+            // 1. Check that the initialize internal function is called
+            let initialize_internal_function_called =
+                code.contains("self.initializer.initialize()");
+            if !initialize_internal_function_called {
+                let warning = Diagnostic::warn(indoc! {"
+                    It looks like the `self.initializer.initialize()` function is not used in the contract. If
+                    this is intentional, you may consider removing the Initializable component.
+                "});
+                warnings.push(warning);
+            }
+        }
+        "Pausable" => {
+            // 1. Check that the pause and unpause functions are called
+            let pause_function_called = code.contains("self.pausable.pause()");
+            let unpause_function_called = code.contains("self.pausable.unpause()");
+            if !pause_function_called || !unpause_function_called {
+                let warning = Diagnostic::warn(indoc! {"
+                    It looks like either the `self.pausable.pause()` or `self.pausable.unpause()` mechanisms are not implemented in the contract. If
+                    this is intentional, you may consider removing the Pausable component.
+                "});
+                warnings.push(warning);
+            }
+        }
+        "ERC20" => {
+            // 1. Check that the ERC20HooksTrait is implemented
+            let hooks_trait_used = code.contains("ERC20HooksTrait");
+            let hooks_empty_impl_used = code.contains("ERC20HooksEmptyImpl");
+            if !hooks_trait_used && !hooks_empty_impl_used {
+                let warning = Diagnostic::warn(indoc! {"
+                    The ERC20 component requires an implementation of the ERC20HooksTrait in scope. It looks like this implementation is missing.
+
+                    You can use the ERC20HooksEmptyImpl implementation by importing it:
+
+                    `use openzeppelin_token::erc20::ERC20HooksEmptyImpl;`
+                "});
+                warnings.push(warning);
+            }
+        }
+        "ERC721" => {
+            // 1. Check that the ERC721HooksTrait is implemented
+            let hooks_trait_used = code.contains("ERC721HooksTrait");
+            let hooks_empty_impl_used = code.contains("ERC721HooksEmptyImpl");
+            if !hooks_trait_used && !hooks_empty_impl_used {
+                let warning = Diagnostic::warn(indoc! {"
+                    The ERC721 component requires an implementation of the ERC721HooksTrait in scope. It looks like this implementation is missing.
+
+                    You can use the ERC721HooksEmptyImpl implementation by importing it:
+
+                    `use openzeppelin_token::erc721::ERC721HooksEmptyImpl;`
+                "});
+                warnings.push(warning);
+            }
+        }
+        "ERC1155" => {
+            // 1. Check that the ERC1155HooksTrait is implemented
+            let hooks_trait_used = code.contains("ERC1155HooksTrait");
+            let hooks_empty_impl_used = code.contains("ERC1155HooksEmptyImpl");
+            if !hooks_trait_used && !hooks_empty_impl_used {
+                let warning = Diagnostic::warn(indoc! {"
+                    The ERC1155 component requires an implementation of the ERC1155HooksTrait in scope. It looks like this implementation is missing.
+
+                    You can use the ERC1155HooksEmptyImpl implementation by importing it:
+
+                    `use openzeppelin_token::erc1155::ERC1155HooksEmptyImpl;`
                 "});
                 warnings.push(warning);
             }
@@ -343,6 +454,7 @@ pub struct ComponentInfo {
     pub storage: String,
     pub event: String,
     pub has_initializer: bool,
+    pub has_immutable_config: bool,
     pub internal_impls: Vec<String>,
 }
 
@@ -366,20 +478,13 @@ impl ComponentInfo {
 /// `ERC20`, `Ownable`
 fn get_component_info(name: &str) -> (Option<ComponentInfo>, Diagnostics) {
     let info = match name {
-        "ERC20" => Some(ComponentInfo {
-            name: format!("ERC20Component"),
-            path: format!("openzeppelin_token::erc20::ERC20Component"),
-            storage: format!("erc20"),
-            event: format!("ERC20Event"),
-            has_initializer: true,
-            internal_impls: vec!["InternalImpl".to_string()],
-        }),
         "Ownable" => Some(ComponentInfo {
             name: format!("OwnableComponent"),
             path: format!("openzeppelin_access::ownable::OwnableComponent"),
             storage: format!("ownable"),
             event: format!("OwnableEvent"),
             has_initializer: true,
+            has_immutable_config: false,
             internal_impls: vec!["InternalImpl".to_string()],
         }),
         "AccessControl" => Some(ComponentInfo {
@@ -388,6 +493,7 @@ fn get_component_info(name: &str) -> (Option<ComponentInfo>, Diagnostics) {
             storage: format!("accesscontrol"),
             event: format!("AccessControlEvent"),
             has_initializer: true,
+            has_immutable_config: false,
             internal_impls: vec!["InternalImpl".to_string()],
         }),
         "Vesting" => Some(ComponentInfo {
@@ -396,6 +502,151 @@ fn get_component_info(name: &str) -> (Option<ComponentInfo>, Diagnostics) {
             storage: format!("vesting"),
             event: format!("VestingEvent"),
             has_initializer: true,
+            has_immutable_config: false,
+            internal_impls: vec!["InternalImpl".to_string()],
+        }),
+        "SRC5" => Some(ComponentInfo {
+            name: format!("SRC5Component"),
+            path: format!("openzeppelin_introspection::src5::SRC5Component"),
+            storage: format!("src5"),
+            event: format!("SRC5Event"),
+            has_initializer: false,
+            has_immutable_config: false,
+            internal_impls: vec!["InternalImpl".to_string()],
+        }),
+        "Initializable" => Some(ComponentInfo {
+            name: format!("InitializableComponent"),
+            path: format!("openzeppelin_security::InitializableComponent"),
+            storage: format!("initializable"),
+            event: format!("InitializableEvent"),
+            has_initializer: false,
+            has_immutable_config: false,
+            internal_impls: vec!["InternalImpl".to_string()],
+        }),
+        "Pausable" => Some(ComponentInfo {
+            name: format!("PausableComponent"),
+            path: format!("openzeppelin_security::PausableComponent"),
+            storage: format!("pausable"),
+            event: format!("PausableEvent"),
+            has_initializer: false,
+            has_immutable_config: false,
+            internal_impls: vec!["InternalImpl".to_string()],
+        }),
+        "ReentrancyGuard" => Some(ComponentInfo {
+            name: format!("ReentrancyGuardComponent"),
+            path: format!("openzeppelin_security::ReentrancyGuardComponent"),
+            storage: format!("reentrancyguard"),
+            event: format!("ReentrancyGuardEvent"),
+            has_initializer: false,
+            has_immutable_config: false,
+            internal_impls: vec!["InternalImpl".to_string()],
+        }),
+        "ERC20" => Some(ComponentInfo {
+            name: format!("ERC20Component"),
+            path: format!("openzeppelin_token::erc20::ERC20Component"),
+            storage: format!("erc20"),
+            event: format!("ERC20Event"),
+            has_initializer: true,
+            has_immutable_config: false,
+            internal_impls: vec!["InternalImpl".to_string()],
+        }),
+        "ERC721" => Some(ComponentInfo {
+            name: format!("ERC721Component"),
+            path: format!("openzeppelin_token::erc721::ERC721Component"),
+            storage: format!("erc721"),
+            event: format!("ERC721Event"),
+            has_initializer: true,
+            has_immutable_config: false,
+            internal_impls: vec!["InternalImpl".to_string()],
+        }),
+        "ERC721Enumerable" => Some(ComponentInfo {
+            name: format!("ERC721EnumerableComponent"),
+            path: format!("openzeppelin_token::erc721::extensions::ERC721EnumerableComponent"),
+            storage: format!("erc721_enumerable"),
+            event: format!("ERC721EnumerableEvent"),
+            has_initializer: true,
+            has_immutable_config: false,
+            internal_impls: vec!["InternalImpl".to_string()],
+        }),
+        "ERC721Receiver" => Some(ComponentInfo {
+            name: format!("ERC721ReceiverComponent"),
+            path: format!("openzeppelin_token::erc721::ERC721ReceiverComponent"),
+            storage: format!("erc721_receiver"),
+            event: format!("ERC721ReceiverEvent"),
+            has_initializer: true,
+            has_immutable_config: false,
+            internal_impls: vec!["InternalImpl".to_string()],
+        }),
+        "ERC1155" => Some(ComponentInfo {
+            name: format!("ERC1155Component"),
+            path: format!("openzeppelin_token::erc1155::ERC1155Component"),
+            storage: format!("erc1155"),
+            event: format!("ERC1155Event"),
+            has_initializer: true,
+            has_immutable_config: false,
+            internal_impls: vec!["InternalImpl".to_string()],
+        }),
+        "ERC1155Receiver" => Some(ComponentInfo {
+            name: format!("ERC1155ReceiverComponent"),
+            path: format!("openzeppelin_token::erc1155::ERC1155ReceiverComponent"),
+            storage: format!("erc1155_receiver"),
+            event: format!("ERC1155ReceiverEvent"),
+            has_initializer: true,
+            has_immutable_config: false,
+            internal_impls: vec!["InternalImpl".to_string()],
+        }),
+        "ERC2981" => Some(ComponentInfo {
+            name: format!("ERC2981Component"),
+            path: format!("openzeppelin_token::common::erc2981::ERC2981Component"),
+            storage: format!("erc2981"),
+            event: format!("ERC2981Event"),
+            has_initializer: true,
+            has_immutable_config: true,
+            internal_impls: vec!["InternalImpl".to_string()],
+        }),
+        "Upgradeable" => Some(ComponentInfo {
+            name: format!("UpgradeableComponent"),
+            path: format!("openzeppelin_upgrades::UpgradeableComponent"),
+            storage: format!("upgradeable"),
+            event: format!("UpgradeableEvent"),
+            has_initializer: false,
+            has_immutable_config: false,
+            internal_impls: vec!["InternalImpl".to_string()],
+        }),
+        "Nonces" => Some(ComponentInfo {
+            name: format!("NoncesComponent"),
+            path: format!("openzeppelin_utils::nonces::NoncesComponent"),
+            storage: format!("nonces"),
+            event: format!("NoncesEvent"),
+            has_initializer: false,
+            has_immutable_config: false,
+            internal_impls: vec!["InternalImpl".to_string()],
+        }),
+        "Multisig" => Some(ComponentInfo {
+            name: format!("MultisigComponent"),
+            path: format!("openzeppelin_governance::multisig::MultisigComponent"),
+            storage: format!("multisig"),
+            event: format!("MultisigEvent"),
+            has_initializer: true,
+            has_immutable_config: false,
+            internal_impls: vec!["InternalImpl".to_string()],
+        }),
+        "TimelockController" => Some(ComponentInfo {
+            name: format!("TimelockControllerComponent"),
+            path: format!("openzeppelin_governance::timelock::TimelockControllerComponent"),
+            storage: format!("timelock_controller"),
+            event: format!("TimelockControllerEvent"),
+            has_initializer: true,
+            has_immutable_config: false,
+            internal_impls: vec!["InternalImpl".to_string()],
+        }),
+        "Votes" => Some(ComponentInfo {
+            name: format!("VotesComponent"),
+            path: format!("openzeppelin_governance::votes::VotesComponent"),
+            storage: format!("votes"),
+            event: format!("VotesEvent"),
+            has_initializer: false,
+            has_immutable_config: false,
             internal_impls: vec!["InternalImpl".to_string()],
         }),
         _ => None,

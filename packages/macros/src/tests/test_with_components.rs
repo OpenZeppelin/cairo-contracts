@@ -352,7 +352,530 @@ fn test_with_no_body() {
     let attribute = "(ERC20, Ownable)";
     let item = indoc!(
         "
-        pub mod MyToken;
+        pub mod MyContract;
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_no_components() {
+    let attribute = "()";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            #[storage]
+            pub struct Storage {}
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_invalid_component() {
+    let attribute = "(ERC6000, Ownable)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            #[storage]
+            pub struct Storage {}
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_src5() {
+    let attribute = "(SRC5)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            #[storage]
+            pub struct Storage {}
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_initializable() {
+    let attribute = "(Initializable)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            #[storage]
+            pub struct Storage {}
+
+            #[generate_trait]
+            #[abi(per_item)]
+            impl ExternalImpl of ExternalTrait {
+                #[external(v0)]
+                fn initialize(ref self: ContractState) {
+                    self.initializer.initialize();
+                }
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_initializable_no_initialize_call() {
+    let attribute = "(Initializable)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            #[storage]
+            pub struct Storage {}
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_pausable() {
+    let attribute = "(Pausable)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            #[storage]
+            pub struct Storage {}
+
+            #[generate_trait]
+            #[abi(per_item)]
+            impl ExternalImpl of ExternalTrait {
+                #[external(v0)]
+                fn pause(ref self: ContractState) {
+                    self.pausable.pause();
+                }
+
+                #[external(v0)]
+                fn unpause(ref self: ContractState) {
+                    self.pausable.unpause();
+                }
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_pausable_no_pause_call() {
+    let attribute = "(Pausable)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            #[storage]
+            pub struct Storage {}
+
+            #[generate_trait]
+            #[abi(per_item)]
+            impl ExternalImpl of ExternalTrait {
+                #[external(v0)]
+                fn unpause(ref self: ContractState) {
+                    self.pausable.unpause();
+                }
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_pausable_no_unpause_call() {
+    let attribute = "(Pausable)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            #[storage]
+            pub struct Storage {}
+
+            #[generate_trait]
+            #[abi(per_item)]
+            impl ExternalImpl of ExternalTrait {
+                #[external(v0)]
+                fn pause(ref self: ContractState) {
+                    self.pausable.pause();
+                }
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_pausable_no_pause_or_unpause_call() {
+    let attribute = "(Pausable)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            #[storage]
+            pub struct Storage {}
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_reentrancy_guard() {
+    let attribute = "(ReentrancyGuard)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            #[storage]
+            pub struct Storage {}
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_erc721() {
+    let attribute = "(ERC721)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            use openzeppelin_token::erc721::ERC721HooksEmptyImpl;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState) {
+                self.erc721.initializer(\"MyToken\", \"MTK\", \"\");
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_erc721_no_initializer() {
+    let attribute = "(ERC721)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            use openzeppelin_token::erc721::ERC721HooksEmptyImpl;
+
+            #[storage]
+            pub struct Storage {}
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_erc721_no_hooks_impl() {
+    let attribute = "(ERC721)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState) {
+                self.erc721.initializer(\"MyToken\", \"MTK\", \"\");
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_erc1155() {
+    let attribute = "(ERC1155)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            use openzeppelin_token::erc1155::ERC1155HooksEmptyImpl;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState) {
+                self.erc1155.initializer(\"\");
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_erc1155_no_initializer() {
+    let attribute = "(ERC1155)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            use openzeppelin_token::erc1155::ERC1155HooksEmptyImpl;
+
+            #[storage]
+            pub struct Storage {}
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_erc1155_no_hooks_impl() {
+    let attribute = "(ERC1155)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState) {
+                self.erc1155.initializer(\"\");
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_erc721_enumerable() {
+    let attribute = "(ERC721Enumerable)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState) {
+                self.erc721_enumerable.initializer();
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_erc721_enumerable_no_initializer() {
+    let attribute = "(ERC721Enumerable)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            #[storage]
+            pub struct Storage {}
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_erc721_receiver() {
+    let attribute = "(ERC721Receiver)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState) {
+                self.erc721_receiver.initializer();
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_erc721_receiver_no_initializer() {
+    let attribute = "(ERC721Receiver)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            #[storage]
+            pub struct Storage {}
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_erc1155_receiver() {
+    let attribute = "(ERC1155Receiver)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState) {
+                self.erc1155_receiver.initializer();
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_erc1155_receiver_no_initializer() {
+    let attribute = "(ERC1155Receiver)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            #[storage]
+            pub struct Storage {}
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_erc2981() {
+    let attribute = "(ERC2981)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            use openzeppelin_token::common::erc2981::DefaultConfig;
+            use starknet::ContractAddress;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState, default_royalty_receiver: ContractAddress) {
+                self.erc2981.initializer(default_royalty_receiver, 0);
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_erc2981_no_initializer() {
+    let attribute = "(ERC2981)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            use openzeppelin_token::common::erc2981::DefaultConfig;
+
+            #[storage]
+            pub struct Storage {}
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_erc2981_no_config() {
+    let attribute = "(ERC2981)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            use starknet::ContractAddress;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState, default_royalty_receiver: ContractAddress) {
+                self.erc2981.initializer(default_royalty_receiver, 0);
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_erc2981_no_initializer_no_config() {
+    let attribute = "(ERC2981)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            use starknet::ContractAddress;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState, default_royalty_receiver: ContractAddress) {
+            }
+        }
         "
     );
     let result = get_string_result(attribute, item);

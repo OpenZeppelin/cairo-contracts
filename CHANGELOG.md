@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed message type hash in SNIP12 doc (#1274)
 - Permit and Message SNIP12 hashes (#1283)
 - Fix Multisig component issue arising when removing signers with unchanged quorum (#1300)
+- Fix minor severity issue of `SignersInfo` packing impl in Multisig component (#1301)
 
 ## 0.20.0 (2024-12-06)
 

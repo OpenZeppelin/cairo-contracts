@@ -38,8 +38,8 @@ pub enum Rounding {
 ///
 /// Requirements:
 ///
-/// - `denominator` cannot be zero.
-/// - The quotient cannot be greater than u256.
+/// - `denominator` must not be zero.
+/// - The quotient must not overflow u256.
 pub fn u256_mul_div(x: u256, y: u256, denominator: u256, rounding: Rounding) -> u256 {
     let (q, r) = _raw_u256_mul_div(x, y, denominator);
 

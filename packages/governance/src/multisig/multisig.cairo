@@ -648,9 +648,9 @@ pub mod MultisigComponent {
             let SignersInfo { quorum: old_quorum, signers_count } = self
                 .Multisig_signers_info
                 .read();
+            assert(new_quorum.is_non_zero(), Errors::ZERO_QUORUM);
+            assert(new_quorum <= signers_count, Errors::QUORUM_TOO_HIGH);
             if new_quorum != old_quorum {
-                assert(new_quorum.is_non_zero(), Errors::ZERO_QUORUM);
-                assert(new_quorum <= signers_count, Errors::QUORUM_TOO_HIGH);
                 self.Multisig_signers_info.write(SignersInfo { quorum: new_quorum, signers_count });
                 self.emit(QuorumUpdated { old_quorum, new_quorum });
             }

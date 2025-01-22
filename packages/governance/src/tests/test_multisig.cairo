@@ -48,6 +48,18 @@ fn deploy_mock() -> IMultisigTargetMockDispatcher {
 }
 
 //
+// Initializer
+//
+
+#[test]
+#[should_panic(expected: 'Multisig: quorum cannot be 0')]
+fn test_init_zero_quorum() {
+    let (_, signers) = DEFAULT_DATA();
+    let quorum = 0;
+    setup_component(quorum, signers);
+}
+
+//
 // Submit tx
 //
 
@@ -1195,6 +1207,20 @@ fn test_cannot_remove_with_quorum_too_high() {
 
     // Try to remove signers with quorum value too high
     state.remove_signers(3, array![bob].span());
+}
+
+#[test]
+#[should_panic(expected: 'Multisig: quorum > signers')]
+fn test_cannot_remove_with_unchanged_quorum_that_becomes_too_high() {
+    let quorum = 4;
+    let (alice, bob, charlie, other) = (ALICE(), BOB(), CHARLIE(), OTHER());
+    let mut state = setup_component(quorum, array![alice, bob, charlie, other].span());
+    let contract_address = test_address();
+    start_cheat_caller_address(contract_address, contract_address);
+
+    // Shouldn't be allowed. Quorum value of 4 with only 2 signers left
+    // will lead to the contract becoming permanently inaccessible.
+    state.remove_signers(quorum, array![alice, other].span());
 }
 
 //

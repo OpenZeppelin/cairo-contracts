@@ -14,7 +14,7 @@ use cairo_lang_syntax::node::{ast, SyntaxNode, Terminal, TypedSyntaxNode};
 use indoc::{formatdoc, indoc};
 use regex::Regex;
 
-const ALLOWED_COMPONENTS: [&str; 26] = [
+const ALLOWED_COMPONENTS: [&str; 19] = [
     "AccessControl",
     "Ownable",
     "Vesting",
@@ -34,13 +34,13 @@ const ALLOWED_COMPONENTS: [&str; 26] = [
     "Multisig",
     "TimelockController",
     "Votes",
-    "TODO:Governor",
-    "TODO:GovernorCoreExecution",
-    "TODO:GovernorCountingSimple",
-    "TODO:GovernorSettings",
-    "TODO:GovernorTimelockExecution",
-    "TODO:GovernorVotesQuorumFraction",
-    "TODO:GovernorVotes",
+    // "TODO:Governor",
+    // "TODO:GovernorCoreExecution",
+    // "TODO:GovernorCountingSimple",
+    // "TODO:GovernorSettings",
+    // "TODO:GovernorTimelockExecution",
+    // "TODO:GovernorVotesQuorumFraction",
+    // "TODO:GovernorVotes",
 ];
 
 /// Inserts multiple component dependencies into a modules codebase.
@@ -328,6 +328,27 @@ fn add_per_component_warnings(code: &str, component_info: &ComponentInfo) -> Vec
                     You can use the ERC1155HooksEmptyImpl implementation by importing it:
 
                     `use openzeppelin_token::erc1155::ERC1155HooksEmptyImpl;`
+                "});
+                warnings.push(warning);
+            }
+        }
+        "Upgradeable" => {
+            // 1. Check that the upgrade function is called
+            let upgrade_function_called = code.contains("self.upgradeable.upgrade");
+            if !upgrade_function_called {
+                let warning = Diagnostic::warn(indoc! {"
+                    It looks like the `self.upgradeable.upgrade(new_class_hash)` function is not used in the contract. If
+                    this is intentional, you may consider removing the Upgradeable component.
+                "});
+                warnings.push(warning);
+            }
+        }
+        "Votes" => {
+            // 1. Check that the SNIP12Metadata is implemented
+            let snip12_metadata_implemented = code.contains("of SNIP12Metadata");
+            if !snip12_metadata_implemented {
+                let warning = Diagnostic::warn(indoc! {"
+                    The Votes component requires an implementation of the SNIP12Metadata trait. It looks like this implementation is missing.
                 "});
                 warnings.push(warning);
             }

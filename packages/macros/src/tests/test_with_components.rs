@@ -882,6 +882,195 @@ fn test_with_erc2981_no_initializer_no_config() {
     assert_snapshot!(result);
 }
 
+#[test]
+fn test_with_upgradeable() {
+    let attribute = "(Upgradeable)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            #[storage]
+            pub struct Storage {}
+
+            #[abi(embed_v0)]
+            impl UpgradeableImpl of IUpgradeable<ContractState> {
+                fn upgrade(ref self: ContractState, new_class_hash: ClassHash) {
+                    self.upgradeable.upgrade(new_class_hash);
+                }
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_upgradeable_no_upgrade_call() {
+    let attribute = "(Upgradeable)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            #[storage]
+            pub struct Storage {}
+
+            #[abi(embed_v0)]
+            impl UpgradeableImpl of IUpgradeable<ContractState> {
+                fn upgrade(ref self: ContractState, new_class_hash: ClassHash) {
+                }
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_nonces() {
+    let attribute = "(Nonces)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            #[storage]
+            pub struct Storage {}
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_multisig() {
+    let attribute = "(Multisig)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            use starknet::ContractAddress;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState, quorum: u32, signers: Span<ContractAddress>) {
+                self.multisig.initializer(quorum, signers);
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_multisig_no_initializer() {
+    let attribute = "(Multisig)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            #[storage]
+            pub struct Storage {}
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_timelock_controller() {
+    let attribute = "(TimelockController)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            use starknet::ContractAddress;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(
+                ref self: ContractState,
+                min_delay: u64,
+                proposers: Span<ContractAddress>,
+                executors: Span<ContractAddress>,
+                admin: ContractAddress,
+            ) {
+                self.timelock_controller.initializer(min_delay, proposers, executors, admin);
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_timelock_controller_no_initializer() {
+    let attribute = "(TimelockController)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            #[storage]
+            pub struct Storage {}
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_votes() {
+    let attribute = "(Votes)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
+
+            #[storage]
+            pub struct Storage {}
+
+            /// Required for hash computation.
+            pub impl SNIP12MetadataImpl of SNIP12Metadata {
+                fn name() -> felt252 {
+                    'DAPP_NAME'
+                }
+                fn version() -> felt252 {
+                    'DAPP_VERSION'
+                }
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_votes_no_metadata() {
+    let attribute = "(Votes)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            #[storage]
+            pub struct Storage {}
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
 //
 // Helpers
 //

@@ -4,6 +4,119 @@ use indoc::{formatdoc, indoc};
 use insta::assert_snapshot;
 
 #[test]
+fn test_with_account() {
+    let attribute = "(Account)";
+    let item = indoc!(
+        "
+        #[starknet::contract(account)]
+        pub mod MyContract {
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState, public_key: felt252) {
+                self.account.initializer(public_key);
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_account_no_initializer() {
+    let attribute = "(Account)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            #[storage]
+            pub struct Storage {}
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_eth_account() {
+    let attribute = "(EthAccount)";
+    let item = indoc!(
+        "
+        #[starknet::contract(eth_account)]
+        pub mod MyContract {
+            use openzeppelin_account::interface::EthPublicKey;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState, public_key: EthPublicKey) {
+                self.eth_account.initializer(public_key);
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_eth_account_no_initializer() {
+    let attribute = "(EthAccount)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            #[storage]
+            pub struct Storage {}
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_src9() {
+    let attribute = "(SRC9)";
+    let item = indoc!(
+        "
+        #[starknet::contract(src9)]
+        pub mod MyContract {
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState) {
+                self.src9.initializer();
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_src9_no_initializer() {
+    let attribute = "(SRC9)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            #[storage]
+            pub struct Storage {}
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
 fn test_with_erc20() {
     let attribute = "(ERC20)";
     let item = indoc!(

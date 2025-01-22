@@ -14,7 +14,10 @@ use cairo_lang_syntax::node::{ast, SyntaxNode, Terminal, TypedSyntaxNode};
 use indoc::{formatdoc, indoc};
 use regex::Regex;
 
-const ALLOWED_COMPONENTS: [&str; 19] = [
+const ALLOWED_COMPONENTS: [&str; 22] = [
+    "Account",
+    "EthAccount",
+    "SRC9",
     "AccessControl",
     "Ownable",
     "Vesting",
@@ -499,6 +502,33 @@ impl ComponentInfo {
 /// `ERC20`, `Ownable`
 fn get_component_info(name: &str) -> (Option<ComponentInfo>, Diagnostics) {
     let info = match name {
+        "Account" => Some(ComponentInfo {
+            name: "AccountComponent".to_string(),
+            path: "openzeppelin_account::AccountComponent".to_string(),
+            storage: "account".to_string(),
+            event: "AccountEvent".to_string(),
+            has_initializer: true,
+            has_immutable_config: false,
+            internal_impls: vec!["InternalImpl".to_string()],
+        }),
+        "EthAccount" => Some(ComponentInfo {
+            name: "EthAccountComponent".to_string(),
+            path: "openzeppelin_account::EthAccountComponent".to_string(),
+            storage: "eth_account".to_string(),
+            event: "EthAccountEvent".to_string(),
+            has_initializer: true,
+            has_immutable_config: false,
+            internal_impls: vec!["InternalImpl".to_string()],
+        }),
+        "SRC9" => Some(ComponentInfo {
+            name: "SRC9Component".to_string(),
+            path: "openzeppelin_account::extensions::SRC9Component".to_string(),
+            storage: "src9".to_string(),
+            event: "SRC9Event".to_string(),
+            has_initializer: true,
+            has_immutable_config: false,
+            internal_impls: vec!["InternalImpl".to_string()],
+        }),
         "Ownable" => Some(ComponentInfo {
             name: "OwnableComponent".to_string(),
             path: "openzeppelin_access::ownable::OwnableComponent".to_string(),

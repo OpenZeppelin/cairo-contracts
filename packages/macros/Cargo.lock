@@ -78,7 +78,7 @@ dependencies = [
  "cairo-lang-parser",
  "cairo-lang-syntax",
  "cairo-lang-utils",
- "itertools 0.12.1",
+ "itertools",
  "rust-analyzer-salsa",
  "smol_str",
 ]
@@ -92,7 +92,7 @@ dependencies = [
  "cairo-lang-debug",
  "cairo-lang-filesystem",
  "cairo-lang-utils",
- "itertools 0.12.1",
+ "itertools",
 ]
 
 [[package]]
@@ -125,7 +125,7 @@ dependencies = [
  "cairo-lang-utils",
  "diffy",
  "ignore",
- "itertools 0.12.1",
+ "itertools",
  "rust-analyzer-salsa",
  "serde",
  "thiserror",
@@ -171,7 +171,7 @@ dependencies = [
  "cairo-lang-syntax-codegen",
  "cairo-lang-utils",
  "colored",
- "itertools 0.12.1",
+ "itertools",
  "num-bigint",
  "num-traits",
  "rust-analyzer-salsa",
@@ -220,7 +220,7 @@ checksum = "ff5d7609abc99c15de7d7f90b8441b27e2bd52e930a3014c95a9b620e5d3211a"
 dependencies = [
  "hashbrown 0.14.5",
  "indexmap",
- "itertools 0.12.1",
+ "itertools",
  "num-bigint",
  "num-traits",
  "serde",
@@ -425,15 +425,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "itertools"
-version = "0.14.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2b192c782037fadd9cfa75548310488aabdbf3d2da73885b31bd0abd03351285"
-dependencies = [
- "either",
-]
-
-[[package]]
 name = "lazy_static"
 version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -555,7 +546,6 @@ dependencies = [
  "cairo-lang-syntax",
  "indoc",
  "insta",
- "itertools 0.14.0",
  "regex",
 ]
 

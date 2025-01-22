@@ -34,7 +34,7 @@ pub enum Rounding {
 }
 
 /// Returns the quotient of x * y / denominator and rounds up or down depending on `rounding`.
-/// Uses `u512_safe_div_rem_by_u256` for precision.
+/// Uses `wide_mul` and `u512_safe_div_rem_by_u256` for precision.
 ///
 /// Requirements:
 ///
@@ -59,6 +59,13 @@ pub fn u256_mul_div(x: u256, y: u256, denominator: u256, rounding: Rounding) -> 
     q + (is_rounded_up & has_remainder)
 }
 
+/// Returns the quotient and remainder of x * y / denominator.
+/// Uses `wide_mul` and `u512_safe_div_rem_by_u256` for precision.
+///
+/// Requirements:
+///
+/// - `denominator` must not be zero.
+/// - The quotient must not overflow u256.
 fn _raw_u256_mul_div(x: u256, y: u256, denominator: u256) -> (u256, u256) {
     let denominator = denominator.try_into().expect('mul_div division by zero');
     let p = x.wide_mul(y);

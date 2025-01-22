@@ -1,0 +1,19 @@
+:github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
+
+= Macros
+
+This crate provides a collection of macros that streamline and simplify development with the library.
+To use them, you need to add the `openzeppelin_macros` crate as a dependency to your `Scarb.toml` file:
+
+```toml
+[dependencies]
+openzeppelin_macros = "0.20.0"
+```
+
+== Attribute macros
+
+[.contract]
+[[with_components]]
+=== `++with_components++`
+
+This macro simplifies the syntax for adding a set of components to a contract.

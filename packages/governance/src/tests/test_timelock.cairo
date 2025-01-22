@@ -229,6 +229,32 @@ fn test_hash_operation_batch() {
     assert_eq!(hashed_operation, expected_hash);
 }
 
+#[test]
+fn test_hash_operation_and_hash_operations() {
+    let (mut timelock, _) = setup_dispatchers();
+    let predecessor = 123;
+    let salt = SALT;
+
+    // Setup and hash single call
+    let to_1 = contract_address_const::<1>();
+    let selector_1 = 123;
+    let calldata_1 = array![1, 456].span();
+    let call_1 = Call { to: to_1, selector: selector_1, calldata: calldata_1 };
+
+    let hash_single = timelock.hash_operation(call_1, predecessor, salt);
+
+    // Setup and hash batch of single call
+    let to_2 = contract_address_const::<123>();
+    let selector_2 = 2;
+    let calldata_2 = array![456].span();
+    let call_2 = Call { to: to_2, selector: selector_2, calldata: calldata_2 };
+    let single_call_batch = array![call_2].span();
+
+    let hash_batch = timelock.hash_operation_batch(single_call_batch, predecessor, salt);
+
+    assert_ne!(hash_single, hash_batch);
+}
+
 //
 // schedule
 //

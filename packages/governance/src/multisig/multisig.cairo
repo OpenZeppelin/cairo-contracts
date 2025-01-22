@@ -20,7 +20,7 @@ pub mod MultisigComponent {
     use core::panic_with_felt252;
     use core::pedersen::PedersenTrait;
     use crate::multisig::interface::{IMultisig, TransactionID, TransactionState};
-    use crate::multisig::storage_utils::{SignersInfo, SignersInfoStorePacking};
+    use crate::multisig::storage_utils::{SignersInfo, SignersInfoStorePackingV2};
     use crate::multisig::storage_utils::{TxInfo, TxInfoStorePacking};
     use crate::utils::call_impls::{HashCallImpl, HashCallsImpl, CallPartialEq};
     use starknet::account::Call;

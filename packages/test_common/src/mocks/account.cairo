@@ -17,7 +17,7 @@ pub mod DualCaseAccountMock {
     impl DeployableImpl = AccountComponent::DeployableImpl<ContractState>;
     impl AccountInternalImpl = AccountComponent::InternalImpl<ContractState>;
 
-    // SCR5
+    // SRC5
     #[abi(embed_v0)]
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
@@ -59,7 +59,7 @@ pub mod SnakeAccountMock {
     impl PublicKeyImpl = AccountComponent::PublicKeyImpl<ContractState>;
     impl AccountInternalImpl = AccountComponent::InternalImpl<ContractState>;
 
-    // SCR5
+    // SRC5
     #[abi(embed_v0)]
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 

@@ -101,8 +101,9 @@ In this case it can be computed as follows:
 
 [,cairo]
 ----
+// Since there's no u64 type in SNIP-12, we use u128 for `expiry` in the type hash generation.
 let message_type_hash = selector!(
-    "\"Message\"(\"recipient\":\"ContractAddress\",\"amount\":\"u256\",\"nonce\":\"felt\",\"expiry\":\"u64\")\"u256\"(\"low\":\"felt\",\"high\":\"felt\")"
+    "\"Message\"(\"recipient\":\"ContractAddress\",\"amount\":\"u256\",\"nonce\":\"felt\",\"expiry\":\"u128\")\"u256\"(\"low\":\"u128\",\"high\":\"u128\")"
 );
 ----
 
@@ -110,7 +111,7 @@ which is the same as:
 
 [,cairo]
 ----
-let message_type_hash = 0x120ae1bdaf7c1e48349da94bb8dad27351ca115d6605ce345aee02d68d99ec1;
+let message_type_hash = 0x28bf13f11bba405c77ce010d2781c5903cbed100f01f72fcff1664f98343eb6;
 ----
 
 NOTE: In practice it's better to compute the type hash off-chain and hardcode it in the contract, since it is a constant value.
@@ -128,7 +129,7 @@ use openzeppelin_utils::snip12::StructHash;
 use starknet::ContractAddress;
 
 const MESSAGE_TYPE_HASH: felt252 =
-    0x120ae1bdaf7c1e48349da94bb8dad27351ca115d6605ce345aee02d68d99ec1;
+    0x28bf13f11bba405c77ce010d2781c5903cbed100f01f72fcff1664f98343eb6;
 
 #[derive(Copy, Drop, Hash)]
 struct Message {
@@ -194,7 +195,7 @@ use openzeppelin_utils::snip12::{SNIP12Metadata, StructHash, OffchainMessageHash
 use starknet::ContractAddress;
 
 const MESSAGE_TYPE_HASH: felt252 =
-    0x120ae1bdaf7c1e48349da94bb8dad27351ca115d6605ce345aee02d68d99ec1;
+    0x28bf13f11bba405c77ce010d2781c5903cbed100f01f72fcff1664f98343eb6;
 
 #[derive(Copy, Drop, Hash)]
 struct Message {
@@ -248,7 +249,7 @@ use openzeppelin_utils::snip12::{SNIP12Metadata, StructHash, OffchainMessageHash
 use starknet::ContractAddress;
 
 const MESSAGE_TYPE_HASH: felt252 =
-    0x120ae1bdaf7c1e48349da94bb8dad27351ca115d6605ce345aee02d68d99ec1;
+    0x28bf13f11bba405c77ce010d2781c5903cbed100f01f72fcff1664f98343eb6;
 
 #[derive(Copy, Drop, Hash)]
 struct Message {

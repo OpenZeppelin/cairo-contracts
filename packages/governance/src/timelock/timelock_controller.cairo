@@ -178,7 +178,7 @@ pub mod TimelockControllerComponent {
         fn hash_operation(
             self: @ComponentState<TContractState>, call: Call, predecessor: felt252, salt: felt252
         ) -> felt252 {
-            ITimelock::hash_operation_batch(self, array![call].span(), predecessor, salt)
+            Self::hash_operation_batch(self, array![call].span(), predecessor, salt)
         }
 
         /// Returns the identifier of an operation containing a batch of transactions.

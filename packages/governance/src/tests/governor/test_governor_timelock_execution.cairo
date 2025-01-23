@@ -28,10 +28,10 @@ use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_utils::bytearray::ByteArrayExtTrait;
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{EventSpy, spy_events, start_mock_call, store};
+use snforge_std::{EventSpy, spy_events, start_mock_call, store};
 use snforge_std::{start_cheat_block_timestamp_global, start_cheat_caller_address};
-use snforge_std::{start_mock_call, spy_events, store, EventSpy};
 use starknet::account::Call;
-use starknet::storage::{StoragePathEntry, StoragePointerWriteAccess, StorageMapWriteAccess};
+use starknet::storage::{StorageMapWriteAccess, StoragePathEntry, StoragePointerWriteAccess};
 use starknet::{ContractAddress, contract_address_const};
 
 const MIN_DELAY: u64 = 100;

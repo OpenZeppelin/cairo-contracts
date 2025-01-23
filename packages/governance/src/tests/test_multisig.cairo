@@ -1,9 +1,9 @@
 use core::integer::u128_safe_divmod;
 use core::num::traits::{Bounded, Zero};
+use crate::multisig::MultisigComponent::{CallSalt, QuorumUpdated, SignerAdded, SignerRemoved};
 use crate::multisig::MultisigComponent::{ConfirmationRevoked, TransactionExecuted};
-use crate::multisig::MultisigComponent::{MultisigImpl, InternalImpl, Event};
-use crate::multisig::MultisigComponent::{SignerAdded, SignerRemoved, QuorumUpdated, CallSalt};
-use crate::multisig::MultisigComponent::{TransactionSubmitted, TransactionConfirmed};
+use crate::multisig::MultisigComponent::{Event, InternalImpl, MultisigImpl};
+use crate::multisig::MultisigComponent::{TransactionConfirmed, TransactionSubmitted};
 use crate::multisig::storage_utils::{SignersInfo, SignersInfoStorePackingV2};
 use crate::multisig::{MultisigComponent, TransactionID, TransactionState};
 use openzeppelin_test_common::mocks::multisig::IMultisigTargetMockDispatcherTrait;

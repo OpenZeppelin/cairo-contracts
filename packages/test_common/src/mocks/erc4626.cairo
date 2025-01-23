@@ -176,20 +176,31 @@ pub mod ERC4626LimitsMock {
         const DECIMALS_OFFSET: u8 = 1;
     }
 
-    const MAX_DEPOSIT: u256 = 100_000_000_000_000_000_000;
-    const MAX_MINT: u256 = 100_000_000_000_000_000_000;
+    pub const CUSTOM_LIMIT: u256 = 100_000_000_000_000_000_000;
 
     impl ERC4626LimitsImpl of ERC4626Component::LimitConfigTrait<ContractState> {
         fn deposit_limit(
             self: @ERC4626Component::ComponentState<ContractState>, receiver: ContractAddress,
         ) -> Option::<u256> {
-            Option::Some(MAX_DEPOSIT)
+            Option::Some(CUSTOM_LIMIT)
         }
 
         fn mint_limit(
             self: @ERC4626Component::ComponentState<ContractState>, receiver: ContractAddress,
         ) -> Option::<u256> {
-            Option::Some(MAX_MINT)
+            Option::Some(CUSTOM_LIMIT)
+        }
+
+        fn withdraw_limit(
+            self: @ERC4626Component::ComponentState<ContractState>, owner: ContractAddress,
+        ) -> Option::<u256> {
+            Option::Some(CUSTOM_LIMIT)
+        }
+
+        fn redeem_limit(
+            self: @ERC4626Component::ComponentState<ContractState>, owner: ContractAddress,
+        ) -> Option::<u256> {
+            Option::Some(CUSTOM_LIMIT)
         }
     }
 

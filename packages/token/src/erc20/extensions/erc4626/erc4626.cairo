@@ -363,14 +363,22 @@ pub mod ERC4626Component {
         /// shares).
         /// This can be changed in the implementing contract by defining custom logic in
         /// `LimitConfigTrait::withdraw_limit`.
+        /// Do note that with customized limits, the maximum withdraw amount will either be
+        /// the custom limit itself or ``owner``'s total asset balance, whichever value is less.
         fn max_withdraw(self: @ComponentState<TContractState>, owner: ContractAddress) -> u256 {
+            let erc20_component = get_dep_component!(self, ERC20);
+            let owner_shares = erc20_component.balance_of(owner);
+            let total_owner_assets = self._convert_to_assets(owner_shares, Rounding::Floor);
+
             match Limit::withdraw_limit(self, owner) {
-                Option::Some(limit) => limit,
-                Option::None => {
-                    let erc20_component = get_dep_component!(self, ERC20);
-                    let owner_shares = erc20_component.balance_of(owner);
-                    self._convert_to_assets(owner_shares, Rounding::Floor)
+                Option::Some(limit) => {
+                    if total_owner_assets < limit {
+                        total_owner_assets
+                    } else {
+                        limit
+                    }
                 },
+                Option::None => { total_owner_assets },
             }
         }
 
@@ -417,13 +425,19 @@ pub mod ERC4626Component {
         /// The default max redeem value is the full balance of assets for `owner`.
         /// This can be changed in the implementing contract by defining custom logic in
         /// `LimitConfigTrait::redeem_limit`.
+        /// Do note that with customized limits, the maximum redeem amount will either be
+        /// the custom limit itself or ``owner``'s total asset balance, whichever value is less.
         fn max_redeem(self: @ComponentState<TContractState>, owner: ContractAddress) -> u256 {
+            let erc20_component = get_dep_component!(self, ERC20);
+            let owner_assets = erc20_component.balance_of(owner);
+
             match Limit::redeem_limit(self, owner) {
-                Option::Some(limit) => limit,
-                Option::None => {
-                    let erc20_component = get_dep_component!(self, ERC20);
-                    erc20_component.balance_of(owner)
-                },
+                Option::Some(limit) => { if owner_assets < limit {
+                    owner_assets
+                } else {
+                    limit
+                } },
+                Option::None => { owner_assets },
             }
         }
 

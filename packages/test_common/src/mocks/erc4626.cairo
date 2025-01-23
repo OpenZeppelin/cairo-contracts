@@ -227,6 +227,7 @@ pub mod ERC4626LimitsMock {
 #[starknet::contract]
 pub mod ERC4626FeesMock {
     use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component;
+    use openzeppelin_token::erc20::extensions::erc4626::DefaultConfig;
     use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component::FeeConfigTrait;
     use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component::InternalTrait as ERC4626InternalTrait;
     use openzeppelin_token::erc20::extensions::erc4626::ERC4626DefaultLimits;
@@ -278,12 +279,6 @@ pub mod ERC4626FeesMock {
     }
 
     const _BASIS_POINT_SCALE: u256 = 10_000;
-
-    /// Immutable config
-    impl OffsetConfig of ERC4626Component::ImmutableConfig {
-        const UNDERLYING_DECIMALS: u8 = ERC4626Component::DEFAULT_UNDERLYING_DECIMALS;
-        const DECIMALS_OFFSET: u8 = 0;
-    }
 
     /// Hooks
     impl ERC4626HooksEmptyImpl of ERC4626Component::ERC4626HooksTrait<ContractState> {

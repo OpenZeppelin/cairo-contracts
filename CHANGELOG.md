@@ -13,17 +13,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - ERC721Component `initializer_no_metadata` (#1278)
 - ERC1155Component `initializer_no_metadata` (#1287)
+- Unsigned trait restriction to the `average` function (#1310)
 
 ### Changed (Breaking)
 
-- Fix SNIP12 Permit signature (#1285)
 - Bump scarb to v2.9.2 (#1239)
+
+### Fixed (Breaking)
+
+- SNIP12 TimelockComponent `hash_operation` to use `hash_operation_batch` for single-call operations (#1313)
+- Permit and Message SNIP12 type hashes (#1283)
 
 ### Fixed
 
-- Fixed message type hash in SNIP12 doc (#1274)
-- Permit and Message SNIP12 hashes (#1283)
-- Fix Multisig component issue arising when removing signers with unchanged quorum (#1300)
+- Multisig component issue arising when removing signers with unchanged quorum (#1315)
+- Governor timelock extension salt generation panicking on overflow (#1306)
+- SignersInfoStorePacking issue with bit operations (#1316)
+- Message type hash in SNIP12 doc (#1274)
 
 ## 0.20.0 (2024-12-06)
 

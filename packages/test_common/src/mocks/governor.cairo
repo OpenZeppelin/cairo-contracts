@@ -399,10 +399,20 @@ pub mod GovernorTimelockedMock {
         ) {
             self.governor.cancel_operations(proposal_id, description_hash);
         }
+
+        #[external(v0)]
+        fn timelock_salt(ref self: ContractState, description_hash: felt252) -> felt252 {
+            self.governor_timelock_execution.timelock_salt(description_hash)
+        }
     }
 }
 
 #[starknet::interface]
 pub trait CancelOperations<TContractState> {
     fn cancel_operations(ref self: TContractState, proposal_id: felt252, description_hash: felt252);
+}
+
+#[starknet::interface]
+pub trait TimelockSalt<TContractState> {
+    fn timelock_salt(ref self: TContractState, description_hash: felt252) -> felt252;
 }

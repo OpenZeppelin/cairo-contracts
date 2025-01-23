@@ -16,6 +16,9 @@ use openzeppelin_test_common::mocks::governor::GovernorMock::SNIP12MetadataImpl;
 use openzeppelin_test_common::mocks::governor::{
     CancelOperationsDispatcher, CancelOperationsDispatcherTrait, GovernorTimelockedMock,
 };
+use openzeppelin_test_common::mocks::governor::{
+    TimelockSaltDispatcher, TimelockSaltDispatcherTrait,
+};
 use openzeppelin_test_common::mocks::timelock::{
     IMockContractDispatcher, IMockContractDispatcherTrait,
 };
@@ -26,9 +29,10 @@ use openzeppelin_utils::bytearray::ByteArrayExtTrait;
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{EventSpy, spy_events, start_mock_call, store};
 use snforge_std::{start_cheat_block_timestamp_global, start_cheat_caller_address};
-use starknet::ContractAddress;
+use snforge_std::{start_mock_call, spy_events, store, EventSpy};
 use starknet::account::Call;
-use starknet::storage::{StorageMapWriteAccess, StoragePathEntry, StoragePointerWriteAccess};
+use starknet::storage::{StoragePathEntry, StoragePointerWriteAccess, StorageMapWriteAccess};
+use starknet::{ContractAddress, contract_address_const};
 
 const MIN_DELAY: u64 = 100;
 
@@ -43,6 +47,17 @@ fn deploy_governor(timelock: ContractAddress) -> IGovernorDispatcher {
 
     let address = utils::declare_and_deploy("GovernorTimelockedMock", calldata);
     IGovernorDispatcher { contract_address: address }
+}
+
+fn deploy_governor_at(
+    target_address: ContractAddress, timelock: ContractAddress,
+) -> IGovernorDispatcher {
+    let mut calldata = array![];
+    calldata.append_serde(VOTES_TOKEN());
+    calldata.append_serde(timelock);
+
+    utils::declare_and_deploy_at("GovernorTimelockedMock", target_address, calldata);
+    IGovernorDispatcher { contract_address: target_address }
 }
 
 fn deploy_timelock(admin: ContractAddress) -> ITimelockDispatcher {
@@ -79,6 +94,42 @@ fn setup_dispatchers() -> (IGovernorDispatcher, ITimelockDispatcher, IMockContra
     );
 
     (governor, timelock, target)
+}
+
+//
+// timelock_salt
+//
+
+#[test]
+fn test_timelock_salt() {
+    let governor = deploy_governor(TIMELOCK());
+
+    let dispatcher = TimelockSaltDispatcher { contract_address: governor.contract_address };
+
+    let description = "proposal description";
+    let description_hash = (@description).hash();
+    let salt = dispatcher.timelock_salt(description_hash);
+    let expected = timelock_salt(governor.contract_address, description_hash);
+
+    assert_eq!(salt, expected);
+}
+
+#[test]
+fn test_timelock_salt_overflow() {
+    // 2^250
+    // 2^251
+    let address = contract_address_const::<
+        0x400000000000000000000000000000000000000000000000000000000000000,
+    >();
+    let description_hash = 0x800000000000000000000000000000000000000000000000000000000000000;
+
+    let governor = deploy_governor_at(address, TIMELOCK());
+    let dispatcher = TimelockSaltDispatcher { contract_address: governor.contract_address };
+
+    let salt = dispatcher.timelock_salt(description_hash);
+    let expected = timelock_salt(governor.contract_address, description_hash);
+
+    assert_eq!(salt, expected);
 }
 
 //
@@ -583,7 +634,13 @@ fn timelock_salt(contract_address: ContractAddress, description_hash: felt252) -
     let description_hash: u256 = description_hash.into();
     let contract_address: felt252 = contract_address.into();
 
-    (contract_address.into() ^ description_hash).try_into().unwrap()
+    let mut value = contract_address.into() ^ description_hash;
+    let max_felt: u256 = (0 - 1).into();
+    if value > max_felt {
+        // Get the value modulo P.
+        value = value - max_felt - 1;
+    }
+    value.try_into().unwrap()
 }
 
 //

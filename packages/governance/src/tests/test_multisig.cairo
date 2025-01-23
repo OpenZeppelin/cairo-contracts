@@ -1,8 +1,10 @@
-use core::num::traits::Zero;
+use core::integer::u128_safe_divmod;
+use core::num::traits::{Bounded, Zero};
 use crate::multisig::MultisigComponent::{ConfirmationRevoked, TransactionExecuted};
 use crate::multisig::MultisigComponent::{MultisigImpl, InternalImpl, Event};
 use crate::multisig::MultisigComponent::{SignerAdded, SignerRemoved, QuorumUpdated, CallSalt};
 use crate::multisig::MultisigComponent::{TransactionSubmitted, TransactionConfirmed};
+use crate::multisig::storage_utils::{SignersInfo, SignersInfoStorePackingV2};
 use crate::multisig::{MultisigComponent, TransactionID, TransactionState};
 use openzeppelin_test_common::mocks::multisig::IMultisigTargetMockDispatcherTrait;
 use openzeppelin_test_common::mocks::multisig::{MultisigWalletMock, IMultisigTargetMockDispatcher};
@@ -12,6 +14,7 @@ use openzeppelin_testing::events::EventSpyExt;
 use snforge_std::{EventSpy, spy_events, test_address};
 use snforge_std::{start_cheat_caller_address, start_cheat_block_number_global};
 use starknet::account::Call;
+use starknet::storage_access::StorePacking;
 use starknet::{ContractAddress, contract_address_const};
 
 //
@@ -1405,6 +1408,51 @@ fn test_cannot_change_quorum_when_not_multisig_itself() {
     state.change_quorum(0);
 }
 
+#[test]
+fn test_signers_info_error_happens_with_v1() {
+    let quorum = 123;
+    let signers_count = Bounded::MAX;
+    let info = SignersInfo { quorum, signers_count };
+    let packed_value = LegacySignersInfoStorePackingV1::pack(info);
+    let unpacked_info = LegacySignersInfoStorePackingV1::unpack(packed_value);
+
+    assert_eq!(unpacked_info.quorum, quorum + 1);
+    assert_eq!(unpacked_info.signers_count, 0);
+}
+
+#[test]
+fn test_signers_info_no_error_happen_with_v2() {
+    let quorum = 123;
+    let signers_count = Bounded::MAX;
+    let info = SignersInfo { quorum, signers_count };
+    let packed_value = SignersInfoStorePackingV2::pack(info);
+    let unpacked_info = SignersInfoStorePackingV2::unpack(packed_value);
+
+    assert_eq!(unpacked_info.quorum, quorum);
+    assert_eq!(unpacked_info.signers_count, signers_count);
+}
+
+#[test]
+fn test_signers_info_pack_unpack_v2_max_values() {
+    let quorum = Bounded::MAX;
+    let signers_count = Bounded::MAX;
+    let info = SignersInfo { quorum, signers_count };
+    let packed_value = SignersInfoStorePackingV2::pack(info);
+    let unpacked_info = SignersInfoStorePackingV2::unpack(packed_value);
+
+    assert_eq!(unpacked_info.quorum, quorum);
+    assert_eq!(unpacked_info.signers_count, signers_count);
+}
+
+#[test]
+fn test_signers_info_unpack_zero_value_v2() {
+    let packed_value = 0;
+    let unpacked_info = SignersInfoStorePackingV2::unpack(packed_value);
+
+    assert_eq!(unpacked_info.quorum, 0);
+    assert_eq!(unpacked_info.signers_count, 0);
+}
+
 //
 // Helpers
 //
@@ -1469,6 +1517,22 @@ fn assert_signers_list(expected_signers: Span<ContractAddress>) {
     for signer in expected_signers {
         assert!(state.is_signer(*signer));
     };
+}
+
+const MAX_U32: NonZero<u128> = 0xffffffff;
+
+impl LegacySignersInfoStorePackingV1 of StorePacking<SignersInfo, u128> {
+    fn pack(value: SignersInfo) -> u128 {
+        let SignersInfo { quorum, signers_count } = value;
+        quorum.into() * MAX_U32.into() + signers_count.into()
+    }
+
+    fn unpack(value: u128) -> SignersInfo {
+        let (quorum, signers_count) = u128_safe_divmod(value, MAX_U32);
+        SignersInfo {
+            quorum: quorum.try_into().unwrap(), signers_count: signers_count.try_into().unwrap(),
+        }
+    }
 }
 
 //

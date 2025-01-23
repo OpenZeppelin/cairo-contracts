@@ -35,6 +35,9 @@ openzeppelin_utils = { path = "../utils" }
 openzeppelin_testing = { path = "../testing" }
 openzeppelin_test_common = { path = "../test_common" }
 
+[features]
+fuzzing = []
+
 [lib]
 
 [[target.starknet-contract]]

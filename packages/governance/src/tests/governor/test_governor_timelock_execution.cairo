@@ -28,7 +28,6 @@ use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_utils::bytearray::ByteArrayExtTrait;
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{EventSpy, spy_events, start_mock_call, store};
-use snforge_std::{EventSpy, spy_events, start_mock_call, store};
 use snforge_std::{start_cheat_block_timestamp_global, start_cheat_caller_address};
 use starknet::account::Call;
 use starknet::storage::{StorageMapWriteAccess, StoragePathEntry, StoragePointerWriteAccess};

@@ -250,12 +250,18 @@ pub mod ERC4626Component {
 
         /// Returns the amount of shares that the Vault would exchange for the amount of assets
         /// provided irrespective of slippage or fees.
+        ///
+        /// NOTE: As per the IERC4626 spec, this may panic _only_ if there's an overflow
+        /// from an unreasonably large input.
         fn convert_to_shares(self: @ComponentState<TContractState>, assets: u256) -> u256 {
             self._convert_to_shares(assets, Rounding::Floor)
         }
 
         /// Returns the amount of assets that the Vault would exchange for the amount of shares
         /// provided irrespective of slippage or fees.
+        ///
+        /// NOTE: As per the IERC4626 spec, this may panic _only_ if there's an overflow
+        /// from an unreasonably large input.
         fn convert_to_assets(self: @ComponentState<TContractState>, shares: u256) -> u256 {
             self._convert_to_assets(shares, Rounding::Floor)
         }

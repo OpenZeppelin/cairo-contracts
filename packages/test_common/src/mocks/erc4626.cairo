@@ -226,8 +226,8 @@ pub mod ERC4626LimitsMock {
 /// DO NOT USE IN PRODUCTION
 #[starknet::contract]
 pub mod ERC4626FeesMock {
-    use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component;
     use openzeppelin_token::erc20::extensions::erc4626::DefaultConfig;
+    use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component;
     use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component::FeeConfigTrait;
     use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component::InternalTrait as ERC4626InternalTrait;
     use openzeppelin_token::erc20::extensions::erc4626::ERC4626DefaultLimits;

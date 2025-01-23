@@ -8,13 +8,13 @@
 #[starknet::component]
 pub mod ERC1155Component {
     use core::num::traits::Zero;
-    use crate::erc1155::interface::{IERC1155ReceiverDispatcher, IERC1155ReceiverDispatcherTrait};
     use crate::erc1155::interface;
+    use crate::erc1155::interface::{IERC1155ReceiverDispatcher, IERC1155ReceiverDispatcherTrait};
     use openzeppelin_account::interface::ISRC6_ID;
     use openzeppelin_introspection::interface::{ISRC5Dispatcher, ISRC5DispatcherTrait};
+    use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
-    use openzeppelin_introspection::src5::SRC5Component;
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
     use starknet::{ContractAddress, get_caller_address};
@@ -32,7 +32,7 @@ pub mod ERC1155Component {
         TransferSingle: TransferSingle,
         TransferBatch: TransferBatch,
         ApprovalForAll: ApprovalForAll,
-        URI: URI
+        URI: URI,
     }
 
     /// Emitted when `value` token is transferred from `from` to `to` for `id`.
@@ -45,7 +45,7 @@ pub mod ERC1155Component {
         #[key]
         pub to: ContractAddress,
         pub id: u256,
-        pub value: u256
+        pub value: u256,
     }
 
     /// Emitted when `values` are transferred from `from` to `to` for `ids`.
@@ -69,7 +69,7 @@ pub mod ERC1155Component {
         pub owner: ContractAddress,
         #[key]
         pub operator: ContractAddress,
-        pub approved: bool
+        pub approved: bool,
     }
 
     /// Emitted when the URI for token type `id` changes to `value`, if it is a non-programmatic
@@ -82,7 +82,7 @@ pub mod ERC1155Component {
     pub struct URI {
         pub value: ByteArray,
         #[key]
-        pub id: u256
+        pub id: u256,
     }
 
     pub mod Errors {
@@ -105,7 +105,7 @@ pub mod ERC1155Component {
             from: ContractAddress,
             to: ContractAddress,
             token_ids: Span<u256>,
-            values: Span<u256>
+            values: Span<u256>,
         ) {}
 
         fn after_update(
@@ -113,7 +113,7 @@ pub mod ERC1155Component {
             from: ContractAddress,
             to: ContractAddress,
             token_ids: Span<u256>,
-            values: Span<u256>
+            values: Span<u256>,
         ) {}
     }
 
@@ -127,11 +127,11 @@ pub mod ERC1155Component {
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +ERC1155HooksTrait<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of interface::IERC1155<ComponentState<TContractState>> {
         /// Returns the amount of `token_id` tokens owned by `account`.
         fn balance_of(
-            self: @ComponentState<TContractState>, account: ContractAddress, token_id: u256
+            self: @ComponentState<TContractState>, account: ContractAddress, token_id: u256,
         ) -> u256 {
             self.ERC1155_balances.read((token_id, account))
         }
@@ -144,7 +144,7 @@ pub mod ERC1155Component {
         fn balance_of_batch(
             self: @ComponentState<TContractState>,
             accounts: Span<ContractAddress>,
-            token_ids: Span<u256>
+            token_ids: Span<u256>,
         ) -> Span<u256> {
             assert(accounts.len() == token_ids.len(), Errors::INVALID_ARRAY_LENGTH);
 
@@ -187,7 +187,7 @@ pub mod ERC1155Component {
             to: ContractAddress,
             token_id: u256,
             value: u256,
-            data: Span<felt252>
+            data: Span<felt252>,
         ) {
             let token_ids = array![token_id].span();
             let values = array![value].span();
@@ -219,7 +219,7 @@ pub mod ERC1155Component {
             to: starknet::ContractAddress,
             token_ids: Span<u256>,
             values: Span<u256>,
-            data: Span<felt252>
+            data: Span<felt252>,
         ) {
             assert(from.is_non_zero(), Errors::INVALID_SENDER);
             assert(to.is_non_zero(), Errors::INVALID_RECEIVER);
@@ -241,7 +241,7 @@ pub mod ERC1155Component {
         ///
         /// Emits an `ApprovalForAll` event.
         fn set_approval_for_all(
-            ref self: ComponentState<TContractState>, operator: ContractAddress, approved: bool
+            ref self: ComponentState<TContractState>, operator: ContractAddress, approved: bool,
         ) {
             let owner = get_caller_address();
             assert(owner != operator, Errors::SELF_APPROVAL);
@@ -252,7 +252,9 @@ pub mod ERC1155Component {
 
         /// Queries if `operator` is an authorized operator for `owner`.
         fn is_approved_for_all(
-            self: @ComponentState<TContractState>, owner: ContractAddress, operator: ContractAddress
+            self: @ComponentState<TContractState>,
+            owner: ContractAddress,
+            operator: ContractAddress,
         ) -> bool {
             self.ERC1155_operator_approvals.read((owner, operator))
         }
@@ -264,7 +266,7 @@ pub mod ERC1155Component {
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +ERC1155HooksTrait<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of interface::IERC1155MetadataURI<ComponentState<TContractState>> {
         /// This implementation returns the same URI for *all* token types. It relies
         /// on the token type ID substitution mechanism defined in the EIP:
@@ -284,10 +286,10 @@ pub mod ERC1155Component {
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +ERC1155HooksTrait<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of interface::IERC1155Camel<ComponentState<TContractState>> {
         fn balanceOf(
-            self: @ComponentState<TContractState>, account: ContractAddress, tokenId: u256
+            self: @ComponentState<TContractState>, account: ContractAddress, tokenId: u256,
         ) -> u256 {
             ERC1155::balance_of(self, account, tokenId)
         }
@@ -295,7 +297,7 @@ pub mod ERC1155Component {
         fn balanceOfBatch(
             self: @ComponentState<TContractState>,
             accounts: Span<ContractAddress>,
-            tokenIds: Span<u256>
+            tokenIds: Span<u256>,
         ) -> Span<u256> {
             ERC1155::balance_of_batch(self, accounts, tokenIds)
         }
@@ -306,7 +308,7 @@ pub mod ERC1155Component {
             to: ContractAddress,
             tokenId: u256,
             value: u256,
-            data: Span<felt252>
+            data: Span<felt252>,
         ) {
             ERC1155::safe_transfer_from(ref self, from, to, tokenId, value, data)
         }
@@ -317,19 +319,21 @@ pub mod ERC1155Component {
             to: ContractAddress,
             tokenIds: Span<u256>,
             values: Span<u256>,
-            data: Span<felt252>
+            data: Span<felt252>,
         ) {
             ERC1155::safe_batch_transfer_from(ref self, from, to, tokenIds, values, data)
         }
 
         fn setApprovalForAll(
-            ref self: ComponentState<TContractState>, operator: ContractAddress, approved: bool
+            ref self: ComponentState<TContractState>, operator: ContractAddress, approved: bool,
         ) {
             ERC1155::set_approval_for_all(ref self, operator, approved)
         }
 
         fn isApprovedForAll(
-            self: @ComponentState<TContractState>, owner: ContractAddress, operator: ContractAddress
+            self: @ComponentState<TContractState>,
+            owner: ContractAddress,
+            operator: ContractAddress,
         ) -> bool {
             ERC1155::is_approved_for_all(self, owner, operator)
         }
@@ -341,11 +345,11 @@ pub mod ERC1155Component {
         +HasComponent<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
         +ERC1155HooksTrait<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of interface::ERC1155ABI<ComponentState<TContractState>> {
         // IERC1155
         fn balance_of(
-            self: @ComponentState<TContractState>, account: ContractAddress, token_id: u256
+            self: @ComponentState<TContractState>, account: ContractAddress, token_id: u256,
         ) -> u256 {
             ERC1155::balance_of(self, account, token_id)
         }
@@ -353,7 +357,7 @@ pub mod ERC1155Component {
         fn balance_of_batch(
             self: @ComponentState<TContractState>,
             accounts: Span<ContractAddress>,
-            token_ids: Span<u256>
+            token_ids: Span<u256>,
         ) -> Span<u256> {
             ERC1155::balance_of_batch(self, accounts, token_ids)
         }
@@ -364,7 +368,7 @@ pub mod ERC1155Component {
             to: ContractAddress,
             token_id: u256,
             value: u256,
-            data: Span<felt252>
+            data: Span<felt252>,
         ) {
             ERC1155::safe_transfer_from(ref self, from, to, token_id, value, data);
         }
@@ -375,26 +379,28 @@ pub mod ERC1155Component {
             to: ContractAddress,
             token_ids: Span<u256>,
             values: Span<u256>,
-            data: Span<felt252>
+            data: Span<felt252>,
         ) {
             ERC1155::safe_batch_transfer_from(ref self, from, to, token_ids, values, data);
         }
 
         fn is_approved_for_all(
-            self: @ComponentState<TContractState>, owner: ContractAddress, operator: ContractAddress
+            self: @ComponentState<TContractState>,
+            owner: ContractAddress,
+            operator: ContractAddress,
         ) -> bool {
             ERC1155::is_approved_for_all(self, owner, operator)
         }
 
         fn set_approval_for_all(
-            ref self: ComponentState<TContractState>, operator: ContractAddress, approved: bool
+            ref self: ComponentState<TContractState>, operator: ContractAddress, approved: bool,
         ) {
             ERC1155::set_approval_for_all(ref self, operator, approved);
         }
 
         // ISRC5
         fn supports_interface(
-            self: @ComponentState<TContractState>, interface_id: felt252
+            self: @ComponentState<TContractState>, interface_id: felt252,
         ) -> bool {
             let src5 = get_dep_component!(self, SRC5);
             src5.supports_interface(interface_id)
@@ -407,7 +413,7 @@ pub mod ERC1155Component {
 
         // IERC1155Camel
         fn balanceOf(
-            self: @ComponentState<TContractState>, account: ContractAddress, tokenId: u256
+            self: @ComponentState<TContractState>, account: ContractAddress, tokenId: u256,
         ) -> u256 {
             ERC1155Camel::balanceOf(self, account, tokenId)
         }
@@ -415,7 +421,7 @@ pub mod ERC1155Component {
         fn balanceOfBatch(
             self: @ComponentState<TContractState>,
             accounts: Span<ContractAddress>,
-            tokenIds: Span<u256>
+            tokenIds: Span<u256>,
         ) -> Span<u256> {
             ERC1155Camel::balanceOfBatch(self, accounts, tokenIds)
         }
@@ -426,7 +432,7 @@ pub mod ERC1155Component {
             to: ContractAddress,
             tokenId: u256,
             value: u256,
-            data: Span<felt252>
+            data: Span<felt252>,
         ) {
             ERC1155Camel::safeTransferFrom(ref self, from, to, tokenId, value, data);
         }
@@ -437,19 +443,21 @@ pub mod ERC1155Component {
             to: ContractAddress,
             tokenIds: Span<u256>,
             values: Span<u256>,
-            data: Span<felt252>
+            data: Span<felt252>,
         ) {
             ERC1155Camel::safeBatchTransferFrom(ref self, from, to, tokenIds, values, data);
         }
 
         fn isApprovedForAll(
-            self: @ComponentState<TContractState>, owner: ContractAddress, operator: ContractAddress
+            self: @ComponentState<TContractState>,
+            owner: ContractAddress,
+            operator: ContractAddress,
         ) -> bool {
             ERC1155Camel::isApprovedForAll(self, owner, operator)
         }
 
         fn setApprovalForAll(
-            ref self: ComponentState<TContractState>, operator: ContractAddress, approved: bool
+            ref self: ComponentState<TContractState>, operator: ContractAddress, approved: bool,
         ) {
             ERC1155Camel::setApprovalForAll(ref self, operator, approved);
         }
@@ -465,7 +473,7 @@ pub mod ERC1155Component {
         +HasComponent<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
         impl Hooks: ERC1155HooksTrait<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of InternalTrait<TContractState> {
         /// Initializes the contract by setting the `base_uri` for all tokens,
         /// and registering the supported interfaces.
@@ -512,7 +520,7 @@ pub mod ERC1155Component {
             to: ContractAddress,
             token_id: u256,
             value: u256,
-            data: Span<felt252>
+            data: Span<felt252>,
         ) {
             assert(to.is_non_zero(), Errors::INVALID_RECEIVER);
 
@@ -537,7 +545,7 @@ pub mod ERC1155Component {
             to: ContractAddress,
             token_ids: Span<u256>,
             values: Span<u256>,
-            data: Span<felt252>
+            data: Span<felt252>,
         ) {
             assert(to.is_non_zero(), Errors::INVALID_RECEIVER);
             self.update_with_acceptance_check(Zero::zero(), to, token_ids, values, data);
@@ -555,7 +563,7 @@ pub mod ERC1155Component {
             ref self: ComponentState<TContractState>,
             from: ContractAddress,
             token_id: u256,
-            value: u256
+            value: u256,
         ) {
             assert(from.is_non_zero(), Errors::INVALID_SENDER);
 
@@ -577,7 +585,7 @@ pub mod ERC1155Component {
             ref self: ComponentState<TContractState>,
             from: ContractAddress,
             token_ids: Span<u256>,
-            values: Span<u256>
+            values: Span<u256>,
         ) {
             assert(from.is_non_zero(), Errors::INVALID_SENDER);
             self.update(from, Zero::zero(), token_ids, values);
@@ -600,7 +608,7 @@ pub mod ERC1155Component {
             to: ContractAddress,
             token_ids: Span<u256>,
             values: Span<u256>,
-            data: Span<felt252>
+            data: Span<felt252>,
         ) {
             self.update(from, to, token_ids, values);
             let accepted = if token_ids.len() == 1 {
@@ -631,7 +639,7 @@ pub mod ERC1155Component {
             from: ContractAddress,
             to: ContractAddress,
             token_ids: Span<u256>,
-            values: Span<u256>
+            values: Span<u256>,
         ) {
             Hooks::before_update(ref self, from, to, token_ids, values);
 
@@ -660,8 +668,8 @@ pub mod ERC1155Component {
                 self
                     .emit(
                         TransferSingle {
-                            operator, from, to, id: *token_ids.at(0), value: *values.at(0)
-                        }
+                            operator, from, to, id: *token_ids.at(0), value: *values.at(0),
+                        },
                     );
             } else {
                 self.emit(TransferBatch { operator, from, to, ids: token_ids, values });
@@ -693,14 +701,18 @@ pub mod ERC1155Component {
     /// Checks if `to` accepts the token by implementing `IERC1155Receiver`
     /// or if it's an account contract (supporting ISRC6).
     fn _check_on_ERC1155_received(
-        from: ContractAddress, to: ContractAddress, token_id: u256, value: u256, data: Span<felt252>
+        from: ContractAddress,
+        to: ContractAddress,
+        token_id: u256,
+        value: u256,
+        data: Span<felt252>,
     ) -> bool {
         let src5_dispatcher = ISRC5Dispatcher { contract_address: to };
 
         if src5_dispatcher.supports_interface(interface::IERC1155_RECEIVER_ID) {
             IERC1155ReceiverDispatcher { contract_address: to }
                 .on_erc1155_received(
-                    get_caller_address(), from, token_id, value, data
+                    get_caller_address(), from, token_id, value, data,
                 ) == interface::IERC1155_RECEIVER_ID
         } else {
             src5_dispatcher.supports_interface(ISRC6_ID)
@@ -714,14 +726,14 @@ pub mod ERC1155Component {
         to: ContractAddress,
         token_ids: Span<u256>,
         values: Span<u256>,
-        data: Span<felt252>
+        data: Span<felt252>,
     ) -> bool {
         let src5_dispatcher = ISRC5Dispatcher { contract_address: to };
 
         if src5_dispatcher.supports_interface(interface::IERC1155_RECEIVER_ID) {
             IERC1155ReceiverDispatcher { contract_address: to }
                 .on_erc1155_batch_received(
-                    get_caller_address(), from, token_ids, values, data
+                    get_caller_address(), from, token_ids, values, data,
                 ) == interface::IERC1155_RECEIVER_ID
         } else {
             src5_dispatcher.supports_interface(ISRC6_ID)
@@ -731,5 +743,5 @@ pub mod ERC1155Component {
 
 /// An empty implementation of the ERC1155 hooks to be used in basic ERC1155 preset contracts.
 pub impl ERC1155HooksEmptyImpl<
-    TContractState
+    TContractState,
 > of ERC1155Component::ERC1155HooksTrait<TContractState> {}

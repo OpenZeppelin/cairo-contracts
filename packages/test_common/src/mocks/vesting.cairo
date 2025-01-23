@@ -1,7 +1,7 @@
 #[starknet::contract]
 pub mod LinearVestingMock {
     use openzeppelin_access::ownable::OwnableComponent;
-    use openzeppelin_finance::vesting::{VestingComponent, LinearVestingSchedule};
+    use openzeppelin_finance::vesting::{LinearVestingSchedule, VestingComponent};
     use starknet::ContractAddress;
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
@@ -22,7 +22,7 @@ pub mod LinearVestingMock {
         #[substorage(v0)]
         ownable: OwnableComponent::Storage,
         #[substorage(v0)]
-        vesting: VestingComponent::Storage
+        vesting: VestingComponent::Storage,
     }
 
     #[event]
@@ -31,7 +31,7 @@ pub mod LinearVestingMock {
         #[flat]
         OwnableEvent: OwnableComponent::Event,
         #[flat]
-        VestingEvent: VestingComponent::Event
+        VestingEvent: VestingComponent::Event,
     }
 
     #[constructor]
@@ -50,8 +50,8 @@ pub mod LinearVestingMock {
 #[starknet::contract]
 pub mod StepsVestingMock {
     use openzeppelin_access::ownable::OwnableComponent;
-    use openzeppelin_finance::vesting::VestingComponent::VestingScheduleTrait;
     use openzeppelin_finance::vesting::VestingComponent;
+    use openzeppelin_finance::vesting::VestingComponent::VestingScheduleTrait;
     use starknet::ContractAddress;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 
@@ -74,7 +74,7 @@ pub mod StepsVestingMock {
         #[substorage(v0)]
         ownable: OwnableComponent::Storage,
         #[substorage(v0)]
-        vesting: VestingComponent::Storage
+        vesting: VestingComponent::Storage,
     }
 
     #[event]
@@ -83,7 +83,7 @@ pub mod StepsVestingMock {
         #[flat]
         OwnableEvent: OwnableComponent::Event,
         #[flat]
-        VestingEvent: VestingComponent::Event
+        VestingEvent: VestingComponent::Event,
     }
 
     #[constructor]
@@ -144,14 +144,14 @@ pub mod ERC20OptionalTransferPanicMock {
     struct Storage {
         transfer_should_fail: bool,
         #[substorage(v0)]
-        erc20: ERC20Component::Storage
+        erc20: ERC20Component::Storage,
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        ERC20Event: ERC20Component::Event
+        ERC20Event: ERC20Component::Event,
     }
 
     #[constructor]
@@ -160,7 +160,7 @@ pub mod ERC20OptionalTransferPanicMock {
         name: ByteArray,
         symbol: ByteArray,
         initial_supply: u256,
-        recipient: ContractAddress
+        recipient: ContractAddress,
     ) {
         self.erc20.initializer(name, symbol);
         self.erc20.mint(recipient, initial_supply);
@@ -177,7 +177,7 @@ pub mod ERC20OptionalTransferPanicMock {
         }
 
         fn allowance(
-            self: @ContractState, owner: ContractAddress, spender: ContractAddress
+            self: @ContractState, owner: ContractAddress, spender: ContractAddress,
         ) -> u256 {
             self.erc20.allowance(owner, spender)
         }
@@ -194,7 +194,7 @@ pub mod ERC20OptionalTransferPanicMock {
             ref self: ContractState,
             sender: ContractAddress,
             recipient: ContractAddress,
-            amount: u256
+            amount: u256,
         ) -> bool {
             if self.transfer_should_fail.read() {
                 false

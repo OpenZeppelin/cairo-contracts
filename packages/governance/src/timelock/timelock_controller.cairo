@@ -14,19 +14,19 @@
 /// or a DAO as the sole proposer.
 #[starknet::component]
 pub mod TimelockControllerComponent {
-    use core::hash::{HashStateTrait, HashStateExTrait};
+    use core::hash::{HashStateExTrait, HashStateTrait};
     use core::num::traits::Zero;
     use core::pedersen::PedersenTrait;
-    use crate::timelock::interface::{OperationState, ITimelock, TimelockABI};
-    use crate::utils::call_impls::{HashCallImpl, HashCallsImpl, CallPartialEq};
+    use crate::timelock::interface::{ITimelock, OperationState, TimelockABI};
+    use crate::utils::call_impls::{CallPartialEq, HashCallImpl, HashCallsImpl};
+    use openzeppelin_access::accesscontrol::AccessControlComponent;
     use openzeppelin_access::accesscontrol::AccessControlComponent::InternalTrait as AccessControlInternalTrait;
     use openzeppelin_access::accesscontrol::AccessControlComponent::{
-        AccessControlImpl, AccessControlCamelImpl
+        AccessControlCamelImpl, AccessControlImpl,
     };
-    use openzeppelin_access::accesscontrol::AccessControlComponent;
     use openzeppelin_access::accesscontrol::DEFAULT_ADMIN_ROLE;
-    use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
     use openzeppelin_introspection::src5::SRC5Component;
+    use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
     use starknet::ContractAddress;
     use starknet::SyscallResultTrait;
     use starknet::account::Call;
@@ -42,7 +42,7 @@ pub mod TimelockControllerComponent {
     #[storage]
     pub struct Storage {
         pub TimelockController_timestamps: Map<felt252, u64>,
-        pub TimelockController_min_delay: u64
+        pub TimelockController_min_delay: u64,
     }
 
     #[event]
@@ -52,7 +52,7 @@ pub mod TimelockControllerComponent {
         CallExecuted: CallExecuted,
         CallSalt: CallSalt,
         CallCancelled: CallCancelled,
-        MinDelayChanged: MinDelayChanged
+        MinDelayChanged: MinDelayChanged,
     }
 
     /// Emitted when `call` is scheduled as part of operation `id`.
@@ -64,7 +64,7 @@ pub mod TimelockControllerComponent {
         pub index: felt252,
         pub call: Call,
         pub predecessor: felt252,
-        pub delay: u64
+        pub delay: u64,
     }
 
     /// Emitted when `call` is performed as part of operation `id`.
@@ -74,7 +74,7 @@ pub mod TimelockControllerComponent {
         pub id: felt252,
         #[key]
         pub index: felt252,
-        pub call: Call
+        pub call: Call,
     }
 
     /// Emitted when a new proposal is scheduled with non-zero salt.
@@ -82,21 +82,21 @@ pub mod TimelockControllerComponent {
     pub struct CallSalt {
         #[key]
         pub id: felt252,
-        pub salt: felt252
+        pub salt: felt252,
     }
 
     /// Emitted when operation `id` is cancelled.
     #[derive(Drop, PartialEq, starknet::Event)]
     pub struct CallCancelled {
         #[key]
-        pub id: felt252
+        pub id: felt252,
     }
 
     /// Emitted when the minimum delay for future operations is modified.
     #[derive(Drop, PartialEq, starknet::Event)]
     pub struct MinDelayChanged {
         pub old_duration: u64,
-        pub new_duration: u64
+        pub new_duration: u64,
     }
 
     pub mod Errors {
@@ -119,7 +119,7 @@ pub mod TimelockControllerComponent {
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +AccessControlComponent::HasComponent<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of ITimelock<ComponentState<TContractState>> {
         /// Returns whether `id` corresponds to a registered operation.
         /// This includes the OperationStates: `Waiting`, `Ready`, and `Done`.
@@ -154,7 +154,7 @@ pub mod TimelockControllerComponent {
 
         /// Returns the OperationState for `id`.
         fn get_operation_state(
-            self: @ComponentState<TContractState>, id: felt252
+            self: @ComponentState<TContractState>, id: felt252,
         ) -> OperationState {
             let timestamp = Self::get_timestamp(self, id);
             if timestamp == 0 {
@@ -176,7 +176,7 @@ pub mod TimelockControllerComponent {
 
         /// Returns the identifier of an operation containing a single transaction.
         fn hash_operation(
-            self: @ComponentState<TContractState>, call: Call, predecessor: felt252, salt: felt252
+            self: @ComponentState<TContractState>, call: Call, predecessor: felt252, salt: felt252,
         ) -> felt252 {
             Self::hash_operation_batch(self, array![call].span(), predecessor, salt)
         }
@@ -186,7 +186,7 @@ pub mod TimelockControllerComponent {
             self: @ComponentState<TContractState>,
             calls: Span<Call>,
             predecessor: felt252,
-            salt: felt252
+            salt: felt252,
         ) -> felt252 {
             PedersenTrait::new(0)
                 .update_with(calls)
@@ -210,7 +210,7 @@ pub mod TimelockControllerComponent {
             call: Call,
             predecessor: felt252,
             salt: felt252,
-            delay: u64
+            delay: u64,
         ) {
             self.assert_only_role(PROPOSER_ROLE);
 
@@ -238,7 +238,7 @@ pub mod TimelockControllerComponent {
             calls: Span<Call>,
             predecessor: felt252,
             salt: felt252,
-            delay: u64
+            delay: u64,
         ) {
             self.assert_only_role(PROPOSER_ROLE);
 
@@ -289,7 +289,7 @@ pub mod TimelockControllerComponent {
             ref self: ComponentState<TContractState>,
             call: Call,
             predecessor: felt252,
-            salt: felt252
+            salt: felt252,
         ) {
             self.assert_only_role_or_open_role(EXECUTOR_ROLE);
 
@@ -317,7 +317,7 @@ pub mod TimelockControllerComponent {
             ref self: ComponentState<TContractState>,
             calls: Span<Call>,
             predecessor: felt252,
-            salt: felt252
+            salt: felt252,
         ) {
             self.assert_only_role_or_open_role(EXECUTOR_ROLE);
 
@@ -359,7 +359,7 @@ pub mod TimelockControllerComponent {
         +HasComponent<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
         impl AccessControl: AccessControlComponent::HasComponent<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of TimelockABI<ComponentState<TContractState>> {
         fn is_operation(self: @ComponentState<TContractState>, id: felt252) -> bool {
             Timelock::is_operation(self, id)
@@ -382,7 +382,7 @@ pub mod TimelockControllerComponent {
         }
 
         fn get_operation_state(
-            self: @ComponentState<TContractState>, id: felt252
+            self: @ComponentState<TContractState>, id: felt252,
         ) -> OperationState {
             Timelock::get_operation_state(self, id)
         }
@@ -392,7 +392,7 @@ pub mod TimelockControllerComponent {
         }
 
         fn hash_operation(
-            self: @ComponentState<TContractState>, call: Call, predecessor: felt252, salt: felt252
+            self: @ComponentState<TContractState>, call: Call, predecessor: felt252, salt: felt252,
         ) -> felt252 {
             Timelock::hash_operation(self, call, predecessor, salt)
         }
@@ -401,7 +401,7 @@ pub mod TimelockControllerComponent {
             self: @ComponentState<TContractState>,
             calls: Span<Call>,
             predecessor: felt252,
-            salt: felt252
+            salt: felt252,
         ) -> felt252 {
             Timelock::hash_operation_batch(self, calls, predecessor, salt)
         }
@@ -411,7 +411,7 @@ pub mod TimelockControllerComponent {
             call: Call,
             predecessor: felt252,
             salt: felt252,
-            delay: u64
+            delay: u64,
         ) {
             Timelock::schedule(ref self, call, predecessor, salt, delay);
         }
@@ -421,7 +421,7 @@ pub mod TimelockControllerComponent {
             calls: Span<Call>,
             predecessor: felt252,
             salt: felt252,
-            delay: u64
+            delay: u64,
         ) {
             Timelock::schedule_batch(ref self, calls, predecessor, salt, delay);
         }
@@ -434,7 +434,7 @@ pub mod TimelockControllerComponent {
             ref self: ComponentState<TContractState>,
             call: Call,
             predecessor: felt252,
-            salt: felt252
+            salt: felt252,
         ) {
             Timelock::execute(ref self, call, predecessor, salt);
         }
@@ -443,7 +443,7 @@ pub mod TimelockControllerComponent {
             ref self: ComponentState<TContractState>,
             calls: Span<Call>,
             predecessor: felt252,
-            salt: felt252
+            salt: felt252,
         ) {
             Timelock::execute_batch(ref self, calls, predecessor, salt);
         }
@@ -454,7 +454,7 @@ pub mod TimelockControllerComponent {
 
         // ISRC5
         fn supports_interface(
-            self: @ComponentState<TContractState>, interface_id: felt252
+            self: @ComponentState<TContractState>, interface_id: felt252,
         ) -> bool {
             let src5 = get_dep_component!(self, SRC5);
             src5.supports_interface(interface_id)
@@ -462,7 +462,7 @@ pub mod TimelockControllerComponent {
 
         // IAccessControl
         fn has_role(
-            self: @ComponentState<TContractState>, role: felt252, account: ContractAddress
+            self: @ComponentState<TContractState>, role: felt252, account: ContractAddress,
         ) -> bool {
             let access_control = get_dep_component!(self, AccessControl);
             access_control.has_role(role, account)
@@ -474,20 +474,20 @@ pub mod TimelockControllerComponent {
         }
 
         fn grant_role(
-            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
+            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress,
         ) {
             let mut access_control = get_dep_component_mut!(ref self, AccessControl);
             access_control.grant_role(role, account);
         }
 
         fn revoke_role(
-            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
+            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress,
         ) {
             let mut access_control = get_dep_component_mut!(ref self, AccessControl);
             access_control.revoke_role(role, account);
         }
         fn renounce_role(
-            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
+            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress,
         ) {
             let mut access_control = get_dep_component_mut!(ref self, AccessControl);
             access_control.renounce_role(role, account);
@@ -495,7 +495,7 @@ pub mod TimelockControllerComponent {
 
         // IAccessControlCamel
         fn hasRole(
-            self: @ComponentState<TContractState>, role: felt252, account: ContractAddress
+            self: @ComponentState<TContractState>, role: felt252, account: ContractAddress,
         ) -> bool {
             Self::has_role(self, role, account)
         }
@@ -505,19 +505,19 @@ pub mod TimelockControllerComponent {
         }
 
         fn grantRole(
-            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
+            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress,
         ) {
             Self::grant_role(ref self, role, account);
         }
 
         fn revokeRole(
-            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
+            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress,
         ) {
             Self::revoke_role(ref self, role, account);
         }
 
         fn renounceRole(
-            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress
+            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress,
         ) {
             Self::renounce_role(ref self, role, account);
         }
@@ -533,7 +533,7 @@ pub mod TimelockControllerComponent {
         +HasComponent<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
         impl AccessControl: AccessControlComponent::HasComponent<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of InternalTrait<TContractState> {
         /// Initializes the contract by registering support for SRC5 and AccessControl.
         ///
@@ -562,7 +562,7 @@ pub mod TimelockControllerComponent {
             min_delay: u64,
             proposers: Span<ContractAddress>,
             executors: Span<ContractAddress>,
-            admin: ContractAddress
+            admin: ContractAddress,
         ) {
             // Register access control ID and self as default admin
             let mut access_component = get_dep_component_mut!(ref self, AccessControl);
@@ -626,7 +626,7 @@ pub mod TimelockControllerComponent {
             assert(Timelock::is_operation_ready(self, id), Errors::EXPECTED_READY_OPERATION);
             assert(
                 predecessor == 0 || Timelock::is_operation_done(self, predecessor),
-                Errors::UNEXECUTED_PREDECESSOR
+                Errors::UNEXECUTED_PREDECESSOR,
             );
         }
 

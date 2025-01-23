@@ -8,12 +8,12 @@
 /// safe transfers.
 #[starknet::component]
 pub mod ERC721ReceiverComponent {
+    use crate::erc721::interface;
     use crate::erc721::interface::IERC721_RECEIVER_ID;
     use crate::erc721::interface::{IERC721Receiver, IERC721ReceiverCamel};
-    use crate::erc721::interface;
+    use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
-    use openzeppelin_introspection::src5::SRC5Component;
     use starknet::ContractAddress;
 
     #[storage]
@@ -24,7 +24,7 @@ pub mod ERC721ReceiverComponent {
         TContractState,
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of IERC721Receiver<ComponentState<TContractState>> {
         /// Called whenever the implementing contract receives `token_id` through
         /// a safe transfer. This function must return `IERC721_RECEIVER_ID`
@@ -34,7 +34,7 @@ pub mod ERC721ReceiverComponent {
             operator: ContractAddress,
             from: ContractAddress,
             token_id: u256,
-            data: Span<felt252>
+            data: Span<felt252>,
         ) -> felt252 {
             IERC721_RECEIVER_ID
         }
@@ -46,14 +46,14 @@ pub mod ERC721ReceiverComponent {
         TContractState,
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of IERC721ReceiverCamel<ComponentState<TContractState>> {
         fn onERC721Received(
             self: @ComponentState<TContractState>,
             operator: ContractAddress,
             from: ContractAddress,
             tokenId: u256,
-            data: Span<felt252>
+            data: Span<felt252>,
         ) -> felt252 {
             IERC721_RECEIVER_ID
         }
@@ -64,7 +64,7 @@ pub mod ERC721ReceiverComponent {
         TContractState,
         +HasComponent<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of InternalTrait<TContractState> {
         /// Initializes the contract by registering the IERC721Receiver interface ID.
         /// This should be used inside the contract's constructor.
@@ -79,7 +79,7 @@ pub mod ERC721ReceiverComponent {
         TContractState,
         +HasComponent<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of interface::ERC721ReceiverMixin<ComponentState<TContractState>> {
         // IERC721Receiver
         fn on_erc721_received(
@@ -87,7 +87,7 @@ pub mod ERC721ReceiverComponent {
             operator: ContractAddress,
             from: ContractAddress,
             token_id: u256,
-            data: Span<felt252>
+            data: Span<felt252>,
         ) -> felt252 {
             ERC721Receiver::on_erc721_received(self, operator, from, token_id, data)
         }
@@ -98,14 +98,14 @@ pub mod ERC721ReceiverComponent {
             operator: ContractAddress,
             from: ContractAddress,
             tokenId: u256,
-            data: Span<felt252>
+            data: Span<felt252>,
         ) -> felt252 {
             ERC721ReceiverCamel::onERC721Received(self, operator, from, tokenId, data)
         }
 
         // ISRC5
         fn supports_interface(
-            self: @ComponentState<TContractState>, interface_id: felt252
+            self: @ComponentState<TContractState>, interface_id: felt252,
         ) -> bool {
             let src5 = get_dep_component!(self, SRC5);
             src5.supports_interface(interface_id)

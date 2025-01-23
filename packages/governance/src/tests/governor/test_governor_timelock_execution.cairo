@@ -1,36 +1,36 @@
 use crate::governor::DefaultConfig;
-use crate::governor::GovernorComponent::{InternalImpl, InternalExtendedImpl};
-use crate::governor::extensions::GovernorTimelockExecutionComponent::GovernorExecution;
+use crate::governor::GovernorComponent::{InternalExtendedImpl, InternalImpl};
 use crate::governor::extensions::GovernorTimelockExecutionComponent;
+use crate::governor::extensions::GovernorTimelockExecutionComponent::GovernorExecution;
 use crate::governor::extensions::interface::{ITimelockedDispatcher, ITimelockedDispatcherTrait};
 use crate::governor::interface::ProposalState;
 use crate::governor::interface::{IGovernorDispatcher, IGovernorDispatcherTrait};
 use crate::tests::governor::common::{
-    COMPONENT_STATE_TIMELOCKED as COMPONENT_STATE, CONTRACT_STATE_TIMELOCKED as CONTRACT_STATE
+    COMPONENT_STATE_TIMELOCKED as COMPONENT_STATE, CONTRACT_STATE_TIMELOCKED as CONTRACT_STATE,
 };
-use crate::tests::governor::common::{set_executor, get_proposal_info, ComponentStateTimelocked};
+use crate::tests::governor::common::{ComponentStateTimelocked, get_proposal_info, set_executor};
 use crate::tests::governor::test_governor::GovernorSpyHelpersImpl;
 use crate::tests::test_timelock::TimelockSpyHelpersImpl;
-use crate::timelock::interface::{OperationState, ITimelockDispatcher};
+use crate::timelock::interface::{ITimelockDispatcher, OperationState};
 use openzeppelin_test_common::mocks::governor::GovernorMock::SNIP12MetadataImpl;
 use openzeppelin_test_common::mocks::governor::{
-    GovernorTimelockedMock, CancelOperationsDispatcher, CancelOperationsDispatcherTrait
+    CancelOperationsDispatcher, CancelOperationsDispatcherTrait, GovernorTimelockedMock,
 };
 use openzeppelin_test_common::mocks::governor::{
     TimelockSaltDispatcher, TimelockSaltDispatcherTrait,
 };
 use openzeppelin_test_common::mocks::timelock::{
-    IMockContractDispatcher, IMockContractDispatcherTrait
+    IMockContractDispatcher, IMockContractDispatcherTrait,
 };
 use openzeppelin_testing as utils;
-use openzeppelin_testing::constants::{TIMELOCK, VOTES_TOKEN, OTHER};
+use openzeppelin_testing::constants::{OTHER, TIMELOCK, VOTES_TOKEN};
 use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_utils::bytearray::ByteArrayExtTrait;
 use openzeppelin_utils::serde::SerializedAppend;
+use snforge_std::{EventSpy, spy_events, start_mock_call, store};
 use snforge_std::{start_cheat_block_timestamp_global, start_cheat_caller_address};
-use snforge_std::{start_mock_call, spy_events, store, EventSpy};
 use starknet::account::Call;
-use starknet::storage::{StoragePathEntry, StoragePointerWriteAccess, StorageMapWriteAccess};
+use starknet::storage::{StorageMapWriteAccess, StoragePathEntry, StoragePointerWriteAccess};
 use starknet::{ContractAddress, contract_address_const};
 
 const MIN_DELAY: u64 = 100;
@@ -89,7 +89,7 @@ fn setup_dispatchers() -> (IGovernorDispatcher, ITimelockDispatcher, IMockContra
     store(
         governor.contract_address,
         selector!("Governor_timelock_controller"),
-        array![timelock.contract_address.into()].span()
+        array![timelock.contract_address.into()].span(),
     );
 
     (governor, timelock, target)
@@ -333,7 +333,7 @@ fn test_execute_operations() {
     let call = Call {
         to: target.contract_address,
         selector: selector!("set_number"),
-        calldata: array![new_number].span()
+        calldata: array![new_number].span(),
     };
     let calls = array![call].span();
     let description = "proposal description";
@@ -410,7 +410,7 @@ fn test_queue_operations() {
     let call = Call {
         to: target.contract_address,
         selector: selector!("set_number"),
-        calldata: array![new_number].span()
+        calldata: array![new_number].span(),
     };
     let calls = array![call].span();
     let description = "proposal description";
@@ -484,7 +484,7 @@ fn test_cancel_operations_queued() {
     let call = Call {
         to: target.contract_address,
         selector: selector!("set_number"),
-        calldata: array![new_number].span()
+        calldata: array![new_number].span(),
     };
     let calls = array![call].span();
     let description = "proposal description";
@@ -781,10 +781,10 @@ pub(crate) impl GovernorTimelockExecutionSpyHelpersImpl of GovernorTimelockExecu
         ref self: EventSpy,
         contract: ContractAddress,
         old_timelock: ContractAddress,
-        new_timelock: ContractAddress
+        new_timelock: ContractAddress,
     ) {
         let expected = GovernorTimelockExecutionComponent::Event::TimelockUpdated(
-            GovernorTimelockExecutionComponent::TimelockUpdated { old_timelock, new_timelock }
+            GovernorTimelockExecutionComponent::TimelockUpdated { old_timelock, new_timelock },
         );
         self.assert_emitted_single(contract, expected);
     }
@@ -793,7 +793,7 @@ pub(crate) impl GovernorTimelockExecutionSpyHelpersImpl of GovernorTimelockExecu
         ref self: EventSpy,
         contract: ContractAddress,
         old_timelock: ContractAddress,
-        new_timelock: ContractAddress
+        new_timelock: ContractAddress,
     ) {
         self.assert_event_timelock_updated(contract, old_timelock, new_timelock);
         self.assert_no_events_left_from(contract);

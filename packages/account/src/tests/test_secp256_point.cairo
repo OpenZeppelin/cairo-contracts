@@ -1,8 +1,8 @@
 use crate::utils::secp256_point::{
-    DebugSecp256Point, Secp256PointPartialEq, Secp256PointStorePacking as StorePacking
+    DebugSecp256Point, Secp256PointPartialEq, Secp256PointStorePacking as StorePacking,
 };
 use starknet::SyscallResultTrait;
-use starknet::secp256_trait::{Secp256Trait, Secp256PointTrait};
+use starknet::secp256_trait::{Secp256PointTrait, Secp256Trait};
 use starknet::secp256k1::Secp256k1Point;
 
 #[test]
@@ -15,7 +15,7 @@ fn test_pack_big_secp256k1_points() {
     let xhigh_and_parity: u256 = xhigh_and_parity.into();
 
     let x = u256 {
-        low: xlow.try_into().unwrap(), high: (xhigh_and_parity / 2).try_into().unwrap()
+        low: xlow.try_into().unwrap(), high: (xhigh_and_parity / 2).try_into().unwrap(),
     };
     let parity = xhigh_and_parity % 2 == 1;
 
@@ -27,7 +27,7 @@ fn test_pack_big_secp256k1_points() {
     let xhigh_and_parity: u256 = xhigh_and_parity.into();
 
     let x = u256 {
-        low: xlow.try_into().unwrap(), high: (xhigh_and_parity / 2).try_into().unwrap()
+        low: xlow.try_into().unwrap(), high: (xhigh_and_parity / 2).try_into().unwrap(),
     };
     let parity = xhigh_and_parity % 2 == 1;
 

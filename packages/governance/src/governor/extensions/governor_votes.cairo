@@ -9,8 +9,8 @@
 #[starknet::component]
 pub mod GovernorVotesComponent {
     use core::num::traits::Zero;
-    use crate::governor::GovernorComponent::ComponentState as GovernorComponentState;
     use crate::governor::GovernorComponent;
+    use crate::governor::GovernorComponent::ComponentState as GovernorComponentState;
     use crate::governor::extensions::interface::IVotesToken;
     use crate::votes::interface::{IVotesDispatcher, IVotesDispatcherTrait};
     use openzeppelin_introspection::src5::SRC5Component;
@@ -19,7 +19,7 @@ pub mod GovernorVotesComponent {
 
     #[storage]
     pub struct Storage {
-        pub Governor_token: ContractAddress
+        pub Governor_token: ContractAddress,
     }
 
     pub mod Errors {
@@ -35,7 +35,7 @@ pub mod GovernorVotesComponent {
         +GovernorComponent::HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         impl GovernorVotes: HasComponent<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of GovernorComponent::GovernorVotesTrait<TContractState> {
         /// See `GovernorComponent::GovernorVotesTrait::clock`.
         fn clock(self: @GovernorComponentState<TContractState>) -> u64 {
@@ -54,7 +54,7 @@ pub mod GovernorVotesComponent {
             self: @GovernorComponentState<TContractState>,
             account: ContractAddress,
             timepoint: u64,
-            params: Span<felt252>
+            params: Span<felt252>,
         ) -> u256 {
             let contract = self.get_contract();
             let this_component = GovernorVotes::get_component(contract);
@@ -72,7 +72,7 @@ pub mod GovernorVotesComponent {
 
     #[embeddable_as(VotesTokenImpl)]
     impl VotesToken<
-        TContractState, +HasComponent<TContractState>, +Drop<TContractState>
+        TContractState, +HasComponent<TContractState>, +Drop<TContractState>,
     > of IVotesToken<ComponentState<TContractState>> {
         /// Returns the token that voting power is sourced from.
         fn token(self: @ComponentState<TContractState>) -> ContractAddress {
@@ -90,7 +90,7 @@ pub mod GovernorVotesComponent {
         +HasComponent<TContractState>,
         +GovernorComponent::HasComponent<TContractState>,
         +GovernorComponent::GovernorVotesTrait<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of InternalTrait<TContractState> {
         /// Initializes the component by setting the votes token.
         ///

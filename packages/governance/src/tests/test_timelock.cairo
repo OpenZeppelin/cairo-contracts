@@ -1,17 +1,17 @@
-use core::hash::{HashStateTrait, HashStateExTrait};
+use core::hash::{HashStateExTrait, HashStateTrait};
 use core::pedersen::PedersenTrait;
 use crate::timelock::OperationState;
-use crate::timelock::TimelockControllerComponent::{
-    CallScheduled, CallExecuted, CallSalt, CallCancelled, MinDelayChanged
-};
-use crate::timelock::TimelockControllerComponent::{
-    TimelockImpl, InternalImpl as TimelockInternalImpl
-};
 use crate::timelock::TimelockControllerComponent;
+use crate::timelock::TimelockControllerComponent::{
+    CallCancelled, CallExecuted, CallSalt, CallScheduled, MinDelayChanged,
+};
+use crate::timelock::TimelockControllerComponent::{
+    InternalImpl as TimelockInternalImpl, TimelockImpl,
+};
 use crate::timelock::interface::{TimelockABIDispatcher, TimelockABIDispatcherTrait};
-use crate::timelock::{PROPOSER_ROLE, EXECUTOR_ROLE, CANCELLER_ROLE};
+use crate::timelock::{CANCELLER_ROLE, EXECUTOR_ROLE, PROPOSER_ROLE};
 use openzeppelin_access::accesscontrol::AccessControlComponent::{
-    AccessControlImpl, InternalImpl as AccessControlInternalImpl
+    AccessControlImpl, InternalImpl as AccessControlInternalImpl,
 };
 use openzeppelin_access::accesscontrol::DEFAULT_ADMIN_ROLE;
 use openzeppelin_access::accesscontrol::interface::IACCESSCONTROL_ID;
@@ -21,16 +21,16 @@ use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin_test_common::mocks::timelock::ITimelockAttackerDispatcher;
 use openzeppelin_test_common::mocks::timelock::TimelockControllerMock;
 use openzeppelin_test_common::mocks::timelock::{
-    IMockContractDispatcher, IMockContractDispatcherTrait
+    IMockContractDispatcher, IMockContractDispatcherTrait,
 };
 use openzeppelin_testing as utils;
-use openzeppelin_testing::constants::{ADMIN, ZERO, OTHER, SALT, FELT_VALUE as VALUE};
+use openzeppelin_testing::constants::{ADMIN, FELT_VALUE as VALUE, OTHER, SALT, ZERO};
 use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::EventSpy;
 use snforge_std::{
-    spy_events, test_address, start_cheat_caller_address, cheat_caller_address,
-    start_cheat_block_timestamp_global, CheatSpan
+    CheatSpan, cheat_caller_address, spy_events, start_cheat_block_timestamp_global,
+    start_cheat_caller_address, test_address,
 };
 use starknet::ContractAddress;
 use starknet::account::Call;
@@ -170,7 +170,7 @@ fn test_hash_operation() {
     let mut calldata = array![];
     calldata.append_serde(VALUE);
     let mut call = Call {
-        to: target.contract_address, selector: selector!("set_number"), calldata: calldata.span()
+        to: target.contract_address, selector: selector!("set_number"), calldata: calldata.span(),
     };
 
     // Hash operation
@@ -200,7 +200,7 @@ fn test_hash_operation_batch() {
     let mut calldata = array![];
     calldata.append_serde(VALUE);
     let mut call = Call {
-        to: target.contract_address, selector: selector!("set_number"), calldata: calldata.span()
+        to: target.contract_address, selector: selector!("set_number"), calldata: calldata.span(),
     };
     let calls = array![call, call, call].span();
 
@@ -287,13 +287,13 @@ fn schedule_from_proposer(salt: felt252) {
     if salt != 0 {
         spy
             .assert_event_call_scheduled(
-                timelock.contract_address, target_id, event_index, call, predecessor, delay
+                timelock.contract_address, target_id, event_index, call, predecessor, delay,
             );
         spy.assert_only_event_call_salt(timelock.contract_address, target_id, salt);
     } else {
         spy
             .assert_only_event_call_scheduled(
-                timelock.contract_address, target_id, event_index, call, predecessor, delay
+                timelock.contract_address, target_id, event_index, call, predecessor, delay,
             );
     }
 }
@@ -385,13 +385,13 @@ fn schedule_batch_from_proposer(salt: felt252) {
     if salt != 0 {
         spy
             .assert_events_call_scheduled_batch(
-                timelock.contract_address, target_id, calls, predecessor, delay
+                timelock.contract_address, target_id, calls, predecessor, delay,
             );
         spy.assert_only_event_call_salt(timelock.contract_address, target_id, salt);
     } else {
         spy
             .assert_only_events_call_scheduled_batch(
-                timelock.contract_address, target_id, calls, predecessor, delay
+                timelock.contract_address, target_id, calls, predecessor, delay,
             );
     }
 }
@@ -489,7 +489,7 @@ fn test_execute_when_scheduled() {
     let event_index = 0;
     spy
         .assert_only_event_call_scheduled(
-            timelock.contract_address, target_id, event_index, call, predecessor, delay
+            timelock.contract_address, target_id, event_index, call, predecessor, delay,
         );
     assert_operation_state(timelock, OperationState::Waiting, target_id);
 
@@ -618,7 +618,7 @@ fn test_execute_reentrant_call() {
     let delay = MIN_DELAY;
 
     let reentrant_call = Call {
-        to: attacker.contract_address, selector: selector!("reenter"), calldata: array![].span()
+        to: attacker.contract_address, selector: selector!("reenter"), calldata: array![].span(),
     };
 
     // Schedule
@@ -698,7 +698,7 @@ fn test_execute_after_dependency() {
     assert_operation_state(timelock, OperationState::Waiting, target_id_1);
     spy
         .assert_only_event_call_scheduled(
-            timelock.contract_address, target_id_1, event_index, call_1, predecessor_1, delay
+            timelock.contract_address, target_id_1, event_index, call_1, predecessor_1, delay,
         );
 
     // Schedule call 2
@@ -706,7 +706,7 @@ fn test_execute_after_dependency() {
     assert_operation_state(timelock, OperationState::Waiting, target_id_2);
     spy
         .assert_only_event_call_scheduled(
-            timelock.contract_address, target_id_2, event_index, call_2, predecessor_2, delay
+            timelock.contract_address, target_id_2, event_index, call_2, predecessor_2, delay,
         );
 
     // Fast-forward
@@ -725,7 +725,7 @@ fn test_execute_after_dependency() {
     assert_operation_state(timelock, OperationState::Done, target_id_2);
     spy
         .assert_only_event_call_executed(
-            timelock.contract_address, target_id_2, event_index, call_2
+            timelock.contract_address, target_id_2, event_index, call_2,
         );
 }
 
@@ -766,7 +766,7 @@ fn test_execute_batch_when_scheduled() {
     assert_operation_state(timelock, OperationState::Waiting, target_id);
     spy
         .assert_only_events_call_scheduled_batch(
-            timelock.contract_address, target_id, calls, predecessor, delay
+            timelock.contract_address, target_id, calls, predecessor, delay,
         );
 
     // Fast-forward
@@ -845,7 +845,7 @@ fn test_execute_batch_reentrant_call() {
     let reentrant_call = Call {
         to: attacker.contract_address,
         selector: selector!("reenter_batch"),
-        calldata: array![].span()
+        calldata: array![].span(),
     };
     let calls = array![reentrant_call].span();
 
@@ -946,7 +946,7 @@ fn test_execute_batch_after_dependency() {
     assert_operation_state(timelock, OperationState::Waiting, target_id_1);
     spy
         .assert_only_events_call_scheduled_batch(
-            timelock.contract_address, target_id_1, calls_1, predecessor_1, delay
+            timelock.contract_address, target_id_1, calls_1, predecessor_1, delay,
         );
 
     // Schedule calls 2
@@ -955,7 +955,7 @@ fn test_execute_batch_after_dependency() {
     assert_operation_state(timelock, OperationState::Waiting, target_id_2);
     spy
         .assert_only_events_call_scheduled_batch(
-            timelock.contract_address, target_id_2, calls_2, predecessor_2, delay
+            timelock.contract_address, target_id_2, calls_2, predecessor_2, delay,
         );
 
     // Fast-forward
@@ -1000,7 +1000,7 @@ fn cancel_from_canceller(operation_state: OperationState) {
     assert_operation_state(timelock, OperationState::Waiting, target_id);
     spy
         .assert_only_event_call_scheduled(
-            timelock.contract_address, target_id, event_index, call, predecessor, delay
+            timelock.contract_address, target_id, event_index, call, predecessor, delay,
         );
 
     if operation_state == OperationState::Ready {
@@ -1113,7 +1113,7 @@ fn test_update_delay_scheduled() {
     let call = Call {
         to: timelock.contract_address,
         selector: selector!("update_delay"),
-        calldata: array![NEW_DELAY.into()].span()
+        calldata: array![NEW_DELAY.into()].span(),
     };
     let target_id = timelock.hash_operation(call, predecessor, salt);
 
@@ -1125,7 +1125,7 @@ fn test_update_delay_scheduled() {
     assert_operation_state(timelock, OperationState::Waiting, target_id);
     spy
         .assert_only_event_call_scheduled(
-            timelock.contract_address, target_id, event_index, call, predecessor, delay
+            timelock.contract_address, target_id, event_index, call, predecessor, delay,
         );
 
     // Fast-forward
@@ -1682,7 +1682,7 @@ fn assert_operation_state(timelock: TimelockABIDispatcher, exp_state: OperationS
             assert!(!is_pending);
             assert!(!is_ready);
             assert!(is_done);
-        }
+        },
     };
 }
 
@@ -1703,10 +1703,10 @@ pub(crate) impl TimelockSpyHelpersImpl of TimelockSpyHelpers {
         index: felt252,
         call: Call,
         predecessor: felt252,
-        delay: u64
+        delay: u64,
     ) {
         let expected = TimelockControllerComponent::Event::CallScheduled(
-            CallScheduled { id, index, call, predecessor, delay }
+            CallScheduled { id, index, call, predecessor, delay },
         );
         self.assert_emitted_single(contract, expected);
     }
@@ -1718,7 +1718,7 @@ pub(crate) impl TimelockSpyHelpersImpl of TimelockSpyHelpers {
         index: felt252,
         call: Call,
         predecessor: felt252,
-        delay: u64
+        delay: u64,
     ) {
         self.assert_event_call_scheduled(contract, id, index, call, predecessor, delay);
         self.assert_no_events_left_from(contract);
@@ -1730,7 +1730,7 @@ pub(crate) impl TimelockSpyHelpersImpl of TimelockSpyHelpers {
         id: felt252,
         calls: Span<Call>,
         predecessor: felt252,
-        delay: u64
+        delay: u64,
     ) {
         let mut i = 0;
         loop {
@@ -1739,7 +1739,7 @@ pub(crate) impl TimelockSpyHelpersImpl of TimelockSpyHelpers {
             }
             self
                 .assert_event_call_scheduled(
-                    contract, id, i.into(), *calls.at(i), predecessor, delay
+                    contract, id, i.into(), *calls.at(i), predecessor, delay,
                 );
             i += 1;
         };
@@ -1751,7 +1751,7 @@ pub(crate) impl TimelockSpyHelpersImpl of TimelockSpyHelpers {
         id: felt252,
         calls: Span<Call>,
         predecessor: felt252,
-        delay: u64
+        delay: u64,
     ) {
         self.assert_events_call_scheduled_batch(contract, id, calls, predecessor, delay);
         self.assert_no_events_left_from(contract);
@@ -1762,14 +1762,14 @@ pub(crate) impl TimelockSpyHelpersImpl of TimelockSpyHelpers {
     //
 
     fn assert_event_call_salt(
-        ref self: EventSpy, contract: ContractAddress, id: felt252, salt: felt252
+        ref self: EventSpy, contract: ContractAddress, id: felt252, salt: felt252,
     ) {
         let expected = TimelockControllerComponent::Event::CallSalt(CallSalt { id, salt });
         self.assert_emitted_single(contract, expected);
     }
 
     fn assert_only_event_call_salt(
-        ref self: EventSpy, contract: ContractAddress, id: felt252, salt: felt252
+        ref self: EventSpy, contract: ContractAddress, id: felt252, salt: felt252,
     ) {
         self.assert_event_call_salt(contract, id, salt);
         self.assert_no_events_left_from(contract);
@@ -1785,7 +1785,7 @@ pub(crate) impl TimelockSpyHelpersImpl of TimelockSpyHelpers {
     }
 
     fn assert_only_event_call_cancelled(
-        ref self: EventSpy, contract: ContractAddress, id: felt252
+        ref self: EventSpy, contract: ContractAddress, id: felt252,
     ) {
         self.assert_event_call_cancelled(contract, id);
         self.assert_no_events_left_from(contract);
@@ -1796,23 +1796,23 @@ pub(crate) impl TimelockSpyHelpersImpl of TimelockSpyHelpers {
     //
 
     fn assert_event_call_executed(
-        ref self: EventSpy, contract: ContractAddress, id: felt252, index: felt252, call: Call
+        ref self: EventSpy, contract: ContractAddress, id: felt252, index: felt252, call: Call,
     ) {
         let expected = TimelockControllerComponent::Event::CallExecuted(
-            CallExecuted { id, index, call }
+            CallExecuted { id, index, call },
         );
         self.assert_emitted_single(contract, expected);
     }
 
     fn assert_only_event_call_executed(
-        ref self: EventSpy, contract: ContractAddress, id: felt252, index: felt252, call: Call
+        ref self: EventSpy, contract: ContractAddress, id: felt252, index: felt252, call: Call,
     ) {
         self.assert_event_call_executed(contract, id, index, call);
         self.assert_no_events_left_from(contract);
     }
 
     fn assert_events_call_executed_batch(
-        ref self: EventSpy, contract: ContractAddress, id: felt252, calls: Span<Call>
+        ref self: EventSpy, contract: ContractAddress, id: felt252, calls: Span<Call>,
     ) {
         let mut i = 0;
         loop {
@@ -1825,7 +1825,7 @@ pub(crate) impl TimelockSpyHelpersImpl of TimelockSpyHelpers {
     }
 
     fn assert_only_events_call_executed_batch(
-        ref self: EventSpy, contract: ContractAddress, id: felt252, calls: Span<Call>
+        ref self: EventSpy, contract: ContractAddress, id: felt252, calls: Span<Call>,
     ) {
         self.assert_events_call_executed_batch(contract, id, calls);
         self.assert_no_events_left_from(contract);
@@ -1839,7 +1839,7 @@ pub(crate) impl TimelockSpyHelpersImpl of TimelockSpyHelpers {
         ref self: EventSpy, contract: ContractAddress, old_duration: u64, new_duration: u64,
     ) {
         let expected = TimelockControllerComponent::Event::MinDelayChanged(
-            MinDelayChanged { old_duration, new_duration }
+            MinDelayChanged { old_duration, new_duration },
         );
         self.assert_emitted_single(contract, expected);
     }

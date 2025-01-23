@@ -1,3 +1,3 @@
 pub mod checkpoint;
 
-pub use checkpoint::{Trace, Checkpoint};
+pub use checkpoint::{Checkpoint, Trace};

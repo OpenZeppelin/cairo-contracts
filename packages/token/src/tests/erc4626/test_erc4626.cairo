@@ -12,7 +12,7 @@ use openzeppelin_test_common::mocks::erc20::Type;
 use openzeppelin_test_common::mocks::erc20::{
     IERC20ReentrantDispatcher, IERC20ReentrantDispatcherTrait,
 };
-use openzeppelin_test_common::mocks::erc4626::ERC4626Mock;
+use openzeppelin_test_common::mocks::erc4626::{ERC4626LimitsMock, ERC4626Mock};
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{NAME, OTHER, RECIPIENT, SPENDER, SYMBOL, ZERO};
 use openzeppelin_testing::events::EventSpyExt;
@@ -116,9 +116,6 @@ fn deploy_vault_fees_with_shares(
     asset_address: ContractAddress, shares: u256, recipient: ContractAddress,
 ) -> ERC4626ABIDispatcher {
     let fee_basis_points = 500_u256; // 5%
-    let _value_without_fees = 10_000_u256;
-    let _fees = (_value_without_fees * fee_basis_points) / 10_000_u256;
-    let _value_with_fees = _value_without_fees - _fees;
 
     let mut vault_calldata: Array<felt252> = array![];
     vault_calldata.append_serde(VAULT_NAME());
@@ -142,9 +139,6 @@ fn deploy_vault_exit_fees_with_shares(
     asset_address: ContractAddress, shares: u256, recipient: ContractAddress,
 ) -> ERC4626ABIDispatcher {
     let fee_basis_points = 500_u256; // 5%
-    let _value_without_fees = 10_000_u256;
-    let _fees = (_value_without_fees * fee_basis_points) / 10_000_u256;
-    let _value_with_fees = _value_without_fees - _fees;
 
     let mut vault_calldata: Array<felt252> = array![];
     vault_calldata.append_serde(VAULT_NAME());
@@ -339,11 +333,11 @@ fn test_mint() {
 fn test_withdraw() {
     let (asset, vault) = setup_empty();
 
-    // Check max mint
+    // Check max withdraw
     let max_withdraw = vault.max_withdraw(HOLDER());
     assert_eq!(max_withdraw, 0);
 
-    // Check preview mint
+    // Check preview withdraw
     let preview_withdraw = vault.preview_withdraw(0);
     assert_eq!(preview_withdraw, 0);
 
@@ -1143,9 +1137,55 @@ fn test_max_limit_mint() {
 fn test_max_limit_withdraw() {
     let (_, vault) = setup_limits();
 
-    let max_withdraw = vault.max_redeem(HOLDER());
+    let max_withdraw = vault.max_withdraw(HOLDER());
     cheat_caller_address(vault.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
     vault.withdraw(max_withdraw + 1, HOLDER(), HOLDER());
+}
+
+#[test]
+fn test_max_limit_withdraw_assets_gt_limit() {
+    let (asset, vault) = setup_limits();
+
+    // Approve and transfer assets to check max_withdraw
+    let gt_limit = ERC4626LimitsMock::CUSTOM_LIMIT + 100;
+    asset.unsafe_mint(HOLDER(), gt_limit);
+    cheat_caller_address(asset.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
+    asset.approve(vault.contract_address, Bounded::MAX);
+    // Use two calls because we cannot exceed CUSTOM_LIMIT
+    cheat_caller_address(vault.contract_address, HOLDER(), CheatSpan::TargetCalls(2));
+    vault.deposit(ERC4626LimitsMock::CUSTOM_LIMIT, HOLDER());
+    vault.deposit(100, HOLDER());
+
+    // Converted asset balance equals initial deposits
+    let raw_shares_balance = vault.balance_of(HOLDER());
+    let converted_assets_bal = vault.convert_to_assets(raw_shares_balance);
+    assert_eq!(converted_assets_bal, gt_limit);
+
+    // Check limit is not exceeded
+    let max_limit = vault.max_withdraw(HOLDER());
+    assert_eq!(max_limit, ERC4626LimitsMock::CUSTOM_LIMIT);
+}
+
+#[test]
+fn test_max_limit_withdraw_assets_lt_limit() {
+    let (asset, vault) = setup_limits();
+
+    // Approve and transfer assets to check max_withdraw
+    let lt_limit = 100_u256;
+    asset.unsafe_mint(HOLDER(), lt_limit);
+    cheat_caller_address(asset.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
+    asset.approve(vault.contract_address, lt_limit);
+    cheat_caller_address(vault.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
+    vault.deposit(lt_limit, HOLDER());
+
+    // Converted asset balance equals initial deposit
+    let raw_shares_balance = vault.balance_of(HOLDER());
+    let converted_assets_bal = vault.convert_to_assets(raw_shares_balance);
+    assert_eq!(converted_assets_bal, lt_limit);
+
+    // Check max limit equals initial deposit
+    let max_limit = vault.max_withdraw(HOLDER());
+    assert_eq!(max_limit, lt_limit);
 }
 
 #[test]
@@ -1156,6 +1196,52 @@ fn test_max_limit_redeem() {
     let max_redeem = vault.max_redeem(HOLDER());
     cheat_caller_address(vault.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
     vault.redeem(max_redeem + 1, HOLDER(), HOLDER());
+}
+
+#[test]
+fn test_max_limit_redeem_assets_gt_limit() {
+    let (asset, vault) = setup_limits();
+
+    // Approve and transfer assets to check max_withdraw
+    let gt_limit = ERC4626LimitsMock::CUSTOM_LIMIT + 100;
+    asset.unsafe_mint(HOLDER(), gt_limit);
+    cheat_caller_address(asset.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
+    asset.approve(vault.contract_address, Bounded::MAX);
+    // Use two calls because we cannot exceed CUSTOM_LIMIT
+    cheat_caller_address(vault.contract_address, HOLDER(), CheatSpan::TargetCalls(2));
+    vault.deposit(ERC4626LimitsMock::CUSTOM_LIMIT, HOLDER());
+    vault.deposit(100, HOLDER());
+
+    // Converted asset balance equals initial deposits
+    let raw_shares_balance = vault.balance_of(HOLDER());
+    let converted_assets_bal = vault.convert_to_assets(raw_shares_balance);
+    assert_eq!(converted_assets_bal, gt_limit);
+
+    // Check limit is not exceeded
+    let max_limit = vault.max_redeem(HOLDER());
+    assert_eq!(max_limit, ERC4626LimitsMock::CUSTOM_LIMIT);
+}
+
+#[test]
+fn test_max_limit_redeem_assets_lt_limit() {
+    let (asset, vault) = setup_limits();
+
+    // Approve and transfer assets to check max_withdraw
+    let lt_limit = 100_u256;
+    asset.unsafe_mint(HOLDER(), lt_limit);
+    cheat_caller_address(asset.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
+    asset.approve(vault.contract_address, lt_limit);
+    cheat_caller_address(vault.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
+    vault.deposit(lt_limit, HOLDER());
+
+    // Check max_limit equals shares balance
+    let raw_shares_balance = vault.balance_of(HOLDER());
+    let max_limit = vault.max_redeem(HOLDER());
+    assert_eq!(raw_shares_balance, max_limit);
+
+    // Converted asset balance equals initial deposits
+    let converted_assets_bal = vault.convert_to_assets(raw_shares_balance);
+    assert_eq!(converted_assets_bal, lt_limit);
 }
 
 //

@@ -126,7 +126,7 @@ pub mod ERC4626Component {
     ///
     /// NOTE: The FeeConfigTrait hooks directly into the preview methods of the ERC4626 component.
     /// The preview methods must return as close to the exact amount of shares or assets as possible
-    /// if the actual (previewed) operation occurred in the same transaction (according to IERC4626
+    /// if the actual (previewed) operation occurred in the same transaction (according to EIP-4626
     /// spec).
     /// All operations use their corresponding preview method as the value of assets or shares being
     /// moved.
@@ -166,6 +166,14 @@ pub mod ERC4626Component {
 
     /// Sets limits to the target exchange type and is expected to be defined at the contract
     /// level.
+    ///
+    /// It's important to note that these limits correspond directly to the `max_<OPERATION>`
+    /// i.e. `deposit_limit` -> `max_deposit`.
+    ///
+    /// The EIP-4626 spec states that the `max_<OPERATION>` methods must take into account all
+    /// global and user-specific limits.
+    /// If an operation is disabled (even temporarily), the corresponding limit MUST be `0`
+    /// and MUST NOT panic.
     pub trait LimitConfigTrait<TContractState, +HasComponent<TContractState>> {
         /// The max deposit allowed.
         /// Defaults (`Option::None`) to 2 ** 256 - 1.
@@ -250,12 +258,18 @@ pub mod ERC4626Component {
 
         /// Returns the amount of shares that the Vault would exchange for the amount of assets
         /// provided irrespective of slippage or fees.
+        ///
+        /// NOTE: As per the EIP-4626 spec, this may panic _only_ if there's an overflow
+        /// from an unreasonably large input.
         fn convert_to_shares(self: @ComponentState<TContractState>, assets: u256) -> u256 {
             self._convert_to_shares(assets, Rounding::Floor)
         }
 
         /// Returns the amount of assets that the Vault would exchange for the amount of shares
         /// provided irrespective of slippage or fees.
+        ///
+        /// NOTE: As per the EIP-4626 spec, this may panic _only_ if there's an overflow
+        /// from an unreasonably large input.
         fn convert_to_assets(self: @ComponentState<TContractState>, shares: u256) -> u256 {
             self._convert_to_assets(shares, Rounding::Floor)
         }
@@ -281,7 +295,7 @@ pub mod ERC4626Component {
         /// defining custom logic in `FeeConfigTrait::adjust_deposit`.
         ///
         /// NOTE: `preview_deposit` must be inclusive of entry fees to be compliant with the
-        /// IERC4626 spec.
+        /// EIP-4626 spec.
         fn preview_deposit(self: @ComponentState<TContractState>, assets: u256) -> u256 {
             let adjusted_assets = Fee::adjust_deposit(self, assets);
             self._convert_to_shares(adjusted_assets, Rounding::Floor)
@@ -328,7 +342,7 @@ pub mod ERC4626Component {
         /// This can be changed to account for fees, for example, in the implementing contract by
         /// defining custom logic in `FeeConfigTrait::adjust_mint`.
         ///
-        /// NOTE: `preview_mint` must be inclusive of entry fees to be compliant with the IERC4626
+        /// NOTE: `preview_mint` must be inclusive of entry fees to be compliant with the EIP-4626
         /// spec.
         fn preview_mint(self: @ComponentState<TContractState>, shares: u256) -> u256 {
             let full_assets = self._convert_to_assets(shares, Rounding::Ceil);
@@ -363,14 +377,22 @@ pub mod ERC4626Component {
         /// shares).
         /// This can be changed in the implementing contract by defining custom logic in
         /// `LimitConfigTrait::withdraw_limit`.
+        /// Do note that with customized limits, the maximum withdraw amount will either be
+        /// the custom limit itself or ``owner``'s total asset balance, whichever value is less.
         fn max_withdraw(self: @ComponentState<TContractState>, owner: ContractAddress) -> u256 {
+            let erc20_component = get_dep_component!(self, ERC20);
+            let owner_shares = erc20_component.balance_of(owner);
+            let total_owner_assets = self._convert_to_assets(owner_shares, Rounding::Floor);
+
             match Limit::withdraw_limit(self, owner) {
-                Option::Some(limit) => limit,
-                Option::None => {
-                    let erc20_component = get_dep_component!(self, ERC20);
-                    let owner_shares = erc20_component.balance_of(owner);
-                    self._convert_to_assets(owner_shares, Rounding::Floor)
+                Option::Some(limit) => {
+                    if total_owner_assets < limit {
+                        total_owner_assets
+                    } else {
+                        limit
+                    }
                 },
+                Option::None => { total_owner_assets },
             }
         }
 
@@ -382,7 +404,7 @@ pub mod ERC4626Component {
         /// defining custom logic in `FeeConfigTrait::adjust_withdraw`.
         ///
         /// NOTE: `preview_withdraw` must be inclusive of exit fees to be compliant with the
-        /// IERC4626 spec.
+        /// EIP-4626 spec.
         fn preview_withdraw(self: @ComponentState<TContractState>, assets: u256) -> u256 {
             let adjusted_assets = Fee::adjust_withdraw(self, assets);
             self._convert_to_shares(adjusted_assets, Rounding::Ceil)
@@ -417,13 +439,19 @@ pub mod ERC4626Component {
         /// The default max redeem value is the full balance of assets for `owner`.
         /// This can be changed in the implementing contract by defining custom logic in
         /// `LimitConfigTrait::redeem_limit`.
+        /// Do note that with customized limits, the maximum redeem amount will either be
+        /// the custom limit itself or ``owner``'s total asset balance, whichever value is less.
         fn max_redeem(self: @ComponentState<TContractState>, owner: ContractAddress) -> u256 {
+            let erc20_component = get_dep_component!(self, ERC20);
+            let owner_assets = erc20_component.balance_of(owner);
+
             match Limit::redeem_limit(self, owner) {
-                Option::Some(limit) => limit,
-                Option::None => {
-                    let erc20_component = get_dep_component!(self, ERC20);
-                    erc20_component.balance_of(owner)
-                },
+                Option::Some(limit) => { if owner_assets < limit {
+                    owner_assets
+                } else {
+                    limit
+                } },
+                Option::None => { owner_assets },
             }
         }
 
@@ -434,7 +462,7 @@ pub mod ERC4626Component {
         /// This can be changed to account for fees, for example, in the implementing contract by
         /// defining custom logic in `FeeConfigTrait::adjust_redeem`.
         ///
-        /// NOTE: `preview_redeem` must be inclusive of exit fees to be compliant with the IERC4626
+        /// NOTE: `preview_redeem` must be inclusive of exit fees to be compliant with the EIP-4626
         /// spec.
         fn preview_redeem(self: @ComponentState<TContractState>, shares: u256) -> u256 {
             let full_assets = self._convert_to_assets(shares, Rounding::Floor);
@@ -515,7 +543,7 @@ pub mod ERC4626Component {
         ///
         /// - `asset_address` cannot be the zero address.
         fn initializer(ref self: ComponentState<TContractState>, asset_address: ContractAddress) {
-            ImmutableConfig::validate();
+            Immutable::validate();
             assert(asset_address.is_non_zero(), Errors::INVALID_ASSET_ADDRESS);
             self.ERC4626_asset.write(asset_address);
         }

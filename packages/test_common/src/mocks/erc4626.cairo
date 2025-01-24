@@ -176,20 +176,31 @@ pub mod ERC4626LimitsMock {
         const DECIMALS_OFFSET: u8 = 1;
     }
 
-    const MAX_DEPOSIT: u256 = 100_000_000_000_000_000_000;
-    const MAX_MINT: u256 = 100_000_000_000_000_000_000;
+    pub const CUSTOM_LIMIT: u256 = 100_000_000_000_000_000_000;
 
     impl ERC4626LimitsImpl of ERC4626Component::LimitConfigTrait<ContractState> {
         fn deposit_limit(
             self: @ERC4626Component::ComponentState<ContractState>, receiver: ContractAddress,
         ) -> Option::<u256> {
-            Option::Some(MAX_DEPOSIT)
+            Option::Some(CUSTOM_LIMIT)
         }
 
         fn mint_limit(
             self: @ERC4626Component::ComponentState<ContractState>, receiver: ContractAddress,
         ) -> Option::<u256> {
-            Option::Some(MAX_MINT)
+            Option::Some(CUSTOM_LIMIT)
+        }
+
+        fn withdraw_limit(
+            self: @ERC4626Component::ComponentState<ContractState>, owner: ContractAddress,
+        ) -> Option::<u256> {
+            Option::Some(CUSTOM_LIMIT)
+        }
+
+        fn redeem_limit(
+            self: @ERC4626Component::ComponentState<ContractState>, owner: ContractAddress,
+        ) -> Option::<u256> {
+            Option::Some(CUSTOM_LIMIT)
         }
     }
 
@@ -215,6 +226,7 @@ pub mod ERC4626LimitsMock {
 /// DO NOT USE IN PRODUCTION
 #[starknet::contract]
 pub mod ERC4626FeesMock {
+    use openzeppelin_token::erc20::extensions::erc4626::DefaultConfig;
     use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component;
     use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component::FeeConfigTrait;
     use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component::InternalTrait as ERC4626InternalTrait;
@@ -268,18 +280,12 @@ pub mod ERC4626FeesMock {
 
     const _BASIS_POINT_SCALE: u256 = 10_000;
 
-    /// Immutable config
-    impl OffsetConfig of ERC4626Component::ImmutableConfig {
-        const UNDERLYING_DECIMALS: u8 = ERC4626Component::DEFAULT_UNDERLYING_DECIMALS;
-        const DECIMALS_OFFSET: u8 = 0;
-    }
-
     /// Hooks
     impl ERC4626HooksEmptyImpl of ERC4626Component::ERC4626HooksTrait<ContractState> {
         fn after_deposit(
             ref self: ERC4626Component::ComponentState<ContractState>, assets: u256, shares: u256,
         ) {
-            let mut contract_state = ERC4626Component::HasComponent::get_contract_mut(ref self);
+            let mut contract_state = self.get_contract_mut();
             let entry_basis_points = contract_state.entry_fee_basis_point_value.read();
             let fee = contract_state.fee_on_total(assets, entry_basis_points);
             let recipient = contract_state.entry_fee_recipient.read();
@@ -292,7 +298,7 @@ pub mod ERC4626FeesMock {
         fn before_withdraw(
             ref self: ERC4626Component::ComponentState<ContractState>, assets: u256, shares: u256,
         ) {
-            let mut contract_state = ERC4626Component::HasComponent::get_contract_mut(ref self);
+            let mut contract_state = self.get_contract_mut();
             let exit_basis_points = contract_state.exit_fee_basis_point_value.read();
             let fee = contract_state.fee_on_raw(assets, exit_basis_points);
             let recipient = contract_state.exit_fee_recipient.read();
@@ -308,7 +314,7 @@ pub mod ERC4626FeesMock {
         fn adjust_deposit(
             self: @ERC4626Component::ComponentState<ContractState>, assets: u256,
         ) -> u256 {
-            let contract_state = ERC4626Component::HasComponent::get_contract(self);
+            let contract_state = self.get_contract();
             contract_state.remove_fee_from_deposit(assets)
         }
 

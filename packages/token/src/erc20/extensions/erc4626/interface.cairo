@@ -25,7 +25,8 @@ pub trait IERC4626<TState> {
     /// MUST NOT be inclusive of any fees that are charged against assets in the Vault.
     /// MUST NOT show any variations depending on the caller.
     /// MUST NOT reflect slippage or other on-chain conditions, when performing the actual exchange.
-    /// MUST NOT panic.
+    /// MUST NOT panic unless due to integer overflow caused by an unreasonably large input.
+    /// MUST round down towards 0.
     ///
     /// NOTE: This calculation MAY NOT reflect the "per-user" price-per-share, and instead should
     /// reflect the "average-user's" price-per-share, meaning what the average user should expect to
@@ -38,7 +39,8 @@ pub trait IERC4626<TState> {
     /// MUST NOT be inclusive of any fees that are charged against assets in the Vault.
     /// MUST NOT show any variations depending on the caller.
     /// MUST NOT reflect slippage or other on-chain conditions, when performing the actual exchange.
-    /// MUST NOT panic.
+    /// MUST NOT panic unless due to integer overflow caused by an unreasonably large input.
+    /// MUST round down towards 0.
     ///
     /// NOTE: This calculation MAY NOT reflect the “per-user” price-per-share, and instead
     /// should reflect the “average-user’s” price-per-share, meaning what the average user

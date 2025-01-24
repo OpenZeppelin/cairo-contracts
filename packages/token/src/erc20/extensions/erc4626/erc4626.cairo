@@ -166,6 +166,14 @@ pub mod ERC4626Component {
 
     /// Sets limits to the target exchange type and is expected to be defined at the contract
     /// level.
+    ///
+    /// It's important to note that these limits correspond directly to the `max_<OPERATION>`
+    /// i.e. `deposit_limit` -> `max_deposit`.
+    ///
+    /// The EIP4626 spec states that the `max_<OPERATION>` methods must take into account all
+    /// global and user-specific limits.
+    /// If an operation is disabled (even temporarily), the corresponding limit MUST be `0`
+    /// and MUST NOT panic.
     pub trait LimitConfigTrait<TContractState, +HasComponent<TContractState>> {
         /// The max deposit allowed.
         /// Defaults (`Option::None`) to 2 ** 256 - 1.

@@ -333,11 +333,11 @@ fn test_mint() {
 fn test_withdraw() {
     let (asset, vault) = setup_empty();
 
-    // Check max mint
+    // Check max withdraw
     let max_withdraw = vault.max_withdraw(HOLDER());
     assert_eq!(max_withdraw, 0);
 
-    // Check preview mint
+    // Check preview withdraw
     let preview_withdraw = vault.preview_withdraw(0);
     assert_eq!(preview_withdraw, 0);
 

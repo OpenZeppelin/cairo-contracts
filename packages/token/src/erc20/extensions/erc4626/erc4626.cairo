@@ -126,7 +126,7 @@ pub mod ERC4626Component {
     ///
     /// NOTE: The FeeConfigTrait hooks directly into the preview methods of the ERC4626 component.
     /// The preview methods must return as close to the exact amount of shares or assets as possible
-    /// if the actual (previewed) operation occurred in the same transaction (according to IERC4626
+    /// if the actual (previewed) operation occurred in the same transaction (according to EIP-4626
     /// spec).
     /// All operations use their corresponding preview method as the value of assets or shares being
     /// moved.
@@ -295,7 +295,7 @@ pub mod ERC4626Component {
         /// defining custom logic in `FeeConfigTrait::adjust_deposit`.
         ///
         /// NOTE: `preview_deposit` must be inclusive of entry fees to be compliant with the
-        /// IERC4626 spec.
+        /// EIP-4626 spec.
         fn preview_deposit(self: @ComponentState<TContractState>, assets: u256) -> u256 {
             let adjusted_assets = Fee::adjust_deposit(self, assets);
             self._convert_to_shares(adjusted_assets, Rounding::Floor)
@@ -342,7 +342,7 @@ pub mod ERC4626Component {
         /// This can be changed to account for fees, for example, in the implementing contract by
         /// defining custom logic in `FeeConfigTrait::adjust_mint`.
         ///
-        /// NOTE: `preview_mint` must be inclusive of entry fees to be compliant with the IERC4626
+        /// NOTE: `preview_mint` must be inclusive of entry fees to be compliant with the EIP-4626
         /// spec.
         fn preview_mint(self: @ComponentState<TContractState>, shares: u256) -> u256 {
             let full_assets = self._convert_to_assets(shares, Rounding::Ceil);
@@ -404,7 +404,7 @@ pub mod ERC4626Component {
         /// defining custom logic in `FeeConfigTrait::adjust_withdraw`.
         ///
         /// NOTE: `preview_withdraw` must be inclusive of exit fees to be compliant with the
-        /// IERC4626 spec.
+        /// EIP-4626 spec.
         fn preview_withdraw(self: @ComponentState<TContractState>, assets: u256) -> u256 {
             let adjusted_assets = Fee::adjust_withdraw(self, assets);
             self._convert_to_shares(adjusted_assets, Rounding::Ceil)
@@ -462,7 +462,7 @@ pub mod ERC4626Component {
         /// This can be changed to account for fees, for example, in the implementing contract by
         /// defining custom logic in `FeeConfigTrait::adjust_redeem`.
         ///
-        /// NOTE: `preview_redeem` must be inclusive of exit fees to be compliant with the IERC4626
+        /// NOTE: `preview_redeem` must be inclusive of exit fees to be compliant with the EIP-4626
         /// spec.
         fn preview_redeem(self: @ComponentState<TContractState>, shares: u256) -> u256 {
             let full_assets = self._convert_to_assets(shares, Rounding::Floor);

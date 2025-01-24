@@ -170,7 +170,7 @@ pub mod ERC4626Component {
     /// It's important to note that these limits correspond directly to the `max_<OPERATION>`
     /// i.e. `deposit_limit` -> `max_deposit`.
     ///
-    /// The EIP4626 spec states that the `max_<OPERATION>` methods must take into account all
+    /// The EIP-4626 spec states that the `max_<OPERATION>` methods must take into account all
     /// global and user-specific limits.
     /// If an operation is disabled (even temporarily), the corresponding limit MUST be `0`
     /// and MUST NOT panic.
@@ -259,7 +259,7 @@ pub mod ERC4626Component {
         /// Returns the amount of shares that the Vault would exchange for the amount of assets
         /// provided irrespective of slippage or fees.
         ///
-        /// NOTE: As per the IERC4626 spec, this may panic _only_ if there's an overflow
+        /// NOTE: As per the EIP-4626 spec, this may panic _only_ if there's an overflow
         /// from an unreasonably large input.
         fn convert_to_shares(self: @ComponentState<TContractState>, assets: u256) -> u256 {
             self._convert_to_shares(assets, Rounding::Floor)
@@ -268,7 +268,7 @@ pub mod ERC4626Component {
         /// Returns the amount of assets that the Vault would exchange for the amount of shares
         /// provided irrespective of slippage or fees.
         ///
-        /// NOTE: As per the IERC4626 spec, this may panic _only_ if there's an overflow
+        /// NOTE: As per the EIP-4626 spec, this may panic _only_ if there's an overflow
         /// from an unreasonably large input.
         fn convert_to_assets(self: @ComponentState<TContractState>, shares: u256) -> u256 {
             self._convert_to_assets(shares, Rounding::Floor)

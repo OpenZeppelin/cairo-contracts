@@ -451,7 +451,7 @@ pub mod ERC4626Component {
                       owner_assets
                   } else {
                       limit
-                  } 
+                  }
                 },
                 Option::None => { owner_assets },
             }

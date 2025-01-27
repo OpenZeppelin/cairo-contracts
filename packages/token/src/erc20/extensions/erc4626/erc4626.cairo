@@ -446,11 +446,13 @@ pub mod ERC4626Component {
             let owner_assets = erc20_component.balance_of(owner);
 
             match Limit::redeem_limit(self, owner) {
-                Option::Some(limit) => { if owner_assets < limit {
-                    owner_assets
-                } else {
-                    limit
-                } },
+                Option::Some(limit) => {
+                  if owner_assets < limit {
+                      owner_assets
+                  } else {
+                      limit
+                  } 
+                },
                 Option::None => { owner_assets },
             }
         }

@@ -50,7 +50,7 @@ pub mod ERC4626Component {
 
     #[storage]
     pub struct Storage {
-        ERC4626_asset: ContractAddress,
+        pub ERC4626_asset: ContractAddress,
     }
 
     #[event]
@@ -661,9 +661,11 @@ pub mod ERC4626Component {
 pub impl ERC4626HooksEmptyImpl<
     TContractState, +ERC4626Component::HasComponent<TContractState>,
 > of ERC4626Component::ERC4626HooksTrait<TContractState> {}
+
 pub impl ERC4626DefaultNoFees<
     TContractState, +ERC4626Component::HasComponent<TContractState>,
 > of ERC4626Component::FeeConfigTrait<TContractState> {}
+
 pub impl ERC4626DefaultLimits<
     TContractState, +ERC4626Component::HasComponent<TContractState>,
 > of ERC4626Component::LimitConfigTrait<TContractState> {}

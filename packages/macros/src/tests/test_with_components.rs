@@ -1184,6 +1184,45 @@ fn test_with_votes_no_metadata() {
     assert_snapshot!(result);
 }
 
+#[test]
+fn test_with_event_struct() {
+    let attribute = "(Ownable)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod Owned {
+            use starknet::ContractAddress;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[event]
+            #[derive(Drop, starknet::Event)]
+            enum Event {
+                Transfer: Transfer,
+            }
+
+            /// Emitted when tokens are moved from address `from` to address `to`.
+            #[derive(Drop, starknet::Event)]
+            pub struct Transfer {
+                #[key]
+                pub from: ContractAddress,
+                #[key]
+                pub to: ContractAddress,
+                pub value: u256,
+            }
+
+            #[constructor]
+            fn constructor(ref self: ContractState, owner: ContractAddress) {
+                self.ownable.initializer(owner);
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
 //
 // Helpers
 //

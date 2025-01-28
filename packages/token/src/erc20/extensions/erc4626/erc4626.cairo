@@ -183,7 +183,7 @@ pub mod ERC4626Component {
             Option::None
         }
 
-        /// The max deposit allowed.
+        /// The max mint allowed.
         /// Defaults (`Option::None`) to 2 ** 256 - 1.
         fn mint_limit(
             self: @ComponentState<TContractState>, receiver: ContractAddress,
@@ -199,7 +199,7 @@ pub mod ERC4626Component {
             Option::None
         }
 
-        /// The max deposit allowed.
+        /// The max redeem allowed.
         /// Defaults (`Option::None`) to the full asset balance of `owner`.
         fn redeem_limit(
             self: @ComponentState<TContractState>, owner: ContractAddress,

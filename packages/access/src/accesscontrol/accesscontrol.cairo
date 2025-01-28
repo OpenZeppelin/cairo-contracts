@@ -126,7 +126,7 @@ pub mod AccessControlComponent {
         ) {
             let admin = Self::get_role_admin(@self, role);
             self.assert_only_role(admin);
-            self._grant_role(role, account, 0);
+            self._grant_role(role, account);
         }
 
         /// Revokes `role` from `account`.
@@ -225,8 +225,7 @@ pub mod AccessControlComponent {
         ) {
             let admin = AccessControl::get_role_admin(@self, role);
             self.assert_only_role(admin);
-            assert(delay > 0, Errors::INVALID_DELAY);
-            self._grant_role(role, account, delay);
+            self._grant_role_with_delay(role, account, delay);
         }
     }
 
@@ -261,14 +260,16 @@ pub mod AccessControlComponent {
         fn is_role_effective(
             self: @ComponentState<TContractState>, role: felt252, account: ContractAddress,
         ) -> bool {
-            let account_role_info = self.AccessControl_role_member.read((role, account));
+            let AccountRoleInfo {
+                is_active, effective_from,
+            } = self.AccessControl_role_member.read((role, account));
 
-            if account_role_info.active {
-                if account_role_info.effective_from == 0 {
+            if is_active {
+                if effective_from == 0 {
                     true
                 } else {
                     let now = starknet::get_block_timestamp();
-                    account_role_info.effective_from <= now
+                    effective_from <= now
                 }
             } else {
                 false
@@ -283,7 +284,7 @@ pub mod AccessControlComponent {
             self: @ComponentState<TContractState>, role: felt252, account: ContractAddress,
         ) -> bool {
             let account_role_info = self.AccessControl_role_member.read((role, account));
-            account_role_info.active
+            account_role_info.is_active
         }
 
         /// Sets `admin_role` as `role`'s admin role.
@@ -303,30 +304,36 @@ pub mod AccessControlComponent {
         ///
         /// Internal function without access restriction.
         ///
-        /// May emit either:
-        /// - `RoleGranted` event if delay is 0.
-        /// - `RoleGrantedWithDelay` event if a delay is set.
+        /// May emit a `RoleGranted` event.
         fn _grant_role(
+            ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress,
+        ) {
+            if !self.is_role_granted(role, account) {
+                let caller = starknet::get_caller_address();
+                let role_info = AccountRoleInfo { is_active: true, effective_from: 0 };
+                self.AccessControl_role_member.write((role, account), role_info);
+                self.emit(RoleGranted { role, account, sender: caller });
+            }
+        }
+
+        /// Attempts to grant `role` to `account` that will become effective when `delay` passes.
+        ///
+        /// Internal function without access restriction.
+        ///
+        /// May emit a `RoleGrantedWithDelay` event.
+        fn _grant_role_with_delay(
             ref self: ComponentState<TContractState>,
             role: felt252,
             account: ContractAddress,
             delay: u64,
         ) {
+            assert(delay > 0, Errors::INVALID_DELAY);
             if !self.is_role_granted(role, account) {
                 let caller = starknet::get_caller_address();
-                let effective_from = if delay > 0 {
-                    starknet::get_block_timestamp() + delay
-                } else {
-                    0
-                };
-                let account_role_info = AccountRoleInfo { active: true, effective_from };
-                self.AccessControl_role_member.write((role, account), account_role_info);
-
-                if delay > 0 {
-                    self.emit(RoleGrantedWithDelay { role, account, sender: caller, delay });
-                } else {
-                    self.emit(RoleGranted { role, account, sender: caller });
-                }
+                let effective_from = starknet::get_block_timestamp() + delay;
+                let role_info = AccountRoleInfo { is_active: true, effective_from };
+                self.AccessControl_role_member.write((role, account), role_info);
+                self.emit(RoleGrantedWithDelay { role, account, sender: caller, delay });
             }
         }
 
@@ -340,7 +347,7 @@ pub mod AccessControlComponent {
         ) {
             if self.is_role_granted(role, account) {
                 let caller = starknet::get_caller_address();
-                let account_role_info = AccountRoleInfo { active: false, effective_from: 0 };
+                let account_role_info = AccountRoleInfo { is_active: false, effective_from: 0 };
                 self.AccessControl_role_member.write((role, account), account_role_info);
                 self.emit(RoleRevoked { role, account, sender: caller });
             }

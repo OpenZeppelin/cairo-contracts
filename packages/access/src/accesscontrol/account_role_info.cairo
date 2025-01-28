@@ -7,7 +7,7 @@ use starknet::storage_access::StorePacking;
 #[derive(Copy, Drop, Serde, PartialEq, Debug)]
 pub struct AccountRoleInfo {
     pub effective_from: u64,
-    pub active: bool,
+    pub is_active: bool,
 }
 
 /// Packs an AccountRoleInfo into a single felt252.
@@ -16,28 +16,28 @@ pub struct AccountRoleInfo {
 ///
 /// 1. `effective_from` is stored at range [187,250] (0-indexed starting from the most
 ///   significant bits).
-/// 2. `active` is stored at range [251, 251], following `effective_from`.
+/// 2. `is_active` is stored at range [251, 251], following `effective_from`.
 impl AccountRoleInfoStorePacking of StorePacking<AccountRoleInfo, felt252> {
     fn pack(value: AccountRoleInfo) -> felt252 {
-        let account_role_info = value;
+        let AccountRoleInfo { effective_from, is_active } = value;
 
         // shift-left to reach the corresponding positions
-        let effective_from = account_role_info.effective_from.into() * 2;
-        let active = if account_role_info.active {
+        let effective_from_val = effective_from.into() * 2;
+        let is_active_val = if is_active {
             1
         } else {
             0
         };
 
-        effective_from + active
+        effective_from_val + is_active_val
     }
 
     fn unpack(value: felt252) -> AccountRoleInfo {
         let value: u256 = value.into();
         let effective_from = value / 2;
-        let active = value % 2 == 1;
+        let is_active = value % 2 == 1;
 
-        AccountRoleInfo { effective_from: effective_from.try_into().unwrap(), active }
+        AccountRoleInfo { effective_from: effective_from.try_into().unwrap(), is_active }
     }
 }
 
@@ -48,7 +48,7 @@ mod tests {
 
     #[test]
     fn test_pack_and_unpack() {
-        let account_role_info = AccountRoleInfo { effective_from: 100, active: true };
+        let account_role_info = AccountRoleInfo { effective_from: 100, is_active: true };
         let packed = AccountRoleInfoStorePacking::pack(account_role_info);
         let unpacked = AccountRoleInfoStorePacking::unpack(packed);
         assert_eq!(account_role_info, unpacked);
@@ -56,7 +56,7 @@ mod tests {
 
     #[test]
     fn test_pack_and_unpack_big_values() {
-        let account_role_info = AccountRoleInfo { effective_from: Bounded::MAX, active: true };
+        let account_role_info = AccountRoleInfo { effective_from: Bounded::MAX, is_active: true };
         let packed = AccountRoleInfoStorePacking::pack(account_role_info);
         let unpacked = AccountRoleInfoStorePacking::unpack(packed);
         assert_eq!(account_role_info, unpacked);

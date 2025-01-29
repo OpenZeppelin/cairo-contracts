@@ -535,7 +535,7 @@ fn test_with_initializable() {
             impl ExternalImpl of ExternalTrait {
                 #[external(v0)]
                 fn initialize(ref self: ContractState) {
-                    self.initializer.initialize();
+                    self.initializable.initialize();
                 }
             }
         }

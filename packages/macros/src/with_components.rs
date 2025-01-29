@@ -197,7 +197,7 @@ fn validate_contract_module(
                 components_with_initializer_missing.join(", ");
             if !components_with_initializer_missing.is_empty() {
                 let warning = Diagnostic::warn(formatdoc! {"
-                    It looks like the initilizers for the following components are missing:
+                    It looks like the initializers for the following components are missing:
 
                     {components_with_initializer_missing_str}
 

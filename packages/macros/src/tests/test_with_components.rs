@@ -68,7 +68,7 @@ fn test_with_eth_account_no_initializer() {
     let attribute = "(EthAccount)";
     let item = indoc!(
         "
-        #[starknet::contract]
+        #[starknet::contract(account)]
         pub mod MyContract {
             #[storage]
             pub struct Storage {}

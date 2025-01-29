@@ -45,7 +45,7 @@ fn test_with_eth_account() {
     let attribute = "(EthAccount)";
     let item = indoc!(
         "
-        #[starknet::contract(eth_account)]
+        #[starknet::contract(account)]
         pub mod MyContract {
             use openzeppelin_account::interface::EthPublicKey;
 

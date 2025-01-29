@@ -593,6 +593,13 @@ fn test_update_calls_after_update_hook() {
     spy.assert_event_after_update(contract_address, OWNER(), RECIPIENT(), VALUE);
 }
 
+#[test]
+fn test_default_config() {
+    let decimals = crate::erc20::DefaultConfig::DECIMALS;
+    assert_eq!(decimals, ERC20Component::DEFAULT_DECIMALS);
+    assert_eq!(decimals, 18);
+}
+
 //
 // Helpers
 //

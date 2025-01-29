@@ -5,7 +5,7 @@ snapshot_kind: text
 ---
 TokenStream:
 
-#[starknet::contract]
+#[starknet::contract(account)]
 pub mod MyContract {
     #[storage]
     pub struct Storage {
@@ -31,7 +31,7 @@ pub mod MyContract {
 Diagnostics:
 
 ====
-Warning: It looks like the initilizers for the following components are missing:
+Warning: It looks like the initializers for the following components are missing:
 
 EthAccount
 

@@ -13,7 +13,7 @@ pub mod Contract {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        accesscontrol: AccessControlComponent::Storage,
+        access_control: AccessControlComponent::Storage,
     }
 
     #[constructor]
@@ -21,7 +21,7 @@ pub mod Contract {
 
     use openzeppelin_access::accesscontrol::AccessControlComponent;
 
-    component!(path: AccessControlComponent, storage: accesscontrol, event: AccessControlEvent);
+    component!(path: AccessControlComponent, storage: access_control, event: AccessControlEvent);
 
     impl AccessControlInternalImpl = AccessControlComponent::InternalImpl<ContractState>;
 
@@ -37,7 +37,7 @@ pub mod Contract {
 Diagnostics:
 
 ====
-Warning: It looks like the initilizers for the following components are missing:
+Warning: It looks like the initializers for the following components are missing:
 
 AccessControl
 

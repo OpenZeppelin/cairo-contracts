@@ -31,7 +31,7 @@ pub mod MyContract {
 Diagnostics:
 
 ====
-Warning: It looks like the `self.initializer.initialize()` function is not used in the contract. If
+Warning: It looks like the `self.initializable.initialize()` function is not used in the contract. If
 this is intentional, you may consider removing the Initializable component.
 ====
 

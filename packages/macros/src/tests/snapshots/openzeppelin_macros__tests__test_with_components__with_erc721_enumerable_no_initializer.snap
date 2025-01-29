@@ -33,7 +33,7 @@ pub mod MyContract {
 Diagnostics:
 
 ====
-Warning: It looks like the initilizers for the following components are missing:
+Warning: It looks like the initializers for the following components are missing:
 
 ERC721Enumerable
 

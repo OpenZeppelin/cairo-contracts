@@ -5,7 +5,7 @@ snapshot_kind: text
 ---
 TokenStream:
 
-#[starknet::contract(eth_account)]
+#[starknet::contract(account)]
 pub mod MyContract {
     use openzeppelin_account::interface::EthPublicKey;
 

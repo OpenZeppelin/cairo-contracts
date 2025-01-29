@@ -13,19 +13,19 @@ pub mod Contract {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        accesscontrol: AccessControlComponent::Storage,
+        access_control: AccessControlComponent::Storage,
     }
 
     #[constructor]
     fn constructor(ref self: ContractState, default_admin: ContractAddress) {
-        self.accesscontrol.initializer();
+        self.access_control.initializer();
 
-        self.accesscontrol._grant_role(DEFAULT_ADMIN_ROLE, default_admin);
+        self.access_control._grant_role(DEFAULT_ADMIN_ROLE, default_admin);
     }
 
     use openzeppelin_access::accesscontrol::AccessControlComponent;
 
-    component!(path: AccessControlComponent, storage: accesscontrol, event: AccessControlEvent);
+    component!(path: AccessControlComponent, storage: access_control, event: AccessControlEvent);
 
     impl AccessControlInternalImpl = AccessControlComponent::InternalImpl<ContractState>;
 

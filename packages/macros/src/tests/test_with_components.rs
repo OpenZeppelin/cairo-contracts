@@ -313,9 +313,9 @@ fn test_with_access_control() {
 
             #[constructor]
             fn constructor(ref self: ContractState, default_admin: ContractAddress) {
-                self.accesscontrol.initializer();
+                self.access_control.initializer();
 
-                self.accesscontrol._grant_role(DEFAULT_ADMIN_ROLE, default_admin);
+                self.access_control._grant_role(DEFAULT_ADMIN_ROLE, default_admin);
             }
         }
         "

@@ -269,10 +269,10 @@ fn add_per_component_warnings(code: &str, component_info: &ComponentInfo) -> Vec
         "Initializable" => {
             // 1. Check that the initialize internal function is called
             let initialize_internal_function_called =
-                code.contains("self.initializer.initialize()");
+                code.contains("self.initializable.initialize()");
             if !initialize_internal_function_called {
                 let warning = Diagnostic::warn(indoc! {"
-                    It looks like the `self.initializer.initialize()` function is not used in the contract. If
+                    It looks like the `self.initializable.initialize()` function is not used in the contract. If
                     this is intentional, you may consider removing the Initializable component.
                 "});
                 warnings.push(warning);
@@ -541,7 +541,7 @@ fn get_component_info(name: &str) -> (Option<ComponentInfo>, Diagnostics) {
         "AccessControl" => Some(ComponentInfo {
             name: "AccessControlComponent".to_string(),
             path: "openzeppelin_access::accesscontrol::AccessControlComponent".to_string(),
-            storage: "accesscontrol".to_string(),
+            storage: "access_control".to_string(),
             event: "AccessControlEvent".to_string(),
             has_initializer: true,
             has_immutable_config: false,
@@ -586,7 +586,7 @@ fn get_component_info(name: &str) -> (Option<ComponentInfo>, Diagnostics) {
         "ReentrancyGuard" => Some(ComponentInfo {
             name: "ReentrancyGuardComponent".to_string(),
             path: "openzeppelin_security::ReentrancyGuardComponent".to_string(),
-            storage: "reentrancyguard".to_string(),
+            storage: "reentrancy_guard".to_string(),
             event: "ReentrancyGuardEvent".to_string(),
             has_initializer: false,
             has_immutable_config: false,

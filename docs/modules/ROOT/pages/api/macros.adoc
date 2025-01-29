@@ -18,12 +18,12 @@ openzeppelin_macros = "0.20.0"
 
 This macro simplifies the syntax for adding a set of components to a contract. It:
 
-- _Imports the corresponding components into the contract_
-- _Adds the corresponding `component!` macro entries_
-- _Adds the storage entries for each component to the Storage struct_
-- _Adds the event entries for each component to the Event struct, or creates the struct if it is missing_
-- _Brings the corresponding internal implementations into scope_
-- _Provides some diagnostics for each specific component to help the developer avoid common mistakes_
+- _Imports the corresponding components into the contract._
+- _Adds the corresponding `component!` macro entries._
+- _Adds the storage entries for each component to the Storage struct._
+- _Adds the event entries for each component to the Event struct, or creates the struct if it is missing._
+- _Brings the corresponding internal implementations into scope._
+- _Provides some diagnostics for each specific component to help the developer avoid common mistakes._
 
 CAUTION: Since the macro does not expose any external implementations, developers must make sure to specify explicitly
 the ones required by the contract.

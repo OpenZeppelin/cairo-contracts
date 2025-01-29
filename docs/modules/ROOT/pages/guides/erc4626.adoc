@@ -212,8 +212,11 @@ The following example describes how fees proportional to the deposited/withdrawn
 
 == Interface
 
+:ierc20: xref:/api/erc20.adoc#IERC20[IERC20]
+:ierc20-metadata: xref:/api/erc20.adoc#IERC20Metadata[IERC20Metadata]
+
 The following interface represents the full ABI of the Contracts for Cairo ERC4626Component.
-The interface includes the both the {ierc20-interface} and {ierc20metadata-interface}.
+The interface includes the both the {ierc20} and {ierc20-metadata} interfaces.
 Note that implementing the IERC20Metadata interface is a requirement of IERC4626.
 
 [,cairo]

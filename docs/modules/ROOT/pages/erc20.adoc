@@ -200,6 +200,7 @@ TIP: Note that we are not using the MixinImpl or the DefaultConfig in this case,
 ----
 #[starknet::contract]
 mod MyToken {
+    use openzeppelin_token::erc20::interface;
     use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
 
@@ -216,22 +217,19 @@ mod MyToken {
         #[substorage(v0)]
         erc20: ERC20Component::Storage,
         // The decimals value is stored locally
-        decimals: u8
+        decimals: u8,
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        ERC20Event: ERC20Component::Event
+        ERC20Event: ERC20Component::Event,
     }
 
     #[constructor]
     fn constructor(
-        ref self: ContractState,
-        decimals: u8,
-        initial_supply: u256,
-        recipient: ContractAddress,
+        ref self: ContractState, decimals: u8, initial_supply: u256, recipient: ContractAddress,
     ) {
         // Call the internal function that writes decimals to storage
         self._set_decimals(decimals);
@@ -245,13 +243,13 @@ mod MyToken {
     }
 
     #[abi(embed_v0)]
-    impl ERC20MetadataImpl of interface::IERC20Metadata<ContractState> {
+    impl ERC20CustomMetadataImpl of interface::IERC20Metadata<ContractState> {
         fn name(self: @ContractState) -> ByteArray {
-            self.erc20.name()
+            self.erc20.ERC20_name.read()
         }
 
         fn symbol(self: @ContractState) -> ByteArray {
-            self.erc20.symbol()
+            self.erc20.ERC20_symbol.read()
         }
 
         fn decimals(self: @ContractState) -> u8 {

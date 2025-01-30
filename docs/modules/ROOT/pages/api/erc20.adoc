@@ -754,9 +754,9 @@ fees.
 
 MUST NOT panic.
 
-NOTE: Any unfavorable discrepancy between <<IERC4626-convert_to_assets,convert_to_assets>> and `preview_mint` SHOULD be
-considered slippage in share price or some other type of condition, meaning the depositor
-will lose assets by minting.
+NOTE: Any unfavorable discrepancy between <<IERC4626-convert_to_assets,IERC4626::convert_to_assets>> and
+`preview_mint` SHOULD be considered slippage in share price or some other type of condition,
+meaning the depositor will lose assets by minting.
 
 [.contract-item]
 [[IERC4626-mint]]
@@ -806,7 +806,7 @@ withdrawal fees.
 
 MUST not panic.
 
-NOTE: Any unfavorable discrepancy between <<IERC4626-convert_to_shares,convert_to_shares>> and `preview_withdraw`
+NOTE: Any unfavorable discrepancy between <<IERC4626-convert_to_shares,IERC4626::convert_to_shares>> and `preview_withdraw`
 SHOULD be considered slippage in share price or some other type of condition, meaning the
 depositor will lose assets by depositing.
 

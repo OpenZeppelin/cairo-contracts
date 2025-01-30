@@ -709,7 +709,7 @@ depositor will lose assets by depositing.
 
 Mints Vault shares to `receiver` by depositing exactly amount of `assets`.
 
-MUST emit the Deposit event.
+MUST emit the <<IERC4626-Deposit,IERC4626::Deposit>> event.
 
 MAY support an additional flow in which the underlying tokens are owned by the Vault
 contract before the deposit execution, and are accounted for during deposit.
@@ -764,7 +764,7 @@ meaning the depositor will lose assets by minting.
 
 Mints exactly shares Vault shares to receiver by depositing amount of underlying tokens.
 
-MUST emit the `Deposit` event.
+MUST emit the <<IERC4626-Deposit,IERC4626::Deposit>> event.
 
 MAY support an additional flow in which the underlying tokens are owned by the Vault
 contract before the mint execution, and are accounted for during mint.
@@ -816,7 +816,7 @@ depositor will lose assets by depositing.
 
 Burns shares from owner and sends exactly assets of underlying tokens to receiver.
 
-MUST emit the `Withdraw` event.
+MUST emit the <<IERC4626-Withdraw,IERC4626::Withdraw>> event.
 
 MAY support an additional flow in which the underlying tokens are owned by the Vault
 contract before the withdraw execution, and are accounted for during withdraw.
@@ -872,7 +872,7 @@ will lose assets by redeeming.
 
 Burns exactly shares from owner and sends assets of underlying tokens to receiver.
 
-MUST emit the `Withdraw` event.
+MUST emit the <<IERC4626-Withdraw,IERC4626::Withdraw>> event.
 
 MAY support an additional flow in which the underlying tokens are owned by the Vault
 contract before the redeem execution, and are accounted for during redeem.
@@ -880,8 +880,7 @@ contract before the redeem execution, and are accounted for during redeem.
 MUST revert if all of shares cannot be redeemed (due to withdrawal limit being reached,
 slippage, the owner not having enough shares, etc).
 
-NOTE: Some implementations will require pre-requesting to the Vault before a withdrawal may
-be performed.
+NOTE: Some implementations will require pre-requesting to the Vault before a withdrawal may be performed.
 Those methods should be performed separately.
 
 [#IERC4626-Events]
@@ -921,7 +920,7 @@ The component leverages traits to configure fees, limits, and decimals.
 * xref:#ERC4626Component-IC-DECIMALS_OFFSET[`++DECIMALS_OFFSET++`]
 
 .functions
-* xref:#ERC2981Component-IC-validate[`++validate()++`]
+* xref:#ERC4626Component-IC-validate[`++validate()++`]
 --
 
 [.contract-index]
@@ -1176,7 +1175,7 @@ NOTE: As per the {eip4626} spec, this may panic _only_ if there's an overflow fr
 [[ERC4626Component-max_deposit]]
 ==== `[.contract-item-name]#++max_deposit++#++(self: @ContractState, receiver: ContractAddress) → u256++` [.item-kind]#external#
 
-Returns the maximum amount of the underlying asset that can be deposited into the Vault for the `receiver`, through a <<ERC4626Component-deposit,ERC4626::deposit>> call.
+Returns the maximum amount of the underlying asset that can be deposited into the Vault for the `receiver`, through a <<ERC4626Component-deposit,deposit>> call.
 
 The default max deposit value is 2 ** 256 - 1.
 
@@ -1207,14 +1206,14 @@ Requirements:
 
 - `assets` is less than or equal to the max deposit amount for `receiver`.
 
-Emits a `Deposit` event.
+Emits a <<IERC4626-Deposit,Deposit>> event.
 
 [.contract-item]
 [[ERC4626Component-max_mint]]
 ==== `[.contract-item-name]#++max_mint++#++(self: @ContractState, receiver: ContractAddress) → u256++` [.item-kind]#external#
 
 Returns the maximum amount of the Vault shares that can be minted for `receiver` through
-a <<ERC4626Component-mint,ERC4626::mint>> call.
+a <<ERC4626Component-mint,mint>> call.
 
 The default max mint value is 2 ** 256 - 1.
 
@@ -1244,14 +1243,14 @@ Requirements:
 
 - `shares` is less than or equal to the max shares amount for `receiver`.
 
-Emits a `Deposit` event.
+Emits a <<IERC4626-Deposit,Deposit>> event.
 
 [.contract-item]
 [[ERC4626Component-max_withdraw]]
 ==== `[.contract-item-name]#++max_withdraw++#++(self: @ContractState, owner: ContractAddress) → u256++` [.item-kind]#external#
 
 Returns the maximum amount of the underlying asset that can be withdrawn from the owner
-balance in the Vault, through a <<ERC4626Component-withdraw,ERC4626Component::withdraw>> call.
+balance in the Vault, through a <<ERC4626Component-withdraw,withdraw>> call.
 
 The default max withdraw value is the full balance of assets for `owner` (converted from shares).
 This can be changed in the implementing contract by defining custom logic in <<ERC4626Component-withdraw_limit,LimitConfigTrait::withdraw_limit>>.
@@ -1281,14 +1280,14 @@ Requirements:
 
 - `assets` is less than or equal to the max withdraw amount of `owner`.
 
-Emits a `Withdraw` event.
+Emits a <<IERC4626-Withdraw,Withdraw>> event.
 
 [.contract-item]
 [[ERC4626Component-max_redeem]]
 ==== `[.contract-item-name]#++max_redeem++#++(self: @ContractState, owner: ContractAddress) → u256++` [.item-kind]#external#
 
 Returns the maximum amount of Vault shares that can be redeemed from the owner balance
-in the Vault, through a <<ERC4626Component-redeem,ERC4626Component::redeem>> call.
+in the Vault, through a <<ERC4626Component-redeem,redeem>> call.
 
 The default max redeem value is the full balance of assets for `owner`.
 This can be changed in the implementing contract by defining custom logic in <<ERC4626Component-redeem_limit,LimitConfigTrait::redeem_limit>>.
@@ -1318,7 +1317,7 @@ Requirements:
 
 - `shares` is less than or equal to the max redeem amount of `owner`.
 
-Emits a `Withdraw` event.
+Emits a <<IERC4626-Withdraw,Withdraw>> event.
 
 [.contract-item]
 [[ERC4626Component-name]]
@@ -1337,7 +1336,7 @@ Returns the ticker symbol of the token, usually a shorter version of the name.
 ==== `[.contract-item-name]#++decimals++#++(self: @ContractState) → u8++` [.item-kind]#external#
 
 Returns the cumulative number of decimals which includes both `UNDERLYING_DECIMALS` and `OFFSET_DECIMALS`.
-Both of which must be defined in the `ImmutableConfig` inside the implementing contract.
+Both of which must be defined in the <<ERC4626Component-Immutable-Config,ImmutableConfig>> inside the implementing contract.
 
 ==== Internal functions
 
@@ -1345,7 +1344,7 @@ Both of which must be defined in the `ImmutableConfig` inside the implementing c
 [[ERC4626Component-initializer]]
 ==== `[.contract-item-name]#++initializer++#++(ref self: ContractState, asset_address: ContractAddress)++` [.item-kind]#internal#
 
-Validates the `ImmutableConfig` constants and sets the `asset_address` to the vault.
+Validates the <<ERC4626Component-Immutable-Config,ImmutableConfig>> constants and sets the `asset_address` to the vault.
 This should be set in the contract's constructor.
 
 Requirements:
@@ -1356,7 +1355,7 @@ Requirements:
 [[ERC4626Component-_deposit]]
 ==== `[.contract-item-name]#++_deposit++#++(ref self: ContractState, caller: ContractAddress, receiver: ContractAddress, assets: u256, shares: u256)++` [.item-kind]#internal#
 
-Internal logic for <<ERC4626Component-deposit, ERC4626::deposit>> and <<ERC4626Component-mint, ERC4626::mint>>.
+Internal logic for <<ERC4626Component-deposit,deposit>> and <<ERC4626Component-mint,mint>>.
 
 Transfers `assets` from `caller` to the Vault contract then mints `shares` to
 `receiver`.
@@ -1365,17 +1364,17 @@ after assets are transferred and shares are minted.
 
 Requirements:
 
-- `ERC20::transfer_from` must return true.
+- <<ERC20Component-transfer_from,ERC20::transfer_from>> must return true.
 
-Emits two `ERC20::Transfer` events (`ERC20::mint` and `ERC20::transfer_from`).
+Emits two <<ERC20Component-Transfer,ERC20::Transfer>> events (`ERC20::mint` and `ERC20::transfer_from`).
 
-Emits a `Deposit` event.
+Emits a <<IERC4626-Deposit,Deposit>> event.
 
 [.contract-item]
 [[ERC4626Component-_withdraw]]
 ==== `[.contract-item-name]#++_withdraw++#++(ref self: ContractState, caller: ContractAddress, receiver: ContractAddress, owner: ContractAddress, assets: u256, shares: u256)++` [.item-kind]#internal#
 
-Internal logic for <<ERC4626Component-withdraw, ERC4626::withdraw>> and <<ERC4626Component-redeem, ERC4626::redeem>>.
+Internal logic for <<ERC4626Component-withdraw, withdraw>> and <<ERC4626Component-redeem, redeem>>.
 
 Burns `shares` from `owner` and then transfers `assets` to `receiver`.
 Fees can be transferred in the `ERC4626Hooks::before_withdraw` hook which is executed
@@ -1383,11 +1382,11 @@ before shares are burned and assets are transferred.
 
 Requirements:
 
-- `ERC20::transfer` must return true.
+- <<ERC20Component-transfer,ERC20::transfer>> must return true.
 
-Emits two `ERC20::Transfer` events (`ERC20::burn` and `ERC20::transfer`).
+Emits two <<ERC20Component-Transfer,ERC20::Transfer>> events (`ERC20::burn` and `ERC20::transfer`).
 
-Emits a `Withdraw` event.
+Emits a <<IERC4626-Withdraw,Withdraw>> event.
 
 [.contract-item]
 [[ERC4626Component-_convert_to_shares]]

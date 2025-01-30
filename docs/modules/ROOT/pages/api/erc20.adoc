@@ -1041,7 +1041,7 @@ Adjustments for fees expected to be defined at the contract level.
 Defaults to no entry or exit fees.
 
 NOTE: The FeeConfigTrait hooks directly into the preview methods of the ERC4626 component.
-The preview methods must return as close to the exact amount of shares or assets as possible if the actual (previewed) operation occurred in the same transaction (according to EIP-4626 spec).
+The preview methods must return as close to the exact amount of shares or assets as possible if the actual (previewed) operation occurred in the same transaction (according to {eip4626} spec).
 All operations use their corresponding preview method as the value of assets or shares being moved.
 Therefore, adjusting an operation's assets in FeeConfigTrait consequently adjusts the assets (or assets to be converted into shares) in both the preview operation and the actual operation.
 
@@ -1083,7 +1083,7 @@ Exit fees should be transferred in the <<before_withdraw,before_withdraw>> hook.
 Sets limits to the target exchange type and is expected to be defined at the contract
 level. These limits correspond directly to the `max_<OPERATION>` i.e. `deposit_limit` -> `max_deposit`.
 
-NOTE: The EIP-4626 spec states that the `max_<OPERATION>` methods must take into account all
+NOTE: The {eip4626} spec states that the `max_<OPERATION>` methods must take into account all
 global and user-specific limits.
 If an operation is disabled (even temporarily), the corresponding limit MUST be `0`
 and MUST NOT panic.
@@ -1162,7 +1162,7 @@ Returns the total amount of the underlying asset that is “managed” by Vault.
 
 Returns the amount of shares that the Vault would exchange for the amount of assets provided irrespective of slippage or fees.
 
-NOTE: As per the EIP-4626 spec, this may panic _only_ if there's an overflow from an unreasonably large input.
+NOTE: As per the {eip4626} spec, this may panic _only_ if there's an overflow from an unreasonably large input.
 
 [.contract-item]
 [[ERC4626Component-convert_to_assets]]
@@ -1170,7 +1170,7 @@ NOTE: As per the EIP-4626 spec, this may panic _only_ if there's an overflow fro
 
 Returns the amount of assets that the Vault would exchange for the amount of shares provided irrespective of slippage or fees.
 
-NOTE: As per the EIP-4626 spec, this may panic _only_ if there's an overflow from an unreasonably large input.
+NOTE: As per the {eip4626} spec, this may panic _only_ if there's an overflow from an unreasonably large input.
 
 [.contract-item]
 [[ERC4626Component-max_deposit]]
@@ -1194,7 +1194,7 @@ The default deposit preview value is the full amount of shares.
 This can be changed to account for fees, for example, in the implementing contract by
 defining custom logic in <<ERC4626Component-adjust_deposit,LimitConfigTrait::adjust_deposit>>.
 
-NOTE: This method must be inclusive of entry fees to be compliant with the EIP-4626 spec.
+NOTE: This method must be inclusive of entry fees to be compliant with the {eip4626} spec.
 
 [.contract-item]
 [[ERC4626Component-deposit]]
@@ -1231,7 +1231,7 @@ The default mint preview value is the full amount of assets.
 This can be changed to account for fees, for example, in the implementing contract by
 defining custom logic in <<ERC4626Component-adjust_mint,LimitConfigTrait::adjust_mint>>.
 
-NOTE: This method must be inclusive of entry fees to be compliant with the EIP-4626 spec.
+NOTE: This method must be inclusive of entry fees to be compliant with the {eip4626} spec.
 
 [.contract-item]
 [[ERC4626Component-mint]]
@@ -1269,7 +1269,7 @@ current block, given current on-chain conditions.
 The default withdraw preview value is the full amount of shares.
 This can be changed to account for fees, for example, in the implementing contract by defining custom logic in <<ERC4626Component-adjust_withdraw,LimitConfigTrait::adjust_withdraw>>.
 
-NOTE: This method must be inclusive of exit fees to be compliant with the EIP-4626 spec.
+NOTE: This method must be inclusive of exit fees to be compliant with the {eip4626} spec.
 
 [.contract-item]
 [[ERC4626Component-withdraw]]
@@ -1306,7 +1306,7 @@ current block, given current on-chain conditions.
 The default redeem preview value is the full amount of assets.
 This can be changed to account for fees, for example, in the implementing contract by defining custom logic in <<ERC4626Component-adjust_redeem,LimitConfigTrait::adjust_redeem>>.
 
-NOTE: This method must be inclusive of exit fees to be compliant with the EIP-4626 spec.
+NOTE: This method must be inclusive of exit fees to be compliant with the {eip4626} spec.
 
 [.contract-item]
 [[ERC4626Component-redeem]]

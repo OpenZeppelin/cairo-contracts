@@ -6,6 +6,8 @@
 :snip-12: https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-12.md[SNIP12]
 :snip12-metadata: xref:api/utilities.adoc#snip12[SNIP12Metadata]
 :eip-2612: https://eips.ethereum.org/EIPS/eip-2612[EIP-2612]
+:eip4626: https://eips.ethereum.org/EIPS/eip-4626[EIP-4626]
+
 
 = ERC20
 
@@ -685,10 +687,10 @@ Allows an on-chain or off-chain user to simulate the effects of their deposit at
 block, given current on-chain conditions.
 
 MUST return as close to and no more than the exact amount of Vault shares that would be
-minted in a deposit call in the same transaction i.e. deposit should return the same or more
+minted in a deposit call in the same transaction i.e. <<IERC4626-deposit,IERC4626::deposit>> should return the same or more
 shares as `preview_deposit` if called in the same transaction.
 
-MUST NOT account for deposit limits like those returned from `max_deposit` and should always
+MUST NOT account for deposit limits like those returned from <<IERC4626-max_deposit,IERC4626::max_deposit>> and should always
 act as though the deposit would be accepted, regardless if the user has enough tokens
 approved, etc.
 
@@ -697,7 +699,7 @@ fees.
 
 MUST NOT panic.
 
-NOTE: Any unfavorable discrepancy between `convert_to_shares` and `preview_deposit`
+NOTE: Any unfavorable discrepancy between <<IERC4626-convert_to_shares,IERC4626::convert_to_shares>> and `preview_deposit`
 SHOULD be considered slippage in share price or some other type of condition, meaning the
 depositor will lose assets by depositing.
 
@@ -740,10 +742,10 @@ Allows an on-chain or off-chain user to simulate the effects of their mint at th
 block, given current on-chain conditions.
 
 MUST return as close to and no fewer than the exact amount of assets that would be deposited
-in a `mint` call in the same transaction. I.e. `mint` should return the same or fewer assets
+in a `mint` call in the same transaction. I.e. <<IERC4626-mint,IERC4626::mint>> should return the same or fewer assets
 as `preview_mint` if called in the same transaction.
 
-MUST NOT account for mint limits like those returned from `max_mint` and should always act
+MUST NOT account for mint limits like those returned from <<IERC4626-max_mint,IERC4626::max_mint>> and should always act
 as though the mint would be accepted, regardless if the user has enough tokens approved,
 etc.
 
@@ -752,7 +754,7 @@ fees.
 
 MUST NOT panic.
 
-NOTE: Any unfavorable discrepancy between convertToAssets and previewMint SHOULD be
+NOTE: Any unfavorable discrepancy between <<IERC4626-convert_to_assets,convert_to_assets>> and `preview_mint` SHOULD be
 considered slippage in share price or some other type of condition, meaning the depositor
 will lose assets by minting.
 
@@ -792,10 +794,10 @@ Allows an on-chain or off-chain user to simulate the effects of their withdrawal
 current block, given current on-chain conditions.
 
 MUST return as close to and no fewer than the exact amount of Vault shares that would be
-burned in a withdraw call in the same transaction i.e. withdraw should return the same or
-fewer shares as preview_withdraw if called in the same transaction.
+burned in a withdraw call in the same transaction i.e. <<IERC4626-withdraw,IERC4626::withdraw>> should return the same or
+fewer shares as `preview_withdraw` if called in the same transaction.
 
-MUST NOT account for withdrawal limits like those returned from max_withdraw and should
+MUST NOT account for withdrawal limits like those returned from <<IERC4626-max_withdraw,IERC4626::max_withdraw>> and should
 always act as though the withdrawal would be accepted, regardless if the user has enough
 shares, etc.
 
@@ -804,7 +806,7 @@ withdrawal fees.
 
 MUST not panic.
 
-NOTE: Any unfavorable discrepancy between `convert_to_shares` and `preview_withdraw`
+NOTE: Any unfavorable discrepancy between <<IERC4626-convert_to_shares,convert_to_shares>> and `preview_withdraw`
 SHOULD be considered slippage in share price or some other type of condition, meaning the
 depositor will lose assets by depositing.
 
@@ -848,10 +850,10 @@ Allows an on-chain or off-chain user to simulate the effects of their redeemptio
 current block, given current on-chain conditions.
 
 MUST return as close to and no more than the exact amount of assets that would be withdrawn
-in a redeem call in the same transaction i.e. redeem should return the same or more assets
+in a redeem call in the same transaction i.e. <<IERC4626-redeem,IERC4626::redeem>> should return the same or more assets
 as preview_redeem if called in the same transaction.
 
-MUST NOT account for redemption limits like those returned from max_redeem and should always
+MUST NOT account for redemption limits like those returned from <<IERC4626-max_redeem,IERC4626::max_redeem>> and should always
 act as though the redemption would be accepted, regardless if the user has enough shares,
 etc.
 
@@ -860,7 +862,7 @@ withdrawal fees.
 
 MUST NOT panic.
 
-NOTE: Any unfavorable discrepancy between `convert_to_assets` and `preview_redeem` SHOULD be
+NOTE: Any unfavorable discrepancy between <<IERC4626-convert_to_assets,IERC4626::convert_to_assets>> and `preview_redeem` SHOULD be
 considered slippage in share price or some other type of condition, meaning the depositor
 will lose assets by redeeming.
 
@@ -908,7 +910,7 @@ those `assets` to `receiver`.
 use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component;
 ```
 
-Extension of ERC20 that implements the IERC4626 interface which allows the minting and burning of "shares" in exchange for an underlying "asset."
+Extension of ERC20 that implements the <<IERC4626,IERC4626>> interface which allows the minting and burning of "shares" in exchange for an underlying "asset."
 The component leverages traits to configure fees, limits, and decimals.
 
 [.contract-index]

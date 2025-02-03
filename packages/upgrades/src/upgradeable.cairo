@@ -69,7 +69,7 @@ pub mod UpgradeableComponent {
             let this = starknet::get_contract_address();
             // `call_contract_syscall` is used in order to call `selector` from the new class.
             // See:
-            // https://docs.starknet.io/documentation/architecture_and_concepts/Contracts/system-calls-cairo1/#replace_class
+            // https://docs.starknet.io/architecture-and-concepts/smart-contracts/system-calls-cairo1/#replace_class
             starknet::syscalls::call_contract_syscall(this, selector, calldata).unwrap_syscall()
         }
     }

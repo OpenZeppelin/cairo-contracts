@@ -1,5 +1,5 @@
 :github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
-:class_hash: https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/class-hash/[class hash]
+:class_hash: https://docs.starknet.io/architecture-and-concepts/smart-contracts/class-hash/[class hash]
 
 = Upgrades
 

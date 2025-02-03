@@ -1,5 +1,5 @@
 :ownable-cairo: xref:api/access.adoc#OwnableComponent[OwnableComponent]
-:sn_keccak: https://docs.starknet.io/documentation/architecture_and_concepts/Cryptography/hash-functions/#starknet_keccak[sn_keccak]
+:sn_keccak: https://docs.starknet.io/architecture-and-concepts/cryptography/#starknet_keccak[sn_keccak]
 
 = Access
 

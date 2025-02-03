@@ -1,6 +1,6 @@
 = Universal Deployer Contract
 
-:deploy-syscall: link:https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/system-calls-cairo1/#deploy[deploy syscall]
+:deploy-syscall: link:https://docs.starknet.io/architecture-and-concepts/smart-contracts/system-calls-cairo1/#deploy[deploy syscall]
 :deployer-interface: link:https://community.starknet.io/t/snip-deployer-contract-interface/2772[Standard Deployer Interface]
 :udc-proposal: link:https://community.starknet.io/t/universal-deployer-contract-proposal/1864[Universal Deployer Contract proposal]
 :deploy_contract: xref:/api/udc.adoc#UniversalDeployer-deploy_contract[deploy_contract]
@@ -33,7 +33,7 @@ pub trait IUniversalDeployer {
 
 == Deploying a contract with the UDC
 
-:declare: link:https://docs.starknet.io/documentation/architecture_and_concepts/Network_Architecture/transactions/#declare-transaction[declare]
+:declare: link:https://docs.starknet.io/architecture-and-concepts/network-architecture/transactions/#declare-transaction[declare]
 
 First, {declare} the target contract (if it's not already declared).
 Next, call the UDC's `deploy_contract` method.
@@ -106,10 +106,10 @@ let deployed_addr = udc.deploy_contract(class_hash, salt, true, calldata.span())
 
 == Version changes
 
-:pedersen: link:https://docs.starknet.io/documentation/architecture_and_concepts/Cryptography/hash-functions/#pedersen_hash[Pedersen]
-:poseidon: link:https://docs.starknet.io/documentation/architecture_and_concepts/Cryptography/hash-functions/#poseidon_hash[Poseidon]
+:pedersen: link:https://docs.starknet.io/architecture-and-concepts/cryptography/#pedersen_hash[Pedersen]
+:poseidon: link:https://docs.starknet.io/architecture-and-concepts/cryptography/#poseidon_hash[Poseidon]
 :origin-dependent-deployments: xref:origin_dependent[origin-dependent deployments]
-:previous-udc-api: link:https://docs.openzeppelin.com/contracts-cairo/0.6.1/udc#api_specification[previous Universal Deployer API]
+:previous-udc-api: https://docs.starknet.io/architecture-and-concepts/accounts/universal-deployer/[previous Universal Deployer API]
 :contract-deployed-event: xref:/api/udc.adoc#IUniversalDeployer-ContractDeployed[ContractDeployed]
 
 NOTE: See the {previous-udc-api} for the initial spec.

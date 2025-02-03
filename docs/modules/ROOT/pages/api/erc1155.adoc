@@ -185,7 +185,7 @@ NOTE: See xref:#ERC1155Component-Hooks[Hooks] to understand how are hooks used.
 .ERC1155MixinImpl
 * xref:#ERC1155Component-Embeddable-Impls-ERC1155Impl[`++ERC1155Impl++`]
 * xref:#ERC1155Component-Embeddable-Impls-ERC1155MetadataURIImpl[`++ERC1155MetadataURIImpl++`]
-* xref:#ERC1155Component-Embeddable-Impls-ER1155CamelImpl[`++ER1155CamelImpl++`]
+* xref:#ERC1155Component-Embeddable-Impls-ERC1155CamelImpl[`++ERC1155CamelImpl++`]
 * xref:api/introspection.adoc#SRC5Component-Embeddable-Impls-SRC5Impl[`++SRC5Impl++`]
 --
 
@@ -205,8 +205,8 @@ NOTE: See xref:#ERC1155Component-Hooks[Hooks] to understand how are hooks used.
 .ERC1155MetadataURIImpl
 * xref:#ERC1155Component-uri[`++uri(self, token_id)++`]
 
-[.sub-index#ERC1155Component-Embeddable-Impls-ER1155CamelImpl]
-.ER1155CamelImpl
+[.sub-index#ERC1155Component-Embeddable-Impls-ERC1155CamelImpl]
+.ERC1155CamelImpl
 * xref:#ERC1155Component-balanceOf[`++balanceOf(self, account, tokenId)++`]
 * xref:#ERC1155Component-balanceOfBatch[`++balanceOfBatch(self, accounts, tokenIds)++`]
 * xref:#ERC1155Component-safeTransferFrom[`++safeTransferFrom(self, from, to, tokenId, value, data)++`]

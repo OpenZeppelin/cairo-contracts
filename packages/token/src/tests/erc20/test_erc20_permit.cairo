@@ -1,9 +1,9 @@
 use core::hash::{HashStateExTrait, HashStateTrait};
 use core::poseidon::PoseidonTrait;
-use crate::erc20::ERC20Component;
 use crate::erc20::ERC20Component::{ERC20MixinImpl, InternalImpl};
 use crate::erc20::ERC20Component::{ERC20PermitImpl, SNIP12MetadataExternalImpl};
 use crate::erc20::snip12_utils::permit::{PERMIT_TYPE_HASH, Permit};
+use crate::erc20::{DefaultConfig, ERC20Component};
 use openzeppelin_test_common::mocks::erc20::DualCaseERC20PermitMock;
 use openzeppelin_test_common::mocks::erc20::DualCaseERC20PermitMock::SNIP12MetadataImpl;
 use openzeppelin_testing as utils;

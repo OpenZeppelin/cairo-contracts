@@ -1,4 +1,4 @@
-name: Lint and test
+name: Lint and test Cairo
 # This workflow runs linting and tests on all pull requests and pushes to the main branch.
 # It includes Markdown linting, Cairo formatting checks, running tests with coverage,
 # and uploading the coverage report to Codecov.
@@ -11,7 +11,7 @@ on:
 
 jobs:
   lint_and_test:
-    name: Lint and test
+    name: Lint and test Cairo
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+- The openzeppelin_macros package with the `with_components` macro (#1282)
+
 ### Changed (Breaking)
 
 - Bump scarb to v2.9.2 (#1239)

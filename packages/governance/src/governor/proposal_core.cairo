@@ -38,7 +38,7 @@ const _2_POW_54: felt252 = 0x40000000000000;
 ///
 /// NOTE: In the second felt252, the first four bits are skipped to avoid representation errors due
 /// to `felt252` max value being a bit less than a 252 bits number max value
-/// (https://docs.starknet.io/documentation/architecture_and_concepts/Cryptography/p-value/).
+/// (https://docs.starknet.io/architecture-and-concepts/cryptography/#stark-field).
 impl ProposalCoreStorePacking of StorePacking<ProposalCore, (felt252, felt252)> {
     fn pack(value: ProposalCore) -> (felt252, felt252) {
         let proposal = value;

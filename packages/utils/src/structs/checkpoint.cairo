@@ -177,7 +177,7 @@ const _128_BITS_MASK: u256 = 0xffffffffffffffffffffffffffffffff;
 ///
 /// NOTE: In this first felt, the first four bits are skipped to avoid representation errors due
 /// to `felt252` max value being a bit less than a 252 bits number max value
-/// (https://docs.starknet.io/documentation/architecture_and_concepts/Cryptography/p-value/).
+/// (https://docs.starknet.io/architecture-and-concepts/cryptography/#stark-field).
 impl CheckpointStorePacking of StorePacking<Checkpoint, (felt252, felt252)> {
     fn pack(value: Checkpoint) -> (felt252, felt252) {
         let checkpoint = value;

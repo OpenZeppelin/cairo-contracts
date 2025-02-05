@@ -2,7 +2,7 @@ use starknet::ContractAddress;
 
 #[starknet::contract]
 pub mod DualCaseERC20Mock {
-    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
+    use openzeppelin_token::erc20::{DefaultConfig, ERC20Component, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
@@ -43,7 +43,7 @@ pub mod DualCaseERC20Mock {
 
 #[starknet::contract]
 pub mod SnakeERC20Mock {
-    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
+    use openzeppelin_token::erc20::{DefaultConfig, ERC20Component, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
@@ -84,7 +84,7 @@ pub mod SnakeERC20Mock {
 /// This is used to test that the hooks are called with the correct arguments.
 #[starknet::contract]
 pub mod SnakeERC20MockWithHooks {
-    use openzeppelin_token::erc20::ERC20Component;
+    use openzeppelin_token::erc20::{DefaultConfig, ERC20Component};
     use starknet::ContractAddress;
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
@@ -163,7 +163,7 @@ pub mod SnakeERC20MockWithHooks {
 
 #[starknet::contract]
 pub mod DualCaseERC20PermitMock {
-    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
+    use openzeppelin_token::erc20::{DefaultConfig, ERC20Component, ERC20HooksEmptyImpl};
     use openzeppelin_utils::cryptography::nonces::NoncesComponent;
     use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
     use starknet::ContractAddress;

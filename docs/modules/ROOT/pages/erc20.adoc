@@ -23,7 +23,7 @@ Here's what that looks like:
 ----
 #[starknet::contract]
 mod MyToken {
-    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
+    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl, DefaultConfig};
     use starknet::ContractAddress;
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
@@ -125,6 +125,8 @@ Some notable differences, however, can still be found, such as:
 
 == Customizing decimals
 
+:SRC-107: https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-107.md[SRC-107]
+
 :floating-point: https://en.wikipedia.org//wiki/Floating-point_arithmetic[floating-point numbers]
 :eip-discussion: https://github.com/ethereum/EIPs/issues/724[EIP discussion]
 
@@ -136,40 +138,69 @@ In the actual contract, however, the supply would still be the integer `1234`.
 In other words, *the decimals field in no way changes the actual arithmetic* because all operations are still performed on integers.
 
 Most contracts use `18` decimals and this was even proposed to be compulsory (see the {eip-discussion}).
-The Contracts for Cairo `ERC20` component includes a `decimals` function that returns `18` by default to save on gas fees.
-For those who want an ERC20 token with a configurable number of decimals, the following guide shows two ways to achieve this.
 
-NOTE: Both approaches require creating a custom implementation of the `IERC20Metadata` interface.
+=== The static approach (SRC-107)
 
-=== The static approach
-
-The simplest way to customize `decimals` consists of returning the target value from the `decimals` method.
-For example:
+The Contracts for Cairo `ERC20` component leverages {SRC-107} to allow for a static and configurable number of decimals.
+To use the default `18` decimals, you can use the `DefaultConfig` implementation by just importing it:
 
 [,cairo]
 ----
-#[abi(embed_v0)]
-impl ERC20MetadataImpl of interface::IERC20Metadata<ContractState> {
-    fn decimals(self: @ContractState) -> u8 {
-        // Change the `3` below to the desired number of decimals
-        3
-    }
+#[starknet::contract]
+mod MyToken {
+    // Importing the DefaultConfig implementation would make decimals 18 by default.
+    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl, DefaultConfig};
+    use starknet::ContractAddress;
+
+    component!(path: ERC20Component, storage: erc20, event: ERC20Event);
+
+    #[abi(embed_v0)]
+    impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC20CamelOnlyImpl = ERC20Component::ERC20CamelOnlyImpl<ContractState>;
+    impl ERC20InternalImpl = ERC20Component::InternalImpl<ContractState>;
 
     (...)
 }
+----
 
+To customize this value, you can implement the ImmutableConfig trait locally in the contract.
+The following example shows how to set the decimals to `6`:
+
+[,cairo]
+----
+mod MyToken {
+    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
+    use starknet::ContractAddress;
+
+    component!(path: ERC20Component, storage: erc20, event: ERC20Event);
+
+    #[abi(embed_v0)]
+    impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC20CamelOnlyImpl = ERC20Component::ERC20CamelOnlyImpl<ContractState>;
+    impl ERC20InternalImpl = ERC20Component::InternalImpl<ContractState>;
+
+    (...)
+
+    // Custom implementation of the ERC20Component ImmutableConfig.
+    impl ERC20ImmutableConfig of ERC20Component::ImmutableConfig {
+        const DECIMALS: u8 = 6;
+    }
+}
 ----
 
 === The storage approach
 
 For more complex scenarios, such as a factory deploying multiple tokens with differing values for decimals, a flexible solution might be appropriate.
 
-TIP: Note that we are not using the MixinImpl in this case, since we need to customize the IERC20Metadata implementation.
+TIP: Note that we are not using the MixinImpl or the DefaultConfig in this case, since we need to customize the IERC20Metadata implementation.
 
 [,cairo]
 ----
 #[starknet::contract]
 mod MyToken {
+    use openzeppelin_token::erc20::interface;
     use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
 
@@ -186,22 +217,19 @@ mod MyToken {
         #[substorage(v0)]
         erc20: ERC20Component::Storage,
         // The decimals value is stored locally
-        decimals: u8
+        decimals: u8,
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        ERC20Event: ERC20Component::Event
+        ERC20Event: ERC20Component::Event,
     }
 
     #[constructor]
     fn constructor(
-        ref self: ContractState,
-        decimals: u8,
-        initial_supply: u256,
-        recipient: ContractAddress,
+        ref self: ContractState, decimals: u8, initial_supply: u256, recipient: ContractAddress,
     ) {
         // Call the internal function that writes decimals to storage
         self._set_decimals(decimals);
@@ -215,13 +243,13 @@ mod MyToken {
     }
 
     #[abi(embed_v0)]
-    impl ERC20MetadataImpl of interface::IERC20Metadata<ContractState> {
+    impl ERC20CustomMetadataImpl of interface::IERC20Metadata<ContractState> {
         fn name(self: @ContractState) -> ByteArray {
-            self.erc20.name()
+            self.erc20.ERC20_name.read()
         }
 
         fn symbol(self: @ContractState) -> ByteArray {
-            self.erc20.symbol()
+            self.erc20.ERC20_symbol.read()
         }
 
         fn decimals(self: @ContractState) -> u8 {

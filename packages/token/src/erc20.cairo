@@ -1,4 +1,5 @@
 pub mod erc20;
+pub mod extensions;
 pub mod interface;
 pub mod snip12_utils;
 

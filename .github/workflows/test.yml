@@ -30,7 +30,7 @@ jobs:
           FOUNDRY_VERSION=$(grep 'snforge_std = ' Scarb.toml | sed 's/snforge_std = "\(.*\)"/\1/')
           echo "FOUNDRY_VERSION=$FOUNDRY_VERSION" >> "$GITHUB_ENV"
 
-      - uses: foundry-rs/setup-snfoundry@v3
+      - uses: foundry-rs/setup-snfoundry@v4
         with:
           starknet-foundry-version: ${{ env.FOUNDRY_VERSION }}
 

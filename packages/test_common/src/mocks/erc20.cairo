@@ -275,7 +275,7 @@ pub trait IERC20Reentrant<TState> {
 
 #[starknet::contract]
 pub mod ERC20ReentrantMock {
-    use openzeppelin_token::erc20::ERC20Component;
+    use openzeppelin_token::erc20::{DefaultConfig, ERC20Component};
     use starknet::ContractAddress;
     use starknet::SyscallResultTrait;
     use starknet::storage::{MutableVecTrait, Vec};

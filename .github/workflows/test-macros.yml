@@ -1,0 +1,31 @@
+name: Lint and test macros
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  test_macros:
+    name: Lint and test macros
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Check formatting
+        working-directory: ./packages/macros
+        run: |
+          cargo fmt --all --check
+
+      - name: "Run linter (clippy)"
+        working-directory: ./packages/macros
+        run: |
+          cargo clippy --all --all-targets
+
+      - name: "Run tests"
+        working-directory: ./packages/macros
+        run: |
+          cargo test

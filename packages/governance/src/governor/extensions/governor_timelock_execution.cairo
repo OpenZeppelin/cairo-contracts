@@ -69,7 +69,7 @@ pub mod GovernorTimelockExecutionComponent {
     // Extensions
     //
 
-    /// NOTE: Some of these function can reenter through the external calls to the timelock, but we
+    /// NOTE: Some of these functions can reenter through the external calls to the timelock, but we
     /// assume the timelock is trusted and well behaved (according to TimelockController) and this
     /// will not happen.
     pub impl GovernorExecution<

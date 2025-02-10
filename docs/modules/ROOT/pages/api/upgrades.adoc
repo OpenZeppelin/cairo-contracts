@@ -123,7 +123,7 @@ NOTE: The function call comes from the upgraded contract itself and not the acco
 
 NOTE: A similar behavior to `upgrade_and_call` can also be achieved with a list of calls from an account since the {snip6} account standard supports multicall.
 An account can execute a list of calls with xref:IUpgradeable-upgrade[upgrade] being the first element in the list and the extra function call as the second.
-With this approach, the calls will execute from the account's context and can't be front-ran.
+With this approach, the calls will execute from the account's context and can't be front-run.
 
 Emits an {Upgraded} event.
 

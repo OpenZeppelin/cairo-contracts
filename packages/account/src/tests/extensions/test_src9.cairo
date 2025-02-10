@@ -178,7 +178,7 @@ fn test_execute_from_outside_v2_call_equal_to_execute_after() {
 }
 
 #[test]
-#[should_panic(expected: 'SRC9: duplicated nonce')]
+#[should_panic(expected: 'SRC9: duplicate nonce')]
 fn test_execute_from_outside_v2_invalid_nonce() {
     let mut state = setup();
     let outside_execution = setup_outside_execution(RECIPIENT(), false);

@@ -29,7 +29,7 @@ pub mod SRC9Component {
         pub const INVALID_CALLER: felt252 = 'SRC9: invalid caller';
         pub const INVALID_AFTER: felt252 = 'SRC9: now <= execute_after';
         pub const INVALID_BEFORE: felt252 = 'SRC9: now >= execute_before';
-        pub const DUPLICATED_NONCE: felt252 = 'SRC9: duplicate nonce';
+        pub const DUPLICATED_NONCE: felt252 = 'SRC9: duplicated nonce';
         pub const INVALID_SIGNATURE: felt252 = 'SRC9: invalid signature';
     }
 

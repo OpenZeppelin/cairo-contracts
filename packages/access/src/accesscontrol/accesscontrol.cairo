@@ -18,8 +18,10 @@
 /// Extra precautions should be taken to secure accounts with this role.
 #[starknet::component]
 pub mod AccessControlComponent {
+    use core::panic_with_felt252;
     use crate::accesscontrol::account_role_info::AccountRoleInfo;
     use crate::accesscontrol::interface;
+    use crate::accesscontrol::interface::RoleStatus;
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_introspection::src5::SRC5Component::InternalImpl as SRC5InternalImpl;
     use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
@@ -93,6 +95,7 @@ pub mod AccessControlComponent {
         pub const INVALID_CALLER: felt252 = 'Can only renounce role for self';
         pub const MISSING_ROLE: felt252 = 'Caller is missing role';
         pub const INVALID_DELAY: felt252 = 'Delay must be greater than 0';
+        pub const ALREADY_EFFECTIVE: felt252 = 'Role is already effective';
     }
 
     #[embeddable_as(AccessControlImpl)]
@@ -209,9 +212,23 @@ pub mod AccessControlComponent {
         +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>,
     > of interface::IAccessControlWithDelay<ComponentState<TContractState>> {
-        /// Grants `role` to `account` with a delay.
+        /// Returns the account's status for the given role.
         ///
-        /// If `account` has not been already granted `role`, emits a `RoleGranted` event.
+        /// The possible statuses are:
+        ///
+        /// - `NotGranted`: the role has not been granted to the account.
+        /// - `Delayed`: The role has been granted to the account but is not yet active due to a
+        /// time delay.
+        /// - `Effective`: the role has been granted to the account and is currently active.
+        fn get_role_status(
+            self: @ComponentState<TContractState>, role: felt252, account: ContractAddress,
+        ) -> RoleStatus {
+            self.resolve_role_status(role, account)
+        }
+
+        /// Attempts to grant `role` to `account` with the specified activation delay.
+        ///
+        /// May emit a `RoleGrantedWithDelay` event.
         ///
         /// Requirements:
         ///
@@ -252,7 +269,7 @@ pub mod AccessControlComponent {
         /// Returns whether the account can act as the given role.
         ///
         /// The account can act as the role if it is active and the effective from time is before
-        /// the current time.
+        /// the current time or equal to it.
         ///
         /// NOTE: If the effective from timepoint is 0, the role is effective immediately.
         /// This is backwards compatible with implementations that didn't use delays but
@@ -260,19 +277,40 @@ pub mod AccessControlComponent {
         fn is_role_effective(
             self: @ComponentState<TContractState>, role: felt252, account: ContractAddress,
         ) -> bool {
-            let AccountRoleInfo {
-                is_active, effective_from,
-            } = self.AccessControl_role_member.read((role, account));
+            match self.resolve_role_status(role, account) {
+                RoleStatus::Effective => true,
+                RoleStatus::Delayed => false,
+                RoleStatus::NotGranted => false,
+            }
+        }
 
-            if is_active {
+        /// Returns the account's status for the given role.
+        ///
+        /// The possible statuses are:
+        ///
+        /// - `NotGranted`: the role has not been granted to the account.
+        /// - `Delayed`: The role has been granted to the account but is not yet active due to a
+        /// time delay.
+        /// - `Effective`: the role has been granted to the account and is currently active.
+        fn resolve_role_status(
+            self: @ComponentState<TContractState>, role: felt252, account: ContractAddress,
+        ) -> RoleStatus {
+            let AccountRoleInfo {
+                is_granted, effective_from,
+            } = self.AccessControl_role_member.read((role, account));
+            if is_granted {
                 if effective_from == 0 {
-                    true
+                    RoleStatus::Effective
                 } else {
                     let now = starknet::get_block_timestamp();
-                    effective_from <= now
+                    if effective_from <= now {
+                        RoleStatus::Effective
+                    } else {
+                        RoleStatus::Delayed(effective_from)
+                    }
                 }
             } else {
-                false
+                RoleStatus::NotGranted
             }
         }
 
@@ -284,7 +322,7 @@ pub mod AccessControlComponent {
             self: @ComponentState<TContractState>, role: felt252, account: ContractAddress,
         ) -> bool {
             let account_role_info = self.AccessControl_role_member.read((role, account));
-            account_role_info.is_active
+            account_role_info.is_granted
         }
 
         /// Sets `admin_role` as `role`'s admin role.
@@ -295,12 +333,14 @@ pub mod AccessControlComponent {
         fn set_role_admin(
             ref self: ComponentState<TContractState>, role: felt252, admin_role: felt252,
         ) {
-            let previous_admin_role: felt252 = AccessControl::get_role_admin(@self, role);
+            let previous_admin_role = AccessControl::get_role_admin(@self, role);
             self.AccessControl_role_admin.write(role, admin_role);
             self.emit(RoleAdminChanged { role, previous_admin_role, new_admin_role: admin_role });
         }
 
-        /// Attempts to grant `role` to `account`.
+        /// Attempts to grant `role` to `account`. The function does nothing if `role` is already
+        /// effective for `account`. If `role` has been granted to `account`, but is not yet active
+        /// due to a time delay, the delay is removed and `role` becomes effective immediately.
         ///
         /// Internal function without access restriction.
         ///
@@ -308,19 +348,32 @@ pub mod AccessControlComponent {
         fn _grant_role(
             ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress,
         ) {
-            if !self.is_role_granted(role, account) {
-                let caller = starknet::get_caller_address();
-                let role_info = AccountRoleInfo { is_active: true, effective_from: 0 };
-                self.AccessControl_role_member.write((role, account), role_info);
-                self.emit(RoleGranted { role, account, sender: caller });
-            }
+            match self.resolve_role_status(role, account) {
+                RoleStatus::Effective => (),
+                RoleStatus::Delayed |
+                RoleStatus::NotGranted => {
+                    let caller = starknet::get_caller_address();
+                    let role_info = AccountRoleInfo { is_granted: true, effective_from: 0 };
+                    self.AccessControl_role_member.write((role, account), role_info);
+                    self.emit(RoleGranted { role, account, sender: caller });
+                },
+            };
         }
 
-        /// Attempts to grant `role` to `account` that will become effective when `delay` passes.
+        /// Attempts to grant `role` to `account` with the specified activation delay.
+        ///
+        /// The role will become effective after the given delay has passed. If the role is already
+        /// active (`Effective`) for the account, the function will panic. If the role has been
+        /// granted but is not yet active (being in the `Delayed` state), the existing delay will be
+        /// overwritten with the new `delay`.
         ///
         /// Internal function without access restriction.
         ///
         /// May emit a `RoleGrantedWithDelay` event.
+        ///
+        /// Requirements:
+        ///
+        /// - delay must be greater than 0.
         fn _grant_role_with_delay(
             ref self: ComponentState<TContractState>,
             role: felt252,
@@ -328,13 +381,17 @@ pub mod AccessControlComponent {
             delay: u64,
         ) {
             assert(delay > 0, Errors::INVALID_DELAY);
-            if !self.is_role_granted(role, account) {
-                let caller = starknet::get_caller_address();
-                let effective_from = starknet::get_block_timestamp() + delay;
-                let role_info = AccountRoleInfo { is_active: true, effective_from };
-                self.AccessControl_role_member.write((role, account), role_info);
-                self.emit(RoleGrantedWithDelay { role, account, sender: caller, delay });
-            }
+            match self.resolve_role_status(role, account) {
+                RoleStatus::Effective => panic_with_felt252(Errors::ALREADY_EFFECTIVE),
+                RoleStatus::Delayed |
+                RoleStatus::NotGranted => {
+                    let caller = starknet::get_caller_address();
+                    let effective_from = starknet::get_block_timestamp() + delay;
+                    let role_info = AccountRoleInfo { is_granted: true, effective_from };
+                    self.AccessControl_role_member.write((role, account), role_info);
+                    self.emit(RoleGrantedWithDelay { role, account, sender: caller, delay });
+                },
+            };
         }
 
         /// Attempts to revoke `role` from `account`.
@@ -345,12 +402,18 @@ pub mod AccessControlComponent {
         fn _revoke_role(
             ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress,
         ) {
-            if self.is_role_granted(role, account) {
-                let caller = starknet::get_caller_address();
-                let account_role_info = AccountRoleInfo { is_active: false, effective_from: 0 };
-                self.AccessControl_role_member.write((role, account), account_role_info);
-                self.emit(RoleRevoked { role, account, sender: caller });
-            }
+            match self.resolve_role_status(role, account) {
+                RoleStatus::NotGranted => (),
+                RoleStatus::Effective |
+                RoleStatus::Delayed => {
+                    let caller = starknet::get_caller_address();
+                    let account_role_info = AccountRoleInfo {
+                        is_granted: false, effective_from: 0,
+                    };
+                    self.AccessControl_role_member.write((role, account), account_role_info);
+                    self.emit(RoleRevoked { role, account, sender: caller });
+                },
+            };
         }
     }
 
@@ -417,6 +480,22 @@ pub mod AccessControlComponent {
             ref self: ComponentState<TContractState>, role: felt252, account: ContractAddress,
         ) {
             AccessControlCamel::renounceRole(ref self, role, account);
+        }
+
+        // IAccessControlWithDelay
+        fn get_role_status(
+            self: @ComponentState<TContractState>, role: felt252, account: ContractAddress,
+        ) -> RoleStatus {
+            AccessControlWithDelay::get_role_status(self, role, account)
+        }
+
+        fn grant_role_with_delay(
+            ref self: ComponentState<TContractState>,
+            role: felt252,
+            account: ContractAddress,
+            delay: u64,
+        ) {
+            AccessControlWithDelay::grant_role_with_delay(ref self, role, account, delay);
         }
 
         // ISRC5

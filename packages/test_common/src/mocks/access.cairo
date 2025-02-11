@@ -12,10 +12,6 @@ pub mod DualCaseAccessControlMock {
     #[abi(embed_v0)]
     impl AccessControlMixinImpl =
         AccessControlComponent::AccessControlMixinImpl<ContractState>;
-    // AccessControlWithDelay
-    #[abi(embed_v0)]
-    impl AccessControlWithDelayImpl =
-        AccessControlComponent::AccessControlWithDelayImpl<ContractState>;
     impl AccessControlInternalImpl = AccessControlComponent::InternalImpl<ContractState>;
 
     #[storage]

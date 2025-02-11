@@ -15,8 +15,16 @@ pub trait IAccessControl<TState> {
     fn renounce_role(ref self: TState, role: felt252, account: ContractAddress);
 }
 
+#[derive(Drop, Copy, Serde, PartialEq, Debug)]
+pub enum RoleStatus {
+    NotGranted,
+    Delayed: u64,
+    Effective,
+}
+
 #[starknet::interface]
 pub trait IAccessControlWithDelay<TState> {
+    fn get_role_status(self: @TState, role: felt252, account: ContractAddress) -> RoleStatus;
     fn grant_role_with_delay(ref self: TState, role: felt252, account: ContractAddress, delay: u64);
 }
 
@@ -44,6 +52,10 @@ pub trait AccessControlABI<TState> {
     fn grantRole(ref self: TState, role: felt252, account: ContractAddress);
     fn revokeRole(ref self: TState, role: felt252, account: ContractAddress);
     fn renounceRole(ref self: TState, role: felt252, account: ContractAddress);
+
+    // IAccessControlWithDelay
+    fn get_role_status(self: @TState, role: felt252, account: ContractAddress) -> RoleStatus;
+    fn grant_role_with_delay(ref self: TState, role: felt252, account: ContractAddress, delay: u64);
 
     // ISRC5
     fn supports_interface(self: @TState, interface_id: felt252) -> bool;

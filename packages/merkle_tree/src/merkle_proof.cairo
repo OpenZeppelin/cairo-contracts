@@ -25,7 +25,7 @@ pub fn verify<impl Hasher: CommutativeHasher>(
     process_proof::<Hasher>(proof, leaf) == root
 }
 
-/// Version of `verify` using Perdersen as the hashing function.
+/// Version of `verify` using Pedersen as the hashing function.
 pub fn verify_pedersen(proof: Span<felt252>, root: felt252, leaf: felt252) -> bool {
     verify::<PedersenCHasher>(proof, root, leaf)
 }

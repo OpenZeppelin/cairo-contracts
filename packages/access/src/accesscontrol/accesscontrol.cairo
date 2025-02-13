@@ -268,10 +268,10 @@ pub mod AccessControlComponent {
 
         /// Returns whether the account can act as the given role.
         ///
-        /// The account can act as the role if it is active and the effective from time is before
+        /// The account can act as the role if it is active and the `effective_from` time is before
         /// the current time or equal to it.
         ///
-        /// NOTE: If the effective from timepoint is 0, the role is effective immediately.
+        /// NOTE: If the `effective_from` timepoint is 0, the role is effective immediately.
         /// This is backwards compatible with implementations that didn't use delays but
         /// a single boolean flag.
         fn is_role_effective(
@@ -407,10 +407,8 @@ pub mod AccessControlComponent {
                 RoleStatus::Effective |
                 RoleStatus::Delayed => {
                     let caller = starknet::get_caller_address();
-                    let account_role_info = AccountRoleInfo {
-                        is_granted: false, effective_from: 0,
-                    };
-                    self.AccessControl_role_member.write((role, account), account_role_info);
+                    let role_info = AccountRoleInfo { is_granted: false, effective_from: 0 };
+                    self.AccessControl_role_member.write((role, account), role_info);
                     self.emit(RoleRevoked { role, account, sender: caller });
                 },
             };

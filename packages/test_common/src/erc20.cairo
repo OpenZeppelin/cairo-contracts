@@ -1,8 +1,8 @@
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{NAME, SYMBOL};
 use openzeppelin_testing::events::EventSpyExt;
-use openzeppelin_token::erc20::ERC20Component;
 use openzeppelin_token::erc20::ERC20Component::{Approval, Transfer};
+use openzeppelin_token::erc20::ERC20Component;
 use openzeppelin_token::erc20::interface::{IERC20Dispatcher};
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::EventSpy;

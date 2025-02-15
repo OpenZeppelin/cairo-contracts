@@ -16,8 +16,8 @@
 #[starknet::component]
 pub mod OwnableComponent {
     use core::num::traits::Zero;
-    use crate::ownable::interface;
     use crate::ownable::interface::IOwnableTwoStep;
+    use crate::ownable::interface;
     use starknet::ContractAddress;
     use starknet::get_caller_address;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};

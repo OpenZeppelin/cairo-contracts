@@ -1,6 +1,6 @@
 use core::num::traits::Zero;
-use crate::ownable::OwnableComponent;
 use crate::ownable::OwnableComponent::InternalTrait;
+use crate::ownable::OwnableComponent;
 use crate::ownable::interface::{IOwnable, IOwnableCamelOnly};
 use openzeppelin_test_common::mocks::access::DualCaseOwnableMock;
 use openzeppelin_test_common::ownable::OwnableSpyHelpers;

@@ -1,8 +1,8 @@
 use crate::erc721::ERC721Component::{ERC721Impl, InternalImpl as ERC721InternalImpl};
-use crate::erc721::extensions::erc721_enumerable::ERC721EnumerableComponent;
 use crate::erc721::extensions::erc721_enumerable::ERC721EnumerableComponent::{
     ERC721EnumerableImpl, InternalImpl,
 };
+use crate::erc721::extensions::erc721_enumerable::ERC721EnumerableComponent;
 use crate::erc721::extensions::erc721_enumerable::interface::IERC721ENUMERABLE_ID;
 use openzeppelin_introspection::interface::ISRC5_ID;
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;

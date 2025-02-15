@@ -32,6 +32,5 @@ pub(crate) fn LEAVES() -> Span<Leaf> {
             >(),
             amount: 0xaa8565d732c2c9fa5f6c001d89d5c219,
         },
-    ]
-        .span()
+    ].span()
 }

@@ -1,7 +1,7 @@
 use crate::governor::DefaultConfig;
 use crate::governor::GovernorComponent::{InternalExtendedImpl, InternalImpl};
-use crate::governor::extensions::GovernorTimelockExecutionComponent;
 use crate::governor::extensions::GovernorTimelockExecutionComponent::GovernorExecution;
+use crate::governor::extensions::GovernorTimelockExecutionComponent;
 use crate::governor::extensions::interface::{ITimelockedDispatcher, ITimelockedDispatcherTrait};
 use crate::governor::interface::ProposalState;
 use crate::governor::interface::{IGovernorDispatcher, IGovernorDispatcherTrait};

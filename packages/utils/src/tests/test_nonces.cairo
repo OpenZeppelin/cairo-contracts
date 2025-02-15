@@ -1,7 +1,7 @@
 use core::num::traits::Zero;
 use crate::cryptography::interface::INonces;
-use crate::cryptography::nonces::NoncesComponent;
 use crate::cryptography::nonces::NoncesComponent::InternalTrait;
+use crate::cryptography::nonces::NoncesComponent;
 use openzeppelin_test_common::mocks::nonces::NoncesMock;
 use openzeppelin_testing::constants::OWNER;
 

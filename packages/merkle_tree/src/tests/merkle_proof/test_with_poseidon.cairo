@@ -7,11 +7,15 @@ use super::common::{LEAVES, Leaf};
 
 // `ROOT`, `PROOF`, and `MULTI_PROOF` were computed using @ericnordelo/strk-merkle-tree
 const ROOT: felt252 = 0x013f43fdca44b32f5334414b385b46aa1016d0172a1f066eab4cc93636426fcc;
-const PROOF: [felt252; 2] = [
+const PROOF: [
+    felt252
+    ; 2] = [
     0x05b151ebb9201ce27c56a70f5d0571ccfb9d9d62f12b8ccab7801ba87ec21a2f,
     0x2b7d689bd2ff488fd06dfb8eb22f5cdaba1e5d9698d3fabff2f1801852dbb2,
 ];
-const MULTI_PROOF: [felt252; 2] = [
+const MULTI_PROOF: [
+    felt252
+    ; 2] = [
     0x044fdc540a81d0189ed30b49d64136f9e8bd499c942ba170404ef0b9406e524c,
     0x05fb6a626bb2c1e12fc2d6fa7f218ec06928ba5febf4d5677c2c5060827e383b,
 ];
@@ -46,8 +50,7 @@ fn test_invalid_merkle_proof() {
     let hash = leaf_hash(*leaves.at(0));
     let invalid_proof = [
         0x044fdc540a81d0189ed30b49d64136f9e8bd499c942ba170404ef0b9406e524c, 'invalid',
-    ]
-        .span();
+    ].span();
 
     assert!(process_proof::<PoseidonCHasher>(invalid_proof, hash) != ROOT);
     assert!(!verify::<PoseidonCHasher>(invalid_proof, ROOT, hash));
@@ -75,8 +78,7 @@ fn test_invalid_merkle_multi_proof() {
     let leaves_to_prove = [leaf_hash(*leaves.at(0)), leaf_hash(*leaves.at(1))].span();
     let invalid_proof = [
         0x044fdc540a81d0189ed30b49d64136f9e8bd499c942ba170404ef0b9406e524c, 'invalid',
-    ]
-        .span();
+    ].span();
     let proof_flags = [false, false, true].span();
 
     assert!(
@@ -130,8 +132,7 @@ fn test_process_multi_proof_flags_extra_leaves_expected() {
     let leaves = LEAVES();
     let leaves_to_prove = [
         leaf_hash(*leaves.at(0)), leaf_hash(*leaves.at(1)), leaf_hash(*leaves.at(2)),
-    ]
-        .span();
+    ].span();
     let proof = MULTI_PROOF.span();
 
     // For each true one leaf is expected
@@ -146,8 +147,7 @@ fn test_process_multi_proof_flags_extra_proofs_expected() {
     let leaves = LEAVES();
     let leaves_to_prove = [
         leaf_hash(*leaves.at(0)), leaf_hash(*leaves.at(1)), leaf_hash(*leaves.at(2)),
-    ]
-        .span();
+    ].span();
     let proof = MULTI_PROOF.span();
 
     // For each false one proof is expected
@@ -162,8 +162,7 @@ fn test_verify_multi_proof_flags_extra_leaves_expected() {
     let leaves = LEAVES();
     let leaves_to_prove = [
         leaf_hash(*leaves.at(0)), leaf_hash(*leaves.at(1)), leaf_hash(*leaves.at(2)),
-    ]
-        .span();
+    ].span();
     let proof = MULTI_PROOF.span();
 
     // For each true one leaf is expected
@@ -178,8 +177,7 @@ fn test_verify_multi_proof_flags_extra_proofs_expected() {
     let leaves = LEAVES();
     let leaves_to_prove = [
         leaf_hash(*leaves.at(0)), leaf_hash(*leaves.at(1)), leaf_hash(*leaves.at(2)),
-    ]
-        .span();
+    ].span();
     let proof = MULTI_PROOF.span();
 
     // For each false one proof is expected

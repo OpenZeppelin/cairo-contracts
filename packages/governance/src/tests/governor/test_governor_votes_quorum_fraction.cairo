@@ -1,12 +1,12 @@
 use crate::governor::DefaultConfig;
-use crate::governor::GovernorComponent;
 use crate::governor::GovernorComponent::InternalImpl;
-use crate::governor::extensions::GovernorVotesQuorumFractionComponent;
+use crate::governor::GovernorComponent;
 use crate::governor::extensions::GovernorVotesQuorumFractionComponent::{
     GovernorQuorum, GovernorVotes, InternalTrait, QuorumFractionImpl,
 };
-use openzeppelin_test_common::mocks::governor::GovernorQuorumFractionMock;
+use crate::governor::extensions::GovernorVotesQuorumFractionComponent;
 use openzeppelin_test_common::mocks::governor::GovernorQuorumFractionMock::SNIP12MetadataImpl;
+use openzeppelin_test_common::mocks::governor::GovernorQuorumFractionMock;
 use openzeppelin_testing::constants::{OTHER, VOTES_TOKEN, ZERO};
 use openzeppelin_testing::events::EventSpyExt;
 use snforge_std::{EventSpy, spy_events, store, test_address};

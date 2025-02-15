@@ -9,8 +9,8 @@
 #[starknet::component]
 pub mod GovernorVotesComponent {
     use core::num::traits::Zero;
-    use crate::governor::GovernorComponent;
     use crate::governor::GovernorComponent::ComponentState as GovernorComponentState;
+    use crate::governor::GovernorComponent;
     use crate::governor::extensions::interface::IVotesToken;
     use crate::votes::interface::{IVotesDispatcher, IVotesDispatcherTrait};
     use openzeppelin_introspection::src5::SRC5Component;

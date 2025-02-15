@@ -1,13 +1,13 @@
 use core::hash::{HashStateExTrait, HashStateTrait};
 use core::pedersen::PedersenTrait;
 use crate::timelock::OperationState;
-use crate::timelock::TimelockControllerComponent;
 use crate::timelock::TimelockControllerComponent::{
     CallCancelled, CallExecuted, CallSalt, CallScheduled, MinDelayChanged,
 };
 use crate::timelock::TimelockControllerComponent::{
     InternalImpl as TimelockInternalImpl, TimelockImpl,
 };
+use crate::timelock::TimelockControllerComponent;
 use crate::timelock::interface::{TimelockABIDispatcher, TimelockABIDispatcherTrait};
 use crate::timelock::{CANCELLER_ROLE, EXECUTOR_ROLE, PROPOSER_ROLE};
 use openzeppelin_access::accesscontrol::AccessControlComponent::{
@@ -639,7 +639,7 @@ fn test_execute_reentrant_call() {
 
 #[test]
 #[should_panic(expected: 'Timelock: awaiting predecessor')]
-fn test_execute_before_dependency() {   
+fn test_execute_before_dependency() {
     let (mut timelock, mut target) = setup_dispatchers();
     let salt = 0;
     let delay = MIN_DELAY;
@@ -1359,7 +1359,7 @@ fn test__before_call() {
 #[test]
 #[should_panic(expected: 'Timelock: expected Ready op')]
 fn test__before_call_nonexistent_operation() {
-let mut state = COMPONENT_STATE();
+    let mut state = COMPONENT_STATE();
     let predecessor = NO_PREDECESSOR;
 
     // Mock targets

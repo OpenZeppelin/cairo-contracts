@@ -20,15 +20,15 @@
 #[starknet::component]
 pub mod ERC2981Component {
     use core::num::traits::Zero;
-    use crate::common::erc2981::interface;
     use crate::common::erc2981::interface::IERC2981_ID;
-    use openzeppelin_access::accesscontrol::AccessControlComponent;
+    use crate::common::erc2981::interface;
     use openzeppelin_access::accesscontrol::AccessControlComponent::InternalTrait as AccessControlInternalTrait;
-    use openzeppelin_access::ownable::OwnableComponent;
+    use openzeppelin_access::accesscontrol::AccessControlComponent;
     use openzeppelin_access::ownable::OwnableComponent::InternalTrait as OwnableInternalTrait;
-    use openzeppelin_introspection::src5::SRC5Component;
+    use openzeppelin_access::ownable::OwnableComponent;
     use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
+    use openzeppelin_introspection::src5::SRC5Component;
     use starknet::ContractAddress;
     use starknet::storage::{
         Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
@@ -429,8 +429,8 @@ pub impl DefaultConfig of ERC2981Component::ImmutableConfig {
 mod tests {
     use openzeppelin_test_common::mocks::erc2981::ERC2981Mock;
     use starknet::contract_address_const;
-    use super::ERC2981Component;
     use super::ERC2981Component::InternalImpl;
+    use super::ERC2981Component;
 
     type ComponentState = ERC2981Component::ComponentState<ERC2981Mock::ContractState>;
 

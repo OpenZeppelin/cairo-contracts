@@ -1,6 +1,6 @@
 use openzeppelin_testing::events::EventSpyExt;
-use openzeppelin_token::erc721::ERC721Component;
 use openzeppelin_token::erc721::ERC721Component::{Approval, ApprovalForAll, Transfer};
+use openzeppelin_token::erc721::ERC721Component;
 use snforge_std::EventSpy;
 use starknet::ContractAddress;
 

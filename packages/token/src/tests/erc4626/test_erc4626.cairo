@@ -1,11 +1,11 @@
 use core::num::traits::{Bounded, Pow};
 use crate::erc20::ERC20Component::InternalImpl as ERC20InternalImpl;
 use crate::erc20::extensions::erc4626::DefaultConfig;
-use crate::erc20::extensions::erc4626::ERC4626Component;
-use crate::erc20::extensions::erc4626::ERC4626Component::{Deposit, Withdraw};
 use crate::erc20::extensions::erc4626::ERC4626Component::{
     ERC4626Impl, ERC4626MetadataImpl, InternalImpl,
 };
+use crate::erc20::extensions::erc4626::ERC4626Component::{Deposit, Withdraw};
+use crate::erc20::extensions::erc4626::ERC4626Component;
 use crate::erc20::extensions::erc4626::interface::{ERC4626ABIDispatcher, ERC4626ABIDispatcherTrait};
 use openzeppelin_test_common::erc20::ERC20SpyHelpers;
 use openzeppelin_test_common::mocks::erc20::Type;

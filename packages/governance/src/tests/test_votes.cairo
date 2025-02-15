@@ -1,7 +1,7 @@
 use crate::votes::Delegation;
-use crate::votes::VotesComponent;
 use crate::votes::VotesComponent::VotingUnitsTrait;
 use crate::votes::VotesComponent::{DelegateChanged, DelegateVotesChanged, InternalImpl, VotesImpl};
+use crate::votes::VotesComponent;
 use openzeppelin_test_common::mocks::votes::ERC721VotesMock::SNIP12MetadataImpl;
 use openzeppelin_test_common::mocks::votes::{ERC20VotesMock, ERC721VotesMock};
 use openzeppelin_testing as utils;
@@ -9,19 +9,19 @@ use openzeppelin_testing::constants::{DELEGATEE, DELEGATOR, OTHER, RECIPIENT, SU
 use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_token::erc20::ERC20Component::InternalTrait;
 use openzeppelin_token::erc20::interface::IERC20;
-use openzeppelin_token::erc721::ERC721Component::{ERC721CamelOnlyImpl, ERC721Impl};
 use openzeppelin_token::erc721::ERC721Component::{
     ERC721MetadataImpl, InternalImpl as ERC721InternalImpl,
 };
+use openzeppelin_token::erc721::ERC721Component::{ERC721CamelOnlyImpl, ERC721Impl};
 use openzeppelin_token::erc721::interface::IERC721;
 use openzeppelin_utils::cryptography::snip12::OffchainMessageHash;
 use openzeppelin_utils::structs::checkpoint::TraceTrait;
 use snforge_std::signature::stark_curve::{StarkCurveKeyPairImpl, StarkCurveSignerImpl};
-use snforge_std::{EventSpy};
 use snforge_std::{
     spy_events, start_cheat_block_timestamp_global, start_cheat_caller_address,
     start_cheat_chain_id_global, test_address,
 };
+use snforge_std::{EventSpy};
 use starknet::storage::StoragePathEntry;
 use starknet::{ContractAddress, contract_address_const};
 
@@ -504,13 +504,17 @@ fn test_erc721_burn_updates_votes() {
     // Set spy and burn some tokens
     let mut spy = spy_events();
     let burn_amount = 3;
-    for i in 0..burn_amount {
-        mock_state.erc721.burn(i);
-        spy
-            .assert_event_delegate_votes_changed(
-                contract_address, DELEGATOR(), ERC721_INITIAL_MINT - i, ERC721_INITIAL_MINT - i - 1,
-            );
-    };
+    for i in 0
+        ..burn_amount {
+            mock_state.erc721.burn(i);
+            spy
+                .assert_event_delegate_votes_changed(
+                    contract_address,
+                    DELEGATOR(),
+                    ERC721_INITIAL_MINT - i,
+                    ERC721_INITIAL_MINT - i - 1,
+                );
+        };
 
     // We need to move the timestamp forward to be able to call get_past_total_supply
     start_cheat_block_timestamp_global('ts2');

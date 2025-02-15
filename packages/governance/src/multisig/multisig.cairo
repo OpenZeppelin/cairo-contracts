@@ -656,9 +656,9 @@ pub mod MultisigComponent {
         ///
         /// Emits a `QuorumUpdated` event if the quorum changes.
         fn _change_quorum(ref self: ComponentState<TContractState>, new_quorum: u32) {
-            let SignersInfo {
-                quorum: old_quorum, signers_count,
-            } = self.Multisig_signers_info.read();
+            let SignersInfo { quorum: old_quorum, signers_count, } = self
+                .Multisig_signers_info
+                .read();
             assert(new_quorum.is_non_zero(), Errors::ZERO_QUORUM);
             assert(new_quorum <= signers_count, Errors::QUORUM_TOO_HIGH);
             if new_quorum != old_quorum {

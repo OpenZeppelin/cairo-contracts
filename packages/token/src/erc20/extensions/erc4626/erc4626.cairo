@@ -33,13 +33,13 @@
 #[starknet::component]
 pub mod ERC4626Component {
     use core::num::traits::{Bounded, Pow, Zero};
-    use crate::erc20::ERC20Component;
     use crate::erc20::ERC20Component::InternalImpl as ERC20InternalImpl;
+    use crate::erc20::ERC20Component;
     use crate::erc20::extensions::erc4626::interface::IERC4626;
     use crate::erc20::interface::{IERC20, IERC20Metadata};
     use crate::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-    use openzeppelin_utils::math;
     use openzeppelin_utils::math::Rounding;
+    use openzeppelin_utils::math;
     use starknet::ContractAddress;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 

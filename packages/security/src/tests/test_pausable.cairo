@@ -1,6 +1,6 @@
-use crate::PausableComponent;
 use crate::PausableComponent::{InternalImpl, PausableImpl};
 use crate::PausableComponent::{Paused, Unpaused};
+use crate::PausableComponent;
 use openzeppelin_test_common::mocks::security::PausableMock;
 use openzeppelin_testing::constants::CALLER;
 use openzeppelin_testing::events::EventSpyExt;

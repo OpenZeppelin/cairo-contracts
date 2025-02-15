@@ -1,5 +1,5 @@
-use crate::ReentrancyGuardComponent;
 use crate::ReentrancyGuardComponent::InternalImpl;
+use crate::ReentrancyGuardComponent;
 use openzeppelin_test_common::mocks::security::{
     IReentrancyMockDispatcher, IReentrancyMockDispatcherTrait, ReentrancyMock,
 };

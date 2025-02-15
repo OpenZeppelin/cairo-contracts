@@ -154,7 +154,7 @@ fn test_balance_of() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC721: invalid account',))]
+#[should_panic(expected: 'ERC721: invalid account')]
 fn test_balance_of_zero() {
     let (_, dispatcher) = setup_dispatcher();
     dispatcher.balance_of(ZERO());
@@ -167,14 +167,14 @@ fn test_owner_of() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC721: invalid token ID',))]
+#[should_panic(expected: 'ERC721: invalid token ID')]
 fn test_owner_of_non_minted() {
     let (_, dispatcher) = setup_dispatcher();
     dispatcher.owner_of(7);
 }
 
 #[test]
-#[should_panic(expected: ('ERC721: invalid token ID',))]
+#[should_panic(expected: 'ERC721: invalid token ID')]
 fn test_token_uri_non_minted() {
     let (_, dispatcher) = setup_dispatcher();
     dispatcher.token_uri(7);
@@ -204,7 +204,7 @@ fn test_get_approved() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC721: invalid token ID',))]
+#[should_panic(expected: 'ERC721: invalid token ID')]
 fn test_get_approved_nonexistent() {
     let (_, dispatcher) = setup_dispatcher();
     dispatcher.get_approved(NONEXISTENT);
@@ -241,7 +241,7 @@ fn test_approve_from_operator() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC721: unauthorized caller',))]
+#[should_panic(expected: 'ERC721: unauthorized caller')]
 fn test_approve_from_unauthorized() {
     let (_, dispatcher) = setup_dispatcher();
 
@@ -250,7 +250,7 @@ fn test_approve_from_unauthorized() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC721: invalid token ID',))]
+#[should_panic(expected: 'ERC721: invalid token ID')]
 fn test_approve_nonexistent() {
     let (_, dispatcher) = setup_dispatcher();
     dispatcher.approve(SPENDER(), NONEXISTENT);
@@ -329,28 +329,28 @@ fn test_transferFrom_owner() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC721: invalid token ID',))]
+#[should_panic(expected: 'ERC721: invalid token ID')]
 fn test_transfer_from_nonexistent() {
     let (_, dispatcher) = setup_dispatcher();
     dispatcher.transfer_from(OWNER(), RECIPIENT(), NONEXISTENT);
 }
 
 #[test]
-#[should_panic(expected: ('ERC721: invalid token ID',))]
+#[should_panic(expected: 'ERC721: invalid token ID')]
 fn test_transferFrom_nonexistent() {
     let (_, dispatcher) = setup_dispatcher();
     dispatcher.transferFrom(OWNER(), RECIPIENT(), NONEXISTENT);
 }
 
 #[test]
-#[should_panic(expected: ('ERC721: invalid receiver',))]
+#[should_panic(expected: 'ERC721: invalid receiver')]
 fn test_transfer_from_to_zero() {
     let (_, dispatcher) = setup_dispatcher();
     dispatcher.transfer_from(OWNER(), ZERO(), TOKEN_1);
 }
 
 #[test]
-#[should_panic(expected: ('ERC721: invalid receiver',))]
+#[should_panic(expected: 'ERC721: invalid receiver')]
 fn test_transferFrom_to_zero() {
     let (_, dispatcher) = setup_dispatcher();
     dispatcher.transferFrom(OWNER(), ZERO(), TOKEN_1);
@@ -453,7 +453,7 @@ fn test_transferFrom_approved_for_all() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC721: unauthorized caller',))]
+#[should_panic(expected: 'ERC721: unauthorized caller')]
 fn test_transfer_from_unauthorized() {
     let (_, dispatcher) = setup_dispatcher();
     start_cheat_caller_address(dispatcher.contract_address, OTHER());
@@ -461,7 +461,7 @@ fn test_transfer_from_unauthorized() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC721: unauthorized caller',))]
+#[should_panic(expected: 'ERC721: unauthorized caller')]
 fn test_transferFrom_unauthorized() {
     let (_, dispatcher) = setup_dispatcher();
     start_cheat_caller_address(dispatcher.contract_address, OTHER());
@@ -535,7 +535,7 @@ fn test_safeTransferFrom_to_receiver() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC721: safe transfer failed',))]
+#[should_panic(expected: 'ERC721: safe transfer failed')]
 fn test_safe_transfer_from_to_receiver_failure() {
     let (_, dispatcher) = setup_dispatcher();
     let receiver = setup_receiver();
@@ -546,7 +546,7 @@ fn test_safe_transfer_from_to_receiver_failure() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC721: safe transfer failed',))]
+#[should_panic(expected: 'ERC721: safe transfer failed')]
 fn test_safeTransferFrom_to_receiver_failure() {
     let (_, dispatcher) = setup_dispatcher();
     let receiver = setup_receiver();
@@ -579,28 +579,28 @@ fn test_safeTransferFrom_to_non_receiver() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC721: invalid token ID',))]
+#[should_panic(expected: 'ERC721: invalid token ID')]
 fn test_safe_transfer_from_nonexistent() {
     let (_, dispatcher) = setup_dispatcher();
     dispatcher.safe_transfer_from(OWNER(), RECIPIENT(), NONEXISTENT, DATA(true));
 }
 
 #[test]
-#[should_panic(expected: ('ERC721: invalid token ID',))]
+#[should_panic(expected: 'ERC721: invalid token ID')]
 fn test_safeTransferFrom_nonexistent() {
     let (_, dispatcher) = setup_dispatcher();
     dispatcher.safeTransferFrom(OWNER(), RECIPIENT(), NONEXISTENT, DATA(true));
 }
 
 #[test]
-#[should_panic(expected: ('ERC721: invalid receiver',))]
+#[should_panic(expected: 'ERC721: invalid receiver')]
 fn test_safe_transfer_from_to_zero() {
     let (_, dispatcher) = setup_dispatcher();
     dispatcher.safe_transfer_from(OWNER(), ZERO(), TOKEN_1, DATA(true));
 }
 
 #[test]
-#[should_panic(expected: ('ERC721: invalid receiver',))]
+#[should_panic(expected: 'ERC721: invalid receiver')]
 fn test_safeTransferFrom_to_zero() {
     let (_, dispatcher) = setup_dispatcher();
     dispatcher.safeTransferFrom(OWNER(), ZERO(), TOKEN_1, DATA(true));
@@ -719,7 +719,7 @@ fn test_safeTransferFrom_approved_for_all() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC721: unauthorized caller',))]
+#[should_panic(expected: 'ERC721: unauthorized caller')]
 fn test_safe_transfer_from_unauthorized() {
     let (_, dispatcher) = setup_dispatcher();
     start_cheat_caller_address(dispatcher.contract_address, OTHER());
@@ -727,7 +727,7 @@ fn test_safe_transfer_from_unauthorized() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC721: unauthorized caller',))]
+#[should_panic(expected: 'ERC721: unauthorized caller')]
 fn test_safeTransferFrom_unauthorized() {
     let (_, dispatcher) = setup_dispatcher();
     start_cheat_caller_address(dispatcher.contract_address, OTHER());
@@ -749,7 +749,7 @@ fn test_transfer_ownership() {
 }
 
 #[test]
-#[should_panic(expected: ('New owner is the zero address',))]
+#[should_panic(expected: 'New owner is the zero address')]
 fn test_transfer_ownership_to_zero() {
     let (_, mut dispatcher) = setup_dispatcher();
     start_cheat_caller_address(dispatcher.contract_address, OWNER());
@@ -757,7 +757,7 @@ fn test_transfer_ownership_to_zero() {
 }
 
 #[test]
-#[should_panic(expected: ('Caller is not the owner',))]
+#[should_panic(expected: 'Caller is not the owner')]
 fn test_transfer_ownership_from_nonowner() {
     let (_, mut dispatcher) = setup_dispatcher();
     start_cheat_caller_address(dispatcher.contract_address, OTHER());
@@ -775,7 +775,7 @@ fn test_transferOwnership() {
 }
 
 #[test]
-#[should_panic(expected: ('New owner is the zero address',))]
+#[should_panic(expected: 'New owner is the zero address')]
 fn test_transferOwnership_to_zero() {
     let (_, mut dispatcher) = setup_dispatcher();
     start_cheat_caller_address(dispatcher.contract_address, OWNER());
@@ -783,7 +783,7 @@ fn test_transferOwnership_to_zero() {
 }
 
 #[test]
-#[should_panic(expected: ('Caller is not the owner',))]
+#[should_panic(expected: 'Caller is not the owner')]
 fn test_transferOwnership_from_nonowner() {
     let (_, mut dispatcher) = setup_dispatcher();
     start_cheat_caller_address(dispatcher.contract_address, OTHER());
@@ -805,7 +805,7 @@ fn test_renounce_ownership() {
 }
 
 #[test]
-#[should_panic(expected: ('Caller is not the owner',))]
+#[should_panic(expected: 'Caller is not the owner')]
 fn test_renounce_ownership_from_nonowner() {
     let (_, mut dispatcher) = setup_dispatcher();
     start_cheat_caller_address(dispatcher.contract_address, OTHER());
@@ -823,7 +823,7 @@ fn test_renounceOwnership() {
 }
 
 #[test]
-#[should_panic(expected: ('Caller is not the owner',))]
+#[should_panic(expected: 'Caller is not the owner')]
 fn test_renounceOwnership_from_nonowner() {
     let (_, mut dispatcher) = setup_dispatcher();
     start_cheat_caller_address(dispatcher.contract_address, OTHER());
@@ -835,7 +835,7 @@ fn test_renounceOwnership_from_nonowner() {
 //
 
 #[test]
-#[should_panic(expected: ('Caller is not the owner',))]
+#[should_panic(expected: 'Caller is not the owner')]
 fn test_upgrade_unauthorized() {
     let (_, mut v1) = setup_dispatcher();
     start_cheat_caller_address(v1.contract_address, OTHER());
@@ -843,7 +843,7 @@ fn test_upgrade_unauthorized() {
 }
 
 #[test]
-#[should_panic(expected: ('Class hash cannot be zero',))]
+#[should_panic(expected: 'Class hash cannot be zero')]
 fn test_upgrade_with_class_hash_zero() {
     let (_, mut v1) = setup_dispatcher();
 

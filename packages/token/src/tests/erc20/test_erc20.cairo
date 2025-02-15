@@ -122,14 +122,14 @@ fn test_approve() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC20: approve from 0',))]
+#[should_panic(expected: 'ERC20: approve from 0')]
 fn test_approve_from_zero() {
     let mut state = setup();
     state.approve(SPENDER(), VALUE);
 }
 
 #[test]
-#[should_panic(expected: ('ERC20: approve to 0',))]
+#[should_panic(expected: 'ERC20: approve to 0')]
 fn test_approve_to_zero() {
     let mut state = setup();
     start_cheat_caller_address(test_address(), OWNER());
@@ -152,14 +152,14 @@ fn test__approve() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC20: approve from 0',))]
+#[should_panic(expected: 'ERC20: approve from 0')]
 fn test__approve_from_zero() {
     let mut state = setup();
     state._approve(ZERO(), SPENDER(), VALUE);
 }
 
 #[test]
-#[should_panic(expected: ('ERC20: approve to 0',))]
+#[should_panic(expected: 'ERC20: approve to 0')]
 fn test__approve_to_zero() {
     let mut state = setup();
     start_cheat_caller_address(test_address(), OWNER());
@@ -187,7 +187,7 @@ fn test_transfer() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC20: insufficient balance',))]
+#[should_panic(expected: 'ERC20: insufficient balance')]
 fn test_transfer_not_enough_balance() {
     let mut state = setup();
     start_cheat_caller_address(test_address(), OWNER());
@@ -197,14 +197,14 @@ fn test_transfer_not_enough_balance() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC20: transfer from 0',))]
+#[should_panic(expected: 'ERC20: transfer from 0')]
 fn test_transfer_from_zero() {
     let mut state = setup();
     state.transfer(RECIPIENT(), VALUE);
 }
 
 #[test]
-#[should_panic(expected: ('ERC20: transfer to 0',))]
+#[should_panic(expected: 'ERC20: transfer to 0')]
 fn test_transfer_to_zero() {
     let mut state = setup();
     start_cheat_caller_address(test_address(), OWNER());
@@ -225,7 +225,7 @@ fn test__transfer() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC20: insufficient balance',))]
+#[should_panic(expected: 'ERC20: insufficient balance')]
 fn test__transfer_not_enough_balance() {
     let mut state = setup();
     start_cheat_caller_address(test_address(), OWNER());
@@ -235,14 +235,14 @@ fn test__transfer_not_enough_balance() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC20: transfer from 0',))]
+#[should_panic(expected: 'ERC20: transfer from 0')]
 fn test__transfer_from_zero() {
     let mut state = setup();
     state._transfer(ZERO(), RECIPIENT(), VALUE);
 }
 
 #[test]
-#[should_panic(expected: ('ERC20: transfer to 0',))]
+#[should_panic(expected: 'ERC20: transfer to 0')]
 fn test__transfer_to_zero() {
     let mut state = setup();
     state._transfer(OWNER(), ZERO(), VALUE);
@@ -289,7 +289,7 @@ fn test_transfer_from_doesnt_consume_infinite_allowance() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC20: insufficient allowance',))]
+#[should_panic(expected: 'ERC20: insufficient allowance')]
 fn test_transfer_from_greater_than_allowance() {
     let mut state = setup();
     start_cheat_caller_address(test_address(), OWNER());
@@ -301,7 +301,7 @@ fn test_transfer_from_greater_than_allowance() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC20: transfer to 0',))]
+#[should_panic(expected: 'ERC20: transfer to 0')]
 fn test_transfer_from_to_zero_address() {
     let mut state = setup();
     start_cheat_caller_address(test_address(), OWNER());
@@ -312,7 +312,7 @@ fn test_transfer_from_to_zero_address() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC20: insufficient allowance',))]
+#[should_panic(expected: 'ERC20: insufficient allowance')]
 fn test_transfer_from_from_zero_address() {
     let mut state = setup();
     state.transfer_from(ZERO(), RECIPIENT(), VALUE);
@@ -355,7 +355,7 @@ fn test_transferFrom_doesnt_consume_infinite_allowance() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC20: insufficient allowance',))]
+#[should_panic(expected: 'ERC20: insufficient allowance')]
 fn test_transferFrom_greater_than_allowance() {
     let mut state = setup();
     start_cheat_caller_address(test_address(), OWNER());
@@ -367,7 +367,7 @@ fn test_transferFrom_greater_than_allowance() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC20: transfer to 0',))]
+#[should_panic(expected: 'ERC20: transfer to 0')]
 fn test_transferFrom_to_zero_address() {
     let mut state = setup();
     start_cheat_caller_address(test_address(), OWNER());
@@ -378,7 +378,7 @@ fn test_transferFrom_to_zero_address() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC20: insufficient allowance',))]
+#[should_panic(expected: 'ERC20: insufficient allowance')]
 fn test_transferFrom_from_zero_address() {
     let mut state = setup();
     state.transferFrom(ZERO(), RECIPIENT(), VALUE);
@@ -435,7 +435,7 @@ fn test_mint() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC20: mint to 0',))]
+#[should_panic(expected: 'ERC20: mint to 0')]
 fn test_mint_to_zero() {
     let mut state = COMPONENT_STATE();
     state.mint(ZERO(), VALUE);
@@ -460,7 +460,7 @@ fn test_burn() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC20: insufficient balance',))]
+#[should_panic(expected: 'ERC20: insufficient balance')]
 fn test_burn_insufficient_balance() {
     let mut state = setup();
     let overflow_amt = SUPPLY + 1;
@@ -469,7 +469,7 @@ fn test_burn_insufficient_balance() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC20: burn from 0',))]
+#[should_panic(expected: 'ERC20: burn from 0')]
 fn test_burn_from_zero() {
     let mut state = setup();
     state.burn(ZERO(), VALUE);
@@ -496,7 +496,7 @@ fn test_update_from_non_zero_to_non_zero() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC20: insufficient balance',))]
+#[should_panic(expected: 'ERC20: insufficient balance')]
 fn test_update_from_non_zero_to_non_zero_insufficient_balance() {
     let mut state = setup();
     let contract_address = test_address();
@@ -523,7 +523,7 @@ fn test_update_from_non_zero_to_zero() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC20: insufficient balance',))]
+#[should_panic(expected: 'ERC20: insufficient balance')]
 fn test_update_from_non_zero_to_zero_insufficient_balance() {
     let mut state = setup();
     let contract_address = test_address();

@@ -64,16 +64,13 @@ pub fn with_components(attribute_stream: TokenStream, item_stream: TokenStream) 
 
     // 2. Parse the item stream
     let db = SimpleParserDatabase::default();
-    let parsed = db.parse_virtual(item_stream.to_string());
-    if parsed.is_err() {
-        let error_message = parsed.err().unwrap().format(&db);
-        let error = Diagnostic::error(error_message);
-        return ProcMacroResult::new(TokenStream::empty()).with_diagnostics(error.into());
+    let (content, mut diagnostics) = match db.parse_virtual(item_stream.to_string()) {
+        Ok(node) => build_patch(&db, node, components_info.clone()),
+        Err(err) => {
+            let error = Diagnostic::error(err.format(&db));
+            return ProcMacroResult::new(TokenStream::empty()).with_diagnostics(error.into());
+        }
     }
-
-    // 3. Build the patch
-    let node = parsed.unwrap();
-    let (content, mut diagnostics) = build_patch(&db, node, components_info.clone());
 
     // 4. Add warnings for each component
     for component_info in components_info.iter() {

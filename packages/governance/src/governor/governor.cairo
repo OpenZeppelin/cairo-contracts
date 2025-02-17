@@ -31,7 +31,7 @@ pub mod GovernorComponent {
     }
 
     #[event]
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub enum Event {
         ProposalCreated: ProposalCreated,
         ProposalQueued: ProposalQueued,
@@ -42,7 +42,7 @@ pub mod GovernorComponent {
     }
 
     /// Emitted when `call` is scheduled as part of operation `id`.
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct ProposalCreated {
         #[key]
         pub proposal_id: felt252,
@@ -56,7 +56,7 @@ pub mod GovernorComponent {
     }
 
     /// Emitted when a proposal is queued.
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct ProposalQueued {
         #[key]
         pub proposal_id: felt252,
@@ -64,21 +64,21 @@ pub mod GovernorComponent {
     }
 
     /// Emitted when a proposal is executed.
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct ProposalExecuted {
         #[key]
         pub proposal_id: felt252,
     }
 
     /// Emitted when a proposal is canceled.
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct ProposalCanceled {
         #[key]
         pub proposal_id: felt252,
     }
 
     /// Emitted when a vote is cast without params.
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct VoteCast {
         #[key]
         pub voter: ContractAddress,
@@ -93,7 +93,7 @@ pub mod GovernorComponent {
     /// NOTE: `support` values should be seen as buckets. Their interpretation depends on the voting
     /// module used. `params` are additional encoded parameters. Their interpretation also
     /// depends on the voting module used.
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct VoteCastWithParams {
         #[key]
         pub voter: ContractAddress,

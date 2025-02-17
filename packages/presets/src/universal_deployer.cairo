@@ -18,12 +18,12 @@ pub mod UniversalDeployer {
     pub struct Storage {}
 
     #[event]
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub(crate) enum Event {
         ContractDeployed: ContractDeployed,
     }
 
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub(crate) struct ContractDeployed {
         pub(crate) address: ContractAddress,
         pub(crate) deployer: ContractAddress,

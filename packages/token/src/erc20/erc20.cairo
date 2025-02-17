@@ -36,14 +36,14 @@ pub mod ERC20Component {
     }
 
     #[event]
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub enum Event {
         Transfer: Transfer,
         Approval: Approval,
     }
 
     /// Emitted when tokens are moved from address `from` to address `to`.
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct Transfer {
         #[key]
         pub from: ContractAddress,
@@ -54,7 +54,7 @@ pub mod ERC20Component {
 
     /// Emitted when the allowance of a `spender` for an `owner` is set by a call
     /// to `approve`. `value` is the new allowance.
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct Approval {
         #[key]
         pub owner: ContractAddress,

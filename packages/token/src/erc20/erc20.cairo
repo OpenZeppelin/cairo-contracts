@@ -20,8 +20,8 @@ pub mod ERC20Component {
     use openzeppelin_utils::cryptography::snip12::{
         OffchainMessageHash, SNIP12Metadata, StarknetDomain, StructHash,
     };
-    use openzeppelin_utils::nonces::NoncesComponent::InternalTrait as NoncesInternalTrait;
     use openzeppelin_utils::nonces::NoncesComponent;
+    use openzeppelin_utils::nonces::NoncesComponent::InternalTrait as NoncesInternalTrait;
     use starknet::ContractAddress;
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};

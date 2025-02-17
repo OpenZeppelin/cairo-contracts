@@ -1,8 +1,8 @@
 use crate::erc721::ERC721Component::{ERC721Impl, InternalImpl as ERC721InternalImpl};
+use crate::erc721::extensions::erc721_enumerable::ERC721EnumerableComponent;
 use crate::erc721::extensions::erc721_enumerable::ERC721EnumerableComponent::{
     ERC721EnumerableImpl, InternalImpl,
 };
-use crate::erc721::extensions::erc721_enumerable::ERC721EnumerableComponent;
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin_test_common::mocks::erc721::ERC721EnumerableMock;
 use openzeppelin_testing::constants::{OWNER, RECIPIENT};
@@ -37,12 +37,11 @@ fn setup(supply: u32) -> (ComponentState, Span<u256>) {
     state.initializer();
 
     let mut tokens_list = array![];
-    for i in 0
-        ..supply {
-            let token_id = 'TOKEN'.into() + i.into();
-            mock_state.erc721.mint(OWNER(), token_id);
-            tokens_list.append(token_id);
-        };
+    for i in 0..supply {
+        let token_id = 'TOKEN'.into() + i.into();
+        mock_state.erc721.mint(OWNER(), token_id);
+        tokens_list.append(token_id);
+    };
 
     (state, tokens_list.span())
 }
@@ -180,12 +179,10 @@ fn assert_token_of_owner_by_index(owner: ContractAddress, expected_token_list: S
     let expected_list_len = expected_token_list.len().into();
     assert_eq!(owner_bal, expected_list_len);
 
-    for i in 0
-        ..expected_token_list
-            .len() {
-                let token = state.token_of_owner_by_index(owner, i.into());
-                assert_eq!(token, *expected_token_list.at(i));
-            };
+    for i in 0..expected_token_list.len() {
+        let token = state.token_of_owner_by_index(owner, i.into());
+        assert_eq!(token, *expected_token_list.at(i));
+    };
 }
 
 fn assert_token_by_index(expected_token_list: Span<u256>) {
@@ -196,12 +193,10 @@ fn assert_token_by_index(expected_token_list: Span<u256>) {
     let expected_list_len = expected_token_list.len().into();
     assert_eq!(total_supply, expected_list_len);
 
-    for i in 0
-        ..expected_token_list
-            .len() {
-                let token = state.token_by_index(i.into());
-                assert_eq!(token, *expected_token_list.at(i));
-            };
+    for i in 0..expected_token_list.len() {
+        let token = state.token_by_index(i.into());
+        assert_eq!(token, *expected_token_list.at(i));
+    };
 }
 
 fn assert_all_tokens_index_to_id(index: u32, expected_token_id: u256) {

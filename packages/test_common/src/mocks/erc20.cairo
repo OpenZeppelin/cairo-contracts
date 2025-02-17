@@ -365,12 +365,9 @@ pub mod ERC20ReentrantMock {
             let target = self.reenter_target.read();
             let selector = self.reenter_selector.read();
             let mut calldata = array![];
-            for i in 0
-                ..self
-                    .reenter_calldata
-                    .len() {
-                        calldata.append(self.reenter_calldata.at(i).read());
-                    };
+            for i in 0..self.reenter_calldata.len() {
+                calldata.append(self.reenter_calldata.at(i).read());
+            };
             call_contract_syscall(target, selector, calldata.span()).unwrap_syscall();
         }
 

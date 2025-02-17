@@ -1,5 +1,5 @@
-use crate::universal_deployer::UniversalDeployer::ContractDeployed;
 use crate::universal_deployer::UniversalDeployer;
+use crate::universal_deployer::UniversalDeployer::ContractDeployed;
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{CALLER, NAME, RECIPIENT, SALT, SUPPLY, SYMBOL};
 use openzeppelin_testing::events::EventSpyExt;

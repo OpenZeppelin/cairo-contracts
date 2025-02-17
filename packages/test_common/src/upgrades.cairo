@@ -1,6 +1,6 @@
 use openzeppelin_testing::events::EventSpyExt;
-use openzeppelin_upgrades::UpgradeableComponent::Upgraded;
 use openzeppelin_upgrades::UpgradeableComponent;
+use openzeppelin_upgrades::UpgradeableComponent::Upgraded;
 use snforge_std::EventSpy;
 use starknet::{ClassHash, ContractAddress};
 

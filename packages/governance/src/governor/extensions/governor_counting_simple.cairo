@@ -7,10 +7,10 @@
 /// Extension of GovernorComponent for simple vote counting with three options.
 #[starknet::component]
 pub mod GovernorCountingSimpleComponent {
+    use crate::governor::GovernorComponent;
     use crate::governor::GovernorComponent::{
         ComponentState as GovernorComponentState, InternalTrait,
     };
-    use crate::governor::GovernorComponent;
     use openzeppelin_introspection::src5::SRC5Component;
     use starknet::ContractAddress;
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePathEntry};

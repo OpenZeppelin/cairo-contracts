@@ -19,14 +19,14 @@ pub mod TimelockControllerComponent {
     use core::pedersen::PedersenTrait;
     use crate::timelock::interface::{ITimelock, OperationState, TimelockABI};
     use crate::utils::call_impls::{CallPartialEq, HashCallImpl, HashCallsImpl};
+    use openzeppelin_access::accesscontrol::AccessControlComponent;
     use openzeppelin_access::accesscontrol::AccessControlComponent::InternalTrait as AccessControlInternalTrait;
     use openzeppelin_access::accesscontrol::AccessControlComponent::{
         AccessControlCamelImpl, AccessControlImpl,
     };
-    use openzeppelin_access::accesscontrol::AccessControlComponent;
     use openzeppelin_access::accesscontrol::DEFAULT_ADMIN_ROLE;
-    use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
     use openzeppelin_introspection::src5::SRC5Component;
+    use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
     use starknet::ContractAddress;
     use starknet::SyscallResultTrait;
     use starknet::account::Call;

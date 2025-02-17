@@ -9,10 +9,10 @@
 /// GovernorTimelockExecutionComponent.
 #[starknet::component]
 pub mod GovernorCoreExecutionComponent {
+    use crate::governor::GovernorComponent;
     use crate::governor::GovernorComponent::{
         ComponentState as GovernorComponentState, InternalExtendedTrait,
     };
-    use crate::governor::GovernorComponent;
     use crate::governor::interface::ProposalState;
     use openzeppelin_introspection::src5::SRC5Component;
     use starknet::account::Call;

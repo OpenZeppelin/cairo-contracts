@@ -1,7 +1,7 @@
 use core::num::traits::Bounded;
+use crate::erc20::ERC20Component;
 use crate::erc20::ERC20Component::{ERC20CamelOnlyImpl, ERC20Impl};
 use crate::erc20::ERC20Component::{ERC20MetadataImpl, InternalImpl};
-use crate::erc20::ERC20Component;
 use openzeppelin_test_common::erc20::ERC20SpyHelpers;
 use openzeppelin_test_common::mocks::erc20::{DualCaseERC20Mock, SnakeERC20MockWithHooks};
 use openzeppelin_testing::constants::{NAME, OWNER, RECIPIENT, SPENDER, SUPPLY, SYMBOL, VALUE, ZERO};

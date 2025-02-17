@@ -1,6 +1,6 @@
+use crate::EthAccountComponent;
 use crate::EthAccountComponent::{InternalTrait, SRC6CamelOnlyImpl};
 use crate::EthAccountComponent::{PublicKeyCamelImpl, PublicKeyImpl};
-use crate::EthAccountComponent;
 use crate::interface::{EthAccountABIDispatcher, EthAccountABIDispatcherTrait};
 use crate::interface::{ISRC6, ISRC6_ID};
 use crate::utils::secp256_point::{DebugSecp256Point, Secp256PointPartialEq};

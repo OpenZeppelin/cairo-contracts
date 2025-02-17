@@ -10,9 +10,9 @@
 pub mod ERC1155ReceiverComponent {
     use crate::erc1155::interface::IERC1155_RECEIVER_ID;
     use crate::erc1155::interface::{ERC1155ReceiverABI, IERC1155Receiver, IERC1155ReceiverCamel};
+    use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
-    use openzeppelin_introspection::src5::SRC5Component;
     use starknet::ContractAddress;
 
     #[storage]

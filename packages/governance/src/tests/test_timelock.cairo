@@ -1,13 +1,13 @@
 use core::hash::{HashStateExTrait, HashStateTrait};
 use core::pedersen::PedersenTrait;
 use crate::timelock::OperationState;
+use crate::timelock::TimelockControllerComponent;
 use crate::timelock::TimelockControllerComponent::{
     CallCancelled, CallExecuted, CallSalt, CallScheduled, MinDelayChanged,
 };
 use crate::timelock::TimelockControllerComponent::{
     InternalImpl as TimelockInternalImpl, TimelockImpl,
 };
-use crate::timelock::TimelockControllerComponent;
 use crate::timelock::interface::{TimelockABIDispatcher, TimelockABIDispatcherTrait};
 use crate::timelock::{CANCELLER_ROLE, EXECUTOR_ROLE, PROPOSER_ROLE};
 use openzeppelin_access::accesscontrol::AccessControlComponent::{

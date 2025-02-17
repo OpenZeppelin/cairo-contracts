@@ -104,31 +104,30 @@ pub fn process_multi_proof<impl Hasher: CommutativeHasher>(
     // otherwise we get the next hash.
     // 2. Depending on the flag, either another value from the "main queue" (merging branches) or an
     // element from the `proof` array.
-    for i in 0
-        ..proof_flags_len {
-            let a = if leaf_pos < leaves_len {
+    for i in 0..proof_flags_len {
+        let a = if leaf_pos < leaves_len {
+            leaf_pos += 1;
+            leaves.at(leaf_pos - 1)
+        } else {
+            hash_pos += 1;
+            hashes.at(hash_pos - 1)
+        };
+
+        let b = if *proof_flags.at(i) {
+            if leaf_pos < leaves_len {
                 leaf_pos += 1;
                 leaves.at(leaf_pos - 1)
             } else {
                 hash_pos += 1;
                 hashes.at(hash_pos - 1)
-            };
-
-            let b = if *proof_flags.at(i) {
-                if leaf_pos < leaves_len {
-                    leaf_pos += 1;
-                    leaves.at(leaf_pos - 1)
-                } else {
-                    hash_pos += 1;
-                    hashes.at(hash_pos - 1)
-                }
-            } else {
-                proof_pos += 1;
-                proof.at(proof_pos - 1)
-            };
-
-            hashes.append(Hasher::commutative_hash(*a, *b));
+            }
+        } else {
+            proof_pos += 1;
+            proof.at(proof_pos - 1)
         };
+
+        hashes.append(Hasher::commutative_hash(*a, *b));
+    };
 
     let root = if proof_flags_len > 0 {
         hashes.at(proof_flags_len - 1)

@@ -1,8 +1,8 @@
 use core::num::traits::Zero;
+use crate::erc721;
+use crate::erc721::ERC721Component;
 use crate::erc721::ERC721Component::{ERC721CamelOnlyImpl, ERC721Impl};
 use crate::erc721::ERC721Component::{ERC721MetadataImpl, InternalImpl};
-use crate::erc721::ERC721Component;
-use crate::erc721;
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin_test_common::erc721::ERC721SpyHelpers;
 use openzeppelin_test_common::mocks::erc721::{DualCaseERC721Mock, SnakeERC721MockWithHooks};

@@ -3,8 +3,8 @@
 
 use core::ecdsa::check_ecdsa_signature;
 use crate::interface::{EthPublicKey, P256PublicKey};
-use starknet::secp256_trait::{Secp256PointTrait, Secp256Trait};
 use starknet::secp256_trait;
+use starknet::secp256_trait::{Secp256PointTrait, Secp256Trait};
 
 /// A signature format compatible with the family of secp256 curves.
 #[derive(Copy, Drop, Serde)]

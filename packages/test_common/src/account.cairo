@@ -1,7 +1,7 @@
 use core::hash::{HashStateExTrait, HashStateTrait};
 use core::poseidon::PoseidonTrait;
-use openzeppelin_account::AccountComponent::{OwnerAdded, OwnerRemoved};
 use openzeppelin_account::AccountComponent;
+use openzeppelin_account::AccountComponent::{OwnerAdded, OwnerRemoved};
 use openzeppelin_testing::constants::TRANSACTION_HASH;
 use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_testing::signing::StarkKeyPair;

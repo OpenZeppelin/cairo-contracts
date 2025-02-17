@@ -1,7 +1,7 @@
 use core::num::traits::Zero;
+use crate::AccountComponent;
 use crate::AccountComponent::{InternalTrait, SRC6CamelOnlyImpl};
 use crate::AccountComponent::{PublicKeyCamelImpl, PublicKeyImpl};
-use crate::AccountComponent;
 use crate::interface::{AccountABIDispatcher, AccountABIDispatcherTrait};
 use crate::interface::{ISRC6, ISRC6_ID};
 use openzeppelin_introspection::interface::{ISRC5, ISRC5_ID};

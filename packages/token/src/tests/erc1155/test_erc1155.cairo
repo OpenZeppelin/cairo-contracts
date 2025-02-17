@@ -1,8 +1,8 @@
 use core::num::traits::Zero;
+use crate::erc1155;
+use crate::erc1155::ERC1155Component;
 use crate::erc1155::ERC1155Component::ERC1155CamelImpl;
 use crate::erc1155::ERC1155Component::{ERC1155Impl, ERC1155MetadataURIImpl, InternalImpl};
-use crate::erc1155::ERC1155Component;
-use crate::erc1155;
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin_test_common::erc1155::{
     ERC1155SpyHelpers, get_ids_and_split_values, get_ids_and_values,

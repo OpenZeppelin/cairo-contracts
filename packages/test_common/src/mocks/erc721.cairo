@@ -274,8 +274,8 @@ pub mod DualCaseERC721ReceiverMock {
 pub mod ERC721EnumerableMock {
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_token::erc721::ERC721Component;
-    use openzeppelin_token::erc721::extensions::ERC721EnumerableComponent::InternalTrait;
     use openzeppelin_token::erc721::extensions::ERC721EnumerableComponent;
+    use openzeppelin_token::erc721::extensions::ERC721EnumerableComponent::InternalTrait;
     use starknet::ContractAddress;
 
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);

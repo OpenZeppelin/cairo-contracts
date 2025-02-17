@@ -1,6 +1,6 @@
 use core::num::traits::Zero;
-use crate::ownable::OwnableComponent::{InternalTrait, OwnershipTransferStarted};
 use crate::ownable::OwnableComponent;
+use crate::ownable::OwnableComponent::{InternalTrait, OwnershipTransferStarted};
 use crate::ownable::interface::{IOwnableTwoStep, IOwnableTwoStepCamelOnly};
 use openzeppelin_test_common::mocks::access::DualCaseTwoStepOwnableMock;
 use openzeppelin_test_common::ownable::OwnableSpyHelpers;

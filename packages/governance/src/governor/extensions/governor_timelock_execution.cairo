@@ -23,10 +23,10 @@
 #[starknet::component]
 pub mod GovernorTimelockExecutionComponent {
     use core::num::traits::Zero;
+    use crate::governor::GovernorComponent;
     use crate::governor::GovernorComponent::{
         ComponentState as GovernorComponentState, InternalExtendedTrait,
     };
-    use crate::governor::GovernorComponent;
     use crate::governor::extensions::interface::ITimelocked;
     use crate::governor::interface::ProposalState;
     use crate::timelock::interface::{ITimelockDispatcher, ITimelockDispatcherTrait, OperationState};

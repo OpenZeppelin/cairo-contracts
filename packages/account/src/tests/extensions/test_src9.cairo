@@ -1,5 +1,5 @@
-use crate::extensions::SRC9Component::{InternalImpl, OutsideExecutionV2Impl, SNIP12MetadataImpl};
 use crate::extensions::SRC9Component;
+use crate::extensions::SRC9Component::{InternalImpl, OutsideExecutionV2Impl, SNIP12MetadataImpl};
 use crate::extensions::src9::interface::{ISRC9_V2Dispatcher, ISRC9_V2DispatcherTrait};
 use crate::extensions::src9::interface::{ISRC9_V2_ID, OutsideExecution};
 use crate::extensions::src9::snip12_utils::OutsideExecutionStructHash;

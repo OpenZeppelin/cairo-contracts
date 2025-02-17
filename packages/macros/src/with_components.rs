@@ -55,10 +55,11 @@ pub fn with_components(attribute_stream: TokenStream, item_stream: TokenStream) 
     let mut components_info = vec![];
     for arg in args {
         let (component_info, diagnostics) = get_component_info(&arg);
-        if component_info.is_none() {
+        if let Some(info) = component_info {
+            components_info.push(info);
+        } else {
             return ProcMacroResult::new(TokenStream::empty()).with_diagnostics(diagnostics);
         }
-        components_info.push(component_info.unwrap());
     }
 
     // 2. Parse the item stream

@@ -47,7 +47,7 @@ pub mod AccountUpgradeable {
     }
 
     #[event]
-    #[derive(Drop, Debug, PartialEq, starknet::Event)]
+    #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
         AccountEvent: AccountComponent::Event,

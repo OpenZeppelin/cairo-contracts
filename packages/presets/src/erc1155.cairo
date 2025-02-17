@@ -48,7 +48,7 @@ pub mod ERC1155Upgradeable {
     }
 
     #[event]
-    #[derive(Drop, Debug, PartialEq, starknet::Event)]
+    #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
         OwnableEvent: OwnableComponent::Event,

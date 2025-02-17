@@ -49,7 +49,7 @@ pub(crate) mod EthAccountUpgradeable {
     }
 
     #[event]
-    #[derive(Drop, Debug, PartialEq, starknet::Event)]
+    #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
         EthAccountEvent: EthAccountComponent::Event,

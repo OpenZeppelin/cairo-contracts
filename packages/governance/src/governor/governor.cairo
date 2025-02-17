@@ -7,6 +7,7 @@
 #[starknet::component]
 pub mod GovernorComponent {
     use core::hash::{HashStateExTrait, HashStateTrait};
+    use core::traits::PartialEq;
     use core::num::traits::Zero;
     use core::pedersen::PedersenTrait;
     use crate::governor::ProposalCore;
@@ -102,6 +103,12 @@ pub mod GovernorComponent {
         pub weight: u256,
         pub reason: ByteArray,
         pub params: Span<felt252>,
+    }
+
+    impl CallPartialEq of PartialEq<Call> {
+        fn eq(lhs: @Call, rhs: @Call) -> bool {
+            lhs.to == rhs.to && lhs.selector == rhs.selector && lhs.calldata == rhs.calldata
+        }
     }
 
     pub mod Errors {

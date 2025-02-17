@@ -29,7 +29,7 @@ pub mod VestingWallet {
     }
 
     #[event]
-    #[derive(Drop, Debug, PartialEq, starknet::Event)]
+    #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
         OwnableEvent: OwnableComponent::Event,

@@ -257,7 +257,7 @@ fn test_execute_query_version() {
 }
 
 #[test]
-#[should_panic(expected: ('EthAccount: invalid tx version',))]
+#[should_panic(expected: 'EthAccount: invalid tx version')]
 fn test_execute_invalid_version() {
     test_execute_with_version(Option::Some(MIN_TRANSACTION_VERSION - 1));
 }
@@ -273,7 +273,7 @@ fn test_validate() {
 }
 
 #[test]
-#[should_panic(expected: ('EthAccount: invalid signature',))]
+#[should_panic(expected: 'EthAccount: invalid signature')]
 fn test_validate_invalid() {
     let key_pair = KEY_PAIR();
     let mut data = SIGNED_TX_DATA(key_pair);
@@ -339,7 +339,7 @@ fn test_multicall_zero_calls() {
 }
 
 #[test]
-#[should_panic(expected: ('EthAccount: invalid caller',))]
+#[should_panic(expected: 'EthAccount: invalid caller')]
 fn test_account_called_from_contract() {
     let key_pair = KEY_PAIR();
     let state = setup(key_pair);

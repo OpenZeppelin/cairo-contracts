@@ -43,7 +43,7 @@ fn test_deregister_interface() {
 }
 
 #[test]
-#[should_panic(expected: ('SRC5: invalid id',))]
+#[should_panic(expected: 'SRC5: invalid id')]
 fn test_deregister_default_interface() {
     let mut state = COMPONENT_STATE();
     state.deregister_interface(ISRC5_ID);

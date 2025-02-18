@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0 (governance/multisig/multisig.cairo)
+// OpenZeppelin Contracts for Cairo v0.20.0 (governance/src/multisig/multisig.cairo)
 
 /// # Multisig Component
 ///

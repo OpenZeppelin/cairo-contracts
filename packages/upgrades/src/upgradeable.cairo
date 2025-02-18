@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0 (upgrades/upgradeable.cairo)
+// OpenZeppelin Contracts for Cairo v0.20.0 (upgrades/src/upgradeable.cairo)
 
 /// # Upgradeable Component
 ///

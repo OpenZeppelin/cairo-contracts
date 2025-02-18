@@ -18,7 +18,6 @@
 /// Extra precautions should be taken to secure accounts with this role.
 #[starknet::component]
 pub mod AccessControlComponent {
-    use core::panic_with_felt252;
     use crate::accesscontrol::account_role_info::AccountRoleInfo;
     use crate::accesscontrol::interface;
     use crate::accesscontrol::interface::RoleStatus;
@@ -48,7 +47,7 @@ pub mod AccessControlComponent {
     /// Emitted when `account` is granted `role`.
     ///
     /// `sender` is the account that originated the contract call, an account with the admin role
-    /// or the deployer address if `grant_role` is called from the constructor.
+    /// or the deployer address if `_grant_role` is called from the constructor.
     #[derive(Drop, PartialEq, starknet::Event)]
     pub struct RoleGranted {
         pub role: felt252,
@@ -59,7 +58,7 @@ pub mod AccessControlComponent {
     /// Emitted when `account` is granted `role` with a delay.
     ///
     /// `sender` is the account that originated the contract call, an account with the admin role
-    /// or the deployer address if `grant_role` is called from the constructor.
+    /// or the deployer address if `_grant_role_with_delay` is called from the constructor.
     #[derive(Drop, PartialEq, starknet::Event)]
     pub struct RoleGrantedWithDelay {
         pub role: felt252,
@@ -234,6 +233,7 @@ pub mod AccessControlComponent {
         ///
         /// - The caller must have `role`'s admin role.
         /// - delay must be greater than 0.
+        /// - the `role` must not be already effective for `account`.
         fn grant_role_with_delay(
             ref self: ComponentState<TContractState>,
             role: felt252,
@@ -269,7 +269,7 @@ pub mod AccessControlComponent {
         /// Returns whether the account can act as the given role.
         ///
         /// The account can act as the role if it is active and the `effective_from` time is before
-        /// the current time or equal to it.
+        /// or equal to the current time.
         ///
         /// NOTE: If the `effective_from` timepoint is 0, the role is effective immediately.
         /// This is backwards compatible with implementations that didn't use delays but
@@ -374,6 +374,7 @@ pub mod AccessControlComponent {
         /// Requirements:
         ///
         /// - delay must be greater than 0.
+        /// - the `role` must not be already effective for `account`.
         fn _grant_role_with_delay(
             ref self: ComponentState<TContractState>,
             role: felt252,
@@ -382,7 +383,7 @@ pub mod AccessControlComponent {
         ) {
             assert(delay > 0, Errors::INVALID_DELAY);
             match self.resolve_role_status(role, account) {
-                RoleStatus::Effective => panic_with_felt252(Errors::ALREADY_EFFECTIVE),
+                RoleStatus::Effective => core::panic_with_felt252(Errors::ALREADY_EFFECTIVE),
                 RoleStatus::Delayed |
                 RoleStatus::NotGranted => {
                     let caller = starknet::get_caller_address();

@@ -15,10 +15,11 @@ pub trait IAccessControl<TState> {
     fn renounce_role(ref self: TState, role: felt252, account: ContractAddress);
 }
 
+// Represents the status of a role for an account.
 #[derive(Drop, Copy, Serde, PartialEq, Debug)]
 pub enum RoleStatus {
     NotGranted,
-    Delayed: u64,
+    Delayed: u64, // the `effective_from` timestamp when the role will become active
     Effective,
 }
 

@@ -25,13 +25,13 @@ pub mod GovernorVotesQuorumFractionComponent {
     }
 
     #[event]
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub enum Event {
         QuorumNumeratorUpdated: QuorumNumeratorUpdated,
     }
 
     /// Emitted when the quorum numerator is updated.
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct QuorumNumeratorUpdated {
         pub old_quorum_numerator: u256,
         pub new_quorum_numerator: u256,

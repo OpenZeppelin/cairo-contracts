@@ -48,14 +48,14 @@ pub mod VotesComponent {
     }
 
     #[event]
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub enum Event {
         DelegateChanged: DelegateChanged,
         DelegateVotesChanged: DelegateVotesChanged,
     }
 
     /// Emitted when `delegator` delegates their votes from `from_delegate` to `to_delegate`.
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct DelegateChanged {
         #[key]
         pub delegator: ContractAddress,
@@ -66,7 +66,7 @@ pub mod VotesComponent {
     }
 
     /// Emitted when `delegate` votes are updated from `previous_votes` to `new_votes`.
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct DelegateVotesChanged {
         #[key]
         pub delegate: ContractAddress,

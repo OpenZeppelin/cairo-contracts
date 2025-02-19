@@ -455,7 +455,7 @@ pub mod ERC4626Component {
             }
         }
 
-        /// Allows an on-chain or off-chain user to simulate the effects of their redeemption at the
+        /// Allows an on-chain or off-chain user to simulate the effects of their redemption at the
         /// current block, given current on-chain conditions.
         ///
         /// The default redeem preview value is the full amount of assets.

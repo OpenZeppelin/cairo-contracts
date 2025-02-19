@@ -27,7 +27,7 @@ pub mod ERC1155Component {
     }
 
     #[event]
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub enum Event {
         TransferSingle: TransferSingle,
         TransferBatch: TransferBatch,
@@ -36,7 +36,7 @@ pub mod ERC1155Component {
     }
 
     /// Emitted when `value` token is transferred from `from` to `to` for `id`.
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct TransferSingle {
         #[key]
         pub operator: ContractAddress,
@@ -49,7 +49,7 @@ pub mod ERC1155Component {
     }
 
     /// Emitted when `values` are transferred from `from` to `to` for `ids`.
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct TransferBatch {
         #[key]
         pub operator: ContractAddress,
@@ -63,7 +63,7 @@ pub mod ERC1155Component {
 
     /// Emitted when `account` enables or disables (`approved`) `operator` to manage
     /// all of its assets.
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct ApprovalForAll {
         #[key]
         pub owner: ContractAddress,
@@ -78,7 +78,7 @@ pub mod ERC1155Component {
     /// If an `URI` event was emitted for `id`, the standard guarantees that `value` will equal the
     /// value returned by `IERC1155MetadataURI::uri`.
     /// https://eips.ethereum.org/EIPS/eip-1155#metadata-extensions
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct URI {
         pub value: ByteArray,
         #[key]

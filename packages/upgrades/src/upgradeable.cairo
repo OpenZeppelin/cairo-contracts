@@ -13,13 +13,13 @@ pub mod UpgradeableComponent {
     pub struct Storage {}
 
     #[event]
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub enum Event {
         Upgraded: Upgraded,
     }
 
     /// Emitted when the contract is upgraded.
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct Upgraded {
         pub class_hash: ClassHash,
     }

@@ -27,19 +27,19 @@ pub mod EthAccountComponent {
     }
 
     #[event]
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub enum Event {
         OwnerAdded: OwnerAdded,
         OwnerRemoved: OwnerRemoved,
     }
 
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct OwnerAdded {
         #[key]
         pub new_owner_guid: felt252,
     }
 
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct OwnerRemoved {
         #[key]
         pub removed_owner_guid: felt252,

@@ -46,13 +46,13 @@ pub mod VestingComponent {
     }
 
     #[event]
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub enum Event {
         AmountReleased: AmountReleased,
     }
 
     /// Emitted when vested tokens are released to the beneficiary.
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct AmountReleased {
         #[key]
         pub token: ContractAddress,

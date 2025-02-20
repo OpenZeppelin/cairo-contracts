@@ -68,7 +68,8 @@ def get_known_order_hashes(contracts):
 
 
 def normalize_len(sierra_hash):
-    return "0x" + "0" * (66 - len(sierra_hash)) + sierra_hash[2:]
+    stripped = sierra_hash.lstrip("0x")
+    return "0x" + stripped.zfill(64)
 
 
 if __name__ == '__main__':

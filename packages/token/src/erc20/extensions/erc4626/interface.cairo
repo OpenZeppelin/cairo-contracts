@@ -175,7 +175,7 @@ pub trait IERC4626<TState> {
     /// MUST NOT panic.
     fn max_redeem(self: @TState, owner: ContractAddress) -> u256;
 
-    /// Allows an on-chain or off-chain user to simulate the effects of their redeemption at the
+    /// Allows an on-chain or off-chain user to simulate the effects of their redemption at the
     /// current block, given current on-chain conditions.
     ///
     /// MUST return as close to and no more than the exact amount of assets that would be withdrawn

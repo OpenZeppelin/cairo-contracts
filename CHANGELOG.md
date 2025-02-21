@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## 1.0.0 (2025-02-21)
+
 ### Added
 
 - ERC721Component `initializer_no_metadata` (#1278)
@@ -17,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed (Breaking)
 
-- Bump scarb to v2.9.3 (#1336)
+- Bump scarb to v2.9.4 (#1336)
 
 ### Fixed (Breaking)
 

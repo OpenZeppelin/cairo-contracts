@@ -4,12 +4,6 @@
 
 **A library for secure smart contract development** written in Cairo for [Starknet](https://starkware.co/product/starknet/), a decentralized ZK Rollup.
 
-> **Warning**
-> This repo contains highly experimental code.
-> It has no code coverage checks.
-> It hasn't been audited.
-> **Use at your own risk.**
-
 ## Usage
 
 > **Warning**
@@ -154,8 +148,9 @@ snforge test -w
 
 ## Security
 
-> ⚠️ Warning! ⚠️
-> This project is still in a very early and experimental phase. It has never been audited nor thoroughly reviewed for security vulnerabilities. Do not use in production.
+This project is maintained by OpenZeppelin with the goal of providing a secure and reliable library of smart contract components
+for the Starknet ecosystem. We address security through risk management in various areas such as engineering and open source best
+practices, scoping and API design, multi-layered review processes, and incident response preparedness.
 
 Refer to [SECURITY.md](SECURITY.md) for more details.
 

@@ -6,9 +6,6 @@
 
 ## Usage
 
-> **Warning**
-> Expect rapid iteration.
-
 ### Prepare the environment
 
 Simply [install Cairo and scarb](https://docs.swmansion.com/scarb/download).

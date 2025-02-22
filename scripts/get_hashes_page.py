@@ -48,7 +48,7 @@ https://crates.io/crates/cairo-lang-compiler/{cmp_version}[cairo {cmp_version}]
 
 def remove_prefix_from_names(contracts):
     for contract in contracts:
-        contract.update([("name", remove_prefix(contract['name'], 'openzeppelin_presets_'))])
+        contract["name"] = remove_prefix(contract['name'], 'openzeppelin_presets_')
     return contracts
 
 

@@ -455,25 +455,6 @@ pub mod MultisigComponent {
                 },
             };
         }
-
-        /// Returns the computed identifier of a transaction containing a single call.
-        fn hash_transaction(
-            self: @ComponentState<TContractState>,
-            to: ContractAddress,
-            selector: felt252,
-            calldata: Span<felt252>,
-            salt: felt252,
-        ) -> TransactionID {
-            let call = Call { to, selector, calldata };
-            self.hash_transaction_batch(array![call].span(), salt)
-        }
-
-        /// Returns the computed identifier of a transaction containing a batch of calls.
-        fn hash_transaction_batch(
-            self: @ComponentState<TContractState>, calls: Span<Call>, salt: felt252,
-        ) -> TransactionID {
-            PedersenTrait::new(0).update_with(calls).update_with(salt).finalize()
-        }
     }
 
     //

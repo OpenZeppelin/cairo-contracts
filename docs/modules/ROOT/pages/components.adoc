@@ -483,7 +483,7 @@ The following snippet leverages the `before_update` hook to include this behavio
 mod MyToken {
     use openzeppelin_security::pausable::PausableComponent::InternalTrait;
     use openzeppelin_security::pausable::PausableComponent;
-    use openzeppelin_token::erc20::{ERC20Component, DefaultConfig};
+    use openzeppelin_token::erc20::ERC20Component;
     use starknet::ContractAddress;
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
@@ -535,8 +535,7 @@ The using contract just needs to bring the implementation into scope like this:
 ----
 #[starknet::contract]
 mod MyToken {
-    use openzeppelin_token::erc20::{ERC20Component, DefaultConfig};
-    use openzeppelin_token::erc20::ERC20HooksEmptyImpl;
+    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
 
     (...)
 }
@@ -559,7 +558,7 @@ Here's the setup:
 #[starknet::contract]
 mod ERC20Pausable {
     use openzeppelin_security::pausable::PausableComponent;
-    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl, DefaultConfig};
+    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     // Import the ERC20 interfaces to create custom implementations
     use openzeppelin_token::erc20::interface::{IERC20, IERC20CamelOnly};
     use starknet::ContractAddress;

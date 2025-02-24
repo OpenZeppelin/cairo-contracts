@@ -54,11 +54,12 @@ pub fn with_components(attribute_stream: TokenStream, item_stream: TokenStream) 
     // 1. Get the components info (if valid)
     let mut components_info = vec![];
     for arg in args {
-        let (component_info, diagnostics) = get_component_info(&arg);
-        if let Some(info) = component_info {
+        let component_info_result = get_component_info(&arg);
+        if let Ok(info) = component_info_result {
             components_info.push(info);
         } else {
-            return ProcMacroResult::new(TokenStream::empty()).with_diagnostics(diagnostics);
+            return ProcMacroResult::new(TokenStream::empty())
+                .with_diagnostics(component_info_result.unwrap_err());
         }
     }
 
@@ -171,29 +172,31 @@ fn validate_contract_module(
             .collect::<Vec<&ComponentInfo>>();
 
         if !components_with_initializer.is_empty() {
-            let mut constructor_code = String::new();
             let constructor = body.items_vec(db).into_iter().find(|item| {
                 matches!(item, ast::ModuleItem::FreeFunction(function_ast) if function_ast.has_attr(db, CONSTRUCTOR_ATTRIBUTE))
             });
-            if constructor.is_some() {
+            let constructor_code = if let Some(constructor) = constructor {
                 // Get the constructor code (maybe we can do this without the builder)
-                let constructor_ast = constructor.unwrap().as_syntax_node();
+                let constructor_ast = constructor.as_syntax_node();
                 let typed = ast::ModuleItem::from_syntax_node(db, constructor_ast.clone());
                 let constructor_rnode = RewriteNode::from_ast(&typed);
-
                 let mut builder = PatchBuilder::new_ex(db, &constructor_ast);
                 builder.add_modified(constructor_rnode);
-                (constructor_code, _) = builder.build();
-            }
+                let (code, _) = builder.build();
+                code
+            } else {
+                String::new()
+            };
             let mut components_with_initializer_missing = vec![];
             for component in components_with_initializer.iter() {
                 if !constructor_code.contains(&format!("self.{}.initializer(", component.storage)) {
                     components_with_initializer_missing.push(component.short_name());
                 }
             }
-            let components_with_initializer_missing_str =
-                components_with_initializer_missing.join(", ");
+
             if !components_with_initializer_missing.is_empty() {
+                let components_with_initializer_missing_str =
+                    components_with_initializer_missing.join(", ");
                 let warning = Diagnostic::warn(formatdoc! {"
                     It looks like the initializers for the following components are missing:
 
@@ -248,7 +251,7 @@ fn validate_contract_module(
 fn add_per_component_warnings(code: &str, component_info: &ComponentInfo) -> Vec<Diagnostic> {
     let mut warnings = vec![];
 
-    match component_info.short_name().as_str() {
+    match component_info.short_name() {
         "Vesting" => {
             // 1. Check that the VestingScheduleTrait is implemented
             let linear_impl_used = code.contains("LinearVestingSchedule");
@@ -470,23 +473,22 @@ fn add_use_clauses_and_macros(
 /// * `internal_impls` - The internal implementations of the component to be added to
 ///   the module by default (e.g. `["InternalImpl1", "InternalImpl2"]`)
 #[derive(Debug, Clone)]
-pub struct ComponentInfo {
-    pub name: String,
-    pub path: String,
-    pub storage: String,
-    pub event: String,
+pub struct ComponentInfo<'a> {
+    pub name: &'a str,
+    pub path: &'a str,
+    pub storage: &'a str,
+    pub event: &'a str,
     pub has_initializer: bool,
     pub has_immutable_config: bool,
-    pub internal_impls: Vec<String>,
+    pub internal_impls: Vec<&'a str>,
 }
 
-impl ComponentInfo {
-    fn short_name(&self) -> String {
+impl<'a> ComponentInfo<'a> {
+    fn short_name(&self) -> &'a str {
         self.name
             .split("Component")
             .next()
             .expect("Component name must end with 'Component'")
-            .to_string()
     }
 }
 
@@ -495,228 +497,222 @@ impl ComponentInfo {
 /// # Arguments
 ///
 /// * `name` - The name of the component (e.g. `ERC20`).
-///
-/// Allowed components are:
-/// `ERC20`, `Ownable`
-fn get_component_info(name: &str) -> (Option<ComponentInfo>, Diagnostics) {
-    let info = match name {
-        "Account" => Some(ComponentInfo {
-            name: "AccountComponent".to_string(),
-            path: "openzeppelin_account::AccountComponent".to_string(),
-            storage: "account".to_string(),
-            event: "AccountEvent".to_string(),
+fn get_component_info<'a>(name: &str) -> Result<ComponentInfo<'a>, Diagnostics> {
+    match name {
+        "Account" => Ok(ComponentInfo {
+            name: "AccountComponent",
+            path: "openzeppelin_account::AccountComponent",
+            storage: "account",
+            event: "AccountEvent",
             has_initializer: true,
             has_immutable_config: false,
-            internal_impls: vec!["InternalImpl".to_string()],
+            internal_impls: vec!["InternalImpl"],
         }),
-        "EthAccount" => Some(ComponentInfo {
-            name: "EthAccountComponent".to_string(),
-            path: "openzeppelin_account::EthAccountComponent".to_string(),
-            storage: "eth_account".to_string(),
-            event: "EthAccountEvent".to_string(),
+        "EthAccount" => Ok(ComponentInfo {
+            name: "EthAccountComponent",
+            path: "openzeppelin_account::EthAccountComponent",
+            storage: "eth_account",
+            event: "EthAccountEvent",
             has_initializer: true,
             has_immutable_config: false,
-            internal_impls: vec!["InternalImpl".to_string()],
+            internal_impls: vec!["InternalImpl"],
         }),
-        "SRC9" => Some(ComponentInfo {
-            name: "SRC9Component".to_string(),
-            path: "openzeppelin_account::extensions::SRC9Component".to_string(),
-            storage: "src9".to_string(),
-            event: "SRC9Event".to_string(),
+        "SRC9" => Ok(ComponentInfo {
+            name: "SRC9Component",
+            path: "openzeppelin_account::extensions::SRC9Component",
+            storage: "src9",
+            event: "SRC9Event",
             has_initializer: true,
             has_immutable_config: false,
-            internal_impls: vec!["InternalImpl".to_string()],
+            internal_impls: vec!["InternalImpl"],
         }),
-        "Ownable" => Some(ComponentInfo {
-            name: "OwnableComponent".to_string(),
-            path: "openzeppelin_access::ownable::OwnableComponent".to_string(),
-            storage: "ownable".to_string(),
-            event: "OwnableEvent".to_string(),
+        "Ownable" => Ok(ComponentInfo {
+            name: "OwnableComponent",
+            path: "openzeppelin_access::ownable::OwnableComponent",
+            storage: "ownable",
+            event: "OwnableEvent",
             has_initializer: true,
             has_immutable_config: false,
-            internal_impls: vec!["InternalImpl".to_string()],
+            internal_impls: vec!["InternalImpl"],
         }),
-        "AccessControl" => Some(ComponentInfo {
-            name: "AccessControlComponent".to_string(),
-            path: "openzeppelin_access::accesscontrol::AccessControlComponent".to_string(),
-            storage: "access_control".to_string(),
-            event: "AccessControlEvent".to_string(),
+        "AccessControl" => Ok(ComponentInfo {
+            name: "AccessControlComponent",
+            path: "openzeppelin_access::accesscontrol::AccessControlComponent",
+            storage: "access_control",
+            event: "AccessControlEvent",
             has_initializer: true,
             has_immutable_config: false,
-            internal_impls: vec!["InternalImpl".to_string()],
+            internal_impls: vec!["InternalImpl"],
         }),
-        "Vesting" => Some(ComponentInfo {
-            name: "VestingComponent".to_string(),
-            path: "openzeppelin_finance::vesting::VestingComponent".to_string(),
-            storage: "vesting".to_string(),
-            event: "VestingEvent".to_string(),
+        "Vesting" => Ok(ComponentInfo {
+            name: "VestingComponent",
+            path: "openzeppelin_finance::vesting::VestingComponent",
+            storage: "vesting",
+            event: "VestingEvent",
             has_initializer: true,
             has_immutable_config: false,
-            internal_impls: vec!["InternalImpl".to_string()],
+            internal_impls: vec!["InternalImpl"],
         }),
-        "SRC5" => Some(ComponentInfo {
-            name: "SRC5Component".to_string(),
-            path: "openzeppelin_introspection::src5::SRC5Component".to_string(),
-            storage: "src5".to_string(),
-            event: "SRC5Event".to_string(),
+        "SRC5" => Ok(ComponentInfo {
+            name: "SRC5Component",
+            path: "openzeppelin_introspection::src5::SRC5Component",
+            storage: "src5",
+            event: "SRC5Event",
             has_initializer: false,
             has_immutable_config: false,
-            internal_impls: vec!["InternalImpl".to_string()],
+            internal_impls: vec!["InternalImpl"],
         }),
-        "Initializable" => Some(ComponentInfo {
-            name: "InitializableComponent".to_string(),
-            path: "openzeppelin_security::InitializableComponent".to_string(),
-            storage: "initializable".to_string(),
-            event: "InitializableEvent".to_string(),
+        "Initializable" => Ok(ComponentInfo {
+            name: "InitializableComponent",
+            path: "openzeppelin_security::InitializableComponent",
+            storage: "initializable",
+            event: "InitializableEvent",
             has_initializer: false,
             has_immutable_config: false,
-            internal_impls: vec!["InternalImpl".to_string()],
+            internal_impls: vec!["InternalImpl"],
         }),
-        "Pausable" => Some(ComponentInfo {
-            name: "PausableComponent".to_string(),
-            path: "openzeppelin_security::PausableComponent".to_string(),
-            storage: "pausable".to_string(),
-            event: "PausableEvent".to_string(),
+        "Pausable" => Ok(ComponentInfo {
+            name: "PausableComponent",
+            path: "openzeppelin_security::PausableComponent",
+            storage: "pausable",
+            event: "PausableEvent",
             has_initializer: false,
             has_immutable_config: false,
-            internal_impls: vec!["InternalImpl".to_string()],
+            internal_impls: vec!["InternalImpl"],
         }),
-        "ReentrancyGuard" => Some(ComponentInfo {
-            name: "ReentrancyGuardComponent".to_string(),
-            path: "openzeppelin_security::ReentrancyGuardComponent".to_string(),
-            storage: "reentrancy_guard".to_string(),
-            event: "ReentrancyGuardEvent".to_string(),
+        "ReentrancyGuard" => Ok(ComponentInfo {
+            name: "ReentrancyGuardComponent",
+            path: "openzeppelin_security::ReentrancyGuardComponent",
+            storage: "reentrancy_guard",
+            event: "ReentrancyGuardEvent",
             has_initializer: false,
             has_immutable_config: false,
-            internal_impls: vec!["InternalImpl".to_string()],
+            internal_impls: vec!["InternalImpl"],
         }),
-        "ERC20" => Some(ComponentInfo {
-            name: "ERC20Component".to_string(),
-            path: "openzeppelin_token::erc20::ERC20Component".to_string(),
-            storage: "erc20".to_string(),
-            event: "ERC20Event".to_string(),
+        "ERC20" => Ok(ComponentInfo {
+            name: "ERC20Component",
+            path: "openzeppelin_token::erc20::ERC20Component",
+            storage: "erc20",
+            event: "ERC20Event",
             has_initializer: true,
             has_immutable_config: false,
-            internal_impls: vec!["InternalImpl".to_string()],
+            internal_impls: vec!["InternalImpl"],
         }),
-        "ERC721" => Some(ComponentInfo {
-            name: "ERC721Component".to_string(),
-            path: "openzeppelin_token::erc721::ERC721Component".to_string(),
-            storage: "erc721".to_string(),
-            event: "ERC721Event".to_string(),
+        "ERC721" => Ok(ComponentInfo {
+            name: "ERC721Component",
+            path: "openzeppelin_token::erc721::ERC721Component",
+            storage: "erc721",
+            event: "ERC721Event",
             has_initializer: true,
             has_immutable_config: false,
-            internal_impls: vec!["InternalImpl".to_string()],
+            internal_impls: vec!["InternalImpl"],
         }),
-        "ERC721Enumerable" => Some(ComponentInfo {
-            name: "ERC721EnumerableComponent".to_string(),
-            path: "openzeppelin_token::erc721::extensions::ERC721EnumerableComponent".to_string(),
-            storage: "erc721_enumerable".to_string(),
-            event: "ERC721EnumerableEvent".to_string(),
+        "ERC721Enumerable" => Ok(ComponentInfo {
+            name: "ERC721EnumerableComponent",
+            path: "openzeppelin_token::erc721::extensions::ERC721EnumerableComponent",
+            storage: "erc721_enumerable",
+            event: "ERC721EnumerableEvent",
             has_initializer: true,
             has_immutable_config: false,
-            internal_impls: vec!["InternalImpl".to_string()],
+            internal_impls: vec!["InternalImpl"],
         }),
-        "ERC721Receiver" => Some(ComponentInfo {
-            name: "ERC721ReceiverComponent".to_string(),
-            path: "openzeppelin_token::erc721::ERC721ReceiverComponent".to_string(),
-            storage: "erc721_receiver".to_string(),
-            event: "ERC721ReceiverEvent".to_string(),
+        "ERC721Receiver" => Ok(ComponentInfo {
+            name: "ERC721ReceiverComponent",
+            path: "openzeppelin_token::erc721::ERC721ReceiverComponent",
+            storage: "erc721_receiver",
+            event: "ERC721ReceiverEvent",
             has_initializer: true,
             has_immutable_config: false,
-            internal_impls: vec!["InternalImpl".to_string()],
+            internal_impls: vec!["InternalImpl"],
         }),
-        "ERC1155" => Some(ComponentInfo {
-            name: "ERC1155Component".to_string(),
-            path: "openzeppelin_token::erc1155::ERC1155Component".to_string(),
-            storage: "erc1155".to_string(),
-            event: "ERC1155Event".to_string(),
+        "ERC1155" => Ok(ComponentInfo {
+            name: "ERC1155Component",
+            path: "openzeppelin_token::erc1155::ERC1155Component",
+            storage: "erc1155",
+            event: "ERC1155Event",
             has_initializer: true,
             has_immutable_config: false,
-            internal_impls: vec!["InternalImpl".to_string()],
+            internal_impls: vec!["InternalImpl"],
         }),
-        "ERC1155Receiver" => Some(ComponentInfo {
-            name: "ERC1155ReceiverComponent".to_string(),
-            path: "openzeppelin_token::erc1155::ERC1155ReceiverComponent".to_string(),
-            storage: "erc1155_receiver".to_string(),
-            event: "ERC1155ReceiverEvent".to_string(),
+        "ERC1155Receiver" => Ok(ComponentInfo {
+            name: "ERC1155ReceiverComponent",
+            path: "openzeppelin_token::erc1155::ERC1155ReceiverComponent",
+            storage: "erc1155_receiver",
+            event: "ERC1155ReceiverEvent",
             has_initializer: true,
             has_immutable_config: false,
-            internal_impls: vec!["InternalImpl".to_string()],
+            internal_impls: vec!["InternalImpl"],
         }),
-        "ERC2981" => Some(ComponentInfo {
-            name: "ERC2981Component".to_string(),
-            path: "openzeppelin_token::common::erc2981::ERC2981Component".to_string(),
-            storage: "erc2981".to_string(),
-            event: "ERC2981Event".to_string(),
+        "ERC2981" => Ok(ComponentInfo {
+            name: "ERC2981Component",
+            path: "openzeppelin_token::common::erc2981::ERC2981Component",
+            storage: "erc2981",
+            event: "ERC2981Event",
             has_initializer: true,
             has_immutable_config: true,
-            internal_impls: vec!["InternalImpl".to_string()],
+            internal_impls: vec!["InternalImpl"],
         }),
-        "Upgradeable" => Some(ComponentInfo {
-            name: "UpgradeableComponent".to_string(),
-            path: "openzeppelin_upgrades::UpgradeableComponent".to_string(),
-            storage: "upgradeable".to_string(),
-            event: "UpgradeableEvent".to_string(),
+        "Upgradeable" => Ok(ComponentInfo {
+            name: "UpgradeableComponent",
+            path: "openzeppelin_upgrades::UpgradeableComponent",
+            storage: "upgradeable",
+            event: "UpgradeableEvent",
             has_initializer: false,
             has_immutable_config: false,
-            internal_impls: vec!["InternalImpl".to_string()],
+            internal_impls: vec!["InternalImpl"],
         }),
-        "Nonces" => Some(ComponentInfo {
-            name: "NoncesComponent".to_string(),
-            path: "openzeppelin_utils::nonces::NoncesComponent".to_string(),
-            storage: "nonces".to_string(),
-            event: "NoncesEvent".to_string(),
+        "Nonces" => Ok(ComponentInfo {
+            name: "NoncesComponent",
+            path: "openzeppelin_utils::nonces::NoncesComponent",
+            storage: "nonces",
+            event: "NoncesEvent",
             has_initializer: false,
             has_immutable_config: false,
-            internal_impls: vec!["InternalImpl".to_string()],
+            internal_impls: vec!["InternalImpl"],
         }),
-        "Multisig" => Some(ComponentInfo {
-            name: "MultisigComponent".to_string(),
-            path: "openzeppelin_governance::multisig::MultisigComponent".to_string(),
-            storage: "multisig".to_string(),
-            event: "MultisigEvent".to_string(),
+        "Multisig" => Ok(ComponentInfo {
+            name: "MultisigComponent",
+            path: "openzeppelin_governance::multisig::MultisigComponent",
+            storage: "multisig",
+            event: "MultisigEvent",
             has_initializer: true,
             has_immutable_config: false,
-            internal_impls: vec!["InternalImpl".to_string()],
+            internal_impls: vec!["InternalImpl"],
         }),
-        "TimelockController" => Some(ComponentInfo {
-            name: "TimelockControllerComponent".to_string(),
-            path: "openzeppelin_governance::timelock::TimelockControllerComponent".to_string(),
-            storage: "timelock_controller".to_string(),
-            event: "TimelockControllerEvent".to_string(),
+        "TimelockController" => Ok(ComponentInfo {
+            name: "TimelockControllerComponent",
+            path: "openzeppelin_governance::timelock::TimelockControllerComponent",
+            storage: "timelock_controller",
+            event: "TimelockControllerEvent",
             has_initializer: true,
             has_immutable_config: false,
-            internal_impls: vec!["InternalImpl".to_string()],
+            internal_impls: vec!["InternalImpl"],
         }),
-        "Votes" => Some(ComponentInfo {
-            name: "VotesComponent".to_string(),
-            path: "openzeppelin_governance::votes::VotesComponent".to_string(),
-            storage: "votes".to_string(),
-            event: "VotesEvent".to_string(),
+        "Votes" => Ok(ComponentInfo {
+            name: "VotesComponent",
+            path: "openzeppelin_governance::votes::VotesComponent",
+            storage: "votes",
+            event: "VotesEvent",
             has_initializer: false,
             has_immutable_config: false,
-            internal_impls: vec!["InternalImpl".to_string()],
+            internal_impls: vec!["InternalImpl"],
         }),
-        _ => None,
-    };
-    if info.is_none() {
-        let allowed_components = ALLOWED_COMPONENTS.join(", ");
-        let error_message = formatdoc! {"
-            Invalid component: {name}
+        _ => {
+            let allowed_components = ALLOWED_COMPONENTS.join(", ");
+            let error_message = formatdoc! {"
+                Invalid component: {name}
 
-            Allowed components are:
-            {allowed_components}
-        "};
-        let error = Diagnostic::error(error_message);
-        return (None, error.into());
+                Allowed components are:
+                {allowed_components}
+            "};
+            let error = Diagnostic::error(error_message);
+            Err(error.into())
+        }
     }
-
-    (info, Diagnostics::new(vec![]))
 }
 
 /// Set of component information to be used for code generation.
-struct ComponentsGenerationData<'a>(&'a Vec<ComponentInfo>);
+struct ComponentsGenerationData<'a>(&'a Vec<ComponentInfo<'a>>);
 
 impl ComponentsGenerationData<'_> {
     fn generate_for_module(self, _db: &dyn SyntaxGroup) -> RewriteNode {

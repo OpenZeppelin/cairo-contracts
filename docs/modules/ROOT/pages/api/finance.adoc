@@ -246,7 +246,7 @@ Returns the vested amount that's calculated using the {vesting-schedule} trait i
 use openzeppelin_finance::vesting::LinearVestingSchedule;
 ```
 
-Defines the logic for calculating the vested amount, incorporating a cliff period. 
+Defines the logic for calculating the vested amount, incorporating a cliff period.
 It returns 0 before the cliff ends. After the cliff period, the vested amount returned
 is directly proportional to the time passed since the start of the vesting schedule.
 
@@ -260,9 +260,9 @@ is directly proportional to the time passed since the start of the vesting sched
 use openzeppelin::presets::VestingWallet;
 ```
 
-A non-upgradable contract leveraging {vesting-component} and {ownable-component}. 
+A non-upgradable contract leveraging {vesting-component} and {ownable-component}.
 
-NOTE: The contract is intentionally designed to be non-upgradable to ensure that neither the vesting initiator 
+NOTE: The contract is intentionally designed to be non-upgradable to ensure that neither the vesting initiator
 nor the vesting beneficiary can modify the vesting schedule without the consent of the other party.
 
 include::../utils/_class_hashes.adoc[]

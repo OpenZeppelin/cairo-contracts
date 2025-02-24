@@ -441,7 +441,7 @@ Returns the short string `'VALID'` if valid, otherwise it reverts.
 [[EthAccountComponent-__validate_deploy__]]
 ==== `[.contract-item-name]#++__validate_deploy__++#++(self: @ContractState, class_hash: felt252, contract_address_salt: felt252, public_key: EthPublicKey) → felt252++` [.item-kind]#external#
 
-Validates a https://docs.starknet.io/architecture-and-concepts/network-architecture/transactions/#declare-transaction[`Declare` transaction].
+Validates a https://docs.starknet.io/architecture-and-concepts/network-architecture/transactions/#deploy_account_transaction[`DeployAccount` transaction].
 See xref:/guides/deployment.adoc[Counterfactual Deployments].
 
 Returns the short string `'VALID'` if valid, otherwise it reverts.

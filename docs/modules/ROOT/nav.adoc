@@ -22,6 +22,7 @@
 
 ** Governance
 *** xref:/governance/governor.adoc[Governor]
+*** xref:/governance/multisig.adoc[Multisig]
 *** xref:/governance/timelock.adoc[Timelock Controller]
 *** xref:/governance/votes.adoc[Votes]
 *** xref:/api/governance.adoc[API Reference]

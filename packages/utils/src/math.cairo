@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v1.0.0 (utils/src/math.cairo)
 
+use core::integer::u512_safe_div_rem_by_u256;
+use core::num::traits::WideMul;
 use core::traits::{BitAnd, BitXor, Into};
 
 /// Returns the average of two unsigned integers. The result is rounded down.

@@ -1,5 +1,5 @@
 :ownable-cairo: xref:api/access.adoc#OwnableComponent[OwnableComponent]
-:sn_keccak: https://docs.starknet.io/documentation/architecture_and_concepts/Cryptography/hash-functions/#starknet_keccak[sn_keccak]
+:sn_keccak: https://docs.starknet.io/architecture-and-concepts/cryptography/#starknet_keccak[sn_keccak]
 
 = Access
 
@@ -176,7 +176,7 @@ const MINTER_ROLE: felt252 = selector!("MINTER_ROLE");
 mod MyContract {
     use openzeppelin_access::accesscontrol::AccessControlComponent;
     use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
+    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl, DefaultConfig};
     use starknet::ContractAddress;
     use super::MINTER_ROLE;
 
@@ -267,7 +267,7 @@ const BURNER_ROLE: felt252 = selector!("BURNER_ROLE");
 mod MyContract {
     use openzeppelin_access::accesscontrol::AccessControlComponent;
     use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
+    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl, DefaultConfig};
     use starknet::ContractAddress;
     use super::{MINTER_ROLE, BURNER_ROLE};
 
@@ -390,7 +390,7 @@ mod MyContract {
     use openzeppelin_access::accesscontrol::AccessControlComponent;
     use openzeppelin_access::accesscontrol::DEFAULT_ADMIN_ROLE;
     use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
+    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl, DefaultConfig};
     use starknet::ContractAddress;
     use super::{MINTER_ROLE, BURNER_ROLE};
 

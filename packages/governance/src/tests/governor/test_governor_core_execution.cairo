@@ -67,7 +67,7 @@ fn test_state_active() {
     let state = GovernorExecution::state(@component_state, id);
     assert_eq!(state, expected);
 
-    // Is active in deadline
+    // Is active at deadline
     start_cheat_block_timestamp_global(deadline);
     let state = GovernorExecution::state(@component_state, id);
     assert_eq!(state, expected);

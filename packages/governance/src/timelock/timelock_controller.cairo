@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0 (governance/timelock/timelock_controller.cairo)
+// OpenZeppelin Contracts for Cairo v1.0.0 (governance/src/timelock/timelock_controller.cairo)
 
 /// # TimelockController Component
 ///
@@ -46,7 +46,7 @@ pub mod TimelockControllerComponent {
     }
 
     #[event]
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub enum Event {
         CallScheduled: CallScheduled,
         CallExecuted: CallExecuted,
@@ -56,7 +56,7 @@ pub mod TimelockControllerComponent {
     }
 
     /// Emitted when `call` is scheduled as part of operation `id`.
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct CallScheduled {
         #[key]
         pub id: felt252,
@@ -68,7 +68,7 @@ pub mod TimelockControllerComponent {
     }
 
     /// Emitted when `call` is performed as part of operation `id`.
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct CallExecuted {
         #[key]
         pub id: felt252,
@@ -78,7 +78,7 @@ pub mod TimelockControllerComponent {
     }
 
     /// Emitted when a new proposal is scheduled with non-zero salt.
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct CallSalt {
         #[key]
         pub id: felt252,
@@ -86,14 +86,14 @@ pub mod TimelockControllerComponent {
     }
 
     /// Emitted when operation `id` is cancelled.
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct CallCancelled {
         #[key]
         pub id: felt252,
     }
 
     /// Emitted when the minimum delay for future operations is modified.
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct MinDelayChanged {
         pub old_duration: u64,
         pub new_duration: u64,

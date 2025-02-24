@@ -10,14 +10,14 @@ NOTE: The Timelock contract itself executes transactions, not the user. The Time
 
 == Operation lifecycle
 
-The state of an operation is represented by the `OperationState` enum and can be retrieved 
+The state of an operation is represented by the `OperationState` enum and can be retrieved
 by calling the `get_operation_state` function with the operation's identifier.
 
-The identifier of an operation is a `felt252` value, computed as the Pedersen hash of the 
-operation's call or calls, its predecessor, and salt. It can be computed by invoking the 
-implementing contract's `hash_operation` function for single-call operations or 
-`hash_operation_batch` for multi-call operations. Submitting an operation with identical calls, 
-predecessor, and the same salt value a second time will fail, as operation identifiers must be 
+The identifier of an operation is a `felt252` value, computed as the Pedersen hash of the
+operation's call or calls, its predecessor, and salt. It can be computed by invoking the
+implementing contract's `hash_operation` function for single-call operations or
+`hash_operation_batch` for multi-call operations. Submitting an operation with identical calls,
+predecessor, and the same salt value a second time will fail, as operation identifiers must be
 unique. To resolve this, use a different salt value to generate a unique identifier.
 
 Timelocked operations follow a specific lifecycle:

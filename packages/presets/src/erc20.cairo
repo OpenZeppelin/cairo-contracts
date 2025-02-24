@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0 (presets/erc20.cairo)
+// OpenZeppelin Contracts for Cairo v1.0.0 (presets/src/erc20.cairo)
 
 /// # ERC20 Preset
 ///
@@ -12,7 +12,7 @@
 #[starknet::contract]
 pub mod ERC20Upgradeable {
     use openzeppelin_access::ownable::OwnableComponent;
-    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
+    use openzeppelin_token::erc20::{DefaultConfig, ERC20Component, ERC20HooksEmptyImpl};
     use openzeppelin_upgrades::UpgradeableComponent;
     use openzeppelin_upgrades::interface::IUpgradeable;
     use starknet::{ClassHash, ContractAddress};

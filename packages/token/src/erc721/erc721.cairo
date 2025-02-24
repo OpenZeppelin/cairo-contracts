@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0 (token/erc721/erc721.cairo)
+// OpenZeppelin Contracts for Cairo v1.0.0 (token/src/erc721/erc721.cairo)
 
 /// # ERC721 Component
 ///
@@ -30,7 +30,7 @@ pub mod ERC721Component {
     }
 
     #[event]
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub enum Event {
         Transfer: Transfer,
         Approval: Approval,
@@ -38,7 +38,7 @@ pub mod ERC721Component {
     }
 
     /// Emitted when `token_id` token is transferred from `from` to `to`.
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct Transfer {
         #[key]
         pub from: ContractAddress,
@@ -49,7 +49,7 @@ pub mod ERC721Component {
     }
 
     /// Emitted when `owner` enables `approved` to manage the `token_id` token.
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct Approval {
         #[key]
         pub owner: ContractAddress,
@@ -61,7 +61,7 @@ pub mod ERC721Component {
 
     /// Emitted when `owner` enables or disables (`approved`) `operator` to manage
     /// all of its assets.
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct ApprovalForAll {
         #[key]
         pub owner: ContractAddress,
@@ -483,6 +483,14 @@ pub mod ERC721Component {
     > of InternalTrait<TContractState> {
         /// Initializes the contract by setting the token name, symbol, and base URI.
         /// This should only be used inside the contract's constructor.
+        ///
+        /// WARNING: Most ERC721 contracts expose the IERC721Metadata interface which
+        /// is what this initializer is meant to support.
+        /// If the contract DOES NOT expose the IERC721Metadata interface,
+        /// meaning the token does not have a name, symbol, or URI,
+        /// the contract must instead instead use `initializer_no_metadata` in the constructor.
+        /// Failure to abide by these instructions can lead to unexpected issues especially with
+        /// UIs.
         fn initializer(
             ref self: ComponentState<TContractState>,
             name: ByteArray,
@@ -496,6 +504,17 @@ pub mod ERC721Component {
             let mut src5_component = get_dep_component_mut!(ref self, SRC5);
             src5_component.register_interface(interface::IERC721_ID);
             src5_component.register_interface(interface::IERC721_METADATA_ID);
+        }
+
+        /// Initializes the contract with no metadata by registering only the IERC721 interface.
+        ///
+        /// WARNING: This initializer should ONLY be used during construction in the very
+        /// specific instance when the contract does NOT expose the IERC721Metadata interface.
+        /// Initializing a contract with this initializer means that tokens will not
+        /// have a name, symbol, or URI.
+        fn initializer_no_metadata(ref self: ComponentState<TContractState>) {
+            let mut src5_component = get_dep_component_mut!(ref self, SRC5);
+            src5_component.register_interface(interface::IERC721_ID);
         }
 
         /// Returns whether `token_id` exists.

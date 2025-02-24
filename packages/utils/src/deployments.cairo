@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0 (utils/deployments.cairo)
+// OpenZeppelin Contracts for Cairo v1.0.0 (utils/src/deployments.cairo)
 
 pub mod interface;
 
@@ -20,7 +20,7 @@ pub const CONTRACT_ADDRESS_PREFIX: felt252 = 'STARKNET_CONTRACT_ADDRESS';
 /// from zero).
 ///
 /// For more information, see
-/// https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/contract-address/
+/// https://docs.starknet.io/architecture-and-concepts/smart-contracts/contract-address/
 pub fn calculate_contract_address_from_deploy_syscall(
     salt: felt252,
     class_hash: ClassHash,

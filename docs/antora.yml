@@ -1,6 +1,6 @@
 name: contracts-cairo
 title: Contracts for Cairo
-version: 0.20.0
+version: 1.0.0
 nav:
   - modules/ROOT/nav.adoc
 asciidoc:

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0 (access/ownable/ownable.cairo)
+// OpenZeppelin Contracts for Cairo v1.0.0 (access/src/ownable/ownable.cairo)
 
 /// # Ownable Component
 ///
@@ -29,7 +29,7 @@ pub mod OwnableComponent {
     }
 
     #[event]
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub enum Event {
         OwnershipTransferred: OwnershipTransferred,
         OwnershipTransferStarted: OwnershipTransferStarted,
@@ -37,7 +37,7 @@ pub mod OwnableComponent {
 
     /// Emitted when `new_owner` is set as owner of the contract.
     /// `new_owner` can be set to zero only if the ownership is renounced.
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct OwnershipTransferred {
         #[key]
         pub previous_owner: ContractAddress,
@@ -48,7 +48,7 @@ pub mod OwnableComponent {
     /// Emitted when `transfer_ownership` is called on a contract that implements `IOwnableTwoStep`.
     /// `previous_owner` is the address of the current owner.
     /// `new_owner` is the address of the pending owner.
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct OwnershipTransferStarted {
         #[key]
         pub previous_owner: ContractAddress,

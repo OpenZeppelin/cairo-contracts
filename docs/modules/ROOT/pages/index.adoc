@@ -21,8 +21,8 @@ before proceeding, and run the following command to check that the installation 
 ----
 $ scarb --version
 
-scarb 2.9.2 (5070ff374 2024-12-11)
-cairo: 2.9.2 (https://crates.io/crates/cairo-lang-compiler/2.9.2)
+scarb 2.9.4 (d3be9ebe1 2025-02-19)
+cairo: 2.9.4 (https://crates.io/crates/cairo-lang-compiler/2.9.4)
 sierra: 1.6.0
 ----
 
@@ -58,21 +58,31 @@ Install the library by declaring it as a dependency in the project's `Scarb.toml
 [,text]
 ----
 [dependencies]
-openzeppelin = "0.20.0"
+openzeppelin = "1.0.0"
 ----
 
-WARNING: Make sure the tag matches the target release.
+The previous example would import the entire library. We can also add each package as a separate dependency to
+improve the building time by not including modules that won't be used:
+
+[,text]
+----
+[dependencies]
+openzeppelin_access = "1.0.0"
+openzeppelin_token = "1.0.0"
+----
 
 == Basic usage
 
 This is how it looks to build an ERC20 contract using the xref:erc20.adoc[ERC20 component].
 Copy the code into `src/lib.cairo`.
 
+TIP: If you added the entire library as a dependency, use `openzeppelin::token` instead of `openzeppelin_token` for the imports.
+
 [,cairo]
 ----
 #[starknet::contract]
 mod MyERC20Token {
-    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
+    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl, DefaultConfig};
     use starknet::ContractAddress;
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);

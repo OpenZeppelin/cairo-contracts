@@ -50,7 +50,7 @@ fn test_state_after_init() {
 }
 
 #[test]
-#[should_panic(expected: ('Vesting: Invalid cliff duration',))]
+#[should_panic(expected: 'Vesting: Invalid cliff duration')]
 fn test_init_invalid_cliff_value() {
     let mut component_state = COMPONENT_STATE();
     let mut data = TEST_DATA();

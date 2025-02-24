@@ -5,7 +5,7 @@
 :eth-account-upgradeable: xref:/api/account.adoc#EthAccountUpgradeable[EthAccountUpgradeable]
 :udc: xref:/api/udc.adoc#UniversalDeployer[UniversalDeployer]
 :vesting-wallet: xref:/api/finance.adoc#VestingWallet[VestingWallet]
-:sierra-class-hashes: https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/class-hash[Sierra class hashes]
+:sierra-class-hashes: https://docs.starknet.io/architecture-and-concepts/smart-contracts/class-hash/[Sierra class hashes]
 :starkli: https://book.starkli.rs/introduction[starkli]
 :wizard: https://wizard.openzeppelin.com[Wizard for Cairo]
 
@@ -57,7 +57,7 @@ TIP: {starkli} class-hash command can be used to compute the class hash from a S
 
 :setup_project: xref:index.adoc#set_up_your_project[setting up a project]
 :install_lib: xref:index.adoc#install the_library[installing the Contracts for Cairo library]
-:presets_dir: link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.20.0/packages/presets/src[presets directory]
+:presets_dir: link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/presets/src[presets directory]
 
 These preset contracts are ready-to-deploy which means they should already be declared on the Sepolia network.
 Simply deploy the preset class hash and add the appropriate constructor arguments.

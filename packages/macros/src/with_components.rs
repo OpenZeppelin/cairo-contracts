@@ -70,7 +70,7 @@ pub fn with_components(attribute_stream: TokenStream, item_stream: TokenStream) 
             let error = Diagnostic::error(err.format(&db));
             return ProcMacroResult::new(TokenStream::empty()).with_diagnostics(error.into());
         }
-    }
+    };
 
     // 4. Add warnings for each component
     for component_info in components_info.iter() {

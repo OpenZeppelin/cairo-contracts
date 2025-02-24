@@ -91,6 +91,29 @@ fn test_initialize() {
     assert!(supports_isrc5);
 }
 
+#[test]
+fn test_initialize_no_metadata() {
+    let mut state = COMPONENT_STATE();
+    let mock_state = CONTRACT_STATE();
+
+    state.initializer_no_metadata();
+
+    let empty_str = "";
+    assert_eq!(state.ERC1155_uri.read(), empty_str);
+    assert!(state.balance_of(OWNER(), TOKEN_ID).is_zero());
+
+    let supports_ierc1155 = mock_state.supports_interface(erc1155::interface::IERC1155_ID);
+    assert!(supports_ierc1155);
+
+    let does_not_support_ierc1155_metadata_uri = !mock_state
+        .supports_interface(erc1155::interface::IERC1155_METADATA_URI_ID);
+    assert!(does_not_support_ierc1155_metadata_uri);
+
+    let supports_isrc5 = mock_state
+        .supports_interface(openzeppelin_introspection::interface::ISRC5_ID);
+    assert!(supports_isrc5);
+}
+
 //
 // balance_of & balanceOf
 //
@@ -136,7 +159,7 @@ fn test_balanceOfBatch() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: no equal array length',))]
+#[should_panic(expected: 'ERC1155: no equal array length')]
 fn test_balance_of_batch_invalid_inputs() {
     let (state, owner) = setup();
     let accounts = array![owner, OTHER()].span();
@@ -146,7 +169,7 @@ fn test_balance_of_batch_invalid_inputs() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: no equal array length',))]
+#[should_panic(expected: 'ERC1155: no equal array length')]
 fn test_balanceOfBatch_invalid_inputs() {
     let (state, owner) = setup();
     let accounts = array![owner, OTHER()].span();
@@ -288,7 +311,7 @@ fn test_safeTransferFrom_approved_operator() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: invalid sender',))]
+#[should_panic(expected: 'ERC1155: invalid sender')]
 fn test_safe_transfer_from_from_zero() {
     let (mut state, owner) = setup();
     start_cheat_caller_address(test_address(), owner);
@@ -297,7 +320,7 @@ fn test_safe_transfer_from_from_zero() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: invalid sender',))]
+#[should_panic(expected: 'ERC1155: invalid sender')]
 fn test_safeTransferFrom_from_zero() {
     let (mut state, owner) = setup();
     start_cheat_caller_address(test_address(), owner);
@@ -306,7 +329,7 @@ fn test_safeTransferFrom_from_zero() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: invalid receiver',))]
+#[should_panic(expected: 'ERC1155: invalid receiver')]
 fn test_safe_transfer_from_to_zero() {
     let (mut state, owner) = setup();
     start_cheat_caller_address(test_address(), owner);
@@ -315,7 +338,7 @@ fn test_safe_transfer_from_to_zero() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: invalid receiver',))]
+#[should_panic(expected: 'ERC1155: invalid receiver')]
 fn test_safeTransferFrom_to_zero() {
     let (mut state, owner) = setup();
     start_cheat_caller_address(test_address(), owner);
@@ -324,7 +347,7 @@ fn test_safeTransferFrom_to_zero() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: unauthorized operator',))]
+#[should_panic(expected: 'ERC1155: unauthorized operator')]
 fn test_safe_transfer_from_unauthorized() {
     let (mut state, owner) = setup();
     start_cheat_caller_address(test_address(), owner);
@@ -333,7 +356,7 @@ fn test_safe_transfer_from_unauthorized() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: unauthorized operator',))]
+#[should_panic(expected: 'ERC1155: unauthorized operator')]
 fn test_safeTransferFrom_unauthorized() {
     let (mut state, owner) = setup();
     start_cheat_caller_address(test_address(), owner);
@@ -342,7 +365,7 @@ fn test_safeTransferFrom_unauthorized() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: insufficient balance',))]
+#[should_panic(expected: 'ERC1155: insufficient balance')]
 fn test_safe_transfer_from_insufficient_balance() {
     let (mut state, owner) = setup();
     start_cheat_caller_address(test_address(), owner);
@@ -351,7 +374,7 @@ fn test_safe_transfer_from_insufficient_balance() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: insufficient balance',))]
+#[should_panic(expected: 'ERC1155: insufficient balance')]
 fn test_safeTransferFrom_insufficient_balance() {
     let (mut state, owner) = setup();
     start_cheat_caller_address(test_address(), owner);
@@ -360,7 +383,7 @@ fn test_safeTransferFrom_insufficient_balance() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: safe transfer failed',))]
+#[should_panic(expected: 'ERC1155: safe transfer failed')]
 fn test_safe_transfer_from_non_account_non_receiver() {
     let (mut state, owner) = setup();
     let non_receiver = setup_src5();
@@ -370,7 +393,7 @@ fn test_safe_transfer_from_non_account_non_receiver() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: safe transfer failed',))]
+#[should_panic(expected: 'ERC1155: safe transfer failed')]
 fn test_safeTransferFrom_non_account_non_receiver() {
     let (mut state, owner) = setup();
     let non_receiver = setup_src5();
@@ -519,7 +542,7 @@ fn test_safeBatchTransferFrom_approved_operator() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: invalid sender',))]
+#[should_panic(expected: 'ERC1155: invalid sender')]
 fn test_safe_batch_transfer_from_from_zero() {
     let (mut state, owner) = setup();
     let (token_ids, values) = get_ids_and_values();
@@ -530,7 +553,7 @@ fn test_safe_batch_transfer_from_from_zero() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: invalid sender',))]
+#[should_panic(expected: 'ERC1155: invalid sender')]
 fn test_safeBatchTransferFrom_from_zero() {
     let (mut state, owner) = setup();
     let (token_ids, values) = get_ids_and_values();
@@ -541,7 +564,7 @@ fn test_safeBatchTransferFrom_from_zero() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: invalid receiver',))]
+#[should_panic(expected: 'ERC1155: invalid receiver')]
 fn test_safe_batch_transfer_from_to_zero() {
     let (mut state, owner) = setup();
     let (token_ids, values) = get_ids_and_values();
@@ -551,7 +574,7 @@ fn test_safe_batch_transfer_from_to_zero() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: invalid receiver',))]
+#[should_panic(expected: 'ERC1155: invalid receiver')]
 fn test_safeBatchTransferFrom_to_zero() {
     let (mut state, owner) = setup();
     let (token_ids, values) = get_ids_and_values();
@@ -561,7 +584,7 @@ fn test_safeBatchTransferFrom_to_zero() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: unauthorized operator',))]
+#[should_panic(expected: 'ERC1155: unauthorized operator')]
 fn test_safe_batch_transfer_from_unauthorized() {
     let (mut state, owner) = setup();
     let (token_ids, values) = get_ids_and_values();
@@ -571,7 +594,7 @@ fn test_safe_batch_transfer_from_unauthorized() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: unauthorized operator',))]
+#[should_panic(expected: 'ERC1155: unauthorized operator')]
 fn test_safeBatchTransferFrom_unauthorized() {
     let (mut state, owner) = setup();
     let (token_ids, values) = get_ids_and_values();
@@ -581,7 +604,7 @@ fn test_safeBatchTransferFrom_unauthorized() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: insufficient balance',))]
+#[should_panic(expected: 'ERC1155: insufficient balance')]
 fn test_safe_batch_transfer_from_insufficient_balance() {
     let (mut state, owner) = setup();
     let token_ids = array![TOKEN_ID, TOKEN_ID_2].span();
@@ -592,7 +615,7 @@ fn test_safe_batch_transfer_from_insufficient_balance() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: insufficient balance',))]
+#[should_panic(expected: 'ERC1155: insufficient balance')]
 fn test_safeBatchTransferFrom_insufficient_balance() {
     let (mut state, owner) = setup();
     let token_ids = array![TOKEN_ID, TOKEN_ID_2].span();
@@ -603,7 +626,7 @@ fn test_safeBatchTransferFrom_insufficient_balance() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: safe transfer failed',))]
+#[should_panic(expected: 'ERC1155: safe transfer failed')]
 fn test_safe_batch_transfer_from_non_account_non_receiver() {
     let (mut state, owner) = setup();
     let (token_ids, values) = get_ids_and_split_values(5);
@@ -614,7 +637,7 @@ fn test_safe_batch_transfer_from_non_account_non_receiver() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: safe transfer failed',))]
+#[should_panic(expected: 'ERC1155: safe transfer failed')]
 fn test_safeBatchTransferFrom_non_account_non_receiver() {
     let (mut state, owner) = setup();
     let (token_ids, values) = get_ids_and_split_values(5);
@@ -653,7 +676,7 @@ fn test_set_approval_for_all_and_is_approved_for_all() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: self approval',))]
+#[should_panic(expected: 'ERC1155: self approval')]
 fn test_set_approval_for_all_owner_equal_operator_true() {
     let mut state = COMPONENT_STATE();
     start_cheat_caller_address(test_address(), OWNER());
@@ -661,7 +684,7 @@ fn test_set_approval_for_all_owner_equal_operator_true() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: self approval',))]
+#[should_panic(expected: 'ERC1155: self approval')]
 fn test_set_approval_for_all_owner_equal_operator_false() {
     let mut state = COMPONENT_STATE();
     start_cheat_caller_address(test_address(), OWNER());
@@ -697,7 +720,7 @@ fn test_setApprovalForAll_and_isApprovedForAll() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: self approval',))]
+#[should_panic(expected: 'ERC1155: self approval')]
 fn test_setApprovalForAll_owner_equal_operator_true() {
     let mut state = COMPONENT_STATE();
     start_cheat_caller_address(test_address(), OWNER());
@@ -705,7 +728,7 @@ fn test_setApprovalForAll_owner_equal_operator_true() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: self approval',))]
+#[should_panic(expected: 'ERC1155: self approval')]
 fn test_setApprovalForAll_owner_equal_operator_false() {
     let mut state = COMPONENT_STATE();
     start_cheat_caller_address(test_address(), OWNER());
@@ -799,7 +822,7 @@ fn test_update_from_zero_to_non_zero() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: no equal array length',))]
+#[should_panic(expected: 'ERC1155: no equal array length')]
 fn test_update_token_ids_len_greater_than_values() {
     let (mut state, owner) = setup();
     let recipient = RECIPIENT();
@@ -810,7 +833,7 @@ fn test_update_token_ids_len_greater_than_values() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: no equal array length',))]
+#[should_panic(expected: 'ERC1155: no equal array length')]
 fn test_update_values_len_greater_than_token_ids() {
     let (mut state, owner) = setup();
     let recipient = RECIPIENT();
@@ -821,7 +844,7 @@ fn test_update_values_len_greater_than_token_ids() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: insufficient balance',))]
+#[should_panic(expected: 'ERC1155: insufficient balance')]
 fn test_update_insufficient_balance() {
     let (mut state, owner) = setup();
     let recipient = RECIPIENT();
@@ -1003,7 +1026,7 @@ fn test_update_wac_from_zero_to_non_zero_account() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: no equal array length',))]
+#[should_panic(expected: 'ERC1155: no equal array length')]
 fn test_update_wac_token_ids_len_greater_than_values() {
     let (mut state, owner) = setup();
     let recipient = RECIPIENT();
@@ -1014,7 +1037,7 @@ fn test_update_wac_token_ids_len_greater_than_values() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: no equal array length',))]
+#[should_panic(expected: 'ERC1155: no equal array length')]
 fn test_update_wac_values_len_greater_than_token_ids() {
     let (mut state, owner) = setup();
     let recipient = RECIPIENT();
@@ -1025,7 +1048,7 @@ fn test_update_wac_values_len_greater_than_token_ids() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: insufficient balance',))]
+#[should_panic(expected: 'ERC1155: insufficient balance')]
 fn test_update_wac_insufficient_balance() {
     let (mut state, owner) = setup();
     let recipient = RECIPIENT();
@@ -1036,7 +1059,7 @@ fn test_update_wac_insufficient_balance() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: safe transfer failed',))]
+#[should_panic(expected: 'ERC1155: safe transfer failed')]
 fn test_update_wac_single_to_non_receiver() {
     let (mut state, owner) = setup();
     let recipient = setup_src5();
@@ -1048,7 +1071,7 @@ fn test_update_wac_single_to_non_receiver() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: safe transfer failed',))]
+#[should_panic(expected: 'ERC1155: safe transfer failed')]
 fn test_update_wac_batch_to_non_receiver() {
     let (mut state, owner) = setup();
     let recipient = setup_src5();
@@ -1107,7 +1130,7 @@ fn test_mint_wac_to_account() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: invalid receiver',))]
+#[should_panic(expected: 'ERC1155: invalid receiver')]
 fn test_mint_wac_to_zero() {
     let mut state = COMPONENT_STATE();
     let recipient = ZERO();
@@ -1116,7 +1139,7 @@ fn test_mint_wac_to_zero() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: safe transfer failed',))]
+#[should_panic(expected: 'ERC1155: safe transfer failed')]
 fn test_mint_wac_to_non_receiver() {
     let mut state = COMPONENT_STATE();
     let recipient = setup_src5();
@@ -1183,7 +1206,7 @@ fn test_batch_mint_wac_to_account() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: invalid receiver',))]
+#[should_panic(expected: 'ERC1155: invalid receiver')]
 fn test_batch_mint_wac_to_zero() {
     let mut state = COMPONENT_STATE();
     let recipient = ZERO();
@@ -1193,7 +1216,7 @@ fn test_batch_mint_wac_to_zero() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: safe transfer failed',))]
+#[should_panic(expected: 'ERC1155: safe transfer failed')]
 fn test_batch_mint_wac_to_non_receiver() {
     let mut state = COMPONENT_STATE();
     let recipient = setup_src5();
@@ -1228,7 +1251,7 @@ fn test_burn() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: invalid sender',))]
+#[should_panic(expected: 'ERC1155: invalid sender')]
 fn test_burn_from_zero() {
     let mut state = COMPONENT_STATE();
     state.burn(ZERO(), TOKEN_ID, TOKEN_VALUE);
@@ -1259,7 +1282,7 @@ fn test_batch_burn() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: invalid sender',))]
+#[should_panic(expected: 'ERC1155: invalid sender')]
 fn test_batch_burn_from_zero() {
     let mut state = COMPONENT_STATE();
     let (token_ids, values) = get_ids_and_values();

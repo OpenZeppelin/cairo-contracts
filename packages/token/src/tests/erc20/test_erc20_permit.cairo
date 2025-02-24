@@ -1,6 +1,5 @@
 use core::hash::{HashStateExTrait, HashStateTrait};
 use core::poseidon::PoseidonTrait;
-use crate::erc20::ERC20Component;
 use crate::erc20::ERC20Component::{ERC20MixinImpl, InternalImpl};
 use crate::erc20::ERC20Component::{ERC20PermitImpl, SNIP12MetadataExternalImpl};
 use crate::erc20::snip12_utils::permit::{PERMIT_TYPE_HASH, Permit};

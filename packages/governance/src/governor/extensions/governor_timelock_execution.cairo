@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0
+// OpenZeppelin Contracts for Cairo v1.0.0
 // (governance/src/governor/extensions/governor_core_execution.cairo)
 
 /// # GovernorTimelockExecution Component
@@ -49,13 +49,13 @@ pub mod GovernorTimelockExecutionComponent {
     }
 
     #[event]
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub enum Event {
         TimelockUpdated: TimelockUpdated,
     }
 
     /// Emitted when the timelock controller used for proposal execution is modified.
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct TimelockUpdated {
         pub old_timelock: ContractAddress,
         pub new_timelock: ContractAddress,

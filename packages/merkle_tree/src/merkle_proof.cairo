@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0 (merkle_tree/src/merkle_proof.cairo)
+// OpenZeppelin Contracts for Cairo v1.0.0 (merkle_tree/src/merkle_proof.cairo)
 
 /// These functions deal with verification of Merkle Tree proofs.
 ///

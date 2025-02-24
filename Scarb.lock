@@ -3,7 +3,7 @@ version = 1
 
 [[package]]
 name = "openzeppelin"
-version = "0.20.0"
+version = "1.0.0"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_account",
@@ -23,7 +23,7 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_access"
-version = "0.20.0"
+version = "1.0.0"
 dependencies = [
  "openzeppelin_introspection",
  "openzeppelin_test_common",
@@ -33,7 +33,7 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_account"
-version = "0.20.0"
+version = "1.0.0"
 dependencies = [
  "openzeppelin_introspection",
  "openzeppelin_test_common",
@@ -44,7 +44,7 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_finance"
-version = "0.20.0"
+version = "1.0.0"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_test_common",
@@ -56,7 +56,7 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_governance"
-version = "0.20.0"
+version = "1.0.0"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_account",
@@ -70,7 +70,7 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_introspection"
-version = "0.20.0"
+version = "1.0.0"
 dependencies = [
  "openzeppelin_test_common",
  "snforge_std",
@@ -78,14 +78,14 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_merkle_tree"
-version = "0.20.0"
+version = "1.0.0"
 dependencies = [
  "snforge_std",
 ]
 
 [[package]]
 name = "openzeppelin_presets"
-version = "0.20.0"
+version = "1.0.0"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_account",
@@ -101,7 +101,7 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_security"
-version = "0.20.0"
+version = "1.0.0"
 dependencies = [
  "openzeppelin_test_common",
  "openzeppelin_testing",
@@ -110,7 +110,7 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_test_common"
-version = "0.20.0"
+version = "1.0.0"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_account",
@@ -127,14 +127,14 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_testing"
-version = "0.20.0"
+version = "1.0.0"
 dependencies = [
  "snforge_std",
 ]
 
 [[package]]
 name = "openzeppelin_token"
-version = "0.20.0"
+version = "1.0.0"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_account",
@@ -147,7 +147,7 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_upgrades"
-version = "0.20.0"
+version = "1.0.0"
 dependencies = [
  "openzeppelin_test_common",
  "openzeppelin_testing",
@@ -156,7 +156,7 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_utils"
-version = "0.20.0"
+version = "1.0.0"
 dependencies = [
  "openzeppelin_test_common",
  "openzeppelin_testing",

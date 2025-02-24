@@ -96,7 +96,7 @@ fn setup_dispatchers() -> (IGovernorDispatcher, ITimelockDispatcher, IMockContra
 }
 
 //
-// Timelock salt
+// timelock_salt
 //
 
 #[test]

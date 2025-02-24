@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0 (token/src/erc20/erc20.cairo)
+// OpenZeppelin Contracts for Cairo v1.0.0 (token/src/erc20/erc20.cairo)
 
 /// # ERC20 Component
 ///
@@ -8,7 +8,7 @@
 /// component is agnostic regarding how tokens are created, which means that developers
 /// must create their own token distribution mechanism.
 /// See [the documentation]
-/// (https://docs.openzeppelin.com/contracts-cairo/0.20.0/guides/erc20-supply)
+/// (https://docs.openzeppelin.com/contracts-cairo/1.0.0/guides/erc20-supply)
 /// for examples.
 #[starknet::component]
 pub mod ERC20Component {
@@ -40,14 +40,14 @@ pub mod ERC20Component {
     }
 
     #[event]
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub enum Event {
         Transfer: Transfer,
         Approval: Approval,
     }
 
     /// Emitted when tokens are moved from address `from` to address `to`.
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct Transfer {
         #[key]
         pub from: ContractAddress,
@@ -58,7 +58,7 @@ pub mod ERC20Component {
 
     /// Emitted when the allowance of a `spender` for an `owner` is set by a call
     /// to `approve`. `value` is the new allowance.
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct Approval {
         #[key]
         pub owner: ContractAddress,

@@ -8,7 +8,7 @@ This crate provides components to handle common security-related tasks.
 
 [.contract]
 [[InitializableComponent]]
-=== `++InitializableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.20.0/packages/security/src/initializable.cairo[{github-icon},role=heading-link]
+=== `++InitializableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/security/src/initializable.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin_security::InitializableComponent;
@@ -58,7 +58,7 @@ Requirements:
 
 [.contract]
 [[PausableComponent]]
-=== `++PausableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.20.0/packages/security/src/pausable.cairo[{github-icon},role=heading-link]
+=== `++PausableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/security/src/pausable.cairo[{github-icon},role=heading-link]
 
 :Paused: xref:PausableComponent-Paused[Paused]
 :Unpaused: xref:PausableComponent-Unpaused[Unpaused]
@@ -163,7 +163,7 @@ Emitted when the contract is unpaused by `account`.
 
 [.contract]
 [[ReentrancyGuardComponent]]
-=== `++ReentrancyGuardComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.20.0/packages/security/src/reentrancyguard.cairo[{github-icon},role=heading-link]
+=== `++ReentrancyGuardComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/security/src/reentrancyguard.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin_security::ReentrancyGuardComponent;

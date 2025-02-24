@@ -91,6 +91,29 @@ fn test_initialize() {
     assert!(supports_isrc5);
 }
 
+#[test]
+fn test_initialize_no_metadata() {
+    let mut state = COMPONENT_STATE();
+    let mock_state = CONTRACT_STATE();
+
+    state.initializer_no_metadata();
+
+    let empty_str = "";
+    assert_eq!(state.ERC1155_uri.read(), empty_str);
+    assert!(state.balance_of(OWNER(), TOKEN_ID).is_zero());
+
+    let supports_ierc1155 = mock_state.supports_interface(erc1155::interface::IERC1155_ID);
+    assert!(supports_ierc1155);
+
+    let does_not_support_ierc1155_metadata_uri = !mock_state
+        .supports_interface(erc1155::interface::IERC1155_METADATA_URI_ID);
+    assert!(does_not_support_ierc1155_metadata_uri);
+
+    let supports_isrc5 = mock_state
+        .supports_interface(openzeppelin_introspection::interface::ISRC5_ID);
+    assert!(supports_isrc5);
+}
+
 //
 // balance_of & balanceOf
 //

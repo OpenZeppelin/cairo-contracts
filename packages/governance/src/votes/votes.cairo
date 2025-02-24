@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v1.0.0 (governance/votes/votes.cairo)
+// OpenZeppelin Contracts for Cairo v1.0.0 (governance/src/votes/votes.cairo)
 
 /// # Votes Component
 ///

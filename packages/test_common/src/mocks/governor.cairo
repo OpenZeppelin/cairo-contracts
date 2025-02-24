@@ -12,7 +12,7 @@ pub mod GovernorMock {
     use starknet::ContractAddress;
 
     pub const VOTING_DELAY: u64 = 86400; // 1 day
-    pub const VOTING_PERIOD: u64 = 432_000; // 1 week
+    pub const VOTING_PERIOD: u64 = 604800; // 1 week
     pub const PROPOSAL_THRESHOLD: u256 = 10;
     pub const QUORUM: u256 = 100_000_000;
 
@@ -145,7 +145,7 @@ pub mod GovernorQuorumFractionMock {
     use starknet::ContractAddress;
 
     pub const VOTING_DELAY: u64 = 86400; // 1 day
-    pub const VOTING_PERIOD: u64 = 432_000; // 1 week
+    pub const VOTING_PERIOD: u64 = 604800; // 1 week
     pub const PROPOSAL_THRESHOLD: u256 = 10;
     pub const QUORUM_NUMERATOR: u256 = 600; // 60%
 
@@ -275,7 +275,7 @@ pub mod GovernorTimelockedMock {
     use starknet::ContractAddress;
 
     pub const VOTING_DELAY: u64 = 86400; // 1 day
-    pub const VOTING_PERIOD: u64 = 432_000; // 1 week
+    pub const VOTING_PERIOD: u64 = 604800; // 1 week
     pub const PROPOSAL_THRESHOLD: u256 = 10;
     pub const QUORUM: u256 = 100_000_000;
 

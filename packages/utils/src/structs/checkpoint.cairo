@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v1.0.0 (utils/structs/checkpoint.cairo)
+// OpenZeppelin Contracts for Cairo v1.0.0 (utils/src/structs/checkpoint.cairo)
 
 use core::num::traits::Sqrt;
 use crate::math;
@@ -55,9 +55,13 @@ pub impl TraceImpl of TraceTrait {
         let mut low = 0;
         let mut high = len;
 
-        if (len > 5) {
+        if len > 5 {
             let mid = len - len.sqrt().into();
-            if (key < checkpoints[mid].read().key) {
+            let mid_point = checkpoints[mid].read();
+            if key == mid_point.key {
+                return mid_point.value;
+            }
+            if key < mid_point.key {
                 high = mid;
             } else {
                 low = mid + 1;
@@ -89,7 +93,7 @@ pub impl TraceImpl of TraceTrait {
         let checkpoints = self.checkpoints;
         let pos = checkpoints.len();
 
-        if (pos == 0) {
+        if pos == 0 {
             (false, 0, 0)
         } else {
             let checkpoint = checkpoints[pos - 1].read();
@@ -116,17 +120,17 @@ impl CheckpointImpl of CheckpointTrait {
     fn _insert(self: StoragePath<Mutable<Vec<Checkpoint>>>, key: u64, value: u256) -> (u256, u256) {
         let pos = self.len();
 
-        if (pos > 0) {
+        if pos > 0 {
             let mut last = self[pos - 1].read();
 
-            // Checkpoint keys must be non-decreasing
-            assert(last.key <= key, 'Unordered insertion');
             // Update or append new checkpoint
             let prev = last.value;
-            if (last.key == key) {
+            if last.key == key {
                 last.value = value;
                 self[pos - 1].write(last);
             } else {
+                // Checkpoint keys must be non-decreasing
+                assert(last.key < key, 'Unordered insertion');
                 self.append().write(Checkpoint { key, value });
             }
             (prev, value)
@@ -149,7 +153,7 @@ impl CheckpointImpl of CheckpointTrait {
                 break;
             }
             let mid = math::average(_low, _high);
-            if (self[mid].read().key > key) {
+            if self[mid].read().key > key {
                 _high = mid;
             } else {
                 _low = mid + 1;

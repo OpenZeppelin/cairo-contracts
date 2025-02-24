@@ -1421,7 +1421,7 @@ fn test_signers_info_error_happens_with_v1() {
 }
 
 #[test]
-fn test_signers_info_no_error_happen_with_v2() {
+fn test_signers_info_no_error_happens_with_v2() {
     let quorum = 123;
     let signers_count = Bounded::MAX;
     let info = SignersInfo { quorum, signers_count };

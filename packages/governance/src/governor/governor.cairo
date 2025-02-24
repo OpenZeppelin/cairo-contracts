@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v1.0.0 (governance/governor/governor.cairo)
+// OpenZeppelin Contracts for Cairo v1.0.0 (governance/src/governor/governor.cairo)
 
 /// # Governor Component
 ///
@@ -1048,7 +1048,7 @@ pub mod GovernorComponent {
 /// Implementation of the default Governor ImmutableConfig.
 ///
 /// See
-/// https://github.com/starknet-io/SNIPs/blob/963848f0752bde75c7087c2446d83b7da8118b25/SNIPS/snip-107.md#defaultconfig-implementation
+/// https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-107.md#defaultconfig-implementation
 ///
 /// The `DEFAULT_PARAMS` is set to an empty span of felts.
 pub impl DefaultConfig of GovernorComponent::ImmutableConfig {

@@ -1,7 +1,7 @@
 #[starknet::contract]
 pub mod ERC20VotesMock {
     use openzeppelin_governance::votes::VotesComponent;
-    use openzeppelin_token::erc20::ERC20Component;
+    use openzeppelin_token::erc20::{DefaultConfig, ERC20Component};
     use openzeppelin_utils::cryptography::nonces::NoncesComponent;
     use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
     use starknet::ContractAddress;

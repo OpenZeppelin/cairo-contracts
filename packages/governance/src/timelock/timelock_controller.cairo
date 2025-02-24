@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v1.0.0 (governance/timelock/timelock_controller.cairo)
+// OpenZeppelin Contracts for Cairo v1.0.0 (governance/src/timelock/timelock_controller.cairo)
 
 /// # TimelockController Component
 ///
@@ -153,6 +153,13 @@ pub mod TimelockControllerComponent {
         }
 
         /// Returns the OperationState for `id`.
+        ///
+        /// The possible states are:
+        ///
+        /// - `Unset`: the operation has not been scheduled or has been canceled.
+        /// - `Waiting`: the operation has been scheduled and is pending the scheduled delay.
+        /// - `Ready`: the timer has expired, and the operation is eligible for execution.
+        /// - `Done`: the operation has been executed.
         fn get_operation_state(
             self: @ComponentState<TContractState>, id: felt252,
         ) -> OperationState {
@@ -256,7 +263,7 @@ pub mod TimelockControllerComponent {
             }
         }
 
-        /// Cancels an operation.
+        /// Cancels an operation. A canceled operation returns to `Unset` OperationState.
         ///
         /// Requirements:
         ///

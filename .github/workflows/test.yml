@@ -30,17 +30,15 @@ jobs:
           FOUNDRY_VERSION=$(grep 'snforge_std = ' Scarb.toml | sed 's/snforge_std = "\(.*\)"/\1/')
           echo "FOUNDRY_VERSION=$FOUNDRY_VERSION" >> "$GITHUB_ENV"
 
-      - uses: foundry-rs/setup-snfoundry@v3
+      - uses: foundry-rs/setup-snfoundry@v4
         with:
           starknet-foundry-version: ${{ env.FOUNDRY_VERSION }}
 
-      # Issue with cairo-coverage. Re-add to CI once issues are fixed.
-      #
-      # - name: Install cairo-coverage
-      #   run: curl -L https://raw.githubusercontent.com/software-mansion/cairo-coverage/main/scripts/install.sh | sh
+      - name: Install cairo-coverage
+        run: curl -L https://raw.githubusercontent.com/software-mansion/cairo-coverage/main/scripts/install.sh | sh
 
       - name: Markdown lint
-        uses: DavidAnson/markdownlint-cli2-action@eb5ca3ab411449c66620fe7f1b3c9e10547144b0 # v16
+        uses: DavidAnson/markdownlint-cli2-action@05f32210e84442804257b2a6f20b273450ec8265 # v16
         with:
           globs: |
             *.md
@@ -50,15 +48,13 @@ jobs:
         run: scarb fmt --check --workspace
 
       - name: Run tests
-        run: snforge test --workspace
+        run: snforge test --workspace --features fuzzing --fuzzer-runs 500
 
-      # Issue with cairo-coverage. Re-add to CI once issues are fixed.
-      #
-      # - name: Run tests and generate coverage report
-      #   run: snforge test --workspace --coverage
-      #
-      # - name: Upload coverage to Codecov
-      #   uses: codecov/codecov-action@v4
-      #   with:
-      #     file: ./coverage.lcov
-      #     token: ${{ secrets.CODECOV_TOKEN }}
+      - name: Run tests and generate coverage report
+        run: snforge test --workspace --coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.lcov
+          token: ${{ secrets.CODECOV_TOKEN }}

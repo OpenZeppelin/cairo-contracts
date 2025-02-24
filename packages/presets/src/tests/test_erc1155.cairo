@@ -129,7 +129,7 @@ fn test_balanceOfBatch() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: no equal array length',))]
+#[should_panic(expected: 'ERC1155: no equal array length')]
 fn test_balance_of_batch_invalid_inputs() {
     let (_, dispatcher, owner) = setup_dispatcher();
 
@@ -140,7 +140,7 @@ fn test_balance_of_batch_invalid_inputs() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: no equal array length',))]
+#[should_panic(expected: 'ERC1155: no equal array length')]
 fn test_balanceOfBatch_invalid_inputs() {
     let (_, dispatcher, owner) = setup_dispatcher();
 
@@ -263,7 +263,7 @@ fn test_safeTransferFrom_approved_operator() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: invalid sender',))]
+#[should_panic(expected: 'ERC1155: invalid sender')]
 fn test_safe_transfer_from_from_zero() {
     let (_, dispatcher, owner) = setup_dispatcher();
 
@@ -271,7 +271,7 @@ fn test_safe_transfer_from_from_zero() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: invalid sender',))]
+#[should_panic(expected: 'ERC1155: invalid sender')]
 fn test_safeTransferFrom_from_zero() {
     let (_, dispatcher, owner) = setup_dispatcher();
 
@@ -279,7 +279,7 @@ fn test_safeTransferFrom_from_zero() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: invalid receiver',))]
+#[should_panic(expected: 'ERC1155: invalid receiver')]
 fn test_safe_transfer_from_to_zero() {
     let (_, dispatcher, owner) = setup_dispatcher();
 
@@ -287,7 +287,7 @@ fn test_safe_transfer_from_to_zero() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: invalid receiver',))]
+#[should_panic(expected: 'ERC1155: invalid receiver')]
 fn test_safeTransferFrom_to_zero() {
     let (_, dispatcher, owner) = setup_dispatcher();
 
@@ -295,7 +295,7 @@ fn test_safeTransferFrom_to_zero() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: unauthorized operator',))]
+#[should_panic(expected: 'ERC1155: unauthorized operator')]
 fn test_safe_transfer_from_unauthorized() {
     let (_, dispatcher, owner) = setup_dispatcher();
 
@@ -303,7 +303,7 @@ fn test_safe_transfer_from_unauthorized() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: unauthorized operator',))]
+#[should_panic(expected: 'ERC1155: unauthorized operator')]
 fn test_safeTransferFrom_unauthorized() {
     let (_, dispatcher, owner) = setup_dispatcher();
 
@@ -311,7 +311,7 @@ fn test_safeTransferFrom_unauthorized() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: insufficient balance',))]
+#[should_panic(expected: 'ERC1155: insufficient balance')]
 fn test_safe_transfer_from_insufficient_balance() {
     let (_, dispatcher, owner) = setup_dispatcher();
 
@@ -319,7 +319,7 @@ fn test_safe_transfer_from_insufficient_balance() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: insufficient balance',))]
+#[should_panic(expected: 'ERC1155: insufficient balance')]
 fn test_safeTransferFrom_insufficient_balance() {
     let (_, dispatcher, owner) = setup_dispatcher();
 
@@ -327,7 +327,7 @@ fn test_safeTransferFrom_insufficient_balance() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: safe transfer failed',))]
+#[should_panic(expected: 'ERC1155: safe transfer failed')]
 fn test_safe_transfer_from_non_account_non_receiver() {
     let (_, dispatcher, owner) = setup_dispatcher();
     let non_receiver = setup_src5();
@@ -336,7 +336,7 @@ fn test_safe_transfer_from_non_account_non_receiver() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: safe transfer failed',))]
+#[should_panic(expected: 'ERC1155: safe transfer failed')]
 fn test_safeTransferFrom_non_account_non_receiver() {
     let (_, dispatcher, owner) = setup_dispatcher();
     let non_receiver = setup_src5();
@@ -457,7 +457,7 @@ fn test_safeBatchTransferFrom_approved_operator() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: invalid sender',))]
+#[should_panic(expected: 'ERC1155: invalid sender')]
 fn test_safe_batch_transfer_from_from_zero() {
     let (_, dispatcher, owner) = setup_dispatcher();
     let (token_ids, values) = get_ids_and_values();
@@ -466,7 +466,7 @@ fn test_safe_batch_transfer_from_from_zero() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: invalid sender',))]
+#[should_panic(expected: 'ERC1155: invalid sender')]
 fn test_safeBatchTransferFrom_from_zero() {
     let (_, dispatcher, owner) = setup_dispatcher();
     let (token_ids, values) = get_ids_and_values();
@@ -475,7 +475,7 @@ fn test_safeBatchTransferFrom_from_zero() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: invalid receiver',))]
+#[should_panic(expected: 'ERC1155: invalid receiver')]
 fn test_safe_batch_transfer_from_to_zero() {
     let (_, dispatcher, owner) = setup_dispatcher();
     let (token_ids, values) = get_ids_and_values();
@@ -484,7 +484,7 @@ fn test_safe_batch_transfer_from_to_zero() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: invalid receiver',))]
+#[should_panic(expected: 'ERC1155: invalid receiver')]
 fn test_safeBatchTransferFrom_to_zero() {
     let (_, dispatcher, owner) = setup_dispatcher();
     let (token_ids, values) = get_ids_and_values();
@@ -493,7 +493,7 @@ fn test_safeBatchTransferFrom_to_zero() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: unauthorized operator',))]
+#[should_panic(expected: 'ERC1155: unauthorized operator')]
 fn test_safe_batch_transfer_from_unauthorized() {
     let (_, dispatcher, owner) = setup_dispatcher();
     let (token_ids, values) = get_ids_and_values();
@@ -502,7 +502,7 @@ fn test_safe_batch_transfer_from_unauthorized() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: unauthorized operator',))]
+#[should_panic(expected: 'ERC1155: unauthorized operator')]
 fn test_safeBatchTransferFrom_unauthorized() {
     let (_, dispatcher, owner) = setup_dispatcher();
     let (token_ids, values) = get_ids_and_values();
@@ -511,7 +511,7 @@ fn test_safeBatchTransferFrom_unauthorized() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: insufficient balance',))]
+#[should_panic(expected: 'ERC1155: insufficient balance')]
 fn test_safe_batch_transfer_from_insufficient_balance() {
     let (_, dispatcher, owner) = setup_dispatcher();
     let token_ids = array![TOKEN_ID, TOKEN_ID_2].span();
@@ -521,7 +521,7 @@ fn test_safe_batch_transfer_from_insufficient_balance() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: insufficient balance',))]
+#[should_panic(expected: 'ERC1155: insufficient balance')]
 fn test_safeBatchTransferFrom_insufficient_balance() {
     let (_, dispatcher, owner) = setup_dispatcher();
     let token_ids = array![TOKEN_ID, TOKEN_ID_2].span();
@@ -531,7 +531,7 @@ fn test_safeBatchTransferFrom_insufficient_balance() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: safe transfer failed',))]
+#[should_panic(expected: 'ERC1155: safe transfer failed')]
 fn test_safe_batch_transfer_from_non_account_non_receiver() {
     let (_, dispatcher, owner) = setup_dispatcher();
     let (token_ids, values) = get_ids_and_split_values(5);
@@ -541,7 +541,7 @@ fn test_safe_batch_transfer_from_non_account_non_receiver() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: safe transfer failed',))]
+#[should_panic(expected: 'ERC1155: safe transfer failed')]
 fn test_safeBatchTransferFrom_non_account_non_receiver() {
     let (_, dispatcher, owner) = setup_dispatcher();
     let (token_ids, values) = get_ids_and_split_values(5);
@@ -577,7 +577,7 @@ fn test_set_approval_for_all_and_is_approved_for_all() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: self approval',))]
+#[should_panic(expected: 'ERC1155: self approval')]
 fn test_set_approval_for_all_owner_equal_operator_true() {
     let (_, dispatcher, _) = setup_dispatcher();
     start_cheat_caller_address(dispatcher.contract_address, OWNER());
@@ -585,7 +585,7 @@ fn test_set_approval_for_all_owner_equal_operator_true() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: self approval',))]
+#[should_panic(expected: 'ERC1155: self approval')]
 fn test_set_approval_for_all_owner_equal_operator_false() {
     let (_, dispatcher, _) = setup_dispatcher();
     start_cheat_caller_address(dispatcher.contract_address, OWNER());
@@ -619,7 +619,7 @@ fn test_setApprovalForAll_and_isApprovedForAll() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: self approval',))]
+#[should_panic(expected: 'ERC1155: self approval')]
 fn test_setApprovalForAll_owner_equal_operator_true() {
     let (_, dispatcher, _) = setup_dispatcher();
     start_cheat_caller_address(dispatcher.contract_address, OWNER());
@@ -627,7 +627,7 @@ fn test_setApprovalForAll_owner_equal_operator_true() {
 }
 
 #[test]
-#[should_panic(expected: ('ERC1155: self approval',))]
+#[should_panic(expected: 'ERC1155: self approval')]
 fn test_setApprovalForAll_owner_equal_operator_false() {
     let (_, dispatcher, _) = setup_dispatcher();
     start_cheat_caller_address(dispatcher.contract_address, OWNER());
@@ -649,7 +649,7 @@ fn test_transfer_ownership() {
 }
 
 #[test]
-#[should_panic(expected: ('New owner is the zero address',))]
+#[should_panic(expected: 'New owner is the zero address')]
 fn test_transfer_ownership_to_zero() {
     let (_, dispatcher, owner) = setup_dispatcher();
     start_cheat_caller_address(dispatcher.contract_address, owner);
@@ -657,7 +657,7 @@ fn test_transfer_ownership_to_zero() {
 }
 
 #[test]
-#[should_panic(expected: ('Caller is not the owner',))]
+#[should_panic(expected: 'Caller is not the owner')]
 fn test_transfer_ownership_from_nonowner() {
     let (_, dispatcher, _) = setup_dispatcher();
     start_cheat_caller_address(dispatcher.contract_address, OTHER());
@@ -675,7 +675,7 @@ fn test_transferOwnership() {
 }
 
 #[test]
-#[should_panic(expected: ('New owner is the zero address',))]
+#[should_panic(expected: 'New owner is the zero address')]
 fn test_transferOwnership_to_zero() {
     let (_, dispatcher, owner) = setup_dispatcher();
     start_cheat_caller_address(dispatcher.contract_address, owner);
@@ -683,7 +683,7 @@ fn test_transferOwnership_to_zero() {
 }
 
 #[test]
-#[should_panic(expected: ('Caller is not the owner',))]
+#[should_panic(expected: 'Caller is not the owner')]
 fn test_transferOwnership_from_nonowner() {
     let (_, dispatcher, _) = setup_dispatcher();
     start_cheat_caller_address(dispatcher.contract_address, OTHER());
@@ -705,7 +705,7 @@ fn test_renounce_ownership() {
 }
 
 #[test]
-#[should_panic(expected: ('Caller is not the owner',))]
+#[should_panic(expected: 'Caller is not the owner')]
 fn test_renounce_ownership_from_nonowner() {
     let (_, dispatcher, _) = setup_dispatcher();
     start_cheat_caller_address(dispatcher.contract_address, OTHER());
@@ -723,7 +723,7 @@ fn test_renounceOwnership() {
 }
 
 #[test]
-#[should_panic(expected: ('Caller is not the owner',))]
+#[should_panic(expected: 'Caller is not the owner')]
 fn test_renounceOwnership_from_nonowner() {
     let (_, dispatcher, _) = setup_dispatcher();
     start_cheat_caller_address(dispatcher.contract_address, OTHER());
@@ -735,7 +735,7 @@ fn test_renounceOwnership_from_nonowner() {
 //
 
 #[test]
-#[should_panic(expected: ('Caller is not the owner',))]
+#[should_panic(expected: 'Caller is not the owner')]
 fn test_upgrade_unauthorized() {
     let (_, v1, _) = setup_dispatcher();
     start_cheat_caller_address(v1.contract_address, OTHER());
@@ -743,7 +743,7 @@ fn test_upgrade_unauthorized() {
 }
 
 #[test]
-#[should_panic(expected: ('Class hash cannot be zero',))]
+#[should_panic(expected: 'Class hash cannot be zero')]
 fn test_upgrade_with_class_hash_zero() {
     let (_, v1, owner) = setup_dispatcher();
 

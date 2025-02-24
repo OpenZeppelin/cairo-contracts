@@ -155,7 +155,7 @@ fn test_public_key_setter_and_getter_camel() {
 }
 
 #[test]
-#[should_panic(expected: ('EthAccount: unauthorized',))]
+#[should_panic(expected: 'EthAccount: unauthorized')]
 fn test_set_public_key_different_account() {
     let (_, dispatcher) = setup_dispatcher(KEY_PAIR());
 
@@ -163,7 +163,7 @@ fn test_set_public_key_different_account() {
 }
 
 #[test]
-#[should_panic(expected: ('EthAccount: unauthorized',))]
+#[should_panic(expected: 'EthAccount: unauthorized')]
 fn test_setPublicKey_different_account() {
     let (_, dispatcher) = setup_dispatcher(KEY_PAIR());
 
@@ -253,7 +253,7 @@ fn test_validate_deploy() {
 }
 
 #[test]
-#[should_panic(expected: ('EthAccount: invalid signature',))]
+#[should_panic(expected: 'EthAccount: invalid signature')]
 fn test_validate_deploy_invalid_signature_data() {
     let key_pair = KEY_PAIR();
     let mut data = SIGNED_TX_DATA(key_pair);
@@ -264,7 +264,7 @@ fn test_validate_deploy_invalid_signature_data() {
 }
 
 #[test]
-#[should_panic(expected: ('Signature: Invalid format.',))]
+#[should_panic(expected: 'Signature: Invalid format.')]
 fn test_validate_deploy_invalid_signature_length() {
     let key_pair = KEY_PAIR();
     let (account, class_hash) = setup_dispatcher_with_data(key_pair, SIGNED_TX_DATA(key_pair));
@@ -275,7 +275,7 @@ fn test_validate_deploy_invalid_signature_length() {
 }
 
 #[test]
-#[should_panic(expected: ('Signature: Invalid format.',))]
+#[should_panic(expected: 'Signature: Invalid format.')]
 fn test_validate_deploy_empty_signature() {
     let key_pair = KEY_PAIR();
     let (account, class_hash) = setup_dispatcher_with_data(key_pair, SIGNED_TX_DATA(key_pair));
@@ -298,7 +298,7 @@ fn test_validate_declare() {
 }
 
 #[test]
-#[should_panic(expected: ('EthAccount: invalid signature',))]
+#[should_panic(expected: 'EthAccount: invalid signature')]
 fn test_validate_declare_invalid_signature_data() {
     let key_pair = KEY_PAIR();
     let mut data = SIGNED_TX_DATA(key_pair);
@@ -309,7 +309,7 @@ fn test_validate_declare_invalid_signature_data() {
 }
 
 #[test]
-#[should_panic(expected: ('Signature: Invalid format.',))]
+#[should_panic(expected: 'Signature: Invalid format.')]
 fn test_validate_declare_invalid_signature_length() {
     let key_pair = KEY_PAIR();
     let (account, class_hash) = setup_dispatcher_with_data(key_pair, SIGNED_TX_DATA(key_pair));
@@ -320,7 +320,7 @@ fn test_validate_declare_invalid_signature_length() {
 }
 
 #[test]
-#[should_panic(expected: ('Signature: Invalid format.',))]
+#[should_panic(expected: 'Signature: Invalid format.')]
 fn test_validate_declare_empty_signature() {
     let key_pair = KEY_PAIR();
     let (account, class_hash) = setup_dispatcher_with_data(key_pair, SIGNED_TX_DATA(key_pair));
@@ -372,7 +372,7 @@ fn test_execute_query_version() {
 }
 
 #[test]
-#[should_panic(expected: ('EthAccount: invalid tx version',))]
+#[should_panic(expected: 'EthAccount: invalid tx version')]
 fn test_execute_invalid_version() {
     test_execute_with_version(Option::Some(MIN_TRANSACTION_VERSION - 1));
 }
@@ -388,7 +388,7 @@ fn test_validate() {
 }
 
 #[test]
-#[should_panic(expected: ('EthAccount: invalid signature',))]
+#[should_panic(expected: 'EthAccount: invalid signature')]
 fn test_validate_invalid() {
     let key_pair = KEY_PAIR();
     let mut data = SIGNED_TX_DATA(key_pair);
@@ -452,7 +452,7 @@ fn test_multicall_zero_calls() {
 }
 
 #[test]
-#[should_panic(expected: ('EthAccount: invalid caller',))]
+#[should_panic(expected: 'EthAccount: invalid caller')]
 fn test_account_called_from_contract() {
     let (_, account) = setup_dispatcher(KEY_PAIR());
     let calls = array![];
@@ -467,14 +467,14 @@ fn test_account_called_from_contract() {
 //
 
 #[test]
-#[should_panic(expected: ('EthAccount: unauthorized',))]
+#[should_panic(expected: 'EthAccount: unauthorized')]
 fn test_upgrade_access_control() {
     let (_, v1) = setup_dispatcher(KEY_PAIR());
     v1.upgrade(CLASS_HASH_ZERO());
 }
 
 #[test]
-#[should_panic(expected: ('Class hash cannot be zero',))]
+#[should_panic(expected: 'Class hash cannot be zero')]
 fn test_upgrade_with_class_hash_zero() {
     let (_, v1) = setup_dispatcher(KEY_PAIR());
 
@@ -632,7 +632,7 @@ fn test_execute_from_outside_v2_call_equal_to_execute_before() {
 }
 
 #[test]
-#[should_panic(expected: ('SRC9: now <= execute_after',))]
+#[should_panic(expected: 'SRC9: now <= execute_after')]
 fn test_execute_from_outside_v2_call_before_execute_after() {
     let key_pair = KEY_PAIR();
     let (account_address, dispatcher) = setup_dispatcher(key_pair);

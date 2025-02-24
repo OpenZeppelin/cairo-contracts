@@ -1,4 +1,5 @@
 = Governor
+
 :votes-component: xref:api/governance.adoc#VotesComponent[VotesComponent]
 :governor-component: xref:api/governance.adoc#GovernorComponent[GovernorComponent]
 :access-control: xref:access.adoc#role_based_accesscontrol[AccessControl]
@@ -111,7 +112,7 @@ mod MyGovernor {
     use starknet::ContractAddress;
 
     pub const VOTING_DELAY: u64 = 86400; // 1 day
-    pub const VOTING_PERIOD: u64 = 432_000; // 1 week
+    pub const VOTING_PERIOD: u64 = 604800; // 1 week
     pub const PROPOSAL_THRESHOLD: u256 = 10;
     pub const QUORUM_NUMERATOR: u256 = 40; // 4%
 
@@ -269,7 +270,7 @@ pub mod MyTimelockedGovernor {
     use starknet::ContractAddress;
 
     pub const VOTING_DELAY: u64 = 86400; // 1 day
-    pub const VOTING_PERIOD: u64 = 432_000; // 1 week
+    pub const VOTING_PERIOD: u64 = 604800; // 1 week
     pub const PROPOSAL_THRESHOLD: u256 = 10;
     pub const QUORUM: u256 = 100_000_000;
 

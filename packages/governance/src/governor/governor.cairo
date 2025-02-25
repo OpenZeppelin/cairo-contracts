@@ -42,7 +42,6 @@ pub mod GovernorComponent {
         VoteCastWithParams: VoteCastWithParams,
     }
 
-    /// Emitted when `call` is scheduled as part of operation `id`.
     #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct ProposalCreated {
         #[key]

@@ -4,7 +4,7 @@ use crate::erc1155::ERC1155Component::{ERC1155Impl, ERC1155MetadataURIImpl, Inte
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin_test_common::erc1155::ERC1155SpyHelpers;
 use openzeppelin_test_common::erc1155::{deploy_another_account_at, setup_account, setup_receiver};
-use openzeppelin_test_common::mocks::erc1155::{DualCaseERC1155Mock, SnakeERC1155MockWithHooks};
+use openzeppelin_test_common::mocks::erc1155::DualCaseERC1155Mock;
 use openzeppelin_testing::common::repeat;
 use openzeppelin_testing::constants::{BASE_URI, EMPTY_DATA, OPERATOR, RECIPIENT};
 
@@ -16,16 +16,8 @@ use starknet::ContractAddress;
 //
 
 type ComponentState = ERC1155Component::ComponentState<DualCaseERC1155Mock::ContractState>;
-type ComponentStateWithHooks =
-    ERC1155Component::ComponentState<SnakeERC1155MockWithHooks::ContractState>;
 
-fn CONTRACT_STATE() -> DualCaseERC1155Mock::ContractState {
-    DualCaseERC1155Mock::contract_state_for_testing()
-}
 fn COMPONENT_STATE() -> ComponentState {
-    ERC1155Component::component_state_for_testing()
-}
-fn COMPONENT_STATE_WITH_HOOKS() -> ComponentStateWithHooks {
     ERC1155Component::component_state_for_testing()
 }
 
@@ -68,19 +60,6 @@ fn resolve_transfer_info(
 
 fn setup(ids_len_seed: u32, value_mult_seed: u32) -> (ComponentState, ContractAddress, Tokens) {
     let mut state = COMPONENT_STATE();
-    state.initializer(BASE_URI());
-
-    let owner = setup_account();
-    let tokens = prepare_tokens(ids_len_seed, value_mult_seed);
-    state.batch_mint_with_acceptance_check(owner, tokens.ids, tokens.values, array![].span());
-
-    (state, owner, tokens)
-}
-
-fn setup_with_hooks(
-    ids_len_seed: u32, value_mult_seed: u32,
-) -> (ComponentStateWithHooks, ContractAddress, Tokens) {
-    let mut state = COMPONENT_STATE_WITH_HOOKS();
     state.initializer(BASE_URI());
 
     let owner = setup_account();

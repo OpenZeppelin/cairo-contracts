@@ -5,8 +5,8 @@ use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin_test_common::erc1155::ERC1155SpyHelpers;
 use openzeppelin_test_common::erc1155::{deploy_another_account_at, setup_account, setup_receiver};
 use openzeppelin_test_common::mocks::erc1155::{DualCaseERC1155Mock, SnakeERC1155MockWithHooks};
-use openzeppelin_testing::constants::{EMPTY_DATA, BASE_URI, RECIPIENT, OPERATOR};
 use openzeppelin_testing::common::repeat;
+use openzeppelin_testing::constants::{BASE_URI, EMPTY_DATA, OPERATOR, RECIPIENT};
 
 use snforge_std::{spy_events, start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
@@ -38,7 +38,7 @@ const MAX_VALUE_MULT: u32 = 1_000_000;
 #[derive(Copy, Drop)]
 struct Tokens {
     ids: Span<u256>,
-    values: Span<u256>
+    values: Span<u256>,
 }
 
 fn prepare_tokens(ids_len_seed: u32, value_mult_seed: u32) -> Tokens {
@@ -56,7 +56,9 @@ fn prepare_tokens(ids_len_seed: u32, value_mult_seed: u32) -> Tokens {
     Tokens { ids: token_ids.span(), values: values.span() }
 }
 
-fn resolve_transfer_info(tokens: Tokens, transfer_id_seed: u32, transfer_value_seed: u32) -> (u256, u256) {
+fn resolve_transfer_info(
+    tokens: Tokens, transfer_id_seed: u32, transfer_value_seed: u32,
+) -> (u256, u256) {
     let transfer_index = transfer_id_seed % tokens.ids.len();
     let transfer_id = *tokens.ids.at(transfer_index);
     let token_value = *tokens.values.at(transfer_index);
@@ -75,7 +77,9 @@ fn setup(ids_len_seed: u32, value_mult_seed: u32) -> (ComponentState, ContractAd
     (state, owner, tokens)
 }
 
-fn setup_with_hooks(ids_len_seed: u32, value_mult_seed: u32) -> (ComponentStateWithHooks, ContractAddress, Tokens) {
+fn setup_with_hooks(
+    ids_len_seed: u32, value_mult_seed: u32,
+) -> (ComponentStateWithHooks, ContractAddress, Tokens) {
     let mut state = COMPONENT_STATE_WITH_HOOKS();
     state.initializer(BASE_URI());
 
@@ -145,9 +149,13 @@ fn test_balanceOfBatch(ids_len_seed: u32, value_mult_seed: u32) {
 //
 
 #[test]
-fn test_safe_transfer_from_owner_to_receiver(ids_len_seed: u32, value_mult_seed: u32, transfer_id_seed: u32, transfer_value_seed: u32) {
+fn test_safe_transfer_from_owner_to_receiver(
+    ids_len_seed: u32, value_mult_seed: u32, transfer_id_seed: u32, transfer_value_seed: u32,
+) {
     let (mut state, owner, tokens) = setup(ids_len_seed, value_mult_seed);
-    let (transfer_id, transfer_value) = resolve_transfer_info(tokens, transfer_id_seed, transfer_value_seed);
+    let (transfer_id, transfer_value) = resolve_transfer_info(
+        tokens, transfer_id_seed, transfer_value_seed,
+    );
     let recipient = setup_receiver();
     let contract_address = test_address();
     let mut spy = spy_events();
@@ -157,16 +165,20 @@ fn test_safe_transfer_from_owner_to_receiver(ids_len_seed: u32, value_mult_seed:
     state.safe_transfer_from(owner, recipient, transfer_id, transfer_value, EMPTY_DATA());
     spy
         .assert_only_event_transfer_single(
-            contract_address, owner, owner, recipient, transfer_id, transfer_value
+            contract_address, owner, owner, recipient, transfer_id, transfer_value,
         );
 
     assert_balance(recipient, transfer_id, transfer_value);
 }
 
 #[test]
-fn test_safeTransferFrom_owner_to_receiver(ids_len_seed: u32, value_mult_seed: u32, transfer_id_seed: u32, transfer_value_seed: u32) {
+fn test_safeTransferFrom_owner_to_receiver(
+    ids_len_seed: u32, value_mult_seed: u32, transfer_id_seed: u32, transfer_value_seed: u32,
+) {
     let (mut state, owner, tokens) = setup(ids_len_seed, value_mult_seed);
-    let (transfer_id, transfer_value) = resolve_transfer_info(tokens, transfer_id_seed, transfer_value_seed);
+    let (transfer_id, transfer_value) = resolve_transfer_info(
+        tokens, transfer_id_seed, transfer_value_seed,
+    );
     let recipient = setup_receiver();
     let contract_address = test_address();
     let mut spy = spy_events();
@@ -176,16 +188,20 @@ fn test_safeTransferFrom_owner_to_receiver(ids_len_seed: u32, value_mult_seed: u
     state.safeTransferFrom(owner, recipient, transfer_id, transfer_value, EMPTY_DATA());
     spy
         .assert_only_event_transfer_single(
-            contract_address, owner, owner, recipient, transfer_id, transfer_value
+            contract_address, owner, owner, recipient, transfer_id, transfer_value,
         );
 
     assert_balance(recipient, transfer_id, transfer_value);
 }
 
 #[test]
-fn test_safe_transfer_from_owner_to_account(ids_len_seed: u32, value_mult_seed: u32, transfer_id_seed: u32, transfer_value_seed: u32) {
+fn test_safe_transfer_from_owner_to_account(
+    ids_len_seed: u32, value_mult_seed: u32, transfer_id_seed: u32, transfer_value_seed: u32,
+) {
     let (mut state, owner, tokens) = setup(ids_len_seed, value_mult_seed);
-    let (transfer_id, transfer_value) = resolve_transfer_info(tokens, transfer_id_seed, transfer_value_seed);
+    let (transfer_id, transfer_value) = resolve_transfer_info(
+        tokens, transfer_id_seed, transfer_value_seed,
+    );
     let recipient = RECIPIENT();
     let contract_address = test_address();
     deploy_another_account_at(owner, recipient);
@@ -196,16 +212,20 @@ fn test_safe_transfer_from_owner_to_account(ids_len_seed: u32, value_mult_seed: 
     state.safe_transfer_from(owner, recipient, transfer_id, transfer_value, EMPTY_DATA());
     spy
         .assert_only_event_transfer_single(
-            contract_address, owner, owner, recipient, transfer_id, transfer_value
+            contract_address, owner, owner, recipient, transfer_id, transfer_value,
         );
 
     assert_balance(recipient, transfer_id, transfer_value);
 }
 
 #[test]
-fn test_safeTransferFrom_owner_to_account(ids_len_seed: u32, value_mult_seed: u32, transfer_id_seed: u32, transfer_value_seed: u32) {
+fn test_safeTransferFrom_owner_to_account(
+    ids_len_seed: u32, value_mult_seed: u32, transfer_id_seed: u32, transfer_value_seed: u32,
+) {
     let (mut state, owner, tokens) = setup(ids_len_seed, value_mult_seed);
-    let (transfer_id, transfer_value) = resolve_transfer_info(tokens, transfer_id_seed, transfer_value_seed);
+    let (transfer_id, transfer_value) = resolve_transfer_info(
+        tokens, transfer_id_seed, transfer_value_seed,
+    );
     let recipient = RECIPIENT();
     deploy_another_account_at(owner, recipient);
     let mut spy = spy_events();
@@ -217,16 +237,20 @@ fn test_safeTransferFrom_owner_to_account(ids_len_seed: u32, value_mult_seed: u3
     state.safeTransferFrom(owner, recipient, transfer_id, transfer_value, EMPTY_DATA());
     spy
         .assert_only_event_transfer_single(
-            contract_address, owner, owner, recipient, transfer_id, transfer_value
+            contract_address, owner, owner, recipient, transfer_id, transfer_value,
         );
 
     assert_balance(recipient, transfer_id, transfer_value);
 }
 
 #[test]
-fn test_safe_transfer_from_approved_operator(ids_len_seed: u32, value_mult_seed: u32, transfer_id_seed: u32, transfer_value_seed: u32) {
+fn test_safe_transfer_from_approved_operator(
+    ids_len_seed: u32, value_mult_seed: u32, transfer_id_seed: u32, transfer_value_seed: u32,
+) {
     let (mut state, owner, tokens) = setup(ids_len_seed, value_mult_seed);
-    let (transfer_id, transfer_value) = resolve_transfer_info(tokens, transfer_id_seed, transfer_value_seed);
+    let (transfer_id, transfer_value) = resolve_transfer_info(
+        tokens, transfer_id_seed, transfer_value_seed,
+    );
     let recipient = RECIPIENT();
     deploy_another_account_at(owner, recipient);
     let operator = OPERATOR();
@@ -243,16 +267,20 @@ fn test_safe_transfer_from_approved_operator(ids_len_seed: u32, value_mult_seed:
     state.safe_transfer_from(owner, recipient, transfer_id, transfer_value, EMPTY_DATA());
     spy
         .assert_only_event_transfer_single(
-            contract_address, operator, owner, recipient, transfer_id, transfer_value
+            contract_address, operator, owner, recipient, transfer_id, transfer_value,
         );
 
     assert_balance(recipient, transfer_id, transfer_value);
 }
 
 #[test]
-fn test_safeTransferFrom_approved_operator(ids_len_seed: u32, value_mult_seed: u32, transfer_id_seed: u32, transfer_value_seed: u32) {
+fn test_safeTransferFrom_approved_operator(
+    ids_len_seed: u32, value_mult_seed: u32, transfer_id_seed: u32, transfer_value_seed: u32,
+) {
     let (mut state, owner, tokens) = setup(ids_len_seed, value_mult_seed);
-    let (transfer_id, transfer_value) = resolve_transfer_info(tokens, transfer_id_seed, transfer_value_seed);
+    let (transfer_id, transfer_value) = resolve_transfer_info(
+        tokens, transfer_id_seed, transfer_value_seed,
+    );
     let recipient = RECIPIENT();
     deploy_another_account_at(owner, recipient);
     let operator = OPERATOR();
@@ -269,7 +297,7 @@ fn test_safeTransferFrom_approved_operator(ids_len_seed: u32, value_mult_seed: u
     state.safeTransferFrom(owner, recipient, transfer_id, transfer_value, EMPTY_DATA());
     spy
         .assert_only_event_transfer_single(
-            contract_address, operator, owner, recipient, transfer_id, transfer_value
+            contract_address, operator, owner, recipient, transfer_id, transfer_value,
         );
 
     assert_balance(recipient, transfer_id, transfer_value);
@@ -279,9 +307,7 @@ fn test_safeTransferFrom_approved_operator(ids_len_seed: u32, value_mult_seed: u
 // Helpers
 //
 
-fn assert_balance(
-    account: ContractAddress, token_id: u256, expected_balance: u256
-) {
+fn assert_balance(account: ContractAddress, token_id: u256, expected_balance: u256) {
     let state = COMPONENT_STATE();
     assert_eq!(state.balance_of(account, token_id), expected_balance);
 }

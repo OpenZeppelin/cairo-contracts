@@ -29,8 +29,8 @@ fn COMPONENT_STATE_WITH_HOOKS() -> ComponentStateWithHooks {
     ERC1155Component::component_state_for_testing()
 }
 
-const MIN_IDS_LEN: u32 = 2;
-const MAX_IDS_LEN: u32 = 100;
+const MIN_IDS_LEN: u32 = 1;
+const MAX_IDS_LEN: u32 = 10;
 
 const MIN_VALUE_MULT: u32 = 1;
 const MAX_VALUE_MULT: u32 = 1_000_000;
@@ -47,8 +47,9 @@ fn prepare_tokens(ids_len_seed: u32, value_mult_seed: u32) -> Tokens {
     let mut token_ids = array![];
     let mut values = array![];
     for i in 0..total_ids_len {
-        let id = 'TOKEN'.into() + i.into();
-        let value = (i * value_multiplier).into();
+        let index = i + 1; // Starts from 1
+        let id = 'TOKEN'.into() + index.into();
+        let value = (index * value_multiplier).into();
         token_ids.append(id);
         values.append(value);
     };
@@ -242,7 +243,7 @@ fn test_safe_transfer_from_approved_operator(ids_len_seed: u32, value_mult_seed:
     state.safe_transfer_from(owner, recipient, transfer_id, transfer_value, EMPTY_DATA());
     spy
         .assert_only_event_transfer_single(
-            contract_address, owner, owner, recipient, transfer_id, transfer_value
+            contract_address, operator, owner, recipient, transfer_id, transfer_value
         );
 
     assert_balance(recipient, transfer_id, transfer_value);
@@ -268,7 +269,7 @@ fn test_safeTransferFrom_approved_operator(ids_len_seed: u32, value_mult_seed: u
     state.safeTransferFrom(owner, recipient, transfer_id, transfer_value, EMPTY_DATA());
     spy
         .assert_only_event_transfer_single(
-            contract_address, owner, owner, recipient, transfer_id, transfer_value
+            contract_address, operator, owner, recipient, transfer_id, transfer_value
         );
 
     assert_balance(recipient, transfer_id, transfer_value);

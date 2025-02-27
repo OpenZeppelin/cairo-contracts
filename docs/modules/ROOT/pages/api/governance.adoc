@@ -395,7 +395,7 @@ use openzeppelin_governance::governor::GovernorComponent;
 Core of the governance system.
 
 NOTE: The extension traits presented below are what make the GovernorComponent a modular and configurable system. The embeddable
-and internal implementations depends on these trait. They can be implemented locally in the contract, or through the provided library
+and internal implementations depend on these trait. They can be implemented locally in the contract, or through the provided library
 {component-extensions}.
 
 NOTE: {src5-component-required-note}

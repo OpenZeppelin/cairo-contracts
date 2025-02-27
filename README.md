@@ -111,7 +111,6 @@ Check out the [full documentation site](https://docs.openzeppelin.com/contracts-
 ### Cairo
 
 - [Cairo book](https://book.cairo-lang.org/)
-- [Cairo language documentation](https://docs.cairo-lang.org/)
 - [Starknet documentation](https://docs.starknet.io/)
 - [Cairopractice](https://cairopractice.com/)
 

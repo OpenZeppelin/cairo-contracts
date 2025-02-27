@@ -155,6 +155,8 @@ practices, scoping and API design, multi-layered review processes, and incident 
 
 Refer to [SECURITY.md](SECURITY.md) for more details.
 
+Past audits can be found in [`audits/`](./audits).
+
 ## License
 
 OpenZeppelin Contracts for Cairo is released under the [MIT License](LICENSE).

@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- The openzeppelin_macros package with the `with_components` macro (#1282)
 - ERC4626Component (#1170)
 - `Math::u256_mul_div` (#1170)
 

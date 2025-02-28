@@ -16,10 +16,11 @@ use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::secp256k1::{KEY_PAIR, KEY_PAIR_2};
 use openzeppelin_testing::constants::{CALLER, OTHER, ZERO};
 use openzeppelin_testing::constants::{MIN_TRANSACTION_VERSION, QUERY_VERSION, SALT};
+use openzeppelin_testing::events::spy_events;
 use openzeppelin_testing::signing::Secp256k1KeyPair;
 use openzeppelin_utils::serde::SerializedAppend;
-use snforge_std::{spy_events, start_cheat_signature_global, start_cheat_transaction_hash_global};
 use snforge_std::{start_cheat_caller_address, start_cheat_transaction_version_global, test_address};
+use snforge_std::{start_cheat_signature_global, start_cheat_transaction_hash_global};
 use starknet::account::Call;
 
 //

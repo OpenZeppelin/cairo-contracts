@@ -12,14 +12,14 @@ use openzeppelin_testing::constants::{
     CLASS_HASH_ZERO, EMPTY_DATA, OPERATOR, OTHER, OWNER, RECIPIENT, TOKEN_ID, TOKEN_ID_2,
     TOKEN_VALUE, TOKEN_VALUE_2, ZERO,
 };
-use openzeppelin_testing::events::EventSpyExt;
+use openzeppelin_testing::events::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use openzeppelin_token::erc1155;
 use openzeppelin_token::erc1155::interface::{
     IERC1155CamelSafeDispatcher, IERC1155CamelSafeDispatcherTrait,
 };
 use openzeppelin_token::erc1155::interface::{IERC1155Dispatcher, IERC1155DispatcherTrait};
 use openzeppelin_utils::serde::SerializedAppend;
-use snforge_std::{EventSpy, spy_events, start_cheat_caller_address};
+use snforge_std::start_cheat_caller_address;
 use starknet::{ClassHash, ContractAddress};
 
 fn V2_CLASS_HASH() -> ClassHash {

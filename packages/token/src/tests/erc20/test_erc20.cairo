@@ -7,8 +7,8 @@ use openzeppelin_test_common::mocks::erc20::{DualCaseERC20Mock, SnakeERC20MockWi
 use openzeppelin_testing::constants::{
     DECIMALS, NAME, OWNER, RECIPIENT, SPENDER, SUPPLY, SYMBOL, VALUE, ZERO,
 };
-use openzeppelin_testing::events::EventSpyExt;
-use snforge_std::{EventSpy, spy_events, start_cheat_caller_address, test_address};
+use openzeppelin_testing::events::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
+use snforge_std::{start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
 
 //

@@ -2,14 +2,14 @@ use crate::universal_deployer::UniversalDeployer;
 use crate::universal_deployer::UniversalDeployer::ContractDeployed;
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{CALLER, NAME, RECIPIENT, SALT, SUPPLY, SYMBOL};
-use openzeppelin_testing::events::EventSpyExt;
+use openzeppelin_testing::events::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use openzeppelin_utils::deployments::{DeployerInfo, calculate_contract_address_from_udc};
 use openzeppelin_utils::interfaces::{
     IUniversalDeployerDispatcher, IUniversalDeployerDispatcherTrait,
 };
 use openzeppelin_utils::serde::SerializedAppend;
-use snforge_std::{EventSpy, spy_events, start_cheat_caller_address};
+use snforge_std::start_cheat_caller_address;
 use starknet::{ClassHash, ContractAddress};
 
 fn ERC20_CLASS_HASH() -> ClassHash {

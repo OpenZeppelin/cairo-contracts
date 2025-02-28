@@ -8,9 +8,9 @@ use crate::governor::extensions::GovernorVotesQuorumFractionComponent::{
 use openzeppelin_test_common::mocks::governor::GovernorQuorumFractionMock;
 use openzeppelin_test_common::mocks::governor::GovernorQuorumFractionMock::SNIP12MetadataImpl;
 use openzeppelin_testing::constants::{OTHER, VOTES_TOKEN, ZERO};
-use openzeppelin_testing::events::EventSpyExt;
-use snforge_std::{EventSpy, spy_events, store, test_address};
+use openzeppelin_testing::events::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use snforge_std::{start_cheat_block_timestamp_global, start_mock_call};
+use snforge_std::{store, test_address};
 use starknet::ContractAddress;
 
 pub type ComponentState =

@@ -11,9 +11,9 @@ use crate::tests::governor::common::{
 };
 use openzeppelin_test_common::mocks::governor::GovernorTimelockedMock::SNIP12MetadataImpl;
 use openzeppelin_testing::constants::OTHER;
-use openzeppelin_testing::events::EventSpyExt;
+use openzeppelin_testing::events::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use snforge_std::start_cheat_caller_address;
-use snforge_std::{EventSpy, spy_events, test_address};
+use snforge_std::test_address;
 use starknet::ContractAddress;
 use starknet::storage::StoragePointerWriteAccess;
 

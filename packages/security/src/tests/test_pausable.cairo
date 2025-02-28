@@ -3,9 +3,9 @@ use crate::PausableComponent::{InternalImpl, PausableImpl};
 use crate::PausableComponent::{Paused, Unpaused};
 use openzeppelin_test_common::mocks::security::PausableMock;
 use openzeppelin_testing::constants::CALLER;
-use openzeppelin_testing::events::EventSpyExt;
-use snforge_std::EventSpy;
-use snforge_std::{spy_events, start_cheat_caller_address, test_address};
+use openzeppelin_testing::events::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
+
+use snforge_std::{start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
 
 type ComponentState = PausableComponent::ComponentState<PausableMock::ContractState>;

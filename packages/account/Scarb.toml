@@ -20,6 +20,7 @@ license-file.workspace = true
 
 [tool]
 fmt.workspace = true
+scarb.workspace = true
 
 [dependencies]
 starknet.workspace = true

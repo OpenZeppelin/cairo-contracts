@@ -12,10 +12,10 @@ use openzeppelin_testing::common::IntoBase16String;
 use openzeppelin_testing::constants::{
     CLASS_HASH_ZERO, DECIMALS, NAME, OTHER, OWNER, RECIPIENT, SPENDER, SUPPLY, SYMBOL, VALUE, ZERO,
 };
-use openzeppelin_testing::events::EventSpyExt;
+use openzeppelin_testing::events::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use openzeppelin_utils::serde::SerializedAppend;
-use snforge_std::{EventSpy, spy_events, start_cheat_caller_address};
+use snforge_std::start_cheat_caller_address;
 use starknet::ClassHash;
 
 fn V2_CLASS_HASH() -> ClassHash {

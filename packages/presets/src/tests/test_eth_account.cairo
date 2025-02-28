@@ -23,14 +23,13 @@ use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::secp256k1::{KEY_PAIR, KEY_PAIR_2};
 use openzeppelin_testing::constants::{CALLER, CLASS_HASH_ZERO, FELT_VALUE, OTHER, RECIPIENT, ZERO};
 use openzeppelin_testing::constants::{MIN_TRANSACTION_VERSION, QUERY_VERSION, SALT};
+use openzeppelin_testing::events::spy_events;
 use openzeppelin_testing::signing::Secp256k1KeyPair;
 use openzeppelin_testing::signing::SerializedSigning;
 use openzeppelin_token::erc20::interface::IERC20DispatcherTrait;
 use openzeppelin_utils::cryptography::snip12::OffchainMessageHash;
 use openzeppelin_utils::serde::SerializedAppend;
-use snforge_std::{
-    CheatSpan, cheat_caller_address, load, spy_events, start_cheat_caller_address, test_address,
-};
+use snforge_std::{CheatSpan, cheat_caller_address, load, start_cheat_caller_address, test_address};
 use snforge_std::{
     start_cheat_block_timestamp_global, start_cheat_signature_global,
     start_cheat_transaction_hash_global, start_cheat_transaction_version_global,

@@ -46,7 +46,7 @@ pub impl EventSpyExtImpl of EventSpyExt {
 
     /// Ensures that there's only one event emitted from the given address.
     fn assert_only_one_event_from(ref self: EventSpy, from_address: ContractAddress) {
-        self.assert_only_one_event_from(from_address);
+        self.assert_number_of_events_from(from_address, 1);
     }
 
     /// Counts the number of events emitted from the given address.

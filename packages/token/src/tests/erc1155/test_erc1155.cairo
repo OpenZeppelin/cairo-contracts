@@ -272,6 +272,7 @@ fn test_safe_transfer_from_approved_operator() {
     start_cheat_caller_address(contract_address, owner);
     state.set_approval_for_all(operator, true);
     spy.assert_only_event_approval_for_all(contract_address, owner, operator, true);
+    spy.drop_all_events();
 
     assert_state_before_transfer_single(owner, recipient, TOKEN_ID);
 
@@ -288,15 +289,15 @@ fn test_safe_transfer_from_approved_operator() {
 #[test]
 fn test_safeTransferFrom_approved_operator() {
     let (mut state, owner) = setup();
-    let recipient = RECIPIENT();
+    let (recipient, operator) = (RECIPIENT(), OPERATOR());
     deploy_another_account_at(owner, recipient);
-    let operator = OPERATOR();
     let mut spy = spy_events();
     let contract_address = test_address();
 
     start_cheat_caller_address(contract_address, owner);
     state.set_approval_for_all(operator, true);
     spy.assert_only_event_approval_for_all(contract_address, owner, operator, true);
+    spy.drop_all_events();
 
     assert_state_before_transfer_single(owner, recipient, TOKEN_ID);
 
@@ -492,16 +493,16 @@ fn test_safeBatchTransferFrom_owner_to_account() {
 #[test]
 fn test_safe_batch_transfer_from_approved_operator() {
     let (mut state, owner) = setup();
-    let recipient = RECIPIENT();
-    deploy_another_account_at(owner, recipient);
-    let operator = OPERATOR();
-    let (token_ids, values) = get_ids_and_values();
     let mut spy = spy_events();
+    let (recipient, operator) = (RECIPIENT(), OPERATOR());
+    let (token_ids, values) = get_ids_and_values();
     let contract_address = test_address();
+    deploy_another_account_at(owner, recipient);
 
     start_cheat_caller_address(contract_address, owner);
     state.set_approval_for_all(operator, true);
     spy.assert_only_event_approval_for_all(contract_address, owner, operator, true);
+    spy.drop_all_events();
 
     assert_state_before_transfer_batch(owner, recipient, token_ids, values);
 
@@ -518,9 +519,8 @@ fn test_safe_batch_transfer_from_approved_operator() {
 #[test]
 fn test_safeBatchTransferFrom_approved_operator() {
     let (mut state, owner) = setup();
-    let recipient = RECIPIENT();
+    let (recipient, operator) = (RECIPIENT(), OPERATOR());
     deploy_another_account_at(owner, recipient);
-    let operator = OPERATOR();
     let (token_ids, values) = get_ids_and_values();
     let mut spy = spy_events();
     let contract_address = test_address();
@@ -528,6 +528,7 @@ fn test_safeBatchTransferFrom_approved_operator() {
     start_cheat_caller_address(contract_address, owner);
     state.set_approval_for_all(operator, true);
     spy.assert_only_event_approval_for_all(contract_address, owner, operator, true);
+    spy.drop_all_events();
 
     assert_state_before_transfer_batch(owner, recipient, token_ids, values);
 
@@ -664,6 +665,7 @@ fn test_set_approval_for_all_and_is_approved_for_all() {
 
     state.set_approval_for_all(OPERATOR(), true);
     spy.assert_only_event_approval_for_all(contract_address, OWNER(), OPERATOR(), true);
+    spy.drop_all_events();
 
     let is_approved_for_all = state.is_approved_for_all(OWNER(), OPERATOR());
     assert!(is_approved_for_all);
@@ -708,6 +710,7 @@ fn test_setApprovalForAll_and_isApprovedForAll() {
 
     state.setApprovalForAll(OPERATOR(), true);
     spy.assert_only_event_approval_for_all(contract_address, OWNER(), OPERATOR(), true);
+    spy.drop_all_events();
 
     let is_approved_for_all = state.isApprovedForAll(OWNER(), OPERATOR());
     assert!(is_approved_for_all);

@@ -13,6 +13,7 @@ use openzeppelin_test_common::eth_account::{
 use openzeppelin_test_common::mocks::account::DualCaseEthAccountMock;
 use openzeppelin_test_common::mocks::simple::{ISimpleMockDispatcher, ISimpleMockDispatcherTrait};
 use openzeppelin_testing as utils;
+use openzeppelin_testing::EventSpyExt;
 use openzeppelin_testing::constants::secp256k1::{KEY_PAIR, KEY_PAIR_2};
 use openzeppelin_testing::constants::{CALLER, OTHER, ZERO};
 use openzeppelin_testing::constants::{MIN_TRANSACTION_VERSION, QUERY_VERSION, SALT};
@@ -391,7 +392,8 @@ fn test_public_key_setter_and_getter() {
     state.set_public_key(new_key_pair.public_key, signature);
 
     spy.assert_event_owner_removed(contract_address, key_pair.public_key);
-    spy.assert_only_event_owner_added(contract_address, new_key_pair.public_key);
+    spy.assert_event_owner_added(contract_address, new_key_pair.public_key);
+    spy.assert_number_of_events_from(contract_address, 2);
 
     assert_eq!(state.get_public_key(), new_key_pair.public_key);
 }
@@ -435,7 +437,8 @@ fn test_public_key_setter_and_getter_camel() {
     state.setPublicKey(new_key_pair.public_key, signature);
 
     spy.assert_event_owner_removed(contract_address, key_pair.public_key);
-    spy.assert_only_event_owner_added(contract_address, new_key_pair.public_key);
+    spy.assert_event_owner_added(contract_address, new_key_pair.public_key);
+    spy.assert_number_of_events_from(contract_address, 2);
 
     assert_eq!(state.getPublicKey(), new_key_pair.public_key);
 }

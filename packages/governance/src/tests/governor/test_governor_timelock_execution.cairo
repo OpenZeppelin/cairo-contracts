@@ -796,6 +796,6 @@ pub(crate) impl GovernorTimelockExecutionSpyHelpersImpl of GovernorTimelockExecu
         new_timelock: ContractAddress,
     ) {
         self.assert_event_timelock_updated(contract, old_timelock, new_timelock);
-        self.assert_no_events_left_from(contract);
+        self.assert_only_one_event_from(contract);
     }
 }

@@ -15,6 +15,6 @@ pub impl UpgradeableSpyHelpersImpl of UpgradeableSpyHelpers {
         ref self: EventSpy, contract: ContractAddress, class_hash: ClassHash,
     ) {
         self.assert_event_upgraded(contract, class_hash);
-        self.assert_no_events_left_from(contract);
+        self.assert_only_one_event_from(contract);
     }
 }

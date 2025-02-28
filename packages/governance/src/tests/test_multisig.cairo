@@ -1018,7 +1018,7 @@ fn test_add_signers_does_nothing_if_signers_empty() {
     let mut spy = spy_events();
     let empty_list = array![].span();
     state.add_signers(quorum, empty_list);
-    spy.assert_no_events_left_from(contract_address);
+    spy.assert_no_events_from(contract_address);
 }
 
 #[test]
@@ -1171,7 +1171,7 @@ fn test_remove_signers_does_nothing_if_signers_empty() {
     let empty_list = array![].span();
     state.remove_signers(quorum, empty_list);
     assert_signers_list(array![alice, bob, charlie].span());
-    spy.assert_no_events_left_from(contract_address);
+    spy.assert_no_events_from(contract_address);
 }
 
 #[test]
@@ -1339,7 +1339,7 @@ fn test_change_quorum_to_same_value() {
     // Call 'change_quorum' with the current quorum value
     state.change_quorum(initial_quorum);
     assert_eq!(state.get_quorum(), initial_quorum);
-    spy.assert_no_events_left_from(contract_address);
+    spy.assert_no_events_from(contract_address);
 }
 
 #[test]
@@ -1556,7 +1556,7 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
         ref self: EventSpy, contract: ContractAddress, signer: ContractAddress,
     ) {
         self.assert_event_signer_added(contract, signer);
-        self.assert_no_events_left_from(contract);
+        self.assert_only_one_event_from(contract);
     }
 
     //
@@ -1574,7 +1574,7 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
         ref self: EventSpy, contract: ContractAddress, signer: ContractAddress,
     ) {
         self.assert_event_signer_removed(contract, signer);
-        self.assert_no_events_left_from(contract);
+        self.assert_only_one_event_from(contract);
     }
 
     //
@@ -1592,7 +1592,7 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
         ref self: EventSpy, contract: ContractAddress, old_quorum: u32, new_quorum: u32,
     ) {
         self.assert_event_quorum_updated(contract, old_quorum, new_quorum);
-        self.assert_no_events_left_from(contract);
+        self.assert_only_one_event_from(contract);
     }
 
     //
@@ -1610,7 +1610,7 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
         ref self: EventSpy, contract: ContractAddress, id: TransactionID, signer: ContractAddress,
     ) {
         self.assert_event_tx_submitted(contract, id, signer);
-        self.assert_no_events_left_from(contract);
+        self.assert_only_one_event_from(contract);
     }
 
     //
@@ -1628,7 +1628,7 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
         ref self: EventSpy, contract: ContractAddress, id: TransactionID, signer: ContractAddress,
     ) {
         self.assert_event_tx_confirmed(contract, id, signer);
-        self.assert_no_events_left_from(contract);
+        self.assert_only_one_event_from(contract);
     }
 
     //
@@ -1646,7 +1646,7 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
         ref self: EventSpy, contract: ContractAddress, id: TransactionID, signer: ContractAddress,
     ) {
         self.assert_event_confirmation_revoked(contract, id, signer);
-        self.assert_no_events_left_from(contract);
+        self.assert_only_one_event_from(contract);
     }
 
     //
@@ -1662,7 +1662,7 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
         ref self: EventSpy, contract: ContractAddress, id: TransactionID,
     ) {
         self.assert_event_tx_executed(contract, id);
-        self.assert_no_events_left_from(contract);
+        self.assert_only_one_event_from(contract);
     }
 
     //

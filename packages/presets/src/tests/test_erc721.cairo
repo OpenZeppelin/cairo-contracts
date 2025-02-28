@@ -7,12 +7,12 @@ use openzeppelin_test_common::erc721::ERC721SpyHelpers;
 use openzeppelin_test_common::ownable::OwnableSpyHelpers;
 use openzeppelin_test_common::upgrades::UpgradeableSpyHelpers;
 use openzeppelin_testing as utils;
+use openzeppelin_testing::EventSpyExt;
 use openzeppelin_testing::common::IntoBase16String;
 use openzeppelin_testing::constants::{
     BASE_URI, CLASS_HASH_ZERO, DATA, NAME, OPERATOR, OTHER, OWNER, PUBKEY, RECIPIENT, SPENDER,
     SYMBOL, ZERO,
 };
-use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_token::erc721::ERC721Component::ERC721Impl;
 use openzeppelin_token::erc721::interface::{
     IERC721CamelOnlySafeDispatcher, IERC721CamelOnlySafeDispatcherTrait,
@@ -20,7 +20,7 @@ use openzeppelin_token::erc721::interface::{
 use openzeppelin_token::erc721::interface::{IERC721Dispatcher, IERC721DispatcherTrait};
 use openzeppelin_token::erc721::interface::{IERC721_ID, IERC721_METADATA_ID};
 use openzeppelin_utils::serde::SerializedAppend;
-use snforge_std::{EventSpy, spy_events, start_cheat_caller_address};
+use snforge_std::{spy_events, start_cheat_caller_address};
 use starknet::{ClassHash, ContractAddress};
 
 
@@ -40,7 +40,7 @@ fn V2_CLASS_HASH() -> ClassHash {
 // Setup
 //
 
-fn setup_dispatcher_with_event() -> (EventSpy, ERC721UpgradeableABIDispatcher) {
+fn setup_dispatcher() -> ERC721UpgradeableABIDispatcher {
     let mut calldata = array![];
     let mut token_ids = array![TOKEN_1, TOKEN_2, TOKEN_3];
 
@@ -51,16 +51,9 @@ fn setup_dispatcher_with_event() -> (EventSpy, ERC721UpgradeableABIDispatcher) {
     calldata.append_serde(token_ids);
     calldata.append_serde(OWNER());
 
-    let spy = spy_events();
     let address = utils::declare_and_deploy("ERC721Upgradeable", calldata);
     start_cheat_caller_address(address, OWNER());
-    (spy, ERC721UpgradeableABIDispatcher { contract_address: address })
-}
-
-fn setup_dispatcher() -> (EventSpy, ERC721UpgradeableABIDispatcher) {
-    let (mut spy, dispatcher) = setup_dispatcher_with_event();
-    spy.drop_all_events();
-    (spy, dispatcher)
+    ERC721UpgradeableABIDispatcher { contract_address: address }
 }
 
 fn setup_receiver() -> ContractAddress {
@@ -99,7 +92,7 @@ fn test_mint_assets() {
 
 #[test]
 fn test_constructor() {
-    let (_, dispatcher) = setup_dispatcher_with_event();
+    let dispatcher = setup_dispatcher();
 
     // Check interface registration
     let mut interface_ids = array![ISRC5_ID, IERC721_ID, IERC721_METADATA_ID];
@@ -128,18 +121,18 @@ fn test_constructor() {
 
 #[test]
 fn test_constructor_events() {
-    let (mut spy, dispatcher) = setup_dispatcher_with_event();
+    let mut spy = spy_events();
+    let dispatcher = setup_dispatcher();
     let mut tokens = array![TOKEN_1, TOKEN_2, TOKEN_3];
 
+    spy.assert_number_of_events_from(dispatcher.contract_address, tokens.len() + 1);
     spy.assert_event_ownership_transferred(dispatcher.contract_address, ZERO(), OWNER());
     loop {
         let token = tokens.pop_front().unwrap();
+        spy.assert_event_transfer(dispatcher.contract_address, ZERO(), OWNER(), token);
         if tokens.len() == 0 {
-            // Includes event queue check
-            spy.assert_only_event_transfer(dispatcher.contract_address, ZERO(), OWNER(), token);
             break;
         }
-        spy.assert_event_transfer(dispatcher.contract_address, ZERO(), OWNER(), token);
     };
 }
 
@@ -149,40 +142,40 @@ fn test_constructor_events() {
 
 #[test]
 fn test_balance_of() {
-    let (_, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
     assert_eq!(dispatcher.balance_of(OWNER()), TOKENS_LEN);
 }
 
 #[test]
 #[should_panic(expected: 'ERC721: invalid account')]
 fn test_balance_of_zero() {
-    let (_, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
     dispatcher.balance_of(ZERO());
 }
 
 #[test]
 fn test_owner_of() {
-    let (_, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
     assert_eq!(dispatcher.owner_of(TOKEN_1), OWNER());
 }
 
 #[test]
 #[should_panic(expected: 'ERC721: invalid token ID')]
 fn test_owner_of_non_minted() {
-    let (_, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
     dispatcher.owner_of(7);
 }
 
 #[test]
 #[should_panic(expected: 'ERC721: invalid token ID')]
 fn test_token_uri_non_minted() {
-    let (_, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
     dispatcher.token_uri(7);
 }
 
 #[test]
 fn test_token_uri() {
-    let (_, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
 
     let uri = dispatcher.token_uri(TOKEN_1);
     let expected = format!("{}{}", BASE_URI(), TOKEN_1);
@@ -191,7 +184,7 @@ fn test_token_uri() {
 
 #[test]
 fn test_get_approved() {
-    let (_, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
     let spender = SPENDER();
     let token_id = TOKEN_1;
 
@@ -206,7 +199,7 @@ fn test_get_approved() {
 #[test]
 #[should_panic(expected: 'ERC721: invalid token ID')]
 fn test_get_approved_nonexistent() {
-    let (_, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
     dispatcher.get_approved(NONEXISTENT);
 }
 
@@ -216,7 +209,8 @@ fn test_get_approved_nonexistent() {
 
 #[test]
 fn test_approve_from_owner() {
-    let (mut spy, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
+    let mut spy = spy_events();
 
     dispatcher.approve(SPENDER(), TOKEN_1);
     spy.assert_event_approval(dispatcher.contract_address, OWNER(), SPENDER(), TOKEN_1);
@@ -227,10 +221,11 @@ fn test_approve_from_owner() {
 
 #[test]
 fn test_approve_from_operator() {
-    let (mut spy, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
+    let mut spy = spy_events();
 
     dispatcher.set_approval_for_all(OPERATOR(), true);
-    spy.drop_event();
+    spy.drop_all_events();
 
     start_cheat_caller_address(dispatcher.contract_address, OPERATOR());
     dispatcher.approve(SPENDER(), TOKEN_1);
@@ -243,7 +238,7 @@ fn test_approve_from_operator() {
 #[test]
 #[should_panic(expected: 'ERC721: unauthorized caller')]
 fn test_approve_from_unauthorized() {
-    let (_, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
 
     start_cheat_caller_address(dispatcher.contract_address, OTHER());
     dispatcher.approve(SPENDER(), TOKEN_1);
@@ -252,7 +247,7 @@ fn test_approve_from_unauthorized() {
 #[test]
 #[should_panic(expected: 'ERC721: invalid token ID')]
 fn test_approve_nonexistent() {
-    let (_, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
     dispatcher.approve(SPENDER(), NONEXISTENT);
 }
 
@@ -262,19 +257,21 @@ fn test_approve_nonexistent() {
 
 #[test]
 fn test_set_approval_for_all() {
-    let (mut spy, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
+    let mut spy = spy_events();
 
     let is_not_approved_for_all = !dispatcher.is_approved_for_all(OWNER(), OPERATOR());
     assert!(is_not_approved_for_all);
 
     dispatcher.set_approval_for_all(OPERATOR(), true);
-    spy.assert_event_approval_for_all(dispatcher.contract_address, OWNER(), OPERATOR(), true);
+    spy.assert_only_event_approval_for_all(dispatcher.contract_address, OWNER(), OPERATOR(), true);
+    spy.drop_all_events();
 
     let is_approved_for_all = dispatcher.is_approved_for_all(OWNER(), OPERATOR());
     assert!(is_approved_for_all);
 
     dispatcher.set_approval_for_all(OPERATOR(), false);
-    spy.assert_event_approval_for_all(dispatcher.contract_address, OWNER(), OPERATOR(), false);
+    spy.assert_only_event_approval_for_all(dispatcher.contract_address, OWNER(), OPERATOR(), false);
 
     let is_not_approved_for_all = !dispatcher.is_approved_for_all(OWNER(), OPERATOR());
     assert!(is_not_approved_for_all);
@@ -286,14 +283,14 @@ fn test_set_approval_for_all() {
 
 #[test]
 fn test_transfer_from_owner() {
-    let (mut spy, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
     let token_id = TOKEN_1;
-    let owner = OWNER();
-    let recipient = RECIPIENT();
+    let (owner, recipient) = (OWNER(), RECIPIENT());
+    let mut spy = spy_events();
 
     // set approval to check reset
     dispatcher.approve(OTHER(), token_id);
-    spy.drop_event();
+    spy.drop_all_events();
 
     assert_state_before_transfer(dispatcher, owner, recipient, token_id);
 
@@ -308,17 +305,16 @@ fn test_transfer_from_owner() {
 
 #[test]
 fn test_transferFrom_owner() {
-    let (mut spy, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
     let token_id = TOKEN_1;
-    let owner = OWNER();
-    let recipient = RECIPIENT();
+    let (owner, recipient) = (OWNER(), RECIPIENT());
+    let mut spy = spy_events();
 
     // set approval to check reset
     dispatcher.approve(OTHER(), token_id);
-    spy.drop_event();
+    spy.drop_all_events();
 
     assert_state_before_transfer(dispatcher, owner, recipient, token_id);
-
     let approved = dispatcher.get_approved(token_id);
     assert_eq!(approved, OTHER());
 
@@ -331,34 +327,35 @@ fn test_transferFrom_owner() {
 #[test]
 #[should_panic(expected: 'ERC721: invalid token ID')]
 fn test_transfer_from_nonexistent() {
-    let (_, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
     dispatcher.transfer_from(OWNER(), RECIPIENT(), NONEXISTENT);
 }
 
 #[test]
 #[should_panic(expected: 'ERC721: invalid token ID')]
 fn test_transferFrom_nonexistent() {
-    let (_, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
     dispatcher.transferFrom(OWNER(), RECIPIENT(), NONEXISTENT);
 }
 
 #[test]
 #[should_panic(expected: 'ERC721: invalid receiver')]
 fn test_transfer_from_to_zero() {
-    let (_, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
     dispatcher.transfer_from(OWNER(), ZERO(), TOKEN_1);
 }
 
 #[test]
 #[should_panic(expected: 'ERC721: invalid receiver')]
 fn test_transferFrom_to_zero() {
-    let (_, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
     dispatcher.transferFrom(OWNER(), ZERO(), TOKEN_1);
 }
 
 #[test]
 fn test_transfer_from_to_owner() {
-    let (mut spy, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
+    let mut spy = spy_events();
 
     assert_state_transfer_to_self(dispatcher, OWNER(), TOKEN_1, TOKENS_LEN);
     dispatcher.transfer_from(OWNER(), OWNER(), TOKEN_1);
@@ -369,7 +366,8 @@ fn test_transfer_from_to_owner() {
 
 #[test]
 fn test_transferFrom_to_owner() {
-    let (mut spy, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
+    let mut spy = spy_events();
 
     assert_state_transfer_to_self(dispatcher, OWNER(), TOKEN_1, TOKENS_LEN);
     dispatcher.transferFrom(OWNER(), OWNER(), TOKEN_1);
@@ -380,14 +378,14 @@ fn test_transferFrom_to_owner() {
 
 #[test]
 fn test_transfer_from_approved() {
-    let (mut spy, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
     let token_id = TOKEN_1;
-    let owner = OWNER();
-    let recipient = RECIPIENT();
+    let (owner, recipient) = (OWNER(), RECIPIENT());
+    let mut spy = spy_events();
     assert_state_before_transfer(dispatcher, owner, recipient, token_id);
 
     dispatcher.approve(OPERATOR(), token_id);
-    spy.drop_event();
+    spy.drop_all_events();
 
     start_cheat_caller_address(dispatcher.contract_address, OPERATOR());
     dispatcher.transfer_from(owner, recipient, token_id);
@@ -398,14 +396,14 @@ fn test_transfer_from_approved() {
 
 #[test]
 fn test_transferFrom_approved() {
-    let (mut spy, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
     let token_id = TOKEN_1;
-    let owner = OWNER();
-    let recipient = RECIPIENT();
+    let (owner, recipient) = (OWNER(), RECIPIENT());
+    let mut spy = spy_events();
     assert_state_before_transfer(dispatcher, owner, recipient, token_id);
 
     dispatcher.approve(OPERATOR(), token_id);
-    spy.drop_event();
+    spy.drop_all_events();
 
     start_cheat_caller_address(dispatcher.contract_address, OPERATOR());
     dispatcher.transferFrom(owner, recipient, token_id);
@@ -416,16 +414,15 @@ fn test_transferFrom_approved() {
 
 #[test]
 fn test_transfer_from_approved_for_all() {
-    let (mut spy, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
     let token_id = TOKEN_1;
-    let owner = OWNER();
-    let recipient = RECIPIENT();
+    let (owner, recipient) = (OWNER(), RECIPIENT());
+
+    dispatcher.set_approval_for_all(OPERATOR(), true);
 
     assert_state_before_transfer(dispatcher, owner, recipient, token_id);
 
-    dispatcher.set_approval_for_all(OPERATOR(), true);
-    spy.drop_event();
-
+    let mut spy = spy_events();
     start_cheat_caller_address(dispatcher.contract_address, OPERATOR());
     dispatcher.transfer_from(owner, recipient, token_id);
     spy.assert_only_event_transfer(dispatcher.contract_address, owner, recipient, token_id);
@@ -435,16 +432,15 @@ fn test_transfer_from_approved_for_all() {
 
 #[test]
 fn test_transferFrom_approved_for_all() {
-    let (mut spy, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
     let token_id = TOKEN_1;
-    let owner = OWNER();
-    let recipient = RECIPIENT();
+    let (owner, recipient) = (OWNER(), RECIPIENT());
+
+    dispatcher.set_approval_for_all(OPERATOR(), true);
 
     assert_state_before_transfer(dispatcher, owner, recipient, token_id);
 
-    dispatcher.set_approval_for_all(OPERATOR(), true);
-    spy.drop_event();
-
+    let mut spy = spy_events();
     start_cheat_caller_address(dispatcher.contract_address, OPERATOR());
     dispatcher.transferFrom(owner, recipient, token_id);
     spy.assert_only_event_transfer(dispatcher.contract_address, owner, recipient, token_id);
@@ -455,7 +451,7 @@ fn test_transferFrom_approved_for_all() {
 #[test]
 #[should_panic(expected: 'ERC721: unauthorized caller')]
 fn test_transfer_from_unauthorized() {
-    let (_, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
     start_cheat_caller_address(dispatcher.contract_address, OTHER());
     dispatcher.transfer_from(OWNER(), RECIPIENT(), TOKEN_1);
 }
@@ -463,7 +459,7 @@ fn test_transfer_from_unauthorized() {
 #[test]
 #[should_panic(expected: 'ERC721: unauthorized caller')]
 fn test_transferFrom_unauthorized() {
-    let (_, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
     start_cheat_caller_address(dispatcher.contract_address, OTHER());
     dispatcher.transferFrom(OWNER(), RECIPIENT(), TOKEN_1);
 }
@@ -474,11 +470,10 @@ fn test_transferFrom_unauthorized() {
 
 #[test]
 fn test_safe_transfer_from_to_account() {
-    let (mut spy, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
     let account = setup_account();
-    let token_id = TOKEN_1;
-    let owner = OWNER();
-    spy.drop_all_events();
+    let (token_id, owner) = (TOKEN_1, OWNER());
+    let mut spy = spy_events();
 
     assert_state_before_transfer(dispatcher, owner, account, token_id);
 
@@ -490,11 +485,10 @@ fn test_safe_transfer_from_to_account() {
 
 #[test]
 fn test_safeTransferFrom_to_account() {
-    let (mut spy, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
     let account = setup_account();
-    let token_id = TOKEN_1;
-    let owner = OWNER();
-    spy.drop_all_events();
+    let (token_id, owner) = (TOKEN_1, OWNER());
+    let mut spy = spy_events();
 
     assert_state_before_transfer(dispatcher, owner, account, token_id);
 
@@ -506,13 +500,13 @@ fn test_safeTransferFrom_to_account() {
 
 #[test]
 fn test_safe_transfer_from_to_receiver() {
-    let (mut spy, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
     let receiver = setup_receiver();
-    let token_id = TOKEN_1;
-    let owner = OWNER();
+    let (token_id, owner) = (TOKEN_1, OWNER());
 
     assert_state_before_transfer(dispatcher, owner, receiver, token_id);
 
+    let mut spy = spy_events();
     dispatcher.safe_transfer_from(owner, receiver, token_id, DATA(true));
     spy.assert_only_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
 
@@ -521,13 +515,13 @@ fn test_safe_transfer_from_to_receiver() {
 
 #[test]
 fn test_safeTransferFrom_to_receiver() {
-    let (mut spy, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
     let receiver = setup_receiver();
-    let token_id = TOKEN_1;
-    let owner = OWNER();
+    let (token_id, owner) = (TOKEN_1, OWNER());
 
     assert_state_before_transfer(dispatcher, owner, receiver, token_id);
 
+    let mut spy = spy_events();
     dispatcher.safeTransferFrom(owner, receiver, token_id, DATA(true));
     spy.assert_only_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
 
@@ -537,10 +531,9 @@ fn test_safeTransferFrom_to_receiver() {
 #[test]
 #[should_panic(expected: 'ERC721: safe transfer failed')]
 fn test_safe_transfer_from_to_receiver_failure() {
-    let (_, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
     let receiver = setup_receiver();
-    let token_id = TOKEN_1;
-    let owner = OWNER();
+    let (token_id, owner) = (TOKEN_1, OWNER());
 
     dispatcher.safe_transfer_from(owner, receiver, token_id, DATA(false));
 }
@@ -548,10 +541,9 @@ fn test_safe_transfer_from_to_receiver_failure() {
 #[test]
 #[should_panic(expected: 'ERC721: safe transfer failed')]
 fn test_safeTransferFrom_to_receiver_failure() {
-    let (_, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
     let receiver = setup_receiver();
-    let token_id = TOKEN_1;
-    let owner = OWNER();
+    let (token_id, owner) = (TOKEN_1, OWNER());
 
     dispatcher.safeTransferFrom(owner, receiver, token_id, DATA(false));
 }
@@ -559,10 +551,9 @@ fn test_safeTransferFrom_to_receiver_failure() {
 #[test]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', 'ENTRYPOINT_FAILED'))]
 fn test_safe_transfer_from_to_non_receiver() {
-    let (_, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
     let recipient = utils::declare_and_deploy("NonImplementingMock", array![]);
-    let token_id = TOKEN_1;
-    let owner = OWNER();
+    let (token_id, owner) = (TOKEN_1, OWNER());
 
     dispatcher.safe_transfer_from(owner, recipient, token_id, DATA(true));
 }
@@ -570,10 +561,9 @@ fn test_safe_transfer_from_to_non_receiver() {
 #[test]
 #[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', 'ENTRYPOINT_FAILED'))]
 fn test_safeTransferFrom_to_non_receiver() {
-    let (_, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
     let recipient = utils::declare_and_deploy("NonImplementingMock", array![]);
-    let token_id = TOKEN_1;
-    let owner = OWNER();
+    let (token_id, owner) = (TOKEN_1, OWNER());
 
     dispatcher.safeTransferFrom(owner, recipient, token_id, DATA(true));
 }
@@ -581,42 +571,42 @@ fn test_safeTransferFrom_to_non_receiver() {
 #[test]
 #[should_panic(expected: 'ERC721: invalid token ID')]
 fn test_safe_transfer_from_nonexistent() {
-    let (_, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
     dispatcher.safe_transfer_from(OWNER(), RECIPIENT(), NONEXISTENT, DATA(true));
 }
 
 #[test]
 #[should_panic(expected: 'ERC721: invalid token ID')]
 fn test_safeTransferFrom_nonexistent() {
-    let (_, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
     dispatcher.safeTransferFrom(OWNER(), RECIPIENT(), NONEXISTENT, DATA(true));
 }
 
 #[test]
 #[should_panic(expected: 'ERC721: invalid receiver')]
 fn test_safe_transfer_from_to_zero() {
-    let (_, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
     dispatcher.safe_transfer_from(OWNER(), ZERO(), TOKEN_1, DATA(true));
 }
 
 #[test]
 #[should_panic(expected: 'ERC721: invalid receiver')]
 fn test_safeTransferFrom_to_zero() {
-    let (_, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
     dispatcher.safeTransferFrom(OWNER(), ZERO(), TOKEN_1, DATA(true));
 }
 
 #[test]
 fn test_safe_transfer_from_to_owner() {
-    let (mut spy, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
     let token_id = TOKEN_1;
     let receiver = setup_receiver();
 
     dispatcher.transfer_from(OWNER(), receiver, token_id);
-    spy.drop_event();
 
     assert_state_transfer_to_self(dispatcher, receiver, token_id, 1);
 
+    let mut spy = spy_events();
     start_cheat_caller_address(dispatcher.contract_address, receiver);
     dispatcher.safe_transfer_from(receiver, receiver, token_id, DATA(true));
     spy.assert_only_event_transfer(dispatcher.contract_address, receiver, receiver, token_id);
@@ -626,15 +616,15 @@ fn test_safe_transfer_from_to_owner() {
 
 #[test]
 fn test_safeTransferFrom_to_owner() {
-    let (mut spy, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
     let token_id = TOKEN_1;
     let receiver = setup_receiver();
 
     dispatcher.transfer_from(OWNER(), receiver, token_id);
-    spy.drop_event();
 
     assert_state_transfer_to_self(dispatcher, receiver, token_id, 1);
 
+    let mut spy = spy_events();
     start_cheat_caller_address(dispatcher.contract_address, receiver);
     dispatcher.safeTransferFrom(receiver, receiver, token_id, DATA(true));
     spy.assert_only_event_transfer(dispatcher.contract_address, receiver, receiver, token_id);
@@ -644,16 +634,15 @@ fn test_safeTransferFrom_to_owner() {
 
 #[test]
 fn test_safe_transfer_from_approved() {
-    let (mut spy, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
     let receiver = setup_receiver();
-    let token_id = TOKEN_1;
-    let owner = OWNER();
+    let (token_id, owner) = (TOKEN_1, OWNER());
+
+    dispatcher.approve(OPERATOR(), token_id);
 
     assert_state_before_transfer(dispatcher, owner, receiver, token_id);
 
-    dispatcher.approve(OPERATOR(), token_id);
-    spy.drop_event();
-
+    let mut spy = spy_events();
     start_cheat_caller_address(dispatcher.contract_address, OPERATOR());
     dispatcher.safe_transfer_from(owner, receiver, token_id, DATA(true));
     spy.assert_only_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
@@ -663,16 +652,15 @@ fn test_safe_transfer_from_approved() {
 
 #[test]
 fn test_safeTransferFrom_approved() {
-    let (mut spy, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
     let receiver = setup_receiver();
-    let token_id = TOKEN_1;
-    let owner = OWNER();
+    let (token_id, owner) = (TOKEN_1, OWNER());
+
+    dispatcher.approve(OPERATOR(), token_id);
 
     assert_state_before_transfer(dispatcher, owner, receiver, token_id);
 
-    dispatcher.approve(OPERATOR(), token_id);
-    spy.drop_event();
-
+    let mut spy = spy_events();
     start_cheat_caller_address(dispatcher.contract_address, OPERATOR());
     dispatcher.safeTransferFrom(owner, receiver, token_id, DATA(true));
     spy.assert_only_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
@@ -682,16 +670,15 @@ fn test_safeTransferFrom_approved() {
 
 #[test]
 fn test_safe_transfer_from_approved_for_all() {
-    let (mut spy, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
     let receiver = setup_receiver();
-    let token_id = TOKEN_1;
-    let owner = OWNER();
+    let (token_id, owner) = (TOKEN_1, OWNER());
+
+    dispatcher.set_approval_for_all(OPERATOR(), true);
 
     assert_state_before_transfer(dispatcher, owner, receiver, token_id);
 
-    dispatcher.set_approval_for_all(OPERATOR(), true);
-    spy.drop_event();
-
+    let mut spy = spy_events();
     start_cheat_caller_address(dispatcher.contract_address, OPERATOR());
     dispatcher.safe_transfer_from(owner, receiver, token_id, DATA(true));
     spy.assert_only_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
@@ -701,16 +688,15 @@ fn test_safe_transfer_from_approved_for_all() {
 
 #[test]
 fn test_safeTransferFrom_approved_for_all() {
-    let (mut spy, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
     let receiver = setup_receiver();
-    let token_id = TOKEN_1;
-    let owner = OWNER();
+    let (token_id, owner) = (TOKEN_1, OWNER());
+
+    dispatcher.set_approval_for_all(OPERATOR(), true);
 
     assert_state_before_transfer(dispatcher, owner, receiver, token_id);
 
-    dispatcher.set_approval_for_all(OPERATOR(), true);
-    spy.drop_event();
-
+    let mut spy = spy_events();
     start_cheat_caller_address(dispatcher.contract_address, OPERATOR());
     dispatcher.safeTransferFrom(owner, receiver, token_id, DATA(true));
     spy.assert_only_event_transfer(dispatcher.contract_address, owner, receiver, token_id);
@@ -721,7 +707,7 @@ fn test_safeTransferFrom_approved_for_all() {
 #[test]
 #[should_panic(expected: 'ERC721: unauthorized caller')]
 fn test_safe_transfer_from_unauthorized() {
-    let (_, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
     start_cheat_caller_address(dispatcher.contract_address, OTHER());
     dispatcher.safe_transfer_from(OWNER(), RECIPIENT(), TOKEN_1, DATA(true));
 }
@@ -729,7 +715,7 @@ fn test_safe_transfer_from_unauthorized() {
 #[test]
 #[should_panic(expected: 'ERC721: unauthorized caller')]
 fn test_safeTransferFrom_unauthorized() {
-    let (_, dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
     start_cheat_caller_address(dispatcher.contract_address, OTHER());
     dispatcher.safeTransferFrom(OWNER(), RECIPIENT(), TOKEN_1, DATA(true));
 }
@@ -740,7 +726,9 @@ fn test_safeTransferFrom_unauthorized() {
 
 #[test]
 fn test_transfer_ownership() {
-    let (mut spy, mut dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
+    let mut spy = spy_events();
+
     start_cheat_caller_address(dispatcher.contract_address, OWNER());
     dispatcher.transfer_ownership(OTHER());
 
@@ -751,7 +739,7 @@ fn test_transfer_ownership() {
 #[test]
 #[should_panic(expected: 'New owner is the zero address')]
 fn test_transfer_ownership_to_zero() {
-    let (_, mut dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
     start_cheat_caller_address(dispatcher.contract_address, OWNER());
     dispatcher.transfer_ownership(ZERO());
 }
@@ -759,14 +747,16 @@ fn test_transfer_ownership_to_zero() {
 #[test]
 #[should_panic(expected: 'Caller is not the owner')]
 fn test_transfer_ownership_from_nonowner() {
-    let (_, mut dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
     start_cheat_caller_address(dispatcher.contract_address, OTHER());
     dispatcher.transfer_ownership(OTHER());
 }
 
 #[test]
 fn test_transferOwnership() {
-    let (mut spy, mut dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
+    let mut spy = spy_events();
+
     start_cheat_caller_address(dispatcher.contract_address, OWNER());
     dispatcher.transferOwnership(OTHER());
 
@@ -777,7 +767,7 @@ fn test_transferOwnership() {
 #[test]
 #[should_panic(expected: 'New owner is the zero address')]
 fn test_transferOwnership_to_zero() {
-    let (_, mut dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
     start_cheat_caller_address(dispatcher.contract_address, OWNER());
     dispatcher.transferOwnership(ZERO());
 }
@@ -785,7 +775,7 @@ fn test_transferOwnership_to_zero() {
 #[test]
 #[should_panic(expected: 'Caller is not the owner')]
 fn test_transferOwnership_from_nonowner() {
-    let (_, mut dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
     start_cheat_caller_address(dispatcher.contract_address, OTHER());
     dispatcher.transferOwnership(OTHER());
 }
@@ -796,7 +786,9 @@ fn test_transferOwnership_from_nonowner() {
 
 #[test]
 fn test_renounce_ownership() {
-    let (mut spy, mut dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
+    let mut spy = spy_events();
+
     start_cheat_caller_address(dispatcher.contract_address, OWNER());
     dispatcher.renounce_ownership();
 
@@ -807,14 +799,16 @@ fn test_renounce_ownership() {
 #[test]
 #[should_panic(expected: 'Caller is not the owner')]
 fn test_renounce_ownership_from_nonowner() {
-    let (_, mut dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
     start_cheat_caller_address(dispatcher.contract_address, OTHER());
     dispatcher.renounce_ownership();
 }
 
 #[test]
 fn test_renounceOwnership() {
-    let (mut spy, mut dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
+    let mut spy = spy_events();
+
     start_cheat_caller_address(dispatcher.contract_address, OWNER());
     dispatcher.renounceOwnership();
 
@@ -825,7 +819,7 @@ fn test_renounceOwnership() {
 #[test]
 #[should_panic(expected: 'Caller is not the owner')]
 fn test_renounceOwnership_from_nonowner() {
-    let (_, mut dispatcher) = setup_dispatcher();
+    let dispatcher = setup_dispatcher();
     start_cheat_caller_address(dispatcher.contract_address, OTHER());
     dispatcher.renounceOwnership();
 }
@@ -837,7 +831,7 @@ fn test_renounceOwnership_from_nonowner() {
 #[test]
 #[should_panic(expected: 'Caller is not the owner')]
 fn test_upgrade_unauthorized() {
-    let (_, mut v1) = setup_dispatcher();
+    let v1 = setup_dispatcher();
     start_cheat_caller_address(v1.contract_address, OTHER());
     v1.upgrade(CLASS_HASH_ZERO());
 }
@@ -845,7 +839,7 @@ fn test_upgrade_unauthorized() {
 #[test]
 #[should_panic(expected: 'Class hash cannot be zero')]
 fn test_upgrade_with_class_hash_zero() {
-    let (_, mut v1) = setup_dispatcher();
+    let v1 = setup_dispatcher();
 
     start_cheat_caller_address(v1.contract_address, OWNER());
     v1.upgrade(CLASS_HASH_ZERO());
@@ -853,9 +847,10 @@ fn test_upgrade_with_class_hash_zero() {
 
 #[test]
 fn test_upgraded_event() {
-    let (mut spy, mut v1) = setup_dispatcher();
+    let v1 = setup_dispatcher();
     let v2_class_hash = V2_CLASS_HASH();
 
+    let mut spy = spy_events();
     start_cheat_caller_address(v1.contract_address, OWNER());
     v1.upgrade(v2_class_hash);
 
@@ -865,7 +860,7 @@ fn test_upgraded_event() {
 #[test]
 #[feature("safe_dispatcher")]
 fn test_v2_missing_camel_selector() {
-    let (_, mut v1) = setup_dispatcher();
+    let v1 = setup_dispatcher();
     let v2_class_hash = V2_CLASS_HASH();
 
     start_cheat_caller_address(v1.contract_address, OWNER());
@@ -880,7 +875,7 @@ fn test_v2_missing_camel_selector() {
 
 #[test]
 fn test_state_persists_after_upgrade() {
-    let (_, mut v1) = setup_dispatcher();
+    let v1 = setup_dispatcher();
     let v2_class_hash = V2_CLASS_HASH();
 
     start_cheat_caller_address(v1.contract_address, OWNER());

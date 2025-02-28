@@ -311,6 +311,7 @@ fn test_set_approval_for_all() {
 
     state.set_approval_for_all(OPERATOR(), true);
     spy.assert_only_event_approval_for_all(contract_address, OWNER(), OPERATOR(), true);
+    spy.drop_all_events();
 
     let is_approved_for_all = state.is_approved_for_all(OWNER(), OPERATOR());
     assert!(is_approved_for_all);
@@ -340,6 +341,7 @@ fn test__set_approval_for_all() {
 
     state._set_approval_for_all(OWNER(), OPERATOR(), true);
     spy.assert_only_event_approval_for_all(contract_address, OWNER(), OPERATOR(), true);
+    spy.drop_all_events();
 
     let is_approved_for_all = state.is_approved_for_all(OWNER(), OPERATOR());
     assert!(is_approved_for_all);
@@ -1172,7 +1174,7 @@ fn test__approve_with_optional_event_not_emitting() {
     let mut spy = spy_events();
 
     state._approve_with_optional_event(SPENDER(), TOKEN_ID, ZERO(), false);
-    spy.assert_no_events_left_from(test_address());
+    spy.assert_no_events_from(test_address());
 
     let approved = state.get_approved(TOKEN_ID);
     assert_eq!(approved, SPENDER());
@@ -1191,7 +1193,7 @@ fn test__approve_with_optional_event_nonexistent_not_emitting() {
     let mut spy = spy_events();
 
     state._approve_with_optional_event(SPENDER(), TOKEN_ID, ZERO(), false);
-    spy.assert_no_events_left_from(test_address());
+    spy.assert_no_events_from(test_address());
 
     let approved = state.get_approved(TOKEN_ID);
     assert_eq!(approved, SPENDER());
@@ -1203,7 +1205,7 @@ fn test__approve_with_optional_event_auth_is_owner() {
     let mut spy = spy_events();
 
     state._approve_with_optional_event(SPENDER(), TOKEN_ID, OWNER(), false);
-    spy.assert_no_events_left_from(test_address());
+    spy.assert_no_events_from(test_address());
 
     let approved = state.get_approved(TOKEN_ID);
     assert_eq!(approved, SPENDER());
@@ -1221,7 +1223,7 @@ fn test__approve_with_optional_event_auth_is_approved_for_all() {
     let mut spy = spy_events();
 
     state._approve_with_optional_event(SPENDER(), TOKEN_ID, auth, false);
-    spy.assert_no_events_left_from(contract_address);
+    spy.assert_no_events_from(test_address());
 
     let approved = state.get_approved(TOKEN_ID);
     assert_eq!(approved, SPENDER());

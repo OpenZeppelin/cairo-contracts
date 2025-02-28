@@ -1246,6 +1246,7 @@ fn test_initializer_supported_interfaces() {
 fn test_initializer_min_delay() {
     let mut state = COMPONENT_STATE();
     let min_delay = MIN_DELAY;
+    let contract_address = test_address();
 
     let proposers = array![PROPOSER()].span();
     let executors = array![EXECUTOR()].span();
@@ -1263,8 +1264,8 @@ fn test_initializer_min_delay() {
     // - 1 proposer
     // - 1 canceller
     // - 1 executor
-    EventSpyExt::drop_n_events(ref spy, 4);
-    spy.assert_only_event_delay_changed(test_address(), 0, MIN_DELAY);
+    spy.assert_only_event_delay_changed(contract_address, 0, MIN_DELAY);
+    spy.assert_number_of_events_from(contract_address, 5);
 }
 
 //
@@ -1721,7 +1722,7 @@ pub(crate) impl TimelockSpyHelpersImpl of TimelockSpyHelpers {
         delay: u64,
     ) {
         self.assert_event_call_scheduled(contract, id, index, call, predecessor, delay);
-        self.assert_no_events_left_from(contract);
+        self.assert_only_one_event_from(contract);
     }
 
     fn assert_events_call_scheduled_batch(
@@ -1754,7 +1755,7 @@ pub(crate) impl TimelockSpyHelpersImpl of TimelockSpyHelpers {
         delay: u64,
     ) {
         self.assert_events_call_scheduled_batch(contract, id, calls, predecessor, delay);
-        self.assert_no_events_left_from(contract);
+        self.assert_only_one_event_from(contract);
     }
 
     //
@@ -1772,7 +1773,7 @@ pub(crate) impl TimelockSpyHelpersImpl of TimelockSpyHelpers {
         ref self: EventSpy, contract: ContractAddress, id: felt252, salt: felt252,
     ) {
         self.assert_event_call_salt(contract, id, salt);
-        self.assert_no_events_left_from(contract);
+        self.assert_only_one_event_from(contract);
     }
 
     //
@@ -1788,7 +1789,7 @@ pub(crate) impl TimelockSpyHelpersImpl of TimelockSpyHelpers {
         ref self: EventSpy, contract: ContractAddress, id: felt252,
     ) {
         self.assert_event_call_cancelled(contract, id);
-        self.assert_no_events_left_from(contract);
+        self.assert_only_one_event_from(contract);
     }
 
     //
@@ -1808,7 +1809,7 @@ pub(crate) impl TimelockSpyHelpersImpl of TimelockSpyHelpers {
         ref self: EventSpy, contract: ContractAddress, id: felt252, index: felt252, call: Call,
     ) {
         self.assert_event_call_executed(contract, id, index, call);
-        self.assert_no_events_left_from(contract);
+        self.assert_only_one_event_from(contract);
     }
 
     fn assert_events_call_executed_batch(
@@ -1828,7 +1829,7 @@ pub(crate) impl TimelockSpyHelpersImpl of TimelockSpyHelpers {
         ref self: EventSpy, contract: ContractAddress, id: felt252, calls: Span<Call>,
     ) {
         self.assert_events_call_executed_batch(contract, id, calls);
-        self.assert_no_events_left_from(contract);
+        self.assert_only_one_event_from(contract);
     }
 
     //
@@ -1848,6 +1849,6 @@ pub(crate) impl TimelockSpyHelpersImpl of TimelockSpyHelpers {
         ref self: EventSpy, contract: ContractAddress, old_duration: u64, new_duration: u64,
     ) {
         self.assert_event_delay_changed(contract, old_duration, new_duration);
-        self.assert_no_events_left_from(contract);
+        self.assert_only_one_event_from(contract);
     }
 }

@@ -70,7 +70,7 @@ pub impl EthAccountSpyHelpersImpl of EthAccountSpyHelpers {
         ref self: EventSpy, contract: ContractAddress, public_key: EthPublicKey,
     ) {
         self.assert_event_owner_added(contract, public_key);
-        self.assert_no_events_left_from(contract);
+        self.assert_only_one_event_from(contract);
     }
 }
 

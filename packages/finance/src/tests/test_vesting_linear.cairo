@@ -117,7 +117,7 @@ fn test_release_zero_amount() {
     let actual_release_amount = vesting.release(token);
     assert_eq!(actual_release_amount, 0);
 
-    spy.assert_no_events_left();
+    spy.assert_no_events_from(vesting.contract_address);
 }
 
 #[test]

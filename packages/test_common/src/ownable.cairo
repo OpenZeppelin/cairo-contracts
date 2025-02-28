@@ -13,7 +13,7 @@ pub impl OwnableSpyHelpersImpl of OwnableSpyHelpers {
         new_owner: ContractAddress,
     ) {
         self.assert_event_ownership_transferred(contract, previous_owner, new_owner);
-        self.assert_no_events_left_from(contract);
+        self.assert_only_one_event_from(contract);
     }
 
     fn assert_event_ownership_transferred(

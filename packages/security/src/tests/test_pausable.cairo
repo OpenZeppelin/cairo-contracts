@@ -99,13 +99,14 @@ fn test_pause_when_paused() {
 fn test_unpause_when_paused() {
     let mut state = COMPONENT_STATE();
     let contract_address = test_address();
-
     let mut spy = spy_events();
     start_cheat_caller_address(test_address(), CALLER());
-    state.pause();
-    state.unpause();
 
+    state.pause();
     spy.assert_event_paused(contract_address, CALLER());
+
+    spy.drop_all_events();
+    state.unpause();
     spy.assert_only_event_unpaused(contract_address, CALLER());
     assert!(!state.is_paused());
 }
@@ -135,7 +136,7 @@ impl PausableSpyHelpersImpl of PausableSpyHelpers {
         ref self: EventSpy, contract: ContractAddress, account: ContractAddress,
     ) {
         self.assert_event_paused(contract, account);
-        self.assert_no_events_left_from(contract);
+        self.assert_only_one_event_from(contract);
     }
 
     fn assert_event_unpaused(
@@ -149,6 +150,6 @@ impl PausableSpyHelpersImpl of PausableSpyHelpers {
         ref self: EventSpy, contract: ContractAddress, account: ContractAddress,
     ) {
         self.assert_event_unpaused(contract, account);
-        self.assert_no_events_left_from(contract);
+        self.assert_only_one_event_from(contract);
     }
 }

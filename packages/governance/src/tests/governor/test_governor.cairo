@@ -1996,7 +1996,7 @@ pub(crate) impl GovernorSpyHelpersImpl of GovernorSpyHelpers {
                 vote_end,
                 description,
             );
-        self.assert_no_events_left_from(contract);
+        self.assert_only_one_event_from(contract);
     }
 
     fn assert_event_vote_cast(
@@ -2026,7 +2026,7 @@ pub(crate) impl GovernorSpyHelpersImpl of GovernorSpyHelpers {
         reason: @ByteArray,
     ) {
         self.assert_event_vote_cast(contract, voter, proposal_id, support, weight, reason);
-        self.assert_no_events_left_from(contract);
+        self.assert_only_one_event_from(contract);
     }
 
     fn assert_event_vote_cast_with_params(
@@ -2061,7 +2061,7 @@ pub(crate) impl GovernorSpyHelpersImpl of GovernorSpyHelpers {
             .assert_event_vote_cast_with_params(
                 contract, voter, proposal_id, support, weight, reason, params,
             );
-        self.assert_no_events_left_from(contract);
+        self.assert_only_one_event_from(contract);
     }
 
     fn assert_event_proposal_queued(
@@ -2077,7 +2077,7 @@ pub(crate) impl GovernorSpyHelpersImpl of GovernorSpyHelpers {
         ref self: EventSpy, contract: ContractAddress, proposal_id: felt252, eta_seconds: u64,
     ) {
         self.assert_event_proposal_queued(contract, proposal_id, eta_seconds);
-        self.assert_no_events_left_from(contract);
+        self.assert_only_one_event_from(contract);
     }
 
     fn assert_event_proposal_executed(
@@ -2093,7 +2093,7 @@ pub(crate) impl GovernorSpyHelpersImpl of GovernorSpyHelpers {
         ref self: EventSpy, contract: ContractAddress, proposal_id: felt252,
     ) {
         self.assert_event_proposal_executed(contract, proposal_id);
-        self.assert_no_events_left_from(contract);
+        self.assert_only_one_event_from(contract);
     }
 
     fn assert_event_proposal_canceled(
@@ -2109,6 +2109,6 @@ pub(crate) impl GovernorSpyHelpersImpl of GovernorSpyHelpers {
         ref self: EventSpy, contract: ContractAddress, proposal_id: felt252,
     ) {
         self.assert_event_proposal_canceled(contract, proposal_id);
-        self.assert_no_events_left_from(contract);
+        self.assert_only_one_event_from(contract);
     }
 }

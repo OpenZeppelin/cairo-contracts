@@ -59,7 +59,7 @@ pub impl ERC1155SpyHelpersImpl of ERC1155SpyHelpers {
         approved: bool,
     ) {
         self.assert_event_approval_for_all(contract, owner, operator, approved);
-        self.assert_no_events_left_from(contract);
+        self.assert_only_one_event_from(contract);
     }
 
     fn assert_event_transfer_single(
@@ -87,7 +87,7 @@ pub impl ERC1155SpyHelpersImpl of ERC1155SpyHelpers {
         value: u256,
     ) {
         self.assert_event_transfer_single(contract, operator, from, to, token_id, value);
-        self.assert_no_events_left_from(contract);
+        self.assert_only_one_event_from(contract);
     }
 
     fn assert_event_transfer_batch(
@@ -115,6 +115,6 @@ pub impl ERC1155SpyHelpersImpl of ERC1155SpyHelpers {
         values: Span<u256>,
     ) {
         self.assert_event_transfer_batch(contract, operator, from, to, token_ids, values);
-        self.assert_no_events_left_from(contract);
+        self.assert_only_one_event_from(contract);
     }
 }

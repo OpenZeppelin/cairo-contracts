@@ -260,16 +260,17 @@ fn test_transfer_from() {
     start_cheat_caller_address(contract_address, OWNER());
     state.approve(SPENDER(), VALUE);
 
+    assert_state_before_transfer(OWNER(), RECIPIENT());
+
     let mut spy = spy_events();
     start_cheat_caller_address(contract_address, SPENDER());
-
-    assert_state_before_transfer(OWNER(), RECIPIENT());
     let tx_success = state.transfer_from(OWNER(), RECIPIENT(), VALUE);
     assert!(tx_success);
-    assert_state_after_transfer(OWNER(), RECIPIENT(), VALUE);
-
     spy.assert_event_approval(contract_address, OWNER(), SPENDER(), 0);
-    spy.assert_only_event_transfer(contract_address, OWNER(), RECIPIENT(), VALUE);
+    spy.assert_event_transfer(contract_address, OWNER(), RECIPIENT(), VALUE);
+    spy.assert_number_of_events_from(contract_address, 2);
+
+    assert_state_after_transfer(OWNER(), RECIPIENT(), VALUE);
 
     let allowance = state.allowance(OWNER(), SPENDER());
     assert_eq!(allowance, 0);
@@ -326,16 +327,16 @@ fn test_transferFrom() {
     start_cheat_caller_address(contract_address, OWNER());
     state.approve(SPENDER(), VALUE);
 
+    assert_state_before_transfer(OWNER(), RECIPIENT());
+
     let mut spy = spy_events();
     start_cheat_caller_address(contract_address, SPENDER());
-
-    assert_state_before_transfer(OWNER(), RECIPIENT());
     let tx_success = state.transferFrom(OWNER(), RECIPIENT(), VALUE);
     assert!(tx_success);
-    assert_state_after_transfer(OWNER(), RECIPIENT(), VALUE);
-
     spy.assert_event_approval(contract_address, OWNER(), SPENDER(), 0);
-    spy.assert_only_event_transfer(contract_address, OWNER(), RECIPIENT(), VALUE);
+    spy.assert_event_transfer(contract_address, OWNER(), RECIPIENT(), VALUE);
+    spy.assert_number_of_events_from(contract_address, 2);
+    assert_state_after_transfer(OWNER(), RECIPIENT(), VALUE);
 
     let allowance = state.allowance(OWNER(), SPENDER());
     assert_eq!(allowance, 0);

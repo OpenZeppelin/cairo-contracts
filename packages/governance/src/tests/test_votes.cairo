@@ -237,9 +237,8 @@ fn test_delegate_with_no_balance() {
     // OTHER has no balance, so delegating should not change any votes
     state.delegate(DELEGATEE());
 
-    spy.assert_event_delegate_changed(contract_address, OTHER(), ZERO(), DELEGATEE());
     // No DelegateVotesChanged event should be emitted
-    spy.assert_no_events_left_from(contract_address);
+    spy.assert_only_event_delegate_changed(contract_address, OTHER(), ZERO(), DELEGATEE());
 
     assert_eq!(state.get_votes(DELEGATEE()), 0);
     assert_eq!(state.get_votes(OTHER()), 0);
@@ -663,7 +662,7 @@ impl VotesSpyHelpersImpl of VotesSpyHelpers {
         to_delegate: ContractAddress,
     ) {
         self.assert_event_delegate_changed(contract, delegator, from_delegate, to_delegate);
-        self.assert_no_events_left_from(contract);
+        self.assert_only_one_event_from(contract);
     }
 
     fn assert_only_event_delegate_votes_changed(
@@ -674,6 +673,6 @@ impl VotesSpyHelpersImpl of VotesSpyHelpers {
         new_votes: u256,
     ) {
         self.assert_event_delegate_votes_changed(contract, delegate, previous_votes, new_votes);
-        self.assert_no_events_left_from(contract);
+        self.assert_only_one_event_from(contract);
     }
 }

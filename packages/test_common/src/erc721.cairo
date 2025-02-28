@@ -27,7 +27,7 @@ pub impl ERC721SpyHelpersImpl of ERC721SpyHelpers {
         approved: bool,
     ) {
         self.assert_event_approval_for_all(contract, owner, operator, approved);
-        self.assert_no_events_left_from(contract);
+        self.assert_only_one_event_from(contract);
     }
 
     fn assert_event_approval(
@@ -49,7 +49,7 @@ pub impl ERC721SpyHelpersImpl of ERC721SpyHelpers {
         token_id: u256,
     ) {
         self.assert_event_approval(contract, owner, approved, token_id);
-        self.assert_no_events_left_from(contract);
+        self.assert_only_one_event_from(contract);
     }
 
     fn assert_event_transfer(
@@ -71,6 +71,6 @@ pub impl ERC721SpyHelpersImpl of ERC721SpyHelpers {
         token_id: u256,
     ) {
         self.assert_event_transfer(contract, from, to, token_id);
-        self.assert_no_events_left_from(contract);
+        self.assert_only_one_event_from(contract);
     }
 }

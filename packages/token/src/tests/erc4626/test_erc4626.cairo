@@ -260,9 +260,10 @@ fn test_init_vault_status() {
 fn test_deposit() {
     let (asset, vault) = setup_empty();
     let amount = parse_token(1);
+    let (holder, recipient) = (HOLDER(), RECIPIENT());
 
     // Check max deposit
-    let max_deposit = vault.max_deposit(HOLDER());
+    let max_deposit = vault.max_deposit(holder);
     assert_eq!(max_deposit, Bounded::MAX);
 
     // Check preview == expected shares
@@ -270,32 +271,33 @@ fn test_deposit() {
     let exp_shares = parse_share_offset(1);
     assert_eq!(preview_deposit, exp_shares);
 
-    let holder_balance_before = asset.balance_of(HOLDER());
+    let holder_balance_before = asset.balance_of(holder);
     let mut spy = spy_events();
 
     // Deposit
-    cheat_caller_address(vault.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
-    let shares = vault.deposit(amount, RECIPIENT());
+    cheat_caller_address(vault.contract_address, holder, CheatSpan::TargetCalls(1));
+    let shares = vault.deposit(amount, recipient);
 
     // Check balances
-    let holder_balance_after = asset.balance_of(HOLDER());
+    let holder_balance_after = asset.balance_of(holder);
     assert_eq!(holder_balance_after, holder_balance_before - amount);
-
-    let recipient_shares = vault.balance_of(RECIPIENT());
+    let recipient_shares = vault.balance_of(recipient);
     assert_eq!(recipient_shares, exp_shares);
 
     // Check events
-    spy.assert_event_transfer(asset.contract_address, HOLDER(), vault.contract_address, amount);
-    spy.assert_event_transfer(vault.contract_address, ZERO(), RECIPIENT(), shares);
-    spy.assert_only_event_deposit(vault.contract_address, HOLDER(), RECIPIENT(), amount, shares);
+    spy.assert_only_event_transfer(asset.contract_address, holder, vault.contract_address, amount);
+    spy.assert_event_transfer(vault.contract_address, ZERO(), recipient, shares);
+    spy.assert_event_deposit(vault.contract_address, holder, recipient, amount, shares);
+    spy.assert_number_of_events_from(vault.contract_address, 2);
 }
 
 #[test]
 fn test_mint() {
     let (asset, vault) = setup_empty();
+    let (holder, recipient) = (HOLDER(), RECIPIENT());
 
     // Check max mint
-    let max_mint = vault.max_mint(HOLDER());
+    let max_mint = vault.max_mint(holder);
     assert_eq!(max_mint, Bounded::MAX);
 
     // Check preview mint
@@ -304,37 +306,39 @@ fn test_mint() {
     assert_eq!(preview_mint, exp_assets);
 
     let mut spy = spy_events();
-    let holder_balance_before = asset.balance_of(HOLDER());
+    let holder_balance_before = asset.balance_of(holder);
 
     // Mint
-    cheat_caller_address(vault.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
-    vault.mint(parse_share_offset(1), RECIPIENT());
+    cheat_caller_address(vault.contract_address, holder, CheatSpan::TargetCalls(1));
+    vault.mint(parse_share_offset(1), recipient);
 
     // Check balances
-    let holder_balance_after = asset.balance_of(HOLDER());
+    let holder_balance_after = asset.balance_of(holder);
     assert_eq!(holder_balance_after, holder_balance_before - parse_token(1));
 
-    let recipient_shares = vault.balance_of(RECIPIENT());
+    let recipient_shares = vault.balance_of(recipient);
     assert_eq!(recipient_shares, parse_share_offset(1));
 
     // Check events
     spy
-        .assert_event_transfer(
-            asset.contract_address, HOLDER(), vault.contract_address, parse_token(1),
+        .assert_only_event_transfer(
+            asset.contract_address, holder, vault.contract_address, parse_token(1),
         );
-    spy.assert_event_transfer(vault.contract_address, ZERO(), RECIPIENT(), parse_share_offset(1));
+    spy.assert_event_transfer(vault.contract_address, ZERO(), recipient, parse_share_offset(1));
     spy
-        .assert_only_event_deposit(
-            vault.contract_address, HOLDER(), RECIPIENT(), parse_token(1), parse_share_offset(1),
+        .assert_event_deposit(
+            vault.contract_address, holder, recipient, parse_token(1), parse_share_offset(1),
         );
+    spy.assert_number_of_events_from(vault.contract_address, 2);
 }
 
 #[test]
 fn test_withdraw() {
     let (asset, vault) = setup_empty();
+    let (holder, recipient) = (HOLDER(), RECIPIENT());
 
     // Check max withdraw
-    let max_withdraw = vault.max_withdraw(HOLDER());
+    let max_withdraw = vault.max_withdraw(holder);
     assert_eq!(max_withdraw, 0);
 
     // Check preview withdraw
@@ -344,21 +348,23 @@ fn test_withdraw() {
     let mut spy = spy_events();
 
     // Withdraw
-    cheat_caller_address(vault.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
-    vault.withdraw(0, RECIPIENT(), HOLDER());
+    cheat_caller_address(vault.contract_address, holder, CheatSpan::TargetCalls(1));
+    vault.withdraw(0, recipient, holder);
 
     // Check events
-    spy.assert_event_transfer(vault.contract_address, HOLDER(), ZERO(), 0);
-    spy.assert_event_transfer(asset.contract_address, vault.contract_address, RECIPIENT(), 0);
-    spy.assert_only_event_withdraw(vault.contract_address, HOLDER(), RECIPIENT(), HOLDER(), 0, 0);
+    spy.assert_only_event_transfer(asset.contract_address, vault.contract_address, recipient, 0);
+    spy.assert_event_transfer(vault.contract_address, holder, ZERO(), 0);
+    spy.assert_event_withdraw(vault.contract_address, holder, recipient, holder, 0, 0);
+    spy.assert_number_of_events_from(vault.contract_address, 2);
 }
 
 #[test]
 fn test_redeem() {
     let (asset, vault) = setup_empty();
+    let (holder, recipient) = (HOLDER(), RECIPIENT());
 
     // Check max redeem
-    let max_redeem = vault.max_redeem(HOLDER());
+    let max_redeem = vault.max_redeem(holder);
     assert_eq!(max_redeem, 0);
 
     // Check preview redeem
@@ -368,13 +374,14 @@ fn test_redeem() {
     let mut spy = spy_events();
 
     // Redeem
-    cheat_caller_address(vault.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
-    vault.redeem(0, RECIPIENT(), HOLDER());
+    cheat_caller_address(vault.contract_address, holder, CheatSpan::TargetCalls(1));
+    vault.redeem(0, recipient, holder);
 
     // Check events
-    spy.assert_event_transfer(vault.contract_address, HOLDER(), ZERO(), 0);
-    spy.assert_event_transfer(asset.contract_address, vault.contract_address, RECIPIENT(), 0);
-    spy.assert_only_event_withdraw(vault.contract_address, HOLDER(), RECIPIENT(), HOLDER(), 0, 0);
+    spy.assert_only_event_transfer(asset.contract_address, vault.contract_address, recipient, 0);
+    spy.assert_event_transfer(vault.contract_address, holder, ZERO(), 0);
+    spy.assert_event_withdraw(vault.contract_address, holder, recipient, holder, 0, 0);
+    spy.assert_number_of_events_from(vault.contract_address, 2);
 }
 
 //
@@ -410,6 +417,7 @@ fn test_inflation_attack_status() {
 #[test]
 fn test_inflation_attack_deposit() {
     let (asset, vault) = setup_inflation_attack();
+    let (holder, recipient) = (HOLDER(), RECIPIENT());
     let virtual_assets = 1;
     let offset = 1;
     let virtual_shares = 10_u256.pow(offset);
@@ -421,7 +429,7 @@ fn test_inflation_attack_deposit() {
     let expected_shares = (deposit_assets * effective_shares) / effective_assets;
 
     // Check max deposit
-    let max_deposit = vault.max_deposit(HOLDER());
+    let max_deposit = vault.max_deposit(holder);
     assert_eq!(max_deposit, Bounded::MAX);
 
     // Check preview deposit
@@ -429,36 +437,38 @@ fn test_inflation_attack_deposit() {
     assert_eq!(preview_deposit, expected_shares);
 
     // Before deposit
-    let holder_balance_before = asset.balance_of(HOLDER());
+    let holder_balance_before = asset.balance_of(holder);
     let mut spy = spy_events();
 
     // Deposit
-    cheat_caller_address(vault.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
-    let shares = vault.deposit(deposit_assets, RECIPIENT());
+    cheat_caller_address(vault.contract_address, holder, CheatSpan::TargetCalls(1));
+    let shares = vault.deposit(deposit_assets, recipient);
 
     // After deposit
-    let holder_balance_after = asset.balance_of(HOLDER());
+    let holder_balance_after = asset.balance_of(holder);
     assert_eq!(holder_balance_after, holder_balance_before - deposit_assets);
 
     // Check recipient shares
-    let recipient_balance = vault.balance_of(RECIPIENT());
+    let recipient_balance = vault.balance_of(recipient);
     assert_eq!(recipient_balance, expected_shares);
 
     // Check events
     spy
-        .assert_event_transfer(
-            asset.contract_address, HOLDER(), vault.contract_address, deposit_assets,
+        .assert_only_event_transfer(
+            asset.contract_address, holder, vault.contract_address, deposit_assets,
         );
-    spy.assert_event_transfer(vault.contract_address, ZERO(), RECIPIENT(), shares);
+    spy.assert_event_transfer(vault.contract_address, ZERO(), recipient, shares);
     spy
-        .assert_only_event_deposit(
-            vault.contract_address, HOLDER(), RECIPIENT(), deposit_assets, expected_shares,
+        .assert_event_deposit(
+            vault.contract_address, holder, recipient, deposit_assets, expected_shares,
         );
+    spy.assert_number_of_events_from(vault.contract_address, 2);
 }
 
 #[test]
 fn test_inflation_attack_mint() {
     let (asset, vault) = setup_inflation_attack();
+    let (holder, recipient) = (HOLDER(), RECIPIENT());
     let virtual_assets = 1;
     let offset = 1;
     let virtual_shares = 10_u256.pow(offset);
@@ -470,7 +480,7 @@ fn test_inflation_attack_mint() {
     let expected_assets = (mint_shares * effective_assets) / effective_shares;
 
     // Check max mint
-    let max_mint = vault.max_mint(HOLDER());
+    let max_mint = vault.max_mint(holder);
     assert_eq!(max_mint, Bounded::MAX);
 
     // Check preview mint
@@ -478,37 +488,39 @@ fn test_inflation_attack_mint() {
     assert_eq!(preview_mint, expected_assets);
 
     // Capture initial balances
-    let holder_balance_before = asset.balance_of(HOLDER());
+    let holder_balance_before = asset.balance_of(holder);
     let vault_balance_before = asset.balance_of(vault.contract_address);
 
     // Mint
     let mut spy = spy_events();
-    cheat_caller_address(vault.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
-    vault.mint(mint_shares, RECIPIENT());
+    cheat_caller_address(vault.contract_address, holder, CheatSpan::TargetCalls(1));
+    vault.mint(mint_shares, recipient);
 
     // Check balances
-    assert_expected_assets(asset, HOLDER(), holder_balance_before - expected_assets);
+    assert_expected_assets(asset, holder, holder_balance_before - expected_assets);
     assert_expected_assets(asset, vault.contract_address, vault_balance_before + expected_assets);
-    assert_expected_shares(vault, RECIPIENT(), parse_share_offset(1));
+    assert_expected_shares(vault, recipient, parse_share_offset(1));
 
     // Check events
     spy
-        .assert_event_transfer(
-            asset.contract_address, HOLDER(), vault.contract_address, expected_assets,
+        .assert_only_event_transfer(
+            asset.contract_address, holder, vault.contract_address, expected_assets,
         );
-    spy.assert_event_transfer(vault.contract_address, ZERO(), RECIPIENT(), mint_shares);
+    spy.assert_event_transfer(vault.contract_address, ZERO(), recipient, mint_shares);
     spy
-        .assert_only_event_deposit(
-            vault.contract_address, HOLDER(), RECIPIENT(), expected_assets, mint_shares,
+        .assert_event_deposit(
+            vault.contract_address, holder, recipient, expected_assets, mint_shares,
         );
+    spy.assert_number_of_events_from(vault.contract_address, 2);
 }
 
 #[test]
 fn test_inflation_attack_withdraw() {
     let (asset, vault) = setup_inflation_attack();
+    let (holder, recipient) = (HOLDER(), RECIPIENT());
 
     // Check max withdraw
-    let max_withdraw = vault.max_withdraw(HOLDER());
+    let max_withdraw = vault.max_withdraw(holder);
     assert_eq!(max_withdraw, 0);
 
     // Check preview withdraw
@@ -516,29 +528,32 @@ fn test_inflation_attack_withdraw() {
     assert_eq!(preview_withdraw, 0);
 
     // Capture initial balances
-    let holder_balance_before = asset.balance_of(HOLDER());
+    let holder_balance_before = asset.balance_of(holder);
     let vault_balance_before = asset.balance_of(vault.contract_address);
 
     // Withdraw
     let mut spy = spy_events();
-    cheat_caller_address(vault.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
-    vault.withdraw(0, RECIPIENT(), HOLDER());
+    cheat_caller_address(vault.contract_address, holder, CheatSpan::TargetCalls(1));
+    vault.withdraw(0, recipient, holder);
 
-    // Check balances and events
-    assert_expected_assets(asset, HOLDER(), holder_balance_before);
+    // Check balances
+    assert_expected_assets(asset, holder, holder_balance_before);
     assert_expected_assets(asset, vault.contract_address, vault_balance_before);
 
-    spy.assert_event_transfer(vault.contract_address, HOLDER(), ZERO(), 0);
-    spy.assert_event_transfer(asset.contract_address, vault.contract_address, RECIPIENT(), 0);
-    spy.assert_only_event_withdraw(vault.contract_address, HOLDER(), RECIPIENT(), HOLDER(), 0, 0);
+    // Check events
+    spy.assert_only_event_transfer(asset.contract_address, vault.contract_address, recipient, 0);
+    spy.assert_event_transfer(vault.contract_address, holder, ZERO(), 0);
+    spy.assert_event_withdraw(vault.contract_address, holder, recipient, holder, 0, 0);
+    spy.assert_number_of_events_from(vault.contract_address, 2);
 }
 
 #[test]
 fn test_inflation_attack_redeem() {
     let (asset, vault) = setup_inflation_attack();
+    let (holder, recipient) = (HOLDER(), RECIPIENT());
 
     // Check max redeem
-    let max_redeem = vault.max_redeem(HOLDER());
+    let max_redeem = vault.max_redeem(holder);
     assert_eq!(max_redeem, 0);
 
     // Check preview redeem
@@ -547,13 +562,14 @@ fn test_inflation_attack_redeem() {
 
     // Redeem
     let mut spy = spy_events();
-    cheat_caller_address(vault.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
-    vault.redeem(0, RECIPIENT(), HOLDER());
+    cheat_caller_address(vault.contract_address, holder, CheatSpan::TargetCalls(1));
+    vault.redeem(0, recipient, holder);
 
     // Check events
-    spy.assert_event_transfer(vault.contract_address, HOLDER(), ZERO(), 0);
-    spy.assert_event_transfer(asset.contract_address, vault.contract_address, RECIPIENT(), 0);
-    spy.assert_only_event_withdraw(vault.contract_address, HOLDER(), RECIPIENT(), HOLDER(), 0, 0);
+    spy.assert_only_event_transfer(asset.contract_address, vault.contract_address, recipient, 0);
+    spy.assert_event_transfer(vault.contract_address, holder, ZERO(), 0);
+    spy.assert_event_withdraw(vault.contract_address, holder, recipient, holder, 0, 0);
+    spy.assert_number_of_events_from(vault.contract_address, 2);
 }
 
 //
@@ -596,6 +612,7 @@ fn test_full_vault_status() {
 #[test]
 fn test_full_vault_deposit() {
     let (asset, vault) = setup_full_vault();
+    let (holder, recipient) = (HOLDER(), RECIPIENT());
 
     let virtual_assets = 1;
     let offset = 1;
@@ -608,7 +625,7 @@ fn test_full_vault_deposit() {
     let expected_shares = (deposit_assets * effective_shares) / effective_assets;
 
     // Check max deposit
-    let max_deposit = vault.max_deposit(HOLDER());
+    let max_deposit = vault.max_deposit(holder);
     assert_eq!(max_deposit, Bounded::MAX);
 
     // Check preview deposit
@@ -616,36 +633,38 @@ fn test_full_vault_deposit() {
     assert_eq!(preview_deposit, expected_shares);
 
     // Before deposit
-    let holder_balance_before = asset.balance_of(HOLDER());
+    let holder_balance_before = asset.balance_of(holder);
 
     // Deposit
     let mut spy = spy_events();
-    cheat_caller_address(vault.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
-    let shares = vault.deposit(deposit_assets, RECIPIENT());
+    cheat_caller_address(vault.contract_address, holder, CheatSpan::TargetCalls(1));
+    let shares = vault.deposit(deposit_assets, recipient);
 
     // After deposit
-    let holder_balance_after = asset.balance_of(HOLDER());
+    let holder_balance_after = asset.balance_of(holder);
     assert_eq!(holder_balance_after, holder_balance_before - deposit_assets);
 
     // Check recipient shares
-    let recipient_balance = vault.balance_of(RECIPIENT());
+    let recipient_balance = vault.balance_of(recipient);
     assert_eq!(recipient_balance, expected_shares);
 
     // Check events
     spy
-        .assert_event_transfer(
-            asset.contract_address, HOLDER(), vault.contract_address, deposit_assets,
+        .assert_only_event_transfer(
+            asset.contract_address, holder, vault.contract_address, deposit_assets,
         );
-    spy.assert_event_transfer(vault.contract_address, ZERO(), RECIPIENT(), shares);
+    spy.assert_event_transfer(vault.contract_address, ZERO(), recipient, shares);
     spy
-        .assert_only_event_deposit(
-            vault.contract_address, HOLDER(), RECIPIENT(), deposit_assets, expected_shares,
+        .assert_event_deposit(
+            vault.contract_address, holder, recipient, deposit_assets, expected_shares,
         );
+    spy.assert_number_of_events_from(vault.contract_address, 2);
 }
 
 #[test]
 fn test_full_vault_mint() {
     let (asset, vault) = setup_full_vault();
+    let (holder, recipient) = (HOLDER(), RECIPIENT());
 
     let virtual_assets = 1;
     let offset = 1;
@@ -659,7 +678,7 @@ fn test_full_vault_mint() {
         + 1; // add `1` for the rounding
 
     // Check max mint
-    let max_mint = vault.max_mint(HOLDER());
+    let max_mint = vault.max_mint(holder);
     assert_eq!(max_mint, Bounded::MAX);
 
     // Check preview mint
@@ -667,34 +686,36 @@ fn test_full_vault_mint() {
     assert_eq!(preview_mint, expected_assets);
 
     // Capture initial balances
-    let holder_balance_before = asset.balance_of(HOLDER());
+    let holder_balance_before = asset.balance_of(holder);
     let vault_balance_before = asset.balance_of(vault.contract_address);
 
     // Mint
     let mut spy = spy_events();
-    cheat_caller_address(vault.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
-    vault.mint(mint_shares, RECIPIENT());
+    cheat_caller_address(vault.contract_address, holder, CheatSpan::TargetCalls(1));
+    vault.mint(mint_shares, recipient);
 
     // Check balances
-    assert_expected_assets(asset, HOLDER(), holder_balance_before - expected_assets);
+    assert_expected_assets(asset, holder, holder_balance_before - expected_assets);
     assert_expected_assets(asset, vault.contract_address, vault_balance_before + expected_assets);
-    assert_expected_shares(vault, RECIPIENT(), parse_share_offset(1));
+    assert_expected_shares(vault, recipient, parse_share_offset(1));
 
     // Check events
     spy
-        .assert_event_transfer(
-            asset.contract_address, HOLDER(), vault.contract_address, expected_assets,
+        .assert_only_event_transfer(
+            asset.contract_address, holder, vault.contract_address, expected_assets,
         );
-    spy.assert_event_transfer(vault.contract_address, ZERO(), RECIPIENT(), mint_shares);
+    spy.assert_event_transfer(vault.contract_address, ZERO(), recipient, mint_shares);
     spy
-        .assert_only_event_deposit(
-            vault.contract_address, HOLDER(), RECIPIENT(), expected_assets, mint_shares,
+        .assert_event_deposit(
+            vault.contract_address, holder, recipient, expected_assets, mint_shares,
         );
+    spy.assert_number_of_events_from(vault.contract_address, 2);
 }
 
 #[test]
 fn test_full_vault_withdraw() {
     let (asset, vault) = setup_full_vault();
+    let (holder, recipient) = (HOLDER(), RECIPIENT());
 
     let virtual_assets = 1;
     let offset = 1;
@@ -708,7 +729,7 @@ fn test_full_vault_withdraw() {
         + 1; // add `1` for the rounding
 
     // Check max withdraw
-    let max_withdraw = vault.max_withdraw(HOLDER());
+    let max_withdraw = vault.max_withdraw(holder);
     assert_eq!(max_withdraw, withdraw_assets);
 
     // Check preview withdraw
@@ -716,38 +737,35 @@ fn test_full_vault_withdraw() {
     assert_eq!(preview_withdraw, expected_shares);
 
     // Capture initial balances
-    let holder_balance_before = asset.balance_of(HOLDER());
+    let holder_balance_before = asset.balance_of(holder);
     let vault_balance_before = asset.balance_of(vault.contract_address);
 
     // Withdraw
     let mut spy = spy_events();
-    cheat_caller_address(vault.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
-    vault.withdraw(withdraw_assets, RECIPIENT(), HOLDER());
+    cheat_caller_address(vault.contract_address, holder, CheatSpan::TargetCalls(1));
+    vault.withdraw(withdraw_assets, recipient, holder);
 
     // Check balances and events
-    assert_expected_assets(asset, HOLDER(), holder_balance_before);
-    assert_expected_assets(asset, RECIPIENT(), withdraw_assets);
+    assert_expected_assets(asset, holder, holder_balance_before);
+    assert_expected_assets(asset, recipient, withdraw_assets);
     assert_expected_assets(asset, vault.contract_address, vault_balance_before - withdraw_assets);
 
-    spy.assert_event_transfer(vault.contract_address, HOLDER(), ZERO(), expected_shares);
     spy
-        .assert_event_transfer(
-            asset.contract_address, vault.contract_address, RECIPIENT(), withdraw_assets,
+        .assert_only_event_transfer(
+            asset.contract_address, vault.contract_address, recipient, withdraw_assets,
         );
+    spy.assert_event_transfer(vault.contract_address, holder, ZERO(), expected_shares);
     spy
-        .assert_only_event_withdraw(
-            vault.contract_address,
-            HOLDER(),
-            RECIPIENT(),
-            HOLDER(),
-            withdraw_assets,
-            expected_shares,
+        .assert_event_withdraw(
+            vault.contract_address, holder, recipient, holder, withdraw_assets, expected_shares,
         );
+    spy.assert_number_of_events_from(vault.contract_address, 2);
 }
 
 #[test]
 fn test_full_vault_withdraw_with_approval() {
     let (asset, vault) = setup_full_vault();
+    let (holder, recipient, spender) = (HOLDER(), RECIPIENT(), SPENDER());
 
     let virtual_assets = 1;
     let offset = 1;
@@ -762,24 +780,20 @@ fn test_full_vault_withdraw_with_approval() {
 
     // Withdraw
     let mut spy = spy_events();
-    cheat_caller_address(vault.contract_address, SPENDER(), CheatSpan::TargetCalls(1));
-    vault.withdraw(withdraw_assets, RECIPIENT(), HOLDER());
+    cheat_caller_address(vault.contract_address, spender, CheatSpan::TargetCalls(1));
+    vault.withdraw(withdraw_assets, recipient, holder);
 
     // Check events
-    spy.assert_event_transfer(vault.contract_address, HOLDER(), ZERO(), expected_shares);
     spy
-        .assert_event_transfer(
-            asset.contract_address, vault.contract_address, RECIPIENT(), withdraw_assets,
+        .assert_only_event_transfer(
+            asset.contract_address, vault.contract_address, recipient, withdraw_assets,
         );
+    spy.assert_event_transfer(vault.contract_address, holder, ZERO(), expected_shares);
     spy
-        .assert_only_event_withdraw(
-            vault.contract_address,
-            SPENDER(),
-            RECIPIENT(),
-            HOLDER(),
-            withdraw_assets,
-            expected_shares,
+        .assert_event_withdraw(
+            vault.contract_address, spender, recipient, holder, withdraw_assets, expected_shares,
         );
+    spy.assert_number_of_events_from(vault.contract_address, 2);
 }
 
 #[test]
@@ -795,6 +809,7 @@ fn test_full_vault_withdraw_unauthorized() {
 #[test]
 fn test_full_vault_redeem() {
     let (asset, vault) = setup_full_vault();
+    let (holder, recipient) = (HOLDER(), RECIPIENT());
 
     let virtual_assets = 1;
     let offset = 1;
@@ -807,7 +822,7 @@ fn test_full_vault_redeem() {
     let expected_assets = (redeem_shares * effective_assets) / effective_shares;
 
     // Check max redeem
-    let max_redeem = vault.max_redeem(HOLDER());
+    let max_redeem = vault.max_redeem(holder);
     assert_eq!(max_redeem, redeem_shares);
 
     // Check preview redeem
@@ -816,32 +831,34 @@ fn test_full_vault_redeem() {
 
     // Capture initial balances
     let vault_balance_before = asset.balance_of(vault.contract_address);
-    let holder_shares_before = vault.balance_of(HOLDER());
+    let holder_shares_before = vault.balance_of(holder);
 
     // Redeem
     let mut spy = spy_events();
-    cheat_caller_address(vault.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
-    vault.redeem(redeem_shares, RECIPIENT(), HOLDER());
+    cheat_caller_address(vault.contract_address, holder, CheatSpan::TargetCalls(1));
+    vault.redeem(redeem_shares, recipient, holder);
 
     // Check balances and events
-    assert_expected_assets(asset, RECIPIENT(), expected_assets);
+    assert_expected_assets(asset, recipient, expected_assets);
     assert_expected_assets(asset, vault.contract_address, vault_balance_before - expected_assets);
-    assert_expected_shares(vault, HOLDER(), holder_shares_before - redeem_shares);
+    assert_expected_shares(vault, holder, holder_shares_before - redeem_shares);
 
-    spy.assert_event_transfer(vault.contract_address, HOLDER(), ZERO(), redeem_shares);
     spy
-        .assert_event_transfer(
-            asset.contract_address, vault.contract_address, RECIPIENT(), expected_assets,
+        .assert_only_event_transfer(
+            asset.contract_address, vault.contract_address, recipient, expected_assets,
         );
+    spy.assert_event_transfer(vault.contract_address, holder, ZERO(), redeem_shares);
     spy
-        .assert_only_event_withdraw(
-            vault.contract_address, HOLDER(), RECIPIENT(), HOLDER(), expected_assets, redeem_shares,
+        .assert_event_withdraw(
+            vault.contract_address, holder, recipient, holder, expected_assets, redeem_shares,
         );
+    spy.assert_number_of_events_from(vault.contract_address, 2);
 }
 
 #[test]
 fn test_full_vault_redeem_with_approval() {
     let (asset, vault) = setup_full_vault();
+    let (holder, recipient, spender) = (HOLDER(), RECIPIENT(), SPENDER());
 
     let virtual_assets = 1;
     let offset = 1;
@@ -854,7 +871,7 @@ fn test_full_vault_redeem_with_approval() {
     let expected_assets = (redeem_shares * effective_assets) / effective_shares;
 
     // Check max redeem
-    let max_redeem = vault.max_redeem(HOLDER());
+    let max_redeem = vault.max_redeem(holder);
     assert_eq!(max_redeem, redeem_shares);
 
     // Check preview redeem
@@ -863,32 +880,28 @@ fn test_full_vault_redeem_with_approval() {
 
     // Capture initial balances
     let vault_balance_before = asset.balance_of(vault.contract_address);
-    let holder_shares_before = vault.balance_of(HOLDER());
+    let holder_shares_before = vault.balance_of(holder);
 
-    // Redeem from SPENDER
+    // Redeem from spender
     let mut spy = spy_events();
-    cheat_caller_address(vault.contract_address, SPENDER(), CheatSpan::TargetCalls(1));
-    vault.redeem(redeem_shares, RECIPIENT(), HOLDER());
+    cheat_caller_address(vault.contract_address, spender, CheatSpan::TargetCalls(1));
+    vault.redeem(redeem_shares, recipient, holder);
 
     // Check balances and events
-    assert_expected_assets(asset, RECIPIENT(), expected_assets);
+    assert_expected_assets(asset, recipient, expected_assets);
     assert_expected_assets(asset, vault.contract_address, vault_balance_before - expected_assets);
-    assert_expected_shares(vault, HOLDER(), holder_shares_before - redeem_shares);
+    assert_expected_shares(vault, holder, holder_shares_before - redeem_shares);
 
-    spy.assert_event_transfer(vault.contract_address, HOLDER(), ZERO(), redeem_shares);
     spy
-        .assert_event_transfer(
-            asset.contract_address, vault.contract_address, RECIPIENT(), expected_assets,
+        .assert_only_event_transfer(
+            asset.contract_address, vault.contract_address, recipient, expected_assets,
         );
+    spy.assert_event_transfer(vault.contract_address, holder, ZERO(), redeem_shares);
     spy
-        .assert_only_event_withdraw(
-            vault.contract_address,
-            SPENDER(),
-            RECIPIENT(),
-            HOLDER(),
-            expected_assets,
-            redeem_shares,
+        .assert_event_withdraw(
+            vault.contract_address, spender, recipient, holder, expected_assets, redeem_shares,
         );
+    spy.assert_number_of_events_from(vault.contract_address, 2);
 }
 
 #[test]
@@ -927,6 +940,7 @@ fn setup_reentrancy() -> (IERC20ReentrantDispatcher, ERC4626ABIDispatcher) {
 #[test]
 fn test_share_price_with_reentrancy_before_deposit() {
     let (asset, vault) = setup_reentrancy();
+    let holder = HOLDER();
 
     let value = 1_000_000_000_000_000_000;
     let reenter_value = 1_000_000_000;
@@ -936,7 +950,7 @@ fn test_share_price_with_reentrancy_before_deposit() {
     // Schedule reentrancy
     let mut calldata: Array<felt252> = array![];
     calldata.append_serde(reenter_value);
-    calldata.append_serde(HOLDER());
+    calldata.append_serde(holder);
     asset
         .schedule_reenter(
             Type::Before, vault.contract_address, selector!("deposit"), calldata.span(),
@@ -947,8 +961,8 @@ fn test_share_price_with_reentrancy_before_deposit() {
 
     // Deposit
     let mut spy = spy_events();
-    cheat_caller_address(vault.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
-    vault.deposit(value, HOLDER());
+    cheat_caller_address(vault.contract_address, holder, CheatSpan::TargetCalls(1));
+    vault.deposit(value, holder);
 
     // Check price is kept
     let after_deposit = vault.preview_deposit(value);
@@ -960,22 +974,22 @@ fn test_share_price_with_reentrancy_before_deposit() {
         .assert_event_transfer(
             asset.contract_address, asset.contract_address, vault.contract_address, reenter_value,
         );
-    spy.assert_event_transfer(vault.contract_address, ZERO(), HOLDER(), shares_for_reenter);
+    spy.assert_event_transfer(vault.contract_address, ZERO(), holder, shares_for_reenter);
     spy
         .assert_event_deposit(
             vault.contract_address,
             asset.contract_address,
-            HOLDER(),
+            holder,
             reenter_value,
             shares_for_reenter,
         );
 
-    spy.assert_event_transfer(asset.contract_address, HOLDER(), vault.contract_address, value);
-    spy.assert_event_transfer(vault.contract_address, ZERO(), HOLDER(), shares_for_deposit);
-    spy
-        .assert_only_event_deposit(
-            vault.contract_address, HOLDER(), HOLDER(), value, shares_for_deposit,
-        );
+    spy.assert_event_transfer(asset.contract_address, holder, vault.contract_address, value);
+    spy.assert_event_transfer(vault.contract_address, ZERO(), holder, shares_for_deposit);
+    spy.assert_event_deposit(vault.contract_address, holder, holder, value, shares_for_deposit);
+
+    spy.assert_number_of_events_from(asset.contract_address, 2);
+    spy.assert_number_of_events_from(vault.contract_address, 4);
 }
 
 #[test]
@@ -1357,6 +1371,7 @@ fn test_input_fees_mint() {
 #[test]
 fn test_output_fees_redeem() {
     let (asset, vault) = setup_output_fees();
+    let (holder, recipient, treasury) = (HOLDER(), RECIPIENT(), TREASURY());
 
     let FEE_BASIS_POINTS: u256 = 500; // 5%
     let VALUE_WITHOUT_FEES: u256 = 10_000;
@@ -1367,43 +1382,42 @@ fn test_output_fees_redeem() {
     assert_eq!(preview_redeem, VALUE_WITHOUT_FEES);
 
     let vault_asset_bal = asset.balance_of(vault.contract_address);
-    let recipient_asset_bal = asset.balance_of(RECIPIENT());
-    let treasury_asset_bal = asset.balance_of(TREASURY());
-    let holder_shares = vault.balance_of(HOLDER());
+    let recipient_asset_bal = asset.balance_of(recipient);
+    let treasury_asset_bal = asset.balance_of(treasury);
+    let holder_shares = vault.balance_of(holder);
 
     let mut spy = spy_events();
-    cheat_caller_address(vault.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
-    vault.redeem(VALUE_WITH_FEES, RECIPIENT(), HOLDER());
+    cheat_caller_address(vault.contract_address, holder, CheatSpan::TargetCalls(1));
+    vault.redeem(VALUE_WITH_FEES, recipient, holder);
 
     // Check asset balances
     assert_expected_assets(asset, vault.contract_address, vault_asset_bal - VALUE_WITH_FEES);
-    assert_expected_assets(asset, RECIPIENT(), recipient_asset_bal + VALUE_WITHOUT_FEES);
-    assert_expected_assets(asset, TREASURY(), treasury_asset_bal + FEES);
+    assert_expected_assets(asset, recipient, recipient_asset_bal + VALUE_WITHOUT_FEES);
+    assert_expected_assets(asset, treasury, treasury_asset_bal + FEES);
 
     // Check shares
-    assert_expected_shares(vault, HOLDER(), holder_shares - VALUE_WITH_FEES);
+    assert_expected_shares(vault, holder, holder_shares - VALUE_WITH_FEES);
 
     // Check events
-    spy.assert_event_transfer(asset.contract_address, vault.contract_address, TREASURY(), FEES);
-    spy.assert_event_transfer(vault.contract_address, HOLDER(), ZERO(), VALUE_WITH_FEES);
+    spy.assert_event_transfer(asset.contract_address, vault.contract_address, treasury, FEES);
     spy
         .assert_event_transfer(
-            asset.contract_address, vault.contract_address, RECIPIENT(), VALUE_WITHOUT_FEES,
+            asset.contract_address, vault.contract_address, recipient, VALUE_WITHOUT_FEES,
         );
+    spy.assert_number_of_events_from(asset.contract_address, 2);
+
+    spy.assert_event_transfer(vault.contract_address, holder, ZERO(), VALUE_WITH_FEES);
     spy
-        .assert_only_event_withdraw(
-            vault.contract_address,
-            HOLDER(),
-            RECIPIENT(),
-            HOLDER(),
-            VALUE_WITHOUT_FEES,
-            VALUE_WITH_FEES,
+        .assert_event_withdraw(
+            vault.contract_address, holder, recipient, holder, VALUE_WITHOUT_FEES, VALUE_WITH_FEES,
         );
+    spy.assert_number_of_events_from(vault.contract_address, 2);
 }
 
 #[test]
 fn test_output_fees_withdraw() {
     let (asset, vault) = setup_output_fees();
+    let (holder, recipient, treasury) = (HOLDER(), RECIPIENT(), TREASURY());
 
     let FEE_BASIS_POINTS: u256 = 500; // 5%
     let VALUE_WITHOUT_FEES: u256 = 10_000;
@@ -1414,38 +1428,36 @@ fn test_output_fees_withdraw() {
     assert_eq!(preview_withdraw, VALUE_WITH_FEES);
 
     let vault_asset_bal = asset.balance_of(vault.contract_address);
-    let recipient_asset_bal = asset.balance_of(RECIPIENT());
-    let treasury_asset_bal = asset.balance_of(TREASURY());
-    let holder_shares = vault.balance_of(HOLDER());
+    let recipient_asset_bal = asset.balance_of(recipient);
+    let treasury_asset_bal = asset.balance_of(treasury);
+    let holder_shares = vault.balance_of(holder);
 
     let mut spy = spy_events();
-    cheat_caller_address(vault.contract_address, HOLDER(), CheatSpan::TargetCalls(1));
-    vault.withdraw(VALUE_WITHOUT_FEES, RECIPIENT(), HOLDER());
+    cheat_caller_address(vault.contract_address, holder, CheatSpan::TargetCalls(1));
+    vault.withdraw(VALUE_WITHOUT_FEES, recipient, holder);
 
     // Check asset balances
     assert_expected_assets(asset, vault.contract_address, vault_asset_bal - VALUE_WITH_FEES);
-    assert_expected_assets(asset, RECIPIENT(), recipient_asset_bal + VALUE_WITHOUT_FEES);
-    assert_expected_assets(asset, TREASURY(), treasury_asset_bal + FEES);
+    assert_expected_assets(asset, recipient, recipient_asset_bal + VALUE_WITHOUT_FEES);
+    assert_expected_assets(asset, treasury, treasury_asset_bal + FEES);
 
     // Check shares
-    assert_expected_shares(vault, HOLDER(), holder_shares - VALUE_WITH_FEES);
+    assert_expected_shares(vault, holder, holder_shares - VALUE_WITH_FEES);
 
     // Check events
-    spy.assert_event_transfer(asset.contract_address, vault.contract_address, TREASURY(), FEES);
-    spy.assert_event_transfer(vault.contract_address, HOLDER(), ZERO(), VALUE_WITH_FEES);
+    spy.assert_event_transfer(asset.contract_address, vault.contract_address, treasury, FEES);
     spy
         .assert_event_transfer(
-            asset.contract_address, vault.contract_address, RECIPIENT(), VALUE_WITHOUT_FEES,
+            asset.contract_address, vault.contract_address, recipient, VALUE_WITHOUT_FEES,
         );
+    spy.assert_number_of_events_from(asset.contract_address, 2);
+
+    spy.assert_event_transfer(vault.contract_address, holder, ZERO(), VALUE_WITH_FEES);
     spy
-        .assert_only_event_withdraw(
-            vault.contract_address,
-            HOLDER(),
-            RECIPIENT(),
-            HOLDER(),
-            VALUE_WITHOUT_FEES,
-            VALUE_WITH_FEES,
+        .assert_event_withdraw(
+            vault.contract_address, holder, recipient, holder, VALUE_WITHOUT_FEES, VALUE_WITH_FEES,
         );
+    spy.assert_number_of_events_from(vault.contract_address, 2);
 }
 
 //
@@ -1679,7 +1691,7 @@ pub impl ERC4626SpyHelpersImpl of ERC4626SpyHelpers {
         shares: u256,
     ) {
         self.assert_event_deposit(contract, sender, owner, assets, shares);
-        self.assert_no_events_left_from(contract);
+        self.assert_only_one_event_from(contract);
     }
 
     fn assert_event_withdraw(
@@ -1707,6 +1719,6 @@ pub impl ERC4626SpyHelpersImpl of ERC4626SpyHelpers {
         shares: u256,
     ) {
         self.assert_event_withdraw(contract, sender, receiver, owner, assets, shares);
-        self.assert_no_events_left_from(contract);
+        self.assert_only_one_event_from(contract);
     }
 }

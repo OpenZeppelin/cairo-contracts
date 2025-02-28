@@ -271,6 +271,7 @@ fn test_full_two_step_transfer() {
     assert_eq!(state.owner(), OWNER());
     assert_eq!(state.pending_owner(), OTHER());
 
+    spy.drop_all_events();
     start_cheat_caller_address(contract_address, OTHER());
     state.accept_ownership();
 

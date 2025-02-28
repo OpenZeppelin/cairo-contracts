@@ -53,8 +53,7 @@ fn test_deploy_from_zero() {
     let deployed_addr = udc.deploy_contract(erc20_class_hash, salt, from_zero, erc20_calldata);
     assert_eq!(expected_addr, deployed_addr);
 
-    // Drop ERC20 event, check deploy event
-    spy.drop_event();
+    // Check deploy event
     spy
         .assert_only_event_contract_deployed(
             udc.contract_address,
@@ -96,8 +95,7 @@ fn test_deploy_not_from_zero() {
     let deployed_addr = udc.deploy_contract(erc20_class_hash, salt, from_zero, erc20_calldata);
     assert_eq!(expected_addr, deployed_addr);
 
-    // Drop ERC20 event, check deploy event
-    spy.drop_event();
+    // Check deploy event
     spy
         .assert_only_event_contract_deployed(
             udc.contract_address,

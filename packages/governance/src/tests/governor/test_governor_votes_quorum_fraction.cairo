@@ -227,6 +227,6 @@ pub(crate) impl GovernorSettingsSpyHelpersImpl of GovernorSettingsSpyHelpers {
             .assert_event_quorum_numerator_updated(
                 contract, old_quorum_numerator, new_quorum_numerator,
             );
-        self.assert_no_events_left_from(contract);
+        self.assert_only_one_event_from(contract);
     }
 }

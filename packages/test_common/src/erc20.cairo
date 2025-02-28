@@ -40,7 +40,7 @@ pub impl ERC20SpyHelpersImpl of ERC20SpyHelpers {
         value: u256,
     ) {
         self.assert_event_approval(contract, owner, spender, value);
-        self.assert_no_events_left_from(contract);
+        self.assert_only_one_event_from(contract);
     }
 
     fn assert_event_transfer(
@@ -62,6 +62,6 @@ pub impl ERC20SpyHelpersImpl of ERC20SpyHelpers {
         value: u256,
     ) {
         self.assert_event_transfer(contract, from, to, value);
-        self.assert_no_events_left_from(contract);
+        self.assert_only_one_event_from(contract);
     }
 }

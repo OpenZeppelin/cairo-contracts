@@ -225,6 +225,7 @@ fn test_safe_transfer_from_approved_operator() {
 
     dispatcher.set_approval_for_all(operator, true);
     spy.assert_only_event_approval_for_all(contract, owner, operator, true);
+    spy.drop_all_events();
 
     assert_state_before_transfer_single(dispatcher, owner, recipient, TOKEN_ID);
 
@@ -245,10 +246,10 @@ fn test_safeTransferFrom_approved_operator() {
     let operator = OPERATOR();
     let recipient = RECIPIENT();
     deploy_another_account_at(owner, recipient);
-    spy.drop_all_events();
 
     dispatcher.set_approval_for_all(operator, true);
     spy.assert_only_event_approval_for_all(contract, owner, operator, true);
+    spy.drop_all_events();
 
     assert_state_before_transfer_single(dispatcher, owner, recipient, TOKEN_ID);
 
@@ -418,13 +419,12 @@ fn test_safe_batch_transfer_from_approved_operator() {
     let (mut spy, dispatcher, owner) = setup_dispatcher();
     let contract = dispatcher.contract_address;
     let (token_ids, values) = get_ids_and_values();
-    let operator = OPERATOR();
-    let recipient = RECIPIENT();
+    let (recipient, operator) = (RECIPIENT(), OPERATOR());
     deploy_another_account_at(owner, recipient);
-    spy.drop_all_events();
 
     dispatcher.set_approval_for_all(operator, true);
     spy.assert_only_event_approval_for_all(contract, owner, operator, true);
+    spy.drop_all_events();
 
     assert_state_before_transfer_batch(dispatcher, owner, recipient, token_ids, values);
 
@@ -443,10 +443,10 @@ fn test_safeBatchTransferFrom_approved_operator() {
     let operator = OPERATOR();
     let recipient = RECIPIENT();
     deploy_another_account_at(owner, recipient);
-    spy.drop_all_events();
 
     dispatcher.set_approval_for_all(operator, true);
     spy.assert_only_event_approval_for_all(contract, owner, operator, true);
+    spy.drop_all_events();
 
     assert_state_before_transfer_batch(dispatcher, owner, recipient, token_ids, values);
     start_cheat_caller_address(dispatcher.contract_address, operator);
@@ -565,6 +565,7 @@ fn test_set_approval_for_all_and_is_approved_for_all() {
 
     dispatcher.set_approval_for_all(OPERATOR(), true);
     spy.assert_only_event_approval_for_all(contract, OWNER(), OPERATOR(), true);
+    spy.drop_all_events();
 
     let is_approved_for_all = dispatcher.is_approved_for_all(OWNER(), OPERATOR());
     assert!(is_approved_for_all);
@@ -607,6 +608,7 @@ fn test_setApprovalForAll_and_isApprovedForAll() {
 
     dispatcher.setApprovalForAll(OPERATOR(), true);
     spy.assert_only_event_approval_for_all(contract, OWNER(), OPERATOR(), true);
+    spy.drop_all_events();
 
     let is_approved_for_all = dispatcher.isApprovedForAll(OWNER(), OPERATOR());
     assert!(is_approved_for_all);

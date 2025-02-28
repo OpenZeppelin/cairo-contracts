@@ -86,17 +86,18 @@ fn test_set_voting_delay_no_change() {
     let mut mock_state = CONTRACT_STATE();
     let component_state = @COMPONENT_STATE();
     let mut spy = spy_events();
+    let contract_address = test_address();
 
     let expected = 15;
     mock_state.governor_settings.Governor_voting_delay.write(expected);
 
     set_executor(ref mock_state, OTHER());
-    start_cheat_caller_address(test_address(), OTHER());
+    start_cheat_caller_address(contract_address, OTHER());
 
     mock_state.governor_settings.set_voting_delay(expected);
     assert_eq!(GovernorSettings::voting_delay(component_state), expected);
 
-    spy.assert_no_events_left();
+    spy.assert_no_events_from(contract_address);
 }
 
 #[test]
@@ -137,18 +138,19 @@ fn test_set_voting_period() {
 fn test_set_voting_period_no_change() {
     let mut mock_state = CONTRACT_STATE();
     let component_state = @COMPONENT_STATE();
+    let contract_address = test_address();
     let mut spy = spy_events();
 
     let expected = 15;
     mock_state.governor_settings.Governor_voting_period.write(expected);
 
     set_executor(ref mock_state, OTHER());
-    start_cheat_caller_address(test_address(), OTHER());
+    start_cheat_caller_address(contract_address, OTHER());
 
     mock_state.governor_settings.set_voting_period(expected);
     assert_eq!(GovernorSettings::voting_period(component_state), expected);
 
-    spy.assert_no_events_left();
+    spy.assert_no_events_from(contract_address);
 }
 
 #[test]
@@ -189,18 +191,19 @@ fn test_set_proposal_threshold() {
 fn test_set_proposal_threshold_no_change() {
     let mut mock_state = CONTRACT_STATE();
     let component_state = @COMPONENT_STATE();
+    let contract_address = test_address();
     let mut spy = spy_events();
 
     let expected = 15;
     mock_state.governor_settings.Governor_proposal_threshold.write(expected);
 
     set_executor(ref mock_state, OTHER());
-    start_cheat_caller_address(test_address(), OTHER());
+    start_cheat_caller_address(contract_address, OTHER());
 
     mock_state.governor_settings.set_proposal_threshold(expected);
     assert_eq!(GovernorSettings::proposal_threshold(component_state), expected);
 
-    spy.assert_no_events_left();
+    spy.assert_no_events_from(contract_address);
 }
 
 #[test]
@@ -292,18 +295,19 @@ fn test__set_voting_delay() {
 fn test__set_voting_delay_no_change() {
     let mut mock_state = CONTRACT_STATE();
     let component_state = @COMPONENT_STATE();
+    let contract_address = test_address();
     let mut spy = spy_events();
 
     let expected = 15;
     mock_state.governor_settings.Governor_voting_delay.write(expected);
 
     set_executor(ref mock_state, OTHER());
-    start_cheat_caller_address(test_address(), OTHER());
+    start_cheat_caller_address(contract_address, OTHER());
 
     mock_state.governor_settings._set_voting_delay(expected);
     assert_eq!(GovernorSettings::voting_delay(component_state), expected);
 
-    spy.assert_no_events_left();
+    spy.assert_no_events_from(contract_address);
 }
 
 //
@@ -333,18 +337,19 @@ fn test__set_voting_period() {
 fn test__set_voting_period_no_change() {
     let mut mock_state = CONTRACT_STATE();
     let component_state = @COMPONENT_STATE();
+    let contract_address = test_address();
     let mut spy = spy_events();
 
     let expected = 15;
     mock_state.governor_settings.Governor_voting_period.write(expected);
 
     set_executor(ref mock_state, OTHER());
-    start_cheat_caller_address(test_address(), OTHER());
+    start_cheat_caller_address(contract_address, OTHER());
 
     mock_state.governor_settings._set_voting_period(expected);
     assert_eq!(GovernorSettings::voting_period(component_state), expected);
 
-    spy.assert_no_events_left();
+    spy.assert_no_events_from(contract_address);
 }
 
 //
@@ -374,18 +379,19 @@ fn test__set_proposal_threshold() {
 fn test__set_proposal_threshold_no_change() {
     let mut mock_state = CONTRACT_STATE();
     let component_state = @COMPONENT_STATE();
+    let contract_address = test_address();
     let mut spy = spy_events();
 
     let expected = 15;
     mock_state.governor_settings.Governor_proposal_threshold.write(expected);
 
     set_executor(ref mock_state, OTHER());
-    start_cheat_caller_address(test_address(), OTHER());
+    start_cheat_caller_address(contract_address, OTHER());
 
     mock_state.governor_settings._set_proposal_threshold(expected);
     assert_eq!(GovernorSettings::proposal_threshold(component_state), expected);
 
-    spy.assert_no_events_left();
+    spy.assert_no_events_from(contract_address);
 }
 
 //
@@ -407,7 +413,7 @@ pub(crate) impl GovernorSettingsSpyHelpersImpl of GovernorSettingsSpyHelpers {
         ref self: EventSpy, contract: ContractAddress, old_voting_delay: u64, new_voting_delay: u64,
     ) {
         self.assert_event_voting_delay_updated(contract, old_voting_delay, new_voting_delay);
-        self.assert_no_events_left_from(contract);
+        self.assert_only_one_event_from(contract);
     }
 
     fn assert_event_voting_period_updated(
@@ -429,7 +435,7 @@ pub(crate) impl GovernorSettingsSpyHelpersImpl of GovernorSettingsSpyHelpers {
         new_voting_period: u64,
     ) {
         self.assert_event_voting_period_updated(contract, old_voting_period, new_voting_period);
-        self.assert_no_events_left_from(contract);
+        self.assert_only_one_event_from(contract);
     }
 
     fn assert_event_proposal_threshold_updated(
@@ -456,6 +462,6 @@ pub(crate) impl GovernorSettingsSpyHelpersImpl of GovernorSettingsSpyHelpers {
             .assert_event_proposal_threshold_updated(
                 contract, old_proposal_threshold, new_proposal_threshold,
             );
-        self.assert_no_events_left_from(contract);
+        self.assert_only_one_event_from(contract);
     }
 }

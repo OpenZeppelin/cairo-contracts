@@ -16,6 +16,7 @@ use openzeppelin_test_common::account::{
 use openzeppelin_test_common::erc20::deploy_erc20;
 use openzeppelin_test_common::upgrades::UpgradeableSpyHelpers;
 use openzeppelin_testing as utils;
+use openzeppelin_testing::EventSpyExt;
 use openzeppelin_testing::constants::stark::{KEY_PAIR, KEY_PAIR_2};
 use openzeppelin_testing::constants::{
     CALLER, CLASS_HASH_ZERO, FELT_VALUE, MIN_TRANSACTION_VERSION, OTHER, QUERY_OFFSET,
@@ -119,7 +120,8 @@ fn test_public_key_setter_and_getter() {
     assert_eq!(dispatcher.get_public_key(), new_key_pair.public_key);
 
     spy.assert_event_owner_removed(dispatcher.contract_address, key_pair.public_key);
-    spy.assert_only_event_owner_added(dispatcher.contract_address, new_key_pair.public_key);
+    spy.assert_event_owner_added(dispatcher.contract_address, new_key_pair.public_key);
+    spy.assert_number_of_events_from(dispatcher.contract_address, 2);
 }
 
 #[test]
@@ -138,7 +140,8 @@ fn test_public_key_setter_and_getter_camel() {
     assert_eq!(dispatcher.getPublicKey(), new_key_pair.public_key);
 
     spy.assert_event_owner_removed(account_address, key_pair.public_key);
-    spy.assert_only_event_owner_added(account_address, new_key_pair.public_key);
+    spy.assert_event_owner_added(account_address, new_key_pair.public_key);
+    spy.assert_number_of_events_from(dispatcher.contract_address, 2);
 }
 
 #[test]

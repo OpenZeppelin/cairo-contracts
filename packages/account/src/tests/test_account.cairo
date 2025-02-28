@@ -10,6 +10,7 @@ use openzeppelin_test_common::account::{SIGNED_TX_DATA, get_accept_ownership_sig
 use openzeppelin_test_common::mocks::account::DualCaseAccountMock;
 use openzeppelin_test_common::mocks::simple::{ISimpleMockDispatcher, ISimpleMockDispatcherTrait};
 use openzeppelin_testing as utils;
+use openzeppelin_testing::EventSpyExt;
 use openzeppelin_testing::constants::stark::{KEY_PAIR, KEY_PAIR_2};
 use openzeppelin_testing::constants::{CALLER, OTHER, ZERO};
 use openzeppelin_testing::constants::{MIN_TRANSACTION_VERSION, QUERY_OFFSET, QUERY_VERSION, SALT};
@@ -363,7 +364,8 @@ fn test_public_key_setter_and_getter() {
     state.set_public_key(new_key_pair.public_key, signature);
 
     spy.assert_event_owner_removed(account_address, key_pair.public_key);
-    spy.assert_only_event_owner_added(account_address, new_key_pair.public_key);
+    spy.assert_event_owner_added(account_address, new_key_pair.public_key);
+    spy.assert_number_of_events_from(account_address, 2);
 
     assert_eq!(state.get_public_key(), new_key_pair.public_key);
 }
@@ -402,7 +404,8 @@ fn test_public_key_setter_and_getter_camel() {
     state.setPublicKey(new_key_pair.public_key, signature);
 
     spy.assert_event_owner_removed(account_address, key_pair.public_key);
-    spy.assert_only_event_owner_added(account_address, new_key_pair.public_key);
+    spy.assert_event_owner_added(account_address, new_key_pair.public_key);
+    spy.assert_number_of_events_from(account_address, 2);
 
     assert_eq!(state.getPublicKey(), new_key_pair.public_key);
 }

@@ -62,7 +62,8 @@ fn test_constructor() {
     assert_eq!(dispatcher.decimals(), DECIMALS);
     assert_eq!(dispatcher.total_supply(), SUPPLY);
     assert_eq!(dispatcher.balance_of(OWNER()), SUPPLY);
-    spy.assert_only_event_transfer(dispatcher.contract_address, ZERO(), OWNER(), SUPPLY);
+    spy.assert_event_transfer(dispatcher.contract_address, ZERO(), OWNER(), SUPPLY);
+    spy.assert_number_of_events_from(dispatcher.contract_address, 2);
 }
 
 //
@@ -182,16 +183,17 @@ fn test_transfer_to_zero() {
 #[test]
 fn test_transfer_from() {
     let (mut spy, mut dispatcher) = setup_dispatcher();
+    let contract_address = dispatcher.contract_address;
 
-    start_cheat_caller_address(dispatcher.contract_address, OWNER());
+    start_cheat_caller_address(contract_address, OWNER());
     dispatcher.approve(SPENDER(), VALUE);
-    spy.drop_event();
+    spy.drop_all_events();
 
-    start_cheat_caller_address(dispatcher.contract_address, SPENDER());
+    start_cheat_caller_address(contract_address, SPENDER());
     assert!(dispatcher.transfer_from(OWNER(), RECIPIENT(), VALUE));
-
-    spy.assert_event_approval(dispatcher.contract_address, OWNER(), SPENDER(), 0);
-    spy.assert_only_event_transfer(dispatcher.contract_address, OWNER(), RECIPIENT(), VALUE);
+    spy.assert_event_approval(contract_address, OWNER(), SPENDER(), 0);
+    spy.assert_event_transfer(contract_address, OWNER(), RECIPIENT(), VALUE);
+    spy.assert_number_of_events_from(contract_address, 2);
 
     assert_eq!(dispatcher.balance_of(RECIPIENT()), VALUE);
     assert_eq!(dispatcher.balance_of(OWNER()), SUPPLY - VALUE);
@@ -246,16 +248,17 @@ fn test_transfer_from_from_zero_address() {
 #[test]
 fn test_transferFrom() {
     let (mut spy, mut dispatcher) = setup_dispatcher();
+    let contract_address = dispatcher.contract_address;
 
-    start_cheat_caller_address(dispatcher.contract_address, OWNER());
+    start_cheat_caller_address(contract_address, OWNER());
     dispatcher.approve(SPENDER(), VALUE);
-    spy.drop_event();
+    spy.drop_all_events();
 
-    start_cheat_caller_address(dispatcher.contract_address, SPENDER());
+    start_cheat_caller_address(contract_address, SPENDER());
     assert!(dispatcher.transferFrom(OWNER(), RECIPIENT(), VALUE));
-
-    spy.assert_event_approval(dispatcher.contract_address, OWNER(), SPENDER(), 0);
-    spy.assert_only_event_transfer(dispatcher.contract_address, OWNER(), RECIPIENT(), VALUE);
+    spy.assert_event_approval(contract_address, OWNER(), SPENDER(), 0);
+    spy.assert_event_transfer(contract_address, OWNER(), RECIPIENT(), VALUE);
+    spy.assert_number_of_events_from(contract_address, 2);
 
     assert_eq!(dispatcher.balance_of(RECIPIENT()), VALUE);
     assert_eq!(dispatcher.balance_of(OWNER()), SUPPLY - VALUE);

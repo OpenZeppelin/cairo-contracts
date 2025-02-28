@@ -55,6 +55,6 @@ pub impl AccountSpyHelpersImpl of AccountSpyHelpers {
         ref self: EventSpy, contract: ContractAddress, new_owner_guid: felt252,
     ) {
         self.assert_event_owner_added(contract, new_owner_guid);
-        self.assert_no_events_left_from(contract);
+        self.assert_only_one_event_from(contract);
     }
 }

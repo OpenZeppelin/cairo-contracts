@@ -193,11 +193,11 @@ trait implemented on the `EventSpy` struct.
 .Functions
 * xref:#testing-events-assert_only_event[`++assert_only_event(self, from_address, event)++`]
 * xref:#testing-events-assert_emitted_single[`++assert_emitted_single(self, from_address, expected_event)++`]
-* xref:#testing-events-drop_event[`++drop_event(self)++`]
-* xref:#testing-events-drop_n_events[`++drop_n_events(self, number_to_drop)++`]
 * xref:#testing-events-drop_all_events[`++drop_all_events(self)++`]
 * xref:#testing-events-assert_no_events_left[`++assert_no_events_left(self)++`]
-* xref:#testing-events-assert_no_events_left_from[`++assert_no_events_left_from(self, from_address)++`]
+* xref:#testing-events-assert_no_events_from[`++assert_no_events_from(self, from_address)++`]
+* xref:#testing-events-assert_number_of_events_from[`++assert_number_of_events_from(self, from_address, expected)++`]
+* xref:#testing-events-assert_only_one_event_from[`++assert_only_one_event_from(self, from_address)++`]
 * xref:#testing-events-count_events_from[`++count_events_from(self, from_address)++`]
 --
 
@@ -217,22 +217,10 @@ Ensures that `from_address` has emitted only the `expected_event` and no additio
 Ensures that `from_address` has emitted the `expected_event`.
 
 [.contract-item]
-[[testing-events-drop_event]]
-==== `[.contract-item-name]#++drop_event++#++(ref self: EventSpy)++` [.item-kind]#function#
-
-Removes a single event from the queue. If the queue is empty, the function will panic.
-
-[.contract-item]
-[[testing-events-drop_n_events]]
-==== `[.contract-item-name]#++drop_n_events++#++(ref self: EventSpy, number_to_drop: u32)++` [.item-kind]#function#
-
-Removes `number_to_drop` events from the queue. If the queue is empty, the function will panic.
-
-[.contract-item]
 [[testing-events-drop_all_events]]
 ==== `[.contract-item-name]#++drop_all_events++#++(ref self: EventSpy)++` [.item-kind]#function#
 
-Removes all events remaining on the queue. If the queue is empty already, the function will do nothing.
+Drops all remaining events from the queue by reinitializing the spy.
 
 [.contract-item]
 [[testing-events-assert_no_events_left]]
@@ -241,16 +229,28 @@ Removes all events remaining on the queue. If the queue is empty already, the fu
 Ensures that there are no events remaining on the queue.
 
 [.contract-item]
-[[testing-events-assert_no_events_left_from]]
-==== `[.contract-item-name]#++assert_no_events_left_from++#++(ref self: EventSpy, from_address: ContractAddress)++` [.item-kind]#function#
+[[testing-events-assert_no_events_from]]
+==== `[.contract-item-name]#++assert_no_events_from++#++(ref self: EventSpy, from_address: ContractAddress)++` [.item-kind]#function#
 
-Ensures that there are no events emitted from the given address remaining on the queue.
+Ensures that there are no events emitted from the given address.
+
+[.contract-item]
+[[testing-events-assert_number_of_events_from]]
+==== `[.contract-item-name]#++assert_number_of_events_from++#++(ref self: EventSpy, from_address: ContractAddress, expected: u32)++` [.item-kind]#function#
+
+Ensures that the number of events emitted from the given address is equal to `expected`.
+
+[.contract-item]
+[[testing-events-assert_only_one_event_from]]
+==== `[.contract-item-name]#++assert_only_one_event_from++#++(ref self: EventSpy, from_address: ContractAddress)++` [.item-kind]#function#
+
+Ensures that there's only one event emitted from the given address.
 
 [.contract-item]
 [[testing-events-count_events_from]]
 ==== `[.contract-item-name]#++count_events_from++#++(ref self: EventSpy, from_address: ContractAddress) → u32++` [.item-kind]#function#
 
-Counts the number of remaining events emitted from the given address.
+Counts the number of events emitted from the given address.
 
 [.contract]
 [[testing-signing]]

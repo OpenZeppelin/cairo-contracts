@@ -34,7 +34,7 @@ pub mod InitializableComponent {
     pub impl InternalImpl<
         TContractState, +HasComponent<TContractState>,
     > of InternalTrait<TContractState> {
-        /// Ensures the calling function can only be called once.
+        /// Ensures that the calling function can only be called once.
         ///
         /// Requirements:
         ///

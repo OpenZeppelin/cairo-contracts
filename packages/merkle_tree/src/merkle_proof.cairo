@@ -132,7 +132,7 @@ pub fn process_multi_proof<impl Hasher: CommutativeHasher>(
     let root = if proof_flags_len > 0 {
         hashes.at(proof_flags_len - 1)
     } else if leaves_len > 0 {
-        // If `proof_flags_len` is zero, and `leaves_len` is greater then zero,
+        // If `proof_flags_len` is zero, and `leaves_len` is greater than zero,
         // then `leaves_len` can only be 1, because of the proof validity check.
         leaves.at(0)
     } else {

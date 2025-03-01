@@ -633,14 +633,8 @@ pub mod GovernorComponent {
             let vote = Vote { verifying_contract, nonce, proposal_id, support, voter };
             let hash = vote.get_message_hash(voter);
 
-            let is_valid_signature_felt = ISRC6Dispatcher { contract_address: voter }
-                .is_valid_signature(hash, signature.into());
-
-            // 3. Check either 'VALID' or true for backwards compatibility
-            let is_valid_signature = is_valid_signature_felt == starknet::VALIDATED
-                || is_valid_signature_felt == 1;
-
-            assert(is_valid_signature, Errors::INVALID_SIGNATURE);
+            // 3. Validate signature
+            self.assert_valid_signature(voter, hash, signature);
 
             // 4. Cast vote
             self._cast_vote(proposal_id, voter, support, "", Immutable::DEFAULT_PARAMS())
@@ -679,14 +673,8 @@ pub mod GovernorComponent {
             };
             let hash = vote.get_message_hash(voter);
 
-            let is_valid_signature_felt = ISRC6Dispatcher { contract_address: voter }
-                .is_valid_signature(hash, signature.into());
-
-            // 3. Check either 'VALID' or true for backwards compatibility
-            let is_valid_signature = is_valid_signature_felt == starknet::VALIDATED
-                || is_valid_signature_felt == 1;
-
-            assert(is_valid_signature, Errors::INVALID_SIGNATURE);
+            // 3.Validate signature
+            self.assert_valid_signature(voter, hash, signature);
 
             // 4. Cast vote
             self._cast_vote(proposal_id, voter, support, reason, params)
@@ -840,6 +828,28 @@ pub mod GovernorComponent {
         fn assert_only_governance(self: @ComponentState<TContractState>) {
             let executor = self.executor();
             assert(executor == starknet::get_caller_address(), Errors::EXECUTOR_ONLY);
+        }
+
+
+        /// Validates that a signature is valid for a given hash and account.
+        /// Checks if the signature is valid according to SRC6 standard.
+        /// Supports both the VALIDATED constant and the legacy "1" boolean value.
+        ///
+        /// Revert if the signature is invalid for the given hash and account
+        fn assert_valid_signature(
+            self: @ComponentState<TContractState>,
+            account: ContractAddress,
+            hash: felt252,
+            signature: Span<felt252>,
+        ) {
+            let is_valid_signature_felt = ISRC6Dispatcher { contract_address: account }
+                .is_valid_signature(hash, signature.into());
+
+            // Check either 'VALID' or true for backwards compatibility
+            let is_valid_signature = is_valid_signature_felt == starknet::VALIDATED
+                || is_valid_signature_felt == 1;
+
+            assert(is_valid_signature, Errors::INVALID_SIGNATURE);
         }
 
         /// Validates that the proposal is in one of the expected states.

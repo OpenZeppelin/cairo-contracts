@@ -29,8 +29,8 @@ use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::EventSpy;
 use snforge_std::{
-    CheatSpan, cheat_caller_address, start_cheat_block_timestamp_global,
-    start_cheat_caller_address, test_address,
+    CheatSpan, cheat_caller_address, start_cheat_block_timestamp_global, start_cheat_caller_address,
+    test_address,
 };
 use starknet::ContractAddress;
 use starknet::account::Call;

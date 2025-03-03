@@ -23,13 +23,11 @@ use openzeppelin_testing::constants::{
 };
 use openzeppelin_testing::signing::SerializedSigning;
 use openzeppelin_testing::signing::StarkKeyPair;
+use openzeppelin_testing::spy_events;
 use openzeppelin_token::erc20::interface::IERC20DispatcherTrait;
 use openzeppelin_utils::cryptography::snip12::OffchainMessageHash;
 use openzeppelin_utils::serde::SerializedAppend;
-use openzeppelin_testing::spy_events;
-use snforge_std::{
-    CheatSpan, cheat_caller_address, load, start_cheat_caller_address, test_address,
-};
+use snforge_std::{CheatSpan, cheat_caller_address, load, start_cheat_caller_address, test_address};
 use snforge_std::{
     start_cheat_block_timestamp_global, start_cheat_signature_global,
     start_cheat_transaction_hash_global, start_cheat_transaction_version_global,

@@ -5,8 +5,8 @@ use openzeppelin_test_common::mocks::upgrades::{IUpgradesV2Dispatcher, IUpgrades
 use openzeppelin_test_common::upgrades::UpgradeableSpyHelpers;
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{CLASS_HASH_ZERO, FELT_VALUE as VALUE};
-use openzeppelin_testing::{declare_class, deploy};
 use openzeppelin_testing::spy_events;
+use openzeppelin_testing::{declare_class, deploy};
 use snforge_std::ContractClass;
 
 //

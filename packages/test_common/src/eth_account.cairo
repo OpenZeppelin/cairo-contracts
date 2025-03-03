@@ -7,8 +7,8 @@ use openzeppelin_account::EthAccountComponent::{OwnerAdded, OwnerRemoved};
 use openzeppelin_account::interface::EthPublicKey;
 use openzeppelin_account::utils::signature::Secp256Signature;
 use openzeppelin_testing::constants::TRANSACTION_HASH;
-use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy};
 use openzeppelin_testing::signing::{Secp256k1KeyPair, Secp256k1SerializedSigning};
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy};
 use snforge_std::signature::secp256k1_curve::Secp256k1CurveSignerImpl;
 use starknet::{ContractAddress, SyscallResultTrait};
 

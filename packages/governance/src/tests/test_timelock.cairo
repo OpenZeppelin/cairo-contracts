@@ -25,11 +25,11 @@ use openzeppelin_test_common::mocks::timelock::{
 };
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{ADMIN, FELT_VALUE as VALUE, OTHER, SALT, ZERO};
-use openzeppelin_testing::events::EventSpyExt;
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::EventSpy;
 use snforge_std::{
-    CheatSpan, cheat_caller_address, spy_events, start_cheat_block_timestamp_global,
+    CheatSpan, cheat_caller_address, start_cheat_block_timestamp_global,
     start_cheat_caller_address, test_address,
 };
 use starknet::ContractAddress;

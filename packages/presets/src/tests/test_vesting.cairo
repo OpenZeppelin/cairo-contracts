@@ -8,7 +8,8 @@ use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{OTHER, OWNER, ZERO};
 use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use openzeppelin_utils::serde::SerializedAppend;
-use snforge_std::{spy_events, start_cheat_block_timestamp_global, start_cheat_caller_address};
+use openzeppelin_testing::spy_events;
+use snforge_std::{start_cheat_block_timestamp_global, start_cheat_caller_address};
 use starknet::ContractAddress;
 
 //

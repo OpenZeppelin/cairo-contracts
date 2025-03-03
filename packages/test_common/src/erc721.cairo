@@ -1,7 +1,6 @@
-use openzeppelin_testing::events::EventSpyExt;
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy};
 use openzeppelin_token::erc721::ERC721Component;
 use openzeppelin_token::erc721::ERC721Component::{Approval, ApprovalForAll, Transfer};
-use snforge_std::EventSpy;
 use starknet::ContractAddress;
 
 #[generate_trait]

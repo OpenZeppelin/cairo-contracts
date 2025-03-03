@@ -7,7 +7,8 @@ use openzeppelin_test_common::mocks::vesting::StepsVestingMock;
 use openzeppelin_test_common::vesting::VestingSpyHelpers;
 use openzeppelin_testing::constants::{OTHER, OWNER};
 use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-use snforge_std::{spy_events, start_cheat_block_timestamp_global, start_cheat_caller_address};
+use openzeppelin_testing::spy_events;
+use snforge_std::{start_cheat_block_timestamp_global, start_cheat_caller_address};
 
 //
 // Setup

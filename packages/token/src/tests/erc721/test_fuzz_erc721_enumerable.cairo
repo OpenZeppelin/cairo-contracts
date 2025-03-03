@@ -51,6 +51,7 @@ fn setup(supply: u32) -> (ComponentState, Span<u256>) {
 //
 
 #[test]
+#[fuzzer]
 fn test_initial_state(supply_seed: u32) {
     let supply = prepare_supply(supply_seed);
     let (_, tokens_list) = setup(supply);
@@ -62,6 +63,7 @@ fn test_initial_state(supply_seed: u32) {
 }
 
 #[test]
+#[fuzzer]
 fn test_burn_token(supply_seed: u32, burn_index_seed: u32) {
     let supply = prepare_supply(supply_seed);
     let (_, initial_list) = setup(supply);
@@ -79,6 +81,7 @@ fn test_burn_token(supply_seed: u32, burn_index_seed: u32) {
 }
 
 #[test]
+#[fuzzer]
 fn test_transfer_single_token(supply_seed: u32, index_seed: u32) {
     let supply = prepare_supply(supply_seed);
     let (_, initial_list) = setup(supply);
@@ -100,6 +103,7 @@ fn test_transfer_single_token(supply_seed: u32, index_seed: u32) {
 }
 
 #[test]
+#[fuzzer]
 fn test_transfer_two_tokens(supply_seed: u32, index_seed_1: u32, index_seed_2: u32) {
     let supply = prepare_supply(supply_seed);
     let token_index_1 = index_seed_1 % supply;
@@ -129,6 +133,7 @@ fn test_transfer_two_tokens(supply_seed: u32, index_seed_1: u32, index_seed_2: u
 }
 
 #[test]
+#[fuzzer]
 fn test__add_token_to_owner_enumeration(supply_seed: u32, index_seed: u32) {
     let supply = prepare_supply(supply_seed);
     let (mut state, _) = setup(supply);
@@ -145,6 +150,7 @@ fn test__add_token_to_owner_enumeration(supply_seed: u32, index_seed: u32) {
 }
 
 #[test]
+#[fuzzer]
 fn test__add_token_to_all_tokens_enumeration(supply_seed: u32) {
     let initial_supply = prepare_supply(supply_seed);
     let (mut state, _) = setup(initial_supply);

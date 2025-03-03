@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Changed
+
+- Bump scarb to v2.10.1 (#1358)
+
+### Changed (Breaking)
+
+- Bump snforge to v0.38.0 (#1358)
+- Update `openzeppelin_testing::events` logic (#1358)
+  - Add EventSpyQueue extension to EventSpyExt
+  - Update EventSpyExt implementation to use EventSpyQueue
+
 ## 1.0.0 (2025-02-21)
 
 ### Added

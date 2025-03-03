@@ -128,6 +128,9 @@ dependencies = [
 [[package]]
 name = "openzeppelin_testing"
 version = "1.0.0"
+dependencies = [
+ "snforge_std",
+]
 
 [[package]]
 name = "openzeppelin_token"

@@ -24,7 +24,5 @@ use openzeppelin_testing;
 
 ### API documentation
 
-- [Summary](docs/openzeppelin_testing.md)
-
-- [Index](docs/SUMMARY.md)
-
+- [Index](https://github.com/ericnordelo/cairo-contracts/blob/testing-v1.0.0/packages/testing/docs/openzeppelin_testing.md)
+- [Summary](https://github.com/ericnordelo/cairo-contracts/blob/testing-v1.0.0/packages/testing/docs/SUMMARY.md)

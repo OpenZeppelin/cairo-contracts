@@ -15,9 +15,9 @@ use openzeppelin_test_common::mocks::erc20::{
 use openzeppelin_test_common::mocks::erc4626::{ERC4626LimitsMock, ERC4626Mock};
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{NAME, OTHER, RECIPIENT, SPENDER, SYMBOL, ZERO};
-use openzeppelin_testing::events::EventSpyExt;
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use openzeppelin_utils::serde::SerializedAppend;
-use snforge_std::{CheatSpan, EventSpy, cheat_caller_address, spy_events};
+use snforge_std::{CheatSpan, cheat_caller_address};
 use starknet::{ContractAddress, contract_address_const};
 
 fn ASSET() -> ContractAddress {

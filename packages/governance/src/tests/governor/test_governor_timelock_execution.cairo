@@ -24,11 +24,11 @@ use openzeppelin_test_common::mocks::timelock::{
 };
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{OTHER, TIMELOCK, VOTES_TOKEN};
-use openzeppelin_testing::events::EventSpyExt;
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use openzeppelin_utils::bytearray::ByteArrayExtTrait;
 use openzeppelin_utils::serde::SerializedAppend;
-use snforge_std::{EventSpy, spy_events, start_mock_call, store};
 use snforge_std::{start_cheat_block_timestamp_global, start_cheat_caller_address};
+use snforge_std::{start_mock_call, store};
 use starknet::account::Call;
 use starknet::storage::{StorageMapWriteAccess, StoragePathEntry, StoragePointerWriteAccess};
 use starknet::{ContractAddress, contract_address_const};
@@ -464,6 +464,7 @@ fn test_queue_operations() {
 //
 
 #[test]
+#[fuzzer]
 fn test_proposal_needs_queuing(id: felt252) {
     let component_state = COMPONENT_STATE();
 

@@ -3,9 +3,8 @@ use core::poseidon::PoseidonTrait;
 use openzeppelin_account::AccountComponent;
 use openzeppelin_account::AccountComponent::{OwnerAdded, OwnerRemoved};
 use openzeppelin_testing::constants::TRANSACTION_HASH;
-use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_testing::signing::StarkKeyPair;
-use snforge_std::EventSpy;
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy};
 use snforge_std::signature::stark_curve::StarkCurveSignerImpl;
 use starknet::ContractAddress;
 

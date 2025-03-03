@@ -10,8 +10,8 @@ use openzeppelin_test_common::mocks::multisig::IMultisigTargetMockDispatcherTrai
 use openzeppelin_test_common::mocks::multisig::{IMultisigTargetMockDispatcher, MultisigWalletMock};
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{ALICE, BLOCK_NUMBER, BOB, CHARLIE, OTHER, SALT, ZERO};
-use openzeppelin_testing::events::EventSpyExt;
-use snforge_std::{EventSpy, spy_events, test_address};
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
+use snforge_std::test_address;
 use snforge_std::{start_cheat_block_number_global, start_cheat_caller_address};
 use starknet::account::Call;
 use starknet::storage_access::StorePacking;

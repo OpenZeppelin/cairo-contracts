@@ -11,8 +11,8 @@ use openzeppelin_testing::constants::{
     BASE_URI, BASE_URI_2, CALLER, DATA, NAME, OPERATOR, OTHER, OWNER, PUBKEY, RECIPIENT, SPENDER,
     SYMBOL, TOKEN_ID, TOKEN_ID_2, ZERO,
 };
-use openzeppelin_testing::events::EventSpyExt;
-use snforge_std::{EventSpy, spy_events, start_cheat_caller_address, test_address};
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
+use snforge_std::{start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
 use starknet::storage::StorageMapReadAccess;
 

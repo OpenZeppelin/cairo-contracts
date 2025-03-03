@@ -1,9 +1,8 @@
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{PUBKEY, TOKEN_ID, TOKEN_ID_2, TOKEN_VALUE, TOKEN_VALUE_2};
-use openzeppelin_testing::events::EventSpyExt;
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy};
 use openzeppelin_token::erc1155::ERC1155Component;
 use openzeppelin_token::erc1155::ERC1155Component::{ApprovalForAll, TransferBatch, TransferSingle};
-use snforge_std::EventSpy;
 use starknet::ContractAddress;
 
 pub fn setup_receiver() -> ContractAddress {

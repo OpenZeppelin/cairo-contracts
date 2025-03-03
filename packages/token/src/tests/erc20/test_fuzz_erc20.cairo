@@ -31,6 +31,7 @@ fn setup(supply: u256) -> ComponentState {
 //
 
 #[test]
+#[fuzzer]
 fn test_mint(supply: u256, mint_amount: u256) {
     if is_overflow_add(supply, mint_amount) {
         return;
@@ -46,6 +47,7 @@ fn test_mint(supply: u256, mint_amount: u256) {
 }
 
 #[test]
+#[fuzzer]
 fn test_burn(supply: u256, burn_amount: u256) {
     if is_overflow_sub(supply, burn_amount) {
         return;
@@ -61,6 +63,7 @@ fn test_burn(supply: u256, burn_amount: u256) {
 }
 
 #[test]
+#[fuzzer]
 fn test_mint_burn(initial_supply: u256, mint_amount: u256, burn_amount: u256) {
     if is_overflow_add(initial_supply, mint_amount) {
         return;
@@ -85,6 +88,7 @@ fn test_mint_burn(initial_supply: u256, mint_amount: u256, burn_amount: u256) {
 }
 
 #[test]
+#[fuzzer]
 fn test_transfer(supply: u256, transfer_amount: u256) {
     if is_overflow_sub(supply, transfer_amount) {
         return;
@@ -100,6 +104,7 @@ fn test_transfer(supply: u256, transfer_amount: u256) {
 }
 
 #[test]
+#[fuzzer]
 fn test_transfer_from(supply: u256, transfer_amount: u256) {
     if is_overflow_sub(supply, transfer_amount) {
         return;
@@ -124,6 +129,7 @@ fn test_transfer_from(supply: u256, transfer_amount: u256) {
 }
 
 #[test]
+#[fuzzer]
 fn test__spend_allowance(supply: u256, spend_amount: u256) {
     if is_overflow_sub(supply, spend_amount) {
         return;

@@ -3,6 +3,7 @@ use core::num::traits::OverflowingAdd;
 use crate::math::average;
 
 #[test]
+#[fuzzer]
 fn test_average_u8(a: u8, b: u8) {
     let actual = average(a, b);
 
@@ -14,6 +15,7 @@ fn test_average_u8(a: u8, b: u8) {
 }
 
 #[test]
+#[fuzzer]
 fn test_average_u16(a: u16, b: u16) {
     let actual = average(a, b);
 
@@ -25,6 +27,7 @@ fn test_average_u16(a: u16, b: u16) {
 }
 
 #[test]
+#[fuzzer]
 fn test_average_u32(a: u32, b: u32) {
     let actual = average(a, b);
 
@@ -36,6 +39,7 @@ fn test_average_u32(a: u32, b: u32) {
 }
 
 #[test]
+#[fuzzer]
 fn test_average_u64(a: u64, b: u64) {
     let actual = average(a, b);
 
@@ -47,6 +51,7 @@ fn test_average_u64(a: u64, b: u64) {
 }
 
 #[test]
+#[fuzzer]
 fn test_average_u128(a: u128, b: u128) {
     let actual = average(a, b);
 
@@ -58,6 +63,7 @@ fn test_average_u128(a: u128, b: u128) {
 }
 
 #[test]
+#[fuzzer]
 fn test_average_u256(a: u256, b: u256) {
     let actual = average(a, b);
     let mut expected = 0;

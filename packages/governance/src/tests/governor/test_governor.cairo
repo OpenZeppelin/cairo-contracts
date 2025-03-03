@@ -323,6 +323,7 @@ fn test_voting_period() {
 }
 
 #[test]
+#[fuzzer]
 fn test_quorum(timepoint: u64) {
     let state = COMPONENT_STATE();
 

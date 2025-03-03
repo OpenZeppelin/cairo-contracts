@@ -464,6 +464,7 @@ fn test_queue_operations() {
 //
 
 #[test]
+#[fuzzer]
 fn test_proposal_needs_queuing(id: felt252) {
     let component_state = COMPONENT_STATE();
 

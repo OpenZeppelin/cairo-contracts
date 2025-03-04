@@ -12,7 +12,7 @@ use openzeppelin_testing::constants::{
     BASE_URI, CLASS_HASH_ZERO, DATA, NAME, OPERATOR, OTHER, OWNER, PUBKEY, RECIPIENT, SPENDER,
     SYMBOL, ZERO,
 };
-use openzeppelin_testing::events::EventSpyExt;
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use openzeppelin_token::erc721::ERC721Component::ERC721Impl;
 use openzeppelin_token::erc721::interface::{
     IERC721CamelOnlySafeDispatcher, IERC721CamelOnlySafeDispatcherTrait,
@@ -20,7 +20,7 @@ use openzeppelin_token::erc721::interface::{
 use openzeppelin_token::erc721::interface::{IERC721Dispatcher, IERC721DispatcherTrait};
 use openzeppelin_token::erc721::interface::{IERC721_ID, IERC721_METADATA_ID};
 use openzeppelin_utils::serde::SerializedAppend;
-use snforge_std::{EventSpy, spy_events, start_cheat_caller_address};
+use snforge_std::start_cheat_caller_address;
 use starknet::{ClassHash, ContractAddress};
 
 

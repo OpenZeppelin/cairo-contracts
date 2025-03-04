@@ -180,7 +180,7 @@ Combines the declaration of a class and the deployment of a contract at the give
 
 ```cairo
 use openzeppelin_testing::events;
-use openzeppelin_testing::events::EventSpyExt;
+use openzeppelin_testing::events::{EventSpyQueue as EventSpy, EventSpyExt};
 ```
 
 A module offering an extended set of functions for handling emitted events, enhancing the default

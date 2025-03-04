@@ -4,6 +4,8 @@
 :src5: https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-5.md[SRC5]
 :inner-src5: xref:api/introspection.adoc#ISRC5[SRC5 ID]
 :set_role_admin: xref:#AccessControlComponent-set_role_admin[set_role_admin]
+:_grant_role: xref:#AccessControlComponent-_grant_role[_grant_role]
+:_grant_role_with_delay: xref:#AccessControlComponent-_grant_role_with_delay[_grant_role_with_delay]
 
 = Access Control
 
@@ -265,7 +267,6 @@ Emitted when the ownership is transferred.
 :grant_role: xref:#IAccessControl-grant_role[grant_role]
 :revoke_role: xref:#IAccessControl-revoke_role[revoke_role]
 :RoleGranted: xref:#IAccessControl-RoleGranted[RoleGranted]
-:RoleGrantedWithDelay: xref:#IAccessControl-RoleGrantedWithDelay[RoleGrantedWithDelay]
 :RoleRevoked: xref:#IAccessControl-RoleRevoked[RoleRevoked]
 :RoleAdminChanged: xref:#IAccessControl-RoleAdminChanged[RoleAdminChanged]
 
@@ -296,7 +297,6 @@ External interface of AccessControl.
 --
 * xref:IAccessControl-RoleAdminChanged[`++RoleAdminChanged(role, previous_admin_role, new_admin_role)++`]
 * xref:IAccessControl-RoleGranted[`++RoleGranted(role, account, sender)++`]
-* xref:IAccessControl-RoleGrantedWithDelay[`++RoleGrantedWithDelay(role, account, sender, delay)++`]
 * xref:IAccessControl-RoleRevoked[`++RoleRevoked(role, account, sender)++`]
 
 --
@@ -379,8 +379,8 @@ Emitted when `new_admin_role` is set as ``role``'s admin role, replacing `previo
 
 Emitted when `account` is granted `role`.
 
-`sender` is the account that originated the contract call, an admin role
-bearer.
+`sender` is the account that originated the contract call, an account with the admin role
+or the deployer address if `_grant_role` is called from the constructor.
 
 [.contract-item]
 [[IAccessControl-RoleRevoked]]
@@ -397,14 +397,14 @@ Emitted when `account` is revoked `role`.
 [[IAccessControlWithDelay]]
 === `++IAccessControlWithDelay++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/access/src/accesscontrol/interface.cairo[{github-icon},role=heading-link]
 
-:get_role_status: xref:#IAccessControlWithDelay-get_role_status[get_role_status]
 :grant_role_with_delay: xref:#IAccessControlWithDelay-grant_role_with_delay[grant_role_with_delay]
+:RoleGrantedWithDelay: xref:#IAccessControlWithDelay-RoleGrantedWithDelay[RoleGrantedWithDelay]
 
 ```cairo
 use openzeppelin_access::accesscontrol::interface::IAccessControlWithDelay;
 ```
 
-External interface for the extended AccessControlWithDelay functionality.
+External interface for the extended `AccessControl` functionality.
 
 [.contract-index]
 .Functions
@@ -416,7 +416,7 @@ External interface for the extended AccessControlWithDelay functionality.
 [.contract-index]
 .Events
 --
-* xref:IAccessControlWithDelay-RoleAdminChanged[`++RoleAdminChanged(role, previous_admin_role, new_admin_role)++`]
+* xref:IAccessControlWithDelay-RoleGrantedWithDelay[`++RoleAdminChanged(role, account, sender, delay)++`]
 
 --
 
@@ -437,15 +437,15 @@ time delay.
 
 [.contract-item]
 [[IAccessControlWithDelay-grant_role_with_delay]]
-==== `[.contract-item-name]#++grant_role_with_delay++#++(role: felt252, account: ContractAddress, delay: u64) → felt252++` [.item-kind]#external#
+==== `[.contract-item-name]#++grant_role_with_delay++#++(role: felt252, account: ContractAddress, delay: u64)++` [.item-kind]#external#
 
 Attempts to grant `role` to `account` with the specified activation delay.
 
-May emit a `RoleGrantedWithDelay` event.
+May emit a {RoleGrantedWithDelay} event.
 
 Requirements:
 
-- The caller must have `role`'s admin role.
+- The caller must have ``role``'s admin role.
 - delay must be greater than 0.
 - the `role` must not be already effective for `account`.
 
@@ -459,7 +459,7 @@ Requirements:
 Emitted when `account` is granted `role` with a delay.
 
 `sender` is the account that originated the contract call, an account with the admin role
-or the deployer address if `_grant_role_with_delay` is called from the constructor.
+or the deployer address if {_grant_role_with_delay} is called from the constructor.
 
 [.contract]
 [[AccessControlComponent]]
@@ -494,9 +494,9 @@ fn foo(ref self: ContractState) {
 }
 ```
 
-Roles can be granted and revoked dynamically via the {grant_role} and
+Roles can be granted and revoked dynamically via the {grant_role}, {grant_role_with_delay} and
 {revoke_role} functions. Each role has an associated admin role, and only
-accounts that have a role's admin role can call {grant_role} and {revoke_role}.
+accounts that have a role's admin role can call {grant_role}, {grant_role_with_delay} and {revoke_role}.
 
 By default, the admin role for all roles is `DEFAULT_ADMIN_ROLE`, which means
 that only accounts with this role will be able to grant or revoke other
@@ -515,6 +515,7 @@ accounts that have been granted it.
 
 * xref:#AccessControlComponent-Embeddable-Impls-AccessControlImpl[`++AccessControlImpl++`]
 * xref:#AccessControlComponent-Embeddable-Impls-AccessControlCamelImpl[`++AccessControlCamelImpl++`]
+* xref:#AccessControlComponent-Embeddable-Impls-AccessControlWithDelayImpl[`++AccessControlWithDelayImpl++`]
 * xref:api/introspection.adoc#SRC5Component-Embeddable-Impls[`++SRC5Impl++`]
 --
 
@@ -538,6 +539,12 @@ accounts that have been granted it.
 * xref:#AccessControlComponent-grantRole[`++grantRole(self, role, account)++`]
 * xref:#AccessControlComponent-revokeRole[`++revokeRole(self, role, account)++`]
 * xref:#AccessControlComponent-renounceRole[`++renounceRole(self, role, account)++`]
+
+[.sub-index#AccessControlComponent-Embeddable-Impls-AccessControlWithDelayImpl]
+.AccessControlWithDelayImpl
+
+* xref:#AccessControlWithDelayImpl-get_role_status[`++get_role_status(self, role, account)++`]
+* xref:#AccessControlWithDelayImpl-grant_role_with_delay[`++grant_role_with_delay(self, role, account, delay)++`]
 
 .SRC5Impl
 * xref:api/introspection.adoc#ISRC5-supports_interface[`supports_interface(self, interface_id: felt252)`]
@@ -566,6 +573,9 @@ accounts that have been granted it.
 * xref:#AccessControlComponent-RoleAdminChanged[`++RoleAdminChanged(role, previous_admin_role, new_admin_role)++`]
 * xref:#AccessControlComponent-RoleGranted[`++RoleGranted(role, account, sender)++`]
 * xref:#AccessControlComponent-RoleRevoked[`++RoleRevoked(role, account, sender)++`]
+
+.IAccessControlWithDelay
+* xref:#AccessControlComponent-RoleGrantedWithDelay[`++RoleGrantedWithDelay(role, account, sender, delay)++`]
 --
 
 [#AccessControlComponent-Embeddable-Functions]
@@ -587,6 +597,19 @@ Returns the admin role that controls `role`. See {grant_role} and
 To change a role's admin, use {set_role_admin}.
 
 [.contract-item]
+[[AccessControlComponent-get_role_status]]
+==== `[.contract-item-name]#++get_role_status++#++(self: @ContractState, role: felt252, account: ContractAddress) → RoleStatus++` [.item-kind]#external#
+
+Returns the account's status for the given role.
+
+The possible statuses are:
+
+- `NotGranted`: the role has not been granted to the account.
+- `Delayed`: The role has been granted to the account but is not yet active due to a
+time delay.
+- `Effective`: the role has been granted to the account and is currently active.
+
+[.contract-item]
 [[AccessControlComponent-grant_role]]
 ==== `[.contract-item-name]#++grant_role++#++(ref self: ContractState, role: felt252, account: ContractAddress)++` [.item-kind]#external#
 
@@ -600,6 +623,20 @@ Requirements:
 - the caller must have ``role``'s admin role.
 
 May emit a {RoleGranted} event.
+
+[.contract-item]
+[[AccessControlComponent-grant_role_with_delay]]
+==== `[.contract-item-name]#++grant_role_with_delay++#++(ref self: ContractState, role: felt252, account: ContractAddress, delay: u64)++` [.item-kind]#external#
+
+Attempts to grant `role` to `account` with the specified activation delay.
+
+May emit a {RoleGrantedWithDelay} event.
+
+Requirements:
+
+- The caller must have `role`'s admin role.
+- delay must be greater than 0.
+- the `role` must not be already effective for `account`.
 
 [.contract-item]
 [[AccessControlComponent-revoke_role]]
@@ -740,7 +777,7 @@ due to a time delay, the delay is removed and `role` becomes effective immediate
 
 Internal function without access restriction.
 
-May emit a `RoleGranted` event.
+May emit a {RoleGranted} event.
 
 [.contract-item]
 [[AccessControlComponent-_grant_role_with_delay]]
@@ -755,7 +792,7 @@ overwritten with the new `delay`.
 
 Internal function without access restriction.
 
-May emit a `RoleGrantedWithDelay` event.
+May emit a {RoleGrantedWithDelay} event.
 
 Requirements:
 
@@ -786,6 +823,12 @@ See xref:IAccessControl-RoleAdminChanged[IAccessControl::RoleAdminChanged].
 ==== `[.contract-item-name]#++RoleGranted++#++(role: felt252, account: ContractAddress, sender: ContractAddress)++` [.item-kind]#event#
 
 See xref:IAccessControl-RoleGranted[IAccessControl::RoleGranted].
+
+[.contract-item]
+[[AccessControlComponent-RoleGrantedWithDelay]]
+==== `[.contract-item-name]#++RoleGrantedWithDelay++#++(role: felt252, account: ContractAddress, sender: ContractAddress, delay: u64)++` [.item-kind]#event#
+
+See xref:IAccessControlWithDelay-RoleGrantedWithDelay[IAccessControlWithDelay::RoleGrantedWithDelay].
 
 [.contract-item]
 [[AccessControlComponent-RoleRevoked]]

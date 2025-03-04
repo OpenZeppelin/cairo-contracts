@@ -1,7 +1,7 @@
 = ERC20Permit
 
 :permit-fn: xref:/api/erc20.adoc#ERC20Component-permit[permit]
-:approve-fn: xref:/api/erc20.adoc#ERC20Component-approve[permit]
+:approve-fn: xref:/api/erc20.adoc#ERC20Component-approve[approve]
 :snip-12: https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-12.md[SNIP12]
 :snip-12-guide: xref:/guides/snip12.adoc[SNIP12 guide]
 :snip12-metadata: xref:api/utilities.adoc#snip12[SNIP12Metadata]

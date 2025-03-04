@@ -12,7 +12,7 @@ This crate includes primitives for financial systems.
 
 [.contract]
 [[IVesting]]
-=== `++IVesting++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.20.0/packages/finance/src/vesting/interface.cairo[{github-icon},role=heading-link]
+=== `++IVesting++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/finance/src/vesting/interface.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -104,7 +104,7 @@ Emitted when vested tokens are released to the beneficiary.
 
 [.contract]
 [[VestingComponent]]
-=== `++VestingComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.20.0/packages/finance/src/vesting/vesting.cairo[{github-icon},role=heading-link]
+=== `++VestingComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/finance/src/vesting/vesting.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -239,14 +239,14 @@ Returns the vested amount that's calculated using the {vesting-schedule} trait i
 
 [.contract]
 [[LinearVestingSchedule]]
-=== `++LinearVestingSchedule++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.20.0/packages/finance/src/vesting/vesting.cairo[{github-icon},role=heading-link]
+=== `++LinearVestingSchedule++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/finance/src/vesting/vesting.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
 use openzeppelin_finance::vesting::LinearVestingSchedule;
 ```
 
-Defines the logic for calculating the vested amount, incorporating a cliff period. 
+Defines the logic for calculating the vested amount, incorporating a cliff period.
 It returns 0 before the cliff ends. After the cliff period, the vested amount returned
 is directly proportional to the time passed since the start of the vesting schedule.
 
@@ -254,15 +254,15 @@ is directly proportional to the time passed since the start of the vesting sched
 
 [.contract]
 [[VestingWallet]]
-=== `++VestingWallet++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.20.0/packages/presets/src/vesting.cairo[{github-icon},role=heading-link]
+=== `++VestingWallet++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/presets/src/vesting.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin::presets::VestingWallet;
 ```
 
-A non-upgradable contract leveraging {vesting-component} and {ownable-component}. 
+A non-upgradable contract leveraging {vesting-component} and {ownable-component}.
 
-NOTE: The contract is intentionally designed to be non-upgradable to ensure that neither the vesting initiator 
+NOTE: The contract is intentionally designed to be non-upgradable to ensure that neither the vesting initiator
 nor the vesting beneficiary can modify the vesting schedule without the consent of the other party.
 
 include::../utils/_class_hashes.adoc[]

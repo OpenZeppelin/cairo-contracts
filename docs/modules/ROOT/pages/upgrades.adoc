@@ -1,10 +1,10 @@
-:contract_classes: https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/contract-classes/[Contract Classes]
-:class_hash: https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/class-hash/[class hash]
-:replace_class_syscall: https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/system-calls-cairo1/#replace_class[replace_class]
-:upgradeable: https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.20.0/packages/upgrades/src/upgradeable.cairo[Upgradeable]
+:contract_classes: https://docs.starknet.io/architecture-and-concepts/smart-contracts/contract-classes/[Contract Classes]
+:class_hash: https://docs.starknet.io/architecture-and-concepts/smart-contracts/class-hash/[class hash]
+:replace_class_syscall: https://docs.starknet.io/architecture-and-concepts/smart-contracts/system-calls-cairo1/#replace_class[replace_class]
+:upgradeable: https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/upgrades/src/upgradeable.cairo[Upgradeable]
 :ownable: xref:access.adoc#ownership_and_ownable[Ownable]
 :i_upgradeable: xref:api/upgrades.adoc#IUpgradeable[IUpgradeable]
-:library_calls: https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/system-calls-cairo1/#library_call[library calls]
+:library_calls: https://docs.starknet.io/architecture-and-concepts/smart-contracts/system-calls-cairo1/#library_call[library calls]
 
 = Upgrades
 

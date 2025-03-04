@@ -178,6 +178,7 @@ fn test_hash_operation() {
 
     // Manually set hash elements
     let mut expected_hash = PedersenTrait::new(0)
+        .update_with(1) // number of calls
         .update_with(target.contract_address) // call::to
         .update_with(selector!("set_number")) // call::selector
         .update_with(1) // call::calldata.len
@@ -226,6 +227,32 @@ fn test_hash_operation_batch() {
         .finalize();
 
     assert_eq!(hashed_operation, expected_hash);
+}
+
+#[test]
+fn test_hash_operation_and_hash_operations() {
+    let (mut timelock, _) = setup_dispatchers();
+    let predecessor = 123;
+    let salt = SALT;
+
+    // Setup and hash single call
+    let to_1 = contract_address_const::<1>();
+    let selector_1 = 123;
+    let calldata_1 = array![1, 456].span();
+    let call_1 = Call { to: to_1, selector: selector_1, calldata: calldata_1 };
+
+    let hash_single = timelock.hash_operation(call_1, predecessor, salt);
+
+    // Setup and hash batch of single call
+    let to_2 = contract_address_const::<123>();
+    let selector_2 = 2;
+    let calldata_2 = array![456].span();
+    let call_2 = Call { to: to_2, selector: selector_2, calldata: calldata_2 };
+    let single_call_batch = array![call_2].span();
+
+    let hash_batch = timelock.hash_operation_batch(single_call_batch, predecessor, salt);
+
+    assert_ne!(hash_single, hash_batch);
 }
 
 //
@@ -284,7 +311,7 @@ fn test_schedule_from_proposer_no_salt() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: expected Unset op',))]
+#[should_panic(expected: 'Timelock: expected Unset op')]
 fn test_schedule_overwrite() {
     let (mut timelock, mut target) = setup_dispatchers();
     let predecessor = NO_PREDECESSOR;
@@ -300,7 +327,7 @@ fn test_schedule_overwrite() {
 }
 
 #[test]
-#[should_panic(expected: ('Caller is missing role',))]
+#[should_panic(expected: 'Caller is missing role')]
 fn test_schedule_unauthorized() {
     let (mut timelock, mut target) = setup_dispatchers();
     let predecessor = NO_PREDECESSOR;
@@ -314,7 +341,7 @@ fn test_schedule_unauthorized() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: insufficient delay',))]
+#[should_panic(expected: 'Timelock: insufficient delay')]
 fn test_schedule_bad_min_delay() {
     let (mut timelock, mut target) = setup_dispatchers();
     let predecessor = NO_PREDECESSOR;
@@ -382,7 +409,7 @@ fn test_schedule_batch_from_proposer_no_salt() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: expected Unset op',))]
+#[should_panic(expected: 'Timelock: expected Unset op')]
 fn test_schedule_batch_overwrite() {
     let (mut timelock, mut target) = setup_dispatchers();
     let predecessor = NO_PREDECESSOR;
@@ -398,7 +425,7 @@ fn test_schedule_batch_overwrite() {
 }
 
 #[test]
-#[should_panic(expected: ('Caller is missing role',))]
+#[should_panic(expected: 'Caller is missing role')]
 fn test_schedule_batch_unauthorized() {
     let (mut timelock, mut target) = setup_dispatchers();
     let predecessor = NO_PREDECESSOR;
@@ -412,7 +439,7 @@ fn test_schedule_batch_unauthorized() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: insufficient delay',))]
+#[should_panic(expected: 'Timelock: insufficient delay')]
 fn test_schedule_batch_bad_min_delay() {
     let (mut timelock, mut target) = setup_dispatchers();
     let predecessor = NO_PREDECESSOR;
@@ -430,7 +457,7 @@ fn test_schedule_batch_bad_min_delay() {
 //
 
 #[test]
-#[should_panic(expected: ('Timelock: expected Ready op',))]
+#[should_panic(expected: 'Timelock: expected Ready op')]
 fn test_execute_when_not_scheduled() {
     let (mut timelock, mut target) = setup_dispatchers();
     let predecessor = NO_PREDECESSOR;
@@ -487,7 +514,7 @@ fn test_execute_when_scheduled() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: expected Ready op',))]
+#[should_panic(expected: 'Timelock: expected Ready op')]
 fn test_execute_early() {
     let (mut timelock, mut target) = setup_dispatchers();
     let predecessor = NO_PREDECESSOR;
@@ -510,7 +537,7 @@ fn test_execute_early() {
 }
 
 #[test]
-#[should_panic(expected: ('Caller is missing role',))]
+#[should_panic(expected: 'Caller is missing role')]
 fn test_execute_unauthorized() {
     let (mut timelock, mut target) = setup_dispatchers();
     let predecessor = NO_PREDECESSOR;
@@ -532,7 +559,7 @@ fn test_execute_unauthorized() {
 }
 
 #[test]
-#[should_panic(expected: ('Expected failure',))]
+#[should_panic(expected: 'Expected failure')]
 fn test_execute_failing_tx() {
     let (mut timelock, mut target) = setup_dispatchers();
     let predecessor = NO_PREDECESSOR;
@@ -582,7 +609,7 @@ fn test_execute_bad_selector() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: expected Ready op',))]
+#[should_panic(expected: 'Timelock: expected Ready op')]
 fn test_execute_reentrant_call() {
     let mut timelock = deploy_timelock();
     let mut attacker = deploy_attacker();
@@ -611,7 +638,7 @@ fn test_execute_reentrant_call() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: awaiting predecessor',))]
+#[should_panic(expected: 'Timelock: awaiting predecessor')]
 fn test_execute_before_dependency() {
     let (mut timelock, mut target) = setup_dispatchers();
     let salt = 0;
@@ -707,7 +734,7 @@ fn test_execute_after_dependency() {
 //
 
 #[test]
-#[should_panic(expected: ('Timelock: expected Ready op',))]
+#[should_panic(expected: 'Timelock: expected Ready op')]
 fn test_execute_batch_when_not_scheduled() {
     let (mut timelock, mut target) = setup_dispatchers();
     let predecessor = NO_PREDECESSOR;
@@ -762,7 +789,7 @@ fn test_execute_batch_when_scheduled() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: expected Ready op',))]
+#[should_panic(expected: 'Timelock: expected Ready op')]
 fn test_execute_batch_early() {
     let (mut timelock, mut target) = setup_dispatchers();
     let predecessor = NO_PREDECESSOR;
@@ -785,7 +812,7 @@ fn test_execute_batch_early() {
 }
 
 #[test]
-#[should_panic(expected: ('Caller is missing role',))]
+#[should_panic(expected: 'Caller is missing role')]
 fn test_execute_batch_unauthorized() {
     let (mut timelock, mut target) = setup_dispatchers();
     let predecessor = NO_PREDECESSOR;
@@ -807,7 +834,7 @@ fn test_execute_batch_unauthorized() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: expected Ready op',))]
+#[should_panic(expected: 'Timelock: expected Ready op')]
 fn test_execute_batch_reentrant_call() {
     let mut timelock = deploy_timelock();
     let mut attacker = deploy_attacker();
@@ -839,7 +866,7 @@ fn test_execute_batch_reentrant_call() {
 }
 
 #[test]
-#[should_panic(expected: ('Expected failure',))]
+#[should_panic(expected: 'Expected failure')]
 fn test_execute_batch_partial_execution() {
     let (mut timelock, mut target) = setup_dispatchers();
     let predecessor = NO_PREDECESSOR;
@@ -863,7 +890,7 @@ fn test_execute_batch_partial_execution() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: awaiting predecessor',))]
+#[should_panic(expected: 'Timelock: awaiting predecessor')]
 fn test_execute_batch_before_dependency() {
     let (mut timelock, mut target) = setup_dispatchers();
     let salt = 0;
@@ -1002,7 +1029,7 @@ fn test_cancel_when_ready() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: expected Pending op',))]
+#[should_panic(expected: 'Timelock: expected Pending op')]
 fn test_cancel_when_done() {
     let (mut timelock, mut target) = setup_dispatchers();
     let predecessor = NO_PREDECESSOR;
@@ -1033,7 +1060,7 @@ fn test_cancel_when_done() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: expected Pending op',))]
+#[should_panic(expected: 'Timelock: expected Pending op')]
 fn test_cancel_when_unset() {
     let (mut timelock, _) = setup_dispatchers();
     let invalid_id = 0;
@@ -1044,7 +1071,7 @@ fn test_cancel_when_unset() {
 }
 
 #[test]
-#[should_panic(expected: ('Caller is missing role',))]
+#[should_panic(expected: 'Caller is missing role')]
 fn test_cancel_unauthorized() {
     let (mut timelock, mut target) = setup_dispatchers();
     let predecessor = NO_PREDECESSOR;
@@ -1068,7 +1095,7 @@ fn test_cancel_unauthorized() {
 //
 
 #[test]
-#[should_panic(expected: ('Timelock: unauthorized caller',))]
+#[should_panic(expected: 'Timelock: unauthorized caller')]
 fn test_update_delay_unauthorized() {
     let mut timelock = deploy_timelock();
 
@@ -1268,7 +1295,7 @@ fn test_assert_only_role_or_open_role_when_has_role() {
 }
 
 #[test]
-#[should_panic(expected: ('Caller is missing role',))]
+#[should_panic(expected: 'Caller is missing role')]
 fn test_assert_only_role_or_open_role_unauthorized() {
     let mut state = COMPONENT_STATE();
     let min_delay = MIN_DELAY;
@@ -1330,7 +1357,7 @@ fn test__before_call() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: expected Ready op',))]
+#[should_panic(expected: 'Timelock: expected Ready op')]
 fn test__before_call_nonexistent_operation() {
     let mut state = COMPONENT_STATE();
     let predecessor = NO_PREDECESSOR;
@@ -1346,7 +1373,7 @@ fn test__before_call_nonexistent_operation() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: expected Ready op',))]
+#[should_panic(expected: 'Timelock: expected Ready op')]
 fn test__before_call_insufficient_time() {
     let mut state = COMPONENT_STATE();
     let predecessor = NO_PREDECESSOR;
@@ -1365,7 +1392,7 @@ fn test__before_call_insufficient_time() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: expected Ready op',))]
+#[should_panic(expected: 'Timelock: expected Ready op')]
 fn test__before_call_when_already_done() {
     let mut state = COMPONENT_STATE();
     let predecessor = NO_PREDECESSOR;
@@ -1406,7 +1433,7 @@ fn test__before_call_with_predecessor_done() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: awaiting predecessor',))]
+#[should_panic(expected: 'Timelock: awaiting predecessor')]
 fn test__before_call_with_predecessor_not_done() {
     let mut state = COMPONENT_STATE();
 
@@ -1455,7 +1482,7 @@ fn test__after_call() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: expected Ready op',))]
+#[should_panic(expected: 'Timelock: expected Ready op')]
 fn test__after_call_nonexistent_operation() {
     let mut state = COMPONENT_STATE();
 
@@ -1470,7 +1497,7 @@ fn test__after_call_nonexistent_operation() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: expected Ready op',))]
+#[should_panic(expected: 'Timelock: expected Ready op')]
 fn test__after_call_insufficient_time() {
     let mut state = COMPONENT_STATE();
 
@@ -1488,7 +1515,7 @@ fn test__after_call_insufficient_time() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: expected Ready op',))]
+#[should_panic(expected: 'Timelock: expected Ready op')]
 fn test__after_call_already_done() {
     let mut state = COMPONENT_STATE();
 
@@ -1530,7 +1557,7 @@ fn test__schedule() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: expected Unset op',))]
+#[should_panic(expected: 'Timelock: expected Unset op')]
 fn test__schedule_overwrite() {
     let mut state = COMPONENT_STATE();
     let mut target = deploy_mock_target();
@@ -1548,7 +1575,7 @@ fn test__schedule_overwrite() {
 }
 
 #[test]
-#[should_panic(expected: ('Timelock: insufficient delay',))]
+#[should_panic(expected: 'Timelock: insufficient delay')]
 fn test__schedule_bad_delay() {
     let mut state = COMPONENT_STATE();
     let mut target = deploy_mock_target();
@@ -1592,7 +1619,7 @@ fn test__execute() {
 }
 
 #[test]
-#[should_panic(expected: ('Expected failure',))]
+#[should_panic(expected: 'Expected failure')]
 fn test__execute_with_failing_tx() {
     let mut state = COMPONENT_STATE();
     let mut target = deploy_mock_target();
@@ -1606,7 +1633,7 @@ fn test__execute_with_failing_tx() {
 
 #[test]
 #[ignore] // REASON: should_panic attribute not fit for complex panic messages.
-#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND',))]
+#[should_panic(expected: 'ENTRYPOINT_NOT_FOUND')]
 fn test__execute_with_bad_selector() {
     let mut state = COMPONENT_STATE();
     let mut target = deploy_mock_target();

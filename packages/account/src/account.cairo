@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0 (account/account.cairo)
+// OpenZeppelin Contracts for Cairo v1.0.0 (account/src/account.cairo)
 
 /// # Account Component
 ///
@@ -23,19 +23,19 @@ pub mod AccountComponent {
     }
 
     #[event]
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub enum Event {
         OwnerAdded: OwnerAdded,
         OwnerRemoved: OwnerRemoved,
     }
 
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct OwnerAdded {
         #[key]
         pub new_owner_guid: felt252,
     }
 
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct OwnerRemoved {
         #[key]
         pub removed_owner_guid: felt252,

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0 (access/accesscontrol/accesscontrol.cairo)
+// OpenZeppelin Contracts for Cairo v1.0.0 (access/src/accesscontrol/accesscontrol.cairo)
 
 /// # AccessControl Component
 ///
@@ -36,7 +36,7 @@ pub mod AccessControlComponent {
     }
 
     #[event]
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub enum Event {
         RoleGranted: RoleGranted,
         RoleGrantedWithDelay: RoleGrantedWithDelay,
@@ -48,7 +48,7 @@ pub mod AccessControlComponent {
     ///
     /// `sender` is the account that originated the contract call, an account with the admin role
     /// or the deployer address if `_grant_role` is called from the constructor.
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct RoleGranted {
         pub role: felt252,
         pub account: ContractAddress,
@@ -59,7 +59,7 @@ pub mod AccessControlComponent {
     ///
     /// `sender` is the account that originated the contract call, an account with the admin role
     /// or the deployer address if `_grant_role_with_delay` is called from the constructor.
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct RoleGrantedWithDelay {
         pub role: felt252,
         pub account: ContractAddress,
@@ -72,7 +72,7 @@ pub mod AccessControlComponent {
     /// `sender` is the account that originated the contract call:
     ///   - If using `revoke_role`, it is the admin role bearer.
     ///   - If using `renounce_role`, it is the role bearer (i.e. `account`).
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct RoleRevoked {
         pub role: felt252,
         pub account: ContractAddress,
@@ -83,7 +83,7 @@ pub mod AccessControlComponent {
     ///
     /// `DEFAULT_ADMIN_ROLE` is the starting admin for all roles, despite
     /// `RoleAdminChanged` not being emitted signaling this.
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct RoleAdminChanged {
         pub role: felt252,
         pub previous_admin_role: felt252,

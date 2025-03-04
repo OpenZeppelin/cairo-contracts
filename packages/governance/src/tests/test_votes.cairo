@@ -116,7 +116,7 @@ fn test_get_past_votes() {
 }
 
 #[test]
-#[should_panic(expected: ('Votes: future Lookup',))]
+#[should_panic(expected: 'Votes: future Lookup')]
 fn test_get_past_votes_future_lookup() {
     let state = setup_erc721_votes();
 
@@ -159,7 +159,7 @@ fn test_get_past_total_supply_before_checkpoints() {
 }
 
 #[test]
-#[should_panic(expected: ('Votes: future Lookup',))]
+#[should_panic(expected: 'Votes: future Lookup')]
 fn test_get_past_total_supply_future_lookup() {
     let state = setup_erc721_votes();
     start_cheat_block_timestamp_global('ts1');
@@ -312,7 +312,7 @@ fn test_delegate_by_sig_hash_generation() {
 }
 
 #[test]
-#[should_panic(expected: ('Votes: expired signature',))]
+#[should_panic(expected: 'Votes: expired signature')]
 fn test_delegate_by_sig_past_expiry() {
     start_cheat_block_timestamp_global('ts5');
 
@@ -324,7 +324,7 @@ fn test_delegate_by_sig_past_expiry() {
 }
 
 #[test]
-#[should_panic(expected: ('Nonces: invalid nonce',))]
+#[should_panic(expected: 'Nonces: invalid nonce')]
 fn test_delegate_by_sig_invalid_nonce() {
     let mut state = setup_erc721_votes();
     let signature = array![0, 0];
@@ -333,7 +333,7 @@ fn test_delegate_by_sig_invalid_nonce() {
 }
 
 #[test]
-#[should_panic(expected: ('Votes: invalid signature',))]
+#[should_panic(expected: 'Votes: invalid signature')]
 fn test_delegate_by_sig_invalid_signature() {
     let mut state = setup_erc721_votes();
     let key_pair = StarkCurveKeyPairImpl::generate();
@@ -354,7 +354,7 @@ fn test_delegate_by_sig_invalid_signature() {
 }
 
 #[test]
-#[should_panic(expected: ('Votes: invalid signature',))]
+#[should_panic(expected: 'Votes: invalid signature')]
 fn test_delegate_by_sig_bad_delegatee() {
     let mut state = setup_erc721_votes();
     let key_pair = StarkCurveKeyPairImpl::generate();
@@ -376,7 +376,7 @@ fn test_delegate_by_sig_bad_delegatee() {
 }
 
 #[test]
-#[should_panic(expected: ('Nonces: invalid nonce',))]
+#[should_panic(expected: 'Nonces: invalid nonce')]
 fn test_delegate_by_sig_reused_signature() {
     let mut state = setup_erc721_votes();
     let key_pair = StarkCurveKeyPairImpl::generate();

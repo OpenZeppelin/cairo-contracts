@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0 (finance/vesting/vesting.cairo)
+// OpenZeppelin Contracts for Cairo v1.0.0 (finance/src/vesting/vesting.cairo)
 
 use starknet::ContractAddress;
 
@@ -46,13 +46,13 @@ pub mod VestingComponent {
     }
 
     #[event]
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub enum Event {
         AmountReleased: AmountReleased,
     }
 
     /// Emitted when vested tokens are released to the beneficiary.
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct AmountReleased {
         #[key]
         pub token: ContractAddress,

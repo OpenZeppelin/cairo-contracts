@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0 (token/erc1155/erc1155.cairo)
+// OpenZeppelin Contracts for Cairo v1.0.0 (token/src/erc1155/erc1155.cairo)
 
 /// # ERC1155 Component
 ///
@@ -27,7 +27,7 @@ pub mod ERC1155Component {
     }
 
     #[event]
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub enum Event {
         TransferSingle: TransferSingle,
         TransferBatch: TransferBatch,
@@ -36,7 +36,7 @@ pub mod ERC1155Component {
     }
 
     /// Emitted when `value` token is transferred from `from` to `to` for `id`.
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct TransferSingle {
         #[key]
         pub operator: ContractAddress,
@@ -49,7 +49,7 @@ pub mod ERC1155Component {
     }
 
     /// Emitted when `values` are transferred from `from` to `to` for `ids`.
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct TransferBatch {
         #[key]
         pub operator: ContractAddress,
@@ -63,7 +63,7 @@ pub mod ERC1155Component {
 
     /// Emitted when `account` enables or disables (`approved`) `operator` to manage
     /// all of its assets.
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct ApprovalForAll {
         #[key]
         pub owner: ContractAddress,
@@ -78,7 +78,7 @@ pub mod ERC1155Component {
     /// If an `URI` event was emitted for `id`, the standard guarantees that `value` will equal the
     /// value returned by `IERC1155MetadataURI::uri`.
     /// https://eips.ethereum.org/EIPS/eip-1155#metadata-extensions
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct URI {
         pub value: ByteArray,
         #[key]
@@ -478,12 +478,31 @@ pub mod ERC1155Component {
         /// Initializes the contract by setting the `base_uri` for all tokens,
         /// and registering the supported interfaces.
         /// This should only be used inside the contract's constructor.
+        ///
+        /// WARNING: Most ERC1155 contracts expose the `IERC1155MetadataURI` interface which
+        /// is what this initializer is meant to support.
+        /// If the contract DOES NOT expose the `IERC1155MetadataURI` interface,
+        /// meaning the token does not have a URI, the contract must instead use
+        /// `initializer_no_metadata` in the constructor.
+        /// Failure to abide by these instructions can lead to unexpected issues especially with
+        /// UIs.
         fn initializer(ref self: ComponentState<TContractState>, base_uri: ByteArray) {
             self._set_base_uri(base_uri);
 
             let mut src5_component = get_dep_component_mut!(ref self, SRC5);
             src5_component.register_interface(interface::IERC1155_ID);
             src5_component.register_interface(interface::IERC1155_METADATA_URI_ID);
+        }
+
+        /// Initializes the contract with no metadata by registering only the IERC1155 interface.
+        ///
+        /// WARNING: This initializer should ONLY be used during construction in the very
+        /// specific instance when the contract does NOT expose the `IERC1155MetadataURI` interface.
+        /// Initializing a contract with this initializer means that tokens will not
+        /// have a URI.
+        fn initializer_no_metadata(ref self: ComponentState<TContractState>) {
+            let mut src5_component = get_dep_component_mut!(ref self, SRC5);
+            src5_component.register_interface(interface::IERC1155_ID);
         }
 
         /// Creates a `value` amount of tokens of type `token_id`, and assigns them to `to`.

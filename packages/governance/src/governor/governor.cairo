@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0 (governance/governor/governor.cairo)
+// OpenZeppelin Contracts for Cairo v1.0.0 (governance/src/governor/governor.cairo)
 
 /// # Governor Component
 ///
@@ -9,6 +9,7 @@ pub mod GovernorComponent {
     use core::hash::{HashStateExTrait, HashStateTrait};
     use core::num::traits::Zero;
     use core::pedersen::PedersenTrait;
+    use core::traits::PartialEq;
     use crate::governor::ProposalCore;
     use crate::governor::interface::{IGOVERNOR_ID, IGovernor, ProposalState};
     use crate::governor::vote::{Vote, VoteWithReasonAndParams};
@@ -42,7 +43,7 @@ pub mod GovernorComponent {
     }
 
     /// Emitted when `call` is scheduled as part of operation `id`.
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct ProposalCreated {
         #[key]
         pub proposal_id: felt252,
@@ -56,7 +57,7 @@ pub mod GovernorComponent {
     }
 
     /// Emitted when a proposal is queued.
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct ProposalQueued {
         #[key]
         pub proposal_id: felt252,
@@ -64,21 +65,21 @@ pub mod GovernorComponent {
     }
 
     /// Emitted when a proposal is executed.
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct ProposalExecuted {
         #[key]
         pub proposal_id: felt252,
     }
 
     /// Emitted when a proposal is canceled.
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct ProposalCanceled {
         #[key]
         pub proposal_id: felt252,
     }
 
     /// Emitted when a vote is cast without params.
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct VoteCast {
         #[key]
         pub voter: ContractAddress,
@@ -93,7 +94,7 @@ pub mod GovernorComponent {
     /// NOTE: `support` values should be seen as buckets. Their interpretation depends on the voting
     /// module used. `params` are additional encoded parameters. Their interpretation also
     /// depends on the voting module used.
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct VoteCastWithParams {
         #[key]
         pub voter: ContractAddress,
@@ -102,6 +103,12 @@ pub mod GovernorComponent {
         pub weight: u256,
         pub reason: ByteArray,
         pub params: Span<felt252>,
+    }
+
+    impl CallPartialEq of PartialEq<Call> {
+        fn eq(lhs: @Call, rhs: @Call) -> bool {
+            lhs.to == rhs.to && lhs.selector == rhs.selector && lhs.calldata == rhs.calldata
+        }
     }
 
     pub mod Errors {
@@ -1041,7 +1048,7 @@ pub mod GovernorComponent {
 /// Implementation of the default Governor ImmutableConfig.
 ///
 /// See
-/// https://github.com/starknet-io/SNIPs/blob/963848f0752bde75c7087c2446d83b7da8118b25/SNIPS/snip-107.md#defaultconfig-implementation
+/// https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-107.md#defaultconfig-implementation
 ///
 /// The `DEFAULT_PARAMS` is set to an empty span of felts.
 pub impl DefaultConfig of GovernorComponent::ImmutableConfig {

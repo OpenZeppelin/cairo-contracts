@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0 (token/common/erc2981/erc2981.cairo)
+// OpenZeppelin Contracts for Cairo v1.0.0 (token/src/common/erc2981/erc2981.cairo)
 
 /// # ERC2981 Component
 ///
@@ -12,7 +12,7 @@
 ///
 /// Royalty is specified as a fraction of sale price. The denominator is set by the contract by
 /// using the Immutable Component Config pattern. See
-/// https://github.com/starknet-io/SNIPs/blob/963848f0752bde75c7087c2446d83b7da8118b25/SNIPS/snip-107.md
+/// https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-107.md
 ///
 /// IMPORTANT: ERC-2981 only specifies a way to signal royalty information and does not enforce its
 /// payment. See https://eips.ethereum.org/EIPS/eip-2981#optional-royalty-payments[Rationale] in the
@@ -418,13 +418,12 @@ pub mod ERC2981Component {
 /// Implementation of the default ERC2981Component ImmutableConfig.
 ///
 /// See
-/// https://github.com/starknet-io/SNIPs/blob/963848f0752bde75c7087c2446d83b7da8118b25/SNIPS/snip-107.md#defaultconfig-implementation
+/// https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-107.md#defaultconfig-implementation
 ///
 /// The default fee denominator is set to `DEFAULT_FEE_DENOMINATOR`.
 pub impl DefaultConfig of ERC2981Component::ImmutableConfig {
     const FEE_DENOMINATOR: u128 = ERC2981Component::DEFAULT_FEE_DENOMINATOR;
 }
-
 
 #[cfg(test)]
 mod tests {

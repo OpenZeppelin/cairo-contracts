@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0
-// (governance/governor/extensions/governor_votes_quorum_fraction.cairo)
+// OpenZeppelin Contracts for Cairo v1.0.0
+// (governance/src/governor/extensions/governor_votes_quorum_fraction.cairo)
 
 /// # GovernorVotesQuorumFraction Component
 ///
@@ -25,13 +25,13 @@ pub mod GovernorVotesQuorumFractionComponent {
     }
 
     #[event]
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub enum Event {
         QuorumNumeratorUpdated: QuorumNumeratorUpdated,
     }
 
     /// Emitted when the quorum numerator is updated.
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct QuorumNumeratorUpdated {
         pub old_quorum_numerator: u256,
         pub new_quorum_numerator: u256,

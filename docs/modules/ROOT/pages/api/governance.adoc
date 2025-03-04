@@ -26,7 +26,7 @@ TIP: For a walkthrough of how to implement a Governor, check the {governor} page
 
 [.contract]
 [[IGovernor]]
-=== `++IGovernor++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.20.0/packages/governance/src/governor/interface.cairo[{github-icon},role=heading-link]
+=== `++IGovernor++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/governance/src/governor/interface.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -385,7 +385,7 @@ Emitted when a vote is cast with params.
 
 [.contract]
 [[GovernorComponent]]
-=== `++GovernorComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.20.0/packages/governance/src/governor/governor.cairo[{github-icon},role=heading-link]
+=== `++GovernorComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/governance/src/governor/governor.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -1203,7 +1203,7 @@ provided by the library, which are presented below.
 
 [.contract]
 [[GovernorCoreExecutionComponent]]
-=== `++GovernorCoreExecutionComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.20.0/packages/governance/src/governor/extensions/governor_core_execution.cairo[{github-icon},role=heading-link]
+=== `++GovernorCoreExecutionComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/governance/src/governor/extensions/governor_core_execution.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -1274,7 +1274,7 @@ Cancels a proposal's operations.
 
 [.contract]
 [[GovernorCountingSimpleComponent]]
-=== `++GovernorCountingSimpleComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.20.0/packages/governance/src/governor/extensions/governor_counting_simple.cairo[{github-icon},role=heading-link]
+=== `++GovernorCountingSimpleComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/governance/src/governor/extensions/governor_counting_simple.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -1341,7 +1341,7 @@ In this implementation, the For votes must be strictly greater than Against vote
 
 [.contract]
 [[GovernorSettingsComponent]]
-=== `++GovernorSettingsComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.20.0/packages/governance/src/governor/extensions/governor_settings.cairo[{github-icon},role=heading-link]
+=== `++GovernorSettingsComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/governance/src/governor/extensions/governor_settings.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -1542,7 +1542,7 @@ Emitted when the proposal threshold is updated.
 
 [.contract]
 [[GovernorVotesComponent]]
-=== `++GovernorVotesComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.20.0/packages/governance/src/governor/extensions/governor_votes.cairo[{github-icon},role=heading-link]
+=== `++GovernorVotesComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/governance/src/governor/extensions/governor_votes.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -1632,7 +1632,7 @@ Requirements:
 
 [.contract]
 [[GovernorVotesQuorumFractionComponent]]
-=== `++GovernorVotesQuorumFractionComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.20.0/packages/governance/src/governor/extensions/governor_votes_quorum_fraction.cairo[{github-icon},role=heading-link]
+=== `++GovernorVotesQuorumFractionComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/governance/src/governor/extensions/governor_votes_quorum_fraction.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -1783,7 +1783,7 @@ Emitted when the quorum numerator is updated.
 
 [.contract]
 [[GovernorTimelockExecutionComponent]]
-=== `++GovernorTimelockExecutionComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.20.0/packages/governance/src/governor/extensions/governor_timelock_execution.cairo[{github-icon},role=heading-link]
+=== `++GovernorTimelockExecutionComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/governance/src/governor/extensions/governor_timelock_execution.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -1986,7 +1986,7 @@ operations.
 
 [.contract]
 [[IMultisig]]
-=== `++IMultisig++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.20.0/packages/governance/src/multisig/interface.cairo[{github-icon},role=heading-link]
+=== `++IMultisig++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/governance/src/multisig/interface.cairo[{github-icon},role=heading-link]
 
 :IMultisig-CallSalt: xref:IMultisig-CallSalt[CallSalt]
 :IMultisig-SignerAdded: xref:IMultisig-SignerAdded[SignerAdded]
@@ -2780,7 +2780,7 @@ In a governance system, `TimelockControllerComponent` is in charge of introducin
 
 [.contract]
 [[ITimelock]]
-=== `++ITimelock++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.20.0/packages/governance/src/timelock/interface.cairo[{github-icon},role=heading-link]
+=== `++ITimelock++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/governance/src/timelock/interface.cairo[{github-icon},role=heading-link]
 
 :ITimelock-CallScheduled: xref:ITimelock-CallScheduled[CallScheduled]
 :ITimelock-CallExecuted: xref:ITimelock-CallExecuted[CallExecuted]
@@ -3019,7 +3019,7 @@ Emitted when the minimum delay for future operations is modified.
 
 [.contract]
 [[TimelockControllerComponent]]
-=== `++TimelockControllerComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.20.0/packages/governance/src/timelock/timelock_controller.cairo[{github-icon},role=heading-link]
+=== `++TimelockControllerComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/governance/src/timelock/timelock_controller.cairo[{github-icon},role=heading-link]
 
 :TimelockComponent-CallScheduled: xref:TimelockControllerComponent-CallScheduled[CallScheduled]
 :TimelockComponent-CallExecuted: xref:TimelockControllerComponent-CallExecuted[CallExecuted]
@@ -3400,7 +3400,7 @@ The `VotesComponent` provides a flexible system for tracking and delegating voti
 
 [.contract]
 [[IVotes]]
-=== `++IVotes++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.20.0/packages/governance/src/votes/interface.cairo[{github-icon},role=heading-link]
+=== `++IVotes++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/governance/src/votes/interface.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -3465,7 +3465,7 @@ Delegates votes from `delegator` to `delegatee` through a {SNIP-12} message sign
 
 [.contract]
 [[VotesComponent]]
-=== `++VotesComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.20.0/packages/governance/src/votes/votes.cairo[{github-icon},role=heading-link]
+=== `++VotesComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/governance/src/votes/votes.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -3693,7 +3693,7 @@ Emitted when a token transfer or delegate change results in changes to a delegat
 
 [.contract]
 [[VotingUnitsTrait]]
-=== `++VotingUnitsTrait++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.20.0/packages/governance/src/votes/votes.cairo[{github-icon},role=heading-link]
+=== `++VotingUnitsTrait++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/governance/src/votes/votes.cairo[{github-icon},role=heading-link]
 
 ```cairo
 pub trait VotingUnitsTrait<TState> {

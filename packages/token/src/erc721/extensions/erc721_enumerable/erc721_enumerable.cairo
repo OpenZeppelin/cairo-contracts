@@ -170,7 +170,7 @@ pub mod ERC721EnumerableComponent {
 
         /// Removes a token from this extension's ownership-tracking data structures.
         ///
-        /// This has 0(1) time complexity but alters the indexed order of owned-tokens by
+        /// This has O(1) time complexity but alters the indexed order of owned-tokens by
         /// swapping `token_id` and the index thereof with the last token id and the index
         /// thereof.
         fn _remove_token_from_owner_enumeration(
@@ -200,7 +200,7 @@ pub mod ERC721EnumerableComponent {
 
         /// Removes `token_id` from this extension's token-tracking data structures.
         ///
-        /// This has 0(1) time complexity but alters the indexed order by swapping
+        /// This has O(1) time complexity but alters the indexed order by swapping
         /// `token_id` and the index thereof with the last token id and the index thereof.
         fn _remove_token_from_all_tokens_enumeration(
             ref self: ComponentState<TContractState>, token_id: u256,

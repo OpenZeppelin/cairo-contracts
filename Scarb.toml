@@ -5,6 +5,7 @@ members = [
     "packages/finance",
     "packages/governance",
     "packages/introspection",
+    "packages/macros",
     "packages/merkle_tree",
     "packages/presets",
     "packages/security",

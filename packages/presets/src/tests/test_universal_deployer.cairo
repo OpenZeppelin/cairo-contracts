@@ -40,7 +40,7 @@ fn test_deploy_from_zero() {
     // Deploy args
     let erc20_class_hash = ERC20_CLASS_HASH();
     let salt = SALT;
-    let from_zero = true;
+    let not_from_zero = false;
     let erc20_calldata = ERC20_CALLDATA();
 
     let mut spy = spy_events();
@@ -50,7 +50,7 @@ fn test_deploy_from_zero() {
     let expected_addr = calculate_contract_address_from_udc(
         salt, erc20_class_hash, erc20_calldata, Option::None,
     );
-    let deployed_addr = udc.deploy_contract(erc20_class_hash, salt, from_zero, erc20_calldata);
+    let deployed_addr = udc.deploy_contract(erc20_class_hash, salt, not_from_zero, erc20_calldata);
     assert_eq!(expected_addr, deployed_addr);
 
     // Drop ERC20 event, check deploy event
@@ -60,7 +60,7 @@ fn test_deploy_from_zero() {
             udc.contract_address,
             deployed_addr,
             caller,
-            from_zero,
+            not_from_zero,
             erc20_class_hash,
             erc20_calldata,
             salt,
@@ -80,7 +80,7 @@ fn test_deploy_not_from_zero() {
     // Deploy args
     let erc20_class_hash = ERC20_CLASS_HASH();
     let salt = SALT;
-    let from_zero = false;
+    let not_from_zero = true;
     let erc20_calldata = ERC20_CALLDATA();
 
     let mut spy = spy_events();
@@ -93,7 +93,7 @@ fn test_deploy_not_from_zero() {
         erc20_calldata,
         Option::Some(DeployerInfo { caller_address: caller, udc_address: udc.contract_address }),
     );
-    let deployed_addr = udc.deploy_contract(erc20_class_hash, salt, from_zero, erc20_calldata);
+    let deployed_addr = udc.deploy_contract(erc20_class_hash, salt, not_from_zero, erc20_calldata);
     assert_eq!(expected_addr, deployed_addr);
 
     // Drop ERC20 event, check deploy event
@@ -103,7 +103,7 @@ fn test_deploy_not_from_zero() {
             udc.contract_address,
             deployed_addr,
             caller,
-            from_zero,
+            not_from_zero,
             erc20_class_hash,
             erc20_calldata,
             salt,
@@ -126,13 +126,13 @@ impl UniversalDeployerHelpersImpl of UniversalDeployerSpyHelpers {
         contract: ContractAddress,
         address: ContractAddress,
         deployer: ContractAddress,
-        from_zero: bool,
+        not_from_zero: bool,
         class_hash: ClassHash,
         calldata: Span<felt252>,
         salt: felt252,
     ) {
         let expected = UniversalDeployer::Event::ContractDeployed(
-            ContractDeployed { address, deployer, from_zero, class_hash, calldata, salt },
+            ContractDeployed { address, deployer, not_from_zero, class_hash, calldata, salt },
         );
         self.assert_only_event(contract, expected);
     }

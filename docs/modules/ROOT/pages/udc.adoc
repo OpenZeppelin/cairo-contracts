@@ -60,7 +60,7 @@ fn deploy() -> ContractAddress {
     let calldata = array![];
 
     // The UDC returns the deployed contract address
-    dispatcher.deploy_contract(class_hash, salt, from_zero, calldata.span())
+    dispatcher.deploy_contract(class_hash, salt, not_from_zero, calldata.span())
 }
 ----
 
@@ -90,7 +90,7 @@ To deploy a unique contract address pass:
 
 [,js]
 ----
-let deployed_addr = udc.deploy_contract(class_hash, salt, false, calldata.span());
+let deployed_addr = udc.deploy_contract(class_hash, salt, true, calldata.span());
 ----
 
 === Origin-independent
@@ -102,7 +102,7 @@ To deploy a reproducible deployment, set `from_zero` to `true`.
 
 [source,cairo]
 ----
-let deployed_addr = udc.deploy_contract(class_hash, salt, true, calldata.span());
+let deployed_addr = udc.deploy_contract(class_hash, salt, false, calldata.span());
 ----
 
 == Version changes

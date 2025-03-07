@@ -5,7 +5,7 @@ pub mod interface;
 
 use core::hash::{HashStateExTrait, HashStateTrait};
 use core::num::traits::Zero;
-use core::pedersen::PedersenTrait;
+use core::pedersen::{PedersenTrait, pedersen};
 use crate::serde::SerializedAppend;
 use starknet::{ClassHash, ContractAddress};
 
@@ -71,11 +71,7 @@ pub fn calculate_contract_address_from_udc(
 ) -> ContractAddress {
     match deployer_info {
         Option::Some(deployer_info) => {
-            let mut state = PedersenTrait::new(0);
-            let hashed_salt = state
-                .update_with(deployer_info.caller_address)
-                .update_with(salt)
-                .finalize();
+            let hashed_salt = pedersen(deployer_info.caller_address.into(), salt);
             calculate_contract_address_from_deploy_syscall(
                 hashed_salt, class_hash, constructor_calldata, deployer_info.udc_address,
             )

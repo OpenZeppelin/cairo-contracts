@@ -52,18 +52,19 @@ pub mod UniversalDeployer {
             calldata: Span<felt252>,
         ) -> ContractAddress {
             let deployer: ContractAddress = get_caller_address();
-            let mut _salt: felt252 = salt;
 
             // If the contract must be deployed taking the deployer user address into account,
             // we need to add the caller address into the target address computation somehow, since
             // the actual deployer (executing the syscall) is the UDC, not the user account.
-            if not_from_zero {
-                _salt = pedersen(deployer.into(), salt);
-            }
+            let final_salt = if not_from_zero {
+                pedersen(deployer.into(), salt)
+            } else {
+                salt
+            };
 
             let deploy_from_zero = !not_from_zero;
             let (address, _) = starknet::syscalls::deploy_syscall(
-                class_hash, _salt, calldata, deploy_from_zero,
+                class_hash, final_salt, calldata, deploy_from_zero,
             )
                 .unwrap_syscall();
 

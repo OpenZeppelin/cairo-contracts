@@ -49,7 +49,7 @@ jobs:
     - name: Update docs
       run: |
         rm -rf ./packages/testing/docs
-        mv ./packages/testing/target/doc/openzeppelin_testing/src ./packages/testing/docs
+        mv ./target/doc/openzeppelin_testing/src ./packages/testing/docs
 
     - name: Auto-commit changes
       uses: stefanzweifel/git-auto-commit-action@e348103e9026cc0eee72ae06630dbe30c8bf7a79 #v5.1.0

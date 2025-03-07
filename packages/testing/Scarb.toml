@@ -13,7 +13,7 @@ cairo-version.workspace = true
 scarb-version.workspace = true
 authors.workspace = true
 description.workspace = true
-documentation = "https://github.com/ericnordelo/cairo-contracts/blob/testing-v1.0.0/packages/testing/docs/openzeppelin_testing.md"
+documentation = "https://github.com/openzeppelin/cairo-contracts/blob/testing-v1.0.0/packages/testing/docs/openzeppelin_testing.md"
 repository.workspace = true
 license-file.workspace = true
 
@@ -25,9 +25,3 @@ scarb.workspace = true
 assert_macros.workspace = true
 starknet.workspace = true
 snforge_std.workspace = true
-
-[lib]
-
-[[target.starknet-contract]]
-sierra = true
-casm = false

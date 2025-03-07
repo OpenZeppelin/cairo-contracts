@@ -81,6 +81,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "openzeppelin_macros"
+version = "1.0.0"
+
+[[package]]
 name = "openzeppelin_merkle_tree"
 version = "1.0.0"
 dependencies = [

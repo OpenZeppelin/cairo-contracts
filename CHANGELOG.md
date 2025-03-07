@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- The openzeppelin_macros package with the `with_components` macro (#1282)
 - ERC4626Component (#1170)
 - `Math::u256_mul_div` (#1170)
 
@@ -26,6 +27,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Update EventSpyExt implementation to use EventSpyQueue
 - Add SRC-107 to ERC20Component (#1294)
   - `decimals` are now configurable using the ImmutableConfig trait
+- Update UDC interface and preset for backward compatibility with v1 (#1371)
+  - Change `from_zero` argument to `not_from_zero` in both the interface and the
+    ContractDeployed event
+  - Add `deployContract` function to the preset
+  - Update salt hashing algorithm from Poseidon to Pedersen
 
 ## 1.0.0 (2025-02-21)
 

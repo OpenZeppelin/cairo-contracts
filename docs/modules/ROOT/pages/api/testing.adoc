@@ -39,6 +39,7 @@ use openzeppelin_testing::common;
 * xref:#testing-common-to_base_16_string[`++to_base_16_string(value)++`]
 * xref:#testing-common-to_base_16_string_no_padding[`++to_base_16_string_no_padding(value)++`]
 * xref:#testing-common-assert_entrypoint_not_found_error[`++assert_entrypoint_not_found_error(result, selector, contract_address)++`]
+* xref:#testing-common-repeat[`++repeat(element, n_times)++`]
 
 .Traits
 * xref:#testing-common-IntoBase16StringTrait[`++IntoBase16StringTrait++`]
@@ -74,6 +75,12 @@ prefix.
 
 Asserts that the syscall result of a call failed with an "Entrypoint not found" error,
 following the Starknet Foundry emitted error format.
+
+[.contract-item]
+[[testing-common-repeat]]
+==== `[.contract-item-name]#++repeat++#<T, +Drop<T>>(element: T, n_times: N) → Array<T>` [.item-kind]#function#
+
+Creates and returns a new array consisting of the given `element` repeated `n_times` times.
 
 [#testing-common-Traits]
 ==== Traits

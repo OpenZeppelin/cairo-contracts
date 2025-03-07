@@ -19,6 +19,7 @@ scarb.workspace = true
 [dependencies]
 starknet.workspace = true
 snforge_std.workspace = true
+snforge_scarb_plugin.workspace = true
 openzeppelin_upgrades = { path = "../upgrades" }
 openzeppelin_access = { path = "../access" }
 openzeppelin_account = { path = "../account" }

@@ -46,7 +46,7 @@ fn test_eq_calls_gt_calldata() {
     let call_1 = Call {
         to: contract_address_const::<1>(), selector: 1, calldata: array![1].span(),
     };
-    let call_2 = Call { to: contract_address_const::<1>(), selector: 2, calldata: array![].span() };
+    let call_2 = Call { to: contract_address_const::<1>(), selector: 1, calldata: array![].span() };
     assert_eq!(call_1, call_2);
 }
 
@@ -57,7 +57,7 @@ fn test_eq_calls_lt_calldata() {
         to: contract_address_const::<1>(), selector: 1, calldata: array![1].span(),
     };
     let call_2 = Call {
-        to: contract_address_const::<1>(), selector: 2, calldata: array![1, 2].span(),
+        to: contract_address_const::<1>(), selector: 1, calldata: array![1, 2].span(),
     };
     assert_eq!(call_1, call_2);
 }
@@ -69,7 +69,7 @@ fn test_eq_calls_ne_calldata() {
         to: contract_address_const::<1>(), selector: 1, calldata: array![1, 2].span(),
     };
     let call_2 = Call {
-        to: contract_address_const::<1>(), selector: 2, calldata: array![2, 1].span(),
+        to: contract_address_const::<1>(), selector: 1, calldata: array![2, 1].span(),
     };
     assert_eq!(call_1, call_2);
 }

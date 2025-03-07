@@ -155,6 +155,10 @@ practices, scoping and API design, multi-layered review processes, and incident 
 
 Refer to [SECURITY.md](SECURITY.md) for more details.
 
+Past audits can be found in [`audits/`](./audits).
+
+Smart contracts are an evolving technology and carry a high level of technical risk and uncertainty. Although OpenZeppelin is well known for its security audits, using OpenZeppelin Contracts for Cairo is not a substitute for a security audit.
+
 ## License
 
 OpenZeppelin Contracts for Cairo is released under the [MIT License](LICENSE).

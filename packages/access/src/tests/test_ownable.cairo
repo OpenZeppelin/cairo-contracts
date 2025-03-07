@@ -5,7 +5,8 @@ use crate::ownable::interface::{IOwnable, IOwnableCamelOnly};
 use openzeppelin_test_common::mocks::access::DualCaseOwnableMock;
 use openzeppelin_test_common::ownable::OwnableSpyHelpers;
 use openzeppelin_testing::constants::{OTHER, OWNER, RECIPIENT, ZERO};
-use snforge_std::{spy_events, start_cheat_caller_address, test_address};
+use openzeppelin_testing::spy_events;
+use snforge_std::{start_cheat_caller_address, test_address};
 use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 
 //

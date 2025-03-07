@@ -18,6 +18,7 @@ license-file.workspace = true
 
 [tool]
 fmt.workspace = true
+scarb.workspace = true
 
 [dev-dependencies]
 assert_macros.workspace = true

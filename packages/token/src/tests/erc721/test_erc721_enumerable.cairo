@@ -303,9 +303,9 @@ fn test_before_update_when_last_token_burned() {
 fn test_before_update_when_first_token_burned() {
     let (mut state, tokens_list) = setup();
     let initial_supply = state.total_supply();
-    let first_token_toburn = *tokens_list.at(0);
+    let first_token_to_burn = *tokens_list.at(0);
 
-    state.before_update(ZERO(), first_token_toburn);
+    state.before_update(ZERO(), first_token_to_burn);
 
     // Check new supply
     let new_supply = state.total_supply();

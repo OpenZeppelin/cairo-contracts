@@ -44,8 +44,7 @@ keywords = [
 [workspace.dependencies]
 assert_macros = "2.10.1"
 starknet = "2.10.1"
-snforge_std = "0.38.2"
-snforge_scarb_plugin = "0.38.2" # TODO: Remove this once snfoundry fixes the issue
+snforge_std = "0.38.3"
 
 [dependencies]
 starknet.workspace = true

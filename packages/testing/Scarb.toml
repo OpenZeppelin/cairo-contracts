@@ -25,4 +25,3 @@ scarb.workspace = true
 assert_macros.workspace = true
 starknet.workspace = true
 snforge_std.workspace = true
-snforge_scarb_plugin.workspace = true

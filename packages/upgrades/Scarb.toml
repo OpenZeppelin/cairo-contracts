@@ -28,7 +28,6 @@ starknet.workspace = true
 [dev-dependencies]
 assert_macros.workspace = true
 snforge_std.workspace = true
-snforge_scarb_plugin.workspace = true
 openzeppelin_testing = { path = "../testing" }
 openzeppelin_test_common = { path = "../test_common" }
 

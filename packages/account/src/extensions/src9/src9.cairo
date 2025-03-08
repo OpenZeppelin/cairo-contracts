@@ -18,6 +18,7 @@ pub mod SRC9Component {
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin_utils::cryptography::snip12::{OffchainMessageHash, SNIP12Metadata};
+    use starknet::ContractAddress;
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
 
     #[storage]
@@ -103,18 +104,10 @@ pub mod SRC9Component {
             let this = starknet::get_contract_address();
             let outside_tx_hash = outside_execution.get_message_hash(this);
 
-            // Make this component agnostic to the account implementation, as long
-            // as the contract implements the SRC6 interface.
-            let is_valid_signature_felt = ISRC6Dispatcher { contract_address: this }
-                .is_valid_signature(outside_tx_hash, signature.into());
+            // 5. Validate signature
+            self.assert_valid_signature(this, outside_tx_hash, signature);
 
-            // Check either 'VALID' or true for backwards compatibility.
-            let is_valid_signature = is_valid_signature_felt == starknet::VALIDATED
-                || is_valid_signature_felt == 1;
-
-            assert(is_valid_signature, Errors::INVALID_SIGNATURE);
-
-            // 5. Execute the calls
+            // 6. Execute the calls
             execute_calls(outside_execution.calls)
         }
 
@@ -141,6 +134,27 @@ pub mod SRC9Component {
         fn initializer(ref self: ComponentState<TContractState>) {
             let mut src5_component = get_dep_component_mut!(ref self, SRC5);
             src5_component.register_interface(interface::ISRC9_V2_ID);
+        }
+
+        /// Validates that a signature is valid for a given hash and account.
+        /// Checks if the signature is valid according to SRC6 standard.
+        /// Supports both the VALIDATED constant and the legacy "1" boolean value.
+        ///
+        /// Revert if the signature is invalid for the given hash and account
+        fn assert_valid_signature(
+            self: @ComponentState<TContractState>,
+            account: ContractAddress,
+            hash: felt252,
+            signature: Span<felt252>,
+        ) {
+            let is_valid_signature_felt = ISRC6Dispatcher { contract_address: account }
+                .is_valid_signature(hash, signature.into());
+
+            // Check either 'VALID' or true for backwards compatibility
+            let is_valid_signature = is_valid_signature_felt == starknet::VALIDATED
+                || is_valid_signature_felt == 1;
+
+            assert(is_valid_signature, Errors::INVALID_SIGNATURE);
         }
     }
 }

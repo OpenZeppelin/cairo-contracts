@@ -28,7 +28,7 @@ use snforge_std::{
 };
 use starknet::account::Call;
 use starknet::storage::{StorageMapWriteAccess, StoragePathEntry, StoragePointerWriteAccess};
-use starknet::{ContractAddress, contract_address_const};
+use starknet::ContractAddress;
 use openzeppelin_testing as utils;
 
 const MIN_DELAY: u64 = 100;
@@ -39,7 +39,7 @@ const MIN_DELAY: u64 = 100;
 
 fn deploy_governor(timelock: ContractAddress) -> IGovernorDispatcher {
     let mut calldata = array![];
-    calldata.append_serde(VOTES_TOKEN());
+    calldata.append_serde(VOTES_TOKEN);
     calldata.append_serde(timelock);
 
     let address = utils::declare_and_deploy("GovernorTimelockedMock", calldata);
@@ -50,7 +50,7 @@ fn deploy_governor_at(
     target_address: ContractAddress, timelock: ContractAddress,
 ) -> IGovernorDispatcher {
     let mut calldata = array![];
-    calldata.append_serde(VOTES_TOKEN());
+    calldata.append_serde(VOTES_TOKEN);
     calldata.append_serde(timelock);
 
     utils::declare_and_deploy_at("GovernorTimelockedMock", target_address, calldata);
@@ -79,7 +79,7 @@ fn deploy_mock_target() -> IMockContractDispatcher {
 }
 
 fn setup_dispatchers() -> (IGovernorDispatcher, ITimelockDispatcher, IMockContractDispatcher) {
-    let governor = deploy_governor(TIMELOCK());
+    let governor = deploy_governor(TIMELOCK);
     let timelock = deploy_timelock(governor.contract_address);
     let target = deploy_mock_target();
 
@@ -99,7 +99,7 @@ fn setup_dispatchers() -> (IGovernorDispatcher, ITimelockDispatcher, IMockContra
 
 #[test]
 fn test_timelock_salt() {
-    let governor = deploy_governor(TIMELOCK());
+    let governor = deploy_governor(TIMELOCK);
 
     let dispatcher = TimelockSaltDispatcher { contract_address: governor.contract_address };
 
@@ -115,12 +115,10 @@ fn test_timelock_salt() {
 fn test_timelock_salt_overflow() {
     // 2^250
     // 2^251
-    let address = contract_address_const::<
-        0x400000000000000000000000000000000000000000000000000000000000000,
-    >();
+    let address = 0x400000000000000000000000000000000000000000000000000000000000000.try_into().unwrap();
     let description_hash = 0x800000000000000000000000000000000000000000000000000000000000000;
 
-    let governor = deploy_governor_at(address, TIMELOCK());
+    let governor = deploy_governor_at(address, TIMELOCK);
     let dispatcher = TimelockSaltDispatcher { contract_address: governor.contract_address };
 
     let salt = dispatcher.timelock_salt(description_hash);
@@ -243,8 +241,8 @@ fn test_state_queued_timelock_waiting() {
     let id = setup_queued_proposal(ref mock_state);
 
     // 1. Mock the timelock to return pending
-    set_executor(ref mock_state, TIMELOCK());
-    start_mock_call(TIMELOCK(), selector!("get_operation_state"), OperationState::Waiting);
+    set_executor(ref mock_state, TIMELOCK);
+    start_mock_call(TIMELOCK, selector!("get_operation_state"), OperationState::Waiting);
 
     let state = GovernorExecution::state(@component_state, id);
     assert_eq!(state, ProposalState::Queued);
@@ -257,8 +255,8 @@ fn test_state_queued_timelock_ready() {
     let id = setup_queued_proposal(ref mock_state);
 
     // 1. Mock the timelock to return pending
-    set_executor(ref mock_state, TIMELOCK());
-    start_mock_call(TIMELOCK(), selector!("get_operation_state"), OperationState::Ready);
+    set_executor(ref mock_state, TIMELOCK);
+    start_mock_call(TIMELOCK, selector!("get_operation_state"), OperationState::Ready);
 
     let state = GovernorExecution::state(@component_state, id);
     assert_eq!(state, ProposalState::Queued);
@@ -271,8 +269,8 @@ fn test_state_queued_timelock_done() {
     let id = setup_queued_proposal(ref mock_state);
 
     // 1. Mock the timelock to return pending
-    set_executor(ref mock_state, TIMELOCK());
-    start_mock_call(TIMELOCK(), selector!("get_operation_state"), OperationState::Done);
+    set_executor(ref mock_state, TIMELOCK);
+    start_mock_call(TIMELOCK, selector!("get_operation_state"), OperationState::Done);
 
     let state = GovernorExecution::state(@component_state, id);
     assert_eq!(state, ProposalState::Executed);
@@ -285,8 +283,8 @@ fn test_state_queued_timelock_canceled() {
     let id = setup_queued_proposal(ref mock_state);
 
     // 1. Mock the timelock to return pending
-    set_executor(ref mock_state, TIMELOCK());
-    start_mock_call(TIMELOCK(), selector!("get_operation_state"), OperationState::Unset);
+    set_executor(ref mock_state, TIMELOCK);
+    start_mock_call(TIMELOCK, selector!("get_operation_state"), OperationState::Unset);
 
     let state = GovernorExecution::state(@component_state, id);
     assert_eq!(state, ProposalState::Canceled);
@@ -310,7 +308,7 @@ fn test_state_succeeded() {
 fn test_executor() {
     let mut mock_state = CONTRACT_STATE();
     let component_state = COMPONENT_STATE();
-    let expected = TIMELOCK();
+    let expected = TIMELOCK;
 
     set_executor(ref mock_state, expected);
 
@@ -341,7 +339,7 @@ fn test_execute_operations() {
 
     // 1. Mock the get_past_votes call
     let quorum = GovernorTimelockedMock::QUORUM;
-    start_mock_call(VOTES_TOKEN(), selector!("get_past_votes"), quorum);
+    start_mock_call(VOTES_TOKEN, selector!("get_past_votes"), quorum);
 
     // 2. Propose
     let mut current_time = 10;
@@ -418,7 +416,7 @@ fn test_queue_operations() {
 
     // 1. Mock the get_past_votes call
     let quorum = GovernorTimelockedMock::QUORUM;
-    start_mock_call(VOTES_TOKEN(), selector!("get_past_votes"), quorum);
+    start_mock_call(VOTES_TOKEN, selector!("get_past_votes"), quorum);
 
     // 2. Propose
     let mut current_time = 10;
@@ -493,7 +491,7 @@ fn test_cancel_operations_queued() {
 
     // 1. Mock the get_past_votes call
     let quorum = GovernorTimelockedMock::QUORUM;
-    start_mock_call(VOTES_TOKEN(), selector!("get_past_votes"), quorum);
+    start_mock_call(VOTES_TOKEN, selector!("get_past_votes"), quorum);
 
     // 2. Propose
     let mut current_time = 10;
@@ -611,17 +609,17 @@ fn test_cancel_operations_executed() {
 
 #[test]
 fn test_update_timelock() {
-    let mut governor = deploy_governor(TIMELOCK());
+    let mut governor = deploy_governor(TIMELOCK);
     let timelocked = ITimelockedDispatcher { contract_address: governor.contract_address };
 
-    start_cheat_caller_address(governor.contract_address, TIMELOCK());
+    start_cheat_caller_address(governor.contract_address, TIMELOCK);
 
     let mut spy = spy_events();
-    timelocked.update_timelock(OTHER());
+    timelocked.update_timelock(OTHER);
 
-    assert_eq!(timelocked.timelock(), OTHER());
+    assert_eq!(timelocked.timelock(), OTHER);
 
-    spy.assert_only_event_timelock_updated(governor.contract_address, TIMELOCK(), OTHER());
+    spy.assert_only_event_timelock_updated(governor.contract_address, TIMELOCK, OTHER);
 }
 
 //

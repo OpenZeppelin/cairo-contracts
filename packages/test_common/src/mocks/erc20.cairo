@@ -276,11 +276,11 @@ pub trait IERC20Reentrant<TState> {
 #[starknet::contract]
 pub mod ERC20ReentrantMock {
     use openzeppelin_token::erc20::{DefaultConfig, ERC20Component};
-    use starknet::ContractAddress;
-    use starknet::SyscallResultTrait;
-    use starknet::storage::{MutableVecTrait, Vec};
-    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use starknet::storage::{
+        MutableVecTrait, StoragePointerReadAccess, StoragePointerWriteAccess, Vec,
+    };
     use starknet::syscalls::call_contract_syscall;
+    use starknet::{ContractAddress, SyscallResultTrait};
     use super::Type;
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
@@ -367,7 +367,7 @@ pub mod ERC20ReentrantMock {
             let mut calldata = array![];
             for i in 0..self.reenter_calldata.len() {
                 calldata.append(self.reenter_calldata.at(i).read());
-            };
+            }
             call_contract_syscall(target, selector, calldata.span()).unwrap_syscall();
         }
 

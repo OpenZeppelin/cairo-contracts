@@ -3,6 +3,6 @@
 Fully qualified path: `openzeppelin_testing::constants::ZERO`
 
 ```rust
-pub fn ZERO() -> ContractAddress
+pub fn ZERO -> ContractAddress
 ```
 

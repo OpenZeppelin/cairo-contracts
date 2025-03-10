@@ -73,7 +73,7 @@ fn test_count_vote_against() {
     let mut state = COMPONENT_STATE();
 
     let proposal_id = 0;
-    let account = OTHER();
+    let account = OTHER;
     let support = 0;
     let total_weight = 100;
     let params = array![].span();
@@ -100,7 +100,7 @@ fn test_count_vote_for() {
     let mut state = COMPONENT_STATE();
 
     let proposal_id = 0;
-    let account = OTHER();
+    let account = OTHER;
     let support = 1;
     let total_weight = 100;
     let params = array![].span();
@@ -127,7 +127,7 @@ fn test_count_vote_abstain() {
     let mut state = COMPONENT_STATE();
 
     let proposal_id = 0;
-    let account = OTHER();
+    let account = OTHER;
     let support = 2;
     let total_weight = 100;
     let params = array![].span();
@@ -155,7 +155,7 @@ fn test_count_vote_already_voted() {
     let mut state = COMPONENT_STATE();
 
     let proposal_id = 0;
-    let account = OTHER();
+    let account = OTHER;
     let support = 2;
     let total_weight = 100;
     let params = array![].span();
@@ -175,7 +175,7 @@ fn test_count_vote_invalid_vote_type() {
     let mut state = COMPONENT_STATE();
 
     let proposal_id = 0;
-    let account = OTHER();
+    let account = OTHER;
     let support = 3;
     let total_weight = 100;
     let params = array![].span();
@@ -193,7 +193,7 @@ fn test_has_voted() {
     let state = COMPONENT_STATE();
 
     let proposal_id = 0;
-    let account = OTHER();
+    let account = OTHER;
 
     assert_eq!(GovernorCounting::has_voted(@state, proposal_id, account), false);
 

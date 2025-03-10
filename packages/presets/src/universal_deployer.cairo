@@ -8,8 +8,7 @@
 pub mod UniversalDeployer {
     use core::pedersen::pedersen;
     use openzeppelin_utils::interfaces::UniversalDeployerABI;
-    use starknet::SyscallResultTrait;
-    use starknet::{ClassHash, ContractAddress, get_caller_address};
+    use starknet::{ClassHash, ContractAddress, SyscallResultTrait, get_caller_address};
 
     #[storage]
     pub struct Storage {}

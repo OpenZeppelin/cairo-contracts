@@ -18,7 +18,7 @@ pub fn read_n_bytes(data: @ByteArray, start: u32, n: u32) -> ByteArray {
     let mut result: ByteArray = Default::default();
     for i in start..end_index {
         result.append_byte(data[i]);
-    };
+    }
     result
 }
 
@@ -41,7 +41,7 @@ pub fn to_byte_array<T, +Into<T, felt252>, +Copy<T>>(
             byte_array = "0" + byte_array;
             padding -= 1;
         };
-    };
+    }
     byte_array
 }
 
@@ -58,7 +58,7 @@ pub fn hash_byte_array(data: @ByteArray) -> felt252 {
     let mut state = PedersenTrait::new(0);
     for elem in serialized {
         state = state.update_with(elem);
-    };
+    }
     state = state.update_with(len);
     state.finalize()
 }

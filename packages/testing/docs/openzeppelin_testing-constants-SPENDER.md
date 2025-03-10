@@ -3,6 +3,6 @@
 Fully qualified path: `openzeppelin_testing::constants::SPENDER`
 
 ```rust
-pub fn SPENDER() -> ContractAddress
+pub fn SPENDER -> ContractAddress
 ```
 

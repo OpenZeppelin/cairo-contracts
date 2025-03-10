@@ -1,9 +1,10 @@
-use crate::extensions::src9::interface::OutsideExecution;
-use crate::extensions::src9::snip12_utils::{CALL_TYPE_HASH, OUTSIDE_EXECUTION_TYPE_HASH};
-use crate::extensions::src9::snip12_utils::{CallStructHash, OutsideExecutionStructHash};
 use openzeppelin_testing::constants::{OWNER, RECIPIENT};
 use snforge_std::start_cheat_chain_id_global;
 use starknet::account::Call;
+use crate::extensions::src9::interface::OutsideExecution;
+use crate::extensions::src9::snip12_utils::{
+    CALL_TYPE_HASH, CallStructHash, OUTSIDE_EXECUTION_TYPE_HASH, OutsideExecutionStructHash,
+};
 
 #[test]
 fn test_outside_execution_type_hash() {
@@ -25,7 +26,7 @@ fn test_call_type_hash() {
 fn test_call_struct_hash_generation() {
     start_cheat_chain_id_global('SN_TEST');
 
-    let to = RECIPIENT();
+    let to = RECIPIENT;
     let selector = selector!("selector");
     let calldata = array![1, 2, 3, 4, 5].span();
     let call = Call { to, selector, calldata };
@@ -46,13 +47,13 @@ fn test_outside_execution_struct_hash_generation() {
     start_cheat_chain_id_global('SN_TEST');
 
     // Call
-    let to = RECIPIENT();
+    let to = RECIPIENT;
     let selector = selector!("selector");
     let calldata = array![1, 2, 3, 4, 5].span();
     let call = Call { to, selector, calldata };
 
     // OutsideExecution
-    let caller = OWNER();
+    let caller = OWNER;
     let nonce = 5;
     let execute_after = 10;
     let execute_before = 20;

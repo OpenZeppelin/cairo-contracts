@@ -11,8 +11,8 @@ pub mod GovernorVotesQuorumFractionComponent {
     use core::num::traits::Zero;
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_utils::structs::checkpoint::{Trace, TraceTrait};
-    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
     use starknet::ContractAddress;
+    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
     use crate::governor::GovernorComponent::ComponentState as GovernorComponentState;
     use crate::governor::extensions::interface::IQuorumFraction;
     use crate::governor::GovernorComponent;

@@ -23,7 +23,7 @@ pub impl EventSpyQueueImpl of EventSpyExt {
         // Remove events that have already been consumed
         for _ in 0..self.event_offset {
             let _ = events.pop_front();
-        };
+        }
 
         Events { events }
     }
@@ -99,7 +99,7 @@ impl EventSpyQueueAssertionsTraitImpl<
         let mut i = 0;
         let received_events = self.get_events();
 
-        while i < events.len() {
+        while i != events.len() {
             let (from, event) = events.at(i);
             let emitted = is_emitted(@received_events, from, event);
 
@@ -116,7 +116,7 @@ impl EventSpyQueueAssertionsTraitImpl<
         let mut i = 0;
         let received_events = self.get_events();
 
-        while i < events.len() {
+        while i != events.len() {
             let (from, event) = events.at(i);
             let emitted = is_emitted(@received_events, from, event);
 
@@ -139,7 +139,7 @@ fn is_emitted<T, impl TEvent: starknet::Event<T>, impl TDrop: Drop<T>>(
 
     let mut i = 0;
     let mut is_emitted = false;
-    while i < self.events.len() {
+    while i != self.events.len() {
         let (from, event) = self.events.at(i);
 
         if from == expected_emitted_by
@@ -147,9 +147,9 @@ fn is_emitted<T, impl TEvent: starknet::Event<T>, impl TDrop: Drop<T>>(
             && event.data == @expected_data {
             is_emitted = true;
             break;
-        };
+        }
 
         i += 1;
-    };
+    }
     return is_emitted;
 }

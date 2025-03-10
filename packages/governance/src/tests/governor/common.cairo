@@ -5,9 +5,9 @@ use openzeppelin_test_common::mocks::governor::{GovernorMock, GovernorTimelocked
 use openzeppelin_testing::constants::{ADMIN, OTHER};
 use openzeppelin_utils::bytearray::ByteArrayExtTrait;
 use snforge_std::{start_cheat_block_timestamp_global, start_mock_call};
+use starknet::ContractAddress;
 use starknet::account::Call;
 use starknet::storage::{StorageMapWriteAccess, StoragePathEntry, StoragePointerWriteAccess};
-use starknet::ContractAddress;
 use crate::governor::GovernorComponent::{InternalExtendedImpl, InternalImpl};
 use crate::governor::interface::{IGovernor, ProposalState};
 use crate::governor::{DefaultConfig, GovernorComponent, ProposalCore};
@@ -42,7 +42,7 @@ pub fn hash_proposal(calls: Span<Call>, description_hash: felt252) -> felt252 {
 }
 
 pub fn get_proposal_info() -> (felt252, ProposalCore) {
-    let calls = get_calls(OTHER(), false);
+    let calls = get_calls(OTHER, false);
     get_proposal_with_id(calls, @"proposal description")
 }
 
@@ -53,7 +53,7 @@ pub fn get_proposal_with_id(calls: Span<Call>, description: @ByteArray) -> (felt
 
     let proposal_id = hash_proposal(calls, description.hash());
     let proposal = ProposalCore {
-        proposer: ADMIN(),
+        proposer: ADMIN,
         vote_start,
         vote_duration,
         executed: false,

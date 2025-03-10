@@ -3,8 +3,8 @@ use core::pedersen::PedersenTrait;
 use openzeppelin_access::accesscontrol::AccessControlComponent::{
     AccessControlImpl, InternalImpl as AccessControlInternalImpl,
 };
-use openzeppelin_access::accesscontrol::interface::{IACCESSCONTROL_ID, IAccessControl};
 use openzeppelin_access::accesscontrol::DEFAULT_ADMIN_ROLE;
+use openzeppelin_access::accesscontrol::interface::{IACCESSCONTROL_ID, IAccessControl};
 use openzeppelin_introspection::interface::ISRC5_ID;
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin_test_common::mocks::timelock::{
@@ -12,15 +12,15 @@ use openzeppelin_test_common::mocks::timelock::{
     TimelockControllerMock,
 };
 use openzeppelin_testing::constants::{ADMIN, FELT_VALUE as VALUE, OTHER, SALT, ZERO};
-use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
+use openzeppelin_testing::{AsAddressTrait, EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{
     CheatSpan, cheat_caller_address, start_cheat_block_timestamp_global, start_cheat_caller_address,
     test_address,
 };
+use starknet::ContractAddress;
 use starknet::account::Call;
 use starknet::storage::{StorageMapReadAccess, StorageMapWriteAccess, StoragePointerWriteAccess};
-use starknet::{ContractAddress, contract_address_const};
 use crate::timelock::TimelockControllerComponent::{
     CallCancelled, CallExecuted, CallSalt, CallScheduled, InternalImpl as TimelockInternalImpl,
     MinDelayChanged, TimelockImpl,
@@ -54,25 +54,20 @@ const NO_PREDECESSOR: felt252 = 0;
 // Addresses
 //
 
-fn PROPOSER() -> ContractAddress {
-    contract_address_const::<'PROPOSER'>()
-}
-
-fn EXECUTOR() -> ContractAddress {
-    contract_address_const::<'EXECUTOR'>()
-}
+const PROPOSER: ContractAddress = 'PROPOSER'.as_address();
+const EXECUTOR: ContractAddress = 'EXECUTOR'.as_address();
 
 fn get_proposers() -> (ContractAddress, ContractAddress, ContractAddress) {
-    let p1 = contract_address_const::<'PROPOSER_1'>();
-    let p2 = contract_address_const::<'PROPOSER_2'>();
-    let p3 = contract_address_const::<'PROPOSER_3'>();
+    let p1 = 'PROPOSER_1'.as_address();
+    let p2 = 'PROPOSER_2'.as_address();
+    let p3 = 'PROPOSER_3'.as_address();
     (p1, p2, p3)
 }
 
 fn get_executors() -> (ContractAddress, ContractAddress, ContractAddress) {
-    let e1 = contract_address_const::<'EXECUTOR_1'>();
-    let e2 = contract_address_const::<'EXECUTOR_2'>();
-    let e3 = contract_address_const::<'EXECUTOR_3'>();
+    let e1 = 'EXECUTOR_1'.as_address();
+    let e2 = 'EXECUTOR_2'.as_address();
+    let e3 = 'EXECUTOR_3'.as_address();
     (e1, e2, e3)
 }
 
@@ -116,9 +111,9 @@ fn operation_with_bad_selector(target: ContractAddress) -> Call {
 fn deploy_timelock() -> TimelockABIDispatcher {
     let mut calldata = array![];
 
-    let proposers = array![PROPOSER()].span();
-    let executors = array![EXECUTOR()].span();
-    let admin = ADMIN();
+    let proposers = array![PROPOSER].span();
+    let executors = array![EXECUTOR].span();
+    let admin = ADMIN;
 
     calldata.append_serde(MIN_DELAY);
     calldata.append_serde(proposers);
@@ -230,7 +225,7 @@ fn test_hash_operation_and_hash_operations() {
     let salt = SALT;
 
     // Setup and hash single call
-    let to_1 = contract_address_const::<1>();
+    let to_1 = 1.as_address();
     let selector_1 = 123;
     let calldata_1 = array![1, 456].span();
     let call_1 = Call { to: to_1, selector: selector_1, calldata: calldata_1 };
@@ -238,7 +233,7 @@ fn test_hash_operation_and_hash_operations() {
     let hash_single = timelock.hash_operation(call_1, predecessor, salt);
 
     // Setup and hash batch of single call
-    let to_2 = contract_address_const::<123>();
+    let to_2 = 123.as_address();
     let selector_2 = 2;
     let calldata_2 = array![456].span();
     let call_2 = Call { to: to_2, selector: selector_2, calldata: calldata_2 };
@@ -266,7 +261,7 @@ fn schedule_from_proposer(salt: felt252) {
 
     // Schedule
     let mut spy = spy_events();
-    start_cheat_caller_address(timelock.contract_address, PROPOSER());
+    start_cheat_caller_address(timelock.contract_address, PROPOSER);
     timelock.schedule(call, predecessor, salt, delay);
 
     assert_operation_state(timelock, OperationState::Waiting, target_id);
@@ -314,7 +309,7 @@ fn test_schedule_overwrite() {
 
     let call = single_operation(target.contract_address);
 
-    start_cheat_caller_address(timelock.contract_address, PROPOSER());
+    start_cheat_caller_address(timelock.contract_address, PROPOSER);
 
     timelock.schedule(call, predecessor, salt, delay);
     timelock.schedule(call, predecessor, salt, delay);
@@ -330,7 +325,7 @@ fn test_schedule_unauthorized() {
 
     let call = single_operation(target.contract_address);
 
-    start_cheat_caller_address(timelock.contract_address, OTHER());
+    start_cheat_caller_address(timelock.contract_address, OTHER);
     timelock.schedule(call, predecessor, salt, delay);
 }
 
@@ -342,7 +337,7 @@ fn test_schedule_bad_min_delay() {
     let salt = SALT;
     let bad_delay = MIN_DELAY - 1;
 
-    start_cheat_caller_address(timelock.contract_address, PROPOSER());
+    start_cheat_caller_address(timelock.contract_address, PROPOSER);
 
     let call = single_operation(target.contract_address);
     timelock.schedule(call, predecessor, salt, bad_delay);
@@ -365,7 +360,7 @@ fn schedule_batch_from_proposer(salt: felt252) {
 
     // Schedule batch
     let mut spy = spy_events();
-    start_cheat_caller_address(timelock.contract_address, PROPOSER());
+    start_cheat_caller_address(timelock.contract_address, PROPOSER);
     timelock.schedule_batch(calls, predecessor, salt, delay);
 
     assert_operation_state(timelock, OperationState::Waiting, target_id);
@@ -412,7 +407,7 @@ fn test_schedule_batch_overwrite() {
 
     let calls = batched_operations(target.contract_address);
 
-    start_cheat_caller_address(timelock.contract_address, PROPOSER());
+    start_cheat_caller_address(timelock.contract_address, PROPOSER);
 
     timelock.schedule_batch(calls, predecessor, salt, delay);
     timelock.schedule_batch(calls, predecessor, salt, delay);
@@ -426,7 +421,7 @@ fn test_schedule_batch_unauthorized() {
     let salt = SALT;
     let delay = MIN_DELAY;
 
-    start_cheat_caller_address(timelock.contract_address, OTHER());
+    start_cheat_caller_address(timelock.contract_address, OTHER);
 
     let calls = batched_operations(target.contract_address);
     timelock.schedule_batch(calls, predecessor, salt, delay);
@@ -440,7 +435,7 @@ fn test_schedule_batch_bad_min_delay() {
     let salt = SALT;
     let bad_delay = MIN_DELAY - 1;
 
-    start_cheat_caller_address(timelock.contract_address, PROPOSER());
+    start_cheat_caller_address(timelock.contract_address, PROPOSER);
 
     let calls = batched_operations(target.contract_address);
     timelock.schedule_batch(calls, predecessor, salt, bad_delay);
@@ -457,7 +452,7 @@ fn test_execute_when_not_scheduled() {
     let predecessor = NO_PREDECESSOR;
     let salt = 0;
 
-    start_cheat_caller_address(timelock.contract_address, EXECUTOR());
+    start_cheat_caller_address(timelock.contract_address, EXECUTOR);
 
     let call = single_operation(target.contract_address);
     timelock.execute(call, predecessor, salt);
@@ -477,7 +472,7 @@ fn test_execute_when_scheduled() {
 
     // Schedule
     let mut spy = spy_events();
-    start_cheat_caller_address(timelock.contract_address, PROPOSER());
+    start_cheat_caller_address(timelock.contract_address, PROPOSER);
     timelock.schedule(call, predecessor, salt, delay);
 
     let event_index = 0;
@@ -496,7 +491,7 @@ fn test_execute_when_scheduled() {
     assert_eq!(check_target, 0);
 
     // Execute
-    start_cheat_caller_address(timelock.contract_address, EXECUTOR());
+    start_cheat_caller_address(timelock.contract_address, EXECUTOR);
     timelock.execute(call, predecessor, salt);
 
     assert_operation_state(timelock, OperationState::Done, target_id);
@@ -515,7 +510,7 @@ fn test_execute_early() {
     let salt = 0;
     let delay = MIN_DELAY;
 
-    start_cheat_caller_address(timelock.contract_address, PROPOSER());
+    start_cheat_caller_address(timelock.contract_address, PROPOSER);
 
     // Schedule
     let call = single_operation(target.contract_address);
@@ -526,7 +521,7 @@ fn test_execute_early() {
     start_cheat_block_timestamp_global(early_time);
 
     // Execute
-    start_cheat_caller_address(timelock.contract_address, EXECUTOR());
+    start_cheat_caller_address(timelock.contract_address, EXECUTOR);
     timelock.execute(call, predecessor, salt);
 }
 
@@ -538,7 +533,7 @@ fn test_execute_unauthorized() {
     let salt = 0;
     let delay = MIN_DELAY;
 
-    start_cheat_caller_address(timelock.contract_address, PROPOSER());
+    start_cheat_caller_address(timelock.contract_address, PROPOSER);
 
     // Schedule
     let call = single_operation(target.contract_address);
@@ -548,7 +543,7 @@ fn test_execute_unauthorized() {
     start_cheat_block_timestamp_global(delay);
 
     // Execute
-    start_cheat_caller_address(timelock.contract_address, OTHER());
+    start_cheat_caller_address(timelock.contract_address, OTHER);
     timelock.execute(call, predecessor, salt);
 }
 
@@ -565,7 +560,7 @@ fn test_execute_failing_tx() {
     let target_id = timelock.hash_operation(call, predecessor, salt);
 
     // Schedule
-    start_cheat_caller_address(timelock.contract_address, PROPOSER());
+    start_cheat_caller_address(timelock.contract_address, PROPOSER);
     timelock.schedule(call, predecessor, salt, delay);
 
     // Fast-forward
@@ -573,7 +568,7 @@ fn test_execute_failing_tx() {
     assert_operation_state(timelock, OperationState::Ready, target_id);
 
     // Execute
-    start_cheat_caller_address(timelock.contract_address, EXECUTOR());
+    start_cheat_caller_address(timelock.contract_address, EXECUTOR);
     timelock.execute(call, predecessor, salt);
 }
 
@@ -590,7 +585,7 @@ fn test_execute_bad_selector() {
     let target_id = timelock.hash_operation(call, predecessor, salt);
 
     // Schedule
-    start_cheat_caller_address(timelock.contract_address, PROPOSER());
+    start_cheat_caller_address(timelock.contract_address, PROPOSER);
     timelock.schedule(call, predecessor, salt, delay);
 
     // Fast-forward
@@ -598,7 +593,7 @@ fn test_execute_bad_selector() {
     assert_operation_state(timelock, OperationState::Ready, target_id);
 
     // Execute
-    start_cheat_caller_address(timelock.contract_address, EXECUTOR());
+    start_cheat_caller_address(timelock.contract_address, EXECUTOR);
     timelock.execute(call, predecessor, salt);
 }
 
@@ -616,18 +611,18 @@ fn test_execute_reentrant_call() {
     };
 
     // Schedule
-    start_cheat_caller_address(timelock.contract_address, PROPOSER());
+    start_cheat_caller_address(timelock.contract_address, PROPOSER);
     timelock.schedule(reentrant_call, predecessor, salt, delay);
 
     // Fast-forward
     start_cheat_block_timestamp_global(delay);
 
     // Grant executor role to attacker
-    start_cheat_caller_address(timelock.contract_address, ADMIN());
+    start_cheat_caller_address(timelock.contract_address, ADMIN);
     timelock.grant_role(EXECUTOR_ROLE, attacker.contract_address);
 
     // Attempt reentrant call
-    start_cheat_caller_address(timelock.contract_address, EXECUTOR());
+    start_cheat_caller_address(timelock.contract_address, EXECUTOR);
     timelock.execute(reentrant_call, predecessor, salt);
 }
 
@@ -649,7 +644,7 @@ fn test_execute_before_dependency() {
     let target_id_2 = timelock.hash_operation(call_2, predecessor_2, salt);
 
     // Schedule call 1
-    start_cheat_caller_address(timelock.contract_address, PROPOSER());
+    start_cheat_caller_address(timelock.contract_address, PROPOSER);
     timelock.schedule(call_1, predecessor_1, salt, delay);
 
     // Schedule call 2
@@ -661,7 +656,7 @@ fn test_execute_before_dependency() {
     assert_operation_state(timelock, OperationState::Ready, target_id_2);
 
     // Execute
-    start_cheat_caller_address(timelock.contract_address, EXECUTOR());
+    start_cheat_caller_address(timelock.contract_address, EXECUTOR);
     timelock.execute(call_2, predecessor_2, salt);
 }
 
@@ -686,7 +681,7 @@ fn test_execute_after_dependency() {
 
     // Schedule call 1
     let mut spy = spy_events();
-    start_cheat_caller_address(timelock.contract_address, PROPOSER());
+    start_cheat_caller_address(timelock.contract_address, PROPOSER);
     timelock.schedule(call_1, predecessor_1, salt, delay);
 
     assert_operation_state(timelock, OperationState::Waiting, target_id_1);
@@ -709,7 +704,7 @@ fn test_execute_after_dependency() {
     assert_operation_state(timelock, OperationState::Ready, target_id_2);
 
     // Execute call 1
-    start_cheat_caller_address(timelock.contract_address, EXECUTOR());
+    start_cheat_caller_address(timelock.contract_address, EXECUTOR);
     timelock.execute(call_1, predecessor_1, salt);
     assert_operation_state(timelock, OperationState::Done, target_id_1);
     spy.assert_event_call_executed(timelock.contract_address, target_id_1, event_index, call_1);
@@ -736,7 +731,7 @@ fn test_execute_batch_when_not_scheduled() {
 
     let calls = batched_operations(target.contract_address);
 
-    start_cheat_caller_address(timelock.contract_address, EXECUTOR());
+    start_cheat_caller_address(timelock.contract_address, EXECUTOR);
     timelock.execute_batch(calls, predecessor, salt);
 }
 
@@ -754,7 +749,7 @@ fn test_execute_batch_when_scheduled() {
 
     // Schedule
     let mut spy = spy_events();
-    start_cheat_caller_address(timelock.contract_address, PROPOSER());
+    start_cheat_caller_address(timelock.contract_address, PROPOSER);
     timelock.schedule_batch(calls, predecessor, salt, delay);
 
     assert_operation_state(timelock, OperationState::Waiting, target_id);
@@ -772,7 +767,7 @@ fn test_execute_batch_when_scheduled() {
     assert_eq!(check_target, 0);
 
     // Execute
-    start_cheat_caller_address(timelock.contract_address, EXECUTOR());
+    start_cheat_caller_address(timelock.contract_address, EXECUTOR);
     timelock.execute_batch(calls, predecessor, salt);
     assert_operation_state(timelock, OperationState::Done, target_id);
     spy.assert_only_events_call_executed_batch(timelock.contract_address, target_id, calls);
@@ -793,7 +788,7 @@ fn test_execute_batch_early() {
     let calls = batched_operations(target.contract_address);
 
     // Schedule
-    start_cheat_caller_address(timelock.contract_address, PROPOSER());
+    start_cheat_caller_address(timelock.contract_address, PROPOSER);
     timelock.schedule_batch(calls, predecessor, salt, delay);
 
     // Fast-forward
@@ -801,7 +796,7 @@ fn test_execute_batch_early() {
     start_cheat_block_timestamp_global(early_time);
 
     // Execute
-    start_cheat_caller_address(timelock.contract_address, EXECUTOR());
+    start_cheat_caller_address(timelock.contract_address, EXECUTOR);
     timelock.execute_batch(calls, predecessor, salt);
 }
 
@@ -816,14 +811,14 @@ fn test_execute_batch_unauthorized() {
     let calls = batched_operations(target.contract_address);
 
     // Schedule
-    start_cheat_caller_address(timelock.contract_address, PROPOSER());
+    start_cheat_caller_address(timelock.contract_address, PROPOSER);
     timelock.schedule_batch(calls, predecessor, salt, delay);
 
     // Fast-forward
     start_cheat_block_timestamp_global(delay);
 
     // Execute
-    start_cheat_caller_address(timelock.contract_address, OTHER());
+    start_cheat_caller_address(timelock.contract_address, OTHER);
     timelock.execute_batch(calls, predecessor, salt);
 }
 
@@ -844,18 +839,18 @@ fn test_execute_batch_reentrant_call() {
     let calls = array![reentrant_call].span();
 
     // Schedule
-    start_cheat_caller_address(timelock.contract_address, PROPOSER());
+    start_cheat_caller_address(timelock.contract_address, PROPOSER);
     timelock.schedule_batch(calls, predecessor, salt, delay);
 
     // Fast-forward
     start_cheat_block_timestamp_global(delay);
 
     // Grant executor role to attacker
-    start_cheat_caller_address(timelock.contract_address, ADMIN());
+    start_cheat_caller_address(timelock.contract_address, ADMIN);
     timelock.grant_role(EXECUTOR_ROLE, attacker.contract_address);
 
     // Attempt reentrant call
-    start_cheat_caller_address(timelock.contract_address, EXECUTOR());
+    start_cheat_caller_address(timelock.contract_address, EXECUTOR);
     timelock.execute_batch(calls, predecessor, salt);
 }
 
@@ -872,14 +867,14 @@ fn test_execute_batch_partial_execution() {
     let calls = array![good_call, bad_call].span();
 
     // Schedule
-    start_cheat_caller_address(timelock.contract_address, PROPOSER());
+    start_cheat_caller_address(timelock.contract_address, PROPOSER);
     timelock.schedule_batch(calls, predecessor, salt, delay);
 
     // Fast-forward
     start_cheat_block_timestamp_global(delay);
 
     // Execute
-    start_cheat_caller_address(timelock.contract_address, EXECUTOR());
+    start_cheat_caller_address(timelock.contract_address, EXECUTOR);
     timelock.execute_batch(calls, predecessor, salt);
 }
 
@@ -900,7 +895,7 @@ fn test_execute_batch_before_dependency() {
     let predecessor_2 = target_id_1;
 
     // Schedule calls 1
-    start_cheat_caller_address(timelock.contract_address, PROPOSER());
+    start_cheat_caller_address(timelock.contract_address, PROPOSER);
     timelock.schedule_batch(calls_1, predecessor_1, salt, delay);
 
     // Schedule calls 2
@@ -910,7 +905,7 @@ fn test_execute_batch_before_dependency() {
     start_cheat_block_timestamp_global(delay);
 
     // Execute
-    start_cheat_caller_address(timelock.contract_address, EXECUTOR());
+    start_cheat_caller_address(timelock.contract_address, EXECUTOR);
     timelock.execute_batch(calls_2, predecessor_2, salt);
 }
 
@@ -934,7 +929,7 @@ fn test_execute_batch_after_dependency() {
 
     // Schedule calls 1
     let mut spy = spy_events();
-    start_cheat_caller_address(timelock.contract_address, PROPOSER());
+    start_cheat_caller_address(timelock.contract_address, PROPOSER);
     timelock.schedule_batch(calls_1, predecessor_1, salt, delay);
 
     assert_operation_state(timelock, OperationState::Waiting, target_id_1);
@@ -958,7 +953,7 @@ fn test_execute_batch_after_dependency() {
     assert_operation_state(timelock, OperationState::Ready, target_id_2);
 
     // Execute calls 1
-    start_cheat_caller_address(timelock.contract_address, EXECUTOR());
+    start_cheat_caller_address(timelock.contract_address, EXECUTOR);
     timelock.execute_batch(calls_1, predecessor_1, salt);
 
     spy.assert_only_events_call_executed_batch(timelock.contract_address, target_id_1, calls_1);
@@ -988,7 +983,7 @@ fn cancel_from_canceller(operation_state: OperationState) {
 
     // Schedule
     let mut spy = spy_events();
-    start_cheat_caller_address(timelock.contract_address, PROPOSER()); // PROPOSER is also CANCELLER
+    start_cheat_caller_address(timelock.contract_address, PROPOSER); // PROPOSER is also CANCELLER
     timelock.schedule(call, predecessor, salt, delay);
 
     assert_operation_state(timelock, OperationState::Waiting, target_id);
@@ -1035,7 +1030,7 @@ fn test_cancel_when_done() {
     assert_operation_state(timelock, OperationState::Unset, target_id);
 
     // Schedule
-    start_cheat_caller_address(timelock.contract_address, PROPOSER());
+    start_cheat_caller_address(timelock.contract_address, PROPOSER);
     timelock.schedule(call, predecessor, salt, delay);
     assert_operation_state(timelock, OperationState::Waiting, target_id);
 
@@ -1044,12 +1039,12 @@ fn test_cancel_when_done() {
     assert_operation_state(timelock, OperationState::Ready, target_id);
 
     // Execute
-    start_cheat_caller_address(timelock.contract_address, EXECUTOR());
+    start_cheat_caller_address(timelock.contract_address, EXECUTOR);
     timelock.execute(call, predecessor, salt);
     assert_operation_state(timelock, OperationState::Done, target_id);
 
     // Attempt cancel
-    start_cheat_caller_address(timelock.contract_address, PROPOSER()); // PROPOSER is also CANCELLER
+    start_cheat_caller_address(timelock.contract_address, PROPOSER); // PROPOSER is also CANCELLER
     timelock.cancel(target_id);
 }
 
@@ -1060,7 +1055,7 @@ fn test_cancel_when_unset() {
     let invalid_id = 0;
 
     // PROPOSER is also CANCELLER
-    start_cheat_caller_address(timelock.contract_address, PROPOSER());
+    start_cheat_caller_address(timelock.contract_address, PROPOSER);
     timelock.cancel(invalid_id);
 }
 
@@ -1076,11 +1071,11 @@ fn test_cancel_unauthorized() {
     let target_id = timelock.hash_operation(call, predecessor, salt);
 
     // Schedule
-    start_cheat_caller_address(timelock.contract_address, PROPOSER());
+    start_cheat_caller_address(timelock.contract_address, PROPOSER);
     timelock.schedule(call, predecessor, salt, delay);
 
     // Cancel
-    start_cheat_caller_address(timelock.contract_address, OTHER());
+    start_cheat_caller_address(timelock.contract_address, OTHER);
     timelock.cancel(target_id);
 }
 
@@ -1113,7 +1108,7 @@ fn test_update_delay_scheduled() {
 
     // Schedule
     let mut spy = spy_events();
-    cheat_caller_address(timelock.contract_address, PROPOSER(), CheatSpan::TargetCalls(1));
+    cheat_caller_address(timelock.contract_address, PROPOSER, CheatSpan::TargetCalls(1));
     timelock.schedule(call, predecessor, salt, delay);
 
     assert_operation_state(timelock, OperationState::Waiting, target_id);
@@ -1126,7 +1121,7 @@ fn test_update_delay_scheduled() {
     start_cheat_block_timestamp_global(delay);
 
     // Execute
-    cheat_caller_address(timelock.contract_address, EXECUTOR(), CheatSpan::TargetCalls(1));
+    cheat_caller_address(timelock.contract_address, EXECUTOR, CheatSpan::TargetCalls(1));
 
     timelock.execute(call, predecessor, salt);
 
@@ -1153,9 +1148,9 @@ fn test_initializer_single_role_and_admin() {
     let contract_state = CONTRACT_STATE();
     let min_delay = MIN_DELAY;
 
-    let proposers = array![PROPOSER()].span();
-    let executors = array![EXECUTOR()].span();
-    let admin = ADMIN();
+    let proposers = array![PROPOSER].span();
+    let executors = array![EXECUTOR].span();
+    let admin = ADMIN;
 
     state.initializer(min_delay, proposers, executors, admin);
     assert!(contract_state.has_role(PROPOSER_ROLE, *proposers.at(0)));
@@ -1176,7 +1171,7 @@ fn test_initializer_multiple_roles_and_admin() {
     let (e1, e2, e3) = get_executors();
     let mut executors = array![e1, e2, e3].span();
 
-    let admin = ADMIN();
+    let admin = ADMIN;
 
     state.initializer(min_delay, proposers, executors, admin);
 
@@ -1202,14 +1197,14 @@ fn test_initializer_no_admin() {
     let contract_state = CONTRACT_STATE();
     let min_delay = MIN_DELAY;
 
-    let proposers = array![PROPOSER()].span();
-    let executors = array![EXECUTOR()].span();
-    let admin_zero = ZERO();
+    let proposers = array![PROPOSER].span();
+    let executors = array![EXECUTOR].span();
+    let admin_zero = ZERO;
 
     // The initializer grants the timelock contract address the `DEFAULT_ADMIN_ROLE`
     // therefore, we need to set the address since it's not deployed in this context
     let contract_address = test_address();
-    start_cheat_caller_address(contract_address, contract_address_const::<'TIMELOCK_ADDRESS'>());
+    start_cheat_caller_address(contract_address, 'TIMELOCK_ADDRESS'.as_address());
     state.initializer(min_delay, proposers, executors, admin_zero);
 
     let admin_does_not_have_role = !contract_state.has_role(DEFAULT_ADMIN_ROLE, admin_zero);
@@ -1222,9 +1217,9 @@ fn test_initializer_supported_interfaces() {
     let contract_state = CONTRACT_STATE();
     let min_delay = MIN_DELAY;
 
-    let proposers = array![PROPOSER()].span();
-    let executors = array![EXECUTOR()].span();
-    let admin = ADMIN();
+    let proposers = array![PROPOSER].span();
+    let executors = array![EXECUTOR].span();
+    let admin = ADMIN;
 
     state.initializer(min_delay, proposers, executors, admin);
 
@@ -1241,9 +1236,9 @@ fn test_initializer_min_delay() {
     let mut state = COMPONENT_STATE();
     let min_delay = MIN_DELAY;
 
-    let proposers = array![PROPOSER()].span();
-    let executors = array![EXECUTOR()].span();
-    let admin_zero = ZERO();
+    let proposers = array![PROPOSER].span();
+    let executors = array![EXECUTOR].span();
+    let admin_zero = ZERO;
 
     let mut spy = spy_events();
     state.initializer(min_delay, proposers, executors, admin_zero);
@@ -1270,21 +1265,21 @@ fn test_assert_only_role_or_open_role_when_has_role() {
     let mut state = COMPONENT_STATE();
     let min_delay = MIN_DELAY;
 
-    let proposers = array![PROPOSER()].span();
-    let executors = array![EXECUTOR()].span();
-    let admin = ADMIN();
+    let proposers = array![PROPOSER].span();
+    let executors = array![EXECUTOR].span();
+    let admin = ADMIN;
 
     state.initializer(min_delay, proposers, executors, admin);
 
     let contract_address = test_address();
-    start_cheat_caller_address(contract_address, PROPOSER());
+    start_cheat_caller_address(contract_address, PROPOSER);
 
     state.assert_only_role_or_open_role(PROPOSER_ROLE);
     // PROPOSER == CANCELLER
     state.assert_only_role_or_open_role(CANCELLER_ROLE);
 
     let contract_address = test_address();
-    start_cheat_caller_address(contract_address, EXECUTOR());
+    start_cheat_caller_address(contract_address, EXECUTOR);
     state.assert_only_role_or_open_role(EXECUTOR_ROLE);
 }
 
@@ -1294,14 +1289,14 @@ fn test_assert_only_role_or_open_role_unauthorized() {
     let mut state = COMPONENT_STATE();
     let min_delay = MIN_DELAY;
 
-    let proposers = array![PROPOSER()].span();
-    let executors = array![EXECUTOR()].span();
-    let admin = ADMIN();
+    let proposers = array![PROPOSER].span();
+    let executors = array![EXECUTOR].span();
+    let admin = ADMIN;
 
     state.initializer(min_delay, proposers, executors, admin);
 
     let contract_address = test_address();
-    start_cheat_caller_address(contract_address, OTHER());
+    start_cheat_caller_address(contract_address, OTHER);
 
     state.assert_only_role_or_open_role(PROPOSER_ROLE);
 }
@@ -1311,11 +1306,11 @@ fn test_assert_only_role_or_open_role_with_open_role() {
     let mut state = COMPONENT_STATE();
     let contract_state = CONTRACT_STATE();
     let min_delay = MIN_DELAY;
-    let open_role = ZERO();
+    let open_role = ZERO;
 
-    let proposers = array![PROPOSER()].span();
+    let proposers = array![PROPOSER].span();
     let executors = array![open_role].span();
-    let admin = ADMIN();
+    let admin = ADMIN;
 
     state.initializer(min_delay, proposers, executors, admin);
 
@@ -1323,7 +1318,7 @@ fn test_assert_only_role_or_open_role_with_open_role() {
     assert!(is_open_role);
 
     let contract_address = test_address();
-    start_cheat_caller_address(contract_address, OTHER());
+    start_cheat_caller_address(contract_address, OTHER);
 
     state.assert_only_role_or_open_role(EXECUTOR_ROLE);
 }
@@ -1727,10 +1722,7 @@ pub(crate) impl TimelockSpyHelpersImpl of TimelockSpyHelpers {
         delay: u64,
     ) {
         let mut i = 0;
-        loop {
-            if i == calls.len() {
-                break;
-            }
+        while i != calls.len() {
             self
                 .assert_event_call_scheduled(
                     contract, id, i.into(), *calls.at(i), predecessor, delay,
@@ -1809,13 +1801,10 @@ pub(crate) impl TimelockSpyHelpersImpl of TimelockSpyHelpers {
         ref self: EventSpy, contract: ContractAddress, id: felt252, calls: Span<Call>,
     ) {
         let mut i = 0;
-        loop {
-            if i == calls.len() {
-                break;
-            }
+        while i != calls.len() {
             self.assert_event_call_executed(contract, id, i.into(), *calls.at(i));
             i += 1;
-        }
+        };
     }
 
     fn assert_only_events_call_executed_batch(

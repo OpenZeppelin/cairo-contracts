@@ -95,10 +95,7 @@ pub mod ERC721Upgradeable {
         fn mint_assets(
             ref self: ContractState, recipient: ContractAddress, mut token_ids: Span<u256>,
         ) {
-            loop {
-                if token_ids.len() == 0 {
-                    break;
-                }
+            while token_ids.len() != 0 {
                 let id = *token_ids.pop_front().unwrap();
                 self.erc721.mint(recipient, id);
             }

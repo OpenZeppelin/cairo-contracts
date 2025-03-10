@@ -38,7 +38,7 @@ use starknet::SyscallResultTrait;
 use starknet::account::Call;
 use starknet::secp256_trait::Secp256Trait;
 use starknet::secp256k1::Secp256k1Point;
-use starknet::{ClassHash, ContractAddress, contract_address_const};
+use starknet::{ClassHash, ContractAddress};
 
 fn declare_v2_class() -> ClassHash {
     utils::declare_class("SnakeEthAccountMock").class_hash
@@ -74,7 +74,7 @@ fn setup_dispatcher_with_data(
     start_cheat_signature_global(serialized_signature.span());
     start_cheat_transaction_hash_global(data.tx_hash);
     start_cheat_transaction_version_global(MIN_TRANSACTION_VERSION);
-    start_cheat_caller_address(contract_address, ZERO());
+    start_cheat_caller_address(contract_address, ZERO);
 
     (dispatcher, contract_class.class_hash.into())
 }
@@ -338,7 +338,7 @@ fn test_execute_with_version(version: Option<felt252>) {
     let amount: u256 = 200;
 
     let mut calldata = array![];
-    calldata.append_serde(RECIPIENT());
+    calldata.append_serde(RECIPIENT);
     calldata.append_serde(amount);
 
     let call = Call {
@@ -353,7 +353,7 @@ fn test_execute_with_version(version: Option<felt252>) {
     let ret = account.__execute__(calls);
 
     assert_eq!(erc20.balance_of(account.contract_address), 800, "Should have remainder");
-    assert_eq!(erc20.balance_of(RECIPIENT()), amount, "Should have transferred");
+    assert_eq!(erc20.balance_of(RECIPIENT), amount, "Should have transferred");
 
     let mut call_serialized_retval = *ret.at(0);
     let call_retval = Serde::<bool>::deserialize(ref call_serialized_retval);
@@ -403,8 +403,8 @@ fn test_multicall() {
     let key_pair = KEY_PAIR();
     let (account, _) = setup_dispatcher_with_data(key_pair, SIGNED_TX_DATA(key_pair));
     let erc20 = deploy_erc20(account.contract_address, 1000);
-    let recipient1 = RECIPIENT();
-    let recipient2 = OTHER();
+    let recipient1 = RECIPIENT;
+    let recipient2 = OTHER;
 
     // Craft 1st call
     let mut calldata1 = array![];
@@ -456,7 +456,7 @@ fn test_account_called_from_contract() {
     let (_, account) = setup_dispatcher(KEY_PAIR());
     let calls = array![];
 
-    start_cheat_caller_address(account.contract_address, CALLER());
+    start_cheat_caller_address(account.contract_address, CALLER);
 
     account.__execute__(calls);
 }
@@ -469,7 +469,7 @@ fn test_account_called_from_contract() {
 #[should_panic(expected: 'EthAccount: unauthorized')]
 fn test_upgrade_access_control() {
     let (_, v1) = setup_dispatcher(KEY_PAIR());
-    v1.upgrade(CLASS_HASH_ZERO());
+    v1.upgrade(CLASS_HASH_ZERO);
 }
 
 #[test]
@@ -478,7 +478,7 @@ fn test_upgrade_with_class_hash_zero() {
     let (_, v1) = setup_dispatcher(KEY_PAIR());
 
     start_cheat_caller_address(v1.contract_address, v1.contract_address);
-    v1.upgrade(CLASS_HASH_ZERO());
+    v1.upgrade(CLASS_HASH_ZERO);
 }
 
 #[test]
@@ -560,12 +560,12 @@ fn test_execute_from_outside_v2_specific_caller() {
     let (account_address, dispatcher) = setup_dispatcher(key_pair);
     let simple_mock = setup_simple_mock();
     let mut outside_execution = setup_outside_execution(simple_mock, false);
-    outside_execution.caller = CALLER();
+    outside_execution.caller = CALLER;
 
     let msg_hash = outside_execution.get_message_hash(account_address);
     let signature = key_pair.serialized_sign(msg_hash.into());
 
-    cheat_caller_address(account_address, CALLER(), CheatSpan::TargetCalls(1));
+    cheat_caller_address(account_address, CALLER, CheatSpan::TargetCalls(1));
 
     dispatcher.execute_from_outside_v2(outside_execution, signature.span());
 
@@ -599,9 +599,9 @@ fn test_execute_from_outside_v2_caller_mismatch() {
     let key_pair = KEY_PAIR();
     let (account_address, dispatcher) = setup_dispatcher(key_pair);
     let mut outside_execution = setup_outside_execution(account_address, false);
-    outside_execution.caller = CALLER();
+    outside_execution.caller = CALLER;
 
-    start_cheat_caller_address(account_address, OTHER());
+    start_cheat_caller_address(account_address, OTHER);
 
     dispatcher.execute_from_outside_v2(outside_execution, array![].span());
 }
@@ -709,7 +709,7 @@ fn setup_outside_execution(target: ContractAddress, panic: bool) -> OutsideExecu
         selector: selector!("set_balance"),
         calldata: array![FELT_VALUE, panic.into()].span(),
     };
-    let caller = contract_address_const::<'ANY_CALLER'>();
+    let caller = 'ANY_CALLER'.try_into().unwrap();
     let nonce = 5;
     let execute_after = 10;
     let execute_before = 20;

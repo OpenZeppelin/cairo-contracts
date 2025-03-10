@@ -45,7 +45,7 @@ pub fn process_proof<impl Hasher: CommutativeHasher>(
     let mut computed_hash = leaf;
     for hash in proof {
         computed_hash = Hasher::commutative_hash(computed_hash, *hash);
-    };
+    }
     computed_hash
 }
 
@@ -89,6 +89,7 @@ pub fn process_multi_proof<impl Hasher: CommutativeHasher>(
 
     // Check proof validity.
     if (leaves_len + proof.len() != proof_flags_len + 1) {
+        #[allow(panic)]
         panic!("MerkleProof: invalid multi proof");
     }
 
@@ -127,7 +128,7 @@ pub fn process_multi_proof<impl Hasher: CommutativeHasher>(
         };
 
         hashes.append(Hasher::commutative_hash(*a, *b));
-    };
+    }
 
     let root = if proof_flags_len > 0 {
         hashes.at(proof_flags_len - 1)

@@ -73,7 +73,7 @@ sierra = true
 casm = false
 
 [workspace.tool.fmt]
-sort-module-level-items = false
+sort-module-level-items = true
 
 [workspace.tool.scarb]
 allow-prebuilt-plugins = ["snforge_std"]

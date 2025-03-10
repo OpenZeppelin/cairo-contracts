@@ -159,7 +159,7 @@ fn test_executor() {
 #[fuzzer]
 fn test_execute_operations(id: felt252) {
     let mut component_state = COMPONENT_STATE();
-    let calls = get_calls(OTHER(), true);
+    let calls = get_calls(OTHER, true);
     let description_hash = 'hash';
 
     GovernorExecution::execute_operations(ref component_state, id, calls, description_hash);
@@ -170,7 +170,7 @@ fn test_execute_operations(id: felt252) {
 fn test_execute_operations_panics() {
     let mut component_state = COMPONENT_STATE();
     let id = 0;
-    let calls = get_calls(OTHER(), false);
+    let calls = get_calls(OTHER, false);
     let description_hash = 'hash';
 
     GovernorExecution::execute_operations(ref component_state, id, calls, description_hash);

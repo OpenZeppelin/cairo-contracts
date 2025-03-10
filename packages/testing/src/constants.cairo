@@ -71,7 +71,7 @@ pub const ALICE: ContractAddress = 'ALICE'.as_address();
 pub const BOB: ContractAddress = 'BOB'.as_address();
 pub const CHARLIE: ContractAddress = 'CHARLIE'.as_address();
 
-pub const CLASS_HASH_ZERO: ClassHash = 'CLASS_HASH_ZERO'.try_into().unwrap();
+pub const CLASS_HASH_ZERO: ClassHash = 0.try_into().unwrap();
 
 //
 // Data arrays

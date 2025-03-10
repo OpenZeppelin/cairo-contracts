@@ -20,7 +20,7 @@ fn COMPONENT_STATE() -> ComponentState {
 
 fn setup(supply: u256) -> ComponentState {
     let mut state = COMPONENT_STATE();
-    state.initializer(NAME, SYMBOL());
+    state.initializer(NAME(), SYMBOL());
     state.mint(OWNER, supply);
     state
 }

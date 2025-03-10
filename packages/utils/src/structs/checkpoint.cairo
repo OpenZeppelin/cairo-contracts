@@ -151,7 +151,6 @@ impl CheckpointImpl of CheckpointTrait {
         let mut _low = low;
         let mut _high = high;
 
-        #[allow(inefficient_while_comp)]
         while _low < _high {
             let mid = math::average(_low, _high);
             if self[mid].read().key > key {

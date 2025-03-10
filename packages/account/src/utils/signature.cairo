@@ -2,8 +2,8 @@
 // OpenZeppelin Contracts for Cairo v1.0.0 (account/src/utils/signature.cairo)
 
 use core::ecdsa::check_ecdsa_signature;
-use starknet::secp256_trait;
 use starknet::secp256_trait::{Secp256PointTrait, Secp256Trait};
+use starknet::secp256_trait;
 use crate::interface::{EthPublicKey, P256PublicKey};
 
 /// A signature format compatible with the family of secp256 curves.

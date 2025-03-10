@@ -5,8 +5,8 @@ pub mod secp256_point;
 pub mod signature;
 
 pub use signature::{is_valid_eth_signature, is_valid_p256_signature, is_valid_stark_signature};
-use starknet::SyscallResultTrait;
 use starknet::account::Call;
+use starknet::SyscallResultTrait;
 
 pub const MIN_TRANSACTION_VERSION: u256 = 1;
 pub const QUERY_OFFSET: u256 = 0x100000000000000000000000000000000;

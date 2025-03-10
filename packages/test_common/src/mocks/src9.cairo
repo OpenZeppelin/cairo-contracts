@@ -1,7 +1,7 @@
 #[starknet::contract(account)]
 pub mod SRC9AccountMock {
-    use openzeppelin_account::AccountComponent;
     use openzeppelin_account::extensions::SRC9Component;
+    use openzeppelin_account::AccountComponent;
     use openzeppelin_introspection::src5::SRC5Component;
     use starknet::storage::StoragePointerWriteAccess;
 

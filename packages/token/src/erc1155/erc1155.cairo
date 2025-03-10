@@ -10,10 +10,10 @@ pub mod ERC1155Component {
     use core::num::traits::Zero;
     use openzeppelin_account::interface::ISRC6_ID;
     use openzeppelin_introspection::interface::{ISRC5Dispatcher, ISRC5DispatcherTrait};
-    use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_introspection::src5::SRC5Component::{
         InternalTrait as SRC5InternalTrait, SRC5Impl,
     };
+    use openzeppelin_introspection::src5::SRC5Component;
     use starknet::storage::{
         Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
         StoragePointerWriteAccess,

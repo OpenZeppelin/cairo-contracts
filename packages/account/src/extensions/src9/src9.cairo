@@ -10,8 +10,8 @@
 /// interface.
 #[starknet::component]
 pub mod SRC9Component {
-    use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
+    use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_utils::cryptography::snip12::{OffchainMessageHash, SNIP12Metadata};
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
     use crate::extensions::src9::snip12_utils::OutsideExecutionStructHash;

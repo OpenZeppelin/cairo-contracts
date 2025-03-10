@@ -14,8 +14,8 @@ pub trait IUpgradesV1<TState> {
 #[starknet::contract]
 pub mod UpgradesV1 {
     use openzeppelin_upgrades::UpgradeableComponent;
-    use starknet::ClassHash;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use starknet::ClassHash;
 
     component!(path: UpgradeableComponent, storage: upgradeable, event: UpgradeableEvent);
 
@@ -77,8 +77,8 @@ pub trait IUpgradesV2<TState> {
 #[starknet::contract]
 pub mod UpgradesV2 {
     use openzeppelin_upgrades::UpgradeableComponent;
-    use starknet::ClassHash;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use starknet::ClassHash;
 
     component!(path: UpgradeableComponent, storage: upgradeable, event: UpgradeableEvent);
 

@@ -20,19 +20,19 @@
 #[starknet::component]
 pub mod ERC2981Component {
     use core::num::traits::Zero;
-    use openzeppelin_access::accesscontrol::AccessControlComponent;
     use openzeppelin_access::accesscontrol::AccessControlComponent::InternalTrait as AccessControlInternalTrait;
-    use openzeppelin_access::ownable::OwnableComponent;
+    use openzeppelin_access::accesscontrol::AccessControlComponent;
     use openzeppelin_access::ownable::OwnableComponent::InternalTrait as OwnableInternalTrait;
-    use openzeppelin_introspection::src5::SRC5Component;
+    use openzeppelin_access::ownable::OwnableComponent;
     use openzeppelin_introspection::src5::SRC5Component::{
         InternalTrait as SRC5InternalTrait, SRC5Impl,
     };
-    use starknet::ContractAddress;
+    use openzeppelin_introspection::src5::SRC5Component;
     use starknet::storage::{
         Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
         StoragePointerWriteAccess,
     };
+    use starknet::ContractAddress;
     use crate::common::erc2981::interface::IERC2981_ID;
     use crate::common::erc2981::interface;
 

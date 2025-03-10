@@ -18,10 +18,10 @@
 /// Extra precautions should be taken to secure accounts with this role.
 #[starknet::component]
 pub mod AccessControlComponent {
-    use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_introspection::src5::SRC5Component::{
         InternalImpl as SRC5InternalImpl, SRC5Impl,
     };
+    use openzeppelin_introspection::src5::SRC5Component;
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
     use starknet::{ContractAddress, get_caller_address};
     use crate::accesscontrol::interface;

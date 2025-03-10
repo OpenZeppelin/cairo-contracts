@@ -1,9 +1,9 @@
 use core::hash::{HashStateExTrait, HashStateTrait};
 use core::poseidon::PoseidonTrait;
-use openzeppelin_test_common::mocks::erc20::DualCaseERC20PermitMock;
 use openzeppelin_test_common::mocks::erc20::DualCaseERC20PermitMock::SNIP12MetadataImpl;
-use openzeppelin_testing::constants;
+use openzeppelin_test_common::mocks::erc20::DualCaseERC20PermitMock;
 use openzeppelin_testing::signing::{StarkKeyPair, StarkSerializedSigning};
+use openzeppelin_testing::constants;
 use openzeppelin_utils::cryptography::snip12::{StarknetDomain, StructHash};
 use snforge_std::signature::stark_curve::StarkCurveSignerImpl;
 use snforge_std::{

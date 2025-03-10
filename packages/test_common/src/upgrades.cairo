@@ -1,6 +1,6 @@
 use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy};
-use openzeppelin_upgrades::UpgradeableComponent;
 use openzeppelin_upgrades::UpgradeableComponent::Upgraded;
+use openzeppelin_upgrades::UpgradeableComponent;
 use starknet::{ClassHash, ContractAddress};
 
 #[generate_trait]

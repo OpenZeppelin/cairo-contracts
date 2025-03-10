@@ -8,8 +8,8 @@ use openzeppelin_testing::constants::{
 };
 use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use snforge_std::{start_cheat_caller_address, test_address};
-use starknet::ContractAddress;
 use starknet::storage::StorageMapReadAccess;
+use starknet::ContractAddress;
 use crate::erc721::ERC721Component::{
     ERC721CamelOnlyImpl, ERC721Impl, ERC721MetadataImpl, InternalImpl,
 };

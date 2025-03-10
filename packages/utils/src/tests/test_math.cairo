@@ -1,4 +1,5 @@
-use core::num::traits::Bounded;
+use core::integer::{u512, u512_safe_div_rem_by_u256};
+use core::num::traits::{Bounded, OverflowingAdd};
 use crate::math::Rounding;
 use crate::math;
 

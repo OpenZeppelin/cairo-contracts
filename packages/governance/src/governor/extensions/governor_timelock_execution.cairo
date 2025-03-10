@@ -24,12 +24,12 @@
 pub mod GovernorTimelockExecutionComponent {
     use core::num::traits::Zero;
     use openzeppelin_introspection::src5::SRC5Component;
-    use starknet::ContractAddress;
     use starknet::account::Call;
     use starknet::storage::{
         Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
         StoragePointerWriteAccess,
     };
+    use starknet::ContractAddress;
     use crate::governor::GovernorComponent::{
         ComponentState as GovernorComponentState, InternalExtendedTrait,
     };

@@ -8,11 +8,11 @@
 #[starknet::component]
 pub mod GovernorCountingSimpleComponent {
     use openzeppelin_introspection::src5::SRC5Component;
-    use starknet::ContractAddress;
     use starknet::storage::{
         Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePathEntry,
         StoragePointerReadAccess, StoragePointerWriteAccess,
     };
+    use starknet::ContractAddress;
     use crate::governor::GovernorComponent::{
         ComponentState as GovernorComponentState, InternalTrait,
     };

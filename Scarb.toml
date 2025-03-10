@@ -73,7 +73,7 @@ sierra = true
 casm = false
 
 [workspace.tool.fmt]
-sort-module-level-items = true
+sort-module-level-items = false # Temporary fix compiler 2.11 formatter issue
 
 [workspace.tool.scarb]
 allow-prebuilt-plugins = ["snforge_std"]

@@ -115,7 +115,9 @@ fn test_timelock_salt() {
 fn test_timelock_salt_overflow() {
     // 2^250
     // 2^251
-    let address = 0x400000000000000000000000000000000000000000000000000000000000000.try_into().unwrap();
+    let address = 0x400000000000000000000000000000000000000000000000000000000000000
+        .try_into()
+        .unwrap();
     let description_hash = 0x800000000000000000000000000000000000000000000000000000000000000;
 
     let governor = deploy_governor_at(address, TIMELOCK);

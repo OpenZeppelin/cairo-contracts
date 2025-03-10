@@ -27,16 +27,16 @@ pub mod VotesComponent {
     use core::num::traits::Zero;
     use openzeppelin_account::interface::{ISRC6Dispatcher, ISRC6DispatcherTrait};
     use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_token::erc20::ERC20Component;
     use openzeppelin_token::erc20::interface::IERC20;
-    use openzeppelin_token::erc721::ERC721Component;
+    use openzeppelin_token::erc20::ERC20Component;
     use openzeppelin_token::erc721::interface::IERC721;
+    use openzeppelin_token::erc721::ERC721Component;
     use openzeppelin_utils::cryptography::snip12::{OffchainMessageHash, SNIP12Metadata};
-    use openzeppelin_utils::nonces::NoncesComponent;
     use openzeppelin_utils::nonces::NoncesComponent::InternalTrait as NoncesInternalTrait;
+    use openzeppelin_utils::nonces::NoncesComponent;
     use openzeppelin_utils::structs::checkpoint::{Checkpoint, Trace, TraceTrait};
-    use starknet::ContractAddress;
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePathEntry};
+    use starknet::ContractAddress;
     use crate::votes::delegation::Delegation;
     use crate::votes::interface::IVotes;
 

@@ -6,9 +6,9 @@ use openzeppelin_test_common::mocks::multisig::{
 use openzeppelin_testing::constants::{ALICE, BLOCK_NUMBER, BOB, CHARLIE, OTHER, SALT, ZERO};
 use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use snforge_std::{start_cheat_block_number_global, start_cheat_caller_address, test_address};
-use starknet::ContractAddress;
 use starknet::account::Call;
 use starknet::storage_access::StorePacking;
+use starknet::ContractAddress;
 use crate::multisig::MultisigComponent::{
     CallSalt, ConfirmationRevoked, Event, InternalImpl, MultisigImpl, QuorumUpdated, SignerAdded,
     SignerRemoved, TransactionConfirmed, TransactionExecuted, TransactionSubmitted,

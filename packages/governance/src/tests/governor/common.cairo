@@ -5,9 +5,9 @@ use openzeppelin_test_common::mocks::governor::{GovernorMock, GovernorTimelocked
 use openzeppelin_testing::constants::{ADMIN, OTHER};
 use openzeppelin_utils::bytearray::ByteArrayExtTrait;
 use snforge_std::{start_cheat_block_timestamp_global, start_mock_call};
-use starknet::ContractAddress;
 use starknet::account::Call;
 use starknet::storage::{StorageMapWriteAccess, StoragePathEntry, StoragePointerWriteAccess};
+use starknet::ContractAddress;
 use crate::governor::GovernorComponent::{InternalExtendedImpl, InternalImpl};
 use crate::governor::interface::{IGovernor, ProposalState};
 use crate::governor::{DefaultConfig, GovernorComponent, ProposalCore};

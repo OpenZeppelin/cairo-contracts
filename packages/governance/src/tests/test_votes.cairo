@@ -15,8 +15,8 @@ use snforge_std::{
     start_cheat_block_timestamp_global, start_cheat_caller_address, start_cheat_chain_id_global,
     test_address,
 };
-use starknet::ContractAddress;
 use starknet::storage::StoragePathEntry;
+use starknet::ContractAddress;
 use crate::votes::VotesComponent::{
     DelegateChanged, DelegateVotesChanged, InternalImpl, VotesImpl, VotingUnitsTrait,
 };

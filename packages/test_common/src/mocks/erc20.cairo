@@ -357,7 +357,7 @@ pub mod ERC20ReentrantMock {
             self.reenter_target.write(target);
             self.reenter_selector.write(selector);
             for elem in calldata {
-                self.reenter_calldata.append().write(*elem);
+                self.reenter_calldata.push(*elem);
             }
         }
 

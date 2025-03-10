@@ -1,7 +1,7 @@
 use core::hash::{HashStateExTrait, HashStateTrait};
 use core::poseidon::PoseidonTrait;
 use core::poseidon::poseidon_hash_span;
-use core::starknet::secp256_trait::Secp256PointTrait;
+use starknet::secp256_trait::Secp256PointTrait;
 use openzeppelin_account::EthAccountComponent;
 use openzeppelin_account::EthAccountComponent::{OwnerAdded, OwnerRemoved};
 use openzeppelin_account::interface::EthPublicKey;

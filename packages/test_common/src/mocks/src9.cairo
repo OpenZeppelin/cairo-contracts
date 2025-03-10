@@ -61,6 +61,7 @@ pub mod SRC9AccountMock {
         fn set_value(ref self: ContractState, value: felt252, panic: bool) {
             self.account.assert_only_self();
             if panic {
+                #[allow(panic)]
                 panic!("Some error");
             }
             self.value.write(value);

@@ -131,11 +131,11 @@ impl CheckpointImpl of CheckpointTrait {
             } else {
                 // Checkpoint keys must be non-decreasing
                 assert(last.key < key, 'Unordered insertion');
-                self.append().write(Checkpoint { key, value });
+                self.push(Checkpoint { key, value });
             }
             (prev, value)
         } else {
-            self.append().write(Checkpoint { key, value });
+            self.push(Checkpoint { key, value });
             (0, value)
         }
     }
@@ -148,10 +148,9 @@ impl CheckpointImpl of CheckpointTrait {
     ) -> u64 {
         let mut _low = low;
         let mut _high = high;
-        loop {
-            if _low >= _high {
-                break;
-            }
+
+        #[allow(inefficient_while_comp)]
+        while _low < _high {
             let mid = math::average(_low, _high);
             if self[mid].read().key > key {
                 _high = mid;

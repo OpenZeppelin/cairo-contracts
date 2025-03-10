@@ -1,13 +1,15 @@
 use core::num::traits::Bounded;
-use crate::governor::DefaultConfig;
+use openzeppelin_test_common::mocks::governor::GovernorMock::SNIP12MetadataImpl;
+use openzeppelin_testing::constants::OTHER;
+use starknet::storage::{
+    StorageMapReadAccess, StorageMapWriteAccess, StoragePathEntry, StoragePointerReadAccess,
+    StoragePointerWriteAccess,
+};
 use crate::governor::GovernorComponent::InternalImpl;
 use crate::governor::extensions::GovernorCountingSimpleComponent::{GovernorCounting, VoteType};
 use crate::governor::interface::IGovernor;
+use crate::governor::DefaultConfig;
 use crate::tests::governor::common::{COMPONENT_STATE, CONTRACT_STATE};
-use openzeppelin_test_common::mocks::governor::GovernorMock::SNIP12MetadataImpl;
-use openzeppelin_testing::constants::OTHER;
-use starknet::storage::{StorageMapReadAccess, StorageMapWriteAccess};
-use starknet::storage::{StoragePathEntry, StoragePointerReadAccess, StoragePointerWriteAccess};
 
 //
 // try_into

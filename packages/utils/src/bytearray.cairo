@@ -37,7 +37,7 @@ pub fn to_byte_array<T, +Into<T, felt252>, +Copy<T>>(
 
     if padding.into() > byte_array.len() {
         let mut padding = padding.into() - byte_array.len();
-        while padding > 0 {
+        while padding != 0 {
             byte_array = "0" + byte_array;
             padding -= 1;
         };

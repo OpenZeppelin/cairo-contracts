@@ -1,11 +1,10 @@
 #[starknet::contract]
 pub mod ERC4626Mock {
-    use openzeppelin_token::erc20::extensions::erc4626::DefaultConfig;
-    use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component;
     use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component::InternalTrait as ERC4626InternalTrait;
-    use openzeppelin_token::erc20::extensions::erc4626::ERC4626DefaultLimits;
-    use openzeppelin_token::erc20::extensions::erc4626::ERC4626DefaultNoFees;
-    use openzeppelin_token::erc20::extensions::erc4626::ERC4626HooksEmptyImpl;
+    use openzeppelin_token::erc20::extensions::erc4626::{
+        DefaultConfig, ERC4626Component, ERC4626DefaultLimits, ERC4626DefaultNoFees,
+        ERC4626HooksEmptyImpl,
+    };
     use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
 
@@ -62,11 +61,10 @@ pub mod ERC4626Mock {
 
 #[starknet::contract]
 pub mod ERC4626OffsetMock {
-    use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component;
     use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component::InternalTrait as ERC4626InternalTrait;
-    use openzeppelin_token::erc20::extensions::erc4626::ERC4626DefaultLimits;
-    use openzeppelin_token::erc20::extensions::erc4626::ERC4626DefaultNoFees;
-    use openzeppelin_token::erc20::extensions::erc4626::ERC4626HooksEmptyImpl;
+    use openzeppelin_token::erc20::extensions::erc4626::{
+        ERC4626Component, ERC4626DefaultLimits, ERC4626DefaultNoFees, ERC4626HooksEmptyImpl,
+    };
     use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
 
@@ -128,10 +126,10 @@ pub mod ERC4626OffsetMock {
 
 #[starknet::contract]
 pub mod ERC4626LimitsMock {
-    use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component;
     use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component::InternalTrait as ERC4626InternalTrait;
-    use openzeppelin_token::erc20::extensions::erc4626::ERC4626DefaultNoFees;
-    use openzeppelin_token::erc20::extensions::erc4626::ERC4626HooksEmptyImpl;
+    use openzeppelin_token::erc20::extensions::erc4626::{
+        ERC4626Component, ERC4626DefaultNoFees, ERC4626HooksEmptyImpl,
+    };
     use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
 
@@ -181,25 +179,25 @@ pub mod ERC4626LimitsMock {
     impl ERC4626LimitsImpl of ERC4626Component::LimitConfigTrait<ContractState> {
         fn deposit_limit(
             self: @ERC4626Component::ComponentState<ContractState>, receiver: ContractAddress,
-        ) -> Option::<u256> {
+        ) -> Option<u256> {
             Option::Some(CUSTOM_LIMIT)
         }
 
         fn mint_limit(
             self: @ERC4626Component::ComponentState<ContractState>, receiver: ContractAddress,
-        ) -> Option::<u256> {
+        ) -> Option<u256> {
             Option::Some(CUSTOM_LIMIT)
         }
 
         fn withdraw_limit(
             self: @ERC4626Component::ComponentState<ContractState>, owner: ContractAddress,
-        ) -> Option::<u256> {
+        ) -> Option<u256> {
             Option::Some(CUSTOM_LIMIT)
         }
 
         fn redeem_limit(
             self: @ERC4626Component::ComponentState<ContractState>, owner: ContractAddress,
-        ) -> Option::<u256> {
+        ) -> Option<u256> {
             Option::Some(CUSTOM_LIMIT)
         }
     }
@@ -226,17 +224,18 @@ pub mod ERC4626LimitsMock {
 /// DO NOT USE IN PRODUCTION
 #[starknet::contract]
 pub mod ERC4626FeesMock {
-    use openzeppelin_token::erc20::extensions::erc4626::DefaultConfig;
-    use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component;
-    use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component::FeeConfigTrait;
-    use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component::InternalTrait as ERC4626InternalTrait;
-    use openzeppelin_token::erc20::extensions::erc4626::ERC4626DefaultLimits;
+    use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component::{
+        FeeConfigTrait, InternalTrait as ERC4626InternalTrait,
+    };
+    use openzeppelin_token::erc20::extensions::erc4626::{
+        DefaultConfig, ERC4626Component, ERC4626DefaultLimits,
+    };
     use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
     use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
-    use openzeppelin_utils::math;
     use openzeppelin_utils::math::Rounding;
-    use starknet::ContractAddress;
+    use openzeppelin_utils::math;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use starknet::ContractAddress;
 
     component!(path: ERC4626Component, storage: erc4626, event: ERC4626Event);
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);

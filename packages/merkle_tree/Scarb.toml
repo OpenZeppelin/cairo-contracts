@@ -18,8 +18,10 @@ license-file.workspace = true
 
 [tool]
 fmt.workspace = true
+scarb.workspace = true
 
 [dev-dependencies]
 assert_macros.workspace = true
 starknet.workspace = true
 snforge_std.workspace = true
+openzeppelin_testing = { path = "../testing" }

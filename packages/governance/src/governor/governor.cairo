@@ -10,18 +10,18 @@ pub mod GovernorComponent {
     use core::num::traits::Zero;
     use core::pedersen::PedersenTrait;
     use core::traits::PartialEq;
-    use crate::governor::ProposalCore;
-    use crate::governor::interface::{IGOVERNOR_ID, IGovernor, ProposalState};
-    use crate::governor::vote::{Vote, VoteWithReasonAndParams};
-    use crate::utils::call_impls::{HashCallImpl, HashCallsImpl};
     use openzeppelin_account::interface::{ISRC6Dispatcher, ISRC6DispatcherTrait};
-    use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_introspection::src5::SRC5Component::InternalImpl as SRC5InternalImpl;
+    use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_utils::bytearray::ByteArrayExtTrait;
     use openzeppelin_utils::cryptography::snip12::{OffchainMessageHash, SNIP12Metadata};
     use starknet::account::Call;
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
     use starknet::{ContractAddress, SyscallResultTrait};
+    use crate::governor::interface::{IGOVERNOR_ID, IGovernor, ProposalState};
+    use crate::governor::vote::{Vote, VoteWithReasonAndParams};
+    use crate::governor::ProposalCore;
+    use crate::utils::call_impls::{HashCallImpl, HashCallsImpl};
 
     type ProposalId = felt252;
 
@@ -855,7 +855,7 @@ pub mod GovernorComponent {
                     found = true;
                     break;
                 }
-            };
+            }
             assert(found, Errors::UNEXPECTED_PROPOSAL_STATE);
         }
 

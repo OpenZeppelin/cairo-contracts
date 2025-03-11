@@ -1,17 +1,15 @@
-use crate::governor::DefaultConfig;
-use crate::governor::GovernorComponent;
+use openzeppelin_test_common::mocks::governor::GovernorQuorumFractionMock::SNIP12MetadataImpl;
+use openzeppelin_test_common::mocks::governor::GovernorQuorumFractionMock;
+use openzeppelin_testing::constants::{OTHER, VOTES_TOKEN, ZERO};
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
+use snforge_std::{start_cheat_block_timestamp_global, start_mock_call, store, test_address};
+use starknet::ContractAddress;
 use crate::governor::GovernorComponent::InternalImpl;
-use crate::governor::extensions::GovernorVotesQuorumFractionComponent;
 use crate::governor::extensions::GovernorVotesQuorumFractionComponent::{
     GovernorQuorum, GovernorVotes, InternalTrait, QuorumFractionImpl,
 };
-use openzeppelin_test_common::mocks::governor::GovernorQuorumFractionMock;
-use openzeppelin_test_common::mocks::governor::GovernorQuorumFractionMock::SNIP12MetadataImpl;
-use openzeppelin_testing::constants::{OTHER, VOTES_TOKEN, ZERO};
-use openzeppelin_testing::events::EventSpyExt;
-use snforge_std::{EventSpy, spy_events, store, test_address};
-use snforge_std::{start_cheat_block_timestamp_global, start_mock_call};
-use starknet::ContractAddress;
+use crate::governor::extensions::GovernorVotesQuorumFractionComponent;
+use crate::governor::{DefaultConfig, GovernorComponent};
 
 pub type ComponentState =
     GovernorComponent::ComponentState<GovernorQuorumFractionMock::ContractState>;
@@ -35,7 +33,7 @@ fn test_quorum() {
     let past_total_supply = 100;
     let timepoint = 123;
 
-    start_mock_call(ZERO(), selector!("get_past_total_supply"), past_total_supply);
+    start_mock_call(ZERO, selector!("get_past_total_supply"), past_total_supply);
 
     let quorum = GovernorQuorum::quorum(@component_state, timepoint);
     let quorum_numerator = mock_state.governor_votes.quorum_numerator(timepoint);
@@ -72,9 +70,9 @@ fn test_get_votes() {
     let expected_weight = 100;
     let params = array!['param'].span();
 
-    start_mock_call(ZERO(), selector!("get_past_votes"), expected_weight);
+    start_mock_call(ZERO, selector!("get_past_votes"), expected_weight);
 
-    let votes = GovernorVotes::get_votes(@component_state, OTHER(), timepoint, params);
+    let votes = GovernorVotes::get_votes(@component_state, OTHER, timepoint, params);
     assert_eq!(votes, expected_weight);
 }
 
@@ -86,9 +84,9 @@ fn test_get_votes() {
 fn test_token() {
     let mock_state = CONTRACT_STATE();
 
-    store(test_address(), selector!("Governor_token"), array![VOTES_TOKEN().into()].span());
+    store(test_address(), selector!("Governor_token"), array![VOTES_TOKEN.into()].span());
     let token = mock_state.governor_votes.token();
-    assert_eq!(token, VOTES_TOKEN());
+    assert_eq!(token, VOTES_TOKEN);
 }
 
 #[test]
@@ -107,20 +105,20 @@ fn test_initializer() {
     let mut mock_state = CONTRACT_STATE();
     let now = starknet::get_block_timestamp();
 
-    mock_state.governor_votes.initializer(VOTES_TOKEN(), 600);
+    mock_state.governor_votes.initializer(VOTES_TOKEN, 600);
 
     let quorum_numerator = mock_state.governor_votes.quorum_numerator(now);
     assert_eq!(quorum_numerator, 600);
 
     let token = mock_state.governor_votes.token();
-    assert_eq!(token, VOTES_TOKEN());
+    assert_eq!(token, VOTES_TOKEN);
 }
 
 #[test]
 #[should_panic(expected: 'Invalid votes token')]
 fn test_initializer_with_zero_token() {
     let mut mock_state = CONTRACT_STATE();
-    mock_state.governor_votes.initializer(ZERO(), 600);
+    mock_state.governor_votes.initializer(ZERO, 600);
 }
 
 
@@ -128,7 +126,7 @@ fn test_initializer_with_zero_token() {
 #[should_panic(expected: 'Invalid quorum fraction')]
 fn test_initializer_with_invalid_numerator() {
     let mut mock_state = CONTRACT_STATE();
-    mock_state.governor_votes.initializer(VOTES_TOKEN(), 1001);
+    mock_state.governor_votes.initializer(VOTES_TOKEN, 1001);
 }
 
 //

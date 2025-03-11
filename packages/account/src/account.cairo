@@ -9,13 +9,14 @@ pub mod AccountComponent {
     use core::hash::{HashStateExTrait, HashStateTrait};
     use core::num::traits::Zero;
     use core::poseidon::PoseidonTrait;
-    use crate::interface;
-    use crate::utils::{execute_calls, is_tx_version_valid, is_valid_stark_signature};
+    use openzeppelin_introspection::src5::SRC5Component::{
+        InternalTrait as SRC5InternalTrait, SRC5Impl,
+    };
     use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
-    use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
     use starknet::account::Call;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use crate::utils::{execute_calls, is_tx_version_valid, is_valid_stark_signature};
+    use crate::interface;
 
     #[storage]
     pub struct Storage {

@@ -24,7 +24,7 @@ fn main() {
         }
 
         declare_preset(contract, nonce);
-    };
+    }
 
     println!("");
 }

@@ -5,6 +5,7 @@
 :udc-proposal: link:https://community.starknet.io/t/universal-deployer-contract-proposal/1864[Universal Deployer Contract proposal]
 :deploy_contract: xref:/api/udc.adoc#UniversalDeployer-deploy_contract[deploy_contract]
 :contract-deployed: xref:/api/udc.adoc#IUniversalDeployer-ContractDeployed[ContractDeployed]
+:previous-udc-api: https://docs.starknet.io/architecture-and-concepts/accounts/universal-deployer/
 
 The Universal Deployer Contract (UDC) is a singleton smart contract that wraps the {deploy-syscall} to expose it to any contract that doesn't implement it, such as account contracts. You can think of it as a standardized generic factory for Starknet contracts.
 
@@ -14,7 +15,7 @@ For details on the motivation and the decision making process, see the {udc-prop
 
 == UDC contract address
 
-The UDC address is deployed at address `0x04a64cd09a853868621d94cae9952b106f2c36a3f81260f85de6696c6b050221` in Mainnet and Sepolia testnet.
+This version of the UDC is not deployed yet. Check the current deployed version {previous-udc-api}[here].
 
 == Interface
 
@@ -43,7 +44,7 @@ Here's an implementation example in Cairo:
 ----
 use openzeppelin_utils::interfaces::{IUniversalDeployerDispatcher, IUniversalDeployerDispatcherTrait};
 
-const UDC_ADDRESS: felt252 = 0x04a64cd09a853868621d94cae9952b106f2c36a3f81260f85de6696c6b050221;
+const UDC_ADDRESS: felt252 = 0x04...;
 
 fn deploy() -> ContractAddress {
     let dispatcher = IUniversalDeployerDispatcher {
@@ -55,11 +56,11 @@ fn deploy() -> ContractAddress {
        0x5c478ee27f2112411f86f207605b2e2c58cdb647bac0df27f660ef2252359c6
     >();
     let salt = 1234567879;
-    let from_zero = false;
+    let not_from_zero = true;
     let calldata = array![];
 
     // The UDC returns the deployed contract address
-    dispatcher.deploy_contract(class_hash, salt, from_zero, calldata.span())
+    dispatcher.deploy_contract(class_hash, salt, not_from_zero, calldata.span())
 }
 ----
 
@@ -89,7 +90,7 @@ To deploy a unique contract address pass:
 
 [,js]
 ----
-let deployed_addr = udc.deploy_contract(class_hash, salt, false, calldata.span());
+let deployed_addr = udc.deploy_contract(class_hash, salt, true, calldata.span());
 ----
 
 === Origin-independent
@@ -101,28 +102,19 @@ To deploy a reproducible deployment, set `from_zero` to `true`.
 
 [source,cairo]
 ----
-let deployed_addr = udc.deploy_contract(class_hash, salt, true, calldata.span());
+let deployed_addr = udc.deploy_contract(class_hash, salt, false, calldata.span());
 ----
 
 == Version changes
 
-:pedersen: link:https://docs.starknet.io/architecture-and-concepts/cryptography/#pedersen_hash[Pedersen]
-:poseidon: link:https://docs.starknet.io/architecture-and-concepts/cryptography/#poseidon_hash[Poseidon]
-:origin-dependent-deployments: xref:origin_dependent[origin-dependent deployments]
-:previous-udc-api: https://docs.starknet.io/architecture-and-concepts/accounts/universal-deployer/[previous Universal Deployer API]
 :contract-deployed-event: xref:/api/udc.adoc#IUniversalDeployer-ContractDeployed[ContractDeployed]
 
-NOTE: See the {previous-udc-api} for the initial spec.
+NOTE: See the {previous-udc-api}[previous Universal Deployer API] for the initial spec.
 
 The latest iteration of the UDC includes some notable changes to the API which include:
 
 * `deployContract` method is replaced with the snake_case {deploy_contract}.
-* {pedersen} hashing algorithm is replaced with the {poseidon} hashing algorithm for computing the salt on {origin-dependent-deployments}.
-* `unique` parameter is replaced with `from_zero` in both the `deploy_contract` method and {contract-deployed-event} event.
-
-WARNING: Origin-dependent deployments previously meant that the `unique` argument would be `true`.
-Origin-dependent deployments from the new UDC iteration, however, requires that `from_zero` is `false`.
-It's especially important to keep this in mind when dealing with `ContractDeployed` events because this change will appear as the opposite boolean per deployment type.
+* `unique` parameter is replaced with `not_from_zero` in both the `deploy_contract` method and {contract-deployed-event} event.
 
 == Precomputing contract addresses
 

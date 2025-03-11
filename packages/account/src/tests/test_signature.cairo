@@ -1,8 +1,3 @@
-use crate::interface::P256PublicKey;
-use crate::utils::signature::Secp256Signature;
-use crate::utils::signature::{
-    is_valid_eth_signature, is_valid_p256_signature, is_valid_stark_signature,
-};
 use openzeppelin_test_common::account::SIGNED_TX_DATA as stark_signature_data;
 use openzeppelin_test_common::eth_account::SIGNED_TX_DATA as eth_signature_data;
 use openzeppelin_testing::constants::{TRANSACTION_HASH, secp256k1, secp256r1, stark};
@@ -11,6 +6,10 @@ use snforge_std::signature::secp256r1_curve::Secp256r1CurveSignerImpl;
 use starknet::secp256_trait::Secp256Trait;
 use starknet::secp256k1::Secp256k1Point;
 use starknet::secp256r1::Secp256r1Point;
+use crate::interface::P256PublicKey;
+use crate::utils::signature::{
+    Secp256Signature, is_valid_eth_signature, is_valid_p256_signature, is_valid_stark_signature,
+};
 
 //
 // is_valid_stark_signature

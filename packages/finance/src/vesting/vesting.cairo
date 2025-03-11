@@ -29,13 +29,15 @@ use starknet::ContractAddress;
 ///   vesting schedule to ensure the vested amount is as intended.
 #[starknet::component]
 pub mod VestingComponent {
-    use crate::vesting::interface;
-    use openzeppelin_access::ownable::OwnableComponent;
     use openzeppelin_access::ownable::OwnableComponent::OwnableImpl;
+    use openzeppelin_access::ownable::OwnableComponent;
     use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+    use starknet::storage::{
+        Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
+        StoragePointerWriteAccess,
+    };
     use starknet::ContractAddress;
-    use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
-    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use crate::vesting::interface;
 
     #[storage]
     pub struct Storage {

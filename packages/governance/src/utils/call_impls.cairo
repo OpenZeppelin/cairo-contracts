@@ -10,7 +10,7 @@ pub impl HashCallImpl<S, +HashStateTrait<S>, +Drop<S>> of Hash<Call, S> {
         state = state.update_with(to).update_with(selector).update_with(calldata.len());
         for elem in calldata {
             state = state.update_with(*elem);
-        };
+        }
 
         state
     }
@@ -21,7 +21,7 @@ pub impl HashCallsImpl<S, +HashStateTrait<S>, +Drop<S>> of Hash<Span<Call>, S> {
         state = state.update_with(value.len());
         for elem in value {
             state = state.update_with(*elem);
-        };
+        }
         state
     }
 }

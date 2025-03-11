@@ -9,17 +9,18 @@ pub mod EthAccountComponent {
     use core::hash::{HashStateExTrait, HashStateTrait};
     use core::num::traits::Zero;
     use core::poseidon::{PoseidonTrait, poseidon_hash_span};
-    use core::starknet::secp256_trait::Secp256PointTrait;
-    use crate::interface;
+    use openzeppelin_introspection::src5::SRC5Component::{
+        InternalTrait as SRC5InternalTrait, SRC5Impl,
+    };
+    use openzeppelin_introspection::src5::SRC5Component;
+    use starknet::account::Call;
+    use starknet::secp256_trait::Secp256PointTrait;
+    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use starknet::SyscallResultTrait;
     use crate::interface::EthPublicKey;
     use crate::utils::secp256_point::Secp256PointStorePacking;
     use crate::utils::{execute_calls, is_tx_version_valid, is_valid_eth_signature};
-    use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
-    use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
-    use starknet::SyscallResultTrait;
-    use starknet::account::Call;
-    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use crate::interface;
 
     #[storage]
     pub struct Storage {

@@ -32,7 +32,9 @@ jobs:
         echo "New version: $NEW_VERSION"
         ESCAPED_CURRENT_VERSION="${CURRENT_VERSION//\./\\.}"
         find . -type f -not -path '*/\.*' -not -path './CHANGELOG.md' -not -path './docs/package-lock.json' \
-          -not -path './RELEASING.md' -exec sed -i "s/$ESCAPED_CURRENT_VERSION/$NEW_VERSION/g" {} +
+          -not -path './RELEASING.md' \
+          -not -path './packages/testing/*' \
+          -exec sed -i "s/$ESCAPED_CURRENT_VERSION/$NEW_VERSION/g" {} +
 
     - name: Setup scarb
       uses: software-mansion/setup-scarb@v1

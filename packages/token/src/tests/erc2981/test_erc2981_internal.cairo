@@ -1,10 +1,10 @@
-use crate::common::erc2981::ERC2981Component::{ERC2981Impl, InternalImpl};
-use crate::common::erc2981::interface::IERC2981_ID;
-use crate::common::erc2981::{DefaultConfig, ERC2981Component};
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin_test_common::mocks::erc2981::ERC2981Mock;
 use openzeppelin_testing::constants::{RECIPIENT, ZERO};
-use starknet::{ContractAddress, contract_address_const};
+use starknet::ContractAddress;
+use crate::common::erc2981::ERC2981Component::{ERC2981Impl, InternalImpl};
+use crate::common::erc2981::interface::IERC2981_ID;
+use crate::common::erc2981::{DefaultConfig, ERC2981Component};
 
 type ComponentState = ERC2981Component::ComponentState<ERC2981Mock::ContractState>;
 
@@ -16,9 +16,7 @@ fn COMPONENT_STATE() -> ComponentState {
     ERC2981Component::component_state_for_testing()
 }
 
-fn DEFAULT_RECEIVER() -> ContractAddress {
-    contract_address_const::<'DEFAULT_RECEIVER'>()
-}
+const DEFAULT_RECEIVER: ContractAddress = 'DEFAULT_RECEIVER'.try_into().unwrap();
 
 // 0.5% (default denominator is 10000)
 const DEFAULT_FEE_NUMERATOR: u128 = 50;
@@ -27,7 +25,7 @@ const FEE_NUMERATOR: u128 = 500;
 
 fn setup() -> ComponentState {
     let mut state = COMPONENT_STATE();
-    state.initializer(DEFAULT_RECEIVER(), DEFAULT_FEE_NUMERATOR);
+    state.initializer(DEFAULT_RECEIVER, DEFAULT_FEE_NUMERATOR);
     state
 }
 
@@ -40,11 +38,11 @@ fn test_initializer() {
     let mut state = COMPONENT_STATE();
     let mock_state = CONTRACT_STATE();
 
-    state.initializer(DEFAULT_RECEIVER(), DEFAULT_FEE_NUMERATOR);
+    state.initializer(DEFAULT_RECEIVER, DEFAULT_FEE_NUMERATOR);
 
     let (receiver, numerator, denominator) = state._default_royalty();
 
-    assert_eq!(receiver, DEFAULT_RECEIVER());
+    assert_eq!(receiver, DEFAULT_RECEIVER);
     assert_eq!(numerator, DEFAULT_FEE_NUMERATOR);
     assert_eq!(denominator, ERC2981Component::DEFAULT_FEE_DENOMINATOR);
 
@@ -63,7 +61,7 @@ fn test_royalty_info_default_royalty() {
     let sale_price = 1_000_000;
 
     let (receiver, amount) = state.royalty_info(token_id, sale_price);
-    assert_eq!(receiver, DEFAULT_RECEIVER());
+    assert_eq!(receiver, DEFAULT_RECEIVER);
     assert_eq!(amount, 5_000);
 }
 
@@ -74,13 +72,13 @@ fn test_royalty_info_token_royalty_set() {
     let sale_price = 1_000_000;
 
     let (receiver, amount) = state.royalty_info(token_id, sale_price);
-    assert_eq!(receiver, DEFAULT_RECEIVER());
+    assert_eq!(receiver, DEFAULT_RECEIVER);
     assert_eq!(amount, 5_000);
 
-    state._set_token_royalty(token_id, RECIPIENT(), FEE_NUMERATOR);
+    state._set_token_royalty(token_id, RECIPIENT, FEE_NUMERATOR);
 
     let (receiver, amount) = state.royalty_info(token_id, sale_price);
-    assert_eq!(receiver, RECIPIENT());
+    assert_eq!(receiver, RECIPIENT);
     assert_eq!(amount, 50_000);
 }
 
@@ -94,7 +92,7 @@ fn test_default_royalty() {
 
     let (receiver, numerator, denominator) = state._default_royalty();
 
-    assert_eq!(receiver, DEFAULT_RECEIVER());
+    assert_eq!(receiver, DEFAULT_RECEIVER);
     assert_eq!(numerator, DEFAULT_FEE_NUMERATOR);
     assert_eq!(denominator, ERC2981Component::DEFAULT_FEE_DENOMINATOR);
 }
@@ -106,13 +104,13 @@ fn test_set_default_royalty() {
     let sale_price = 1_000_000;
 
     let (receiver, amount) = state.royalty_info(token_id, sale_price);
-    assert_eq!(receiver, DEFAULT_RECEIVER());
+    assert_eq!(receiver, DEFAULT_RECEIVER);
     assert_eq!(amount, 5_000);
 
-    state._set_default_royalty(RECIPIENT(), FEE_NUMERATOR);
+    state._set_default_royalty(RECIPIENT, FEE_NUMERATOR);
 
     let (receiver, amount) = state.royalty_info(token_id, sale_price);
-    assert_eq!(receiver, RECIPIENT());
+    assert_eq!(receiver, RECIPIENT);
     assert_eq!(amount, 50_000);
 }
 
@@ -122,9 +120,9 @@ fn test_set_default_royalty_with_zero_royalty_fraction() {
     let token_id = 12;
     let sale_price = 1_000_000;
 
-    state._set_default_royalty(DEFAULT_RECEIVER(), 0);
+    state._set_default_royalty(DEFAULT_RECEIVER, 0);
     let (receiver, amount) = state.royalty_info(token_id, sale_price);
-    assert_eq!(receiver, DEFAULT_RECEIVER());
+    assert_eq!(receiver, DEFAULT_RECEIVER);
     assert_eq!(amount, 0);
 }
 
@@ -133,7 +131,7 @@ fn test_set_default_royalty_with_zero_royalty_fraction() {
 fn test_set_default_royalty_with_zero_receiver() {
     let mut state = setup();
 
-    state._set_default_royalty(ZERO(), FEE_NUMERATOR);
+    state._set_default_royalty(ZERO, FEE_NUMERATOR);
 }
 
 #[test]
@@ -142,7 +140,7 @@ fn test_set_default_royalty_with_invalid_fee_numerator() {
     let mut state = setup();
     let fee_denominator = ERC2981Component::DEFAULT_FEE_DENOMINATOR;
 
-    state._set_default_royalty(DEFAULT_RECEIVER(), fee_denominator + 1);
+    state._set_default_royalty(DEFAULT_RECEIVER, fee_denominator + 1);
 }
 
 #[test]
@@ -151,16 +149,16 @@ fn test_delete_default_royalty() {
     let token_id = 12;
     let sale_price = 1_000_000;
 
-    state._set_default_royalty(RECIPIENT(), FEE_NUMERATOR);
+    state._set_default_royalty(RECIPIENT, FEE_NUMERATOR);
 
     let (receiver, amount) = state.royalty_info(token_id, sale_price);
-    assert_eq!(receiver, RECIPIENT());
+    assert_eq!(receiver, RECIPIENT);
     assert_eq!(amount, 50_000);
 
     state._delete_default_royalty();
 
     let (receiver, amount) = state.royalty_info(token_id, sale_price);
-    assert_eq!(receiver, ZERO());
+    assert_eq!(receiver, ZERO);
     assert_eq!(amount, 0);
 }
 
@@ -172,21 +170,21 @@ fn test_set_token_royalty() {
     let sale_price = 1_000_000;
 
     let (receiver, amount) = state.royalty_info(token_id, sale_price);
-    assert_eq!(receiver, DEFAULT_RECEIVER());
+    assert_eq!(receiver, DEFAULT_RECEIVER);
     assert_eq!(amount, 5_000);
 
     let (receiver, amount) = state.royalty_info(another_token_id, sale_price);
-    assert_eq!(receiver, DEFAULT_RECEIVER());
+    assert_eq!(receiver, DEFAULT_RECEIVER);
     assert_eq!(amount, 5_000);
 
-    state._set_token_royalty(token_id, RECIPIENT(), FEE_NUMERATOR);
+    state._set_token_royalty(token_id, RECIPIENT, FEE_NUMERATOR);
 
     let (receiver, amount) = state.royalty_info(token_id, sale_price);
-    assert_eq!(receiver, RECIPIENT());
+    assert_eq!(receiver, RECIPIENT);
     assert_eq!(amount, 50_000);
 
     let (receiver, amount) = state.royalty_info(another_token_id, sale_price);
-    assert_eq!(receiver, DEFAULT_RECEIVER());
+    assert_eq!(receiver, DEFAULT_RECEIVER);
     assert_eq!(amount, 5_000);
 }
 
@@ -196,9 +194,9 @@ fn test_set_token_royalty_with_zero_royalty_fraction() {
     let token_id = 12;
     let sale_price = 1_000_000;
 
-    state._set_token_royalty(token_id, RECIPIENT(), 0);
+    state._set_token_royalty(token_id, RECIPIENT, 0);
     let (receiver, amount) = state.royalty_info(token_id, sale_price);
-    assert_eq!(receiver, RECIPIENT());
+    assert_eq!(receiver, RECIPIENT);
     assert_eq!(amount, 0);
 }
 
@@ -207,7 +205,7 @@ fn test_set_token_royalty_with_zero_royalty_fraction() {
 fn test_set_token_royalty_with_zero_receiver() {
     let mut state = setup();
     let token_id = 12;
-    state._set_token_royalty(token_id, ZERO(), FEE_NUMERATOR);
+    state._set_token_royalty(token_id, ZERO, FEE_NUMERATOR);
 }
 
 #[test]
@@ -217,7 +215,7 @@ fn test_set_token_royalty_with_invalid_fee_numerator() {
     let token_id = 12;
     let fee_denominator = ERC2981Component::DEFAULT_FEE_DENOMINATOR;
 
-    state._set_token_royalty(token_id, RECIPIENT(), fee_denominator + 1);
+    state._set_token_royalty(token_id, RECIPIENT, fee_denominator + 1);
 }
 
 #[test]
@@ -227,19 +225,19 @@ fn test_reset_token_royalty() {
     let sale_price = 1_000_000;
 
     let (receiver, amount) = state.royalty_info(token_id, sale_price);
-    assert_eq!(receiver, DEFAULT_RECEIVER());
+    assert_eq!(receiver, DEFAULT_RECEIVER);
     assert_eq!(amount, 5_000);
 
-    state._set_token_royalty(token_id, RECIPIENT(), FEE_NUMERATOR);
+    state._set_token_royalty(token_id, RECIPIENT, FEE_NUMERATOR);
 
     let (receiver, amount) = state.royalty_info(token_id, sale_price);
-    assert_eq!(receiver, RECIPIENT());
+    assert_eq!(receiver, RECIPIENT);
     assert_eq!(amount, 50_000);
 
     state._reset_token_royalty(token_id);
 
     let (receiver, amount) = state.royalty_info(token_id, sale_price);
-    assert_eq!(receiver, DEFAULT_RECEIVER());
+    assert_eq!(receiver, DEFAULT_RECEIVER);
     assert_eq!(amount, 5_000);
 }
 

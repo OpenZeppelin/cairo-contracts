@@ -13,8 +13,8 @@ pub mod ERC1155Upgradeable {
     use openzeppelin_access::ownable::OwnableComponent;
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_token::erc1155::{ERC1155Component, ERC1155HooksEmptyImpl};
-    use openzeppelin_upgrades::UpgradeableComponent;
     use openzeppelin_upgrades::interface::IUpgradeable;
+    use openzeppelin_upgrades::UpgradeableComponent;
     use starknet::{ClassHash, ContractAddress};
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);

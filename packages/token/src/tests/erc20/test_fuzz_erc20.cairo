@@ -1,13 +1,12 @@
 use ERC20Component::InternalTrait;
 use core::num::traits::Bounded;
-use crate::erc20::ERC20Component;
-use crate::erc20::ERC20Component::{ERC20CamelOnlyImpl, ERC20Impl};
-use crate::erc20::ERC20Component::{ERC20MetadataImpl, InternalImpl};
 use openzeppelin_test_common::math::{is_overflow_add, is_overflow_sub};
 use openzeppelin_test_common::mocks::erc20::DualCaseERC20Mock;
 use openzeppelin_testing::constants::{NAME, OWNER, RECIPIENT, SPENDER, SYMBOL};
 use snforge_std::{start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
+use crate::erc20::ERC20Component::{ERC20CamelOnlyImpl, ERC20Impl, ERC20MetadataImpl, InternalImpl};
+use crate::erc20::ERC20Component;
 
 //
 // Setup
@@ -22,7 +21,7 @@ fn COMPONENT_STATE() -> ComponentState {
 fn setup(supply: u256) -> ComponentState {
     let mut state = COMPONENT_STATE();
     state.initializer(NAME(), SYMBOL());
-    state.mint(OWNER(), supply);
+    state.mint(OWNER, supply);
     state
 }
 
@@ -39,11 +38,11 @@ fn test_mint(supply: u256, mint_amount: u256) {
     let mut state = setup(supply);
 
     assert_total_supply(supply);
-    assert_balance(OWNER(), supply);
+    assert_balance(OWNER, supply);
 
-    state.mint(RECIPIENT(), mint_amount);
+    state.mint(RECIPIENT, mint_amount);
     assert_total_supply(supply + mint_amount);
-    assert_balance(RECIPIENT(), mint_amount);
+    assert_balance(RECIPIENT, mint_amount);
 }
 
 #[test]
@@ -55,11 +54,11 @@ fn test_burn(supply: u256, burn_amount: u256) {
     let mut state = setup(supply);
 
     assert_total_supply(supply);
-    assert_balance(OWNER(), supply);
+    assert_balance(OWNER, supply);
 
-    state.burn(OWNER(), burn_amount);
+    state.burn(OWNER, burn_amount);
     assert_total_supply(supply - burn_amount);
-    assert_balance(OWNER(), supply - burn_amount);
+    assert_balance(OWNER, supply - burn_amount);
 }
 
 #[test]
@@ -72,7 +71,7 @@ fn test_mint_burn(initial_supply: u256, mint_amount: u256, burn_amount: u256) {
         return;
     }
     let mut state = setup(initial_supply);
-    let (owner, recipient) = (OWNER(), RECIPIENT());
+    let (owner, recipient) = (OWNER, RECIPIENT);
 
     // Mint
     state.mint(recipient, mint_amount);
@@ -94,7 +93,7 @@ fn test_transfer(supply: u256, transfer_amount: u256) {
         return;
     }
     let mut state = setup(supply);
-    let (owner, recipient) = (OWNER(), RECIPIENT());
+    let (owner, recipient) = (OWNER, RECIPIENT);
 
     start_cheat_caller_address(test_address(), owner);
     state.transfer(recipient, transfer_amount);
@@ -110,7 +109,7 @@ fn test_transfer_from(supply: u256, transfer_amount: u256) {
         return;
     }
     let mut state = setup(supply);
-    let (owner, spender, recipient) = (OWNER(), SPENDER(), RECIPIENT());
+    let (owner, spender, recipient) = (OWNER, SPENDER, RECIPIENT);
     let contract_address = test_address();
 
     // Approve
@@ -135,7 +134,7 @@ fn test__spend_allowance(supply: u256, spend_amount: u256) {
         return;
     }
     let mut state = setup(supply);
-    let (owner, spender) = (OWNER(), SPENDER());
+    let (owner, spender) = (OWNER, SPENDER);
     state._approve(owner, spender, supply);
 
     state._spend_allowance(owner, spender, spend_amount);

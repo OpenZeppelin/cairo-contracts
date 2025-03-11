@@ -26,8 +26,8 @@ edition.workspace = true
 [workspace.package]
 version = "1.0.0"
 edition = "2024_07"
-cairo-version = "2.10.1"
-scarb-version = "2.10.1"
+cairo-version = "2.11.1"
+scarb-version = "2.11.1"
 authors = ["OpenZeppelin Community <maintainers@openzeppelin.org>"]
 description = "OpenZeppelin Contracts written in Cairo for Starknet, a decentralized ZK Rollup"
 documentation = "https://docs.openzeppelin.com/contracts-cairo"
@@ -42,8 +42,8 @@ keywords = [
 ]
 
 [workspace.dependencies]
-assert_macros = "2.10.1"
-starknet = "2.10.1"
+assert_macros = "2.11.1"
+starknet = "2.11.1"
 snforge_std = "0.38.3"
 
 [dependencies]
@@ -73,7 +73,7 @@ sierra = true
 casm = false
 
 [workspace.tool.fmt]
-sort-module-level-items = true
+sort-module-level-items = false # Temporary fix compiler 2.11 formatter issue
 
 [workspace.tool.scarb]
 allow-prebuilt-plugins = ["snforge_std"]

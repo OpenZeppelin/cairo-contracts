@@ -17,15 +17,16 @@
 #[starknet::component]
 pub mod ERC721EnumerableComponent {
     use core::num::traits::Zero;
-    use crate::erc721::ERC721Component;
-    use crate::erc721::ERC721Component::ERC721Impl;
-    use crate::erc721::ERC721Component::InternalImpl as ERC721InternalImpl;
-    use crate::erc721::extensions::erc721_enumerable::interface;
-    use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
+    use openzeppelin_introspection::src5::SRC5Component;
+    use starknet::storage::{
+        Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
+        StoragePointerWriteAccess,
+    };
     use starknet::ContractAddress;
-    use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
-    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use crate::erc721::ERC721Component::{ERC721Impl, InternalImpl as ERC721InternalImpl};
+    use crate::erc721::extensions::erc721_enumerable::interface;
+    use crate::erc721::ERC721Component;
 
     #[storage]
     pub struct Storage {
@@ -144,7 +145,7 @@ pub mod ERC721EnumerableComponent {
             let balance = get_dep_component!(self, ERC721).balance_of(owner);
             for index in 0..balance {
                 result.append(self.ERC721Enumerable_owned_tokens.read((owner, index)));
-            };
+            }
             result.span()
         }
 

@@ -7,13 +7,13 @@
 /// Extension of GovernorComponent for settings that are updatable through governance.
 #[starknet::component]
 pub mod GovernorSettingsComponent {
-    use crate::governor::GovernorComponent;
+    use openzeppelin_introspection::src5::SRC5Component;
+    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
     use crate::governor::GovernorComponent::{
         ComponentState as GovernorComponentState, InternalExtendedTrait,
     };
     use crate::governor::extensions::interface::IGovernorSettingsAdmin;
-    use openzeppelin_introspection::src5::SRC5Component;
-    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use crate::governor::GovernorComponent;
 
     #[storage]
     pub struct Storage {

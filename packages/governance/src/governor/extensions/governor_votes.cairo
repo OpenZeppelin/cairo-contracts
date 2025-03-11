@@ -9,13 +9,13 @@
 #[starknet::component]
 pub mod GovernorVotesComponent {
     use core::num::traits::Zero;
-    use crate::governor::GovernorComponent;
+    use openzeppelin_introspection::src5::SRC5Component;
+    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use starknet::ContractAddress;
     use crate::governor::GovernorComponent::ComponentState as GovernorComponentState;
     use crate::governor::extensions::interface::IVotesToken;
+    use crate::governor::GovernorComponent;
     use crate::votes::interface::{IVotesDispatcher, IVotesDispatcherTrait};
-    use openzeppelin_introspection::src5::SRC5Component;
-    use starknet::ContractAddress;
-    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 
     #[storage]
     pub struct Storage {

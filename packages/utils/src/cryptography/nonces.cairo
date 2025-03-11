@@ -8,9 +8,9 @@
 /// when contracts accept signatures as input.
 #[starknet::component]
 pub mod NoncesComponent {
-    use crate::interfaces::INonces;
-    use starknet::ContractAddress;
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
+    use starknet::ContractAddress;
+    use crate::interfaces::INonces;
 
     #[storage]
     pub struct Storage {

@@ -33,15 +33,14 @@
 #[starknet::component]
 pub mod ERC4626Component {
     use core::num::traits::{Bounded, Pow, Zero};
-    use crate::erc20::ERC20Component;
+    use openzeppelin_utils::math::Rounding;
+    use openzeppelin_utils::math;
+    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use starknet::ContractAddress;
     use crate::erc20::ERC20Component::InternalImpl as ERC20InternalImpl;
     use crate::erc20::extensions::erc4626::interface::IERC4626;
-    use crate::erc20::interface::{IERC20, IERC20Metadata};
-    use crate::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-    use openzeppelin_utils::math;
-    use openzeppelin_utils::math::Rounding;
-    use starknet::ContractAddress;
-    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use crate::erc20::interface::{IERC20, IERC20Dispatcher, IERC20DispatcherTrait, IERC20Metadata};
+    use crate::erc20::ERC20Component;
 
     // The default values are only used when the DefaultConfig
     // is in scope in the implementing contract.
@@ -704,7 +703,7 @@ mod Test {
     #[should_panic(expected: 'ERC4626: decimals overflow')]
     fn test_initializer_invalid_config_panics() {
         let mut state = COMPONENT_STATE();
-        let asset = starknet::contract_address_const::<'ASSET'>();
+        let asset = 'ASSET'.try_into().unwrap();
 
         state.initializer(asset);
     }

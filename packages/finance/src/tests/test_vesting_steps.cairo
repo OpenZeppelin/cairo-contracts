@@ -1,7 +1,3 @@
-use crate::tests::common::{TestData, VestingStrategy, set_transfer_to_fail, setup};
-use crate::vesting::VestingComponent;
-use crate::vesting::VestingComponent::InternalImpl;
-use crate::vesting::interface::IVestingDispatcherTrait;
 use openzeppelin_access::ownable::interface::{IOwnableDispatcher, IOwnableDispatcherTrait};
 use openzeppelin_test_common::mocks::vesting::StepsVestingMock;
 use openzeppelin_test_common::vesting::VestingSpyHelpers;
@@ -9,6 +5,10 @@ use openzeppelin_testing::constants::{OTHER, OWNER};
 use openzeppelin_testing::spy_events;
 use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use snforge_std::{start_cheat_block_timestamp_global, start_cheat_caller_address};
+use crate::tests::common::{TestData, VestingStrategy, set_transfer_to_fail, setup};
+use crate::vesting::VestingComponent::InternalImpl;
+use crate::vesting::interface::IVestingDispatcherTrait;
+use crate::vesting::VestingComponent;
 
 //
 // Setup
@@ -26,7 +26,7 @@ fn TEST_DATA() -> TestData {
     TestData {
         strategy: VestingStrategy::Steps(TOTAL_STEPS),
         total_allocation: 200,
-        beneficiary: OWNER(),
+        beneficiary: OWNER,
         start: 30,
         duration: 100,
         cliff_duration: 0,
@@ -75,7 +75,7 @@ fn test_vesting_schedule_no_cliff() {
         assert_eq!(actual_vested_amount, expected_vested_amount);
 
         time_passed += 1;
-    };
+    }
 
     let end_timestamp = data.start + data.duration;
     assert_eq!(vesting.vested_amount(token, end_timestamp), data.total_allocation);
@@ -95,7 +95,7 @@ fn test_vesting_schedule_with_cliff() {
         assert_eq!(actual_vested_amount, 0);
 
         time_passed += 1;
-    };
+    }
 
     while time_passed <= data.duration {
         let steps_passed = time_passed / step_duration;
@@ -104,7 +104,7 @@ fn test_vesting_schedule_with_cliff() {
         assert_eq!(actual_vested_amount, expected_vested_amount);
 
         time_passed += 1;
-    };
+    }
 
     let end_timestamp = data.start + data.duration;
     assert_eq!(vesting.vested_amount(token, end_timestamp), data.total_allocation);
@@ -217,7 +217,7 @@ fn test_release_after_ownership_transferred() {
     assert_eq!(token_dispatcher.balance_of(data.beneficiary), release_amount_1);
 
     // 2. Transfer ownership
-    let new_owner = OTHER();
+    let new_owner = OTHER;
     start_cheat_caller_address(vesting.contract_address, data.beneficiary);
     ownable_vesting.transfer_ownership(new_owner);
 

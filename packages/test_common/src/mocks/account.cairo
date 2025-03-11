@@ -88,8 +88,8 @@ pub mod SnakeAccountMock {
 
 #[starknet::contract(account)]
 pub mod DualCaseEthAccountMock {
-    use openzeppelin_account::EthAccountComponent;
     use openzeppelin_account::interface::EthPublicKey;
+    use openzeppelin_account::EthAccountComponent;
     use openzeppelin_introspection::src5::SRC5Component;
 
     component!(path: EthAccountComponent, storage: eth_account, event: EthAccountEvent);
@@ -132,8 +132,8 @@ pub mod DualCaseEthAccountMock {
 
 #[starknet::contract(account)]
 pub mod SnakeEthAccountMock {
-    use openzeppelin_account::EthAccountComponent;
     use openzeppelin_account::interface::EthPublicKey;
+    use openzeppelin_account::EthAccountComponent;
     use openzeppelin_introspection::src5::SRC5Component;
 
     component!(path: EthAccountComponent, storage: eth_account, event: EthAccountEvent);

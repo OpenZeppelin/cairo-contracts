@@ -84,6 +84,7 @@ version = "1.0.0"
 name = "openzeppelin_merkle_tree"
 version = "1.0.0"
 dependencies = [
+ "openzeppelin_testing",
  "snforge_std",
 ]
 

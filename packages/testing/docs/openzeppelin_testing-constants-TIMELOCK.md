@@ -3,6 +3,6 @@
 Fully qualified path: `openzeppelin_testing::constants::TIMELOCK`
 
 ```rust
-pub fn TIMELOCK -> ContractAddress
+pub const TIMELOCK: ContractAddress = 'TIMELOCK'.as_address();
 ```
 

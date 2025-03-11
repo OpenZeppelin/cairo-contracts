@@ -3,6 +3,6 @@
 Fully qualified path: `openzeppelin_testing::constants::CHARLIE`
 
 ```rust
-pub fn CHARLIE -> ContractAddress
+pub const CHARLIE: ContractAddress = 'CHARLIE'.as_address();
 ```
 

@@ -3,6 +3,6 @@
 Fully qualified path: `openzeppelin_testing::constants::OPERATOR`
 
 ```rust
-pub fn OPERATOR -> ContractAddress
+pub const OPERATOR: ContractAddress = 'OPERATOR'.as_address();
 ```
 

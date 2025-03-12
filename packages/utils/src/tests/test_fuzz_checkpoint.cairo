@@ -21,7 +21,7 @@ fn test_push_multiple(len_seed: u64, key_step_seed: u64) {
         assert_eq!(prev, expected_prev);
         assert_eq!(new, *point.value);
         expected_prev = new;
-    };
+    }
     assert_eq!(mock_trace.get_length(), len);
 }
 
@@ -40,7 +40,7 @@ fn test_upper_lookup(len_seed: u64, key_step_seed: u64) {
         let checkpoint = *checkpoints.at(index);
         let found_value = mock_trace.upper_lookup(checkpoint.key);
         assert_eq!(found_value, checkpoint.value);
-    };
+    }
 }
 
 #[test]
@@ -58,7 +58,7 @@ fn test_upper_lookup_recent(len_seed: u64, key_step_seed: u64) {
         let checkpoint = *checkpoints.at(index);
         let found_value = mock_trace.upper_lookup_recent(checkpoint.key);
         assert_eq!(found_value, checkpoint.value);
-    };
+    }
 }
 
 #[test]
@@ -76,7 +76,7 @@ fn test_get_at_position(len_seed: u64, key_step_seed: u64) {
         let checkpoint = *checkpoints.at(index);
         let found_checkpoint = mock_trace.get_at_position(i);
         assert!(found_checkpoint == checkpoint);
-    };
+    }
 }
 
 #[test]
@@ -116,7 +116,7 @@ fn build_checkpoints_array(len: u64, key_step: u64) -> Span<Checkpoint> {
         // Values are guaranteed to be positive, different and increase by 1
         let value = (1 + i).into();
         checkpoints.append(Checkpoint { key, value });
-    };
+    }
     checkpoints.span()
 }
 
@@ -124,5 +124,5 @@ fn push_checkpoints(checkpoints: Span<Checkpoint>) {
     let mut mock_trace = CONTRACT_STATE();
     for point in checkpoints {
         mock_trace.push_checkpoint(*point.key, *point.value);
-    };
+    }
 }

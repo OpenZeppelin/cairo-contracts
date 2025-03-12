@@ -15,3 +15,6 @@ git checkout -b openzeppelin_testing-v1.0.0
 ```sh
 git push openzeppelin_testing-v1.0.0
 ```
+
+(5) After getting the PR merged, the release is completed. Make sure not to delete the branch, since there's no extra
+tag pegged to the release.

@@ -3,6 +3,7 @@ use snforge_std::{ContractClass, ContractClassTrait, test_address};
 use starknet::ClassHash;
 
 #[test]
+#[fuzzer]
 fn test_compute_contract_address(
     class_hash: felt252, arg_1: felt252, arg_2: felt252, arg_3: felt252,
 ) {

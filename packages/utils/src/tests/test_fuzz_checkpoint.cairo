@@ -7,6 +7,7 @@ fn CONTRACT_STATE() -> MockTrace::ContractState {
 }
 
 #[test]
+#[fuzzer]
 fn test_push_multiple(len_seed: u64, key_step_seed: u64) {
     let len = 2 + len_seed % 99; // [2..100]
     let key_step = 1 + key_step_seed % 1_000_000; // [1..1_000_000]
@@ -25,6 +26,7 @@ fn test_push_multiple(len_seed: u64, key_step_seed: u64) {
 }
 
 #[test]
+#[fuzzer]
 fn test_upper_lookup(len_seed: u64, key_step_seed: u64) {
     let len = 2 + len_seed % 99; // [2..100]
     let key_step = 1 + key_step_seed % 1_000_000; // [1..1_000_000]
@@ -42,6 +44,7 @@ fn test_upper_lookup(len_seed: u64, key_step_seed: u64) {
 }
 
 #[test]
+#[fuzzer]
 fn test_upper_lookup_recent(len_seed: u64, key_step_seed: u64) {
     let len = 2 + len_seed % 99; // [2..100]
     let key_step = 1 + key_step_seed % 1_000_000; // [1..1_000_000]
@@ -59,6 +62,7 @@ fn test_upper_lookup_recent(len_seed: u64, key_step_seed: u64) {
 }
 
 #[test]
+#[fuzzer]
 fn test_get_at_position(len_seed: u64, key_step_seed: u64) {
     let len = 2 + len_seed % 99; // [2..100]
     let key_step = 1 + key_step_seed % 1_000_000; // [1..1_000_000]
@@ -76,6 +80,7 @@ fn test_get_at_position(len_seed: u64, key_step_seed: u64) {
 }
 
 #[test]
+#[fuzzer]
 #[should_panic(expected: 'Vec overflow')]
 fn test_at_position_out_of_bounds(len_seed: u64, key_step_seed: u64) {
     let len = 2 + len_seed % 99; // [2..100]
@@ -89,6 +94,7 @@ fn test_at_position_out_of_bounds(len_seed: u64, key_step_seed: u64) {
 }
 
 #[test]
+#[fuzzer]
 fn test_pack_unpack(key: u64, value: u256) {
     let initial_checkpoint = Checkpoint { key, value };
 

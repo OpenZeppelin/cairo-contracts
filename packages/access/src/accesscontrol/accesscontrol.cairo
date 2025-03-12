@@ -228,13 +228,13 @@ pub mod AccessControlComponent {
 
         /// Attempts to grant `role` to `account` with the specified activation delay.
         ///
-        /// May emit a `RoleGrantedWithDelay` event.
-        ///
         /// Requirements:
         ///
         /// - The caller must have `role`'s admin role.
         /// - delay must be greater than 0.
         /// - the `role` must not be already effective for `account`.
+        ///
+        /// May emit a `RoleGrantedWithDelay` event.
         fn grant_role_with_delay(
             ref self: ComponentState<TContractState>,
             role: felt252,
@@ -370,12 +370,12 @@ pub mod AccessControlComponent {
         ///
         /// Internal function without access restriction.
         ///
-        /// May emit a `RoleGrantedWithDelay` event.
-        ///
         /// Requirements:
         ///
         /// - delay must be greater than 0.
         /// - the `role` must not be already effective for `account`.
+        ///
+        /// May emit a `RoleGrantedWithDelay` event.
         fn _grant_role_with_delay(
             ref self: ComponentState<TContractState>,
             role: felt252,

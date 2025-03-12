@@ -404,7 +404,7 @@ Emitted when `account` is revoked `role`.
 use openzeppelin_access::accesscontrol::interface::IAccessControlWithDelay;
 ```
 
-External interface for the extended `AccessControl` functionality.
+External interface for the extended `AccessControlWithDelay` functionality.
 
 [.contract-index]
 .Functions
@@ -416,7 +416,7 @@ External interface for the extended `AccessControl` functionality.
 [.contract-index]
 .Events
 --
-* xref:IAccessControlWithDelay-RoleGrantedWithDelay[`++RoleAdminChanged(role, account, sender, delay)++`]
+* xref:IAccessControlWithDelay-RoleGrantedWithDelay[`++RoleGrantedWithDelay(role, account, sender, delay)++`]
 
 --
 
@@ -441,13 +441,13 @@ time delay.
 
 Attempts to grant `role` to `account` with the specified activation delay.
 
-May emit a {RoleGrantedWithDelay} event.
-
 Requirements:
 
 - The caller must have ``role``'s admin role.
 - delay must be greater than 0.
 - the `role` must not be already effective for `account`.
+
+May emit a {RoleGrantedWithDelay} event.
 
 [#IAccessControlWithDelay-Events]
 ==== Events
@@ -543,8 +543,8 @@ accounts that have been granted it.
 [.sub-index#AccessControlComponent-Embeddable-Impls-AccessControlWithDelayImpl]
 .AccessControlWithDelayImpl
 
-* xref:#AccessControlWithDelayImpl-get_role_status[`++get_role_status(self, role, account)++`]
-* xref:#AccessControlWithDelayImpl-grant_role_with_delay[`++grant_role_with_delay(self, role, account, delay)++`]
+* xref:#AccessControlComponent-get_role_status[`++get_role_status(self, role, account)++`]
+* xref:#AccessControlComponent-grant_role_with_delay[`++grant_role_with_delay(self, role, account, delay)++`]
 
 .SRC5Impl
 * xref:api/introspection.adoc#ISRC5-supports_interface[`supports_interface(self, interface_id: felt252)`]
@@ -630,13 +630,13 @@ May emit a {RoleGranted} event.
 
 Attempts to grant `role` to `account` with the specified activation delay.
 
-May emit a {RoleGrantedWithDelay} event.
-
 Requirements:
 
 - The caller must have `role`'s admin role.
 - delay must be greater than 0.
 - the `role` must not be already effective for `account`.
+
+May emit a {RoleGrantedWithDelay} event.
 
 [.contract-item]
 [[AccessControlComponent-revoke_role]]
@@ -792,12 +792,12 @@ overwritten with the new `delay`.
 
 Internal function without access restriction.
 
-May emit a {RoleGrantedWithDelay} event.
-
 Requirements:
 
 - delay must be greater than 0.
 - the `role` must not be already effective for `account`.
+
+May emit a {RoleGrantedWithDelay} event.
 
 [.contract-item]
 [[AccessControlComponent-_revoke_role]]

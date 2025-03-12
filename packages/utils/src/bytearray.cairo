@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0 (utils/bytearray.cairo)
+// OpenZeppelin Contracts for Cairo v1.0.0 (utils/src/bytearray.cairo)
 
 use core::byte_array::ByteArrayTrait;
 use core::hash::{HashStateExTrait, HashStateTrait};
@@ -18,7 +18,7 @@ pub fn read_n_bytes(data: @ByteArray, start: u32, n: u32) -> ByteArray {
     let mut result: ByteArray = Default::default();
     for i in start..end_index {
         result.append_byte(data[i]);
-    };
+    }
     result
 }
 
@@ -37,11 +37,11 @@ pub fn to_byte_array<T, +Into<T, felt252>, +Copy<T>>(
 
     if padding.into() > byte_array.len() {
         let mut padding = padding.into() - byte_array.len();
-        while padding > 0 {
+        while padding != 0 {
             byte_array = "0" + byte_array;
             padding -= 1;
         };
-    };
+    }
     byte_array
 }
 
@@ -58,7 +58,7 @@ pub fn hash_byte_array(data: @ByteArray) -> felt252 {
     let mut state = PedersenTrait::new(0);
     for elem in serialized {
         state = state.update_with(elem);
-    };
+    }
     state = state.update_with(len);
     state.finalize()
 }

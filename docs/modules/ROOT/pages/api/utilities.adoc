@@ -1,6 +1,6 @@
 = Utilities
 
-:deploy_syscall: link:https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/system-calls-cairo1/#deploy[deploy_syscall]
+:deploy_syscall: link:https://docs.starknet.io/architecture-and-concepts/smart-contracts/system-calls-cairo1/#deploy[deploy_syscall]
 
 This crate provides miscellaneous components and libraries containing utility functions to handle common tasks.
 
@@ -174,7 +174,7 @@ Module containing math utilities.
 [[math-average]]
 ==== `[.contract-item-name]#++average++#++(a: T, b: T) → T++` [.item-kind]#function#
 
-Returns the average of two values. The result is rounded down.
+Returns the average of two unsigned integers. The result is rounded down.
 
 NOTE: `T` is a generic value matching different numeric implementations.
 

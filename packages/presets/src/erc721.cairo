@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0 (presets/erc721.cairo)
+// OpenZeppelin Contracts for Cairo v1.0.0 (presets/src/erc721.cairo)
 
 /// # ERC721 Preset
 ///
@@ -13,8 +13,8 @@ pub mod ERC721Upgradeable {
     use openzeppelin_access::ownable::OwnableComponent;
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_token::erc721::{ERC721Component, ERC721HooksEmptyImpl};
-    use openzeppelin_upgrades::UpgradeableComponent;
     use openzeppelin_upgrades::interface::IUpgradeable;
+    use openzeppelin_upgrades::UpgradeableComponent;
     use starknet::{ClassHash, ContractAddress};
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
@@ -95,10 +95,7 @@ pub mod ERC721Upgradeable {
         fn mint_assets(
             ref self: ContractState, recipient: ContractAddress, mut token_ids: Span<u256>,
         ) {
-            loop {
-                if token_ids.len() == 0 {
-                    break;
-                }
+            while token_ids.len() != 0 {
                 let id = *token_ids.pop_front().unwrap();
                 self.erc721.mint(recipient, id);
             }

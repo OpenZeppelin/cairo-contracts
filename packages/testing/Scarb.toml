@@ -7,27 +7,21 @@ keywords = [
     "testing",
     "utils"
 ]
-version.workspace = true
+version = "2.0.0"
 edition.workspace = true
 cairo-version.workspace = true
 scarb-version.workspace = true
 authors.workspace = true
 description.workspace = true
-documentation.workspace = true
+documentation = "https://github.com/openzeppelin/cairo-contracts/blob/openzeppelin_testing-v2.0.0/packages/testing/docs/openzeppelin_testing.md"
 repository.workspace = true
 license-file.workspace = true
 
 [tool]
 fmt.workspace = true
+scarb.workspace = true
 
 [dependencies]
 assert_macros.workspace = true
 starknet.workspace = true
 snforge_std.workspace = true
-
-[lib]
-
-[[target.starknet-contract]]
-allowed-libfuncs-list.name = "experimental"
-sierra = true
-casm = false

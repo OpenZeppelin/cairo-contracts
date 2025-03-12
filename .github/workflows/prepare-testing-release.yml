@@ -1,0 +1,57 @@
+name: Update version and docs on new openzeppelin_testing release branch
+
+on:
+  create:
+
+jobs:
+  update_version_and_docs:
+    if: github.ref_type == 'branch' && startsWith(github.ref, 'refs/heads/openzeppelin_testing-v')
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Extract current version
+      working-directory: ./packages/testing
+      run: |
+        CURRENT_VERSION=$(grep '^version = ' Scarb.toml | sed 's/version = "\(.*\)"/\1/')
+        echo "CURRENT_VERSION=$CURRENT_VERSION" >> "$GITHUB_ENV"
+
+    - name: Extract scarb version
+      run: |
+        SCARB_VERSION=$(grep 'scarb-version = ' Scarb.toml | sed 's/scarb-version = "\(.*\)"/\1/')
+        echo "SCARB_VERSION=$SCARB_VERSION" >> "$GITHUB_ENV"
+
+    - name: Extract new version number
+      run: echo "NEW_VERSION=${GITHUB_REF#refs/heads/openzeppelin_testing-v}" >> "$GITHUB_ENV"
+
+    - name: Replace version in files
+      working-directory: ./packages/testing
+      run: |
+        echo "Current version: $CURRENT_VERSION"
+        echo "New version: $NEW_VERSION"
+        ESCAPED_CURRENT_VERSION="${CURRENT_VERSION//\./\\.}"
+        find . -type f -not -path './CHANGELOG.md' -not -path './docs/*' \
+          -not -path './RELEASING.md' \
+          -exec sed -i "s/$ESCAPED_CURRENT_VERSION/$NEW_VERSION/g" {} +
+
+    - name: Setup scarb
+      uses: software-mansion/setup-scarb@v1
+      id: setup_scarb
+      with:
+        scarb-version: ${{ env.SCARB_VERSION }}
+
+    - name: Build docs
+      working-directory: ./packages/testing
+      run: scarb doc
+
+    - name: Update docs
+      run: |
+        rm -rf ./packages/testing/docs
+        mv ./target/doc/openzeppelin_testing/src ./packages/testing/docs
+
+    - name: Auto-commit changes
+      uses: stefanzweifel/git-auto-commit-action@e348103e9026cc0eee72ae06630dbe30c8bf7a79 #v5.1.0
+      with:
+        commit_message: Bump openzeppelin_testing version to ${{ env.NEW_VERSION }} and update docs

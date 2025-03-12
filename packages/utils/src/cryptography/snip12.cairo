@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0 (utils/cryptography/snip12.cairo)
+// OpenZeppelin Contracts for Cairo v1.0.0 (utils/src/cryptography/snip12.cairo)
 
 use core::hash::{Hash, HashStateExTrait, HashStateTrait};
 use core::poseidon::{HashState, PoseidonTrait};
@@ -84,7 +84,7 @@ pub impl SNIP12HashSpanImpl<T, +Copy<T>, +Hash<T, HashState>> of Hash<Span<T>, H
         let mut inner_state = PoseidonTrait::new();
         for elem in value {
             inner_state = inner_state.update_with(*elem);
-        };
+        }
         state.update_with(inner_state.finalize())
     }
 }

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0 (governance/governor/proposal_core.cairo)
+// OpenZeppelin Contracts for Cairo v1.0.0 (governance/src/governor/proposal_core.cairo)
 
 use core::traits::DivRem;
-use starknet::ContractAddress;
 use starknet::storage_access::StorePacking;
+use starknet::ContractAddress;
 
 /// Proposal state.
 #[derive(Copy, Drop, Serde, PartialEq, Debug)]
@@ -38,7 +38,7 @@ const _2_POW_54: felt252 = 0x40000000000000;
 ///
 /// NOTE: In the second felt252, the first four bits are skipped to avoid representation errors due
 /// to `felt252` max value being a bit less than a 252 bits number max value
-/// (https://docs.starknet.io/documentation/architecture_and_concepts/Cryptography/p-value/).
+/// (https://docs.starknet.io/architecture-and-concepts/cryptography/#stark-field).
 impl ProposalCoreStorePacking of StorePacking<ProposalCore, (felt252, felt252)> {
     fn pack(value: ProposalCore) -> (felt252, felt252) {
         let proposal = value;
@@ -88,7 +88,7 @@ mod tests {
     #[test]
     fn test_pack_and_unpack() {
         let proposal = ProposalCore {
-            proposer: ALICE(),
+            proposer: ALICE,
             vote_start: 100,
             vote_duration: 200,
             executed: false,
@@ -103,7 +103,7 @@ mod tests {
     #[test]
     fn test_pack_and_unpack_big_values() {
         let proposal = ProposalCore {
-            proposer: ALICE(),
+            proposer: ALICE,
             vote_start: Bounded::MAX,
             vote_duration: Bounded::MAX,
             executed: true,

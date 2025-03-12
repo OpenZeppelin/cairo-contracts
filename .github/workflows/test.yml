@@ -1,4 +1,4 @@
-name: Lint and test
+name: Lint and test Cairo
 # This workflow runs linting and tests on all pull requests and pushes to the main branch.
 # It includes Markdown linting, Cairo formatting checks, running tests with coverage,
 # and uploading the coverage report to Codecov.
@@ -11,7 +11,7 @@ on:
 
 jobs:
   lint_and_test:
-    name: Lint and test
+    name: Lint and test Cairo
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -30,17 +30,15 @@ jobs:
           FOUNDRY_VERSION=$(grep 'snforge_std = ' Scarb.toml | sed 's/snforge_std = "\(.*\)"/\1/')
           echo "FOUNDRY_VERSION=$FOUNDRY_VERSION" >> "$GITHUB_ENV"
 
-      - uses: foundry-rs/setup-snfoundry@v3
+      - uses: foundry-rs/setup-snfoundry@v4
         with:
           starknet-foundry-version: ${{ env.FOUNDRY_VERSION }}
 
-      # Issue with cairo-coverage. Re-add to CI once issues are fixed.
-      #
-      # - name: Install cairo-coverage
-      #   run: curl -L https://raw.githubusercontent.com/software-mansion/cairo-coverage/main/scripts/install.sh | sh
+      - name: Install cairo-coverage
+        run: curl -L https://raw.githubusercontent.com/software-mansion/cairo-coverage/main/scripts/install.sh | sh
 
       - name: Markdown lint
-        uses: DavidAnson/markdownlint-cli2-action@a23dae216ce3fee4db69da41fed90d2a4af801cf # v16
+        uses: DavidAnson/markdownlint-cli2-action@05f32210e84442804257b2a6f20b273450ec8265 # v16
         with:
           globs: |
             *.md
@@ -52,13 +50,11 @@ jobs:
       - name: Run tests
         run: snforge test --workspace --features fuzzing --fuzzer-runs 500
 
-      # Issue with cairo-coverage. Re-add to CI once issues are fixed.
-      #
-      # - name: Run tests and generate coverage report
-      #   run: snforge test --workspace --coverage
-      #
-      # - name: Upload coverage to Codecov
-      #   uses: codecov/codecov-action@v4
-      #   with:
-      #     file: ./coverage.lcov
-      #     token: ${{ secrets.CODECOV_TOKEN }}
+      - name: Run tests and generate coverage report
+        run: snforge test --workspace --coverage
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage.lcov
+          token: ${{ secrets.CODECOV_TOKEN }}

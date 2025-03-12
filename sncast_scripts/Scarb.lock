@@ -3,15 +3,14 @@ version = 1
 
 [[package]]
 name = "openzeppelin_access"
-version = "0.20.0"
+version = "1.0.0"
 dependencies = [
  "openzeppelin_introspection",
- "openzeppelin_utils",
 ]
 
 [[package]]
 name = "openzeppelin_account"
-version = "0.20.0"
+version = "1.0.0"
 dependencies = [
  "openzeppelin_introspection",
  "openzeppelin_utils",
@@ -19,7 +18,7 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_finance"
-version = "0.20.0"
+version = "1.0.0"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_token",
@@ -27,11 +26,11 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_introspection"
-version = "0.20.0"
+version = "1.0.0"
 
 [[package]]
 name = "openzeppelin_presets"
-version = "0.20.0"
+version = "1.0.0"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_account",
@@ -44,14 +43,14 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_testing"
-version = "0.20.0"
+version = "1.0.0"
 dependencies = [
  "snforge_std",
 ]
 
 [[package]]
 name = "openzeppelin_token"
-version = "0.20.0"
+version = "1.0.0"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_account",
@@ -61,11 +60,11 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_upgrades"
-version = "0.20.0"
+version = "1.0.0"
 
 [[package]]
 name = "openzeppelin_utils"
-version = "0.20.0"
+version = "1.0.0"
 
 [[package]]
 name = "sncast_scripts"
@@ -84,15 +83,15 @@ checksum = "sha256:cfd7c73a6f9984880249babfa8664b69c5f7209c737b1081156a284061ccd
 
 [[package]]
 name = "snforge_scarb_plugin"
-version = "0.32.0"
+version = "0.34.0"
 source = "registry+https://scarbs.xyz/"
-checksum = "sha256:e5a0e80294b1f5f00955c614ee3fc94c843ff0d27935693c3598d0ac8d79250a"
+checksum = "sha256:56f2b06ff2f0d8bbdfb7fb6c211fba7e4da6e5334ea70ba849af329a739faf11"
 
 [[package]]
 name = "snforge_std"
-version = "0.32.0"
+version = "0.34.0"
 source = "registry+https://scarbs.xyz/"
-checksum = "sha256:0e3cb45c6276334fd142a77212f0592d55744f1c022b7a63f20bcd79d0ce3927"
+checksum = "sha256:bd20964bde07e6fd0f7adb50d41216f05d66abd422ed82241030369333385876"
 dependencies = [
  "snforge_scarb_plugin",
 ]

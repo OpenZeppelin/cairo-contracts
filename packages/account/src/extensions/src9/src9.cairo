@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0 (account/extensions/src9/src9.cairo)
+// OpenZeppelin Contracts for Cairo v1.0.0 (account/src/extensions/src9/src9.cairo)
 
 /// # SRC9 Component (Outside Execution)
 ///
@@ -10,15 +10,14 @@
 /// interface.
 #[starknet::component]
 pub mod SRC9Component {
-    use crate::extensions::src9::OutsideExecution;
-    use crate::extensions::src9::interface;
-    use crate::extensions::src9::snip12_utils::OutsideExecutionStructHash;
-    use crate::interface::{ISRC6Dispatcher, ISRC6DispatcherTrait};
-    use crate::utils::execute_calls;
-    use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
+    use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_utils::cryptography::snip12::{OffchainMessageHash, SNIP12Metadata};
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
+    use crate::extensions::src9::snip12_utils::OutsideExecutionStructHash;
+    use crate::extensions::src9::{OutsideExecution, interface};
+    use crate::interface::{ISRC6Dispatcher, ISRC6DispatcherTrait};
+    use crate::utils::execute_calls;
 
     #[storage]
     pub struct Storage {
@@ -122,7 +121,7 @@ pub mod SRC9Component {
         fn is_valid_outside_execution_nonce(
             self: @ComponentState<TContractState>, nonce: felt252,
         ) -> bool {
-            self.SRC9_nonces.read(nonce) == false
+            !self.SRC9_nonces.read(nonce)
         }
     }
 

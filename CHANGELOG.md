@@ -9,14 +9,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+- The openzeppelin_macros package with the `with_components` macro (#1282)
+- ERC4626Component (#1170)
+- `Math::u256_mul_div` (#1170)
+
+### Changed
+
+- Bump scarb to v2.11.1 (#1373)
+- Bump scarb to v2.10.1 (#1358)
+
 ### Changed (Breaking)
 
-- Bump scarb to v2.9.2 (#1239)
+- Add SRC-107 to ERC20Component (#1294)
+  - `decimals` are now configurable using the ImmutableConfig trait
+- Update UDC interface and preset for backward compatibility with v1 (#1371)
+  - Change `from_zero` argument to `not_from_zero` in both the interface and the
+    ContractDeployed event
+  - Add `deployContract` function to the preset
+  - Update salt hashing algorithm from Poseidon to Pedersen
+
+## 1.0.0 (2025-02-21)
+
+### Added
+
+- ERC721Component `initializer_no_metadata` (#1278)
+- ERC1155Component `initializer_no_metadata` (#1287)
+- Unsigned trait restriction to the `average` function (#1310)
+
+### Changed (Breaking)
+
+- Bump scarb to v2.9.4 (#1336)
+
+### Fixed (Breaking)
+
+- SNIP12 TimelockComponent `hash_operation` to use `hash_operation_batch` for single-call operations (#1313)
+- Permit and Message SNIP12 type hashes (#1283)
 
 ### Fixed
 
-- Fixed message type hash in SNIP12 doc (#1274)
-- Permit and Message SNIP12 hashes (#1283)
+- Multisig component issue arising when removing signers with unchanged quorum (#1315)
+- Governor timelock extension salt generation panicking on overflow (#1306)
+- SignersInfoStorePacking issue with bit operations (#1316)
+- Message type hash in SNIP12 doc (#1274)
 
 ## 0.20.0 (2024-12-06)
 
@@ -346,7 +382,7 @@ with new external functions (#1173)
 
 ### Removed
 
-- Non standard increase_allowance and decrease_allowance functions in ERC20 contract (#881)
+- Non-standard increase_allowance and decrease_allowance functions in ERC20 contract (#881)
 
 ## 0.8.1 (2024-01-23)
 

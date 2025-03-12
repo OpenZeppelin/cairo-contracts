@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0 (governance/timelock/timelock_controller.cairo)
+// OpenZeppelin Contracts for Cairo v1.0.0 (governance/src/timelock/timelock_controller.cairo)
 
 /// # TimelockController Component
 ///
@@ -17,21 +17,20 @@ pub mod TimelockControllerComponent {
     use core::hash::{HashStateExTrait, HashStateTrait};
     use core::num::traits::Zero;
     use core::pedersen::PedersenTrait;
+    use openzeppelin_access::accesscontrol::AccessControlComponent::{
+        AccessControlCamelImpl, AccessControlImpl, InternalTrait as AccessControlInternalTrait,
+    };
+    use openzeppelin_access::accesscontrol::{AccessControlComponent, DEFAULT_ADMIN_ROLE};
+    use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
+    use openzeppelin_introspection::src5::SRC5Component;
+    use starknet::account::Call;
+    use starknet::storage::{
+        Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
+        StoragePointerWriteAccess,
+    };
+    use starknet::{ContractAddress, SyscallResultTrait};
     use crate::timelock::interface::{ITimelock, OperationState, TimelockABI};
     use crate::utils::call_impls::{CallPartialEq, HashCallImpl, HashCallsImpl};
-    use openzeppelin_access::accesscontrol::AccessControlComponent;
-    use openzeppelin_access::accesscontrol::AccessControlComponent::InternalTrait as AccessControlInternalTrait;
-    use openzeppelin_access::accesscontrol::AccessControlComponent::{
-        AccessControlCamelImpl, AccessControlImpl,
-    };
-    use openzeppelin_access::accesscontrol::DEFAULT_ADMIN_ROLE;
-    use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
-    use starknet::ContractAddress;
-    use starknet::SyscallResultTrait;
-    use starknet::account::Call;
-    use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
-    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 
     // Constants
     pub const PROPOSER_ROLE: felt252 = selector!("PROPOSER_ROLE");
@@ -46,7 +45,7 @@ pub mod TimelockControllerComponent {
     }
 
     #[event]
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub enum Event {
         CallScheduled: CallScheduled,
         CallExecuted: CallExecuted,
@@ -56,7 +55,7 @@ pub mod TimelockControllerComponent {
     }
 
     /// Emitted when `call` is scheduled as part of operation `id`.
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct CallScheduled {
         #[key]
         pub id: felt252,
@@ -68,7 +67,7 @@ pub mod TimelockControllerComponent {
     }
 
     /// Emitted when `call` is performed as part of operation `id`.
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct CallExecuted {
         #[key]
         pub id: felt252,
@@ -78,7 +77,7 @@ pub mod TimelockControllerComponent {
     }
 
     /// Emitted when a new proposal is scheduled with non-zero salt.
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct CallSalt {
         #[key]
         pub id: felt252,
@@ -86,14 +85,14 @@ pub mod TimelockControllerComponent {
     }
 
     /// Emitted when operation `id` is cancelled.
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct CallCancelled {
         #[key]
         pub id: felt252,
     }
 
     /// Emitted when the minimum delay for future operations is modified.
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct MinDelayChanged {
         pub old_duration: u64,
         pub new_duration: u64,
@@ -185,11 +184,7 @@ pub mod TimelockControllerComponent {
         fn hash_operation(
             self: @ComponentState<TContractState>, call: Call, predecessor: felt252, salt: felt252,
         ) -> felt252 {
-            PedersenTrait::new(0)
-                .update_with(call)
-                .update_with(predecessor)
-                .update_with(salt)
-                .finalize()
+            Self::hash_operation_batch(self, array![call].span(), predecessor, salt)
         }
 
         /// Returns the identifier of an operation containing a batch of transactions.
@@ -260,7 +255,7 @@ pub mod TimelockControllerComponent {
             for call in calls {
                 self.emit(CallScheduled { id, index, call: *call, predecessor, delay });
                 index += 1;
-            };
+            }
 
             if salt != 0 {
                 self.emit(CallSalt { id, salt });
@@ -340,7 +335,7 @@ pub mod TimelockControllerComponent {
                 self._execute(*call);
                 self.emit(CallExecuted { id, index, call: *call });
                 index += 1;
-            };
+            }
 
             self._after_call(id);
         }
@@ -583,18 +578,18 @@ pub mod TimelockControllerComponent {
             // Optional admin
             if admin != Zero::zero() {
                 access_component._grant_role(DEFAULT_ADMIN_ROLE, admin)
-            };
+            }
 
             // Register proposers and cancellers
             for proposer in proposers {
                 access_component._grant_role(PROPOSER_ROLE, *proposer);
                 access_component._grant_role(CANCELLER_ROLE, *proposer);
-            };
+            }
 
             // Register executors
             for executor in executors {
                 access_component._grant_role(EXECUTOR_ROLE, *executor);
-            };
+            }
 
             // Set minimum delay
             self.TimelockController_min_delay.write(min_delay);

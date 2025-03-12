@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0 (upgrades/upgradeable.cairo)
+// OpenZeppelin Contracts for Cairo v1.0.0 (upgrades/src/upgradeable.cairo)
 
 /// # Upgradeable Component
 ///
@@ -13,13 +13,13 @@ pub mod UpgradeableComponent {
     pub struct Storage {}
 
     #[event]
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub enum Event {
         Upgraded: Upgraded,
     }
 
     /// Emitted when the contract is upgraded.
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct Upgraded {
         pub class_hash: ClassHash,
     }
@@ -69,7 +69,7 @@ pub mod UpgradeableComponent {
             let this = starknet::get_contract_address();
             // `call_contract_syscall` is used in order to call `selector` from the new class.
             // See:
-            // https://docs.starknet.io/documentation/architecture_and_concepts/Contracts/system-calls-cairo1/#replace_class
+            // https://docs.starknet.io/architecture-and-concepts/smart-contracts/system-calls-cairo1/#replace_class
             starknet::syscalls::call_contract_syscall(this, selector, calldata).unwrap_syscall()
         }
     }

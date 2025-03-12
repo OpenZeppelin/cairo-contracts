@@ -14,7 +14,7 @@ include::../utils/_common.adoc[]
 
 [.contract]
 [[ISRC6]]
-=== `++ISRC6++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.20.0/packages/account/src/interface.cairo[{github-icon},role=heading-link]
+=== `++ISRC6++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/account/src/interface.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin_account::interface::ISRC6;
@@ -67,11 +67,11 @@ Returns the short string `'VALID'` if valid, otherwise it reverts.
 
 [.contract]
 [[AccountComponent]]
-=== `++AccountComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.20.0/packages/account/src/account.cairo[{github-icon},role=heading-link]
+=== `++AccountComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/account/src/account.cairo[{github-icon},role=heading-link]
 
 :OwnerAdded: xref:AccountComponent-OwnerAdded[OwnerAdded]
 :OwnerRemoved: xref:AccountComponent-OwnerRemoved[OwnerRemoved]
-:starknet-curve: https://docs.starknet.io/documentation/architecture_and_concepts/Cryptography/stark-curve/[Starknet curve]
+:starknet-curve: https://docs.starknet.io/architecture-and-concepts/cryptography/#stark-curve[Starknet curve]
 
 ```cairo
 use openzeppelin_account::AccountComponent;
@@ -181,7 +181,7 @@ See xref:ISRC6-is_valid_signature[ISRC6::is_valid_signature].
 [[AccountComponent-__validate_declare__]]
 ==== `[.contract-item-name]#++__validate_declare__++#++(self: @ContractState, class_hash: felt252) → felt252++` [.item-kind]#external#
 
-Validates a https://docs.starknet.io/documentation/architecture_and_concepts/Network_Architecture/transactions/#declare-transaction[`Declare` transaction].
+Validates a https://docs.starknet.io/architecture-and-concepts/network-architecture/transactions/#declare-transaction[`Declare` transaction].
 
 Returns the short string `'VALID'` if valid, otherwise it reverts.
 
@@ -189,7 +189,7 @@ Returns the short string `'VALID'` if valid, otherwise it reverts.
 [[AccountComponent-__validate_deploy__]]
 ==== `[.contract-item-name]#++__validate_deploy__++#++(self: @ContractState, class_hash: felt252, contract_address_salt: felt252, public_key: felt252) → felt252++` [.item-kind]#external#
 
-Validates a https://docs.starknet.io/documentation/architecture_and_concepts/Network_Architecture/transactions/#deploy_account_transaction[`DeployAccount` transaction].
+Validates a https://docs.starknet.io/architecture-and-concepts/network-architecture/transactions/#deploy_account_transaction[`DeployAccount` transaction].
 See xref:/guides/deployment.adoc[Counterfactual Deployments].
 
 Returns the short string `'VALID'` if valid, otherwise it reverts.
@@ -317,7 +317,7 @@ Emitted when a `public_key` is removed.
 
 [.contract]
 [[EthAccountComponent]]
-=== `++EthAccountComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.20.0/packages/account/src/eth_account.cairo[{github-icon},role=heading-link]
+=== `++EthAccountComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/account/src/eth_account.cairo[{github-icon},role=heading-link]
 
 :OwnerAdded: xref:EthAccountComponent-OwnerAdded[OwnerAdded]
 :OwnerRemoved: xref:EthAccountComponent-OwnerRemoved[OwnerRemoved]
@@ -433,7 +433,7 @@ See xref:ISRC6-is_valid_signature[ISRC6::is_valid_signature].
 [[EthAccountComponent-__validate_declare__]]
 ==== `[.contract-item-name]#++__validate_declare__++#++(self: @ContractState, class_hash: felt252) → felt252++` [.item-kind]#external#
 
-Validates a https://docs.starknet.io/documentation/architecture_and_concepts/Network_Architecture/Blocks/transactions/#declare-transaction[`Declare` transaction].
+Validates a https://docs.starknet.io/architecture-and-concepts/network-architecture/transactions/#declare-transaction[`Declare` transaction].
 
 Returns the short string `'VALID'` if valid, otherwise it reverts.
 
@@ -441,7 +441,7 @@ Returns the short string `'VALID'` if valid, otherwise it reverts.
 [[EthAccountComponent-__validate_deploy__]]
 ==== `[.contract-item-name]#++__validate_deploy__++#++(self: @ContractState, class_hash: felt252, contract_address_salt: felt252, public_key: EthPublicKey) → felt252++` [.item-kind]#external#
 
-Validates a https://docs.starknet.io/documentation/architecture_and_concepts/Network_Architecture/Blocks/transactions/#deploy_account_transaction[`DeployAccount` transaction].
+Validates a https://docs.starknet.io/architecture-and-concepts/network-architecture/transactions/#deploy_account_transaction[`DeployAccount` transaction].
 See xref:/guides/deployment.adoc[Counterfactual Deployments].
 
 Returns the short string `'VALID'` if valid, otherwise it reverts.
@@ -572,7 +572,7 @@ Emitted when a `public_key` is removed.
 
 [.contract]
 [[ISRC9_V2]]
-=== `++ISRC9_V2++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.20.0/packages/account/src/extensions/src9/interface.cairo[{github-icon},role=heading-link]
+=== `++ISRC9_V2++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/account/src/extensions/src9/interface.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin_account::extensions::src9::ISRC9_V2;
@@ -622,7 +622,7 @@ Get the status of a given nonce. `true` if the nonce is available to use.
 
 [.contract]
 [[SRC9Component]]
-=== `++SRC9Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.20.0/packages/account/src/extensions/src9/src9.cairo[{github-icon},role=heading-link]
+=== `++SRC9Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/account/src/extensions/src9/src9.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin_account::extensions::SRC9Component;
@@ -698,7 +698,7 @@ Initializes the account by registering the `ISRC9_V2` interface ID.
 
 [.contract]
 [[AccountUpgradeable]]
-=== `++AccountUpgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.20.0/packages/presets/src/account.cairo[{github-icon},role=heading-link]
+=== `++AccountUpgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/presets/src/account.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin_presets::AccountUpgradeable;
@@ -762,7 +762,7 @@ Requirements:
 
 [.contract]
 [[EthAccountUpgradeable]]
-=== `++EthAccountUpgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.20.0/packages/presets/src/eth_account.cairo[{github-icon},role=heading-link]
+=== `++EthAccountUpgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/presets/src/eth_account.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin_presets::EthAccountUpgradeable;

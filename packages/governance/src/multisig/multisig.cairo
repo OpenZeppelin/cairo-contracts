@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0 (governance/multisig/multisig.cairo)
+// OpenZeppelin Contracts for Cairo v1.0.0 (governance/src/multisig/multisig.cairo)
 
 /// # Multisig Component
 ///
@@ -17,17 +17,20 @@
 pub mod MultisigComponent {
     use core::hash::{HashStateExTrait, HashStateTrait};
     use core::num::traits::Zero;
-    use core::panic_with_felt252;
     use core::pedersen::PedersenTrait;
-    use crate::multisig::interface::{IMultisig, TransactionID, TransactionState};
-    use crate::multisig::storage_utils::{SignersInfo, SignersInfoStorePacking};
-    use crate::multisig::storage_utils::{TxInfo, TxInfoStorePacking};
-    use crate::utils::call_impls::{CallPartialEq, HashCallImpl, HashCallsImpl};
+    use core::panic_with_felt252;
     use starknet::account::Call;
-    use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
-    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use starknet::storage::{
+        Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
+        StoragePointerWriteAccess,
+    };
     use starknet::syscalls::call_contract_syscall;
     use starknet::{ContractAddress, SyscallResultTrait};
+    use crate::multisig::interface::{IMultisig, TransactionID, TransactionState};
+    use crate::multisig::storage_utils::{
+        SignersInfo, SignersInfoStorePackingV2, TxInfo, TxInfoStorePacking,
+    };
+    use crate::utils::call_impls::{CallPartialEq, HashCallImpl, HashCallsImpl};
 
     #[storage]
     pub struct Storage {
@@ -40,7 +43,7 @@ pub mod MultisigComponent {
     }
 
     #[event]
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub enum Event {
         SignerAdded: SignerAdded,
         SignerRemoved: SignerRemoved,
@@ -53,28 +56,28 @@ pub mod MultisigComponent {
     }
 
     /// Emitted when a new `signer` is added.
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct SignerAdded {
         #[key]
         pub signer: ContractAddress,
     }
 
     /// Emitted when a `signer` is removed.
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct SignerRemoved {
         #[key]
         pub signer: ContractAddress,
     }
 
     /// Emitted when the `quorum` value is updated.
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct QuorumUpdated {
         pub old_quorum: u32,
         pub new_quorum: u32,
     }
 
     /// Emitted when a new transaction is submitted by a `signer`.
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct TransactionSubmitted {
         #[key]
         pub id: TransactionID,
@@ -83,7 +86,7 @@ pub mod MultisigComponent {
     }
 
     /// Emitted when a transaction is confirmed by a `signer`.
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct TransactionConfirmed {
         #[key]
         pub id: TransactionID,
@@ -92,7 +95,7 @@ pub mod MultisigComponent {
     }
 
     /// Emitted when a `signer` revokes his confirmation.
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct ConfirmationRevoked {
         #[key]
         pub id: TransactionID,
@@ -101,14 +104,14 @@ pub mod MultisigComponent {
     }
 
     /// Emitted when a transaction is executed.
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct TransactionExecuted {
         #[key]
         pub id: TransactionID,
     }
 
     /// Emitted when a new transaction is submitted with non-zero salt.
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct CallSalt {
         #[key]
         pub id: felt252,
@@ -156,7 +159,7 @@ pub mod MultisigComponent {
             let signers_count = self.Multisig_signers_info.read().signers_count;
             for i in 0..signers_count {
                 result.append(self.Multisig_signers_by_index.read(i));
-            };
+            }
             result.span()
         }
 
@@ -221,7 +224,7 @@ pub mod MultisigComponent {
                 if self.is_confirmed_by(id, *signer) {
                     result += 1;
                 }
-            };
+            }
             result
         }
 
@@ -450,7 +453,7 @@ pub mod MultisigComponent {
                     for call in calls {
                         let Call { to, selector, calldata } = *call;
                         call_contract_syscall(to, selector, calldata).unwrap_syscall();
-                    };
+                    }
                     self.emit(TransactionExecuted { id });
                 },
             };
@@ -568,7 +571,7 @@ pub mod MultisigComponent {
                     self.emit(SignerAdded { signer: signer_to_add });
 
                     signers_count += 1;
-                };
+                }
                 self.Multisig_signers_info.write(SignersInfo { quorum, signers_count });
             }
             self._change_quorum(new_quorum);
@@ -611,7 +614,7 @@ pub mod MultisigComponent {
                     self.emit(SignerRemoved { signer: signer_to_remove });
 
                     signers_count -= 1;
-                };
+                }
                 self.Multisig_signers_info.write(SignersInfo { quorum, signers_count });
             }
             self._change_quorum(new_quorum);
@@ -659,9 +662,9 @@ pub mod MultisigComponent {
             let SignersInfo {
                 quorum: old_quorum, signers_count,
             } = self.Multisig_signers_info.read();
+            assert(new_quorum.is_non_zero(), Errors::ZERO_QUORUM);
+            assert(new_quorum <= signers_count, Errors::QUORUM_TOO_HIGH);
             if new_quorum != old_quorum {
-                assert(new_quorum.is_non_zero(), Errors::ZERO_QUORUM);
-                assert(new_quorum <= signers_count, Errors::QUORUM_TOO_HIGH);
                 self.Multisig_signers_info.write(SignersInfo { quorum: new_quorum, signers_count });
                 self.emit(QuorumUpdated { old_quorum, new_quorum });
             }

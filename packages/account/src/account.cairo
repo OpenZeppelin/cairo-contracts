@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0 (account/account.cairo)
+// OpenZeppelin Contracts for Cairo v1.0.0 (account/src/account.cairo)
 
 /// # Account Component
 ///
@@ -9,13 +9,14 @@ pub mod AccountComponent {
     use core::hash::{HashStateExTrait, HashStateTrait};
     use core::num::traits::Zero;
     use core::poseidon::PoseidonTrait;
-    use crate::interface;
-    use crate::utils::{execute_calls, is_tx_version_valid, is_valid_stark_signature};
+    use openzeppelin_introspection::src5::SRC5Component::{
+        InternalTrait as SRC5InternalTrait, SRC5Impl,
+    };
     use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
-    use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
     use starknet::account::Call;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use crate::utils::{execute_calls, is_tx_version_valid, is_valid_stark_signature};
+    use crate::interface;
 
     #[storage]
     pub struct Storage {
@@ -23,19 +24,19 @@ pub mod AccountComponent {
     }
 
     #[event]
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub enum Event {
         OwnerAdded: OwnerAdded,
         OwnerRemoved: OwnerRemoved,
     }
 
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct OwnerAdded {
         #[key]
         pub new_owner_guid: felt252,
     }
 
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct OwnerRemoved {
         #[key]
         pub removed_owner_guid: felt252,

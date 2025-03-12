@@ -1,7 +1,7 @@
 #[starknet::contract(account)]
 pub mod SRC9AccountMock {
-    use openzeppelin_account::AccountComponent;
     use openzeppelin_account::extensions::SRC9Component;
+    use openzeppelin_account::AccountComponent;
     use openzeppelin_introspection::src5::SRC5Component;
     use starknet::storage::StoragePointerWriteAccess;
 
@@ -22,7 +22,7 @@ pub mod SRC9AccountMock {
         SRC9Component::OutsideExecutionV2Impl<ContractState>;
     impl OutsideExecutionInternalImpl = SRC9Component::InternalImpl<ContractState>;
 
-    // SCR5
+    // SRC5
     #[abi(embed_v0)]
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 

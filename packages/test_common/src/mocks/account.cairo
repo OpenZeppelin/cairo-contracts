@@ -17,7 +17,7 @@ pub mod DualCaseAccountMock {
     impl DeployableImpl = AccountComponent::DeployableImpl<ContractState>;
     impl AccountInternalImpl = AccountComponent::InternalImpl<ContractState>;
 
-    // SCR5
+    // SRC5
     #[abi(embed_v0)]
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
@@ -59,7 +59,7 @@ pub mod SnakeAccountMock {
     impl PublicKeyImpl = AccountComponent::PublicKeyImpl<ContractState>;
     impl AccountInternalImpl = AccountComponent::InternalImpl<ContractState>;
 
-    // SCR5
+    // SRC5
     #[abi(embed_v0)]
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
@@ -88,8 +88,8 @@ pub mod SnakeAccountMock {
 
 #[starknet::contract(account)]
 pub mod DualCaseEthAccountMock {
-    use openzeppelin_account::EthAccountComponent;
     use openzeppelin_account::interface::EthPublicKey;
+    use openzeppelin_account::EthAccountComponent;
     use openzeppelin_introspection::src5::SRC5Component;
 
     component!(path: EthAccountComponent, storage: eth_account, event: EthAccountEvent);
@@ -132,8 +132,8 @@ pub mod DualCaseEthAccountMock {
 
 #[starknet::contract(account)]
 pub mod SnakeEthAccountMock {
-    use openzeppelin_account::EthAccountComponent;
     use openzeppelin_account::interface::EthPublicKey;
+    use openzeppelin_account::EthAccountComponent;
     use openzeppelin_introspection::src5::SRC5Component;
 
     component!(path: EthAccountComponent, storage: eth_account, event: EthAccountEvent);

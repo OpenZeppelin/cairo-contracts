@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0 (presets/eth_account.cairo)
+// OpenZeppelin Contracts for Cairo v1.0.0 (presets/src/eth_account.cairo)
 
 /// # EthAccount Preset
 ///
@@ -8,12 +8,12 @@
 /// implementing SRC9.
 #[starknet::contract(account)]
 pub(crate) mod EthAccountUpgradeable {
-    use openzeppelin_account::EthAccountComponent;
     use openzeppelin_account::extensions::SRC9Component;
     use openzeppelin_account::interface::EthPublicKey;
+    use openzeppelin_account::EthAccountComponent;
     use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_upgrades::UpgradeableComponent;
     use openzeppelin_upgrades::interface::IUpgradeable;
+    use openzeppelin_upgrades::UpgradeableComponent;
     use starknet::ClassHash;
 
     component!(path: EthAccountComponent, storage: eth_account, event: EthAccountEvent);

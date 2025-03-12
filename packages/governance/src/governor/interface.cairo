@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0 (governance/governor/interface.cairo)
+// OpenZeppelin Contracts for Cairo v1.0.0 (governance/src/governor/interface.cairo)
 
-use starknet::ContractAddress;
 use starknet::account::Call;
+use starknet::ContractAddress;
 
 pub const IGOVERNOR_ID: felt252 = 0x1100a1f8546595b5bd75a6cd8fcc5b015370655e66f275963321c5cd0357ac9;
 
@@ -48,7 +48,7 @@ pub trait IGovernor<TState> {
     /// - `quorum=bravo` means that only For votes are counted towards quorum.
     /// - `quorum=for,abstain` means that both For and Abstain votes are counted towards quorum.
     ///
-    /// If a counting module makes use of encoded `params`, it should  include this under a `params`
+    /// If a counting module makes use of encoded `params`, it should include this under a `params`
     /// key with a unique name that describes the behavior. For example:
     ///
     /// - `params=fractional` might refer to a scheme where votes are divided fractionally between

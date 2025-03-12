@@ -65,13 +65,12 @@ pub trait IReentrancyMock<TState> {
 #[starknet::contract]
 pub mod ReentrancyMock {
     use openzeppelin_security::reentrancyguard::ReentrancyGuardComponent;
-    use starknet::ContractAddress;
-    use starknet::get_contract_address;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
-    use super::IAttackerDispatcher;
-    use super::IAttackerDispatcherTrait;
-    use super::IReentrancyGuardedDispatcher;
-    use super::IReentrancyGuardedDispatcherTrait;
+    use starknet::{ContractAddress, get_contract_address};
+    use super::{
+        IAttackerDispatcher, IAttackerDispatcherTrait, IReentrancyGuardedDispatcher,
+        IReentrancyGuardedDispatcherTrait,
+    };
 
     component!(
         path: ReentrancyGuardComponent, storage: reentrancy_guard, event: ReentrancyGuardEvent,
@@ -155,10 +154,8 @@ trait IAttacker<TState> {
 
 #[starknet::contract]
 pub mod Attacker {
-    use starknet::ContractAddress;
-    use starknet::get_caller_address;
-    use super::IReentrancyMockDispatcher;
-    use super::IReentrancyMockDispatcherTrait;
+    use starknet::{ContractAddress, get_caller_address};
+    use super::{IReentrancyMockDispatcher, IReentrancyMockDispatcherTrait};
 
     #[storage]
     pub struct Storage {}

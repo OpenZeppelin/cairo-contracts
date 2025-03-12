@@ -33,7 +33,7 @@ Here's an example of how to structure a simple ERC20Votes contract:
 #[starknet::contract]
 mod ERC20VotesContract {
     use openzeppelin_governance::votes::VotesComponent;
-    use openzeppelin_token::erc20::ERC20Component;
+    use openzeppelin_token::erc20::{ERC20Component, DefaultConfig};
     use openzeppelin_utils::cryptography::nonces::NoncesComponent;
     use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
     use starknet::ContractAddress;
@@ -87,7 +87,7 @@ mod ERC20VotesContract {
         }
     }
 
-    // We need to call the `transfer_voting_units` function after 
+    // We need to call the `transfer_voting_units` function after
     // every mint, burn and transfer.
     // For this, we use the `after_update` hook of the `ERC20Component::ERC20HooksTrait`.
     impl ERC20VotesHooksImpl of ERC20Component::ERC20HooksTrait<ContractState> {
@@ -110,7 +110,6 @@ mod ERC20VotesContract {
 ----
 
 And here's an example of how to structure a simple ERC721Votes contract:
-
 
 [source,cairo]
 ----

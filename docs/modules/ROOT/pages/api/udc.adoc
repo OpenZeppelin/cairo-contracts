@@ -8,7 +8,7 @@ Reference of the Universal Deployer Contract (UDC) interface and preset.
 
 [.contract]
 [[IUniversalDeployer]]
-=== `++IUniversalDeployer++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.20.0/packages/utils/src/deployments/interface.cairo[{github-icon},role=heading-link]
+=== `++IUniversalDeployer++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/utils/src/deployments/interface.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin_utils::interfaces::IUniversalDeployer;
@@ -51,7 +51,7 @@ Emitted when `deployer` deploys a contract through the Universal Deployer Contra
 
 [.contract]
 [[UniversalDeployer]]
-=== `++UniversalDeployer++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v0.20.0/packages/presets/src/universal_deployer.cairo[{github-icon},role=heading-link]
+=== `++UniversalDeployer++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/presets/src/universal_deployer.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin_presets::UniversalDeployer;

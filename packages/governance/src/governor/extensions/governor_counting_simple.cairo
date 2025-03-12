@@ -1,20 +1,22 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0
-// (governance/governor/extensions/governor_counting_simple.cairo)
+// OpenZeppelin Contracts for Cairo v1.0.0
+// (governance/src/governor/extensions/governor_counting_simple.cairo)
 
 /// # GovernorCountingSimple Component
 ///
 /// Extension of GovernorComponent for simple vote counting with three options.
 #[starknet::component]
 pub mod GovernorCountingSimpleComponent {
-    use crate::governor::GovernorComponent;
+    use openzeppelin_introspection::src5::SRC5Component;
+    use starknet::storage::{
+        Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePathEntry,
+        StoragePointerReadAccess, StoragePointerWriteAccess,
+    };
+    use starknet::ContractAddress;
     use crate::governor::GovernorComponent::{
         ComponentState as GovernorComponentState, InternalTrait,
     };
-    use openzeppelin_introspection::src5::SRC5Component;
-    use starknet::ContractAddress;
-    use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePathEntry};
-    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use crate::governor::GovernorComponent;
 
     type ProposalId = felt252;
 

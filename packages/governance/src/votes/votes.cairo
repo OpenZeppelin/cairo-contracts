@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0 (governance/votes/votes.cairo)
+// OpenZeppelin Contracts for Cairo v1.0.0 (governance/src/votes/votes.cairo)
 
 /// # Votes Component
 ///
@@ -20,25 +20,25 @@
 /// purpose, as shown in the following ERC20 example:
 ///
 /// See [the documentation]
-/// (https://docs.openzeppelin.com/contracts-cairo/0.20.0/governance.html#usage_2)
+/// (https://docs.openzeppelin.com/contracts-cairo/1.0.0/governance.html#usage_2)
 /// for examples and more details.
 #[starknet::component]
 pub mod VotesComponent {
     use core::num::traits::Zero;
-    use crate::votes::delegation::Delegation;
-    use crate::votes::interface::IVotes;
     use openzeppelin_account::interface::{ISRC6Dispatcher, ISRC6DispatcherTrait};
     use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_token::erc20::ERC20Component;
     use openzeppelin_token::erc20::interface::IERC20;
-    use openzeppelin_token::erc721::ERC721Component;
+    use openzeppelin_token::erc20::ERC20Component;
     use openzeppelin_token::erc721::interface::IERC721;
+    use openzeppelin_token::erc721::ERC721Component;
     use openzeppelin_utils::cryptography::snip12::{OffchainMessageHash, SNIP12Metadata};
-    use openzeppelin_utils::nonces::NoncesComponent;
     use openzeppelin_utils::nonces::NoncesComponent::InternalTrait as NoncesInternalTrait;
+    use openzeppelin_utils::nonces::NoncesComponent;
     use openzeppelin_utils::structs::checkpoint::{Checkpoint, Trace, TraceTrait};
-    use starknet::ContractAddress;
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePathEntry};
+    use starknet::ContractAddress;
+    use crate::votes::delegation::Delegation;
+    use crate::votes::interface::IVotes;
 
     #[storage]
     pub struct Storage {
@@ -48,14 +48,14 @@ pub mod VotesComponent {
     }
 
     #[event]
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub enum Event {
         DelegateChanged: DelegateChanged,
         DelegateVotesChanged: DelegateVotesChanged,
     }
 
     /// Emitted when `delegator` delegates their votes from `from_delegate` to `to_delegate`.
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct DelegateChanged {
         #[key]
         pub delegator: ContractAddress,
@@ -66,7 +66,7 @@ pub mod VotesComponent {
     }
 
     /// Emitted when `delegate` votes are updated from `previous_votes` to `new_votes`.
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct DelegateVotesChanged {
         #[key]
         pub delegate: ContractAddress,

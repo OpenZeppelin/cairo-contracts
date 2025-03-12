@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0 (utils/cryptography/nonces.cairo)
+// OpenZeppelin Contracts for Cairo v1.0.0 (utils/src/cryptography/nonces.cairo)
 
 /// # Nonces Component
 ///
@@ -8,9 +8,9 @@
 /// when contracts accept signatures as input.
 #[starknet::component]
 pub mod NoncesComponent {
-    use crate::interfaces::INonces;
-    use starknet::ContractAddress;
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
+    use starknet::ContractAddress;
+    use crate::interfaces::INonces;
 
     #[storage]
     pub struct Storage {

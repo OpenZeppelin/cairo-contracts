@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0 (finance/vesting/vesting.cairo)
+// OpenZeppelin Contracts for Cairo v1.0.0 (finance/src/vesting/vesting.cairo)
 
 use starknet::ContractAddress;
 
@@ -29,13 +29,15 @@ use starknet::ContractAddress;
 ///   vesting schedule to ensure the vested amount is as intended.
 #[starknet::component]
 pub mod VestingComponent {
-    use crate::vesting::interface;
-    use openzeppelin_access::ownable::OwnableComponent;
     use openzeppelin_access::ownable::OwnableComponent::OwnableImpl;
+    use openzeppelin_access::ownable::OwnableComponent;
     use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+    use starknet::storage::{
+        Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
+        StoragePointerWriteAccess,
+    };
     use starknet::ContractAddress;
-    use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
-    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use crate::vesting::interface;
 
     #[storage]
     pub struct Storage {
@@ -46,13 +48,13 @@ pub mod VestingComponent {
     }
 
     #[event]
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub enum Event {
         AmountReleased: AmountReleased,
     }
 
     /// Emitted when vested tokens are released to the beneficiary.
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct AmountReleased {
         #[key]
         pub token: ContractAddress,

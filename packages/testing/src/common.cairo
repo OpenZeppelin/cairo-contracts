@@ -13,7 +13,8 @@ pub fn panic_data_to_byte_array(panic_data: Array<felt252>) -> ByteArray {
 
     match Serde::<ByteArray>::deserialize(ref panic_data) {
         Option::Some(string) => string,
-        Option::None => panic!("Failed to deserialize panic data."),
+        Option::None => { #[allow(panic)]
+        panic!("Failed to deserialize panic data.") },
     }
 }
 

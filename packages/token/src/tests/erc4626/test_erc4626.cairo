@@ -4,6 +4,7 @@ use openzeppelin_test_common::mocks::erc20::{
     IERC20ReentrantDispatcher, IERC20ReentrantDispatcherTrait, Type,
 };
 use openzeppelin_test_common::mocks::erc4626::{ERC4626LimitsMock, ERC4626Mock};
+use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{ALICE, BOB, NAME, OTHER, RECIPIENT, SPENDER, SYMBOL, ZERO};
 use openzeppelin_testing::{AsAddressTrait, EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use openzeppelin_utils::serde::SerializedAppend;
@@ -15,7 +16,6 @@ use crate::erc20::extensions::erc4626::ERC4626Component::{
 };
 use crate::erc20::extensions::erc4626::interface::{ERC4626ABIDispatcher, ERC4626ABIDispatcherTrait};
 use crate::erc20::extensions::erc4626::{DefaultConfig, ERC4626Component};
-use openzeppelin_testing as utils;
 
 //
 // Constants

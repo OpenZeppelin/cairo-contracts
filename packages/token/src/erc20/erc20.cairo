@@ -18,15 +18,15 @@ pub mod ERC20Component {
     use openzeppelin_utils::cryptography::snip12::{
         OffchainMessageHash, SNIP12Metadata, StarknetDomain, StructHash,
     };
-    use openzeppelin_utils::nonces::NoncesComponent::InternalTrait as NoncesInternalTrait;
     use openzeppelin_utils::nonces::NoncesComponent;
+    use openzeppelin_utils::nonces::NoncesComponent::InternalTrait as NoncesInternalTrait;
+    use starknet::ContractAddress;
     use starknet::storage::{
         Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
         StoragePointerWriteAccess,
     };
-    use starknet::ContractAddress;
-    use crate::erc20::snip12_utils::permit::Permit;
     use crate::erc20::interface;
+    use crate::erc20::snip12_utils::permit::Permit;
 
     // This default decimals is only used when the DefaultConfig
     // is in scope in the implementing contract.

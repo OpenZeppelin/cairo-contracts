@@ -1,6 +1,6 @@
+use starknet::SyscallResultTrait;
 use starknet::secp256_trait::{Secp256PointTrait, Secp256Trait};
 use starknet::secp256k1::Secp256k1Point;
-use starknet::SyscallResultTrait;
 use crate::utils::secp256_point::{
     DebugSecp256Point, Secp256PointPartialEq, Secp256PointStorePacking as StorePacking,
 };

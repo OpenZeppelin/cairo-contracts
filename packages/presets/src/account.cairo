@@ -7,11 +7,11 @@
 /// contracts. Supports outside execution by implementing SRC9.
 #[starknet::contract(account)]
 pub mod AccountUpgradeable {
-    use openzeppelin_account::extensions::SRC9Component;
     use openzeppelin_account::AccountComponent;
+    use openzeppelin_account::extensions::SRC9Component;
     use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_upgrades::interface::IUpgradeable;
     use openzeppelin_upgrades::UpgradeableComponent;
+    use openzeppelin_upgrades::interface::IUpgradeable;
     use starknet::ClassHash;
 
     component!(path: AccountComponent, storage: account, event: AccountEvent);

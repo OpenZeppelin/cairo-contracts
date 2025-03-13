@@ -1,10 +1,11 @@
 use core::num::traits::{Bounded, Zero};
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
-use openzeppelin_test_common::mocks::governor::GovernorMock::SNIP12MetadataImpl;
 use openzeppelin_test_common::mocks::governor::GovernorMock;
+use openzeppelin_test_common::mocks::governor::GovernorMock::SNIP12MetadataImpl;
 use openzeppelin_test_common::mocks::timelock::{
     IMockContractDispatcher, IMockContractDispatcherTrait,
 };
+use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{ADMIN, OTHER, VOTES_TOKEN, ZERO};
 use openzeppelin_testing::{AsAddressTrait, EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use openzeppelin_utils::bytearray::ByteArrayExtTrait;
@@ -14,9 +15,9 @@ use snforge_std::{
     start_cheat_block_timestamp_global, start_cheat_caller_address, start_cheat_chain_id_global,
     start_mock_call, test_address,
 };
+use starknet::ContractAddress;
 use starknet::account::Call;
 use starknet::storage::{StorageMapWriteAccess, StoragePathEntry, StoragePointerWriteAccess};
-use starknet::ContractAddress;
 use crate::governor::GovernorComponent::{InternalExtendedImpl, InternalImpl};
 use crate::governor::interface::{
     IGOVERNOR_ID, IGovernor, IGovernorDispatcher, IGovernorDispatcherTrait, ProposalState,
@@ -29,7 +30,6 @@ use crate::tests::governor::common::{
     setup_executed_proposal, setup_pending_proposal, setup_queued_proposal,
     setup_succeeded_proposal,
 };
-use openzeppelin_testing as utils;
 
 //
 // Dispatchers

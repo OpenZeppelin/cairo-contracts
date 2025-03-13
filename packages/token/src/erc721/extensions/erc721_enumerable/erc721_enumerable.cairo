@@ -17,16 +17,16 @@
 #[starknet::component]
 pub mod ERC721EnumerableComponent {
     use core::num::traits::Zero;
-    use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin_introspection::src5::SRC5Component;
+    use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
+    use starknet::ContractAddress;
     use starknet::storage::{
         Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
         StoragePointerWriteAccess,
     };
-    use starknet::ContractAddress;
+    use crate::erc721::ERC721Component;
     use crate::erc721::ERC721Component::{ERC721Impl, InternalImpl as ERC721InternalImpl};
     use crate::erc721::extensions::erc721_enumerable::interface;
-    use crate::erc721::ERC721Component;
 
     #[storage]
     pub struct Storage {

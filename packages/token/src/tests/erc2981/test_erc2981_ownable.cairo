@@ -1,5 +1,5 @@
-use openzeppelin_access::ownable::OwnableComponent::InternalImpl as OwnableInternalImpl;
 use openzeppelin_access::ownable::OwnableComponent;
+use openzeppelin_access::ownable::OwnableComponent::InternalImpl as OwnableInternalImpl;
 use openzeppelin_test_common::mocks::erc2981::ERC2981OwnableMock;
 use openzeppelin_testing::constants::{OTHER, OWNER, RECIPIENT, ZERO};
 use snforge_std::{start_cheat_caller_address, test_address};

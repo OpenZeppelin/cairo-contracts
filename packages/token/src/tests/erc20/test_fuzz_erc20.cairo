@@ -5,8 +5,8 @@ use openzeppelin_test_common::mocks::erc20::DualCaseERC20Mock;
 use openzeppelin_testing::constants::{NAME, OWNER, RECIPIENT, SPENDER, SYMBOL};
 use snforge_std::{start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
-use crate::erc20::ERC20Component::{ERC20CamelOnlyImpl, ERC20Impl, ERC20MetadataImpl, InternalImpl};
 use crate::erc20::ERC20Component;
+use crate::erc20::ERC20Component::{ERC20CamelOnlyImpl, ERC20Impl, ERC20MetadataImpl, InternalImpl};
 
 //
 // Setup

@@ -1,3 +1,4 @@
+use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{CALLER, NAME, RECIPIENT, SALT, SUPPLY, SYMBOL};
 use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
@@ -8,9 +9,8 @@ use openzeppelin_utils::interfaces::{
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::start_cheat_caller_address;
 use starknet::{ClassHash, ContractAddress};
-use crate::universal_deployer::UniversalDeployer::ContractDeployed;
 use crate::universal_deployer::UniversalDeployer;
-use openzeppelin_testing as utils;
+use crate::universal_deployer::UniversalDeployer::ContractDeployed;
 
 fn ERC20_CLASS_HASH() -> ClassHash {
     utils::declare_class("DualCaseERC20Mock").class_hash

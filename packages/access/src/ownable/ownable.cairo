@@ -14,12 +14,13 @@
 /// transfer where the new owner first has to accept their ownership to
 /// finalize the transfer.
 #[starknet::component]
+#[allow(enum_variant_names)]
 pub mod OwnableComponent {
     use core::num::traits::Zero;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
     use starknet::{ContractAddress, get_caller_address};
-    use crate::ownable::interface::IOwnableTwoStep;
     use crate::ownable::interface;
+    use crate::ownable::interface::IOwnableTwoStep;
 
     #[storage]
     pub struct Storage {

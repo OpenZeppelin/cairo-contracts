@@ -1,5 +1,5 @@
-use openzeppelin_finance::vesting::VestingComponent::AmountReleased;
 use openzeppelin_finance::vesting::VestingComponent;
+use openzeppelin_finance::vesting::VestingComponent::AmountReleased;
 use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy};
 use starknet::ContractAddress;
 

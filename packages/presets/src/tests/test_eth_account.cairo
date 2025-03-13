@@ -1,11 +1,4 @@
 use core::num::traits::Zero;
-use crate::interfaces::eth_account::{
-    EthAccountUpgradeableABISafeDispatcher, EthAccountUpgradeableABISafeDispatcherTrait,
-};
-use crate::interfaces::{
-    EthAccountUpgradeableABIDispatcher, EthAccountUpgradeableABIDispatcherTrait,
-};
-use crate::EthAccountUpgradeable;
 use openzeppelin_account::eth_account::EthAccountComponent::EthAccountMixinImpl;
 use openzeppelin_account::extensions::SRC9Component::{OutsideExecutionV2Impl, SNIP12MetadataImpl};
 use openzeppelin_account::extensions::src9::interface::{ISRC9_V2_ID, OutsideExecution};
@@ -18,6 +11,7 @@ use openzeppelin_test_common::eth_account::{
     EthAccountSpyHelpers, SIGNED_TX_DATA, SignedTransactionData, get_accept_ownership_signature,
 };
 use openzeppelin_test_common::upgrades::UpgradeableSpyHelpers;
+use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::secp256k1::{KEY_PAIR, KEY_PAIR_2};
 use openzeppelin_testing::constants::{
     CALLER, CLASS_HASH_ZERO, FELT_VALUE, MIN_TRANSACTION_VERSION, OTHER, QUERY_VERSION, RECIPIENT,
@@ -37,7 +31,13 @@ use starknet::account::Call;
 use starknet::secp256_trait::Secp256Trait;
 use starknet::secp256k1::Secp256k1Point;
 use starknet::{ClassHash, ContractAddress, SyscallResultTrait};
-use openzeppelin_testing as utils;
+use crate::EthAccountUpgradeable;
+use crate::interfaces::eth_account::{
+    EthAccountUpgradeableABISafeDispatcher, EthAccountUpgradeableABISafeDispatcherTrait,
+};
+use crate::interfaces::{
+    EthAccountUpgradeableABIDispatcher, EthAccountUpgradeableABIDispatcherTrait,
+};
 
 fn declare_v2_class() -> ClassHash {
     utils::declare_class("SnakeEthAccountMock").class_hash

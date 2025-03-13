@@ -11,13 +11,13 @@ use openzeppelin_testing::constants::{
 };
 use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use snforge_std::{start_cheat_caller_address, test_address};
-use starknet::storage::StoragePointerReadAccess;
 use starknet::ContractAddress;
+use starknet::storage::StoragePointerReadAccess;
+use crate::erc1155;
+use crate::erc1155::ERC1155Component;
 use crate::erc1155::ERC1155Component::{
     ERC1155CamelImpl, ERC1155Impl, ERC1155MetadataURIImpl, InternalImpl,
 };
-use crate::erc1155::ERC1155Component;
-use crate::erc1155;
 
 //
 // Setup

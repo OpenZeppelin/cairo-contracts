@@ -3,10 +3,10 @@ use openzeppelin_test_common::mocks::upgrades::{
     IUpgradesV1SafeDispatcherTrait, IUpgradesV2Dispatcher, IUpgradesV2DispatcherTrait,
 };
 use openzeppelin_test_common::upgrades::UpgradeableSpyHelpers;
+use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{CLASS_HASH_ZERO, FELT_VALUE as VALUE};
 use openzeppelin_testing::{declare_class, deploy, spy_events};
 use snforge_std::ContractClass;
-use openzeppelin_testing as utils;
 
 //
 // Setup

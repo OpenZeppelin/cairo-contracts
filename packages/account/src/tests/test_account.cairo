@@ -5,6 +5,7 @@ use openzeppelin_test_common::account::{
 };
 use openzeppelin_test_common::mocks::account::DualCaseAccountMock;
 use openzeppelin_test_common::mocks::simple::{ISimpleMockDispatcher, ISimpleMockDispatcherTrait};
+use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::stark::{KEY_PAIR, KEY_PAIR_2};
 use openzeppelin_testing::constants::{
     CALLER, MIN_TRANSACTION_VERSION, OTHER, QUERY_OFFSET, QUERY_VERSION, SALT, ZERO,
@@ -16,10 +17,9 @@ use snforge_std::{
     start_cheat_transaction_version_global, test_address,
 };
 use starknet::account::Call;
+use crate::AccountComponent;
 use crate::AccountComponent::{InternalTrait, PublicKeyCamelImpl, PublicKeyImpl, SRC6CamelOnlyImpl};
 use crate::interface::{AccountABIDispatcher, AccountABIDispatcherTrait, ISRC6, ISRC6_ID};
-use crate::AccountComponent;
-use openzeppelin_testing as utils;
 
 //
 // Setup

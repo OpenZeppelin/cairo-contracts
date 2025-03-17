@@ -14,7 +14,6 @@
 /// transfer where the new owner first has to accept their ownership to
 /// finalize the transfer.
 #[starknet::component]
-#[allow(enum_variant_names)]
 pub mod OwnableComponent {
     use core::num::traits::Zero;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};

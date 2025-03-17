@@ -13,8 +13,8 @@
 pub mod ERC20Upgradeable {
     use openzeppelin_access::ownable::OwnableComponent;
     use openzeppelin_token::erc20::{DefaultConfig, ERC20Component, ERC20HooksEmptyImpl};
-    use openzeppelin_upgrades::interface::IUpgradeable;
     use openzeppelin_upgrades::UpgradeableComponent;
+    use openzeppelin_upgrades::interface::IUpgradeable;
     use starknet::{ClassHash, ContractAddress};
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);

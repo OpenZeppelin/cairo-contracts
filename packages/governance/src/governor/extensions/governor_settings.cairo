@@ -9,11 +9,11 @@
 pub mod GovernorSettingsComponent {
     use openzeppelin_introspection::src5::SRC5Component;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use crate::governor::GovernorComponent;
     use crate::governor::GovernorComponent::{
         ComponentState as GovernorComponentState, InternalExtendedTrait,
     };
     use crate::governor::extensions::interface::IGovernorSettingsAdmin;
-    use crate::governor::GovernorComponent;
 
     #[storage]
     pub struct Storage {

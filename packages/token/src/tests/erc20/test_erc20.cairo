@@ -5,8 +5,8 @@ use openzeppelin_testing::constants::{NAME, OWNER, RECIPIENT, SPENDER, SUPPLY, S
 use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use snforge_std::{start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
-use crate::erc20::ERC20Component::{ERC20CamelOnlyImpl, ERC20Impl, ERC20MetadataImpl, InternalImpl};
 use crate::erc20::ERC20Component;
+use crate::erc20::ERC20Component::{ERC20CamelOnlyImpl, ERC20Impl, ERC20MetadataImpl, InternalImpl};
 
 // Custom implementation of the ERC20Component ImmutableConfig used for testing.
 impl ERC20ImmutableConfig of ERC20Component::ImmutableConfig {

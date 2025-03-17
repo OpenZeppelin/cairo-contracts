@@ -20,21 +20,21 @@
 #[starknet::component]
 pub mod ERC2981Component {
     use core::num::traits::Zero;
-    use openzeppelin_access::accesscontrol::AccessControlComponent::InternalTrait as AccessControlInternalTrait;
     use openzeppelin_access::accesscontrol::AccessControlComponent;
-    use openzeppelin_access::ownable::OwnableComponent::InternalTrait as OwnableInternalTrait;
+    use openzeppelin_access::accesscontrol::AccessControlComponent::InternalTrait as AccessControlInternalTrait;
     use openzeppelin_access::ownable::OwnableComponent;
+    use openzeppelin_access::ownable::OwnableComponent::InternalTrait as OwnableInternalTrait;
+    use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_introspection::src5::SRC5Component::{
         InternalTrait as SRC5InternalTrait, SRC5Impl,
     };
-    use openzeppelin_introspection::src5::SRC5Component;
+    use starknet::ContractAddress;
     use starknet::storage::{
         Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
         StoragePointerWriteAccess,
     };
-    use starknet::ContractAddress;
-    use crate::common::erc2981::interface::IERC2981_ID;
     use crate::common::erc2981::interface;
+    use crate::common::erc2981::interface::IERC2981_ID;
 
     /// Role for the admin responsible for managing royalty settings.
     pub const ROYALTY_ADMIN_ROLE: felt252 = selector!("ROYALTY_ADMIN_ROLE");
@@ -429,8 +429,8 @@ pub impl DefaultConfig of ERC2981Component::ImmutableConfig {
 #[cfg(test)]
 mod tests {
     use openzeppelin_test_common::mocks::erc2981::ERC2981Mock;
-    use super::ERC2981Component::InternalImpl;
     use super::ERC2981Component;
+    use super::ERC2981Component::InternalImpl;
 
     type ComponentState = ERC2981Component::ComponentState<ERC2981Mock::ContractState>;
 

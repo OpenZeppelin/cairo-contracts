@@ -4,6 +4,7 @@ use openzeppelin_test_common::eth_account::{
 };
 use openzeppelin_test_common::mocks::account::DualCaseEthAccountMock;
 use openzeppelin_test_common::mocks::simple::{ISimpleMockDispatcher, ISimpleMockDispatcherTrait};
+use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::secp256k1::{KEY_PAIR, KEY_PAIR_2};
 use openzeppelin_testing::constants::{
     CALLER, MIN_TRANSACTION_VERSION, OTHER, QUERY_VERSION, SALT, ZERO,
@@ -16,14 +17,13 @@ use snforge_std::{
     start_cheat_transaction_version_global, test_address,
 };
 use starknet::account::Call;
+use crate::EthAccountComponent;
 use crate::EthAccountComponent::{
     InternalTrait, PublicKeyCamelImpl, PublicKeyImpl, SRC6CamelOnlyImpl,
 };
 use crate::interface::{EthAccountABIDispatcher, EthAccountABIDispatcherTrait, ISRC6, ISRC6_ID};
 use crate::utils::secp256_point::{DebugSecp256Point, Secp256PointPartialEq};
 use crate::utils::signature::Secp256Signature;
-use crate::EthAccountComponent;
-use openzeppelin_testing as utils;
 
 //
 // Setup

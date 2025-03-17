@@ -1,16 +1,16 @@
 use core::num::traits::Zero;
-use crate::interfaces::{VestingWalletABIDispatcher, VestingWalletABIDispatcherTrait};
 use openzeppelin_finance::vesting::VestingComponent::InternalImpl;
 use openzeppelin_test_common::erc20::deploy_erc20;
 use openzeppelin_test_common::ownable::OwnableSpyHelpers;
 use openzeppelin_test_common::vesting::VestingSpyHelpers;
+use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{OTHER, OWNER, ZERO};
 use openzeppelin_testing::spy_events;
 use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{start_cheat_block_timestamp_global, start_cheat_caller_address};
 use starknet::ContractAddress;
-use openzeppelin_testing as utils;
+use crate::interfaces::{VestingWalletABIDispatcher, VestingWalletABIDispatcherTrait};
 
 //
 // Setup

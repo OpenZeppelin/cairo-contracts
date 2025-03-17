@@ -31,7 +31,8 @@ pub trait IERC4626<TState> {
     ///
     /// - MUST NOT be inclusive of any fees that are charged against assets in the Vault.
     /// - MUST NOT show any variations depending on the caller.
-    /// - MUST NOT reflect slippage or other on-chain conditions, when performing the actual exchange.
+    /// - MUST NOT reflect slippage or other on-chain conditions, when performing the actual
+    /// exchange.
     /// - MUST NOT panic unless due to integer overflow caused by an unreasonably large input.
     /// - MUST round down towards 0.
     ///
@@ -47,7 +48,8 @@ pub trait IERC4626<TState> {
     ///
     /// - MUST NOT be inclusive of any fees that are charged against assets in the Vault.
     /// - MUST NOT show any variations depending on the caller.
-    /// - MUST NOT reflect slippage or other on-chain conditions, when performing the actual exchange.
+    /// - MUST NOT reflect slippage or other on-chain conditions, when performing the actual
+    /// exchange.
     /// - MUST NOT panic unless due to integer overflow caused by an unreasonably large input.
     /// - MUST round down towards 0.
     ///
@@ -73,9 +75,10 @@ pub trait IERC4626<TState> {
     /// Requirements:
     ///
     /// - MUST return as close to and no more than the exact amount of Vault shares that would be
-    ///   minted in a deposit call in the same transaction i.e. deposit should return the same or more
-    ///   shares as `preview_deposit` if called in the same transaction.
-    /// - MUST NOT account for deposit limits like those returned from `max_deposit` and should always
+    ///   minted in a deposit call in the same transaction i.e. deposit should return the same or
+    ///   more shares as `preview_deposit` if called in the same transaction.
+    /// - MUST NOT account for deposit limits like those returned from `max_deposit` and should
+    /// always
     ///   act as though the deposit would be accepted, regardless if the user has enough tokens
     ///   approved, etc.
     /// - MUST be inclusive of deposit fees. Integrators should be aware of the existence of deposit
@@ -139,7 +142,8 @@ pub trait IERC4626<TState> {
     /// - MUST emit the `Deposit` event.
     /// - MAY support an additional flow in which the underlying tokens are owned by the Vault
     ///   contract before the mint execution, and are accounted for during mint.
-    /// - MUST panic if all of shares cannot be minted (due to deposit limit being reached, slippage,
+    /// - MUST panic if all of shares cannot be minted (due to deposit limit being reached,
+    /// slippage,
     ///   the user not approving enough underlying tokens to the Vault contract, etc).
     ///
     /// NOTE: Most implementations will require pre-approval of the Vault with the Vault’s
@@ -198,7 +202,8 @@ pub trait IERC4626<TState> {
     /// Requirements:
     ///
     /// - MUST return a limited value if owner is subject to some withdrawal limit or timelock.
-    /// - MUST return `ERC20::balance_of(owner)` if `owner` is not subject to any withdrawal limit or
+    /// - MUST return `ERC20::balance_of(owner)` if `owner` is not subject to any withdrawal limit
+    /// or
     ///   timelock.
     /// - MUST NOT panic.
     fn max_redeem(self: @TState, owner: ContractAddress) -> u256;
@@ -208,10 +213,12 @@ pub trait IERC4626<TState> {
     ///
     /// Requirements:
     ///
-    /// - MUST return as close to and no more than the exact amount of assets that would be withdrawn
+    /// - MUST return as close to and no more than the exact amount of assets that would be
+    /// withdrawn
     ///   in a redeem call in the same transaction i.e. redeem should return the same or more assets
     ///   as preview_redeem if called in the same transaction.
-    /// - MUST NOT account for redemption limits like those returned from max_redeem and should always
+    /// - MUST NOT account for redemption limits like those returned from max_redeem and should
+    /// always
     ///   act as though the redemption would be accepted, regardless if the user has enough shares,
     ///   etc.
     /// - MUST be inclusive of withdrawal fees. Integrators should be aware of the existence of

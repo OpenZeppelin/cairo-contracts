@@ -17,8 +17,8 @@
 pub mod MultisigComponent {
     use core::hash::{HashStateExTrait, HashStateTrait};
     use core::num::traits::Zero;
-    use core::pedersen::PedersenTrait;
     use core::panic_with_felt252;
+    use core::pedersen::PedersenTrait;
     use starknet::account::Call;
     use starknet::storage::{
         Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,

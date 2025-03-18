@@ -44,7 +44,7 @@ jobs:
 
     - name: Build docs
       working-directory: ./packages/testing
-      run: scarb docs
+      run: scarb doc
 
     - name: Update docs
       run: |

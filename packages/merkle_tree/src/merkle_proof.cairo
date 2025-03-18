@@ -89,6 +89,7 @@ pub fn process_multi_proof<impl Hasher: CommutativeHasher>(
 
     // Check proof validity.
     if (leaves_len + proof.len() != proof_flags_len + 1) {
+        #[allow(panic)]
         panic!("MerkleProof: invalid multi proof");
     }
 

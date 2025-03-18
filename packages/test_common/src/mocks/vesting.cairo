@@ -50,10 +50,10 @@ pub mod LinearVestingMock {
 #[starknet::contract]
 pub mod StepsVestingMock {
     use openzeppelin_access::ownable::OwnableComponent;
-    use openzeppelin_finance::vesting::VestingComponent::VestingScheduleTrait;
     use openzeppelin_finance::vesting::VestingComponent;
-    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use openzeppelin_finance::vesting::VestingComponent::VestingScheduleTrait;
     use starknet::ContractAddress;
+    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
     component!(path: VestingComponent, storage: vesting, event: VestingEvent);
@@ -130,8 +130,8 @@ pub mod StepsVestingMock {
 pub mod ERC20OptionalTransferPanicMock {
     use openzeppelin_token::erc20::interface::IERC20;
     use openzeppelin_token::erc20::{DefaultConfig, ERC20Component, ERC20HooksEmptyImpl};
-    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
     use starknet::ContractAddress;
+    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
 

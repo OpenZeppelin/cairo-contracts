@@ -1,14 +1,14 @@
-use openzeppelin_test_common::mocks::governor::GovernorQuorumFractionMock::SNIP12MetadataImpl;
 use openzeppelin_test_common::mocks::governor::GovernorQuorumFractionMock;
+use openzeppelin_test_common::mocks::governor::GovernorQuorumFractionMock::SNIP12MetadataImpl;
 use openzeppelin_testing::constants::{OTHER, VOTES_TOKEN, ZERO};
 use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use snforge_std::{start_cheat_block_timestamp_global, start_mock_call, store, test_address};
 use starknet::ContractAddress;
 use crate::governor::GovernorComponent::InternalImpl;
+use crate::governor::extensions::GovernorVotesQuorumFractionComponent;
 use crate::governor::extensions::GovernorVotesQuorumFractionComponent::{
     GovernorQuorum, GovernorVotes, InternalTrait, QuorumFractionImpl,
 };
-use crate::governor::extensions::GovernorVotesQuorumFractionComponent;
 use crate::governor::{DefaultConfig, GovernorComponent};
 
 pub type ComponentState =

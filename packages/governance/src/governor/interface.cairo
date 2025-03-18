@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v1.0.0 (governance/src/governor/interface.cairo)
 
-use starknet::account::Call;
 use starknet::ContractAddress;
+use starknet::account::Call;
 
 pub const IGOVERNOR_ID: felt252 = 0x1100a1f8546595b5bd75a6cd8fcc5b015370655e66f275963321c5cd0357ac9;
 

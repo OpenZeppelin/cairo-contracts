@@ -3,6 +3,6 @@
 Fully qualified path: `openzeppelin_testing::constants::NEW_OWNER`
 
 ```rust
-pub fn NEW_OWNER -> ContractAddress
+pub const NEW_OWNER: ContractAddress = 'NEW_OWNER'.as_address();
 ```
 

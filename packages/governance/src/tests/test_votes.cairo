@@ -1,5 +1,6 @@
 use openzeppelin_test_common::mocks::votes::ERC721VotesMock::SNIP12MetadataImpl;
 use openzeppelin_test_common::mocks::votes::{ERC20VotesMock, ERC721VotesMock};
+use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{DELEGATEE, DELEGATOR, OTHER, RECIPIENT, SUPPLY, ZERO};
 use openzeppelin_testing::{AsAddressTrait, EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use openzeppelin_token::erc20::ERC20Component::InternalTrait;
@@ -15,13 +16,12 @@ use snforge_std::{
     start_cheat_block_timestamp_global, start_cheat_caller_address, start_cheat_chain_id_global,
     test_address,
 };
-use starknet::storage::StoragePathEntry;
 use starknet::ContractAddress;
+use starknet::storage::StoragePathEntry;
 use crate::votes::VotesComponent::{
     DelegateChanged, DelegateVotesChanged, InternalImpl, VotesImpl, VotingUnitsTrait,
 };
 use crate::votes::{Delegation, VotesComponent};
-use openzeppelin_testing as utils;
 
 const ERC721_INITIAL_MINT: u256 = 10;
 

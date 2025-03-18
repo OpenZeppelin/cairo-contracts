@@ -12,6 +12,10 @@ Fully qualified path: `openzeppelin_testing::constants`
 
 ## Constants
 
+- [QUERY_OFFSET](./openzeppelin_testing-constants-QUERY_OFFSET.md)
+
+- [QUERY_VERSION](./openzeppelin_testing-constants-QUERY_VERSION.md)
+
 - [DECIMALS](./openzeppelin_testing-constants-DECIMALS.md)
 
 - [SUPPLY](./openzeppelin_testing-constants-SUPPLY.md)
@@ -56,27 +60,11 @@ Fully qualified path: `openzeppelin_testing::constants`
 
 - [TRANSACTION_HASH](./openzeppelin_testing-constants-TRANSACTION_HASH.md)
 
-- [QUERY_OFFSET](./openzeppelin_testing-constants-QUERY_OFFSET.md)
-
-- [QUERY_VERSION](./openzeppelin_testing-constants-QUERY_VERSION.md)
-
-## Free functions
-
-- [NAME](./openzeppelin_testing-constants-NAME.md)
-
-- [SYMBOL](./openzeppelin_testing-constants-SYMBOL.md)
-
-- [BASE_URI](./openzeppelin_testing-constants-BASE_URI.md)
-
-- [BASE_URI_2](./openzeppelin_testing-constants-BASE_URI_2.md)
-
 - [ADMIN](./openzeppelin_testing-constants-ADMIN.md)
 
 - [AUTHORIZED](./openzeppelin_testing-constants-AUTHORIZED.md)
 
 - [ZERO](./openzeppelin_testing-constants-ZERO.md)
-
-- [CLASS_HASH_ZERO](./openzeppelin_testing-constants-CLASS_HASH_ZERO.md)
 
 - [CALLER](./openzeppelin_testing-constants-CALLER.md)
 
@@ -108,6 +96,18 @@ Fully qualified path: `openzeppelin_testing::constants`
 
 - [CHARLIE](./openzeppelin_testing-constants-CHARLIE.md)
 
+- [CLASS_HASH_ZERO](./openzeppelin_testing-constants-CLASS_HASH_ZERO.md)
+
+## Free functions
+
+- [NAME](./openzeppelin_testing-constants-NAME.md)
+
+- [SYMBOL](./openzeppelin_testing-constants-SYMBOL.md)
+
+- [BASE_URI](./openzeppelin_testing-constants-BASE_URI.md)
+
+- [BASE_URI_2](./openzeppelin_testing-constants-BASE_URI_2.md)
+
 - [DATA](./openzeppelin_testing-constants-DATA.md)
 
 - [EMPTY_DATA](./openzeppelin_testing-constants-EMPTY_DATA.md)
@@ -115,4 +115,12 @@ Fully qualified path: `openzeppelin_testing::constants`
 ## Type aliases
 
 - [EthPublicKey](./openzeppelin_testing-constants-EthPublicKey.md)
+
+## Traits
+
+- [AsAddressTrait](./openzeppelin_testing-constants-AsAddressTrait.md)
+
+## Impls
+
+- [AsAddressImpl](./openzeppelin_testing-constants-AsAddressImpl.md)
 

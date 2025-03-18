@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v1.0.0 (governance/src/multisig/interface.cairo)
 
-use starknet::account::Call;
 use starknet::ContractAddress;
+use starknet::account::Call;
 
 pub type TransactionID = felt252;
 

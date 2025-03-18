@@ -2,6 +2,7 @@ use core::num::traits::{Bounded, Zero};
 use openzeppelin_test_common::erc20::ERC20SpyHelpers;
 use openzeppelin_test_common::ownable::OwnableSpyHelpers;
 use openzeppelin_test_common::upgrades::UpgradeableSpyHelpers;
+use openzeppelin_testing as utils;
 use openzeppelin_testing::common::IntoBase16String;
 use openzeppelin_testing::constants::{
     CLASS_HASH_ZERO, DECIMALS, NAME, OTHER, OWNER, RECIPIENT, SPENDER, SUPPLY, SYMBOL, VALUE, ZERO,
@@ -15,7 +16,6 @@ use crate::interfaces::erc20::{
     ERC20UpgradeableABISafeDispatcher, ERC20UpgradeableABISafeDispatcherTrait,
 };
 use crate::interfaces::{ERC20UpgradeableABIDispatcher, ERC20UpgradeableABIDispatcherTrait};
-use openzeppelin_testing as utils;
 
 fn V2_CLASS_HASH() -> ClassHash {
     utils::declare_class("SnakeERC20Mock").class_hash

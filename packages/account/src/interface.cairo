@@ -58,11 +58,6 @@ pub trait IPublicKey<TState> {
 
     /// Sets the public key of the account to `new_public_key`.
     ///
-    /// Requirements:
-    ///
-    /// - The caller must be the contract itself.
-    /// - The signature must be valid for the new owner.
-    ///
     /// Emits both an `OwnerRemoved` and an `OwnerAdded` event.
     fn set_public_key(ref self: TState, new_public_key: felt252, signature: Span<felt252>);
 }
@@ -138,11 +133,6 @@ pub trait IEthPublicKey<TState> {
     fn get_public_key(self: @TState) -> EthPublicKey;
 
     /// Sets the Ethereum public key of the account to `new_public_key`.
-    ///
-    /// Requirements:
-    ///
-    /// - The caller must be the contract itself.
-    /// - The signature must be valid for the new owner.
     ///
     /// Emits both an `OwnerRemoved` and an `OwnerAdded` event.
     fn set_public_key(ref self: TState, new_public_key: EthPublicKey, signature: Span<felt252>);

@@ -39,7 +39,7 @@ struct Call {
 #[starknet::interface]
 pub trait ISRC6 {
     /// Executes a transaction through the account.
-    fn __execute__(calls: Array<Call>) -> Array<Span<felt252>>;
+    fn __execute__(calls: Array<Call>);
 
     /// Asserts whether the transaction is valid to be executed.
     fn __validate__(calls: Array<Call>) -> felt252;
@@ -156,7 +156,7 @@ This is the full interface of the `AccountMixinImpl` implementation:
 #[starknet::interface]
 pub trait AccountABI {
     // ISRC6
-    fn __execute__(calls: Array<Call>) -> Array<Span<felt252>>;
+    fn __execute__(calls: Array<Call>);
     fn __validate__(calls: Array<Call>) -> felt252;
     fn is_valid_signature(hash: felt252, signature: Array<felt252>) -> felt252;
 
@@ -249,7 +249,7 @@ This is the full interface of the `EthAccountMixinImpl` implementation:
 #[starknet::interface]
 pub trait EthAccountABI {
     // ISRC6
-    fn __execute__(calls: Array<Call>) -> Array<Span<felt252>>;
+    fn __execute__(calls: Array<Call>);
     fn __validate__(calls: Array<Call>) -> felt252;
     fn is_valid_signature(hash: felt252, signature: Array<felt252>) -> felt252;
 

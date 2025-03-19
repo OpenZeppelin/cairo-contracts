@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Support for granting a role with delay in AccessControl component (#1317)
 - The openzeppelin_macros package with the `with_components` macro (#1282)
 - ERC4626Component (#1170)
 - `Math::u256_mul_div` (#1170)
@@ -29,6 +30,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     ContractDeployed event
   - Add `deployContract` function to the preset
   - Update salt hashing algorithm from Poseidon to Pedersen
+- Update ISRC6 interface to match latest changes reflected in the SNIP (#1383)
+  - `__execute__` entry point now doesn't return any value
+  - Account and EthAccount components SRC6 implementation updated accordingly
 
 ## 1.0.0 (2025-02-21)
 

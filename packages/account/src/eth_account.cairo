@@ -20,7 +20,7 @@ pub mod EthAccountComponent {
     use crate::interface;
     use crate::interface::EthPublicKey;
     use crate::utils::secp256_point::Secp256PointStorePacking;
-    use crate::utils::{execute_calls, is_tx_version_valid, is_valid_eth_signature};
+    use crate::utils::{execute_single_call, is_tx_version_valid, is_valid_eth_signature};
 
     #[storage]
     pub struct Storage {
@@ -71,16 +71,16 @@ pub mod EthAccountComponent {
         /// - The transaction version must be greater than or equal to `MIN_TRANSACTION_VERSION`.
         /// - If the transaction is a simulation (version >= `QUERY_OFFSET`), it must be
         /// greater than or equal to `QUERY_OFFSET` + `MIN_TRANSACTION_VERSION`.
-        fn __execute__(
-            self: @ComponentState<TContractState>, calls: Array<Call>,
-        ) -> Array<Span<felt252>> {
+        fn __execute__(self: @ComponentState<TContractState>, calls: Array<Call>) {
             // Avoid calls from other contracts
             // https://github.com/OpenZeppelin/cairo-contracts/issues/344
             let sender = starknet::get_caller_address();
             assert(sender.is_zero(), Errors::INVALID_CALLER);
             assert(is_tx_version_valid(), Errors::INVALID_TX_VERSION);
 
-            execute_calls(calls.span())
+            for call in calls.span() {
+                execute_single_call(call);
+            }
         }
 
         /// Verifies the validity of the signature for the current transaction.
@@ -217,9 +217,7 @@ pub mod EthAccountComponent {
         +Drop<TContractState>,
     > of interface::EthAccountABI<ComponentState<TContractState>> {
         // ISRC6
-        fn __execute__(
-            self: @ComponentState<TContractState>, calls: Array<Call>,
-        ) -> Array<Span<felt252>> {
+        fn __execute__(self: @ComponentState<TContractState>, calls: Array<Call>) {
             SRC6::__execute__(self, calls)
         }
 

@@ -41,11 +41,9 @@ Interface of the SRC6 Standard Account as defined in the {snip6}.
 
 [.contract-item]
 [[ISRC6-__execute__]]
-==== `[.contract-item-name]#++__execute__++#++(calls: Array<Call>) → Array<Span<felt252>>++` [.item-kind]#external#
+==== `[.contract-item-name]#++__execute__++#++(calls: Array<Call>)++` [.item-kind]#external#
 
 Executes the list of calls as a transaction after validation.
-
-Returns an array with each call's output.
 
 NOTE: The `Call` struct is defined in https://github.com/starkware-libs/cairo/blob/main/corelib/src/starknet/account.cairo#L3[corelib].
 
@@ -161,7 +159,7 @@ NOTE: {src5-component-required-note}
 
 [.contract-item]
 [[AccountComponent-__execute__]]
-==== `[.contract-item-name]#++__execute__++#++(self: @ContractState, calls: Array<Call>) → Array<Span<felt252>>++` [.item-kind]#external#
+==== `[.contract-item-name]#++__execute__++#++(self: @ContractState, calls: Array<Call>)++` [.item-kind]#external#
 
 See xref:ISRC6-\\__execute__[ISRC6::\\__execute__].
 
@@ -413,7 +411,7 @@ NOTE: The `EthPublicKey` type is an alias for `starknet::secp256k1::Secp256k1Poi
 
 [.contract-item]
 [[EthAccountComponent-__execute__]]
-==== `[.contract-item-name]#++__execute__++#++(self: @ContractState, calls: Array<Call>) → Array<Span<felt252>>++` [.item-kind]#external#
+==== `[.contract-item-name]#++__execute__++#++(self: @ContractState, calls: Array<Call>)++` [.item-kind]#external#
 
 See xref:ISRC6-\\__execute__[ISRC6::\\__execute__].
 

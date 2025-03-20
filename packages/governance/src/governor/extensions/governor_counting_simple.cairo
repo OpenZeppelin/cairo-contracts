@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v1.0.0
+// OpenZeppelin Contracts for Cairo v1.1.0
 // (governance/governor/extensions/governor_counting_simple.cairo)
 
 /// # GovernorCountingSimple Component

@@ -94,8 +94,8 @@ fn test_initializer_no_metadata() {
     state.initializer_no_metadata();
 
     let empty_str = "";
-    assert_eq!(state.name(), empty_str);
-    assert_eq!(state.symbol(), empty_str);
+    assert_eq!(state.name(), empty_str.clone());
+    assert_eq!(state.symbol(), empty_str.clone());
     assert_eq!(state._base_uri(), empty_str);
     assert!(state.balance_of(OWNER()).is_zero());
 

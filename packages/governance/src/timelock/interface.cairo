@@ -4,7 +4,7 @@
 use starknet::ContractAddress;
 use starknet::account::Call;
 
-#[derive(Drop, Serde, PartialEq, Debug)]
+#[derive(Copy, Drop, Serde, PartialEq, Debug)]
 pub enum OperationState {
     Unset,
     Waiting,

@@ -4,6 +4,7 @@ use starknet::storage_access::StorePacking;
 use crate::multisig::storage_utils::{SignersInfo, SignersInfoStorePackingV2};
 
 #[test]
+#[fuzzer]
 fn test_signers_info_pack_unpack_v2(quorum: u32, signers_count: u32) {
     let info = SignersInfo { quorum, signers_count };
     let packed_value = SignersInfoStorePackingV2::pack(info);
@@ -14,6 +15,7 @@ fn test_signers_info_pack_unpack_v2(quorum: u32, signers_count: u32) {
 }
 
 #[test]
+#[fuzzer]
 fn test_signers_info_pack_with_v1_unpack_with_v2(quorum: u32, signers_count: u32) {
     if signers_count == Bounded::MAX {
         // Cannot properly unpack if packed with V1 and `signers_count` is max u32 value

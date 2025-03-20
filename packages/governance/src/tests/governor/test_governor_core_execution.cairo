@@ -156,6 +156,7 @@ fn test_executor() {
 //
 
 #[test]
+#[fuzzer]
 fn test_execute_operations(id: felt252) {
     let mut component_state = COMPONENT_STATE();
     let calls = get_calls(OTHER(), true);
@@ -180,6 +181,7 @@ fn test_execute_operations_panics() {
 //
 
 #[test]
+#[fuzzer]
 fn test_queue_operations(id: felt252) {
     let mut component_state = COMPONENT_STATE();
     let calls = array![].span();
@@ -195,6 +197,7 @@ fn test_queue_operations(id: felt252) {
 //
 
 #[test]
+#[fuzzer]
 fn test_proposal_needs_queuing(id: felt252) {
     let component_state = COMPONENT_STATE();
 

@@ -1645,7 +1645,7 @@ fn test__execute_with_bad_selector() {
 
 fn assert_operation_state(timelock: TimelockABIDispatcher, exp_state: OperationState, id: felt252) {
     let operation_state = timelock.get_operation_state(id);
-    assert_eq!(operation_state, exp_state);
+    assert_eq!(operation_state, exp_state.clone());
 
     let is_operation = timelock.is_operation(id);
     let is_pending = timelock.is_operation_pending(id);

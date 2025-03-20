@@ -21,9 +21,9 @@ before proceeding, and run the following command to check that the installation 
 ----
 $ scarb --version
 
-scarb 2.9.4 (d3be9ebe1 2025-02-19)
-cairo: 2.9.4 (https://crates.io/crates/cairo-lang-compiler/2.9.4)
-sierra: 1.6.0
+scarb 2.11.3 (15764158b 2025-03-13)
+cairo: 2.11.2 (https://crates.io/crates/cairo-lang-compiler/2.11.2)
+sierra: 1.7.0
 ----
 
 === Set up your project
@@ -58,7 +58,7 @@ Install the library by declaring it as a dependency in the project's `Scarb.toml
 [,text]
 ----
 [dependencies]
-openzeppelin = "1.0.0"
+openzeppelin = "1.1.0"
 ----
 
 WARNING: Make sure the tag matches the target release.

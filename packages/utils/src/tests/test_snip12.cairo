@@ -1,11 +1,11 @@
 use core::hash::{HashStateExTrait, HashStateTrait};
 use core::poseidon::{PoseidonTrait, poseidon_hash_span};
-use crate::cryptography::snip12::{
-    OffchainMessageHashImpl, SNIP12Metadata, STARKNET_DOMAIN_TYPE_HASH, StarknetDomain, StructHash,
-};
 use openzeppelin_testing::constants::{OWNER, RECIPIENT};
 use snforge_std::{start_cheat_chain_id, test_address};
 use starknet::ContractAddress;
+use crate::cryptography::snip12::{
+    OffchainMessageHashImpl, SNIP12Metadata, STARKNET_DOMAIN_TYPE_HASH, StarknetDomain, StructHash,
+};
 
 // Since there's no u64 type in SNIP-12, the type used for `expiry` parameter is u128
 // selector!(

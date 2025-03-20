@@ -1,11 +1,7 @@
-pub use openzeppelin_access as access;
-pub use openzeppelin_account as account;
-pub use openzeppelin_finance as finance;
-pub use openzeppelin_governance as governance;
-pub use openzeppelin_introspection as introspection;
-pub use openzeppelin_merkle_tree as merkle_tree;
-pub use openzeppelin_presets as presets;
-pub use openzeppelin_security as security;
-pub use openzeppelin_token as token;
-pub use openzeppelin_upgrades as upgrades;
-pub use openzeppelin_utils as utils;
+pub use {
+    openzeppelin_access as access, openzeppelin_account as account, openzeppelin_finance as finance,
+    openzeppelin_governance as governance, openzeppelin_introspection as introspection,
+    openzeppelin_merkle_tree as merkle_tree, openzeppelin_presets as presets,
+    openzeppelin_security as security, openzeppelin_token as token,
+    openzeppelin_upgrades as upgrades, openzeppelin_utils as utils,
+};

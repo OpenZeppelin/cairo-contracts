@@ -1,13 +1,12 @@
+use openzeppelin_test_common::mocks::governor::GovernorMock::SNIP12MetadataImpl;
+use openzeppelin_testing::constants::{OTHER, VOTES_TOKEN, ZERO};
+use snforge_std::{start_cheat_block_timestamp_global, start_mock_call, store, test_address};
 use crate::governor::DefaultConfig;
 use crate::governor::GovernorComponent::InternalImpl;
 use crate::governor::extensions::GovernorVotesComponent::{
     GovernorVotes, InternalTrait, VotesTokenImpl,
 };
 use crate::tests::governor::common::{COMPONENT_STATE, CONTRACT_STATE};
-use openzeppelin_test_common::mocks::governor::GovernorMock::SNIP12MetadataImpl;
-use openzeppelin_testing::constants::{OTHER, VOTES_TOKEN, ZERO};
-use snforge_std::{start_cheat_block_timestamp_global, start_mock_call};
-use snforge_std::{store, test_address};
 
 //
 // GovernorVotes

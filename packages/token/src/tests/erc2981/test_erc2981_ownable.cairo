@@ -1,12 +1,13 @@
-use crate::common::erc2981::ERC2981Component::{ERC2981AdminOwnableImpl, ERC2981InfoImpl};
-use crate::common::erc2981::ERC2981Component::{ERC2981Impl, InternalImpl};
-use crate::common::erc2981::{DefaultConfig, ERC2981Component};
 use openzeppelin_access::ownable::OwnableComponent;
 use openzeppelin_access::ownable::OwnableComponent::InternalImpl as OwnableInternalImpl;
 use openzeppelin_test_common::mocks::erc2981::ERC2981OwnableMock;
 use openzeppelin_testing::constants::{OTHER, OWNER, RECIPIENT, ZERO};
 use snforge_std::{start_cheat_caller_address, test_address};
 use starknet::{ContractAddress, contract_address_const};
+use crate::common::erc2981::ERC2981Component::{
+    ERC2981AdminOwnableImpl, ERC2981Impl, ERC2981InfoImpl, InternalImpl,
+};
+use crate::common::erc2981::{DefaultConfig, ERC2981Component};
 
 type MockState = ERC2981OwnableMock::ContractState;
 type ComponentState = ERC2981Component::ComponentState<MockState>;

@@ -1,6 +1,6 @@
-use crate::panic_data_to_byte_array;
 use snforge_std::{ContractClass, ContractClassTrait, DeclareResult};
 use starknet::ContractAddress;
+use crate::panic_data_to_byte_array;
 
 /// Declares a contract with a `snforge_std::declare` call and unwraps the result.
 /// This function will skip declaration and just return the `ContractClass` if the contract is

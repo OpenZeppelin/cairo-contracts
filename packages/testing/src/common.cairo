@@ -25,7 +25,7 @@ pub fn to_base_16_string(value: felt252) -> ByteArray {
     while padding > 0 {
         string = "0" + string;
         padding -= 1;
-    };
+    }
     format!("0x{}", string)
 }
 

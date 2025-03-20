@@ -1,10 +1,10 @@
-use crate::common::erc2981::ERC2981Component::{ERC2981Impl, InternalImpl};
-use crate::common::erc2981::interface::IERC2981_ID;
-use crate::common::erc2981::{DefaultConfig, ERC2981Component};
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin_test_common::mocks::erc2981::ERC2981Mock;
 use openzeppelin_testing::constants::{RECIPIENT, ZERO};
 use starknet::{ContractAddress, contract_address_const};
+use crate::common::erc2981::ERC2981Component::{ERC2981Impl, InternalImpl};
+use crate::common::erc2981::interface::IERC2981_ID;
+use crate::common::erc2981::{DefaultConfig, ERC2981Component};
 
 type ComponentState = ERC2981Component::ComponentState<ERC2981Mock::ContractState>;
 

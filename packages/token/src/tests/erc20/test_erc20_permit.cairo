@@ -1,9 +1,5 @@
 use core::hash::{HashStateExTrait, HashStateTrait};
 use core::poseidon::PoseidonTrait;
-use crate::erc20::ERC20Component;
-use crate::erc20::ERC20Component::{ERC20MixinImpl, InternalImpl};
-use crate::erc20::ERC20Component::{ERC20PermitImpl, SNIP12MetadataExternalImpl};
-use crate::erc20::snip12_utils::permit::{PERMIT_TYPE_HASH, Permit};
 use openzeppelin_test_common::mocks::erc20::DualCaseERC20PermitMock;
 use openzeppelin_test_common::mocks::erc20::DualCaseERC20PermitMock::SNIP12MetadataImpl;
 use openzeppelin_testing as utils;
@@ -11,9 +7,16 @@ use openzeppelin_testing::constants;
 use openzeppelin_testing::signing::{StarkKeyPair, StarkSerializedSigning};
 use openzeppelin_utils::cryptography::snip12::{StarknetDomain, StructHash};
 use snforge_std::signature::stark_curve::StarkCurveSignerImpl;
-use snforge_std::{start_cheat_block_timestamp, start_cheat_chain_id_global};
-use snforge_std::{start_cheat_caller_address, test_address};
+use snforge_std::{
+    start_cheat_block_timestamp, start_cheat_caller_address, start_cheat_chain_id_global,
+    test_address,
+};
 use starknet::ContractAddress;
+use crate::erc20::ERC20Component;
+use crate::erc20::ERC20Component::{
+    ERC20MixinImpl, ERC20PermitImpl, InternalImpl, SNIP12MetadataExternalImpl,
+};
+use crate::erc20::snip12_utils::permit::{PERMIT_TYPE_HASH, Permit};
 
 //
 // Constants

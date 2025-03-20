@@ -1,9 +1,9 @@
-use crate::utils::secp256_point::{
-    DebugSecp256Point, Secp256PointPartialEq, Secp256PointStorePacking as StorePacking,
-};
 use starknet::SyscallResultTrait;
 use starknet::secp256_trait::{Secp256PointTrait, Secp256Trait};
 use starknet::secp256k1::Secp256k1Point;
+use crate::utils::secp256_point::{
+    DebugSecp256Point, Secp256PointPartialEq, Secp256PointStorePacking as StorePacking,
+};
 
 #[test]
 fn test_pack_big_secp256k1_points() {

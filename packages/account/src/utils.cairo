@@ -1,11 +1,10 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v1.0.0 (account/utils.cairo)
+// OpenZeppelin Contracts for Cairo v1.1.0 (account/utils.cairo)
 
 pub mod secp256_point;
 pub mod signature;
 
 pub use signature::{is_valid_eth_signature, is_valid_p256_signature, is_valid_stark_signature};
-
 use starknet::SyscallResultTrait;
 use starknet::account::Call;
 
@@ -18,7 +17,7 @@ pub fn execute_calls(calls: Span<Call>) -> Array<Span<felt252>> {
     let mut res = array![];
     for call in calls {
         res.append(execute_single_call(call))
-    };
+    }
     res
 }
 

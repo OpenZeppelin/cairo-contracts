@@ -299,7 +299,7 @@ pub mod ERC4626Fees {
             let fee = contract_state.fee_on_raw(assets, exit_basis_points);
             let recipient = contract_state.exit_fee_recipient.read();
 
-            if (fee > 0 && recipient != starknet::get_contract_address()) {
+            if fee > 0 && recipient != starknet::get_contract_address() {
                 contract_state.transfer_fees(recipient, fee);
             }
         }

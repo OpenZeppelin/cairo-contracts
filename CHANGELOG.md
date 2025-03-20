@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## 1.1.0 (2025-03-20)
+
+### Changed
+
+- Bump scarb to v2.11.3
+
 ## 1.0.0 (2025-02-21)
 
 ### Added

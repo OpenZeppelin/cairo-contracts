@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v1.0.0
+// OpenZeppelin Contracts for Cairo v2.0.0-alpha.0
 // (governance/src/governor/extensions/governor_core_execution.cairo)
 
 /// # GovernorCoreExecution Component

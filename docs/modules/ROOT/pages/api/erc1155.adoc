@@ -16,7 +16,7 @@ TIP: For an overview of ERC1155, read our xref:erc1155.adoc[ERC1155 guide].
 
 [.contract]
 [[IERC1155]]
-=== `++IERC1155++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/token/src/erc1155/interface.cairo[{github-icon},role=heading-link]
+=== `++IERC1155++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.0/packages/token/src/erc1155/interface.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -126,7 +126,7 @@ Emitted when the token URI is updated to `value` for the `id` token.
 
 [.contract]
 [[IERC1155MetadataURI]]
-=== `++IERC1155MetadataURI++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/token/src/erc1155/interface.cairo[{github-icon},role=heading-link]
+=== `++IERC1155MetadataURI++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.0/packages/token/src/erc1155/interface.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -156,7 +156,7 @@ Returns the Uniform Resource Identifier (URI) for the `token_id` token.
 
 [.contract]
 [[ERC1155Component]]
-=== `++ERC1155Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/token/src/erc1155/erc1155.cairo[{github-icon},role=heading-link]
+=== `++ERC1155Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.0/packages/token/src/erc1155/erc1155.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -559,7 +559,7 @@ See <<IERC1155-URI,IERC1155::URI>>.
 
 [.contract]
 [[IERC1155Receiver]]
-=== `++IERC1155Receiver++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/token/src/erc1155/interface.cairo[{github-icon},role=heading-link]
+=== `++IERC1155Receiver++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.0/packages/token/src/erc1155/interface.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -599,7 +599,7 @@ via <<IERC1155-safe_batch_transfer_from,IERC1155::safe_batch_transfer_from>> by 
 
 [.contract]
 [[ERC1155ReceiverComponent]]
-=== `++ERC1155ReceiverComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/token/src/erc1155/erc1155_receiver.cairo[{github-icon},role=heading-link]
+=== `++ERC1155ReceiverComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.0/packages/token/src/erc1155/erc1155_receiver.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -676,7 +676,7 @@ Registers the `IERC1155Receiver` interface ID as supported through introspection
 
 [.contract]
 [[ERC1155Upgradeable]]
-=== `++ERC1155Upgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/presets/src/erc1155.cairo[{github-icon},role=heading-link]
+=== `++ERC1155Upgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.0/packages/presets/src/erc1155.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin_presets::ERC1155;

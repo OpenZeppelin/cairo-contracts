@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v1.0.0 (token/src/erc20/erc20.cairo)
+// OpenZeppelin Contracts for Cairo v2.0.0-alpha.0 (token/src/erc20/erc20.cairo)
 
 /// # ERC20 Component
 ///
@@ -8,7 +8,7 @@
 /// component is agnostic regarding how tokens are created, which means that developers
 /// must create their own token distribution mechanism.
 /// See [the documentation]
-/// (https://docs.openzeppelin.com/contracts-cairo/1.0.0/guides/erc20-supply)
+/// (https://docs.openzeppelin.com/contracts-cairo/2.0.0-alpha.0/guides/erc20-supply)
 /// for examples.
 #[starknet::component]
 pub mod ERC20Component {

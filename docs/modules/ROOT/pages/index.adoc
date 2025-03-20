@@ -58,7 +58,7 @@ Install the library by declaring it as a dependency in the project's `Scarb.toml
 [,text]
 ----
 [dependencies]
-openzeppelin = "1.0.0"
+openzeppelin = "2.0.0-alpha.0"
 ----
 
 The previous example would import the entire library. We can also add each package as a separate dependency to
@@ -67,8 +67,8 @@ improve the building time by not including modules that won't be used:
 [,text]
 ----
 [dependencies]
-openzeppelin_access = "1.0.0"
-openzeppelin_token = "1.0.0"
+openzeppelin_access = "2.0.0-alpha.0"
+openzeppelin_token = "2.0.0-alpha.0"
 ----
 
 == Basic usage

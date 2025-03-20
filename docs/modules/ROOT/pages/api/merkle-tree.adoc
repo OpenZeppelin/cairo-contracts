@@ -23,14 +23,14 @@ NOTE: `openzeppelin_merkle_tree` doesn't have dependencies outside of `corelib`,
 ====
 To use it as a standalone package, you can add it in your `Scarb.toml` as follows:
 
-`openzeppelin_merkle_tree = "1.0.0"`
+`openzeppelin_merkle_tree = "2.0.0-alpha.0"`
 ====
 
 == Modules
 
 [.contract]
 [[merkle_proof]]
-=== `++merkle_proof++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/merkle_tree/src/merkle_proof.cairo[{github-icon},role=heading-link]
+=== `++merkle_proof++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.0/packages/merkle_tree/src/merkle_proof.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin_merkle_tree::merkle_proof;
@@ -144,7 +144,7 @@ NOTE: This function expects a `CommutativeHasher` implementation. See xref:#hash
 
 [.contract]
 [[hashes]]
-=== `++hashes++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/merkle_tree/src/hashes.cairo[{github-icon},role=heading-link]
+=== `++hashes++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.0/packages/merkle_tree/src/hashes.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin_merkle_tree::hashes;

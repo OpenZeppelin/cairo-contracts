@@ -14,7 +14,6 @@ pub const ISRC6_ID: felt252 = 0x2ceccef7f994940b3962a6c67e0ba4fcd37df7d131417c60
 
 #[starknet::interface]
 pub trait ISRC6<TState> {
-
     /// Executes a list of calls from the account.
     fn __execute__(self: @TState, calls: Array<Call>);
 
@@ -22,7 +21,6 @@ pub trait ISRC6<TState> {
     /// This function is used by the protocol to verify `invoke` transactions.
     ///
     /// Returns the short string 'VALID' if valid, otherwise it reverts.
-
     fn __validate__(self: @TState, calls: Array<Call>) -> felt252;
 
     /// Verifies that the given signature is valid for the given hash.

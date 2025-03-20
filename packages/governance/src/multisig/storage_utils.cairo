@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v1.0.0 (governance/src/multisig/storage_utils.cairo)
+// OpenZeppelin Contracts for Cairo v2.0.0-alpha.0 (governance/src/multisig/storage_utils.cairo)
 
 use core::integer::u128_safe_divmod;
 use starknet::storage_access::StorePacking;

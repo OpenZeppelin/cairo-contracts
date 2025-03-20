@@ -10,5 +10,5 @@ NOTE: We strongly recommend checking the xref:components.adoc[Components] sectio
 ++++
 <script async src="https://wizard.openzeppelin.com/build/embed.js"></script>
 
-<oz-wizard style="display: block; min-height: 40rem;" data-lang="cairo" version="1.0.0"></oz-wizard>
+<oz-wizard style="display: block; min-height: 40rem;" data-lang="cairo" version="2.0.0-alpha.0"></oz-wizard>
 ++++

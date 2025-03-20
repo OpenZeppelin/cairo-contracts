@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v1.0.0 (security/src/interface.cairo)
+// OpenZeppelin Contracts for Cairo v2.0.0-alpha.0 (security/src/interface.cairo)
 
 #[starknet::interface]
 pub trait IInitializable<TState> {

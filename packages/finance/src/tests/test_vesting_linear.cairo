@@ -1,7 +1,3 @@
-use crate::tests::common::{TestData, VestingStrategy, set_transfer_to_fail, setup};
-use crate::vesting::VestingComponent;
-use crate::vesting::VestingComponent::InternalImpl;
-use crate::vesting::interface::IVestingDispatcherTrait;
 use openzeppelin_access::ownable::interface::{IOwnableDispatcher, IOwnableDispatcherTrait};
 use openzeppelin_test_common::mocks::vesting::LinearVestingMock;
 use openzeppelin_test_common::vesting::VestingSpyHelpers;
@@ -9,6 +5,10 @@ use openzeppelin_testing::constants::{OTHER, OWNER};
 use openzeppelin_testing::events::{EventSpyExt, spy_events};
 use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use snforge_std::{start_cheat_block_timestamp_global, start_cheat_caller_address};
+use crate::tests::common::{TestData, VestingStrategy, set_transfer_to_fail, setup};
+use crate::vesting::VestingComponent;
+use crate::vesting::VestingComponent::InternalImpl;
+use crate::vesting::interface::IVestingDispatcherTrait;
 
 //
 // Setup
@@ -71,7 +71,7 @@ fn test_vesting_schedule_no_cliff() {
         assert_eq!(actual_vested_amount, expected_vested_amount);
 
         time_passed += 1;
-    };
+    }
 
     let end_timestamp = data.start + data.duration;
     assert_eq!(vesting.vested_amount(token, end_timestamp), data.total_allocation);
@@ -90,7 +90,7 @@ fn test_vesting_schedule_with_cliff() {
         assert_eq!(actual_vested_amount, 0);
 
         time_passed += 1;
-    };
+    }
 
     while time_passed <= data.duration {
         let expected_vested_amount = tokens_per_sec * time_passed.into();
@@ -98,7 +98,7 @@ fn test_vesting_schedule_with_cliff() {
         assert_eq!(actual_vested_amount, expected_vested_amount);
 
         time_passed += 1;
-    };
+    }
 
     let end_timestamp = data.start + data.duration;
     assert_eq!(vesting.vested_amount(token, end_timestamp), data.total_allocation);

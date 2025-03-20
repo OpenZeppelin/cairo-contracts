@@ -69,7 +69,7 @@ fn test_average_u256(a: u256, b: u256) {
         let u512_sum = u512 { limb0: sum.low, limb1: sum.high, limb2: 1, limb3: 0 };
         let (res, _) = u512_safe_div_rem_by_u256(u512_sum, 2);
         expected = res.try_into().unwrap();
-    };
+    }
 
     assert_eq!(actual, expected);
 }

@@ -1,8 +1,3 @@
-use crate::accesscontrol::AccessControlComponent::{
-    InternalImpl, RoleAdminChanged, RoleGranted, RoleRevoked,
-};
-use crate::accesscontrol::interface::{IACCESSCONTROL_ID, IAccessControl, IAccessControlCamel};
-use crate::accesscontrol::{AccessControlComponent, DEFAULT_ADMIN_ROLE};
 use openzeppelin_introspection::interface::ISRC5;
 use openzeppelin_test_common::mocks::access::DualCaseAccessControlMock;
 use openzeppelin_testing::constants::{
@@ -11,6 +6,11 @@ use openzeppelin_testing::constants::{
 use openzeppelin_testing::events::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use snforge_std::{start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
+use crate::accesscontrol::AccessControlComponent::{
+    InternalImpl, RoleAdminChanged, RoleGranted, RoleRevoked,
+};
+use crate::accesscontrol::interface::{IACCESSCONTROL_ID, IAccessControl, IAccessControlCamel};
+use crate::accesscontrol::{AccessControlComponent, DEFAULT_ADMIN_ROLE};
 
 //
 // Setup

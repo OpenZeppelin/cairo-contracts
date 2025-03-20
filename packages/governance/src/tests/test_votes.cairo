@@ -1,7 +1,3 @@
-use crate::votes::Delegation;
-use crate::votes::VotesComponent;
-use crate::votes::VotesComponent::VotingUnitsTrait;
-use crate::votes::VotesComponent::{DelegateChanged, DelegateVotesChanged, InternalImpl, VotesImpl};
 use openzeppelin_test_common::mocks::votes::ERC721VotesMock::SNIP12MetadataImpl;
 use openzeppelin_test_common::mocks::votes::{ERC20VotesMock, ERC721VotesMock};
 use openzeppelin_testing as utils;
@@ -9,9 +5,8 @@ use openzeppelin_testing::constants::{DELEGATEE, DELEGATOR, OTHER, RECIPIENT, SU
 use openzeppelin_testing::events::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use openzeppelin_token::erc20::ERC20Component::InternalTrait;
 use openzeppelin_token::erc20::interface::IERC20;
-use openzeppelin_token::erc721::ERC721Component::{ERC721CamelOnlyImpl, ERC721Impl};
 use openzeppelin_token::erc721::ERC721Component::{
-    ERC721MetadataImpl, InternalImpl as ERC721InternalImpl,
+    ERC721CamelOnlyImpl, ERC721Impl, ERC721MetadataImpl, InternalImpl as ERC721InternalImpl,
 };
 use openzeppelin_token::erc721::interface::IERC721;
 use openzeppelin_utils::cryptography::snip12::OffchainMessageHash;
@@ -23,6 +18,10 @@ use snforge_std::{
 };
 use starknet::storage::StoragePathEntry;
 use starknet::{ContractAddress, contract_address_const};
+use crate::votes::VotesComponent::{
+    DelegateChanged, DelegateVotesChanged, InternalImpl, VotesImpl, VotingUnitsTrait,
+};
+use crate::votes::{Delegation, VotesComponent};
 
 const ERC721_INITIAL_MINT: u256 = 10;
 
@@ -55,7 +54,7 @@ fn setup_erc721_votes() -> ComponentState {
     // Mint ERC721_INITIAL_MINT NFTs to DELEGATOR
     for i in 0..ERC721_INITIAL_MINT {
         mock_state.erc721.mint(DELEGATOR(), i);
-    };
+    }
     state
 }
 
@@ -509,7 +508,7 @@ fn test_erc721_burn_updates_votes() {
             .assert_event_delegate_votes_changed(
                 contract_address, DELEGATOR(), ERC721_INITIAL_MINT - i, ERC721_INITIAL_MINT - i - 1,
             );
-    };
+    }
 
     // We need to move the timestamp forward to be able to call get_past_total_supply
     start_cheat_block_timestamp_global('ts2');

@@ -1,7 +1,4 @@
 use core::num::traits::Zero;
-use crate::ERC721Upgradeable;
-use crate::ERC721Upgradeable::InternalImpl;
-use crate::interfaces::{ERC721UpgradeableABIDispatcher, ERC721UpgradeableABIDispatcherTrait};
 use openzeppelin_introspection::interface::ISRC5_ID;
 use openzeppelin_test_common::erc721::ERC721SpyHelpers;
 use openzeppelin_test_common::ownable::OwnableSpyHelpers;
@@ -15,13 +12,15 @@ use openzeppelin_testing::constants::{
 use openzeppelin_testing::events::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use openzeppelin_token::erc721::ERC721Component::ERC721Impl;
 use openzeppelin_token::erc721::interface::{
-    IERC721CamelOnlySafeDispatcher, IERC721CamelOnlySafeDispatcherTrait,
+    IERC721CamelOnlySafeDispatcher, IERC721CamelOnlySafeDispatcherTrait, IERC721Dispatcher,
+    IERC721DispatcherTrait, IERC721_ID, IERC721_METADATA_ID,
 };
-use openzeppelin_token::erc721::interface::{IERC721Dispatcher, IERC721DispatcherTrait};
-use openzeppelin_token::erc721::interface::{IERC721_ID, IERC721_METADATA_ID};
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::start_cheat_caller_address;
 use starknet::{ClassHash, ContractAddress};
+use crate::ERC721Upgradeable;
+use crate::ERC721Upgradeable::InternalImpl;
+use crate::interfaces::{ERC721UpgradeableABIDispatcher, ERC721UpgradeableABIDispatcherTrait};
 
 
 // Token IDs
@@ -110,7 +109,7 @@ fn test_constructor() {
         }
         let supports_interface = dispatcher.supports_interface(id);
         assert!(supports_interface);
-    };
+    }
 
     // Check token balance and owner
     let mut tokens = array![TOKEN_1, TOKEN_2, TOKEN_3];

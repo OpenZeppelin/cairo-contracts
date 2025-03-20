@@ -20,20 +20,21 @@
 #[starknet::component]
 pub mod ERC2981Component {
     use core::num::traits::Zero;
-    use crate::common::erc2981::interface;
-    use crate::common::erc2981::interface::IERC2981_ID;
     use openzeppelin_access::accesscontrol::AccessControlComponent;
     use openzeppelin_access::accesscontrol::AccessControlComponent::InternalTrait as AccessControlInternalTrait;
     use openzeppelin_access::ownable::OwnableComponent;
     use openzeppelin_access::ownable::OwnableComponent::InternalTrait as OwnableInternalTrait;
     use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
-    use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
+    use openzeppelin_introspection::src5::SRC5Component::{
+        InternalTrait as SRC5InternalTrait, SRC5Impl,
+    };
     use starknet::ContractAddress;
     use starknet::storage::{
         Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
         StoragePointerWriteAccess,
     };
+    use crate::common::erc2981::interface;
+    use crate::common::erc2981::interface::IERC2981_ID;
 
     /// Role for the admin responsible for managing royalty settings.
     pub const ROYALTY_ADMIN_ROLE: felt252 = selector!("ROYALTY_ADMIN_ROLE");

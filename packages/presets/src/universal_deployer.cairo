@@ -9,10 +9,7 @@ pub mod UniversalDeployer {
     use core::hash::{HashStateExTrait, HashStateTrait};
     use core::poseidon::PoseidonTrait;
     use openzeppelin_utils::interfaces::IUniversalDeployer;
-    use starknet::ClassHash;
-    use starknet::ContractAddress;
-    use starknet::SyscallResultTrait;
-    use starknet::get_caller_address;
+    use starknet::{ClassHash, ContractAddress, SyscallResultTrait, get_caller_address};
 
     #[storage]
     pub struct Storage {}

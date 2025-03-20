@@ -1,9 +1,5 @@
 use core::hash::{HashStateExTrait, HashStateTrait};
 use core::pedersen::PedersenTrait;
-use crate::governor::GovernorComponent::{InternalExtendedImpl, InternalImpl};
-use crate::governor::interface::{IGovernor, ProposalState};
-use crate::governor::{DefaultConfig, GovernorComponent, ProposalCore};
-use crate::utils::call_impls::{HashCallImpl, HashCallsImpl};
 use openzeppelin_test_common::mocks::governor::GovernorMock::SNIP12MetadataImpl;
 use openzeppelin_test_common::mocks::governor::{GovernorMock, GovernorTimelockedMock};
 use openzeppelin_testing::constants::{ADMIN, OTHER};
@@ -12,6 +8,10 @@ use snforge_std::{start_cheat_block_timestamp_global, start_mock_call};
 use starknet::ContractAddress;
 use starknet::account::Call;
 use starknet::storage::{StorageMapWriteAccess, StoragePathEntry, StoragePointerWriteAccess};
+use crate::governor::GovernorComponent::{InternalExtendedImpl, InternalImpl};
+use crate::governor::interface::{IGovernor, ProposalState};
+use crate::governor::{DefaultConfig, GovernorComponent, ProposalCore};
+use crate::utils::call_impls::{HashCallImpl, HashCallsImpl};
 
 pub type ComponentState = GovernorComponent::ComponentState<GovernorMock::ContractState>;
 pub type ComponentStateTimelocked =

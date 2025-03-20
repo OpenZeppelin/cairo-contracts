@@ -1,27 +1,29 @@
-use crate::EthAccountComponent;
-use crate::EthAccountComponent::{InternalTrait, SRC6CamelOnlyImpl};
-use crate::EthAccountComponent::{PublicKeyCamelImpl, PublicKeyImpl};
-use crate::interface::{EthAccountABIDispatcher, EthAccountABIDispatcherTrait};
-use crate::interface::{ISRC6, ISRC6_ID};
-use crate::utils::secp256_point::{DebugSecp256Point, Secp256PointPartialEq};
-use crate::utils::signature::Secp256Signature;
 use openzeppelin_introspection::interface::{ISRC5, ISRC5_ID};
-use openzeppelin_test_common::eth_account::EthAccountSpyHelpers;
 use openzeppelin_test_common::eth_account::{
-    SIGNED_TX_DATA, SignedTransactionData, get_accept_ownership_signature,
+    EthAccountSpyHelpers, SIGNED_TX_DATA, SignedTransactionData, get_accept_ownership_signature,
 };
 use openzeppelin_test_common::mocks::account::DualCaseEthAccountMock;
 use openzeppelin_test_common::mocks::simple::{ISimpleMockDispatcher, ISimpleMockDispatcherTrait};
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::secp256k1::{KEY_PAIR, KEY_PAIR_2};
-use openzeppelin_testing::constants::{CALLER, OTHER, ZERO};
-use openzeppelin_testing::constants::{MIN_TRANSACTION_VERSION, QUERY_VERSION, SALT};
+use openzeppelin_testing::constants::{
+    CALLER, MIN_TRANSACTION_VERSION, OTHER, QUERY_VERSION, SALT, ZERO,
+};
 use openzeppelin_testing::events::spy_events;
 use openzeppelin_testing::signing::Secp256k1KeyPair;
 use openzeppelin_utils::serde::SerializedAppend;
-use snforge_std::{start_cheat_caller_address, start_cheat_transaction_version_global, test_address};
-use snforge_std::{start_cheat_signature_global, start_cheat_transaction_hash_global};
+use snforge_std::{
+    start_cheat_caller_address, start_cheat_signature_global, start_cheat_transaction_hash_global,
+    start_cheat_transaction_version_global, test_address,
+};
 use starknet::account::Call;
+use crate::EthAccountComponent;
+use crate::EthAccountComponent::{
+    InternalTrait, PublicKeyCamelImpl, PublicKeyImpl, SRC6CamelOnlyImpl,
+};
+use crate::interface::{EthAccountABIDispatcher, EthAccountABIDispatcherTrait, ISRC6, ISRC6_ID};
+use crate::utils::secp256_point::{DebugSecp256Point, Secp256PointPartialEq};
+use crate::utils::signature::Secp256Signature;
 
 //
 // Setup

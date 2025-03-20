@@ -1,23 +1,25 @@
 use core::num::traits::Zero;
-use crate::AccountComponent;
-use crate::AccountComponent::{InternalTrait, SRC6CamelOnlyImpl};
-use crate::AccountComponent::{PublicKeyCamelImpl, PublicKeyImpl};
-use crate::interface::{AccountABIDispatcher, AccountABIDispatcherTrait};
-use crate::interface::{ISRC6, ISRC6_ID};
 use openzeppelin_introspection::interface::{ISRC5, ISRC5_ID};
-use openzeppelin_test_common::account::{AccountSpyHelpers, SignedTransactionData};
-use openzeppelin_test_common::account::{SIGNED_TX_DATA, get_accept_ownership_signature};
+use openzeppelin_test_common::account::{
+    AccountSpyHelpers, SIGNED_TX_DATA, SignedTransactionData, get_accept_ownership_signature,
+};
 use openzeppelin_test_common::mocks::account::DualCaseAccountMock;
 use openzeppelin_test_common::mocks::simple::{ISimpleMockDispatcher, ISimpleMockDispatcherTrait};
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::stark::{KEY_PAIR, KEY_PAIR_2};
-use openzeppelin_testing::constants::{CALLER, OTHER, ZERO};
-use openzeppelin_testing::constants::{MIN_TRANSACTION_VERSION, QUERY_OFFSET, QUERY_VERSION, SALT};
+use openzeppelin_testing::constants::{
+    CALLER, MIN_TRANSACTION_VERSION, OTHER, QUERY_OFFSET, QUERY_VERSION, SALT, ZERO,
+};
 use openzeppelin_testing::events::spy_events;
 use openzeppelin_testing::signing::StarkKeyPair;
-use snforge_std::{start_cheat_caller_address, start_cheat_transaction_version_global, test_address};
-use snforge_std::{start_cheat_signature_global, start_cheat_transaction_hash_global};
+use snforge_std::{
+    start_cheat_caller_address, start_cheat_signature_global, start_cheat_transaction_hash_global,
+    start_cheat_transaction_version_global, test_address,
+};
 use starknet::account::Call;
+use crate::AccountComponent;
+use crate::AccountComponent::{InternalTrait, PublicKeyCamelImpl, PublicKeyImpl, SRC6CamelOnlyImpl};
+use crate::interface::{AccountABIDispatcher, AccountABIDispatcherTrait, ISRC6, ISRC6_ID};
 
 //
 // Setup

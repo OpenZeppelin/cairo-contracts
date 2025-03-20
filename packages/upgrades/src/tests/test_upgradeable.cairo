@@ -1,7 +1,7 @@
-use openzeppelin_test_common::mocks::upgrades::IUpgradesV1SafeDispatcher;
-use openzeppelin_test_common::mocks::upgrades::IUpgradesV1SafeDispatcherTrait;
-use openzeppelin_test_common::mocks::upgrades::{IUpgradesV1Dispatcher, IUpgradesV1DispatcherTrait};
-use openzeppelin_test_common::mocks::upgrades::{IUpgradesV2Dispatcher, IUpgradesV2DispatcherTrait};
+use openzeppelin_test_common::mocks::upgrades::{
+    IUpgradesV1Dispatcher, IUpgradesV1DispatcherTrait, IUpgradesV1SafeDispatcher,
+    IUpgradesV1SafeDispatcherTrait, IUpgradesV2Dispatcher, IUpgradesV2DispatcherTrait,
+};
 use openzeppelin_test_common::upgrades::UpgradeableSpyHelpers;
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{CLASS_HASH_ZERO, FELT_VALUE as VALUE};

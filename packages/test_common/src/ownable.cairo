@@ -1,7 +1,6 @@
 use openzeppelin_access::ownable::OwnableComponent;
 use openzeppelin_access::ownable::OwnableComponent::OwnershipTransferred;
 use openzeppelin_testing::events::{EventSpyExt, EventSpyQueue as EventSpy};
-
 use starknet::ContractAddress;
 
 #[generate_trait]

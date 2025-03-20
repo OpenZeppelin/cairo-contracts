@@ -1,7 +1,4 @@
 use core::num::traits::Zero;
-use crate::ownable::OwnableComponent;
-use crate::ownable::OwnableComponent::{InternalTrait, OwnershipTransferStarted};
-use crate::ownable::interface::{IOwnableTwoStep, IOwnableTwoStepCamelOnly};
 use openzeppelin_test_common::mocks::access::DualCaseTwoStepOwnableMock;
 use openzeppelin_test_common::ownable::OwnableSpyHelpers;
 use openzeppelin_testing::constants::{NEW_OWNER, OTHER, OWNER, ZERO};
@@ -9,6 +6,9 @@ use openzeppelin_testing::events::{EventSpyExt, EventSpyQueue as EventSpy, spy_e
 use snforge_std::{start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
 use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+use crate::ownable::OwnableComponent;
+use crate::ownable::OwnableComponent::{InternalTrait, OwnershipTransferStarted};
+use crate::ownable::interface::{IOwnableTwoStep, IOwnableTwoStepCamelOnly};
 
 //
 // Setup

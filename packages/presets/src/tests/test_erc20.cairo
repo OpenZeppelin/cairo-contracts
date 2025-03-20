@@ -1,9 +1,4 @@
-use core::num::traits::Bounded;
-use core::num::traits::Zero;
-use crate::interfaces::erc20::{
-    ERC20UpgradeableABISafeDispatcher, ERC20UpgradeableABISafeDispatcherTrait,
-};
-use crate::interfaces::{ERC20UpgradeableABIDispatcher, ERC20UpgradeableABIDispatcherTrait};
+use core::num::traits::{Bounded, Zero};
 use openzeppelin_test_common::erc20::ERC20SpyHelpers;
 use openzeppelin_test_common::ownable::OwnableSpyHelpers;
 use openzeppelin_test_common::upgrades::UpgradeableSpyHelpers;
@@ -17,6 +12,10 @@ use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTra
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::start_cheat_caller_address;
 use starknet::ClassHash;
+use crate::interfaces::erc20::{
+    ERC20UpgradeableABISafeDispatcher, ERC20UpgradeableABISafeDispatcherTrait,
+};
+use crate::interfaces::{ERC20UpgradeableABIDispatcher, ERC20UpgradeableABIDispatcherTrait};
 
 fn V2_CLASS_HASH() -> ClassHash {
     utils::declare_class("SnakeERC20Mock").class_hash

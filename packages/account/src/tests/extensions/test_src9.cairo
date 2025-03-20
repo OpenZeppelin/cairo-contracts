@@ -1,8 +1,3 @@
-use crate::extensions::SRC9Component;
-use crate::extensions::SRC9Component::{InternalImpl, OutsideExecutionV2Impl, SNIP12MetadataImpl};
-use crate::extensions::src9::interface::{ISRC9_V2Dispatcher, ISRC9_V2DispatcherTrait};
-use crate::extensions::src9::interface::{ISRC9_V2_ID, OutsideExecution};
-use crate::extensions::src9::snip12_utils::OutsideExecutionStructHash;
 use openzeppelin_introspection::interface::{ISRC5, ISRC5_ID};
 use openzeppelin_test_common::mocks::src9::SRC9AccountMock;
 use openzeppelin_testing as utils;
@@ -10,11 +5,19 @@ use openzeppelin_testing::constants::{FELT_VALUE, OTHER, OWNER, RECIPIENT};
 use openzeppelin_utils::cryptography::snip12::OffchainMessageHash;
 use snforge_std::signature::KeyPairTrait;
 use snforge_std::signature::stark_curve::{StarkCurveKeyPairImpl, StarkCurveSignerImpl};
-use snforge_std::{CheatSpan, load, start_cheat_block_timestamp_global, test_address};
-use snforge_std::{cheat_caller_address, start_cheat_caller_address};
+use snforge_std::{
+    CheatSpan, cheat_caller_address, load, start_cheat_block_timestamp_global,
+    start_cheat_caller_address, test_address,
+};
 use starknet::account::Call;
 use starknet::storage::StorageMapWriteAccess;
 use starknet::{ContractAddress, contract_address_const};
+use crate::extensions::SRC9Component;
+use crate::extensions::SRC9Component::{InternalImpl, OutsideExecutionV2Impl, SNIP12MetadataImpl};
+use crate::extensions::src9::interface::{
+    ISRC9_V2Dispatcher, ISRC9_V2DispatcherTrait, ISRC9_V2_ID, OutsideExecution,
+};
+use crate::extensions::src9::snip12_utils::OutsideExecutionStructHash;
 
 //
 // Setup

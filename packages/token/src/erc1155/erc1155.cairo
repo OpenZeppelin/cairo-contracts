@@ -8,16 +8,19 @@
 #[starknet::component]
 pub mod ERC1155Component {
     use core::num::traits::Zero;
-    use crate::erc1155::interface;
-    use crate::erc1155::interface::{IERC1155ReceiverDispatcher, IERC1155ReceiverDispatcherTrait};
     use openzeppelin_account::interface::ISRC6_ID;
     use openzeppelin_introspection::interface::{ISRC5Dispatcher, ISRC5DispatcherTrait};
     use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
-    use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
-    use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
-    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use openzeppelin_introspection::src5::SRC5Component::{
+        InternalTrait as SRC5InternalTrait, SRC5Impl,
+    };
+    use starknet::storage::{
+        Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
+        StoragePointerWriteAccess,
+    };
     use starknet::{ContractAddress, get_caller_address};
+    use crate::erc1155::interface;
+    use crate::erc1155::interface::{IERC1155ReceiverDispatcher, IERC1155ReceiverDispatcherTrait};
 
     #[storage]
     pub struct Storage {
@@ -157,7 +160,7 @@ pub mod ERC1155Component {
                 batch_balances
                     .append(Self::balance_of(self, *accounts.at(index), *token_ids.at(index)));
                 index += 1;
-            };
+            }
 
             batch_balances.span()
         }
@@ -662,7 +665,7 @@ pub mod ERC1155Component {
                     self.ERC1155_balances.write((token_id, to), to_balance + value);
                 }
                 index += 1;
-            };
+            }
             let operator = get_caller_address();
             if token_ids.len() == 1 {
                 self

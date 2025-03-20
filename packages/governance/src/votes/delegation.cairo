@@ -3,7 +3,7 @@
 
 use core::hash::{HashStateExTrait, HashStateTrait};
 use core::poseidon::PoseidonTrait;
-use openzeppelin_utils::cryptography::snip12::{StructHash};
+use openzeppelin_utils::cryptography::snip12::StructHash;
 use starknet::ContractAddress;
 
 // sn_keccak(

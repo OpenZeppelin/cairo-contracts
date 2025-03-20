@@ -23,7 +23,7 @@ pub impl EventSpyQueueImpl of EventSpyExt {
         // Remove events that have already been consumed
         for _ in 0..self.event_offset {
             let _ = events.pop_front();
-        };
+        }
 
         Events { events }
     }
@@ -147,9 +147,9 @@ fn is_emitted<T, impl TEvent: starknet::Event<T>, impl TDrop: Drop<T>>(
             && event.data == @expected_data {
             is_emitted = true;
             break;
-        };
+        }
 
         i += 1;
-    };
+    }
     return is_emitted;
 }

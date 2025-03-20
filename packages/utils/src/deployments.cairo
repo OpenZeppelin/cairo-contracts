@@ -2,13 +2,12 @@
 // OpenZeppelin Contracts for Cairo v1.0.0 (utils/deployments.cairo)
 
 pub mod interface;
-
 use core::hash::{HashStateExTrait, HashStateTrait};
 use core::num::traits::Zero;
 use core::pedersen::PedersenTrait;
 use core::poseidon::PoseidonTrait;
-use crate::serde::SerializedAppend;
 use starknet::{ClassHash, ContractAddress};
+use crate::serde::SerializedAppend;
 
 // 2**251 - 256
 pub const L2_ADDRESS_UPPER_BOUND: felt252 =
@@ -50,7 +49,7 @@ fn compute_hash_on_elements(data: Span<felt252>) -> felt252 {
     let mut state = PedersenTrait::new(0);
     for elem in data {
         state = state.update_with(*elem);
-    };
+    }
 
     state.update_with(data.len()).finalize()
 }

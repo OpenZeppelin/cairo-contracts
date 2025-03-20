@@ -1,18 +1,4 @@
 use core::num::traits::{Bounded, Zero};
-use crate::governor::GovernorComponent::{InternalExtendedImpl, InternalImpl};
-use crate::governor::interface::{IGOVERNOR_ID, IGovernor, ProposalState};
-use crate::governor::interface::{IGovernorDispatcher, IGovernorDispatcherTrait};
-use crate::governor::vote::{Vote, VoteWithReasonAndParams};
-use crate::governor::{DefaultConfig, GovernorComponent, ProposalCore};
-use crate::tests::governor::common::{COMPONENT_STATE, CONTRACT_STATE};
-use crate::tests::governor::common::{
-    get_calls, get_mock_state, get_proposal_info, get_state, hash_proposal,
-};
-use crate::tests::governor::common::{
-    setup_active_proposal, setup_canceled_proposal, setup_defeated_proposal,
-    setup_executed_proposal, setup_pending_proposal, setup_queued_proposal,
-    setup_succeeded_proposal,
-};
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin_test_common::mocks::governor::GovernorMock;
 use openzeppelin_test_common::mocks::governor::GovernorMock::SNIP12MetadataImpl;
@@ -25,14 +11,25 @@ use openzeppelin_testing::events::{EventSpyExt, EventSpyQueue as EventSpy, spy_e
 use openzeppelin_utils::bytearray::ByteArrayExtTrait;
 use openzeppelin_utils::cryptography::snip12::OffchainMessageHash;
 use snforge_std::signature::stark_curve::{StarkCurveKeyPairImpl, StarkCurveSignerImpl};
-use snforge_std::test_address;
 use snforge_std::{
     start_cheat_block_timestamp_global, start_cheat_caller_address, start_cheat_chain_id_global,
-    start_mock_call,
+    start_mock_call, test_address,
 };
 use starknet::account::Call;
 use starknet::storage::{StorageMapWriteAccess, StoragePathEntry, StoragePointerWriteAccess};
 use starknet::{ContractAddress, contract_address_const};
+use crate::governor::GovernorComponent::{InternalExtendedImpl, InternalImpl};
+use crate::governor::interface::{
+    IGOVERNOR_ID, IGovernor, IGovernorDispatcher, IGovernorDispatcherTrait, ProposalState,
+};
+use crate::governor::vote::{Vote, VoteWithReasonAndParams};
+use crate::governor::{DefaultConfig, GovernorComponent, ProposalCore};
+use crate::tests::governor::common::{
+    COMPONENT_STATE, CONTRACT_STATE, get_calls, get_mock_state, get_proposal_info, get_state,
+    hash_proposal, setup_active_proposal, setup_canceled_proposal, setup_defeated_proposal,
+    setup_executed_proposal, setup_pending_proposal, setup_queued_proposal,
+    setup_succeeded_proposal,
+};
 
 //
 // Dispatchers

@@ -1,12 +1,13 @@
-use crate::common::erc2981::ERC2981Component::{ERC2981AdminAccessControlImpl, ERC2981InfoImpl};
-use crate::common::erc2981::ERC2981Component::{ERC2981Impl, InternalImpl, ROYALTY_ADMIN_ROLE};
-use crate::common::erc2981::{DefaultConfig, ERC2981Component};
 use openzeppelin_access::accesscontrol::AccessControlComponent::InternalImpl as AccessControlInternalImpl;
 use openzeppelin_access::accesscontrol::{AccessControlComponent, DEFAULT_ADMIN_ROLE};
 use openzeppelin_test_common::mocks::erc2981::ERC2981AccessControlMock;
 use openzeppelin_testing::constants::{ADMIN, OTHER, OTHER_ADMIN, OTHER_ROLE, RECIPIENT, ZERO};
 use snforge_std::{start_cheat_caller_address, test_address};
 use starknet::{ContractAddress, contract_address_const};
+use crate::common::erc2981::ERC2981Component::{
+    ERC2981AdminAccessControlImpl, ERC2981Impl, ERC2981InfoImpl, InternalImpl, ROYALTY_ADMIN_ROLE,
+};
+use crate::common::erc2981::{DefaultConfig, ERC2981Component};
 
 type MockState = ERC2981AccessControlMock::ContractState;
 type ComponentState = ERC2981Component::ComponentState<MockState>;

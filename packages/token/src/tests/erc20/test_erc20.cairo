@@ -1,7 +1,4 @@
 use core::num::traits::Bounded;
-use crate::erc20::ERC20Component;
-use crate::erc20::ERC20Component::{ERC20CamelOnlyImpl, ERC20Impl};
-use crate::erc20::ERC20Component::{ERC20MetadataImpl, InternalImpl};
 use openzeppelin_test_common::erc20::ERC20SpyHelpers;
 use openzeppelin_test_common::mocks::erc20::{DualCaseERC20Mock, SnakeERC20MockWithHooks};
 use openzeppelin_testing::constants::{
@@ -10,6 +7,8 @@ use openzeppelin_testing::constants::{
 use openzeppelin_testing::events::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use snforge_std::{start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
+use crate::erc20::ERC20Component;
+use crate::erc20::ERC20Component::{ERC20CamelOnlyImpl, ERC20Impl, ERC20MetadataImpl, InternalImpl};
 
 //
 // Setup

@@ -16,11 +16,10 @@
 #[starknet::component]
 pub mod OwnableComponent {
     use core::num::traits::Zero;
+    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use starknet::{ContractAddress, get_caller_address};
     use crate::ownable::interface;
     use crate::ownable::interface::IOwnableTwoStep;
-    use starknet::ContractAddress;
-    use starknet::get_caller_address;
-    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 
     #[storage]
     pub struct Storage {

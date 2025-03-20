@@ -2,10 +2,12 @@
 // OpenZeppelin Contracts for Cairo v1.0.0 (utils/structs/checkpoint.cairo)
 
 use core::num::traits::Sqrt;
-use crate::math;
-use starknet::storage::{Mutable, MutableVecTrait, StorageAsPath, StoragePath, Vec, VecTrait};
-use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+use starknet::storage::{
+    Mutable, MutableVecTrait, StorageAsPath, StoragePath, StoragePointerReadAccess,
+    StoragePointerWriteAccess, Vec, VecTrait,
+};
 use starknet::storage_access::StorePacking;
+use crate::math;
 
 /// `Trace` struct, for checkpointing values as they change at different points in
 /// time, and later looking up past values by block timestamp.
@@ -154,7 +156,7 @@ impl CheckpointImpl of CheckpointTrait {
             } else {
                 _low = mid + 1;
             };
-        };
+        }
         _high
     }
 }

@@ -25,8 +25,6 @@
 #[starknet::component]
 pub mod VotesComponent {
     use core::num::traits::Zero;
-    use crate::votes::delegation::Delegation;
-    use crate::votes::interface::IVotes;
     use openzeppelin_account::interface::{ISRC6Dispatcher, ISRC6DispatcherTrait};
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_token::erc20::ERC20Component;
@@ -39,6 +37,8 @@ pub mod VotesComponent {
     use openzeppelin_utils::structs::checkpoint::{Checkpoint, Trace, TraceTrait};
     use starknet::ContractAddress;
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePathEntry};
+    use crate::votes::delegation::Delegation;
+    use crate::votes::interface::IVotes;
 
     #[storage]
     pub struct Storage {

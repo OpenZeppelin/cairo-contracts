@@ -1,14 +1,8 @@
 use core::num::traits::Zero;
-use crate::erc1155;
-use crate::erc1155::ERC1155Component;
-use crate::erc1155::ERC1155Component::ERC1155CamelImpl;
-use crate::erc1155::ERC1155Component::{ERC1155Impl, ERC1155MetadataURIImpl, InternalImpl};
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin_test_common::erc1155::{
-    ERC1155SpyHelpers, get_ids_and_split_values, get_ids_and_values,
-};
-use openzeppelin_test_common::erc1155::{
-    deploy_another_account_at, setup_account, setup_receiver, setup_src5,
+    ERC1155SpyHelpers, deploy_another_account_at, get_ids_and_split_values, get_ids_and_values,
+    setup_account, setup_receiver, setup_src5,
 };
 use openzeppelin_test_common::mocks::erc1155::{DualCaseERC1155Mock, SnakeERC1155MockWithHooks};
 use openzeppelin_testing::constants::{
@@ -16,10 +10,14 @@ use openzeppelin_testing::constants::{
     ZERO,
 };
 use openzeppelin_testing::events::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
-
 use snforge_std::{start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
 use starknet::storage::StoragePointerReadAccess;
+use crate::erc1155;
+use crate::erc1155::ERC1155Component;
+use crate::erc1155::ERC1155Component::{
+    ERC1155CamelImpl, ERC1155Impl, ERC1155MetadataURIImpl, InternalImpl,
+};
 
 //
 // Setup

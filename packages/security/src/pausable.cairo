@@ -8,11 +8,9 @@
 /// or `assert_not_paused` will be affected by this mechanism.
 #[starknet::component]
 pub mod PausableComponent {
-    use crate::interface::IPausable;
-
-    use starknet::ContractAddress;
-    use starknet::get_caller_address;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use starknet::{ContractAddress, get_caller_address};
+    use crate::interface::IPausable;
 
     #[storage]
     pub struct Storage {

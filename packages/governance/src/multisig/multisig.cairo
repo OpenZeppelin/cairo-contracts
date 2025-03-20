@@ -19,15 +19,18 @@ pub mod MultisigComponent {
     use core::num::traits::Zero;
     use core::panic_with_felt252;
     use core::pedersen::PedersenTrait;
-    use crate::multisig::interface::{IMultisig, TransactionID, TransactionState};
-    use crate::multisig::storage_utils::{SignersInfo, SignersInfoStorePackingV2};
-    use crate::multisig::storage_utils::{TxInfo, TxInfoStorePacking};
-    use crate::utils::call_impls::{CallPartialEq, HashCallImpl, HashCallsImpl};
     use starknet::account::Call;
-    use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
-    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use starknet::storage::{
+        Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
+        StoragePointerWriteAccess,
+    };
     use starknet::syscalls::call_contract_syscall;
     use starknet::{ContractAddress, SyscallResultTrait};
+    use crate::multisig::interface::{IMultisig, TransactionID, TransactionState};
+    use crate::multisig::storage_utils::{
+        SignersInfo, SignersInfoStorePackingV2, TxInfo, TxInfoStorePacking,
+    };
+    use crate::utils::call_impls::{CallPartialEq, HashCallImpl, HashCallsImpl};
 
     #[storage]
     pub struct Storage {
@@ -156,7 +159,7 @@ pub mod MultisigComponent {
             let signers_count = self.Multisig_signers_info.read().signers_count;
             for i in 0..signers_count {
                 result.append(self.Multisig_signers_by_index.read(i));
-            };
+            }
             result.span()
         }
 
@@ -215,7 +218,7 @@ pub mod MultisigComponent {
                 if self.is_confirmed_by(id, *signer) {
                     result += 1;
                 }
-            };
+            }
             result
         }
 
@@ -425,7 +428,7 @@ pub mod MultisigComponent {
                     for call in calls {
                         let Call { to, selector, calldata } = *call;
                         call_contract_syscall(to, selector, calldata).unwrap_syscall();
-                    };
+                    }
                     self.emit(TransactionExecuted { id });
                 },
             };
@@ -559,7 +562,7 @@ pub mod MultisigComponent {
                     self.emit(SignerAdded { signer: signer_to_add });
 
                     signers_count += 1;
-                };
+                }
                 self.Multisig_signers_info.write(SignersInfo { quorum, signers_count });
             }
             self._change_quorum(new_quorum);
@@ -601,7 +604,7 @@ pub mod MultisigComponent {
                     self.emit(SignerRemoved { signer: signer_to_remove });
 
                     signers_count -= 1;
-                };
+                }
                 self.Multisig_signers_info.write(SignersInfo { quorum, signers_count });
             }
             self._change_quorum(new_quorum);

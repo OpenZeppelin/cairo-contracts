@@ -1,5 +1,4 @@
 use core::num::traits::Zero;
-use crate::interfaces::{VestingWalletABIDispatcher, VestingWalletABIDispatcherTrait};
 use openzeppelin_finance::vesting::VestingComponent::InternalImpl;
 use openzeppelin_test_common::erc20::deploy_erc20;
 use openzeppelin_test_common::ownable::OwnableSpyHelpers;
@@ -11,6 +10,7 @@ use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTra
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{start_cheat_block_timestamp_global, start_cheat_caller_address};
 use starknet::ContractAddress;
+use crate::interfaces::{VestingWalletABIDispatcher, VestingWalletABIDispatcherTrait};
 
 //
 // Setup
@@ -72,7 +72,7 @@ fn test_vesting_schedule_no_cliff() {
         assert_eq!(actual_vested_amount, expected_vested_amount);
 
         time_passed += 1;
-    };
+    }
 
     let end_timestamp = data.start + data.duration;
     assert_eq!(vesting.vested_amount(token, end_timestamp), data.total_allocation);
@@ -91,7 +91,7 @@ fn test_vesting_schedule_with_cliff() {
         assert_eq!(actual_vested_amount, 0);
 
         time_passed += 1;
-    };
+    }
 
     while time_passed <= data.duration {
         let expected_vested_amount = tokens_per_sec * time_passed.into();
@@ -99,7 +99,7 @@ fn test_vesting_schedule_with_cliff() {
         assert_eq!(actual_vested_amount, expected_vested_amount);
 
         time_passed += 1;
-    };
+    }
 
     let end_timestamp = data.start + data.duration;
     assert_eq!(vesting.vested_amount(token, end_timestamp), data.total_allocation);

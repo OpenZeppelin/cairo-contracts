@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v1.0.0 (account/src/utils/signature.cairo)
+// OpenZeppelin Contracts for Cairo v2.0.0-alpha.0 (account/src/utils/signature.cairo)
 
 use core::ecdsa::check_ecdsa_signature;
 use starknet::secp256_trait;

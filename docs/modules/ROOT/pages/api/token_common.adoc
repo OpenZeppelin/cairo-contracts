@@ -12,7 +12,7 @@ This module provides extensions and utilities that are common to multiple token 
 
 [.contract]
 [[IERC2981]]
-=== `++IERC2981++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/token/src/common/erc2981/interface.cairo[{github-icon},role=heading-link]
+=== `++IERC2981++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.0/packages/token/src/common/erc2981/interface.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -46,7 +46,7 @@ unit of exchange.
 
 [.contract]
 [[IERC2981Info]]
-=== `++IERC2981Info++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/token/src/common/erc2981/interface.cairo[{github-icon},role=heading-link]
+=== `++IERC2981Info++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.0/packages/token/src/common/erc2981/interface.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -91,7 +91,7 @@ The returned tuple contains:
 
 [.contract]
 [[IERC2981Admin]]
-=== `++IERC2981Admin++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/token/src/common/erc2981/interface.cairo[{github-icon},role=heading-link]
+=== `++IERC2981Admin++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.0/packages/token/src/common/erc2981/interface.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -138,7 +138,7 @@ Resets royalty information for the token id back to unset.
 
 [.contract]
 [[ERC2981Component]]
-=== `++ERC2981Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/token/src/common/erc2981/erc2981.cairo[{github-icon},role=heading-link]
+=== `++ERC2981Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.0/packages/token/src/common/erc2981/erc2981.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin_token::common::erc2981::ERC2981Component;

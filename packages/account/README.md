@@ -1,6 +1,6 @@
 ## Account
 
-> **NOTE:** This document is better viewed at [https://docs.openzeppelin.com/contracts-cairo/1.0.0/api/account](https://docs.openzeppelin.com/contracts-cairo/1.0.0/api/account)
+> **NOTE:** This document is better viewed at [https://docs.openzeppelin.com/contracts-cairo/2.0.0-alpha.0/api/account](https://docs.openzeppelin.com/contracts-cairo/2.0.0-alpha.0/api/account)
 
 This crate provides components to implement account contracts that can be used for interacting with the network.
 
@@ -12,11 +12,11 @@ This crate provides components to implement account contracts that can be used f
 
 ### Interfaces
 
-- [`ISRC6`](https://docs.openzeppelin.com/contracts-cairo/1.0.0/api/account#ISRC6)
-- [`ISRC9_V2`](https://docs.openzeppelin.com/contracts-cairo/1.0.0/api/account#ISRC9_V2)
+- [`ISRC6`](https://docs.openzeppelin.com/contracts-cairo/2.0.0-alpha.0/api/account#ISRC6)
+- [`ISRC9_V2`](https://docs.openzeppelin.com/contracts-cairo/2.0.0-alpha.0/api/account#ISRC9_V2)
 
 ### Components
 
-- [`AccountComponent`](https://docs.openzeppelin.com/contracts-cairo/1.0.0/api/account#AccountComponent)
-- [`EthAccountComponent`](https://docs.openzeppelin.com/contracts-cairo/1.0.0/api/account#EthAccountComponent)
-- [`SRC9Component`](https://docs.openzeppelin.com/contracts-cairo/1.0.0/api/account#SRC9Component)
+- [`AccountComponent`](https://docs.openzeppelin.com/contracts-cairo/2.0.0-alpha.0/api/account#AccountComponent)
+- [`EthAccountComponent`](https://docs.openzeppelin.com/contracts-cairo/2.0.0-alpha.0/api/account#EthAccountComponent)
+- [`SRC9Component`](https://docs.openzeppelin.com/contracts-cairo/2.0.0-alpha.0/api/account#SRC9Component)

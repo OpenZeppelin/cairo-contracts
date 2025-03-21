@@ -560,7 +560,7 @@ The domain hashing logic follows the {snip-12} standard.
 
 [.contract]
 [[IERC4626]]
-=== `++IERC4626++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/token/src/erc20/extensions/erc4626/interface.cairo[{github-icon},role=heading-link]
+=== `++IERC4626++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.0/packages/token/src/erc20/extensions/erc4626/interface.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -896,7 +896,7 @@ those `assets` to `receiver`.
 
 [.contract]
 [[ERC4626Component]]
-=== `++ERC4626Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/token/src/erc20/extensions/erc4626/interface.cairo#L19[{github-icon},role=heading-link]
+=== `++ERC4626Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.0/packages/token/src/erc20/extensions/erc4626/interface.cairo#L19[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo

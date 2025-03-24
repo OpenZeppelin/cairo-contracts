@@ -16,11 +16,13 @@ pub const ISRC6_ID: felt252 = 0x2ceccef7f994940b3962a6c67e0ba4fcd37df7d131417c60
 pub trait ISRC6<TState> {
     /// Executes a list of calls from the account.
     fn __execute__(self: @TState, calls: Array<Call>);
+
     /// Validates a transaction before execution.
     /// This function is used by the protocol to verify `invoke` transactions.
     ///
     /// Returns the short string 'VALID' if valid, otherwise it reverts.
     fn __validate__(self: @TState, calls: Array<Call>) -> felt252;
+    
     /// Verifies that the given signature is valid for the given hash.
     ///
     /// Returns the short string 'VALID' if valid, otherwise returns 0.
@@ -51,6 +53,7 @@ pub trait IDeployable<TState> {
 pub trait IPublicKey<TState> {
     /// Returns the current public key of the account.
     fn get_public_key(self: @TState) -> felt252;
+
     /// Sets the public key of the account to `new_public_key`.
     ///
     /// Emits both an `OwnerRemoved` and an `OwnerAdded` event.
@@ -126,6 +129,7 @@ pub trait IEthDeployable<TState> {
 pub trait IEthPublicKey<TState> {
     /// Returns the current Ethereum public key of the account.
     fn get_public_key(self: @TState) -> EthPublicKey;
+
     /// Sets the Ethereum public key of the account to `new_public_key`.
     ///
     /// Emits both an `OwnerRemoved` and an `OwnerAdded` event.

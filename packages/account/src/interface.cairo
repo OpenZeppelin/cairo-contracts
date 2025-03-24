@@ -22,7 +22,7 @@ pub trait ISRC6<TState> {
     ///
     /// Returns the short string 'VALID' if valid, otherwise it reverts.
     fn __validate__(self: @TState, calls: Array<Call>) -> felt252;
-    
+
     /// Verifies that the given signature is valid for the given hash.
     ///
     /// Returns the short string 'VALID' if valid, otherwise returns 0.

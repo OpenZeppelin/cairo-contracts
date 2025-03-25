@@ -12,7 +12,7 @@ pub mod MyContract {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        eth_account: EthAccountComponent::Storage,
+        pub eth_account: EthAccountComponent::Storage,
     }
 
     #[constructor]

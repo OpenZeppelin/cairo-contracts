@@ -13,7 +13,7 @@ pub mod MyToken {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        erc20: ERC20Component::Storage,
+        pub erc20: ERC20Component::Storage,
     }
 
     #[constructor]

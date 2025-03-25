@@ -12,7 +12,7 @@ pub mod Owned {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        ownable: OwnableComponent::Storage,
+        pub ownable: OwnableComponent::Storage,
     }
 
     #[event]

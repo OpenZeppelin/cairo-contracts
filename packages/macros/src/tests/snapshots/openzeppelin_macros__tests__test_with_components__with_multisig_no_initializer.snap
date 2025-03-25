@@ -10,7 +10,7 @@ pub mod MyContract {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        multisig: MultisigComponent::Storage,
+        pub multisig: MultisigComponent::Storage,
     }
 
     use openzeppelin_governance::multisig::MultisigComponent;

@@ -12,9 +12,9 @@ pub mod VestingWallet {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        vesting: VestingComponent::Storage,
+        pub vesting: VestingComponent::Storage,
         #[substorage(v0)]
-        ownable: OwnableComponent::Storage,
+        pub ownable: OwnableComponent::Storage,
     }
 
     #[constructor]

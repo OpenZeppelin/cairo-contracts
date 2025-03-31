@@ -443,7 +443,9 @@ pub mod MultisigComponent {
             match self.resolve_tx_state(id) {
                 TransactionState::NotFound => panic_with_const_felt252::<Errors::TX_NOT_FOUND>(),
                 TransactionState::Pending => panic_with_const_felt252::<Errors::TX_NOT_CONFIRMED>(),
-                TransactionState::Executed => panic_with_const_felt252::<Errors::TX_ALREADY_EXECUTED>(),
+                TransactionState::Executed => panic_with_const_felt252::<
+                    Errors::TX_ALREADY_EXECUTED,
+                >(),
                 TransactionState::Confirmed => {
                     let caller = starknet::get_caller_address();
                     self.assert_one_of_signers(caller);

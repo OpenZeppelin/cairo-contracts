@@ -17,7 +17,7 @@
 pub mod MultisigComponent {
     use core::hash::{HashStateExTrait, HashStateTrait};
     use core::num::traits::Zero;
-    use core::panic_with_felt252;
+    use core::panic_with_const_felt252;
     use core::pedersen::PedersenTrait;
     use starknet::account::Call;
     use starknet::storage::{
@@ -441,9 +441,9 @@ pub mod MultisigComponent {
         ) {
             let id = self.hash_transaction_batch(calls, salt);
             match self.resolve_tx_state(id) {
-                TransactionState::NotFound => panic_with_felt252(Errors::TX_NOT_FOUND),
-                TransactionState::Pending => panic_with_felt252(Errors::TX_NOT_CONFIRMED),
-                TransactionState::Executed => panic_with_felt252(Errors::TX_ALREADY_EXECUTED),
+                TransactionState::NotFound => panic_with_const_felt252::<Errors::TX_NOT_FOUND>(),
+                TransactionState::Pending => panic_with_const_felt252::<Errors::TX_NOT_CONFIRMED>(),
+                TransactionState::Executed => panic_with_const_felt252::<Errors::TX_ALREADY_EXECUTED>(),
                 TransactionState::Confirmed => {
                     let caller = starknet::get_caller_address();
                     self.assert_one_of_signers(caller);

@@ -384,7 +384,7 @@ pub mod AccessControlComponent {
         ) {
             assert(delay > 0, Errors::INVALID_DELAY);
             match self.resolve_role_status(role, account) {
-                RoleStatus::Effective => core::panic_with_felt252(Errors::ALREADY_EFFECTIVE),
+                RoleStatus::Effective => core::panic_with_const_felt252::<Errors::ALREADY_EFFECTIVE>(),
                 RoleStatus::Delayed |
                 RoleStatus::NotGranted => {
                     let caller = starknet::get_caller_address();

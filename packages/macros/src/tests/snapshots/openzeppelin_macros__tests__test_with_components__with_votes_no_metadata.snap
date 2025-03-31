@@ -12,7 +12,6 @@ pub mod MyContract {
         #[substorage(v0)]
         votes: VotesComponent::Storage,
     }
-
     use openzeppelin_governance::votes::VotesComponent;
 
     component!(path: VotesComponent, storage: votes, event: VotesEvent);

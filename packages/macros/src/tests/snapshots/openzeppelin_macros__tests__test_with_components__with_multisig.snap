@@ -19,7 +19,6 @@ pub mod MyContract {
     fn constructor(ref self: ContractState, quorum: u32, signers: Span<ContractAddress>) {
         self.multisig.initializer(quorum, signers);
     }
-
     use openzeppelin_governance::multisig::MultisigComponent;
 
     component!(path: MultisigComponent, storage: multisig, event: MultisigEvent);

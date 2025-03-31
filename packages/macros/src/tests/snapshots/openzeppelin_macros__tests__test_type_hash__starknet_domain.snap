@@ -1,0 +1,21 @@
+---
+source: src/tests/test_type_hash.rs
+expression: result
+snapshot_kind: text
+---
+TokenStream:
+
+// selector!(
+//   "\"StarknetDomain\"(\"name\":\"shortstring\",\"version\":\"shortstring\",\"chainId\":\"shortstring\",\"revision\":\"shortstring\")"
+// );
+pub const STARKNET_DOMAIN_TYPE_HASH: felt252 =
+    0x1ff2f602e42168014d405a94f75e8a93d640751d71d16311266e140d8b0a210;
+
+
+Diagnostics:
+
+None
+
+AuxData:
+
+None

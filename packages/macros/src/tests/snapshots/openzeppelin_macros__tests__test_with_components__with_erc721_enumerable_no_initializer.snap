@@ -12,7 +12,6 @@ pub mod MyContract {
         #[substorage(v0)]
         erc721_enumerable: ERC721EnumerableComponent::Storage,
     }
-
     use openzeppelin_token::erc721::extensions::ERC721EnumerableComponent;
 
     component!(

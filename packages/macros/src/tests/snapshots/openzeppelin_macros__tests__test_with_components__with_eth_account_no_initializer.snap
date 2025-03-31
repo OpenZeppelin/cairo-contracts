@@ -12,7 +12,6 @@ pub mod MyContract {
         #[substorage(v0)]
         eth_account: EthAccountComponent::Storage,
     }
-
     use openzeppelin_account::EthAccountComponent;
 
     component!(path: EthAccountComponent, storage: eth_account, event: EthAccountEvent);

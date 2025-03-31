@@ -1,0 +1,16 @@
+---
+source: src/tests/test_type_hash.rs
+expression: result
+snapshot_kind: text
+---
+TokenStream:
+
+None
+
+Diagnostics:
+
+None
+
+AuxData:
+
+None

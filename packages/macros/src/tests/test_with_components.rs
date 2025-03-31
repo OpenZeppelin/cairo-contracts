@@ -1,7 +1,9 @@
 use crate::with_components::with_components_avevetedp5blk as with_components;
 use cairo_lang_macro::TokenStream;
-use indoc::{formatdoc, indoc};
+use indoc::indoc;
 use insta::assert_snapshot;
+
+use super::common::format_proc_macro_result;
 
 #[test]
 fn test_with_account() {
@@ -1233,35 +1235,5 @@ fn get_string_result(attribute: &str, item: &str) -> String {
     let attribute_stream = TokenStream::new(attribute.to_string());
     let item_stream = TokenStream::new(item.to_string());
     let raw_result = with_components(attribute_stream, item_stream);
-    let none = "None";
-
-    let mut token_stream = raw_result.token_stream.to_string();
-    let mut diagnostics = String::new();
-    for d in raw_result.diagnostics {
-        diagnostics += format!("====\n{:?}: {}====", d.severity, d.message).as_str();
-    }
-
-    if token_stream.is_empty() {
-        token_stream = none.to_string();
-    }
-    if diagnostics.is_empty() {
-        diagnostics = none.to_string();
-    }
-
-    formatdoc! {
-        "
-        TokenStream:
-
-        {}
-
-        Diagnostics:
-
-        {}
-
-        AuxData:
-
-        {:?}
-        ",
-        token_stream, diagnostics, raw_result.aux_data
-    }
+    format_proc_macro_result(raw_result)
 }

@@ -14,7 +14,6 @@ pub mod MyContract {
         #[substorage(v0)]
         erc1155: ERC1155Component::Storage,
     }
-
     use openzeppelin_token::erc1155::ERC1155Component;
 
     component!(path: ERC1155Component, storage: erc1155, event: ERC1155Event);

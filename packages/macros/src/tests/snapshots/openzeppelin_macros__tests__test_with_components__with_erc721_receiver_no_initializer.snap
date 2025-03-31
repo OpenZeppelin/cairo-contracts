@@ -12,7 +12,6 @@ pub mod MyContract {
         #[substorage(v0)]
         erc721_receiver: ERC721ReceiverComponent::Storage,
     }
-
     use openzeppelin_token::erc721::ERC721ReceiverComponent;
 
     component!(path: ERC721ReceiverComponent, storage: erc721_receiver, event: ERC721ReceiverEvent);

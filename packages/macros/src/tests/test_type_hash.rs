@@ -39,6 +39,40 @@ fn test_basic_types() {
 }
 
 #[test]
+fn test_preset_types() {
+    // Preset types list:
+    // - TokenAmount
+    // - NftId
+    // - U256
+    let item = indoc!(
+        "
+        #[derive(TypeHash)]
+        pub struct MyType {
+            pub token_amount: TokenAmount,
+            pub nft_id: NftId,
+            pub u256: u256,
+        }
+        "
+    );
+    let result = get_string_result(item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_inner_starknet_domain() {
+    let item = indoc!(
+        "
+        #[derive(TypeHash)]
+        pub struct MyType {
+            pub starknet_domain: StarknetDomain,
+        }
+        "
+    );
+    let result = get_string_result(item);
+    assert_snapshot!(result);
+}
+
+#[test]
 fn test_with_inner_custom_type() {
     let item = indoc!(
         "

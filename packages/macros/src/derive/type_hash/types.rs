@@ -32,6 +32,7 @@ pub enum BasicType {
 }
 
 /// The different preset types as defined in the SNIP-12.
+// TODO!: Add the merkle tree type
 #[derive(Debug)]
 pub enum PresetType {
     TokenAmount,

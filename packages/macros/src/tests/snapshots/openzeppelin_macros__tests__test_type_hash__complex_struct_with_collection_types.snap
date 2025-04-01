@@ -6,10 +6,10 @@ snapshot_kind: text
 TokenStream:
 
 // selector!(
-//   "\"MyType\"(\"member1\":\"(felt,felt,ClassHash,NftId)\",\"member2\":\"TokenAmount*\",\"member3\":\"ClassHash*\",\"member4\":\"(ContractAddress,TokenAmount)\",\"member5\":\"ContractAddress*\",\"member6\":\"()\",\"member7\":\"(timestamp,shortstring)\",\"member8\":\"(ContractAddress)\")\"NftId\"(\"collection_address\":\"ContractAddress\",\"token_id\":\"u256\")\"TokenAmount\"(\"token_address\":\"ContractAddress\",\"amount\":\"u256\")\"u256\"(\"low\":\"u128\",\"high\":\"u128\")"
+//   "\"MyType\"(\"member1\":\"(felt,felt,ClassHash,NftId)\",\"member2\":\"TokenAmount*\",\"member3\":\"ClassHash*\",\"member4\":\"(ContractAddress,TokenAmount)\",\"member5\":\"ContractAddress*\",\"member6\":\"()\",\"member7\":\"(timestamp,shortstring)\",\"member8\":\"(ContractAddress)\",\"member9\":\"(TokenAmount,(felt,ClassHash),NftId)\",\"member10\":\"(TokenAmount*,ContractAddress*)\",\"member11\":\"(TokenAmount,ContractAddress,felt*)*\",\"member12\":\"(TokenAmount*,ContractAddress*,felt*)**\")\"NftId\"(\"collection_address\":\"ContractAddress\",\"token_id\":\"u256\")\"TokenAmount\"(\"token_address\":\"ContractAddress\",\"amount\":\"u256\")\"u256\"(\"low\":\"u128\",\"high\":\"u128\")"
 // );
 pub const MY_TYPE_TYPE_HASH: felt252 =
-    0x17807101254dcb500e7f10612cc6a3039067854c72b346903a18ec66e43c92d;
+    0x1a48dfeb06697d53df4c5bd3186b36a31f197beb0f4c1d98967152eff37c1c0;
 
 
 Diagnostics:

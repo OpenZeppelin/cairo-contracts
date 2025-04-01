@@ -71,9 +71,8 @@ impl S12Type {
         // Check if the type is a tuple
         if s.starts_with("(") && s.ends_with(")") {
             let types = Box::new(
-                s[1..s.len() - 1]
-                    .split(',')
-                    .filter(|s| !s.is_empty())
+                split_types(&s[1..s.len() - 1])
+                    .iter()
                     .map(|s| S12Type::from_str(s).unwrap())
                     .collect(),
             );
@@ -304,4 +303,39 @@ impl UserDefinedType {
             UserDefinedType::Custom(_) => Err(Diagnostic::error(errors::CUSTOM_TYPE_NOT_SUPPORTED)),
         }
     }
+}
+
+/// Returns a list of comma separated strings, ignoring commas inside matching parentheses.
+///
+/// Example:
+/// ```
+/// let s = "a,b,(c,d),e";
+/// let result = split_types(s);
+/// assert_eq!(result, vec!["a", "b", "(c,d)", "e"]);
+/// ```
+pub fn split_types(s: &str) -> Vec<&str> {
+  let mut result = Vec::new();
+  let mut start = 0;
+  let mut paren_count = 0;
+
+  for (i, c) in s.chars().enumerate() {
+      match c {
+          '(' => paren_count += 1,
+          ')' => paren_count -= 1,
+          ',' if paren_count == 0 => {
+            if start < i {
+              result.push(s[start..i].trim());
+            }
+            start = i + 1;
+          }
+          _ => {}
+      }
+  }
+
+  // Add the last segment
+  if start < s.len() {
+      result.push(s[start..].trim());
+  }
+
+  result
 }

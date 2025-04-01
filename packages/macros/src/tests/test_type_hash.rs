@@ -423,6 +423,10 @@ fn test_complex_struct_with_collection_types() {
             #[snip12_type((timestamp, shortstring))]
             pub member7: (u128, felt252),
             pub member8: (ContractAddress,),
+            pub member9: (TokenAmount, (felt252, ClassHash), NftId),
+            pub member10: (Array<TokenAmount>, Array<ContractAddress>),
+            pub member11: Array<(TokenAmount, ContractAddress, Array<felt252>)>,
+            pub member12: Array<Array<(Array<TokenAmount>, Array<ContractAddress>, Array<felt252>)>>,
         }
         "
     );
@@ -444,6 +448,10 @@ fn test_complex_enum_with_collection_types() {
             #[snip12_type((timestamp, shortstring))]
             Variant7: (u128, felt252),
             Variant8: (ContractAddress,),
+            Variant9: (TokenAmount, (felt252, ClassHash), NftId),
+            Variant10: (Array<TokenAmount>, Array<ContractAddress>),
+            Variant11: Array<(TokenAmount, ContractAddress, Array<felt252>)>,
+            Variant12: Array<Array<(Array<TokenAmount>, Array<ContractAddress>, Array<felt252>)>>,
         }
         "
     );

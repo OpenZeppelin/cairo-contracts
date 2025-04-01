@@ -8,7 +8,7 @@ use cairo_lang_syntax::node::TypedSyntaxNode;
 use cairo_lang_syntax::{node::ast::Attribute, node::db::SyntaxGroup};
 use regex::Regex;
 
-use super::types::{InnerType, S12Type};
+use super::types::{split_types, InnerType, S12Type};
 
 const SNIP12_TYPE_ATTRIBUTE: &str = "snip12_type";
 
@@ -147,9 +147,8 @@ fn get_type_from_attributes(db: &dyn SyntaxGroup, attributes: &[Attribute]) -> O
 /// ```
 fn maybe_tuple(s: &str) -> String {
     if s.starts_with("(") && s.ends_with(")") {
-        s[1..s.len() - 1]
-            .split(',')
-            .filter(|s| !s.is_empty())
+      split_types(&s[1..s.len() - 1])
+            .iter()
             .map(|s| format!("\"{}\"", s.trim()))
             .collect::<Vec<_>>()
             .join(",")

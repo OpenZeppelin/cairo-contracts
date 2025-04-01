@@ -18,6 +18,7 @@
 /// Extra precautions should be taken to secure accounts with this role.
 #[starknet::component]
 pub mod AccessControlComponent {
+    use core::panic_with_const_felt252;
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_introspection::src5::SRC5Component::{
         InternalImpl as SRC5InternalImpl, SRC5Impl,
@@ -384,7 +385,7 @@ pub mod AccessControlComponent {
         ) {
             assert(delay > 0, Errors::INVALID_DELAY);
             match self.resolve_role_status(role, account) {
-                RoleStatus::Effective => core::panic_with_felt252(Errors::ALREADY_EFFECTIVE),
+                RoleStatus::Effective => panic_with_const_felt252::<Errors::ALREADY_EFFECTIVE>(),
                 RoleStatus::Delayed |
                 RoleStatus::NotGranted => {
                     let caller = starknet::get_caller_address();

@@ -76,7 +76,7 @@ pub mod MockContract {
         }
 
         fn failing_function(self: @ContractState) {
-            core::panic_with_felt252('Expected failure');
+            core::panic_with_const_felt252::<'Expected failure'>();
         }
     }
 }

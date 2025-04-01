@@ -1,8 +1,9 @@
 //! Types for the type hash derive macro as defined in the SNIP-12.
 //!
-//! There are three kinds of types:
+//! There are 4 kinds of types:
 //!
 //! 1. Basic types: defined in the spec for a given revision. Ex: felt, ClassHash, timestamp, u128...
+//! 4. Collection types: they are arrays or tuples of other types.
 //! 2. Preset types: they are structs defined in the spec. Ex: TokenAmount, NftId, u256. They also depend on the revision used.
 //! 3. User defined types: The ones in the "types" field of the request. They also include the domain separator (Ex. StarknetDomain)
 
@@ -35,7 +36,7 @@ pub enum BasicType {
 /// The different types of collections supported by the SNIP-12.
 #[derive(Debug)]
 pub enum CollectionType {
-    Tuple(Box<Vec<S12Type>>),
+    Tuple(Vec<S12Type>),
     Array(Box<S12Type>),
 }
 
@@ -70,12 +71,10 @@ impl S12Type {
 
         // Check if the type is a tuple
         if s.starts_with("(") && s.ends_with(")") {
-            let types = Box::new(
-                split_types(&s[1..s.len() - 1])
-                    .iter()
-                    .map(|s| S12Type::from_str(s).unwrap())
-                    .collect(),
-            );
+            let types = split_types(&s[1..s.len() - 1])
+                .iter()
+                .map(|s| S12Type::from_str(s).unwrap())
+                .collect();
             return Some(S12Type::Collection(CollectionType::Tuple(types)));
         }
 

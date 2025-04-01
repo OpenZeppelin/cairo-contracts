@@ -48,7 +48,7 @@ fn handle_node(db: &dyn SyntaxGroup, node: SyntaxNode) -> Result<String, Diagnos
     match item_ast {
         ast::ModuleItem::Struct(_) | ast::ModuleItem::Enum(_) => {
             // It is safe to unwrap here because we know the item is a struct
-            let plugin_type_info = PluginTypeInfo::new(db, &item_ast).unwrap();
+            let plugin_type_info = PluginTypeInfo::new(db, item_ast).unwrap();
             generate_code(db, &plugin_type_info)
         }
         _ => {

@@ -87,13 +87,13 @@ impl<'a> TypeHashParser<'a> {
         if encoded_type.ends_with(",") {
             encoded_type.pop();
         }
-        encoded_type.push_str(")");
+        encoded_type.push(')');
 
         let mut processed_ref_encoded_types =
             self.processed_ref_encoded_types.iter().collect::<Vec<_>>();
         processed_ref_encoded_types.sort();
         for processed_type in processed_ref_encoded_types {
-            encoded_type.push_str(&processed_type);
+            encoded_type.push_str(processed_type);
         }
 
         // 3. Return the encoded type

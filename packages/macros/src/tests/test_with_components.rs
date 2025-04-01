@@ -1,4 +1,4 @@
-use crate::with_components::with_components_avevetedp5blk as with_components;
+use crate::attribute::with_components::with_components_avevetedp5blk as with_components;
 use cairo_lang_macro::TokenStream;
 use indoc::indoc;
 use insta::assert_snapshot;

@@ -1,7 +1,8 @@
-use crate::type_hash::type_hash_jgjpoopqerqnq as type_hash;
 use cairo_lang_macro::TokenStream;
 use indoc::indoc;
 use insta::assert_snapshot;
+
+use crate::type_hash::definition::type_hash_jgjpoopqerqnq as type_hash;
 
 use super::common::format_proc_macro_result;
 

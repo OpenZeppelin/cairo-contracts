@@ -10,6 +10,8 @@ use indoc::formatdoc;
 
 use crate::type_hash::parser::TypeHashParser;
 
+use super::diagnostics::errors;
+
 /// Derive macro that generates a SNIP-12 type hash constant for a struct.
 #[derive_macro]
 pub fn type_hash(item_stream: TokenStream) -> ProcMacroResult {
@@ -38,20 +40,19 @@ fn handle_node(db: &dyn SyntaxGroup, node: SyntaxNode) -> Result<String, Diagnos
     let items = typed.items(db).elements(db);
 
     let Some(item_ast) = items.first() else {
-        let error = Diagnostic::error("No valid type found in the input");
+        let error = Diagnostic::error(errors::EMPTY_TYPE_FOUND);
         return Err(error);
     };
 
-    // Generate type hash for structs only
-    // TODO!: Add support for enums
+    // Generate type hash for structs/enums only
     match item_ast {
-        ast::ModuleItem::Struct(_) => {
+        ast::ModuleItem::Struct(_) | ast::ModuleItem::Enum(_) => {
             // It is safe to unwrap here because we know the item is a struct
             let plugin_type_info = PluginTypeInfo::new(db, &item_ast).unwrap();
             generate_code(db, &plugin_type_info)
         }
         _ => {
-            let error = Diagnostic::error("Only struct types are supported");
+            let error = Diagnostic::error(errors::NOT_VALID_TYPE_FOR_DERIVE);
             Err(error)
         }
     }

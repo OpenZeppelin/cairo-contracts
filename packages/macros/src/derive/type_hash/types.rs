@@ -49,34 +49,40 @@ pub enum UserDefinedType {
     Custom(String),
 }
 
+/// A type that is referenced as a member of the input type.
+pub struct InnerType {
+    pub name: String,
+    pub encoded_type: String,
+}
+
 impl S12Type {
     /// Creates a S12Type from a String
     pub fn from_str(s: &str) -> Option<S12Type> {
-        match s {
+        Some(match s {
             // Check empty string
             "" => return None,
 
             // Check basic types
-            "felt252" => Some(S12Type::Basic(BasicType::Felt)),
-            "shortstring" => Some(S12Type::Basic(BasicType::ShortString)),
-            "ClassHash" => Some(S12Type::Basic(BasicType::ClassHash)),
-            "ContractAddress" => Some(S12Type::Basic(BasicType::ContractAddress)),
-            "timestamp" => Some(S12Type::Basic(BasicType::Timestamp)),
-            "selector" => Some(S12Type::Basic(BasicType::Selector)),
-            "u128" => Some(S12Type::Basic(BasicType::U128)),
-            "i128" => Some(S12Type::Basic(BasicType::I128)),
+            "felt252" => S12Type::Basic(BasicType::Felt),
+            "shortstring" => S12Type::Basic(BasicType::ShortString),
+            "ClassHash" => S12Type::Basic(BasicType::ClassHash),
+            "ContractAddress" => S12Type::Basic(BasicType::ContractAddress),
+            "timestamp" => S12Type::Basic(BasicType::Timestamp),
+            "selector" => S12Type::Basic(BasicType::Selector),
+            "u128" => S12Type::Basic(BasicType::U128),
+            "i128" => S12Type::Basic(BasicType::I128),
 
             // Check preset types
-            "TokenAmount" => Some(S12Type::Preset(PresetType::TokenAmount)),
-            "NftId" => Some(S12Type::Preset(PresetType::NftId)),
-            "u256" => Some(S12Type::Preset(PresetType::U256)),
+            "TokenAmount" => S12Type::Preset(PresetType::TokenAmount),
+            "NftId" => S12Type::Preset(PresetType::NftId),
+            "u256" => S12Type::Preset(PresetType::U256),
 
             // Check user defined types
-            "StarknetDomain" => Some(S12Type::UserDefined(UserDefinedType::StarknetDomain)),
+            "StarknetDomain" => S12Type::UserDefined(UserDefinedType::StarknetDomain),
 
             // Custom type
-            _ => Some(S12Type::UserDefined(UserDefinedType::Custom(s.to_string()))),
-        }
+            _ => S12Type::UserDefined(UserDefinedType::Custom(s.to_string())),
+        })
     }
 
     /// Returns the SNIP-12 type name for the S12Type.
@@ -97,13 +103,16 @@ impl S12Type {
     /// Returns the encoded type for the S12Type.
     ///
     /// If the type is not an object/enum meaning it's a basic type, it returns an empty string.
+    /// NOTE: It doesn't append the inner types to the encoded type. This should be done by the caller.
     ///
     /// Example:
     /// ```
     /// let type_hash = S12Type::from_str("u256").unwrap();
-    /// assert_eq!(type_hash.get_encoded_type().unwrap(), "\"u256\"(\"low\":\"u128\",\"high\":\"u128\")");
+    /// let (encoded_type, inner_types) = type_hash.get_encoded_ref_type().unwrap();
+    /// assert_eq!(encoded_type, "\"u256\"(\"low\":\"u128\",\"high\":\"u128\")");
+    /// assert_eq!(inner_types, vec![]);
     /// ```
-    pub fn get_encoded_ref_type(&self) -> Result<String, Diagnostic> {
+    pub fn get_encoded_ref_type(&self) -> Result<(String, Vec<InnerType>), Diagnostic> {
         match self {
             S12Type::Basic(basic_type) => basic_type.get_encoded_ref_type(),
             S12Type::Preset(preset_type) => preset_type.get_encoded_ref_type(),
@@ -115,31 +124,32 @@ impl S12Type {
 impl BasicType {
     /// Returns the SNIP-12 type name for the BasicType.
     pub fn get_snip12_type_name(&self) -> Result<String, Diagnostic> {
-        match self {
-            BasicType::Felt => Ok("felt".to_string()),
-            BasicType::ShortString => Ok("shortstring".to_string()),
-            BasicType::ClassHash => Ok("ClassHash".to_string()),
-            BasicType::ContractAddress => Ok("ContractAddress".to_string()),
-            BasicType::Timestamp => Ok("timestamp".to_string()),
-            BasicType::Selector => Ok("selector".to_string()),
-            BasicType::U128 => Ok("u128".to_string()),
-            BasicType::I128 => Ok("i128".to_string()),
+        Ok(match self {
+            BasicType::Felt => "felt",
+            BasicType::ShortString => "shortstring",
+            BasicType::ClassHash => "ClassHash",
+            BasicType::ContractAddress => "ContractAddress",
+            BasicType::Timestamp => "timestamp",
+            BasicType::Selector => "selector",
+            BasicType::U128 => "u128",
+            BasicType::I128 => "i128",
         }
+        .to_string())
     }
 
     /// Returns the encoded type for the BasicType.
     ///
     /// NOTE: since basic types are not objects/enums, they don't need a referenced encoded type.
-    pub fn get_encoded_ref_type(&self) -> Result<String, Diagnostic> {
+    pub fn get_encoded_ref_type(&self) -> Result<(String, Vec<InnerType>), Diagnostic> {
         match self {
-            BasicType::Felt => Ok(String::new()),
-            BasicType::ShortString => Ok(String::new()),
-            BasicType::ClassHash => Ok(String::new()),
-            BasicType::ContractAddress => Ok(String::new()),
-            BasicType::Timestamp => Ok(String::new()),
-            BasicType::Selector => Ok(String::new()),
-            BasicType::U128 => Ok(String::new()),
-            BasicType::I128 => Ok(String::new()),
+            BasicType::Felt
+            | BasicType::ShortString
+            | BasicType::ClassHash
+            | BasicType::ContractAddress
+            | BasicType::Timestamp
+            | BasicType::Selector
+            | BasicType::U128
+            | BasicType::I128 => Ok((String::new(), vec![])),
         }
     }
 }
@@ -147,46 +157,65 @@ impl BasicType {
 impl PresetType {
     /// Returns the SNIP-12 type name for the PresetType.
     pub fn get_snip12_type_name(&self) -> Result<String, Diagnostic> {
-        match self {
-            PresetType::TokenAmount => Ok("TokenAmount".to_string()),
-            PresetType::NftId => Ok("NftId".to_string()),
-            PresetType::U256 => Ok("u256".to_string()),
+        Ok(match self {
+            PresetType::TokenAmount => "TokenAmount",
+            PresetType::NftId => "NftId",
+            PresetType::U256 => "u256",
         }
+        .to_string())
     }
 
     /// Returns the encoded type for the PresetType.
-    pub fn get_encoded_ref_type(&self) -> Result<String, Diagnostic> {
-        // TODO!: Add recursive types
-        match self {
-            PresetType::TokenAmount => Ok(
-                "\"TokenAmount\"(\"token_address\":\"ContractAddress\",\"amount\":\"u256\")"
+    pub fn get_encoded_ref_type(&self) -> Result<(String, Vec<InnerType>), Diagnostic> {
+        // u256 inner type representation
+        let u256_encoded_type = "\"u256\"(\"low\":\"u128\",\"high\":\"u128\")".to_string();
+        let u256_inner_type = InnerType {
+            name: "u256".to_string(),
+            encoded_type: u256_encoded_type.clone(),
+        };
+
+        Ok(match self {
+            PresetType::TokenAmount => (
+                "\"TokenAmount\"(\
+                \"token_address\":\"ContractAddress\",\
+                \"amount\":\"u256\")"
                     .to_string(),
+                vec![u256_inner_type],
             ),
-            PresetType::NftId => Ok(
-                "\"NftId\"(\"collection_address\":\"ContractAddress\",\"token_id\":\"u256\")"
+            PresetType::NftId => (
+                "\"NftId\"(\
+                \"collection_address\":\"ContractAddress\",\
+                \"token_id\":\"u256\")"
                     .to_string(),
+                vec![u256_inner_type],
             ),
-            PresetType::U256 => Ok("\"u256\"(\"low\":\"u128\",\"high\":\"u128\")".to_string()),
-        }
+            PresetType::U256 => (u256_encoded_type, vec![]),
+        })
     }
 }
 
 impl UserDefinedType {
     /// Returns the SNIP-12 type name for the UserDefinedType.
     pub fn get_snip12_type_name(&self) -> Result<String, Diagnostic> {
-        match self {
-            UserDefinedType::StarknetDomain => Ok("StarknetDomain".to_string()),
-            UserDefinedType::Custom(name) => Ok(name.clone()),
+        Ok(match self {
+            UserDefinedType::StarknetDomain => "StarknetDomain",
+            UserDefinedType::Custom(name) => name,
         }
+        .to_string())
     }
 
     /// Returns the encoded type for the UserDefinedType.
-    pub fn get_encoded_ref_type(&self) -> Result<String, Diagnostic> {
+    pub fn get_encoded_ref_type(&self) -> Result<(String, Vec<InnerType>), Diagnostic> {
         match self {
-            UserDefinedType::StarknetDomain => {
-                Ok("\"StarknetDomain\"(\"name\":\"shortstring\",\"version\":\"shortstring\",\"chainId\":\"shortstring\",\"revision\":\"shortstring\")"
-                    .to_string())
-            }
+            UserDefinedType::StarknetDomain => Ok((
+                "\"StarknetDomain\"(\
+                \"name\":\"shortstring\",\
+                \"version\":\"shortstring\",\
+                \"chainId\":\"shortstring\",\
+                \"revision\":\"shortstring\")"
+                    .to_string(),
+                vec![],
+            )),
             UserDefinedType::Custom(_) => Err(Diagnostic::error(errors::CUSTOM_TYPE_NOT_SUPPORTED)),
         }
     }

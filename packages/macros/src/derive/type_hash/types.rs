@@ -14,6 +14,7 @@ use super::diagnostics::errors;
 #[derive(Debug)]
 pub enum S12Type {
     Basic(BasicType),
+    Collection(CollectionType),
     Preset(PresetType),
     UserDefined(UserDefinedType),
 }
@@ -29,6 +30,13 @@ pub enum BasicType {
     Selector,
     U128,
     I128,
+}
+
+/// The different types of collections supported by the SNIP-12.
+#[derive(Debug)]
+pub enum CollectionType {
+    Tuple(Box<Vec<S12Type>>),
+    Array(Box<S12Type>),
 }
 
 /// The different preset types as defined in the SNIP-12.
@@ -58,6 +66,27 @@ pub struct InnerType {
 impl S12Type {
     /// Creates a S12Type from a String
     pub fn from_str(s: &str) -> Option<S12Type> {
+        let s = s.trim();
+
+        // Check if the type is a tuple
+        if s.starts_with("(") && s.ends_with(")") {
+            let types = Box::new(
+                s[1..s.len() - 1]
+                    .split(',')
+                    .filter(|s| !s.is_empty())
+                    .map(|s| S12Type::from_str(s).unwrap())
+                    .collect(),
+            );
+            return Some(S12Type::Collection(CollectionType::Tuple(types)));
+        }
+
+        // Check if the type is an array/span
+        if s.starts_with("Array<") || s.starts_with("Span<") {
+            let prefix_len = if s.starts_with("Array<") { 6 } else { 5 };
+            let array_type = Box::new(S12Type::from_str(&s[prefix_len..s.len() - 1]).unwrap());
+            return Some(S12Type::Collection(CollectionType::Array(array_type)));
+        }
+
         Some(match s {
             // Check empty string
             "" => return None,
@@ -95,6 +124,7 @@ impl S12Type {
     pub fn get_snip12_type_name(&self) -> Result<String, Diagnostic> {
         match self {
             S12Type::Basic(basic_type) => basic_type.get_snip12_type_name(),
+            S12Type::Collection(collection_type) => collection_type.get_snip12_type_name(),
             S12Type::Preset(preset_type) => preset_type.get_snip12_type_name(),
             S12Type::UserDefined(user_defined_type) => user_defined_type.get_snip12_type_name(),
         }
@@ -115,6 +145,7 @@ impl S12Type {
     pub fn get_encoded_ref_type(&self) -> Result<(String, Vec<InnerType>), Diagnostic> {
         match self {
             S12Type::Basic(basic_type) => basic_type.get_encoded_ref_type(),
+            S12Type::Collection(collection_type) => collection_type.get_encoded_ref_type(),
             S12Type::Preset(preset_type) => preset_type.get_encoded_ref_type(),
             S12Type::UserDefined(user_defined_type) => user_defined_type.get_encoded_ref_type(),
         }
@@ -151,6 +182,60 @@ impl BasicType {
             | BasicType::U128
             | BasicType::I128 => Ok((String::new(), vec![])),
         }
+    }
+}
+
+impl CollectionType {
+    /// Returns the SNIP-12 type name for the CollectionType.
+    pub fn get_snip12_type_name(&self) -> Result<String, Diagnostic> {
+        Ok(match self {
+            CollectionType::Tuple(types) => {
+                let mut types_str = Vec::new();
+                for t in types.iter() {
+                    types_str.push(t.get_snip12_type_name()?);
+                }
+                format!("({})", types_str.join(","))
+            }
+            CollectionType::Array(array_type) => format!("{}*", array_type.get_snip12_type_name()?),
+        }
+        .to_string())
+    }
+
+    /// Returns the encoded type for the CollectionType.
+    ///
+    /// NOTE: Collection types are not objects/enums, they don't need a referenced encoded type,
+    /// but they may have inner types that need to be referenced.
+    pub fn get_encoded_ref_type(&self) -> Result<(String, Vec<InnerType>), Diagnostic> {
+        Ok(match self {
+            CollectionType::Tuple(types) => {
+                let mut inner_types = vec![];
+                for t in types.iter() {
+                    let (encoded_type, inner_types_rec) = t.get_encoded_ref_type()?;
+                    // If the encoded type is not empty, it means the type needs to be referenced
+                    if !encoded_type.is_empty() {
+                        inner_types.push(InnerType {
+                            name: t.get_snip12_type_name()?,
+                            encoded_type,
+                        });
+                    }
+
+                    // Add the inner types of the tuple recursively
+                    inner_types.extend(inner_types_rec);
+                }
+                (String::new(), inner_types)
+            }
+            CollectionType::Array(array_type) => {
+                let (encoded_type, mut inner_types) = array_type.get_encoded_ref_type()?;
+                // If the encoded type is not empty, it means the array type needs to be referenced
+                if !encoded_type.is_empty() {
+                    inner_types.push(InnerType {
+                        name: array_type.get_snip12_type_name()?,
+                        encoded_type,
+                    });
+                }
+                (String::new(), inner_types)
+            }
+        })
     }
 }
 

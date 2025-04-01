@@ -67,8 +67,12 @@ impl<'a> TypeHashParser<'a> {
 
             // Format the member depending on the type variant
             match self.plugin_type_info.type_variant {
-                TypeVariant::Struct => encoded_type.push_str(&format!("\"{}\":\"{}\",", name, type_name)),
-                TypeVariant::Enum => encoded_type.push_str(&format!("\"{}\"(\"{}\"),", name, type_name)),
+                TypeVariant::Struct => {
+                    encoded_type.push_str(&format!("\"{}\":\"{}\",", name, type_name))
+                }
+                TypeVariant::Enum => {
+                    encoded_type.push_str(&format!("\"{}\"({}),", name, maybe_tuple(&type_name)))
+                }
             };
 
             if !self.is_type_processed.contains(&type_name) {
@@ -85,10 +89,8 @@ impl<'a> TypeHashParser<'a> {
         }
         encoded_type.push_str(")");
 
-        let mut processed_ref_encoded_types = self
-            .processed_ref_encoded_types
-            .iter()
-            .collect::<Vec<_>>();
+        let mut processed_ref_encoded_types =
+            self.processed_ref_encoded_types.iter().collect::<Vec<_>>();
         processed_ref_encoded_types.sort();
         for processed_type in processed_ref_encoded_types {
             encoded_type.push_str(&processed_type);
@@ -132,4 +134,26 @@ fn get_type_from_attributes(db: &dyn SyntaxGroup, attributes: &[Attribute]) -> O
         }
     }
     None
+}
+
+/// Returns the enum compliant string representation of a tuple for the encoded type.
+///
+/// If the input is not a tuple, it returns the input itself.
+///
+/// Example:
+/// ```
+/// let encoded_type = maybe_tuple("(felt252, felt252, ClassHash, NftId)");
+/// assert_eq!(encoded_type, "\"felt252\",\"felt252\",\"ClassHash\",\"NftId\"");
+/// ```
+fn maybe_tuple(s: &str) -> String {
+    if s.starts_with("(") && s.ends_with(")") {
+        s[1..s.len() - 1]
+            .split(',')
+            .filter(|s| !s.is_empty())
+            .map(|s| format!("\"{}\"", s.trim()))
+            .collect::<Vec<_>>()
+            .join(",")
+    } else {
+        format!("\"{}\"", s)
+    }
 }

@@ -1,0 +1,21 @@
+---
+source: src/tests/test_type_hash.rs
+expression: result
+snapshot_kind: text
+---
+TokenStream:
+
+// selector!(
+//   "\"MyEnum\"(\"Variant1\"(\"felt\"),\"Variant2\"(\"ClassHash\"),\"Variant3\"(\"ContractAddress\"),\"Variant4\"(\"u128\"),\"Variant5\"(\"i128\"),\"Variant6\"(\"shortstring\"),\"Variant7\"(\"timestamp\"),\"Variant8\"(\"selector\"))"
+// );
+pub const MY_ENUM_TYPE_HASH: felt252 =
+    0x20bdb2f120712368f7f1f5ae994dd6eeca74408fceaad716c369245c33a8897;
+
+
+Diagnostics:
+
+None
+
+AuxData:
+
+None

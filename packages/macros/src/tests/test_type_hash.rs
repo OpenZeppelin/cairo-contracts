@@ -284,6 +284,112 @@ fn test_with_inner_custom_type() {
 }
 
 #[test]
+fn test_with_tuple() {
+    let item = indoc!(
+        "
+        pub struct MyType {
+            pub member: (felt252, felt252, ClassHash, NftId),
+        }
+        "
+    );
+    let result = get_string_result(item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_tuple_enum() {
+    let item = indoc!(
+        "
+        pub enum MyEnum {
+            Variant1: (felt252, felt252, ClassHash, NftId),
+            Variant2: TokenAmount,
+            Variant3: (ContractAddress,),
+        }
+        "
+    );
+    let result = get_string_result(item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_empty_tuple() {
+    // This doesn't make sense, but it's a valid type.
+    let item = indoc!(
+        "
+        pub struct MyType {
+            pub member: (),
+        }
+        "
+    );
+    let result = get_string_result(item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_empty_tuple_enum() {
+    let item = indoc!(
+        "
+        pub enum MyEnum {
+            Variant1: TokenAmount,
+            Variant2: (),
+        }
+        "
+    );
+    let result = get_string_result(item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_array() {
+    let item = indoc!(
+        "
+        pub struct MyType {
+            pub member1: Array<felt252>,
+            pub member2: Array<TokenAmount>,
+            pub member3: Array<ClassHash>,
+            pub member4: Array<ContractAddress>,
+            pub member5: Array<u128>,
+            pub member6: Array<i128>,
+        }
+        "
+    );
+    let result = get_string_result(item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_span() {
+    let item = indoc!(
+        "
+        pub struct MyType {
+            pub member1: Span<felt252>,
+            pub member2: Span<TokenAmount>,
+            pub member3: Span<ClassHash>,
+            pub member4: Span<ContractAddress>,
+            pub member5: Span<u128>,
+            pub member6: Span<i128>,
+        }
+        "
+    );
+    let result = get_string_result(item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_tuple_and_attribute() {
+    let item = indoc!(
+        "
+        pub struct MyType {
+            #[snip12_type((shortstring, felt252, ClassHash, NftId))]
+            pub member: (felt252, felt252, ClassHash, NftId),
+        }
+        "
+    );
+    let result = get_string_result(item);
+    assert_snapshot!(result);
+}
+
+#[test]
 fn test_starknet_domain() {
     let item = indoc!(
         "
@@ -296,6 +402,48 @@ fn test_starknet_domain() {
             pub chainId: felt252,
             #[snip12_type(shortstring)]
             pub revision: felt252,
+        }
+        "
+    );
+    let result = get_string_result(item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_complex_struct_with_collection_types() {
+    let item = indoc!(
+        "
+        pub struct MyType {
+            pub member1: (felt252, felt252, ClassHash, NftId),
+            pub member2: Array<TokenAmount>,
+            pub member3: Span<ClassHash>,
+            pub member4: (ContractAddress, TokenAmount),
+            pub member5: Array<ContractAddress>,
+            pub member6: (),
+            #[snip12_type((timestamp, shortstring))]
+            pub member7: (u128, felt252),
+            pub member8: (ContractAddress,),
+        }
+        "
+    );
+    let result = get_string_result(item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_complex_enum_with_collection_types() {
+    let item = indoc!(
+        "
+        pub enum MyEnum {
+            Variant1: (felt252, felt252, ClassHash, NftId),
+            Variant2: Array<TokenAmount>,
+            Variant3: Span<ClassHash>,
+            Variant4: (ContractAddress, TokenAmount),
+            Variant5: Array<ContractAddress>,
+            Variant6: (),
+            #[snip12_type((timestamp, shortstring))]
+            Variant7: (u128, felt252),
+            Variant8: (ContractAddress,),
         }
         "
     );

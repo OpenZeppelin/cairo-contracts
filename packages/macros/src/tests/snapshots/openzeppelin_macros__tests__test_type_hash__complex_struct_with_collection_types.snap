@@ -1,0 +1,21 @@
+---
+source: src/tests/test_type_hash.rs
+expression: result
+snapshot_kind: text
+---
+TokenStream:
+
+// selector!(
+//   "\"MyType\"(\"member1\":\"(felt,felt,ClassHash,NftId)\",\"member2\":\"TokenAmount*\",\"member3\":\"ClassHash*\",\"member4\":\"(ContractAddress,TokenAmount)\",\"member5\":\"ContractAddress*\",\"member6\":\"()\",\"member7\":\"(timestamp,shortstring)\",\"member8\":\"(ContractAddress)\")\"NftId\"(\"collection_address\":\"ContractAddress\",\"token_id\":\"u256\")\"TokenAmount\"(\"token_address\":\"ContractAddress\",\"amount\":\"u256\")\"u256\"(\"low\":\"u128\",\"high\":\"u128\")"
+// );
+pub const MY_TYPE_TYPE_HASH: felt252 =
+    0x17807101254dcb500e7f10612cc6a3039067854c72b346903a18ec66e43c92d;
+
+
+Diagnostics:
+
+None
+
+AuxData:
+
+None

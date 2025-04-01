@@ -1,0 +1,21 @@
+---
+source: src/tests/test_type_hash.rs
+expression: result
+snapshot_kind: text
+---
+TokenStream:
+
+// selector!(
+//   "\"MyEnum\"(\"Variant1\"(\"TokenAmount\"),\"Variant2\"(\"TokenAmount\"),\"Variant3\"(\"u256\"),\"Variant4\"(\"shortstring\"),\"Variant5\"(\"ClassHash\"),\"Variant6\"(\"ContractAddress\"),\"Variant7\"(\"timestamp\"),\"Variant8\"(\"selector\"),\"Variant9\"(\"u128\"),\"Variant10\"(\"i128\"))\"TokenAmount\"(\"token_address\":\"ContractAddress\",\"amount\":\"u256\")\"u256\"(\"low\":\"u128\",\"high\":\"u128\")"
+// );
+pub const MY_ENUM_TYPE_HASH: felt252 =
+    0x1a348acec53a1af88d5c5e2fb4e54e11d3f74ffd13a0a2fa27f079e6d3aa716;
+
+
+Diagnostics:
+
+None
+
+AuxData:
+
+None

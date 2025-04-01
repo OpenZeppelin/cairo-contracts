@@ -10,7 +10,7 @@ pub mod MyContract {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        src9: SRC9Component::Storage,
+        pub src9: SRC9Component::Storage,
     }
 
     use openzeppelin_account::extensions::SRC9Component;

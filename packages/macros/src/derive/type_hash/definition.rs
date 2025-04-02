@@ -62,7 +62,7 @@ pub fn type_hash(attr_stream: TokenStream, item_stream: TokenStream) -> ProcMacr
 ///
 /// Example:
 /// ```
-/// #[ty]
+/// #[type_hash]
 /// pub struct MyStruct {
 ///     #[snip12(name: "Some Member", kind: "shortstring")]
 ///     pub some_member: felt252,

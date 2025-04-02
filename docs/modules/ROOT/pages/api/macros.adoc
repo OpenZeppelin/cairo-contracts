@@ -145,3 +145,48 @@ mod OutsideExecutionAccountUpgradeable {
     }
 }
 ```
+
+[.contract]
+[[type_hash]]
+=== `++type_hash++`
+
+:SNIP-12: https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-12.md[SNIP-12]
+
+This macro generates a type hash for a given struct or enum.
+
+NOTE: This macro is fully compatible with the {SNIP-12} standard.
+Check the xref:#type_hash-features[Features] section below for detailed information.
+
+[#type_hash-usage]
+==== Usage
+
+```cairo
+/// name and debug are optional arguments
+#[type_hash(name: "My Struct", debug: true)]
+struct MyStruct {
+    my_field: felt252,
+}
+```
+
+This will generate a type hash for the struct.
+
+```cairo
+// selector!("\"MyStruct\"(\"my_field\":\"felt\")")
+pub const MY_STRUCT_TYPE_HASH: felt252 = 0x8d57e11c9026e46da32e6e31686aaf3d3abbee64c14abed7dbec22ceec9e42;
+```
+
+And because of the `debug` argument, it will generate the following code:
+
+```cairo
+pub fn __MY_STRUCT_encoded_type() {
+    println!("\"MyStruct\"(\"my_field\":\"felt\")");
+}
+```
+
+[#type_hash-features]
+==== Features
+
+The macro supports the following features:
+
+- `name`: The name of the struct or enum.
+- `debug`: Whether to print the encoded type to the console.

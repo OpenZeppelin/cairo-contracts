@@ -1,3 +1,87 @@
+//! # Type Hash Macro Documentation
+//!
+//! The type hash macro provides functionality for generating type hashes for Starknet types.
+//! This documentation is derived from the test cases.
+//!
+//! ## Basic Usage
+//!
+//! The macro can be applied to structs and enums:
+//!
+//! ```rust
+//! #[type_hash]
+//! pub struct MyType {
+//!     pub field: felt252
+//! }
+//!
+//! #[type_hash] 
+//! pub enum MyEnum {
+//!     Variant1,
+//!     Variant2: felt252
+//! }
+//! ```
+//!
+//! ## Supported Types
+//!
+//! The following types are supported:
+//!
+//! ### Basic Types
+//! - felt252
+//! - ClassHash
+//! - ContractAddress  
+//! - u128
+//! - i128
+//!
+//! ### Preset Types
+//! - TokenAmount
+//! - NftId
+//! - u256
+//! - StarknetDomain
+//!
+//! ### Collection Types
+//! - Array<T>
+//! - Span<T>
+//! - Tuples (including empty tuples)
+//!
+//! ## Attributes
+//!
+//! The macro supports several attributes:
+//!
+//! ### Type Attributes
+//! - `debug: bool` - Enables debug output
+//! - `name: string` - Custom name for the type
+//!
+//! ### Field/Variant Attributes 
+//! The `#[snip12]` attribute can be used on fields/variants with:
+//!
+//! - `kind: string` - Specify type kind (e.g. "shortstring", "timestamp", "selector")
+//! - `name: string` - Custom name for the field/variant
+//!
+//! Example:
+//! ```rust
+//! #[type_hash(debug: true, name: "MyStruct")]
+//! pub struct MyType {
+//!     #[snip12(kind: "shortstring", name: "Field1")]
+//!     pub field: felt252
+//! }
+//! ```
+//!
+//! ## Complex Types
+//!
+//! The macro handles complex nested types including:
+//! - Nested tuples
+//! - Arrays of tuples
+//! - Arrays of arrays
+//! - Combinations of collections and custom types
+//!
+//! ## Type Resolution
+//!
+//! The macro will:
+//! - Resolve and include inner type definitions
+//! - Handle duplicate type references
+//! - Process custom type attributes
+//!
+//! For full examples, see the test cases below.
+
 use cairo_lang_macro::TokenStream;
 use indoc::indoc;
 use insta::assert_snapshot;

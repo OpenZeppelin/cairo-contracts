@@ -611,6 +611,21 @@ fn test_invalid_type_hash_attribute() {
     assert_snapshot!(result);
 }
 
+#[test]
+fn test_enum_without_explicit_variant_type() {
+    let item = indoc!(
+        "
+        pub enum MyEnum {
+            Variant1,
+            Variant2,
+        }
+        "
+    );
+    let attr_stream = r#"(debug: true)"#;
+    let result = get_string_result(item, attr_stream);
+    assert_snapshot!(result);
+}
+
 fn get_string_result(item: &str, attr_stream: &str) -> String {
     let attr_stream = TokenStream::new(attr_stream.to_string());
     let item = TokenStream::new(item.to_string());

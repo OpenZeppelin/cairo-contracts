@@ -39,11 +39,11 @@ fn test_empty_enum() {
 }
 
 #[test]
-fn test_snip12_type_attribute_empty() {
+fn test_snip12_attribute_empty() {
     let item = indoc!(
         "
         pub struct MyType {
-            #[snip12_type()]
+            #[snip12()]
             pub name: felt252,
         }
         "
@@ -64,21 +64,21 @@ fn test_basic_types() {
     // - U128
     // - I128
     let item = indoc!(
-        "
+        r#"
         pub struct MyType {
             pub name: felt252,
-            #[snip12_type(shortstring)]
+            #[snip12(kind: "shortstring")]
             pub version: felt252,
             pub class_hash: ClassHash,
             pub contract_address: ContractAddress,
-            #[snip12_type(timestamp)]
+            #[snip12(kind: "timestamp")]
             pub timestamp: u128,
-            #[snip12_type(selector)]
+            #[snip12(kind: "selector")]
             pub selector: felt252,
             pub u128_member: u128,
             pub i128_member: i128,
         }
-        "
+        "#
     );
     let result = get_string_result(item);
     assert_snapshot!(result);
@@ -87,21 +87,21 @@ fn test_basic_types() {
 #[test]
 fn test_basic_types_enum() {
     let item = indoc!(
-        "
+        r#"
         pub enum MyEnum {
             Variant1: felt252,
             Variant2: ClassHash,
             Variant3: ContractAddress,
             Variant4: u128,
             Variant5: i128,
-            #[snip12_type(shortstring)]
+            #[snip12(kind: "shortstring")]
             Variant6: felt252,
-            #[snip12_type(timestamp)]
+            #[snip12(kind: "timestamp")]
             Variant7: u128,
-            #[snip12_type(selector)]
+            #[snip12(kind: "selector")]
             Variant8: felt252,
         }
-        "
+        "#
     );
     let result = get_string_result(item);
     assert_snapshot!(result);
@@ -220,23 +220,23 @@ fn test_potential_duplicate_types_enum() {
 #[test]
 fn test_complex_struct_type() {
     let item = indoc!(
-        "
+        r#"
         pub struct MyType {
             pub token_amount: TokenAmount,
             pub token_amount_2: TokenAmount,
             pub number: u256,
-            #[snip12_type(shortstring)]
+            #[snip12(kind: "shortstring")]
             pub version: felt252,
             pub class_hash: ClassHash,
             pub contract_address: ContractAddress,
-            #[snip12_type(timestamp)]
+            #[snip12(kind: "timestamp")]
             pub timestamp: u128,
-            #[snip12_type(selector)]
+            #[snip12(kind: "selector")]
             pub selector: felt252,
             pub u128_member: u128,
             pub i128_member: i128,
         }
-        "
+        "#
     );
     let result = get_string_result(item);
     assert_snapshot!(result);
@@ -245,23 +245,23 @@ fn test_complex_struct_type() {
 #[test]
 fn test_complex_enum_type() {
     let item = indoc!(
-        "
+        r#"
         pub enum MyEnum {
             Variant1: TokenAmount,
             Variant2: TokenAmount,
             Variant3: u256,
-            #[snip12_type(shortstring)]
+            #[snip12(kind: "shortstring")]
             Variant4: felt252,
             Variant5: ClassHash,
             Variant6: ContractAddress,
-            #[snip12_type(timestamp)]
+            #[snip12(kind: "timestamp")]
             Variant7: u128,
-            #[snip12_type(selector)]
+            #[snip12(kind: "selector")]
             Variant8: felt252,
             Variant9: u128,
             Variant10: i128,
         }
-        "
+        "#
     );
     let result = get_string_result(item);
     assert_snapshot!(result);
@@ -379,12 +379,12 @@ fn test_with_span() {
 #[test]
 fn test_with_tuple_and_attribute() {
     let item = indoc!(
-        "
+        r#"
         pub struct MyType {
-            #[snip12_type((shortstring, felt252, ClassHash, NftId))]
+            #[snip12(kind: "(shortstring, felt252, ClassHash, NftId)")]
             pub member: (felt252, felt252, ClassHash, NftId),
         }
-        "
+        "#
     );
     let result = get_string_result(item);
     assert_snapshot!(result);
@@ -393,18 +393,18 @@ fn test_with_tuple_and_attribute() {
 #[test]
 fn test_starknet_domain() {
     let item = indoc!(
-        "
+        r#"
         pub struct StarknetDomain {
-            #[snip12_type(shortstring)]
+            #[snip12(kind: "shortstring")]
             pub name: felt252,
-            #[snip12_type(shortstring)]
+            #[snip12(kind: "shortstring")]
             pub version: felt252,
-            #[snip12_type(shortstring)]
+            #[snip12(kind: "shortstring")]
             pub chainId: felt252,
-            #[snip12_type(shortstring)]
+            #[snip12(kind: "shortstring")]
             pub revision: felt252,
         }
-        "
+        "#
     );
     let result = get_string_result(item);
     assert_snapshot!(result);
@@ -413,7 +413,7 @@ fn test_starknet_domain() {
 #[test]
 fn test_complex_struct_with_collection_types() {
     let item = indoc!(
-        "
+        r#"
         pub struct MyType {
             pub member1: (felt252, felt252, ClassHash, NftId),
             pub member2: Array<TokenAmount>,
@@ -421,7 +421,7 @@ fn test_complex_struct_with_collection_types() {
             pub member4: (ContractAddress, TokenAmount),
             pub member5: Array<ContractAddress>,
             pub member6: (),
-            #[snip12_type((timestamp, shortstring))]
+            #[snip12(kind: "(timestamp, shortstring)")]
             pub member7: (u128, felt252),
             pub member8: (ContractAddress,),
             pub member9: (TokenAmount, (felt252, ClassHash), NftId),
@@ -429,7 +429,43 @@ fn test_complex_struct_with_collection_types() {
             pub member11: Array<(TokenAmount, ContractAddress, Array<felt252>)>,
             pub member12: Array<Array<(Array<TokenAmount>, Array<ContractAddress>, Array<felt252>)>>,
         }
-        "
+        "#
+    );
+    let result = get_string_result(item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_complex_struct_with_collection_types_custom_names() {
+    let item = indoc!(
+        r#"
+        pub struct MyType {
+            #[snip12(name: "Member 1")]
+            pub member1: (felt252, felt252, ClassHash, NftId),
+            #[snip12(name: "Member 2")]
+            pub member2: Array<TokenAmount>,
+            #[snip12(name: "Member 3")]
+            pub member3: Span<ClassHash>,
+            #[snip12(name: "Member 4")]
+            pub member4: (ContractAddress, TokenAmount),
+            #[snip12(name: "Member 5")]
+            pub member5: Array<ContractAddress>,
+            #[snip12(name: "Member 6")]
+            pub member6: (),
+            #[snip12(name: "Member 7", kind: "(timestamp, shortstring)")]
+            pub member7: (u128, felt252),
+            #[snip12(name: "Member 8")]
+            pub member8: (ContractAddress,),
+            #[snip12(name: "Member 9")]
+            pub member9: (TokenAmount, (felt252, ClassHash), NftId),
+            #[snip12(name: "Member 10")]
+            pub member10: (Array<TokenAmount>, Array<ContractAddress>),
+            #[snip12(name: "Member 11")]
+            pub member11: Array<(TokenAmount, ContractAddress, Array<felt252>)>,
+            #[snip12(name: "Member 12")]
+            pub member12: Array<Array<(Array<TokenAmount>, Array<ContractAddress>, Array<felt252>)>>,
+        }
+        "#
     );
     let result = get_string_result(item);
     assert_snapshot!(result);
@@ -438,7 +474,7 @@ fn test_complex_struct_with_collection_types() {
 #[test]
 fn test_complex_enum_with_collection_types() {
     let item = indoc!(
-        "
+        r#"
         pub enum MyEnum {
             Variant1: (felt252, felt252, ClassHash, NftId),
             Variant2: Array<TokenAmount>,
@@ -446,7 +482,7 @@ fn test_complex_enum_with_collection_types() {
             Variant4: (ContractAddress, TokenAmount),
             Variant5: Array<ContractAddress>,
             Variant6: (),
-            #[snip12_type((timestamp, shortstring))]
+            #[snip12(kind: "(timestamp, shortstring)")]
             Variant7: (u128, felt252),
             Variant8: (ContractAddress,),
             Variant9: (TokenAmount, (felt252, ClassHash), NftId),
@@ -454,7 +490,44 @@ fn test_complex_enum_with_collection_types() {
             Variant11: Array<(TokenAmount, ContractAddress, Array<felt252>)>,
             Variant12: Array<Array<(Array<TokenAmount>, Array<ContractAddress>, Array<felt252>)>>,
         }
-        "
+        "#
+    );
+    let result = get_string_result(item);
+    assert_snapshot!(result);
+}
+
+
+#[test]
+fn test_complex_enum_with_collection_types_custom_names() {
+    let item = indoc!(
+        r#"
+        pub enum MyEnum {
+            #[snip12(name: "Variant 1")]
+            Variant1: (felt252, felt252, ClassHash, NftId),
+            #[snip12(name: "Variant 2")]
+            Variant2: Array<TokenAmount>,
+            #[snip12(name: "Variant 3")]
+            Variant3: Span<ClassHash>,
+            #[snip12(name: "Variant 4")]
+            Variant4: (ContractAddress, TokenAmount),
+            #[snip12(name: "Variant 5")]
+            Variant5: Array<ContractAddress>,
+            #[snip12(name: "Variant 6")]
+            Variant6: (),
+            #[snip12(name: "Variant 7", kind: "(timestamp, shortstring)")]
+            Variant7: (u128, felt252),
+            #[snip12(name: "Variant 8")]
+            Variant8: (ContractAddress,),
+            #[snip12(name: "Variant 9")]
+            Variant9: (TokenAmount, (felt252, ClassHash), NftId),
+            #[snip12(name: "Variant 10")]
+            Variant10: (Array<TokenAmount>, Array<ContractAddress>),
+            #[snip12(name: "Variant 11")]
+            Variant11: Array<(TokenAmount, ContractAddress, Array<felt252>)>,
+            #[snip12(name: "Variant 12")]
+            Variant12: Array<Array<(Array<TokenAmount>, Array<ContractAddress>, Array<felt252>)>>,
+        }
+        "#
     );
     let result = get_string_result(item);
     assert_snapshot!(result);

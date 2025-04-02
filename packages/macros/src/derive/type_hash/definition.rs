@@ -1,5 +1,5 @@
 use cairo_lang_formatter::format_string;
-use cairo_lang_macro::{derive_macro, Diagnostic, Diagnostics, ProcMacroResult, TokenStream};
+use cairo_lang_macro::{attribute_macro, derive_macro, Diagnostic, Diagnostics, ProcMacroResult, TokenStream};
 use cairo_lang_parser::utils::SimpleParserDatabase;
 use cairo_lang_plugins::plugins::utils::PluginTypeInfo;
 use cairo_lang_starknet_classes::keccak::starknet_keccak;
@@ -7,12 +7,24 @@ use cairo_lang_syntax::node::{ast, TypedSyntaxNode};
 use cairo_lang_syntax::node::{db::SyntaxGroup, SyntaxNode};
 use convert_case::{Case, Casing};
 use indoc::formatdoc;
+use regex::Regex;
 
 use crate::type_hash::parser::TypeHashParser;
 
 use super::diagnostics::errors;
 
 /// Derive macro that generates a SNIP-12 type hash constant for a struct.
+///
+/// Example:
+/// ```
+/// #[derive(TypeHash)]
+/// pub struct MyStruct {
+///     pub some_member: felt252,
+/// }
+///
+/// // Generates:
+/// pub const MY_STRUCT_TYPE_HASH: felt252 = 0x[HASH];
+/// ```
 #[derive_macro]
 pub fn type_hash(item_stream: TokenStream) -> ProcMacroResult {
     // 1. Parse the item stream
@@ -33,6 +45,35 @@ pub fn type_hash(item_stream: TokenStream) -> ProcMacroResult {
 
     // 3. Return the result
     ProcMacroResult::new(TokenStream::new(formatted_content)).with_diagnostics(diagnostics)
+}
+
+/// This attribute macro is used to specify an override for the SNIP-12 type.
+///
+/// It doesn't modify the source code directly, but it is used in the type hash parser to generate the new type hash.
+///
+/// Example:
+/// ```
+/// #[derive(TypeHash)]
+/// pub struct MyStruct {
+///     #[snip12(name: "Some Member", kind: "shortstring")]
+///     pub some_member: felt252,
+/// }
+/// ```
+#[attribute_macro]
+pub fn snip12(attribute_stream: TokenStream, item_stream: TokenStream) -> ProcMacroResult {
+    // Validate the received format
+    let re1 = Regex::new(r"^\(name: (.*), kind: (.*)\)$").unwrap();
+    let re2 = Regex::new(r"^\(kind: (.*), name: (.*)\)$").unwrap();
+    let re3 = Regex::new(r"^\(kind: (.*)\)$").unwrap();
+    let re4 = Regex::new(r"^\(name: (.*)\)$").unwrap();
+    let s = attribute_stream.to_string();
+
+    if re1.is_match(&s) || re2.is_match(&s) || re3.is_match(&s) || re4.is_match(&s) {
+        ProcMacroResult::new(item_stream)
+    } else {
+        let error = Diagnostic::error(errors::INVALID_SNIP12_ATTRIBUTE_FORMAT);
+        ProcMacroResult::new(item_stream).with_diagnostics(error.into())
+    }
 }
 
 fn handle_node(db: &dyn SyntaxGroup, node: SyntaxNode) -> Result<String, Diagnostic> {

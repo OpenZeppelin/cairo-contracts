@@ -7,4 +7,6 @@ pub mod errors {
     pub const EMPTY_TYPE_FOUND: &str = "No valid type found in the input.\n";
     /// Error when the type hash macro is applied to a non-struct/enum type.
     pub const NOT_VALID_TYPE_FOR_DERIVE: &str = "Only structs and enums are supported.\n";
+    /// Error when the format of the snip12 attribute is invalid.
+    pub const INVALID_SNIP12_ATTRIBUTE_FORMAT: &str = "Invalid format for the snip12 attribute.\n";
 }

@@ -1,0 +1,28 @@
+---
+source: src/tests/test_type_hash.rs
+expression: result
+snapshot_kind: text
+---
+TokenStream:
+
+// selector!(
+//   "\"MyEnum\"(\"Variant 1\"(\"felt\",\"felt\",\"ClassHash\",\"NftId\"),\"Variant
+//   2\"(\"TokenAmount*\"),\"Variant 3\"(\"ClassHash*\"),\"Variant
+//   4\"(\"ContractAddress\",\"TokenAmount\"),\"Variant 5\"(\"ContractAddress*\"),\"Variant
+//   6\"(),\"Variant 7\"(\"timestamp\",\"shortstring\"),\"Variant 8\"(\"ContractAddress\"),\"Variant
+//   9\"(\"TokenAmount\",\"(felt,ClassHash)\",\"NftId\"),\"Variant
+//   10\"(\"TokenAmount*\",\"ContractAddress*\"),\"Variant
+//   11\"(\"(TokenAmount,ContractAddress,felt*)*\"),\"Variant
+//   12\"(\"(TokenAmount*,ContractAddress*,felt*)**\"))\"NftId\"(\"collection_address\":\"ContractAddress\",\"token_id\":\"u256\")\"TokenAmount\"(\"token_address\":\"ContractAddress\",\"amount\":\"u256\")\"u256\"(\"low\":\"u128\",\"high\":\"u128\")"
+// );
+pub const MY_ENUM_TYPE_HASH: felt252 =
+    0x246875b684a08f2dc43df30da0ae72480b809352d97c5707b5edc124839c7ce;
+
+
+Diagnostics:
+
+None
+
+AuxData:
+
+None

@@ -1,0 +1,27 @@
+---
+source: src/tests/test_type_hash.rs
+expression: result
+snapshot_kind: text
+---
+TokenStream:
+
+// selector!(
+//   "\"MyType\"(\"Member 1\":\"(felt,felt,ClassHash,NftId)\",\"Member 2\":\"TokenAmount*\",\"Member
+//   3\":\"ClassHash*\",\"Member 4\":\"(ContractAddress,TokenAmount)\",\"Member
+//   5\":\"ContractAddress*\",\"Member 6\":\"()\",\"Member 7\":\"(timestamp,shortstring)\",\"Member
+//   8\":\"(ContractAddress)\",\"Member 9\":\"(TokenAmount,(felt,ClassHash),NftId)\",\"Member
+//   10\":\"(TokenAmount*,ContractAddress*)\",\"Member
+//   11\":\"(TokenAmount,ContractAddress,felt*)*\",\"Member
+//   12\":\"(TokenAmount*,ContractAddress*,felt*)**\")\"NftId\"(\"collection_address\":\"ContractAddress\",\"token_id\":\"u256\")\"TokenAmount\"(\"token_address\":\"ContractAddress\",\"amount\":\"u256\")\"u256\"(\"low\":\"u128\",\"high\":\"u128\")"
+// );
+pub const MY_TYPE_TYPE_HASH: felt252 =
+    0x21ce4c57fdf9d50cd48f0ea26f3d49aab5ef09f9c87d28eae607d740878e4c5;
+
+
+Diagnostics:
+
+None
+
+AuxData:
+
+None

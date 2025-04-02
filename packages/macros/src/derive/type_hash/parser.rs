@@ -10,7 +10,7 @@ use regex::Regex;
 
 use super::types::{split_types, InnerType, S12Type};
 
-const SNIP12_TYPE_ATTRIBUTE: &str = "snip12_type";
+const SNIP12_TYPE_ATTRIBUTE: &str = "snip12";
 
 /// The parser for the type hash macro.
 ///
@@ -47,7 +47,7 @@ impl<'a> TypeHashParser<'a> {
             .iter()
             .map(|member| {
                 let attributes = member.attributes.elements(db);
-                let attr_type = get_type_from_attributes(db, &attributes);
+                let (attr_name, attr_type) = get_name_and_type_from_attributes(db, &attributes);
 
                 // If there is an attribute, use it, otherwise use the type from the member
                 let s12_type = if let Some(attr_type) = attr_type {
@@ -55,10 +55,18 @@ impl<'a> TypeHashParser<'a> {
                 } else {
                     S12Type::from_str(&member.ty)
                 };
+
+                // If there is an attribute, use it, otherwise use the name from the member
+                let s12_name = if let Some(attr_name) = attr_name {
+                    attr_name
+                } else {
+                    member.name.to_string()
+                };
+
                 // Unwrapping should be safe here since attr types must not be empty
-                (member.name.as_str(), s12_type.unwrap())
+                (s12_name, s12_type.unwrap())
             })
-            .collect::<Vec<(&str, S12Type)>>();
+            .collect::<Vec<(String, S12Type)>>();
 
         // 2. Build the string representation
         let mut encoded_type = format!("\"{}\"(", self.plugin_type_info.name);
@@ -111,13 +119,20 @@ impl<'a> TypeHashParser<'a> {
     }
 }
 
-/// Gets the type from the attributes.
+/// Gets the name and type from the attributes.
 ///
 /// The expected attribute is of the form:
 /// ```
-/// #[snip12_type(<type>)]
+/// #[snip12(name: <name>, kind: <type>)]
 /// ```
-fn get_type_from_attributes(db: &dyn SyntaxGroup, attributes: &[Attribute]) -> Option<String> {
+/// or
+/// ```
+/// #[snip12(kind: <type>)]
+/// ```
+/// or
+/// ```
+/// #[snip12(name: <name>)]
+fn get_name_and_type_from_attributes(db: &dyn SyntaxGroup, attributes: &[Attribute]) -> (Option<String>, Option<String>) {
     let re = Regex::new(&format!(r"^\#\[{SNIP12_TYPE_ATTRIBUTE}\((.*)\)\]$")).unwrap();
 
     for attribute in attributes {
@@ -125,15 +140,41 @@ fn get_type_from_attributes(db: &dyn SyntaxGroup, attributes: &[Attribute]) -> O
         if re.is_match(&attribute_text) {
             let captures = re.captures(&attribute_text);
             if let Some(captures) = captures {
-                let type_name = captures[1].to_string();
-                if type_name.is_empty() {
-                    return None;
-                }
-                return Some(type_name);
+                return parse_snip12_attribute_arguments(&captures[1]);
             }
         }
     }
-    None
+    (None, None)
+}
+
+fn parse_snip12_attribute_arguments(arguments: &str) -> (Option<String>, Option<String>) {
+  let re1 = Regex::new(r#"^name: "(.*)", kind: "(.*)"$"#).unwrap();
+  let re2 = Regex::new(r#"^kind: "(.*)", name: "(.*)"$"#).unwrap();
+  let re3 = Regex::new(r#"^name: "(.*)"$"#).unwrap();
+  let re4 = Regex::new(r#"^kind: "(.*)"$"#).unwrap();
+
+  if re1.is_match(arguments) {
+    let captures = re1.captures(arguments);
+    if let Some(captures) = captures {
+        return (Some(captures[1].to_string()), Some(captures[2].to_string()));
+    }
+  } else if re2.is_match(arguments) {
+    let captures = re2.captures(arguments);
+    if let Some(captures) = captures {
+        return (Some(captures[2].to_string()), Some(captures[1].to_string()));
+    }
+  } else if re3.is_match(arguments) {
+    let captures = re3.captures(arguments);
+    if let Some(captures) = captures {
+        return (Some(captures[1].to_string()), None);
+    }
+  } else if re4.is_match(arguments) {
+    let captures = re4.captures(arguments);
+    if let Some(captures) = captures {
+        return (None, Some(captures[1].to_string()));
+    }
+  }
+  (None, None)
 }
 
 /// Returns the enum compliant string representation of a tuple for the encoded type.

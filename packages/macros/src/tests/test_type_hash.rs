@@ -12,7 +12,8 @@ fn test_empty_input() {
         "
         "
     );
-    let result = get_string_result(item);
+    let attr_stream = r#"(debug: true)"#;
+    let result = get_string_result(item, attr_stream);
     assert_snapshot!(result);
 }
 
@@ -23,7 +24,8 @@ fn test_empty_struct() {
         pub struct MyType {}
         "
     );
-    let result = get_string_result(item);
+    let attr_stream = r#"(debug: true)"#;
+    let result = get_string_result(item, attr_stream);
     assert_snapshot!(result);
 }
 
@@ -34,7 +36,8 @@ fn test_empty_enum() {
         pub enum MyEnum {}
         "
     );
-    let result = get_string_result(item);
+    let attr_stream = r#"(debug: true)"#;
+    let result = get_string_result(item, attr_stream);
     assert_snapshot!(result);
 }
 
@@ -48,7 +51,8 @@ fn test_snip12_attribute_empty() {
         }
         "
     );
-    let result = get_string_result(item);
+    let attr_stream = r#"(debug: true)"#;
+    let result = get_string_result(item, attr_stream);
     assert_snapshot!(result);
 }
 
@@ -80,7 +84,8 @@ fn test_basic_types() {
         }
         "#
     );
-    let result = get_string_result(item);
+    let attr_stream = r#"(debug: true)"#;
+    let result = get_string_result(item, attr_stream);
     assert_snapshot!(result);
 }
 
@@ -103,7 +108,8 @@ fn test_basic_types_enum() {
         }
         "#
     );
-    let result = get_string_result(item);
+    let attr_stream = r#"(debug: true)"#;
+    let result = get_string_result(item, attr_stream);
     assert_snapshot!(result);
 }
 
@@ -122,7 +128,8 @@ fn test_preset_types() {
         }
         "
     );
-    let result = get_string_result(item);
+    let attr_stream = r#"(debug: true)"#;
+    let result = get_string_result(item, attr_stream);
     assert_snapshot!(result);
 }
 
@@ -137,7 +144,8 @@ fn test_preset_types_enum() {
         }
         "
     );
-    let result = get_string_result(item);
+    let attr_stream = r#"(debug: true)"#;
+    let result = get_string_result(item, attr_stream);
     assert_snapshot!(result);
 }
 #[test]
@@ -149,7 +157,8 @@ fn test_with_inner_starknet_domain() {
         }
         "
     );
-    let result = get_string_result(item);
+    let attr_stream = r#"(debug: true)"#;
+    let result = get_string_result(item, attr_stream);
     assert_snapshot!(result);
 }
 
@@ -164,7 +173,8 @@ fn test_with_inner_u256_type() {
         }
         "
     );
-    let result = get_string_result(item);
+    let attr_stream = r#"(debug: true)"#;
+    let result = get_string_result(item, attr_stream);
     assert_snapshot!(result);
 }
 
@@ -179,7 +189,8 @@ fn test_with_inner_u256_type_enum() {
         }
         "
     );
-    let result = get_string_result(item);
+    let attr_stream = r#"(debug: true)"#;
+    let result = get_string_result(item, attr_stream);
     assert_snapshot!(result);
 }
 
@@ -196,7 +207,8 @@ fn test_potential_duplicate_types() {
         }
         "
     );
-    let result = get_string_result(item);
+    let attr_stream = r#"(debug: true)"#;
+    let result = get_string_result(item, attr_stream);
     assert_snapshot!(result);
 }
 
@@ -213,7 +225,8 @@ fn test_potential_duplicate_types_enum() {
         }
         "
     );
-    let result = get_string_result(item);
+    let attr_stream = r#"(debug: true)"#;
+    let result = get_string_result(item, attr_stream);
     assert_snapshot!(result);
 }
 
@@ -238,7 +251,8 @@ fn test_complex_struct_type() {
         }
         "#
     );
-    let result = get_string_result(item);
+    let attr_stream = r#"(debug: true)"#;
+    let result = get_string_result(item, attr_stream);
     assert_snapshot!(result);
 }
 
@@ -263,7 +277,8 @@ fn test_complex_enum_type() {
         }
         "#
     );
-    let result = get_string_result(item);
+    let attr_stream = r#"(debug: true)"#;
+    let result = get_string_result(item, attr_stream);
     assert_snapshot!(result);
 }
 
@@ -280,7 +295,8 @@ fn test_with_inner_custom_type() {
         }
         "
     );
-    let result = get_string_result(item);
+    let attr_stream = r#"(debug: true)"#;
+    let result = get_string_result(item, attr_stream);
     assert_snapshot!(result);
 }
 
@@ -293,7 +309,8 @@ fn test_with_tuple() {
         }
         "
     );
-    let result = get_string_result(item);
+    let attr_stream = r#"(debug: true)"#;
+    let result = get_string_result(item, attr_stream);
     assert_snapshot!(result);
 }
 
@@ -308,7 +325,8 @@ fn test_with_tuple_enum() {
         }
         "
     );
-    let result = get_string_result(item);
+    let attr_stream = r#"(debug: true)"#;
+    let result = get_string_result(item, attr_stream);
     assert_snapshot!(result);
 }
 
@@ -322,7 +340,8 @@ fn test_with_empty_tuple() {
         }
         "
     );
-    let result = get_string_result(item);
+    let attr_stream = r#"(debug: true)"#;
+    let result = get_string_result(item, attr_stream);
     assert_snapshot!(result);
 }
 
@@ -336,7 +355,8 @@ fn test_with_empty_tuple_enum() {
         }
         "
     );
-    let result = get_string_result(item);
+    let attr_stream = r#"(debug: true)"#;
+    let result = get_string_result(item, attr_stream);
     assert_snapshot!(result);
 }
 
@@ -354,7 +374,8 @@ fn test_with_array() {
         }
         "
     );
-    let result = get_string_result(item);
+    let attr_stream = r#"(debug: true)"#;
+    let result = get_string_result(item, attr_stream);
     assert_snapshot!(result);
 }
 
@@ -372,7 +393,8 @@ fn test_with_span() {
         }
         "
     );
-    let result = get_string_result(item);
+    let attr_stream = r#"(debug: true)"#;
+    let result = get_string_result(item, attr_stream);
     assert_snapshot!(result);
 }
 
@@ -386,7 +408,8 @@ fn test_with_tuple_and_attribute() {
         }
         "#
     );
-    let result = get_string_result(item);
+    let attr_stream = r#"(debug: true)"#;
+    let result = get_string_result(item, attr_stream);
     assert_snapshot!(result);
 }
 
@@ -406,7 +429,8 @@ fn test_starknet_domain() {
         }
         "#
     );
-    let result = get_string_result(item);
+    let attr_stream = r#"(debug: true)"#;
+    let result = get_string_result(item, attr_stream);
     assert_snapshot!(result);
 }
 
@@ -431,7 +455,8 @@ fn test_complex_struct_with_collection_types() {
         }
         "#
     );
-    let result = get_string_result(item);
+    let attr_stream = r#"(debug: true)"#;
+    let result = get_string_result(item, attr_stream);
     assert_snapshot!(result);
 }
 
@@ -467,7 +492,8 @@ fn test_complex_struct_with_collection_types_custom_names() {
         }
         "#
     );
-    let result = get_string_result(item);
+    let attr_stream = r#"(debug: true)"#;
+    let result = get_string_result(item, attr_stream);
     assert_snapshot!(result);
 }
 
@@ -492,7 +518,8 @@ fn test_complex_enum_with_collection_types() {
         }
         "#
     );
-    let result = get_string_result(item);
+    let attr_stream = r#"(debug: true)"#;
+    let result = get_string_result(item, attr_stream);
     assert_snapshot!(result);
 }
 
@@ -528,12 +555,65 @@ fn test_complex_enum_with_collection_types_custom_names() {
         }
         "#
     );
-    let result = get_string_result(item);
+    let attr_stream = r#"(debug: true)"#;
+    let result = get_string_result(item, attr_stream);
     assert_snapshot!(result);
 }
 
-fn get_string_result(item: &str) -> String {
+#[test]
+fn test_name_attribute() {
+    let item = indoc!(
+        r#"
+        pub enum MyEnum {
+            #[snip12(name: "Variant 1")]
+            Variant1: (felt252, felt252, ClassHash, NftId),
+            #[snip12(name: "Variant 2")]
+            Variant2: Array<TokenAmount>,
+            #[snip12(name: "Variant 3")]
+            Variant3: Span<ClassHash>,
+            #[snip12(name: "Variant 4")]
+            Variant4: (ContractAddress, TokenAmount),
+            #[snip12(name: "Variant 5")]
+            Variant5: Array<ContractAddress>,
+        }
+        "#
+    );
+    let attr_stream = r#"(name: "My Enum")"#;
+    let result = get_string_result(item, attr_stream);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_debug_attribute() {
+    let item = indoc!(
+        "
+        pub struct MyType {
+            pub member: felt252,
+        }
+        "
+    );
+    let attr_stream = r#"(debug: true)"#;
+    let result = get_string_result(item, attr_stream);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_invalid_type_hash_attribute() {
+    let item = indoc!(
+        "
+        pub struct MyType {
+            pub member: felt252,
+        }
+        "
+    );
+    let attr_stream = r#"(other: true)"#;
+    let result = get_string_result(item, attr_stream);
+    assert_snapshot!(result);
+}
+
+fn get_string_result(item: &str, attr_stream: &str) -> String {
+    let attr_stream = TokenStream::new(attr_stream.to_string());
     let item = TokenStream::new(item.to_string());
-    let raw_result = type_hash(item);
+    let raw_result = type_hash(attr_stream, item);
     format_proc_macro_result(raw_result)
 }

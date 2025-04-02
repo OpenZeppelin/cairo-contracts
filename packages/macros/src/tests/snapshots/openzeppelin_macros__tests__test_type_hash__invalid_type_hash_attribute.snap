@@ -5,12 +5,12 @@ snapshot_kind: text
 ---
 TokenStream:
 
-        
+None
 
 Diagnostics:
 
 ====
-Error: No valid type found in the input.
+Error: Invalid format for the type_hash attribute. The only valid arguments are: name, debug.
 ====
 
 AuxData:

@@ -1,7 +1,5 @@
 use cairo_lang_formatter::format_string;
-use cairo_lang_macro::{
-    attribute_macro, derive_macro, Diagnostic, Diagnostics, ProcMacroResult, TokenStream,
-};
+use cairo_lang_macro::{attribute_macro, Diagnostic, Diagnostics, ProcMacroResult, TokenStream};
 use cairo_lang_parser::utils::SimpleParserDatabase;
 use cairo_lang_plugins::plugins::utils::PluginTypeInfo;
 use cairo_lang_starknet_classes::keccak::starknet_keccak;
@@ -19,7 +17,7 @@ use super::diagnostics::errors;
 ///
 /// Example:
 /// ```
-/// #[derive(TypeHash)]
+/// #[type_hash]
 /// pub struct MyStruct {
 ///     pub some_member: felt252,
 /// }
@@ -27,26 +25,35 @@ use super::diagnostics::errors;
 /// // Generates:
 /// pub const MY_STRUCT_TYPE_HASH: felt252 = 0x[HASH];
 /// ```
-#[derive_macro]
-pub fn type_hash(item_stream: TokenStream) -> ProcMacroResult {
-    // 1. Parse the item stream
+#[attribute_macro]
+pub fn type_hash(attr_stream: TokenStream, item_stream: TokenStream) -> ProcMacroResult {
+    // 1. Parse the attribute stream
+    let config = match parse_args(&attr_stream.to_string()) {
+        Ok(config) => config,
+        Err(err) => {
+            return ProcMacroResult::new(TokenStream::empty()).with_diagnostics(err.into());
+        }
+    };
+
+    // 2. Parse the item stream
     let db = SimpleParserDatabase::default();
     let content = match db.parse_virtual(item_stream.to_string()) {
-        Ok(node) => handle_node(&db, node),
+        Ok(node) => handle_node(&db, node, &config),
         Err(err) => {
             let error = Diagnostic::error(err.format(&db));
             return ProcMacroResult::new(TokenStream::empty()).with_diagnostics(error.into());
         }
     };
 
-    // 2. Format the expanded content
+    // 3. Format the expanded content
     let (formatted_content, diagnostics) = match content {
         Ok(content) => (format_string(&db, content), Diagnostics::new(vec![])),
         Err(err) => (String::new(), err.into()),
     };
 
-    // 3. Return the result
-    ProcMacroResult::new(TokenStream::new(formatted_content)).with_diagnostics(diagnostics)
+    // 4. Return the result
+    let result = TokenStream::new(item_stream.to_string() + &formatted_content);
+    ProcMacroResult::new(result).with_diagnostics(diagnostics)
 }
 
 /// This attribute macro is used to specify an override for the SNIP-12 type.
@@ -55,20 +62,20 @@ pub fn type_hash(item_stream: TokenStream) -> ProcMacroResult {
 ///
 /// Example:
 /// ```
-/// #[derive(TypeHash)]
+/// #[ty]
 /// pub struct MyStruct {
 ///     #[snip12(name: "Some Member", kind: "shortstring")]
 ///     pub some_member: felt252,
 /// }
 /// ```
 #[attribute_macro]
-pub fn snip12(attribute_stream: TokenStream, item_stream: TokenStream) -> ProcMacroResult {
+pub fn snip12(attr_stream: TokenStream, item_stream: TokenStream) -> ProcMacroResult {
     // Validate the received format
     let re1 = Regex::new(r"^\(name: (.*), kind: (.*)\)$").unwrap();
     let re2 = Regex::new(r"^\(kind: (.*), name: (.*)\)$").unwrap();
     let re3 = Regex::new(r"^\(kind: (.*)\)$").unwrap();
     let re4 = Regex::new(r"^\(name: (.*)\)$").unwrap();
-    let s = attribute_stream.to_string();
+    let s = attr_stream.to_string();
 
     if re1.is_match(&s) || re2.is_match(&s) || re3.is_match(&s) || re4.is_match(&s) {
         ProcMacroResult::new(item_stream)
@@ -78,7 +85,67 @@ pub fn snip12(attribute_stream: TokenStream, item_stream: TokenStream) -> ProcMa
     }
 }
 
-fn handle_node(db: &dyn SyntaxGroup, node: SyntaxNode) -> Result<String, Diagnostic> {
+/// Configuration for the type hash attribute.
+///
+/// Represents the arguments passed to the type_hash attribute.
+///
+/// Example:
+/// ```
+/// #[type_hash(name: "MyStruct", debug: true)]
+/// ```
+pub struct TypeHashConfig {
+    pub name: String,
+    pub debug: bool,
+}
+
+/// Parses the arguments passed to the type_hash attribute and
+/// returns a TypeHashConfig struct containing the parsed arguments.
+fn parse_args(s: &str) -> Result<TypeHashConfig, Diagnostic> {
+    let mut config = TypeHashConfig {
+        name: String::new(),
+        debug: false,
+    };
+    // If the attribute is empty, return the default config
+    if s.is_empty() || s == "()" {
+        return Ok(config);
+    }
+
+    let allowed_args = ["name", "debug"];
+    let allowed_args_re = allowed_args.join("|");
+
+    let re = Regex::new(&format!(
+        r#"^\(({}): (\w|"| )+(?:, ({}): (\w|"| )+)*\)$"#,
+        allowed_args_re, allowed_args_re
+    ))
+    .unwrap();
+
+    if re.is_match(s) {
+        // Remove the parentheses
+        let s = &s[1..s.len() - 1];
+        for arg in s.split(",") {
+            let parts = arg.split(":").collect::<Vec<&str>>();
+            let name = parts[0].trim();
+            let value = parts[1].trim();
+            match name {
+                "name" => config.name = value.to_string(),
+                "debug" => config.debug = value == "true",
+                // This should be unreachable as long as the regex is correct
+                _ => panic!("Invalid argument: {}", name),
+            }
+        }
+        Ok(config)
+    } else {
+        Err(Diagnostic::error(
+            errors::INVALID_TYPE_HASH_ATTRIBUTE_FORMAT,
+        ))
+    }
+}
+
+fn handle_node(
+    db: &dyn SyntaxGroup,
+    node: SyntaxNode,
+    config: &TypeHashConfig,
+) -> Result<String, Diagnostic> {
     let typed = ast::SyntaxFile::from_syntax_node(db, node);
     let items = typed.items(db).elements(db);
 
@@ -92,10 +159,10 @@ fn handle_node(db: &dyn SyntaxGroup, node: SyntaxNode) -> Result<String, Diagnos
         ast::ModuleItem::Struct(_) | ast::ModuleItem::Enum(_) => {
             // It is safe to unwrap here because we know the item is a struct
             let plugin_type_info = PluginTypeInfo::new(db, item_ast).unwrap();
-            generate_code(db, &plugin_type_info)
+            generate_code(db, &plugin_type_info, config)
         }
         _ => {
-            let error = Diagnostic::error(errors::NOT_VALID_TYPE_FOR_DERIVE);
+            let error = Diagnostic::error(errors::NOT_VALID_TYPE_TO_DECORATE);
             Err(error)
         }
     }
@@ -105,20 +172,31 @@ fn handle_node(db: &dyn SyntaxGroup, node: SyntaxNode) -> Result<String, Diagnos
 fn generate_code(
     db: &dyn SyntaxGroup,
     plugin_type_info: &PluginTypeInfo,
+    config: &TypeHashConfig,
 ) -> Result<String, Diagnostic> {
     let mut parser = TypeHashParser::new(plugin_type_info);
-    let type_hash_string = parser.parse(db)?;
+    let type_hash_string = parser.parse(db, config)?;
     let type_hash = starknet_keccak(type_hash_string.as_bytes());
     let type_name = plugin_type_info.name.as_str().to_case(Case::UpperSnake);
 
+    let debug_string = if config.debug {
+        formatdoc!(
+            r#"
+            pub fn __{type_name}_encoded_type() {{
+                println!("{}");
+            }}"#,
+            type_hash_string.replace("\"", "\\\"")
+        )
+    } else {
+        String::new()
+    };
+
     let code = formatdoc!(
         "
-        // selector!(
-        //   \"{}\"
-        // );
+        {debug_string}
         pub const {type_name}_TYPE_HASH: felt252 = 0x{:x};
+
         ",
-        type_hash_string.replace("\"", "\\\""),
         type_hash
     );
 

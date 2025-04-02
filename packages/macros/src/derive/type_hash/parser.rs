@@ -8,6 +8,7 @@ use cairo_lang_syntax::node::TypedSyntaxNode;
 use cairo_lang_syntax::{node::ast::Attribute, node::db::SyntaxGroup};
 use regex::Regex;
 
+use super::definition::TypeHashConfig;
 use super::types::{split_types, InnerType, S12Type};
 
 const SNIP12_TYPE_ATTRIBUTE: &str = "snip12";
@@ -39,7 +40,11 @@ impl<'a> TypeHashParser<'a> {
     }
 
     /// Parses the object/enum and returns the encoded type.
-    pub fn parse(&mut self, db: &dyn SyntaxGroup) -> Result<String, Diagnostic> {
+    pub fn parse(
+        &mut self,
+        db: &dyn SyntaxGroup,
+        config: &TypeHashConfig,
+    ) -> Result<String, Diagnostic> {
         // 1. Get the members types real values from mapping and attributes
         let members_types = self
             .plugin_type_info
@@ -69,7 +74,11 @@ impl<'a> TypeHashParser<'a> {
             .collect::<Vec<(String, S12Type)>>();
 
         // 2. Build the string representation
-        let mut encoded_type = format!("\"{}\"(", self.plugin_type_info.name);
+        let mut encoded_type = if config.name.is_empty() {
+            format!("\"{}\"(", self.plugin_type_info.name)
+        } else {
+            format!("\"{}\"(", config.name)
+        };
         for (name, s12_type) in members_types {
             let type_name = s12_type.get_snip12_type_name()?;
 

@@ -145,29 +145,3 @@ mod OutsideExecutionAccountUpgradeable {
     }
 }
 ```
-
-== Derive macros
-
-[.contract]
-[[type_hash]]
-=== `++type_hash++`
-
-This macro generates a type hash for a given struct or enum.
-
-==== Usage
-
-```cairo
-#[derive(TypeHash)]
-struct MyStruct {
-    my_field: felt252,
-}
-```
-
-This will generate a type hash for the struct.
-
-```cairo
-// selector!("\"MyStruct\"(\"my_field\":\"felt\")")
-pub const MY_STRUCT_TYPE_HASH: felt252 = 0x8d57e11c9026e46da32e6e31686aaf3d3abbee64c14abed7dbec22ceec9e42;
-```
-
-

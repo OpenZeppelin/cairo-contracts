@@ -12,7 +12,8 @@ pub trait IERC20<TState> {
     /// Returns the amount of tokens owned by `account`.
     fn balance_of(self: @TState, account: ContractAddress) -> u256;
 
-    /// Returns the remaining number of tokens that `spender` will be allowed to spend on behalf of `owner` through `transfer_from`.
+    /// Returns the remaining number of tokens that `spender` will be allowed to spend on behalf of
+    /// `owner` through `transfer_from`.
     fn allowance(self: @TState, owner: ContractAddress, spender: ContractAddress) -> u256;
 
     /// Moves `amount` tokens from the caller's account to `recipient`.
@@ -55,7 +56,8 @@ pub trait IERC20Camel<TState> {
     /// Returns the amount of tokens owned by `account`.
     fn balanceOf(self: @TState, account: ContractAddress) -> u256;
 
-    /// Returns the remaining number of tokens that `spender` will be allowed to spend on behalf of `owner` through `transferFrom`.
+    /// Returns the remaining number of tokens that `spender` will be allowed to spend on behalf of
+    /// `owner` through `transferFrom`.
     fn allowance(self: @TState, owner: ContractAddress, spender: ContractAddress) -> u256;
 
     /// Moves `amount` tokens from the caller's account to `recipient`.
@@ -103,7 +105,8 @@ pub trait IERC20Mixin<TState> {
     /// Returns the amount of tokens owned by `account`.
     fn balance_of(self: @TState, account: ContractAddress) -> u256;
 
-    /// Returns the remaining number of tokens that `spender` will be allowed to spend on behalf of `owner` through `transfer_from`.
+    /// Returns the remaining number of tokens that `spender` will be allowed to spend on behalf of
+    /// `owner` through `transfer_from`.
     fn allowance(self: @TState, owner: ContractAddress, spender: ContractAddress) -> u256;
 
     /// Moves `amount` tokens from the caller's account to `recipient`.
@@ -184,7 +187,8 @@ pub trait ERC20ABI<TState> {
     /// Returns the amount of tokens owned by `account`.
     fn balance_of(self: @TState, account: ContractAddress) -> u256;
 
-    /// Returns the remaining number of tokens that `spender` will be allowed to spend on behalf of `owner` through `transfer_from`.
+    /// Returns the remaining number of tokens that `spender` will be allowed to spend on behalf of
+    /// `owner` through `transfer_from`.
     fn allowance(self: @TState, owner: ContractAddress, spender: ContractAddress) -> u256;
 
     /// Moves `amount` tokens from the caller's account to `recipient`.

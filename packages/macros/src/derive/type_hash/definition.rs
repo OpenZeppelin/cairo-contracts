@@ -1,5 +1,7 @@
 use cairo_lang_formatter::format_string;
-use cairo_lang_macro::{attribute_macro, derive_macro, Diagnostic, Diagnostics, ProcMacroResult, TokenStream};
+use cairo_lang_macro::{
+    attribute_macro, derive_macro, Diagnostic, Diagnostics, ProcMacroResult, TokenStream,
+};
 use cairo_lang_parser::utils::SimpleParserDatabase;
 use cairo_lang_plugins::plugins::utils::PluginTypeInfo;
 use cairo_lang_starknet_classes::keccak::starknet_keccak;

@@ -313,28 +313,28 @@ impl UserDefinedType {
 /// assert_eq!(result, vec!["a", "b", "(c,d)", "e"]);
 /// ```
 pub fn split_types(s: &str) -> Vec<&str> {
-  let mut result = Vec::new();
-  let mut start = 0;
-  let mut paren_count = 0;
+    let mut result = Vec::new();
+    let mut start = 0;
+    let mut paren_count = 0;
 
-  for (i, c) in s.chars().enumerate() {
-      match c {
-          '(' => paren_count += 1,
-          ')' => paren_count -= 1,
-          ',' if paren_count == 0 => {
-            if start < i {
-              result.push(s[start..i].trim());
+    for (i, c) in s.chars().enumerate() {
+        match c {
+            '(' => paren_count += 1,
+            ')' => paren_count -= 1,
+            ',' if paren_count == 0 => {
+                if start < i {
+                    result.push(s[start..i].trim());
+                }
+                start = i + 1;
             }
-            start = i + 1;
-          }
-          _ => {}
-      }
-  }
+            _ => {}
+        }
+    }
 
-  // Add the last segment
-  if start < s.len() {
-      result.push(s[start..].trim());
-  }
+    // Add the last segment
+    if start < s.len() {
+        result.push(s[start..].trim());
+    }
 
-  result
+    result
 }

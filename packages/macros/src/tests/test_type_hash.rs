@@ -496,7 +496,6 @@ fn test_complex_enum_with_collection_types() {
     assert_snapshot!(result);
 }
 
-
 #[test]
 fn test_complex_enum_with_collection_types_custom_names() {
     let item = indoc!(

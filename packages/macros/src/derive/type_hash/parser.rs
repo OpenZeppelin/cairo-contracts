@@ -132,7 +132,10 @@ impl<'a> TypeHashParser<'a> {
 /// or
 /// ```
 /// #[snip12(name: <name>)]
-fn get_name_and_type_from_attributes(db: &dyn SyntaxGroup, attributes: &[Attribute]) -> (Option<String>, Option<String>) {
+fn get_name_and_type_from_attributes(
+    db: &dyn SyntaxGroup,
+    attributes: &[Attribute],
+) -> (Option<String>, Option<String>) {
     let re = Regex::new(&format!(r"^\#\[{SNIP12_TYPE_ATTRIBUTE}\((.*)\)\]$")).unwrap();
 
     for attribute in attributes {
@@ -148,33 +151,33 @@ fn get_name_and_type_from_attributes(db: &dyn SyntaxGroup, attributes: &[Attribu
 }
 
 fn parse_snip12_attribute_arguments(arguments: &str) -> (Option<String>, Option<String>) {
-  let re1 = Regex::new(r#"^name: "(.*)", kind: "(.*)"$"#).unwrap();
-  let re2 = Regex::new(r#"^kind: "(.*)", name: "(.*)"$"#).unwrap();
-  let re3 = Regex::new(r#"^name: "(.*)"$"#).unwrap();
-  let re4 = Regex::new(r#"^kind: "(.*)"$"#).unwrap();
+    let re1 = Regex::new(r#"^name: "(.*)", kind: "(.*)"$"#).unwrap();
+    let re2 = Regex::new(r#"^kind: "(.*)", name: "(.*)"$"#).unwrap();
+    let re3 = Regex::new(r#"^name: "(.*)"$"#).unwrap();
+    let re4 = Regex::new(r#"^kind: "(.*)"$"#).unwrap();
 
-  if re1.is_match(arguments) {
-    let captures = re1.captures(arguments);
-    if let Some(captures) = captures {
-        return (Some(captures[1].to_string()), Some(captures[2].to_string()));
+    if re1.is_match(arguments) {
+        let captures = re1.captures(arguments);
+        if let Some(captures) = captures {
+            return (Some(captures[1].to_string()), Some(captures[2].to_string()));
+        }
+    } else if re2.is_match(arguments) {
+        let captures = re2.captures(arguments);
+        if let Some(captures) = captures {
+            return (Some(captures[2].to_string()), Some(captures[1].to_string()));
+        }
+    } else if re3.is_match(arguments) {
+        let captures = re3.captures(arguments);
+        if let Some(captures) = captures {
+            return (Some(captures[1].to_string()), None);
+        }
+    } else if re4.is_match(arguments) {
+        let captures = re4.captures(arguments);
+        if let Some(captures) = captures {
+            return (None, Some(captures[1].to_string()));
+        }
     }
-  } else if re2.is_match(arguments) {
-    let captures = re2.captures(arguments);
-    if let Some(captures) = captures {
-        return (Some(captures[2].to_string()), Some(captures[1].to_string()));
-    }
-  } else if re3.is_match(arguments) {
-    let captures = re3.captures(arguments);
-    if let Some(captures) = captures {
-        return (Some(captures[1].to_string()), None);
-    }
-  } else if re4.is_match(arguments) {
-    let captures = re4.captures(arguments);
-    if let Some(captures) = captures {
-        return (None, Some(captures[1].to_string()));
-    }
-  }
-  (None, None)
+    (None, None)
 }
 
 /// Returns the enum compliant string representation of a tuple for the encoded type.
@@ -188,7 +191,7 @@ fn parse_snip12_attribute_arguments(arguments: &str) -> (Option<String>, Option<
 /// ```
 fn maybe_tuple(s: &str) -> String {
     if s.starts_with("(") && s.ends_with(")") {
-      split_types(&s[1..s.len() - 1])
+        split_types(&s[1..s.len() - 1])
             .iter()
             .map(|s| format!("\"{}\"", s.trim()))
             .collect::<Vec<_>>()

@@ -7,3 +7,4 @@ This crate provides a collection of macros that streamline and simplify developm
 ### Attribute macros
 
 - [`with_components(..)`](https://docs.openzeppelin.com/contracts-cairo/2.0.0-alpha.0/api/macros#with_components)
+- [`type_hash(..)`](https://docs.openzeppelin.com/contracts-cairo/2.0.0-alpha.0/api/macros#type_hash)

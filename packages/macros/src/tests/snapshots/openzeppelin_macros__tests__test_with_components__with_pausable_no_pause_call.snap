@@ -21,7 +21,6 @@ pub mod MyContract {
             self.pausable.unpause();
         }
     }
-
     use openzeppelin_security::PausableComponent;
 
     component!(path: PausableComponent, storage: pausable, event: PausableEvent);

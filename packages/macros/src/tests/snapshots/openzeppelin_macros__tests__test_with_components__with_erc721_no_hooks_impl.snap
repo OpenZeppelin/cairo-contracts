@@ -17,7 +17,6 @@ pub mod MyContract {
     fn constructor(ref self: ContractState) {
         self.erc721.initializer("MyToken", "MTK", "");
     }
-
     use openzeppelin_token::erc721::ERC721Component;
 
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);

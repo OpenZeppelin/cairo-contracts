@@ -21,7 +21,6 @@ pub mod MyContract {
             self.initializable.initialize();
         }
     }
-
     use openzeppelin_security::InitializableComponent;
 
     component!(path: InitializableComponent, storage: initializable, event: InitializableEvent);

@@ -17,7 +17,6 @@ pub mod MyContract {
     fn constructor(ref self: ContractState) {
         self.erc1155_receiver.initializer();
     }
-
     use openzeppelin_token::erc1155::ERC1155ReceiverComponent;
 
     component!(

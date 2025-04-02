@@ -18,7 +18,6 @@ pub mod Contract {
 
     #[constructor]
     fn constructor(ref self: ContractState) {}
-
     use openzeppelin_access::accesscontrol::AccessControlComponent;
 
     component!(path: AccessControlComponent, storage: access_control, event: AccessControlEvent);

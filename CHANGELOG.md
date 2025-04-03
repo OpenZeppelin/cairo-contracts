@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The openzeppelin_macros package with the `with_components` macro (#1282)
 - ERC4626Component (#1170)
 - `Math::u256_mul_div` (#1170)
+- Add verification of indexed keys in event assertions (#1054)
 
 ### Changed
 
@@ -87,7 +88,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bump scarb to v2.9.1 (#1239)
 - The initializer in `OwnableComponent` now checks that `owner` is not the zero address (#1221)
 - Add `verifying_contract` member to the `Delegation` struct used in Votes `delegate_by_sig` (#1214)
-use crate::votes::VotesComponent::VotingUnitsTrait;
+  use crate::votes::VotesComponent::VotingUnitsTrait;
 - VotingUnitsTrait moved from `openzeppelin_governance::votes::votes` to `openzeppelin_governance::votes::VotesComponent` (#1214)
 - VestingComponent `release` function won't emit an event or attempt to transfer when the amount is zero (#1209)
 - Bump snforge_std to v0.33.0 (#1203)
@@ -119,7 +120,7 @@ use crate::votes::VotesComponent::VotingUnitsTrait;
   - `Secp256k1PointPartialEq` replaced by a generic `Secp256PointPartialEq`
   - `DebugSecp256k1Point` replaced by a generic `DebugSecp256Point`
 - Apply underscore pattern to the internal functions of `ERC2981Component` to prevent collisions
-with new external functions (#1173)
+  with new external functions (#1173)
 - Move `Hash` and `PartialEq` impls of `Call` struct from `openzeppelin_governance::timelock::utils` to `openzeppelin_governance::utils` (#1193)
 
 ## 0.18.0 (2024-10-17)
@@ -261,6 +262,7 @@ with new external functions (#1173)
 ### Changed (Breaking)
 
 - Migrated to the `2023_11` edition (#995):
+
   - Component implementations annotated with `#[embeddable_as()]` (e.g: `AccessControlComponent::AccessControl`) are not public anymore. Note that the embeddable versions are still public (e.g: `AccessControlComponent::AccessControlImpl`).
   - Implementations that can be compiler-derived from traits are not public anymore (e.g: `DualCaseAccessControlImpl` is not public while `DualCaseAccessControlTrait` is).
   - `Secp256k1PointPartialEq` and `DebugSecp256k1Point` are not public anymore.

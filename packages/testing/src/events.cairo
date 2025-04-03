@@ -130,6 +130,31 @@ impl EventSpyQueueAssertionsTraitImpl<
     }
 }
 
+
+fn verify_indexed_keys<T, impl TEvent: starknet::Event<T>, impl TDrop: Drop<T>>(
+    expected_event: @T,
+    actual_keys: @Array<felt252>
+) -> bool {
+    let mut expected_keys = array![];
+    let mut expected_data = array![];
+    expected_event.append_keys_and_data(ref expected_keys, ref expected_data);
+
+
+    if actual_keys.len() != expected_keys.len() {
+        return false;
+    }
+
+    let mut i = 0;
+    while i != expected_keys.len() {
+        if *actual_keys.at(i) != *expected_keys.at(i) {
+            return false;
+        }
+        i += 1;
+    }
+
+    true
+}
+
 fn is_emitted<T, impl TEvent: starknet::Event<T>, impl TDrop: Drop<T>>(
     self: @Events, expected_emitted_by: @ContractAddress, expected_event: @T,
 ) -> bool {
@@ -142,11 +167,14 @@ fn is_emitted<T, impl TEvent: starknet::Event<T>, impl TDrop: Drop<T>>(
     while i != self.events.len() {
         let (from, event) = self.events.at(i);
 
-        if from == expected_emitted_by
-            && event.keys == @expected_keys
-            && event.data == @expected_data {
-            is_emitted = true;
-            break;
+        if from == expected_emitted_by {
+            let keys_match = verify_indexed_keys(expected_event, event.keys);
+            let data_match = event.data == @expected_data;
+
+            if keys_match && data_match {
+                is_emitted = true;
+                break;
+            }
         }
 
         i += 1;

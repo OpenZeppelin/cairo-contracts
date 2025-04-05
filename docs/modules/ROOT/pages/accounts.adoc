@@ -106,7 +106,7 @@ OpenZeppelin Contracts for Cairo provides {account-component} for implementing t
 
 === Usage
 
-Constructing an account contract requires integrating both {account-component} and {src5-component}. The contract should also set up the constructor to initialize the public key that will be used as the account's signer. Here’s an example of a basic contract:
+Constructing an account contract requires integrating both {account-component} and {src5-component}. The contract should also set up the constructor to initialize the public key that will be used as the account's signer. Here's an example of a basic contract:
 
 [,cairo]
 ----
@@ -196,7 +196,7 @@ For this the {eth-account-component} must be used.
 
 Constructing a secp256k1 account contract also requires integrating both {eth-account-component} and {src5-component}.
 The contract should also set up the constructor to initialize the public key that will be used as the account's signer.
-Here’s an example of a basic contract:
+Here's an example of a basic contract:
 
 [,cairo]
 ----
@@ -524,3 +524,16 @@ const tx = await erc20.transfer(
 );
 await provider.waitForTransaction(tx.transaction_hash);
 ```
+
+== Account Utilities
+
+:account-utils: xref:/api/account.adoc#AccountUtils[Account Utils]
+
+OpenZeppelin Contracts for Cairo provides a set of utility functions in the {account-utils} section that can be helpful when working with accounts. These utilities include:
+
+1. Functions for executing calls and handling transaction execution
+2. Signature validation for different cryptographic curves (Stark, secp256k1, P256)
+3. Transaction version validation 
+4. Utilities for working with secp256 points in storage
+
+See the {account-utils} API reference for detailed documentation on these utilities.

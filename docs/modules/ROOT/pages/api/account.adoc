@@ -823,3 +823,150 @@ Requirements:
 
 - The caller is the account contract itself.
 - `new_class_hash` cannot be zero.
+
+== Utility Functions
+
+[[AccountUtils]]
+=== `++Account Utils++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.0/packages/account/src/utils.cairo[{github-icon},role=heading-link]
+
+```cairo
+use openzeppelin_account::utils;
+```
+
+The Account package provides utility functions for executing calls, validating signatures, and verifying transaction versions.
+
+[.contract-index]
+.Functions
+--
+* xref:#AccountUtils-execute_calls[`++execute_calls(calls)++`]
+* xref:#AccountUtils-execute_single_call[`++execute_single_call(call)++`]
+* xref:#AccountUtils-is_tx_version_valid[`++is_tx_version_valid()++`]
+* xref:#AccountUtils-is_valid_stark_signature[`++is_valid_stark_signature(msg_hash, public_key, signature)++`]
+* xref:#AccountUtils-is_valid_eth_signature[`++is_valid_eth_signature(msg_hash, public_key, signature)++`]
+* xref:#AccountUtils-is_valid_p256_signature[`++is_valid_p256_signature(msg_hash, public_key, signature)++`]
+--
+
+[.contract-index]
+.Constants
+--
+* xref:#AccountUtils-MIN_TRANSACTION_VERSION[`++MIN_TRANSACTION_VERSION++`]
+* xref:#AccountUtils-QUERY_OFFSET[`++QUERY_OFFSET++`]
+* xref:#AccountUtils-QUERY_VERSION[`++QUERY_VERSION++`]
+--
+
+[#AccountUtils-Functions]
+==== Functions
+
+[.contract-item]
+[[AccountUtils-execute_calls]]
+==== `[.contract-item-name]#++execute_calls++#++(calls: Span<Call>) → Array<Span<felt252>>++` [.item-kind]#function#
+
+Executes a list of calls and returns the return values.
+
+[.contract-item]
+[[AccountUtils-execute_single_call]]
+==== `[.contract-item-name]#++execute_single_call++#++(call: @Call) → Span<felt252>++` [.item-kind]#function#
+
+Executes a single call and returns the return value.
+
+[.contract-item]
+[[AccountUtils-is_tx_version_valid]]
+==== `[.contract-item-name]#++is_tx_version_valid++() → bool++` [.item-kind]#function#
+
+Checks if the transaction version is valid. If the transaction is a simulation (version >= `QUERY_OFFSET`), it must be greater than or equal to `QUERY_OFFSET` + `MIN_TRANSACTION_VERSION` to be considered valid. Otherwise, it must be greater than or equal to `MIN_TRANSACTION_VERSION`.
+
+Returns true if the transaction version is valid, false otherwise.
+
+[.contract-item]
+[[AccountUtils-is_valid_stark_signature]]
+==== `[.contract-item-name]#++is_valid_stark_signature++#++(msg_hash: felt252, public_key: felt252, signature: Span<felt252>) → bool++` [.item-kind]#function#
+
+Validates a signature using the Stark curve. This function assumes the `s` component of the signature to be positive for efficiency reasons. It is not recommended to use it other than for validating account signatures over transaction hashes since otherwise it's not protected against signature malleability.
+
+Returns true if the signature is valid, false otherwise.
+
+[.contract-item]
+[[AccountUtils-is_valid_eth_signature]]
+==== `[.contract-item-name]#++is_valid_eth_signature++#++(msg_hash: felt252, public_key: EthPublicKey, signature: Span<felt252>) → bool++` [.item-kind]#function#
+
+Validates a signature using the secp256k1 curve. This function assumes the `s` component of the signature to be positive for efficiency reasons. It is not recommended to use it other than for validating account signatures over transaction hashes since otherwise it's not protected against signature malleability.
+
+Returns true if the signature is valid, false otherwise.
+
+[.contract-item]
+[[AccountUtils-is_valid_p256_signature]]
+==== `[.contract-item-name]#++is_valid_p256_signature++#++(msg_hash: felt252, public_key: P256PublicKey, signature: Span<felt252>) → bool++` [.item-kind]#function#
+
+Validates a signature using the P256 curve. This function assumes the `s` component of the signature to be positive for efficiency reasons. It is not recommended to use it other than for validating account signatures over transaction hashes since otherwise it's not protected against signature malleability.
+
+Returns true if the signature is valid, false otherwise.
+
+[#AccountUtils-Constants]
+==== Constants
+
+[.contract-item]
+[[AccountUtils-MIN_TRANSACTION_VERSION]]
+==== `[.contract-item-name]#++MIN_TRANSACTION_VERSION++: u256++` [.item-kind]#constant#
+
+The minimum transaction version required for a valid transaction. Value is `1`.
+
+[.contract-item]
+[[AccountUtils-QUERY_OFFSET]]
+==== `[.contract-item-name]#++QUERY_OFFSET++: u256++` [.item-kind]#constant#
+
+The offset for query (simulation) transactions. Value is `0x100000000000000000000000000000000`.
+
+[.contract-item]
+[[AccountUtils-QUERY_VERSION]]
+==== `[.contract-item-name]#++QUERY_VERSION++: u256++` [.item-kind]#constant#
+
+The version for query transactions, which is `QUERY_OFFSET + MIN_TRANSACTION_VERSION`. Value is `0x100000000000000000000000000000001`.
+
+[[Secp256Signature]]
+=== `++Secp256Signature++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.0/packages/account/src/utils/signature.cairo[{github-icon},role=heading-link]
+
+```cairo
+use openzeppelin_account::utils::signature::Secp256Signature;
+```
+
+A signature format compatible with the family of secp256 curves.
+
+[.contract-index]
+.Fields
+--
+* r: u256
+* s: u256
+--
+
+[[Secp256PointStorePacking]]
+=== `++Secp256PointStorePacking++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.0/packages/account/src/utils/secp256_point.cairo[{github-icon},role=heading-link]
+
+```cairo
+use openzeppelin_account::utils::secp256_point::Secp256PointStorePacking;
+```
+
+Implementation of `StorePacking` for `Secp256Point` into a `(felt252, felt252)` tuple. This allows efficient storage of secp256 points in contract storage.
+
+[.contract-index]
+.Functions
+--
+* xref:#Secp256PointStorePacking-pack[`++pack(value)++`]
+* xref:#Secp256PointStorePacking-unpack[`++unpack(value)++`]
+--
+
+[#Secp256PointStorePacking-Functions]
+==== Functions
+
+[.contract-item]
+[[Secp256PointStorePacking-pack]]
+==== `[.contract-item-name]#++pack++#++(value: Secp256Point) → (felt252, felt252)++` [.item-kind]#function#
+
+Packs a Secp256Point into a (felt252, felt252) tuple. The packing is done as follows:
+- First felt contains `x.low` (x being the x-coordinate of the point).
+- Second felt contains `x.high` and the parity bit, at the least significant bits (2 * x.high + parity).
+
+[.contract-item]
+[[Secp256PointStorePacking-unpack]]
+==== `[.contract-item-name]#++unpack++#++(value: (felt252, felt252)) → Secp256Point++` [.item-kind]#function#
+
+Unpacks a (felt252, felt252) tuple into a Secp256Point. The unpacking process reverses the packing operation.

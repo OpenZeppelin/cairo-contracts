@@ -1,0 +1,22 @@
+---
+source: src/tests/test_type_hash.rs
+expression: result
+snapshot_kind: text
+---
+TokenStream:
+
+pub struct MyType {
+    #[snip12(kind: "merkletree")]
+    pub member: MerkleTree,
+}
+
+
+Diagnostics:
+
+====
+Error: Merkle tree type is not supported yet.
+====
+
+AuxData:
+
+None

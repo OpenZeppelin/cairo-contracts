@@ -154,7 +154,7 @@ mod OutsideExecutionAccountUpgradeable {
 
 This macro generates a {SNIP-12}-compatible type hash for a given struct or enum.
 
-NOTE: This macro is fully compatible with the {SNIP-12} standard.
+NOTE: This macro is fully compatible with the {SNIP-12} standard revision 1.
 
 [#type_hash-usage]
 ==== Usage
@@ -183,7 +183,21 @@ pub fn __MY_STRUCT_encoded_type() {
 }
 ```
 
-[#type_hash-examples]
+[#type_hash-basic-types]
+==== Basic types
+
+The list of supported types as defined in the {SNIP-12} standard is:
+
+- Felt
+- ShortString
+- ClassHash
+- ContractAddress
+- Timestamp
+- Selector
+- U128
+- I128
+
+[#type_hash-basic-types-examples]
 ==== Examples
 
 Struct with basic types and custom names and kinds:

@@ -626,6 +626,21 @@ fn test_enum_without_explicit_variant_type() {
     assert_snapshot!(result);
 }
 
+#[test]
+fn test_merkletree_type() {
+    let item = indoc!(
+        r#"
+        pub struct MyType {
+            #[snip12(kind: "merkletree")]
+            pub member: MerkleTree,
+        }
+        "#
+    );
+    let attr_stream = r#"(debug: true)"#;
+    let result = get_string_result(item, attr_stream);
+    assert_snapshot!(result);
+}
+
 //
 // Doc examples
 //

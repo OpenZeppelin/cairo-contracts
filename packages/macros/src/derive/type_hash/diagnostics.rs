@@ -16,4 +16,6 @@ pub mod errors {
     /// Error when the string argument is invalid.
     pub const INVALID_STRING_ARGUMENT: &str =
         "Invalid string argument. Expected a non-empty string between double quotes.\n";
+    /// Error when the merkle tree type is used.
+    pub const MERKLE_TREE_NOT_SUPPORTED: &str = "Merkle tree type is not supported yet.\n";
 }

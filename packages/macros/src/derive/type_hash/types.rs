@@ -29,6 +29,7 @@ pub enum BasicType {
     ContractAddress,
     Timestamp,
     Selector,
+    MerkleTree,
     U128,
     I128,
 }
@@ -41,7 +42,6 @@ pub enum CollectionType {
 }
 
 /// The different preset types as defined in the SNIP-12.
-// TODO!: Add the merkle tree type
 #[derive(Debug)]
 pub enum PresetType {
     TokenAmount,
@@ -96,6 +96,7 @@ impl S12Type {
             "ContractAddress" => S12Type::Basic(BasicType::ContractAddress),
             "timestamp" => S12Type::Basic(BasicType::Timestamp),
             "selector" => S12Type::Basic(BasicType::Selector),
+            "merkletree" => S12Type::Basic(BasicType::MerkleTree),
             "u128" => S12Type::Basic(BasicType::U128),
             "i128" => S12Type::Basic(BasicType::I128),
 
@@ -160,6 +161,9 @@ impl BasicType {
             BasicType::ContractAddress => "ContractAddress",
             BasicType::Timestamp => "timestamp",
             BasicType::Selector => "selector",
+            BasicType::MerkleTree => {
+                return Err(Diagnostic::error(errors::MERKLE_TREE_NOT_SUPPORTED));
+            },
             BasicType::U128 => "u128",
             BasicType::I128 => "i128",
         }
@@ -178,7 +182,8 @@ impl BasicType {
             | BasicType::Timestamp
             | BasicType::Selector
             | BasicType::U128
-            | BasicType::I128 => Ok((String::new(), vec![])),
+            | BasicType::I128
+            | BasicType::MerkleTree => Ok((String::new(), vec![])),
         }
     }
 }

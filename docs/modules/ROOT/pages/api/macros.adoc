@@ -152,10 +152,9 @@ mod OutsideExecutionAccountUpgradeable {
 
 :SNIP-12: https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-12.md[SNIP-12]
 
-This macro generates a type hash for a given struct or enum.
+This macro generates a {SNIP-12}-compatible type hash for a given struct or enum.
 
 NOTE: This macro is fully compatible with the {SNIP-12} standard.
-Check the xref:#type_hash-features[Features] section below for detailed information.
 
 [#type_hash-usage]
 ==== Usage
@@ -164,6 +163,7 @@ Check the xref:#type_hash-features[Features] section below for detailed informat
 /// name and debug are optional arguments
 #[type_hash(name: "My Struct", debug: true)]
 struct MyStruct {
+    #[snip12(name: "My Field")]
     my_field: felt252,
 }
 ```
@@ -171,22 +171,62 @@ struct MyStruct {
 This will generate a type hash for the struct.
 
 ```cairo
-// selector!("\"MyStruct\"(\"my_field\":\"felt\")")
-pub const MY_STRUCT_TYPE_HASH: felt252 = 0x8d57e11c9026e46da32e6e31686aaf3d3abbee64c14abed7dbec22ceec9e42;
+// Encoded type: "My Struct"("My Field":"felt")
+pub const MY_STRUCT_TYPE_HASH: felt252 = 0x1735aa9819941b96c651b740b792a96c854565eaff089b7e293d996828b88a8;
 ```
 
 And because of the `debug` argument, it will generate the following code:
 
 ```cairo
 pub fn __MY_STRUCT_encoded_type() {
-    println!("\"MyStruct\"(\"my_field\":\"felt\")");
+    println!("\"My Struct\"(\"My Field\":\"felt\")");
 }
 ```
 
-[#type_hash-features]
-==== Features
+[#type_hash-examples]
+==== Examples
 
-The macro supports the following features:
+Struct with basic types and custom names and kinds:
 
-- `name`: The name of the struct or enum.
-- `debug`: Whether to print the encoded type to the console.
+```cairo
+#[type_hash(name: "My Struct", debug: true)]
+pub struct MyStruct {
+    #[snip12(name: "Simple Felt")] // Optional custom name
+    pub simple_felt: felt252,
+    #[snip12(name: "Class Hash")]
+    pub class_hash: ClassHash,
+    #[snip12(name: "Target Token")]
+    pub target: ContractAddress,
+    #[snip12(name: "Timestamp", kind: "timestamp")]
+    pub timestamp: u128,
+    #[snip12(name: "Selector", kind: "selector")]
+    pub selector: felt252,
+}
+
+// Encoded type: "My Struct"("Simple Felt":"felt","Class Hash":"ClassHash","Target Token":"ContractAddress","Timestamp":"timestamp","Selector":"selector")
+pub const MY_STRUCT_TYPE_HASH: felt252
+    = 0x522e0c3dc5e13b0978f4645760a436b1e119fd335842523fee8fbae6057b8c;
+
+```
+
+Enum with basic types and custom names and kinds:
+
+```cairo
+#[type_hash(name: "My Enum", debug: true)]
+pub enum MyEnum {
+    #[snip12(name: "Simple Felt")]
+    SimpleFelt: felt252,
+    #[snip12(name: "Class Hash")]
+    ClassHash: ClassHash,
+    #[snip12(name: "Target Token")]
+    ContractAddress: ContractAddress,
+    #[snip12(name: "Timestamp", kind: "timestamp")]
+    Timestamp: u128,
+    #[snip12(name: "Selector", kind: "selector")]
+    Selector: felt252,
+}
+
+// Encoded type: "My Enum"("Simple Felt"("felt"),"Class Hash"("ClassHash"),"Target Token"("ContractAddress"),"Timestamp"("timestamp"),"Selector"("selector"))
+pub const MY_ENUM_TYPE_HASH: felt252
+    = 0x3f30aaa6cda9f699d4131940b10602b78b986feb88f28a19f3b48567cb4b566;
+```

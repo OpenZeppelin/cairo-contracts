@@ -12,6 +12,7 @@ use regex::Regex;
 use crate::type_hash::parser::TypeHashParser;
 
 use super::diagnostics::errors;
+use super::parser::parse_string_arg;
 
 /// Derive macro that generates a SNIP-12 type hash constant for a struct.
 ///
@@ -93,28 +94,28 @@ pub fn snip12(attr_stream: TokenStream, item_stream: TokenStream) -> ProcMacroRe
 /// ```
 /// #[type_hash(name: "MyStruct", debug: true)]
 /// ```
-pub struct TypeHashConfig {
+pub struct TypeHashArgs {
     pub name: String,
     pub debug: bool,
 }
 
 /// Parses the arguments passed to the type_hash attribute and
-/// returns a TypeHashConfig struct containing the parsed arguments.
-fn parse_args(s: &str) -> Result<TypeHashConfig, Diagnostic> {
-    let mut config = TypeHashConfig {
+/// returns a TypeHashArgs struct containing the parsed arguments.
+fn parse_args(s: &str) -> Result<TypeHashArgs, Diagnostic> {
+    let mut args = TypeHashArgs {
         name: String::new(),
         debug: false,
     };
     // If the attribute is empty, return the default config
     if s.is_empty() || s == "()" {
-        return Ok(config);
+        return Ok(args);
     }
 
     let allowed_args = ["name", "debug"];
     let allowed_args_re = allowed_args.join("|");
 
     let re = Regex::new(&format!(
-        r#"^\(({}): (\w|"| )+(?:, ({}): (\w|"| )+)*\)$"#,
+        r#"^\(({}): (\w|"|'| )+(?:, ({}): (\w|"|'| )+)*\)$"#,
         allowed_args_re, allowed_args_re
     ))
     .unwrap();
@@ -127,13 +128,13 @@ fn parse_args(s: &str) -> Result<TypeHashConfig, Diagnostic> {
             let name = parts[0].trim();
             let value = parts[1].trim();
             match name {
-                "name" => config.name = value.to_string(),
-                "debug" => config.debug = value == "true",
+                "name" => args.name = parse_string_arg(value)?,
+                "debug" => args.debug = value == "true",
                 // This should be unreachable as long as the regex is correct
                 _ => panic!("Invalid argument: {}", name),
             }
         }
-        Ok(config)
+        Ok(args)
     } else {
         Err(Diagnostic::error(
             errors::INVALID_TYPE_HASH_ATTRIBUTE_FORMAT,
@@ -144,7 +145,7 @@ fn parse_args(s: &str) -> Result<TypeHashConfig, Diagnostic> {
 fn handle_node(
     db: &dyn SyntaxGroup,
     node: SyntaxNode,
-    config: &TypeHashConfig,
+    args: &TypeHashArgs,
 ) -> Result<String, Diagnostic> {
     let typed = ast::SyntaxFile::from_syntax_node(db, node);
     let items = typed.items(db).elements(db);
@@ -159,7 +160,7 @@ fn handle_node(
         ast::ModuleItem::Struct(_) | ast::ModuleItem::Enum(_) => {
             // It is safe to unwrap here because we know the item is a struct
             let plugin_type_info = PluginTypeInfo::new(db, item_ast).unwrap();
-            generate_code(db, &plugin_type_info, config)
+            generate_code(db, &plugin_type_info, args)
         }
         _ => {
             let error = Diagnostic::error(errors::NOT_VALID_TYPE_TO_DECORATE);
@@ -172,14 +173,14 @@ fn handle_node(
 fn generate_code(
     db: &dyn SyntaxGroup,
     plugin_type_info: &PluginTypeInfo,
-    config: &TypeHashConfig,
+    args: &TypeHashArgs,
 ) -> Result<String, Diagnostic> {
     let mut parser = TypeHashParser::new(plugin_type_info);
-    let type_hash_string = parser.parse(db, config)?;
+    let type_hash_string = parser.parse(db, args)?;
     let type_hash = starknet_keccak(type_hash_string.as_bytes());
     let type_name = plugin_type_info.name.as_str().to_case(Case::UpperSnake);
 
-    let debug_string = if config.debug {
+    let debug_string = if args.debug {
         formatdoc!(
             r#"
             pub fn __{type_name}_encoded_type() {{

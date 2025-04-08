@@ -18,7 +18,7 @@ pub enum MyEnum {
     Variant5: Array<ContractAddress>,
 }
 pub const MY_ENUM_TYPE_HASH: felt252 =
-    0x179874b4c0a1c2f298624f9d7f8a520cf65490f25ad43016d40634bf2cc7228;
+    0x3c7d0abfeb251d79dfafa4f0249bcd5f6d8c28dc3a75c25fefa455af910915;
 
 
 

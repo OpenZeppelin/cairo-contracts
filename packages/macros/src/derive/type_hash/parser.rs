@@ -8,7 +8,8 @@ use cairo_lang_syntax::node::TypedSyntaxNode;
 use cairo_lang_syntax::{node::ast::Attribute, node::db::SyntaxGroup};
 use regex::Regex;
 
-use super::definition::TypeHashConfig;
+use super::definition::TypeHashArgs;
+use super::diagnostics::errors;
 use super::types::{split_types, InnerType, S12Type};
 
 const SNIP12_TYPE_ATTRIBUTE: &str = "snip12";
@@ -43,7 +44,7 @@ impl<'a> TypeHashParser<'a> {
     pub fn parse(
         &mut self,
         db: &dyn SyntaxGroup,
-        config: &TypeHashConfig,
+        args: &TypeHashArgs,
     ) -> Result<String, Diagnostic> {
         // 1. Get the members types real values from mapping and attributes
         let members_types = self
@@ -52,34 +53,42 @@ impl<'a> TypeHashParser<'a> {
             .iter()
             .map(|member| {
                 let attributes = member.attributes.elements(db);
-                let (attr_name, attr_type) = get_name_and_type_from_attributes(db, &attributes);
+                let args = match get_name_and_type_from_attributes(db, &attributes) {
+                    Ok(args) => args,
+                    Err(e) => {
+                        return Err(e);
+                    }
+                };
+                let attr_name = args.name;
+                let attr_type = args.kind;
 
                 // If there is an attribute, use it, otherwise use the type from the member
-                let s12_type = if let Some(attr_type) = attr_type {
+                let s12_type = if !attr_type.is_empty() {
                     S12Type::from_str(&attr_type)
                 } else {
                     S12Type::from_str(&member.ty)
                 };
 
                 // If there is an attribute, use it, otherwise use the name from the member
-                let s12_name = if let Some(attr_name) = attr_name {
+                let s12_name = if !attr_name.is_empty() {
                     attr_name
                 } else {
                     member.name.to_string()
                 };
 
                 // Unwrapping should be safe here since attr types must not be empty
-                (s12_name, s12_type.unwrap())
+                Ok((s12_name, s12_type.unwrap()))
             })
-            .collect::<Vec<(String, S12Type)>>();
+            .collect::<Vec<Result<(String, S12Type), Diagnostic>>>();
 
         // 2. Build the string representation
-        let mut encoded_type = if config.name.is_empty() {
+        let mut encoded_type = if args.name.is_empty() {
             format!("\"{}\"(", self.plugin_type_info.name)
         } else {
-            format!("\"{}\"(", config.name)
+            format!("\"{}\"(", args.name)
         };
-        for (name, s12_type) in members_types {
+        for result in members_types {
+            let (name, s12_type) = result?;
             let type_name = s12_type.get_snip12_type_name()?;
 
             // Format the member depending on the type variant
@@ -144,49 +153,95 @@ impl<'a> TypeHashParser<'a> {
 fn get_name_and_type_from_attributes(
     db: &dyn SyntaxGroup,
     attributes: &[Attribute],
-) -> (Option<String>, Option<String>) {
-    let re = Regex::new(&format!(r"^\#\[{SNIP12_TYPE_ATTRIBUTE}\((.*)\)\]$")).unwrap();
+) -> Result<Snip12Args, Diagnostic> {
+    let re = Regex::new(&format!(r"^\#\[{SNIP12_TYPE_ATTRIBUTE}(.*)\]$")).unwrap();
 
     for attribute in attributes {
         let attribute_text = attribute.as_syntax_node().get_text_without_trivia(db);
         if re.is_match(&attribute_text) {
             let captures = re.captures(&attribute_text);
             if let Some(captures) = captures {
-                return parse_snip12_attribute_arguments(&captures[1]);
+                return parse_snip12_args(&captures[1]);
             }
         }
     }
-    (None, None)
+    Ok(Snip12Args {
+        name: "".to_string(),
+        kind: "".to_string(),
+    })
 }
 
-fn parse_snip12_attribute_arguments(arguments: &str) -> (Option<String>, Option<String>) {
-    let re1 = Regex::new(r#"^name: "(.*)", kind: "(.*)"$"#).unwrap();
-    let re2 = Regex::new(r#"^kind: "(.*)", name: "(.*)"$"#).unwrap();
-    let re3 = Regex::new(r#"^name: "(.*)"$"#).unwrap();
-    let re4 = Regex::new(r#"^kind: "(.*)"$"#).unwrap();
+/// Arguments for the snip12 attribute.
+///
+/// Represents the arguments passed to the snip12 attribute.
+///
+/// Example:
+/// ```
+/// #[snip12(name: "MyStruct", kind: "struct")]
+/// ```
+#[derive(Debug)]
+pub struct Snip12Args {
+    pub name: String,
+    pub kind: String,
+}
 
-    if re1.is_match(arguments) {
-        let captures = re1.captures(arguments);
-        if let Some(captures) = captures {
-            return (Some(captures[1].to_string()), Some(captures[2].to_string()));
-        }
-    } else if re2.is_match(arguments) {
-        let captures = re2.captures(arguments);
-        if let Some(captures) = captures {
-            return (Some(captures[2].to_string()), Some(captures[1].to_string()));
-        }
-    } else if re3.is_match(arguments) {
-        let captures = re3.captures(arguments);
-        if let Some(captures) = captures {
-            return (Some(captures[1].to_string()), None);
-        }
-    } else if re4.is_match(arguments) {
-        let captures = re4.captures(arguments);
-        if let Some(captures) = captures {
-            return (None, Some(captures[1].to_string()));
-        }
+/// Parses the arguments passed to the snip12 attribute and
+/// returns a Snip12Args struct containing the parsed arguments.
+fn parse_snip12_args(s: &str) -> Result<Snip12Args, Diagnostic> {
+    // Initialize the args with the default values
+    let mut args = Snip12Args {
+        name: "".to_string(),
+        kind: "".to_string(),
+    };
+
+    // If the attribute is empty, return the default args
+    if s.is_empty() || s == "()" {
+        return Ok(args);
     }
-    (None, None)
+
+    let allowed_args = ["name", "kind"];
+    let allowed_args_re = allowed_args.join("|");
+
+    let re = Regex::new(&format!(
+        r#"^\(({}): (\w|"|'|\(|\)|,| )+(?:, ({}): (\w|"|'|\(|\)|,| )+)*\)$"#,
+        allowed_args_re, allowed_args_re
+    ))
+    .unwrap();
+
+    if re.is_match(s) {
+        // Remove the parentheses
+        let s = &s[1..s.len() - 1];
+
+        // Split the string by commas, but not if they are inside parentheses
+        // Note that regex doesn't support lookaheads, so we use fancy-regex
+        let re = fancy_regex::Regex::new(r",(?![^\(]*\))").unwrap();
+        let parts = re.split(s).map(|x| x.unwrap()).collect::<Vec<_>>();
+
+        for arg in parts {
+            let parts = arg.split(":").collect::<Vec<&str>>();
+            let name = parts[0].trim();
+            let value = parts[1].trim();
+            match name {
+                "name" => args.name = parse_string_arg(value)?,
+                "kind" => args.kind = parse_string_arg(value)?,
+                // This should be unreachable as long as the regex is correct
+                _ => panic!("Invalid argument: {}", name),
+            };
+        }
+        Ok(args)
+    } else {
+        Err(Diagnostic::error(errors::INVALID_SNIP12_ATTRIBUTE_FORMAT))
+    }
+}
+
+/// Parses the string argument from the attribute.
+pub fn parse_string_arg(s: &str) -> Result<String, Diagnostic> {
+    if s.len() >= 3 && s.starts_with("\"") && s.ends_with("\"") {
+        // Remove the quotes
+        Ok(s[1..s.len() - 1].to_string())
+    } else {
+        Err(Diagnostic::error(errors::INVALID_STRING_ARGUMENT))
+    }
 }
 
 /// Returns the enum compliant string representation of a tuple for the encoded type.

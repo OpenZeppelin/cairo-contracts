@@ -31,7 +31,9 @@
 *** xref:/guides/src5-migration.adoc[Migrating ERC165 to SRC5]
 *** xref:/api/introspection.adoc[API Reference]
 
-** xref:/api/macros.adoc[Macros]
+** xref:macros.adoc[Macros]
+*** xref:/macros/with_components.adoc[with_components]
+*** xref:/macros/type_hash.adoc[type_hash]
 
 ** xref:/api/merkle-tree.adoc[Merkle Tree]
 

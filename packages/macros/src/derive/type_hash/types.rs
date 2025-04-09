@@ -163,7 +163,7 @@ impl BasicType {
             BasicType::Selector => "selector",
             BasicType::MerkleTree => {
                 return Err(Diagnostic::error(errors::MERKLE_TREE_NOT_SUPPORTED));
-            },
+            }
             BasicType::U128 => "u128",
             BasicType::I128 => "i128",
         }

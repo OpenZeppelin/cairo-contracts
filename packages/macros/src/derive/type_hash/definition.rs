@@ -115,7 +115,7 @@ fn parse_args(s: &str) -> Result<TypeHashArgs, Diagnostic> {
     let allowed_args_re = allowed_args.join("|");
 
     let re = Regex::new(&format!(
-        r#"^\(({}): (\w|"|'| )+(?:, ({}): (\w|"|'| )+)*\)$"#,
+        r#"^\(({}): ([\w"' ])+(?:, ({}): ([\w"' ])+)*\)$"#,
         allowed_args_re, allowed_args_re
     ))
     .unwrap();

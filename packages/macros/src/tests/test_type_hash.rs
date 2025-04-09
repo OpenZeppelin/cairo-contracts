@@ -706,6 +706,84 @@ fn test_doc_example_3() {
     assert_snapshot!(result);
 }
 
+#[test]
+fn test_doc_example_4() {
+    let item = indoc!(
+        r#"
+        pub struct MyStruct {
+            #[snip12(name: "Member 1")]
+            pub member1: Array<felt252>,
+            #[snip12(name: "Member 2")]
+            pub member2: Span<u128>,
+            #[snip12(name: "Timestamps", kind: "Array<timestamp>")]
+            pub timestamps: Array<u128>,
+        }
+        "#
+    );
+    let attr_stream = r#"(name: "My Struct", debug: true)"#;
+    let result = get_string_result(item, attr_stream);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_doc_example_5() {
+    let item = indoc!(
+        r#"
+        pub enum MyEnum {
+            #[snip12(name: "Member 1")]
+            Member1: Array<felt252>,
+            #[snip12(name: "Member 2")]
+            Member2: Span<u128>,
+            #[snip12(name: "Timestamps", kind: "Array<timestamp>")]
+            Timestamps: Array<u128>,
+            #[snip12(name: "Name and Last Name", kind: "(shortstring, shortstring)")]
+            NameAndLastName: (felt252, felt252),
+        }
+        "#
+    );
+    let attr_stream = r#"(name: "My Enum", debug: true)"#;
+    let result = get_string_result(item, attr_stream);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_doc_example_6() {
+    let item = indoc!(
+        r#"
+        pub struct MyStruct {
+            #[snip12(name: "Token Amount")]
+            pub token_amount: TokenAmount,
+            #[snip12(name: "NFT ID")]
+            pub nft_id: NftId,
+            #[snip12(name: "Number")]
+            pub number: u256,
+        }
+        "#
+    );
+    let attr_stream = r#"(name: "My Struct", debug: true)"#;
+    let result = get_string_result(item, attr_stream);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_doc_example_7() {
+    let item = indoc!(
+        r#"
+        pub enum MyEnum {
+            #[snip12(name: "Token Amount")]
+            TokenAmount: TokenAmount,
+            #[snip12(name: "NFT ID")]
+            NftId: NftId,
+            #[snip12(name: "Number")]
+            Number: u256,
+        }
+        "#
+    );
+    let attr_stream = r#"(name: "My Enum", debug: true)"#;
+    let result = get_string_result(item, attr_stream);
+    assert_snapshot!(result);
+}
+
 fn get_string_result(item: &str, attr_stream: &str) -> String {
     let attr_stream = TokenStream::new(attr_stream.to_string());
     let item = TokenStream::new(item.to_string());

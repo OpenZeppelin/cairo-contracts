@@ -69,7 +69,8 @@ pub struct MyStruct {
     pub selector: felt252,
 }
 
-// Encoded type: "My Struct"("Simple Felt":"felt","Class Hash":"ClassHash","Target Token":"ContractAddress","Timestamp":"timestamp","Selector":"selector")
+// Encoded type: "My Struct"("Simple Felt":"felt","Class Hash":"ClassHash",
+// "Target Token":"ContractAddress","Timestamp":"timestamp","Selector":"selector")
 pub const MY_STRUCT_TYPE_HASH: felt252
     = 0x522e0c3dc5e13b0978f4645760a436b1e119fd335842523fee8fbae6057b8c;
 
@@ -92,7 +93,8 @@ pub enum MyEnum {
     Selector: felt252,
 }
 
-// Encoded type: "My Enum"("Simple Felt"("felt"),"Class Hash"("ClassHash"),"Target Token"("ContractAddress"),"Timestamp"("timestamp"),"Selector"("selector"))
+// Encoded type: "My Enum"("Simple Felt"("felt"),"Class Hash"("ClassHash"),
+// "Target Token"("ContractAddress"),"Timestamp"("timestamp"),"Selector"("selector"))
 pub const MY_ENUM_TYPE_HASH: felt252
     = 0x3f30aaa6cda9f699d4131940b10602b78b986feb88f28a19f3b48567cb4b566;
 ```
@@ -125,7 +127,8 @@ pub struct MyStruct {
     pub timestamps: Array<u128>,
 }
 
-// Encoded type: "My Struct"("Member 1":"felt*","Member 2":"u128*","Timestamps":"timestamp*")
+// Encoded type: "My Struct"("Member 1":"felt*","Member 2":"u128*",
+// "Timestamps":"timestamp*")
 pub const MY_STRUCT_TYPE_HASH: felt252
     = 0x369cdec45d8c55e70986aed44da0e330375171ba6e25b58e741c0ce02fa8ac;
 ```
@@ -145,7 +148,8 @@ pub enum MyEnum {
     NameAndLastName: (felt252, felt252),
 }
 
-// Encoded type: "My Enum"("Member 1"("felt*"),"Member 2"("u128*"),"Timestamps"("timestamp*"),"Name and Last Name"("shortstring","shortstring"))
+// Encoded type: "My Enum"("Member 1"("felt*"),"Member 2"("u128*"),
+// "Timestamps"("timestamp*"),"Name and Last Name"("shortstring","shortstring"))
 pub const MY_ENUM_TYPE_HASH: felt252
     = 0x9e3e1ebad4448a8344b3318f9cfda5df237588fd8328e1c2968635f09c735d;
 ```
@@ -176,7 +180,8 @@ pub struct MyStruct {
 }
 
 // Encoded type: "My Struct"("Token Amount":"TokenAmount","NFT ID":"NftId","Number":"u256")"NftId"
-// ("collection_address":"ContractAddress","token_id":"u256")"TokenAmount"("token_address":"ContractAddress","amount":"u256")
+// ("collection_address":"ContractAddress","token_id":"u256")"TokenAmount"
+// ("token_address":"ContractAddress","amount":"u256")
 // "u256"("low":"u128","high":"u128")
 pub const MY_STRUCT_TYPE_HASH: felt252
     = 0x19f63528d68c4f44b7d9003a5a6b7793f5bb6ffc8a22bdec82b413ddf4f9412;
@@ -196,7 +201,8 @@ pub enum MyEnum {
 }
 
 // Encoded type: "My Enum"("Token Amount"("TokenAmount"),"NFT ID"("NftId"),"Number"("u256"))"NftId"
-// ("collection_address":"ContractAddress","token_id":"u256")"TokenAmount"("token_address":"ContractAddress","amount":"u256")
+// ("collection_address":"ContractAddress","token_id":"u256")"TokenAmount"
+// ("token_address":"ContractAddress","amount":"u256")
 // "u256"("low":"u128","high":"u128")
 pub const MY_ENUM_TYPE_HASH: felt252
     = 0x39dd19c7e5c5f89e084b78a26200b712c6ae3265f2bae774471c588858421b7;

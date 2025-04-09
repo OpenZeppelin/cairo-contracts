@@ -9,6 +9,8 @@ pub mod GovernorComponent {
     use core::hash::{HashStateExTrait, HashStateTrait};
     use core::num::traits::Zero;
     use core::pedersen::PedersenTrait;
+    use core::traits;
+    use core::trait_std;
     use core::traits::PartialEq;
     use openzeppelin_account::interface::{ISRC6Dispatcher, ISRC6DispatcherTrait};
     use openzeppelin_introspection::src5::SRC5Component;
@@ -148,9 +150,23 @@ pub mod GovernorComponent {
         fn proposal_threshold(self: @ComponentState<TContractState>) -> u256;
     }
 
+    #[generate_trait]
     pub trait GovernorQuorumTrait<TContractState> {
-        /// See `interface::IGovernor::quorum`.
+        /// Quorum required to validate a proposal, at a specific timepoint.
         fn quorum(self: @ComponentState<TContractState>, timepoint: u64) -> u256;
+    }
+
+    #[generate_trait]
+    pub trait GovernorSuperQuorumTrait<TContractState> {
+        /// Super quorum required to validate a proposal early, at a specific timepoint.
+        fn super_quorum(self: @ComponentState<TContractState>, timepoint: u64) -> u256;
+        
+        /// Check if a proposal has reached super quorum.
+        fn has_reached_super_quorum(
+            self: @ComponentState<TContractState>,
+            proposal_id: felt252,
+            for_votes: u256
+        ) -> bool;
     }
 
     pub trait GovernorCountingTrait<TContractState> {
@@ -320,7 +336,7 @@ pub mod GovernorComponent {
 
         /// Returns the state of a proposal, given its id.
         fn state(self: @ComponentState<TContractState>, proposal_id: felt252) -> ProposalState {
-            GovernorExecution::state(self, proposal_id)
+            self._state(proposal_id)
         }
 
         /// The number of votes required in order for a voter to become a proposer.
@@ -817,6 +833,22 @@ pub mod GovernorComponent {
         fn _proposal_eta(self: @ComponentState<TContractState>, proposal_id: felt252) -> u64 {
             self.Governor_proposals.read(proposal_id).eta_seconds
         }
+
+        /// Returns the default casting weight for an account that has never voted.
+        fn cast_vote_default_weight(
+            self: @ComponentState<TContractState>, proposal_id: felt252, account: ContractAddress,
+        ) -> bool {
+            !self.Governor_has_voted.read((proposal_id, account))
+        }
+        
+        /// Tries to cast the component state to a SuperQuorumTrait implementation.
+        /// Returns Option::Some if the implementation exists, Option::None otherwise.
+        fn try_super_quorum_impl<
+            TTrait: trait_std::TryInto<TraitContract, ComponentState<TContractState>>, 
+            TraitContract: GovernorSuperQuorumTrait<TContractState>
+        >(self: @ComponentState<TContractState>) -> Option<TraitContract> {
+            traits::try_trait_implementation(self)
+        }
     }
 
     #[generate_trait]
@@ -910,6 +942,29 @@ pub mod GovernorComponent {
             let deadline = self._proposal_deadline(proposal_id);
 
             if current_timepoint <= deadline {
+                // Check if we need to attempt to apply super quorum check
+                // Get the current votes for this proposal
+                let (for_votes, against_votes, _) = self.proposal_votes(proposal_id);
+                
+                // Check if the vote has succeeded based on votes already cast
+                let vote_success = for_votes > against_votes;
+                
+                // Try to check if the proposal has reached super quorum
+                // This will be a no-op if super quorum is not implemented
+                let mut has_super_quorum = false;
+                
+                // Cast to SuperQuorumTrait implementation if available
+                if let Option::Some(super_quorum_impl) = self.try_super_quorum_impl() {
+                    has_super_quorum = super_quorum_impl.has_reached_super_quorum(proposal_id, for_votes);
+                }
+                
+                // If super quorum is reached and vote has succeeded, immediately 
+                // transition to succeeded state, bypassing the deadline
+                if vote_success && has_super_quorum {
+                    return ProposalState::Succeeded;
+                }
+                
+                // Otherwise, proposal is still active
                 return ProposalState::Active;
             } else if !self.quorum_reached(proposal_id) || !self.vote_succeeded(proposal_id) {
                 return ProposalState::Defeated;

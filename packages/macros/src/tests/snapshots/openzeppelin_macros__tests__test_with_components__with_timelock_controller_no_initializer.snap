@@ -10,7 +10,7 @@ pub mod MyContract {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        timelock_controller: TimelockControllerComponent::Storage,
+        pub timelock_controller: TimelockControllerComponent::Storage,
     }
 
     use openzeppelin_governance::timelock::TimelockControllerComponent;

@@ -10,7 +10,7 @@ pub mod MyContract {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        initializable: InitializableComponent::Storage,
+        pub initializable: InitializableComponent::Storage,
     }
 
     #[generate_trait]

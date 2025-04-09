@@ -13,9 +13,9 @@ pub mod MyToken {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        erc20: ERC20Component::Storage,
+        pub erc20: ERC20Component::Storage,
         #[substorage(v0)]
-        ownable: OwnableComponent::Storage,
+        pub ownable: OwnableComponent::Storage,
     }
 
     #[constructor]

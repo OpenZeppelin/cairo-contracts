@@ -10,7 +10,7 @@ pub mod MyContract {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        erc1155: ERC1155Component::Storage,
+        pub erc1155: ERC1155Component::Storage,
     }
 
     #[constructor]

@@ -748,7 +748,7 @@ impl ComponentsGenerationData<'_> {
         for component in self.0.iter() {
             entries.push(format!("{}#[{}]", tabs(2), SUBSTORAGE_ATTRIBUTE));
             entries.push(format!(
-                "{}{}: {}::Storage,",
+                "{}pub {}: {}::Storage,",
                 tabs(2),
                 component.storage,
                 component.name

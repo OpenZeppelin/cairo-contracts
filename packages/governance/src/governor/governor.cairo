@@ -844,9 +844,13 @@ pub mod GovernorComponent {
         /// Tries to cast the component state to a SuperQuorumTrait implementation.
         /// Returns Option::Some if the implementation exists, Option::None otherwise.
         fn try_super_quorum_impl<
-            TTrait: trait_std::TryInto<TraitContract, ComponentState<TContractState>>, 
-            TraitContract: GovernorSuperQuorumTrait<TContractState>
-        >(self: @ComponentState<TContractState>) -> Option<TraitContract> {
+            TTrait, 
+            TraitContract
+        >(self: @ComponentState<TContractState>) -> Option<TraitContract> 
+            where
+                TTrait: trait_std::TryInto<TraitContract, ComponentState<TContractState>>,
+                TraitContract: GovernorSuperQuorumTrait<TContractState>
+        {
             traits::try_trait_implementation(self)
         }
     }

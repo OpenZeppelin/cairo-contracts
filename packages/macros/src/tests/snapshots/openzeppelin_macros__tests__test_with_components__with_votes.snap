@@ -24,7 +24,6 @@ pub mod MyContract {
             'DAPP_VERSION'
         }
     }
-
     use openzeppelin_governance::votes::VotesComponent;
 
     component!(path: VotesComponent, storage: votes, event: VotesEvent);

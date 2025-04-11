@@ -20,6 +20,18 @@ pub trait IQuorumFraction<TState> {
 }
 
 #[starknet::interface]
+pub trait ISuperQuorumFraction<TState> {
+    /// Returns the current super quorum numerator.
+    fn super_quorum_numerator(self: @TState) -> u256;
+
+    /// Returns the super quorum numerator at a specific timepoint.
+    fn super_quorum_numerator(self: @TState, timepoint: u64) -> u256;
+    
+    /// Returns the super quorum at a specific timepoint.
+    fn super_quorum(self: @TState, timepoint: u64) -> u256;
+}
+
+#[starknet::interface]
 pub trait IVotesToken<TState> {
     /// Returns the token that voting power is sourced from.
     fn token(self: @TState) -> ContractAddress;

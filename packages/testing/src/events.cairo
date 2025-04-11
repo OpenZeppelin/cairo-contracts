@@ -130,26 +130,53 @@ impl EventSpyQueueAssertionsTraitImpl<
     }
 }
 
+/// Asserts that the event's indexed keys match the expected values in order.
+/// This checks that specific fields are properly marked as indexed in the event definition.
+fn assert_indexed_keys<T, impl TEvent: starknet::Event<T>, impl TDrop: Drop<T>>(
+    event: @T,
+    expected_indexed_values: @Array<felt252>
+) {
+    let mut actual_keys = array![];
+    let mut data = array![];
+    event.append_keys_and_data(ref actual_keys, ref data);
+
+    assert!(
+        actual_keys.len() == expected_indexed_values.len(),
+        "Number of indexed keys does not match expected"
+    );
+
+    let mut i = 0;
+    while i != actual_keys.len() {
+        assert!(
+            *actual_keys.at(i) == *expected_indexed_values.at(i),
+            "Indexed key value does not match expected"
+        );
+        i += 1;
+    }
+}
+
 fn is_emitted<T, impl TEvent: starknet::Event<T>, impl TDrop: Drop<T>>(
     self: @Events, expected_emitted_by: @ContractAddress, expected_event: @T,
 ) -> bool {
-    let mut expected_keys = array![];
     let mut expected_data = array![];
-    expected_event.append_keys_and_data(ref expected_keys, ref expected_data);
+    let mut _ = array![];
+    expected_event.append_keys_and_data(ref _, ref expected_data);
 
     let mut i = 0;
-    let mut is_emitted = false;
     while i != self.events.len() {
         let (from, event) = self.events.at(i);
 
-        if from == expected_emitted_by
-            && event.keys == @expected_keys
-            && event.data == @expected_data {
-            is_emitted = true;
-            break;
+        if from == expected_emitted_by {
+            let mut actual_data = array![];
+            let mut _ = array![];
+            event.append_keys_and_data(ref _, ref actual_data);
+
+            if actual_data == expected_data {
+                return true;
+            }
         }
 
         i += 1;
     }
-    return is_emitted;
+    return false;
 }

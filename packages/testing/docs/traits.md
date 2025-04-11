@@ -2,9 +2,9 @@
 
 - [common::IntoBase16StringTrait](./openzeppelin_testing-common-IntoBase16StringTrait.md)
 
-- [events::EventSpyExt](./openzeppelin_testing-events-EventSpyExt.md)
-
 - [constants::AsAddressTrait](./openzeppelin_testing-constants-AsAddressTrait.md)
+
+- [events::EventSpyExt](./openzeppelin_testing-events-EventSpyExt.md)
 
 - [common::IntoBase16StringTrait](./openzeppelin_testing-common-IntoBase16StringTrait.md)
 

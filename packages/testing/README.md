@@ -13,7 +13,7 @@ separate dependency in the Scarb.toml file:
 
 ```cairo
 [dev-dependencies]
-openzeppelin_testing = "2.0.0"
+openzeppelin_testing = "3.0.0"
 ```
 
 Then it can be imported into tests:
@@ -24,5 +24,5 @@ use openzeppelin_testing;
 
 ### API documentation
 
-- [Index](https://github.com/OpenZeppelin/cairo-contracts/blob/openzeppelin_testing-v2.0.0/packages/testing/docs/openzeppelin_testing.md)
-- [Summary](https://github.com/OpenZeppelin/cairo-contracts/blob/openzeppelin_testing-v2.0.0/packages/testing/docs/SUMMARY.md)
+- [Index](https://github.com/OpenZeppelin/cairo-contracts/blob/openzeppelin_testing-v3.0.0/packages/testing/docs/openzeppelin_testing.md)
+- [Summary](https://github.com/OpenZeppelin/cairo-contracts/blob/openzeppelin_testing-v3.0.0/packages/testing/docs/SUMMARY.md)

@@ -22,8 +22,6 @@ Fully qualified path: `openzeppelin_testing`
 
 - [to_base_16_string](./openzeppelin_testing-common-to_base_16_string.md)
 
-- [spy_events](./openzeppelin_testing-events-spy_events.md)
-
 - [declare_and_deploy](./openzeppelin_testing-deployment-declare_and_deploy.md)
 
 - [declare_and_deploy_at](./openzeppelin_testing-deployment-declare_and_deploy_at.md)
@@ -36,6 +34,8 @@ Fully qualified path: `openzeppelin_testing`
 
 - [deploy_at](./openzeppelin_testing-deployment-deploy_at.md)
 
+- [spy_events](./openzeppelin_testing-events-spy_events.md)
+
 ## Structs
 
 - [EventSpyQueue](./openzeppelin_testing-events-EventSpyQueue.md)
@@ -44,7 +44,7 @@ Fully qualified path: `openzeppelin_testing`
 
 - [IntoBase16StringTrait](./openzeppelin_testing-common-IntoBase16StringTrait.md)
 
-- [EventSpyExt](./openzeppelin_testing-events-EventSpyExt.md)
-
 - [AsAddressTrait](./openzeppelin_testing-constants-AsAddressTrait.md)
+
+- [EventSpyExt](./openzeppelin_testing-events-EventSpyExt.md)
 

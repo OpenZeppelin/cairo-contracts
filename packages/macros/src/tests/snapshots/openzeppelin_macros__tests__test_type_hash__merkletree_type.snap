@@ -7,7 +7,7 @@ TokenStream:
 
 pub struct MyType {
     #[snip12(kind: "merkletree")]
-    pub member: MerkleTree,
+    pub member: felt252,
 }
 pub fn __MY_TYPE_encoded_type() {
     println!("\"MyType\"(\"member\":\"merkletree\")");

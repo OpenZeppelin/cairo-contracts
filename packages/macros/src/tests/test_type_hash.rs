@@ -632,7 +632,7 @@ fn test_merkletree_type() {
         r#"
         pub struct MyType {
             #[snip12(kind: "merkletree")]
-            pub member: MerkleTree,
+            pub member: felt252,
         }
         "#
     );

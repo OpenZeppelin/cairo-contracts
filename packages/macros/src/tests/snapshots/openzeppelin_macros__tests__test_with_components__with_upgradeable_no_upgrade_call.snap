@@ -17,7 +17,6 @@ pub mod MyContract {
     impl UpgradeableImpl of IUpgradeable<ContractState> {
         fn upgrade(ref self: ContractState, new_class_hash: ClassHash) {}
     }
-
     use openzeppelin_upgrades::UpgradeableComponent;
 
     component!(path: UpgradeableComponent, storage: upgradeable, event: UpgradeableEvent);

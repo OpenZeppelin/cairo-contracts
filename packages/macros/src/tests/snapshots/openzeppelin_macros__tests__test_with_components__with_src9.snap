@@ -17,7 +17,6 @@ pub mod MyContract {
     fn constructor(ref self: ContractState) {
         self.src9.initializer();
     }
-
     use openzeppelin_account::extensions::SRC9Component;
 
     component!(path: SRC9Component, storage: src9, event: SRC9Event);

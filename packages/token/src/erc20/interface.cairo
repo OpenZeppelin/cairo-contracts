@@ -50,7 +50,6 @@ pub trait IERC20Metadata<TState> {
 /// Adds camelCase support for 'ERC20'.
 #[starknet::interface]
 pub trait IERC20Camel<TState> {
-
     fn totalSupply(self: @TState) -> u256;
     fn balanceOf(self: @TState, account: ContractAddress) -> u256;
     fn allowance(self: @TState, owner: ContractAddress, spender: ContractAddress) -> u256;
@@ -64,7 +63,6 @@ pub trait IERC20Camel<TState> {
 /// Adds camelCase support for 'ERC20'.
 #[starknet::interface]
 pub trait IERC20CamelOnly<TState> {
-
     fn totalSupply(self: @TState) -> u256;
     fn balanceOf(self: @TState, account: ContractAddress) -> u256;
     fn transferFrom(

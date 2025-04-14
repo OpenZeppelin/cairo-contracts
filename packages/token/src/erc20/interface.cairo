@@ -34,7 +34,7 @@ pub trait IERC20<TState> {
     fn approve(ref self: TState, spender: ContractAddress, amount: u256) -> bool;
 }
 
-/// Interface for the optional metadata functions.
+
 #[starknet::interface]
 pub trait IERC20Metadata<TState> {
     /// Returns the name of the token.
@@ -99,7 +99,7 @@ pub trait IERC20Mixin<TState> {
     ) -> bool;
 }
 
-/// Interface for the ERC20 permit extension.
+
 #[starknet::interface]
 pub trait IERC20Permit<TState> {
     /// Sets `amount` as the allowance of `spender` over `owner`'s tokens, given the `signature`.

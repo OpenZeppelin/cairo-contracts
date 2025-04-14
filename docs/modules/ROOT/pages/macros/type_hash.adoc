@@ -45,7 +45,7 @@ The list of supported basic types as defined in the {SNIP-12} standard is:
 - ContractAddress
 - timestamp
 - selector
-- merkletree **(Not yet supported)**
+- merkletree
 - u128
 - i128
 

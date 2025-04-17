@@ -10,7 +10,7 @@ pub mod MyContract {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        votes: VotesComponent::Storage,
+        pub votes: VotesComponent::Storage,
     }
 
     use openzeppelin_governance::votes::VotesComponent;

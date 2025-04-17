@@ -10,7 +10,7 @@ pub mod MyContract {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        upgradeable: UpgradeableComponent::Storage,
+        pub upgradeable: UpgradeableComponent::Storage,
     }
 
     #[abi(embed_v0)]

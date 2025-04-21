@@ -37,9 +37,10 @@ pub mod MyContract {
 Diagnostics:
 
 ====
-Warning: The ERC2981 component requires an ImmutableConfig implementation in scope. It looks like this implementation is missing.
+Warning: The ERC2981 component requires an ImmutableConfig implementation in scope and
+it looks like it is missing.
 
-You can use the default implementation by importing:
+You can use the default implementation by importing it:
 
 `use openzeppelin_token::common::erc2981::DefaultConfig;`
 ====

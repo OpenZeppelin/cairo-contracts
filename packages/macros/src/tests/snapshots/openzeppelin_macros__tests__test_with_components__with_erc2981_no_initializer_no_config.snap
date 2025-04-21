@@ -39,11 +39,13 @@ Warning: It looks like the initializers for the following components are missing
 
 ERC2981
 
-This may lead to unexpected behavior. We recommend adding the corresponding initializer calls to the constructor.
+This may lead to unexpected behavior.
+We recommend adding the corresponding initializer calls to the constructor.
 ========
-Warning: The ERC2981 component requires an ImmutableConfig implementation in scope. It looks like this implementation is missing.
+Warning: The ERC2981 component requires an ImmutableConfig implementation in scope and
+it looks like it is missing.
 
-You can use the default implementation by importing:
+You can use the default implementation by importing it:
 
 `use openzeppelin_token::common::erc2981::DefaultConfig;`
 ====

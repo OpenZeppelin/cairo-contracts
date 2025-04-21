@@ -1,4 +1,4 @@
-use crate::attribute::with_components::with_components_avevetedp5blk as with_components;
+use crate::attribute::with_components::definition::with_components_avevetedp5blk as with_components;
 use cairo_lang_macro::TokenStream;
 use indoc::indoc;
 use insta::assert_snapshot;
@@ -125,7 +125,7 @@ fn test_with_erc20() {
         "
         #[starknet::contract]
         pub mod MyToken {
-            use openzeppelin_token::erc20::ERC20HooksEmptyImpl;
+            use openzeppelin_token::erc20::{ERC20HooksEmptyImpl, DefaultConfig};
             use starknet::ContractAddress;
 
             #[storage]
@@ -149,7 +149,7 @@ fn test_with_erc20_no_initializer() {
         "
         #[starknet::contract]
         pub mod MyToken {
-            use openzeppelin_token::erc20::ERC20HooksEmptyImpl;
+            use openzeppelin_token::erc20::{ERC20HooksEmptyImpl, DefaultConfig};
             use starknet::ContractAddress;
 
             #[storage]
@@ -172,6 +172,31 @@ fn test_with_erc20_no_hooks_impl() {
         "
         #[starknet::contract]
         pub mod MyToken {
+            use openzeppelin_token::erc20::DefaultConfig;
+            use starknet::ContractAddress;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState) {
+                self.erc20.initializer(\"MyToken\", \"MTK\");
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_erc20_no_config() {
+    let attribute = "(ERC20)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyToken {
+            use openzeppelin_token::erc20::ERC20HooksEmptyImpl;
             use starknet::ContractAddress;
 
             #[storage]
@@ -240,7 +265,7 @@ fn test_with_two_components() {
         "
         #[starknet::contract]
         pub mod MyToken {
-            use openzeppelin_token::erc20::ERC20HooksEmptyImpl;
+            use openzeppelin_token::erc20::{ERC20HooksEmptyImpl, DefaultConfig};
             use starknet::ContractAddress;
 
             #[storage]
@@ -265,7 +290,7 @@ fn test_with_two_components_no_initializer() {
         "
         #[starknet::contract]
         pub mod MyToken {
-            use openzeppelin_token::erc20::ERC20HooksEmptyImpl;
+            use openzeppelin_token::erc20::{ERC20HooksEmptyImpl, DefaultConfig};
             use starknet::ContractAddress;
 
             #[storage]
@@ -288,7 +313,7 @@ fn test_with_two_components_no_constructor() {
         "
         #[starknet::contract]
         pub mod MyToken {
-            use openzeppelin_token::erc20::ERC20HooksEmptyImpl;
+            use openzeppelin_token::erc20::{ERC20HooksEmptyImpl, DefaultConfig};
             use starknet::ContractAddress;
 
             #[storage]

@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - The `type_hash` macro (#1399)
+- Enable Governor modules in the `with_components` macro (#1414)
 
 ## 2.0.0-alpha.0 (2025-03-20)
 

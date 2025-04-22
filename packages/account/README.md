@@ -5,7 +5,7 @@
 This crate provides components to implement account contracts that can be used for interacting with the network.
 
 - `Account` validates transactions from signatures over the
-[STARK Curve](https://docs.starknet.io/architecture-and-concepts/cryptography/stark-curve/).
+[STARK Curve](https://docs.starknet.io/architecture-and-concepts/cryptography/#the_stark_curve).
 
 - `EthAccount` validates transactions from signatures over the
 [Secp256k1 curve](https://en.bitcoin.it/wiki/Secp256k1).

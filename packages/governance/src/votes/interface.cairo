@@ -2,6 +2,7 @@
 // OpenZeppelin Contracts for Cairo v2.0.0-alpha.0 (governance/src/votes/interface.cairo)
 
 use starknet::ContractAddress;
+use openzeppelin_utils::contract_clock::ClockReference;
 
 /// Common interface for Votes-enabled contracts.
 #[starknet::interface]
@@ -35,6 +36,16 @@ pub trait IVotes<TState> {
         expiry: u64,
         signature: Span<felt252>,
     );
+
+    /// Returns the current clock value used for time-dependent operations.
+    fn clock(self: @TState) -> u64;
+
+    /// Returns a parsable description of the clock's mode or time measurement mechanism.
+    fn CLOCK_MODE(self: @TState) -> ByteArray;
+
+    /// Returns the clock reference indicating whether the clock is based on block number or timestamp.
+    fn CLOCK_REFERENCE(self: @TState) -> ClockReference;
+
 }
 
 /// Common interface to interact with the `Votes` component.

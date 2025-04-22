@@ -17,7 +17,6 @@ pub mod MyContract {
     fn constructor(ref self: ContractState, public_key: felt252) {
         self.account.initializer(public_key);
     }
-
     use openzeppelin_account::AccountComponent;
 
     component!(path: AccountComponent, storage: account, event: AccountEvent);

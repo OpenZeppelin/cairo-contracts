@@ -82,6 +82,7 @@ TIP: If you added the entire library as a dependency, use `openzeppelin::token` 
 ----
 #[starknet::contract]
 mod MyERC20Token {
+    // If you added the entire library as a dependency, use `openzeppelin::token` instead of `openzeppelin_token`.
     use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl, DefaultConfig};
     use starknet::ContractAddress;
 

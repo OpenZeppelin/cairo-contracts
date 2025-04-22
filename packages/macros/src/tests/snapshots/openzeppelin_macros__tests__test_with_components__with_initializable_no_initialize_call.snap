@@ -12,7 +12,6 @@ pub mod MyContract {
         #[substorage(v0)]
         pub initializable: InitializableComponent::Storage,
     }
-
     use openzeppelin_security::InitializableComponent;
 
     component!(path: InitializableComponent, storage: initializable, event: InitializableEvent);

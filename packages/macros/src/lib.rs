@@ -1,6 +1,8 @@
+pub(crate) mod attribute;
 pub(crate) mod constants;
 pub(crate) mod utils;
-pub(crate) mod with_components;
+
+pub(crate) use attribute::type_hash;
 
 #[cfg(test)]
 mod tests;

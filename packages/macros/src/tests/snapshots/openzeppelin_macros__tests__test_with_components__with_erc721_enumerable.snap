@@ -17,7 +17,6 @@ pub mod MyContract {
     fn constructor(ref self: ContractState) {
         self.erc721_enumerable.initializer();
     }
-
     use openzeppelin_token::erc721::extensions::ERC721EnumerableComponent;
 
     component!(

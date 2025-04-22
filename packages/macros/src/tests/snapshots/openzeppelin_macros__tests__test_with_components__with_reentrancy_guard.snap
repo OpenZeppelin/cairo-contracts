@@ -12,7 +12,6 @@ pub mod MyContract {
         #[substorage(v0)]
         pub reentrancy_guard: ReentrancyGuardComponent::Storage,
     }
-
     use openzeppelin_security::ReentrancyGuardComponent;
 
     component!(

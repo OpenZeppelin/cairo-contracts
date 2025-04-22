@@ -23,6 +23,7 @@ Module containing core utilities of the library.
 * xref:#utils-cryptography[`++cryptography++`]
 * xref:#utils-deployments[`++deployments++`]
 * xref:#utils-math[`++math++`]
+* xref:#utils-contract_clock[`++contract_clock++`]
 * xref:#utils-serde[`++serde++`]
 --
 
@@ -46,6 +47,12 @@ See xref:#deployments[`openzeppelin_utils::deployments`].
 ==== `[.contract-item-name]#++math++#` [.item-kind]#module#
 
 See xref:#math[`openzeppelin_utils::math`].
+
+[.contract-item]
+[[utils-contract_clock]]
+==== `[.contract-item-name]#++contract_clock++#` [.item-kind]#module#
+
+See xref:#contract_clock[`openzeppelin_utils::contract_clock`].
 
 [.contract-item]
 [[utils-serde]]
@@ -177,6 +184,85 @@ Module containing math utilities.
 Returns the average of two unsigned integers. The result is rounded down.
 
 NOTE: `T` is a generic value matching different numeric implementations.
+
+[.contract]
+[[contract_clock]]
+=== `++contract_clock++`
+
+```cairo
+use openzeppelin_utils::contract_clock;
+```
+
+Module containing ...
+
+[.contract-index]
+.Members
+--
+.Traits
+* xref:#IERC6372[`++IERC6372++`]
+--
+
+[.contract-index]
+.Impls
+--
+* xref:#contract_clock-ERC6372BlockNumberClock[`++ERC6372BlockNumberClock++`]
+* xref:#contract_clock-ERC6372TimestampClock[`++ERC6372TimestampClock++`]
+--
+
+[.contract]
+[#IERC6372]
+=== `++IERC6372++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.0/packages/utils/src/contract_clock.cairo[{github-icon},role=heading-link]
+
+[.hljs-theme-dark]
+```cairo
+use openzeppelin_utils::contract_clock::IERC6372;
+```
+
+Interface of the IERC6372 standard.
+
+[.contract-index]
+.Functions
+--
+* xref:#IERC6372-clock[`++clock()++`]
+* xref:#IERC6372-CLOCK_MODE[`++CLOCK_MODE()++`]
+* xref:#IERC6372-CLOCK_REFERENCE[`++CLOCK_REFERENCE()++`]
+--
+
+[#IERC6372-Functions]
+==== Functions
+
+[.contract-item]
+[[IERC6372-clock]]
+==== `[.contract-item-name]#++clock++#++() → u64++` [.item-kind]#external#
+
+Returns the current clock value used for time-dependent operations.
+
+[.contract-item]
+[[IERC6372-CLOCK_MODE]]
+==== `[.contract-item-name]#++CLOCK_MODE++#++() → ByteArray++` [.item-kind]#external#
+
+Returns a parsable description of the clock's mode or time measurement mechanism.
+
+[.contract-item]
+[[IERC6372-CLOCK_REFERENCE]]
+==== `[.contract-item-name]#++CLOCK_REFERENCE++#++() → ClockReference++` [.item-kind]#external#
+
+Returns the clock reference indicating whether the clock is based on block number or timestamp.
+
+[#contract_clock-Impls]
+==== Impls
+
+[.contract-item]
+[[contract_clock-ERC6372BlockNumberClock]]
+==== `[.contract-item-name]#++ERC6372BlockNumberClock++#` [.item-kind]#impl#
+
+Implementation of the `IERC6372` trait that uses the block number as its clock reference.
+
+[.contract-item]
+[[contract_clock-ERC6372TimestampClock]]
+==== `[.contract-item-name]#++ERC6372TimestampClock++#` [.item-kind]#impl#
+
+Implementation of the `IERC6372` trait that uses the block timestamp as its clock reference.
 
 [.contract]
 [[serde]]

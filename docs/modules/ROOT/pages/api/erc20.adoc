@@ -34,7 +34,7 @@ Interface of the IERC20 standard as defined in {eip20}.
 .Functions
 --
 * xref:#IERC20-total_supply[`++total_supply()++`]
-* xref:#IERC20-balance_of[`++balance_of()++`]
+* xref:#IERC20-balance_of[`++balance_of(account)++`]
 * xref:#IERC20-allowance[`++allowance(owner, spender)++`]
 * xref:#IERC20-transfer[`++transfer(recipient, amount)++`]
 * xref:#IERC20-transfer_from[`++transfer_from(sender, recipient, amount)++`]

@@ -1,15 +1,11 @@
 #[starknet::contract]
+#[with_components(ERC20, ERC4626)]
 pub mod ERC4626Mock {
-    use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component::InternalTrait as ERC4626InternalTrait;
     use openzeppelin_token::erc20::extensions::erc4626::{
-        DefaultConfig, ERC4626Component, ERC4626DefaultLimits, ERC4626DefaultNoFees,
-        ERC4626HooksEmptyImpl,
+        DefaultConfig, ERC4626DefaultLimits, ERC4626DefaultNoFees, ERC4626HooksEmptyImpl,
     };
-    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
+    use openzeppelin_token::erc20::{DefaultConfig as ERC20DefaultConfig, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
-
-    component!(path: ERC4626Component, storage: erc4626, event: ERC4626Event);
-    component!(path: ERC20Component, storage: erc20, event: ERC20Event);
 
     // ERC4626
     #[abi(embed_v0)]
@@ -24,25 +20,8 @@ pub mod ERC4626Mock {
     #[abi(embed_v0)]
     impl ERC20CamelOnlyImpl = ERC20Component::ERC20CamelOnlyImpl<ContractState>;
 
-    impl ERC4626InternalImpl = ERC4626Component::InternalImpl<ContractState>;
-    impl ERC20InternalImpl = ERC20Component::InternalImpl<ContractState>;
-
     #[storage]
-    pub struct Storage {
-        #[substorage(v0)]
-        pub erc4626: ERC4626Component::Storage,
-        #[substorage(v0)]
-        pub erc20: ERC20Component::Storage,
-    }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        #[flat]
-        ERC4626Event: ERC4626Component::Event,
-        #[flat]
-        ERC20Event: ERC20Component::Event,
-    }
+    pub struct Storage {}
 
     #[constructor]
     fn constructor(
@@ -60,16 +39,13 @@ pub mod ERC4626Mock {
 }
 
 #[starknet::contract]
+#[with_components(ERC20, ERC4626)]
 pub mod ERC4626OffsetMock {
-    use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component::InternalTrait as ERC4626InternalTrait;
     use openzeppelin_token::erc20::extensions::erc4626::{
-        ERC4626Component, ERC4626DefaultLimits, ERC4626DefaultNoFees, ERC4626HooksEmptyImpl,
+        ERC4626DefaultLimits, ERC4626DefaultNoFees, ERC4626HooksEmptyImpl,
     };
-    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
+    use openzeppelin_token::erc20::{DefaultConfig, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
-
-    component!(path: ERC4626Component, storage: erc4626, event: ERC4626Event);
-    component!(path: ERC20Component, storage: erc20, event: ERC20Event);
 
     // ERC4626
     #[abi(embed_v0)]
@@ -84,25 +60,8 @@ pub mod ERC4626OffsetMock {
     #[abi(embed_v0)]
     impl ERC20CamelOnlyImpl = ERC20Component::ERC20CamelOnlyImpl<ContractState>;
 
-    impl ERC4626InternalImpl = ERC4626Component::InternalImpl<ContractState>;
-    impl ERC20InternalImpl = ERC20Component::InternalImpl<ContractState>;
-
     #[storage]
-    pub struct Storage {
-        #[substorage(v0)]
-        pub erc4626: ERC4626Component::Storage,
-        #[substorage(v0)]
-        pub erc20: ERC20Component::Storage,
-    }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        #[flat]
-        ERC4626Event: ERC4626Component::Event,
-        #[flat]
-        ERC20Event: ERC20Component::Event,
-    }
+    pub struct Storage {}
 
     pub impl OffsetConfig of ERC4626Component::ImmutableConfig {
         const UNDERLYING_DECIMALS: u8 = ERC4626Component::DEFAULT_UNDERLYING_DECIMALS;
@@ -125,16 +84,13 @@ pub mod ERC4626OffsetMock {
 }
 
 #[starknet::contract]
+#[with_components(ERC20, ERC4626)]
 pub mod ERC4626LimitsMock {
-    use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component::InternalTrait as ERC4626InternalTrait;
     use openzeppelin_token::erc20::extensions::erc4626::{
-        ERC4626Component, ERC4626DefaultNoFees, ERC4626HooksEmptyImpl,
+        ERC4626DefaultNoFees, ERC4626HooksEmptyImpl,
     };
-    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
+    use openzeppelin_token::erc20::{DefaultConfig, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
-
-    component!(path: ERC4626Component, storage: erc4626, event: ERC4626Event);
-    component!(path: ERC20Component, storage: erc20, event: ERC20Event);
 
     // ERC4626
     #[abi(embed_v0)]
@@ -149,25 +105,8 @@ pub mod ERC4626LimitsMock {
     #[abi(embed_v0)]
     impl ERC20CamelOnlyImpl = ERC20Component::ERC20CamelOnlyImpl<ContractState>;
 
-    impl ERC4626InternalImpl = ERC4626Component::InternalImpl<ContractState>;
-    impl ERC20InternalImpl = ERC20Component::InternalImpl<ContractState>;
-
     #[storage]
-    pub struct Storage {
-        #[substorage(v0)]
-        pub erc4626: ERC4626Component::Storage,
-        #[substorage(v0)]
-        pub erc20: ERC20Component::Storage,
-    }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        #[flat]
-        ERC4626Event: ERC4626Component::Event,
-        #[flat]
-        ERC20Event: ERC20Component::Event,
-    }
+    pub struct Storage {}
 
     pub impl OffsetConfig of ERC4626Component::ImmutableConfig {
         const UNDERLYING_DECIMALS: u8 = ERC4626Component::DEFAULT_UNDERLYING_DECIMALS;
@@ -223,22 +162,16 @@ pub mod ERC4626LimitsMock {
 /// This is an opinionated design decision for the purpose of testing.
 /// DO NOT USE IN PRODUCTION
 #[starknet::contract]
+#[with_components(ERC20, ERC4626)]
 pub mod ERC4626FeesMock {
-    use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component::{
-        FeeConfigTrait, InternalTrait as ERC4626InternalTrait,
-    };
-    use openzeppelin_token::erc20::extensions::erc4626::{
-        DefaultConfig, ERC4626Component, ERC4626DefaultLimits,
-    };
+    use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component::FeeConfigTrait;
+    use openzeppelin_token::erc20::extensions::erc4626::{DefaultConfig, ERC4626DefaultLimits};
     use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
+    use openzeppelin_token::erc20::{DefaultConfig as ERC20DefaultConfig, ERC20HooksEmptyImpl};
     use openzeppelin_utils::math;
     use openzeppelin_utils::math::Rounding;
     use starknet::ContractAddress;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
-
-    component!(path: ERC4626Component, storage: erc4626, event: ERC4626Event);
-    component!(path: ERC20Component, storage: erc20, event: ERC20Event);
 
     // ERC4626
     #[abi(embed_v0)]
@@ -253,28 +186,12 @@ pub mod ERC4626FeesMock {
     #[abi(embed_v0)]
     impl ERC20CamelOnlyImpl = ERC20Component::ERC20CamelOnlyImpl<ContractState>;
 
-    impl ERC4626InternalImpl = ERC4626Component::InternalImpl<ContractState>;
-    impl ERC20InternalImpl = ERC20Component::InternalImpl<ContractState>;
-
     #[storage]
     pub struct Storage {
-        #[substorage(v0)]
-        pub erc4626: ERC4626Component::Storage,
-        #[substorage(v0)]
-        pub erc20: ERC20Component::Storage,
         pub entry_fee_basis_point_value: u256,
         pub entry_fee_recipient: ContractAddress,
         pub exit_fee_basis_point_value: u256,
         pub exit_fee_recipient: ContractAddress,
-    }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        #[flat]
-        ERC4626Event: ERC4626Component::Event,
-        #[flat]
-        ERC20Event: ERC20Component::Event,
     }
 
     const _BASIS_POINT_SCALE: u256 = 10_000;

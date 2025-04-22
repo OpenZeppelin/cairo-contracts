@@ -31,12 +31,13 @@ pub mod VotesComponent {
     use openzeppelin_token::erc20::interface::IERC20;
     use openzeppelin_token::erc721::ERC721Component;
     use openzeppelin_token::erc721::interface::IERC721;
-    use openzeppelin_utils::contract_clock::ERC6372BlockNumberClock;
+    use openzeppelin_utils::contract_clock::{
+        ClockReference, ERC6372BlockNumberClock, ERC6372TimestampClock,
+    };
     use openzeppelin_utils::cryptography::snip12::{OffchainMessageHash, SNIP12Metadata};
     use openzeppelin_utils::nonces::NoncesComponent;
     use openzeppelin_utils::nonces::NoncesComponent::InternalTrait as NoncesInternalTrait;
     use openzeppelin_utils::structs::checkpoint::{Checkpoint, Trace, TraceTrait};
-    use openzeppelin_utils::contract_clock::{ClockReference, ERC6372TimestampClock};
     use starknet::ContractAddress;
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePathEntry};
     use crate::votes::delegation::Delegation;
@@ -209,7 +210,8 @@ pub mod VotesComponent {
             ERC6372TimestampClock::CLOCK_MODE(self)
         }
 
-        /// Returns the clock reference indicating whether the clock is based on block number or timestamp.
+        /// Returns the clock reference indicating whether the clock is based on block number or
+        /// timestamp.
         fn CLOCK_REFERENCE(self: @ComponentState<TContractState>) -> ClockReference {
             ERC6372TimestampClock::CLOCK_REFERENCE(self)
         }

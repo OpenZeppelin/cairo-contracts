@@ -12,7 +12,8 @@ pub trait IERC6372<TState> {
     /// Returns a parsable description of the clock's mode or time measurement mechanism.
     fn CLOCK_MODE(self: @TState) -> ByteArray;
 
-    /// Returns the clock reference indicating whether the clock is based on block number or timestamp.
+    /// Returns the clock reference indicating whether the clock is based on block number or
+    /// timestamp.
     fn CLOCK_REFERENCE(self: @TState) -> ClockReference;
 }
 

@@ -175,7 +175,9 @@ fn test_update_quorum_numerator() {
         );
 
     // 2. Check the current quorum numerator
-    let current_quorum_numerator = mock_state.governor_votes_quorum_fraction.current_quorum_numerator();
+    let current_quorum_numerator = mock_state
+        .governor_votes_quorum_fraction
+        .current_quorum_numerator();
     assert_eq!(current_quorum_numerator, new_quorum_numerator_3);
 
     // 3. Check the history

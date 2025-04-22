@@ -10,7 +10,7 @@ pub mod MyContract {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        governor_votes_quorum_fraction: GovernorVotesQuorumFractionComponent::Storage,
+        pub governor_votes_quorum_fraction: GovernorVotesQuorumFractionComponent::Storage,
     }
     use openzeppelin_governance::governor::extensions::GovernorVotesQuorumFractionComponent;
 

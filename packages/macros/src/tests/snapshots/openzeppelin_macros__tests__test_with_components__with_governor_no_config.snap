@@ -10,7 +10,7 @@ pub mod MyContract {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        governor: GovernorComponent::Storage,
+        pub governor: GovernorComponent::Storage,
     }
 
     #[constructor]

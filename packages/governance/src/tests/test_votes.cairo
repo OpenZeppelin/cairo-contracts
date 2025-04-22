@@ -1,7 +1,7 @@
 use openzeppelin_test_common::mocks::votes::ERC721VotesMock::SNIP12MetadataImpl;
 use openzeppelin_test_common::mocks::votes::{ERC20VotesMock, ERC721VotesMock};
 use openzeppelin_testing as utils;
-use openzeppelin_testing::constants::{DELEGATEE, DELEGATOR, OTHER, RECIPIENT, SUPPLY, ZERO};
+use openzeppelin_testing::constants::{DELEGATEE, DELEGATOR, OTHER, RECIPIENT, SUPPLY, ZERO, TIMESTAMP};
 use openzeppelin_testing::{AsAddressTrait, EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use openzeppelin_token::erc20::ERC20Component::InternalTrait;
 use openzeppelin_token::erc20::interface::IERC20;
@@ -11,6 +11,7 @@ use openzeppelin_token::erc721::ERC721Component::{
 use openzeppelin_token::erc721::interface::IERC721;
 use openzeppelin_utils::cryptography::snip12::OffchainMessageHash;
 use openzeppelin_utils::structs::checkpoint::TraceTrait;
+use openzeppelin_utils::contract_clock::ClockReference;
 use snforge_std::signature::stark_curve::{StarkCurveKeyPairImpl, StarkCurveSignerImpl};
 use snforge_std::{
     start_cheat_block_timestamp_global, start_cheat_caller_address, start_cheat_chain_id_global,
@@ -617,6 +618,29 @@ fn test_erc721_voting_units_update_with_single_token_transfer() {
 
     spy.assert_event_delegate_votes_changed(contract_address, RECIPIENT, 0, 1);
     assert_eq!(state.get_votes(RECIPIENT), 1);
+}
+
+//
+// IERC6372
+//
+
+#[test]
+fn test_clock() {
+    let state = COMPONENT_STATE();
+    start_cheat_block_timestamp_global(TIMESTAMP);
+    assert_eq!(state.clock(), TIMESTAMP);
+}
+
+#[test]
+fn test_CLOCK_MODE() {
+    let state = COMPONENT_STATE();
+    assert_eq!(state.CLOCK_MODE(), "mode=timestamp&from=starknet::SN_MAIN");
+}
+
+#[test]
+fn test_CLOCK_REFERENCE() {
+    let state = COMPONENT_STATE();
+    assert_eq!(state.CLOCK_REFERENCE(), ClockReference::Timestamp);
 }
 
 //

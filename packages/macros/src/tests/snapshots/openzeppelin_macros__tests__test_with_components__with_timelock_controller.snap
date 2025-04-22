@@ -25,7 +25,6 @@ pub mod MyContract {
     ) {
         self.timelock_controller.initializer(min_delay, proposers, executors, admin);
     }
-
     use openzeppelin_governance::timelock::TimelockControllerComponent;
 
     component!(

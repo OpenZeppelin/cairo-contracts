@@ -18,7 +18,6 @@ pub mod MyToken {
 
     #[constructor]
     fn constructor(ref self: ContractState) {}
-
     use openzeppelin_token::erc20::ERC20Component;
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);

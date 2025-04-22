@@ -17,7 +17,6 @@ pub mod MyContract {
 
     #[constructor]
     fn constructor(ref self: ContractState, default_royalty_receiver: ContractAddress) {}
-
     use openzeppelin_token::common::erc2981::ERC2981Component;
 
     component!(path: ERC2981Component, storage: erc2981, event: ERC2981Event);

@@ -12,7 +12,6 @@ pub mod MyContract {
         #[substorage(v0)]
         timelock_controller: TimelockControllerComponent::Storage,
     }
-
     use openzeppelin_governance::timelock::TimelockControllerComponent;
 
     component!(

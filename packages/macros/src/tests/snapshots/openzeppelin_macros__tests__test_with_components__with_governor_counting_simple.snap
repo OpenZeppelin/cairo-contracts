@@ -10,7 +10,7 @@ pub mod MyContract {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        governor_counting_simple: GovernorCountingSimpleComponent::Storage,
+        pub governor_counting_simple: GovernorCountingSimpleComponent::Storage,
     }
     use openzeppelin_governance::governor::extensions::GovernorCountingSimpleComponent;
 

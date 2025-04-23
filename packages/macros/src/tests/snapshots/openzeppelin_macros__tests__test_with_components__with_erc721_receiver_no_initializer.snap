@@ -10,7 +10,7 @@ pub mod MyContract {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        erc721_receiver: ERC721ReceiverComponent::Storage,
+        pub erc721_receiver: ERC721ReceiverComponent::Storage,
     }
     use openzeppelin_token::erc721::ERC721ReceiverComponent;
 

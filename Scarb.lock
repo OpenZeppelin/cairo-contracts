@@ -122,6 +122,7 @@ dependencies = [
  "openzeppelin_finance",
  "openzeppelin_governance",
  "openzeppelin_introspection",
+ "openzeppelin_macros",
  "openzeppelin_security",
  "openzeppelin_testing",
  "openzeppelin_token",

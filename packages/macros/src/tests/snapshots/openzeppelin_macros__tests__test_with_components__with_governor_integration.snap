@@ -37,17 +37,17 @@ pub mod GovernorTimelockedMock {
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        governor: GovernorComponent::Storage,
+        pub governor: GovernorComponent::Storage,
         #[substorage(v0)]
-        governor_votes: GovernorVotesComponent::Storage,
+        pub governor_votes: GovernorVotesComponent::Storage,
         #[substorage(v0)]
-        governor_settings: GovernorSettingsComponent::Storage,
+        pub governor_settings: GovernorSettingsComponent::Storage,
         #[substorage(v0)]
-        governor_counting_simple: GovernorCountingSimpleComponent::Storage,
+        pub governor_counting_simple: GovernorCountingSimpleComponent::Storage,
         #[substorage(v0)]
-        governor_timelock_execution: GovernorTimelockExecutionComponent::Storage,
+        pub governor_timelock_execution: GovernorTimelockExecutionComponent::Storage,
         #[substorage(v0)]
-        src5: SRC5Component::Storage,
+        pub src5: SRC5Component::Storage,
     }
 
     #[constructor]

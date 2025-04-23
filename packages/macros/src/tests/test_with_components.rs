@@ -1251,6 +1251,56 @@ fn test_with_event_struct() {
 }
 
 #[test]
+fn test_with_erc4626() {
+    let attribute = "(ERC20, ERC4626)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod ERC4626Mock {
+            use openzeppelin_token::erc20::extensions::erc4626::{
+                DefaultConfig, ERC4626DefaultLimits, ERC4626DefaultNoFees,
+                ERC4626HooksEmptyImpl,
+            };
+            use openzeppelin_token::erc20::ERC20HooksEmptyImpl;
+            use starknet::ContractAddress;
+
+            // ERC4626
+            #[abi(embed_v0)]
+            impl ERC4626ComponentImpl = ERC4626Component::ERC4626Impl<ContractState>;
+            // ERC4626MetadataImpl is a custom impl of IERC20Metadata
+            #[abi(embed_v0)]
+            impl ERC4626MetadataImpl = ERC4626Component::ERC4626MetadataImpl<ContractState>;
+
+            // ERC20
+            #[abi(embed_v0)]
+            impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
+            #[abi(embed_v0)]
+            impl ERC20CamelOnlyImpl = ERC20Component::ERC20CamelOnlyImpl<ContractState>;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(
+                ref self: ContractState,
+                name: ByteArray,
+                symbol: ByteArray,
+                underlying_asset: ContractAddress,
+                initial_supply: u256,
+                recipient: ContractAddress,
+            ) {
+                self.erc20.initializer(name, symbol);
+                self.erc20.mint(recipient, initial_supply);
+                self.erc4626.initializer(underlying_asset);
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
 fn test_with_governor() {
     let attribute = "(Governor)";
     let item = indoc!(

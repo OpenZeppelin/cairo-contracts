@@ -14,7 +14,7 @@ pub mod MyContract {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        governor_settings: GovernorSettingsComponent::Storage,
+        pub governor_settings: GovernorSettingsComponent::Storage,
     }
 
     #[constructor]

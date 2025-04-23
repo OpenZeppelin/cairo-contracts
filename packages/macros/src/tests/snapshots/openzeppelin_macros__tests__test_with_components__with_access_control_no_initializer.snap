@@ -13,7 +13,7 @@ pub mod Contract {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        access_control: AccessControlComponent::Storage,
+        pub access_control: AccessControlComponent::Storage,
     }
 
     #[constructor]

@@ -10,7 +10,7 @@ pub mod MyContract {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        governor_core_execution: GovernorCoreExecutionComponent::Storage,
+        pub governor_core_execution: GovernorCoreExecutionComponent::Storage,
     }
     use openzeppelin_governance::governor::extensions::GovernorCoreExecutionComponent;
 

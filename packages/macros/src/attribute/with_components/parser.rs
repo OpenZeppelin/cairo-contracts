@@ -168,7 +168,7 @@ fn validate_contract_module(
                 .strip_suffix(&component.name)
                 .expect("Component path must end with the component name");
             let re = Regex::new(&format!(
-                r"use {}[{{\w, ]*DefaultConfig[{{\w}}, ]*;",
+                r"use {}[{{\w, \n]*DefaultConfig[{{\w}}, \n]*;",
                 component_parent_path
             ))
             .unwrap();
@@ -407,7 +407,7 @@ impl ComponentsGenerationData<'_> {
         for component in self.0.iter() {
             entries.push(format!("{}#[{}]", tabs(2), SUBSTORAGE_ATTRIBUTE));
             entries.push(format!(
-                "{}{}: {}::Storage,",
+                "{}pub {}: {}::Storage,",
                 tabs(2),
                 component.storage,
                 component.name

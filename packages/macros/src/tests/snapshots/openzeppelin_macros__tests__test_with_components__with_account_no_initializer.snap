@@ -10,7 +10,7 @@ pub mod MyContract {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        account: AccountComponent::Storage,
+        pub account: AccountComponent::Storage,
     }
     use openzeppelin_account::AccountComponent;
 

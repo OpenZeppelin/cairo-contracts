@@ -76,13 +76,12 @@ openzeppelin_token = "2.0.0-alpha.0"
 This is how it looks to build an ERC20 contract using the xref:erc20.adoc[ERC20 component].
 Copy the code into `src/lib.cairo`.
 
-TIP: If you added the entire library as a dependency, use `openzeppelin::token` instead of `openzeppelin_token` for the imports.
-
 [,cairo]
 ----
 #[starknet::contract]
 mod MyERC20Token {
-    // If you added the entire library as a dependency, use `openzeppelin::token` instead of `openzeppelin_token`.
+    // NOTE: If you added the entire library as a dependency,
+    // use `openzeppelin::token` instead.
     use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl, DefaultConfig};
     use starknet::ContractAddress;
 

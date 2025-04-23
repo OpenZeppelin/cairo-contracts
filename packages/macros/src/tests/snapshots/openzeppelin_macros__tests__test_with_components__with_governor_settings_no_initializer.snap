@@ -6,29 +6,30 @@ snapshot_kind: text
 TokenStream:
 
 #[starknet::contract]
-pub mod Contract {
-    use openzeppelin_access::accesscontrol::DEFAULT_ADMIN_ROLE;
-    use starknet::ContractAddress;
-
+pub mod MyContract {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        access_control: AccessControlComponent::Storage,
+        governor_settings: GovernorSettingsComponent::Storage,
     }
 
     #[constructor]
     fn constructor(ref self: ContractState) {}
-    use openzeppelin_access::accesscontrol::AccessControlComponent;
+    use openzeppelin_governance::governor::extensions::GovernorSettingsComponent;
 
-    component!(path: AccessControlComponent, storage: access_control, event: AccessControlEvent);
+    component!(
+        path: GovernorSettingsComponent, storage: governor_settings, event: GovernorSettingsEvent,
+    );
 
-    impl AccessControlInternalImpl = AccessControlComponent::InternalImpl<ContractState>;
+    impl GovernorSettingsInternalImpl = GovernorSettingsComponent::InternalImpl<ContractState>;
+    impl GovernorSettingsGovernorSettings =
+        GovernorSettingsComponent::GovernorSettings<ContractState>;
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        AccessControlEvent: AccessControlComponent::Event,
+        GovernorSettingsEvent: GovernorSettingsComponent::Event,
     }
 }
 
@@ -38,7 +39,7 @@ Diagnostics:
 ====
 Warning: It looks like the initializers for the following components are missing:
 
-AccessControl
+GovernorSettings
 
 This may lead to unexpected behavior.
 We recommend adding the corresponding initializer calls to the constructor.

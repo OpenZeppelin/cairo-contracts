@@ -11,12 +11,6 @@ Diagnostics:
 
 ====
 Error: Contract module must have a body.
-========
-Warning: The ERC20 component requires an implementation of the ERC20HooksTrait in scope. It looks like this implementation is missing.
-
-You can use the ERC20HooksEmptyImpl implementation by importing it:
-
-`use openzeppelin_token::erc20::ERC20HooksEmptyImpl;`
 ====
 
 AuxData:

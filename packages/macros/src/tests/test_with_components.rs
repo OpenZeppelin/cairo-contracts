@@ -1,4 +1,4 @@
-use crate::attribute::with_components::with_components_avevetedp5blk as with_components;
+use crate::attribute::with_components::definition::with_components_avevetedp5blk as with_components;
 use cairo_lang_macro::TokenStream;
 use indoc::indoc;
 use insta::assert_snapshot;
@@ -125,7 +125,7 @@ fn test_with_erc20() {
         "
         #[starknet::contract]
         pub mod MyToken {
-            use openzeppelin_token::erc20::ERC20HooksEmptyImpl;
+            use openzeppelin_token::erc20::{ERC20HooksEmptyImpl, DefaultConfig};
             use starknet::ContractAddress;
 
             #[storage]
@@ -149,7 +149,7 @@ fn test_with_erc20_no_initializer() {
         "
         #[starknet::contract]
         pub mod MyToken {
-            use openzeppelin_token::erc20::ERC20HooksEmptyImpl;
+            use openzeppelin_token::erc20::{ERC20HooksEmptyImpl, DefaultConfig};
             use starknet::ContractAddress;
 
             #[storage]
@@ -172,6 +172,31 @@ fn test_with_erc20_no_hooks_impl() {
         "
         #[starknet::contract]
         pub mod MyToken {
+            use openzeppelin_token::erc20::DefaultConfig;
+            use starknet::ContractAddress;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState) {
+                self.erc20.initializer(\"MyToken\", \"MTK\");
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_erc20_no_config() {
+    let attribute = "(ERC20)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyToken {
+            use openzeppelin_token::erc20::ERC20HooksEmptyImpl;
             use starknet::ContractAddress;
 
             #[storage]
@@ -240,7 +265,7 @@ fn test_with_two_components() {
         "
         #[starknet::contract]
         pub mod MyToken {
-            use openzeppelin_token::erc20::ERC20HooksEmptyImpl;
+            use openzeppelin_token::erc20::{ERC20HooksEmptyImpl, DefaultConfig};
             use starknet::ContractAddress;
 
             #[storage]
@@ -265,7 +290,7 @@ fn test_with_two_components_no_initializer() {
         "
         #[starknet::contract]
         pub mod MyToken {
-            use openzeppelin_token::erc20::ERC20HooksEmptyImpl;
+            use openzeppelin_token::erc20::{ERC20HooksEmptyImpl, DefaultConfig};
             use starknet::ContractAddress;
 
             #[storage]
@@ -288,7 +313,7 @@ fn test_with_two_components_no_constructor() {
         "
         #[starknet::contract]
         pub mod MyToken {
-            use openzeppelin_token::erc20::ERC20HooksEmptyImpl;
+            use openzeppelin_token::erc20::{ERC20HooksEmptyImpl, DefaultConfig};
             use starknet::ContractAddress;
 
             #[storage]
@@ -1217,6 +1242,351 @@ fn test_with_event_struct() {
             #[constructor]
             fn constructor(ref self: ContractState, owner: ContractAddress) {
                 self.ownable.initializer(owner);
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_governor() {
+    let attribute = "(Governor)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            use openzeppelin_governance::governor::DefaultConfig;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState) {
+                self.governor.initializer();
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_governor_no_initializer() {
+    let attribute = "(Governor)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            use openzeppelin_governance::governor::DefaultConfig;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState) {
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_governor_no_config() {
+    let attribute = "(Governor)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState) {
+                self.governor.initializer();
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_governor_core_execution() {
+    let attribute = "(GovernorCoreExecution)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            #[storage]
+            pub struct Storage {}
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_governor_counting_simple() {
+    let attribute = "(GovernorCountingSimple)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            #[storage]
+            pub struct Storage {}
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_governor_settings() {
+    let attribute = "(GovernorSettings)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            pub const VOTING_DELAY: u64 = 86400; // 1 day
+            pub const VOTING_PERIOD: u64 = 604800; // 1 week
+            pub const PROPOSAL_THRESHOLD: u256 = 10;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState) {
+                self.governor_settings.initializer(VOTING_DELAY, VOTING_PERIOD, PROPOSAL_THRESHOLD);
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_governor_settings_no_initializer() {
+    let attribute = "(GovernorSettings)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState) {
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_governor_timelock_execution() {
+    let attribute = "(GovernorTimelockExecution)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            use starknet::ContractAddress;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState, timelock_controller: ContractAddress) {
+                self.governor_timelock_execution.initializer(timelock_controller);
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_governor_timelock_execution_no_initializer() {
+    let attribute = "(GovernorTimelockExecution)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState) {
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_governor_votes_quorum_fraction() {
+    let attribute = "(GovernorVotesQuorumFraction)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            use starknet::ContractAddress;
+
+            pub const QUORUM_NUMERATOR: u256 = 600; // 60%
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState, votes_token: ContractAddress) {
+                self.governor_votes_quorum_fraction.initializer(votes_token, QUORUM_NUMERATOR);
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_governor_votes_quorum_fraction_no_initializer() {
+    let attribute = "(GovernorVotesQuorumFraction)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            #[storage]
+            pub struct Storage {}
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_governor_votes() {
+    let attribute = "(GovernorVotes)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            use starknet::ContractAddress;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState, votes_token: ContractAddress) {
+                self.governor_votes.initializer(votes_token);
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_governor_votes_no_initializer() {
+    let attribute = "(GovernorVotes)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            #[storage]
+            pub struct Storage {}
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_governor_integration() {
+    let attribute = "(Governor, GovernorVotes, GovernorSettings, GovernorCountingSimple, GovernorTimelockExecution, SRC5)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod GovernorTimelockedMock {
+            use openzeppelin_governance::governor::DefaultConfig;
+            use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
+            use starknet::ContractAddress;
+
+            pub const VOTING_DELAY: u64 = 86400; // 1 day
+            pub const VOTING_PERIOD: u64 = 604800; // 1 week
+            pub const PROPOSAL_THRESHOLD: u256 = 10;
+            pub const QUORUM: u256 = 100_000_000;
+
+            // Governor
+            #[abi(embed_v0)]
+            impl GovernorImpl = GovernorComponent::GovernorImpl<ContractState>;
+
+            // Extensions external
+            #[abi(embed_v0)]
+            impl VotesTokenImpl = GovernorVotesComponent::VotesTokenImpl<ContractState>;
+            #[abi(embed_v0)]
+            impl GovernorSettingsAdminImpl =
+                GovernorSettingsComponent::GovernorSettingsAdminImpl<ContractState>;
+            #[abi(embed_v0)]
+            impl TimelockedImpl =
+                GovernorTimelockExecutionComponent::TimelockedImpl<ContractState>;
+
+            // SRC5
+            #[abi(embed_v0)]
+            impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
+
+            #[storage]
+            struct Storage {
+            }
+
+            #[constructor]
+            fn constructor(
+                ref self: ContractState, votes_token: ContractAddress, timelock_controller: ContractAddress,
+            ) {
+                self.governor.initializer();
+                self.governor_votes.initializer(votes_token);
+                self.governor_settings.initializer(VOTING_DELAY, VOTING_PERIOD, PROPOSAL_THRESHOLD);
+                self.governor_timelock_execution.initializer(timelock_controller);
+            }
+
+            //
+            // SNIP12 Metadata
+            //
+
+            pub impl SNIP12MetadataImpl of SNIP12Metadata {
+                fn name() -> felt252 {
+                    'DAPP_NAME'
+                }
+
+                fn version() -> felt252 {
+                    'DAPP_VERSION'
+                }
+            }
+
+            //
+            // Locally implemented extensions
+            //
+
+            impl GovernorQuorum of GovernorComponent::GovernorQuorumTrait<ContractState> {
+                /// See `GovernorComponent::GovernorQuorumTrait::quorum`.
+                fn quorum(self: @GovernorComponent::ComponentState<ContractState>, timepoint: u64) -> u256 {
+                    QUORUM
+                }
             }
         }
         "

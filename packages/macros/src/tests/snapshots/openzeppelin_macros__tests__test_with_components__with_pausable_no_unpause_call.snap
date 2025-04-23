@@ -39,7 +39,7 @@ pub mod MyContract {
 Diagnostics:
 
 ====
-Warning: It looks like either the `self.pausable.pause()` or `self.pausable.unpause()` mechanisms are not implemented in the contract. If
+Warning: It looks like the `self.pausable.pause()` and `self.pausable.unpause()` functions are not used in the contract. If
 this is intentional, you may consider removing the Pausable component.
 ====
 

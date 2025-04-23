@@ -7,7 +7,7 @@ TokenStream:
 
 #[starknet::contract]
 pub mod MyToken {
-    use openzeppelin_token::erc20::ERC20HooksEmptyImpl;
+    use openzeppelin_token::erc20::{DefaultConfig, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
 
     #[storage]

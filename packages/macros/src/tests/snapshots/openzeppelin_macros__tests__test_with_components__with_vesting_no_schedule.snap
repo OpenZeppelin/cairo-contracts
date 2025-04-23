@@ -51,7 +51,8 @@ pub mod VestingWallet {
 Diagnostics:
 
 ====
-Warning: The Vesting component requires an implementation of the VestingScheduleTrait in scope. It looks like this implementation is missing.
+Warning: The Vesting component requires an implementation of the VestingScheduleTrait in scope and
+it looks like it is missing.
 
 You can use the LinearVestingSchedule implementation by importing it:
 

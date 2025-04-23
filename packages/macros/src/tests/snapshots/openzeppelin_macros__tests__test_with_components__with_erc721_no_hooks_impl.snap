@@ -35,7 +35,8 @@ pub mod MyContract {
 Diagnostics:
 
 ====
-Warning: The ERC721 component requires an implementation of the ERC721HooksTrait in scope. It looks like this implementation is missing.
+Warning: The ERC721 component requires an implementation of the ERC721HooksTrait in scope and
+it looks like it is missing.
 
 You can use the ERC721HooksEmptyImpl implementation by importing it:
 

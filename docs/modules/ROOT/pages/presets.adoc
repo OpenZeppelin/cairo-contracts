@@ -22,7 +22,9 @@ TIP: For contract customization and combination of modules you can use {wizard},
 
 == Available presets
 
-List of available presets and their corresponding {sierra-class-hashes}.
+List of available presets and their corresponding {sierra-class-hashes}. Like Contracts for Cairo,
+use of preset contracts are subject to the terms of the
+https://github.com/OpenZeppelin/cairo-contracts?tab=MIT-1-ov-file#readme[MIT License].
 
 NOTE: Class hashes were computed using {class-hash-cairo-version}.
 

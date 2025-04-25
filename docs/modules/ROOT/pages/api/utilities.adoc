@@ -225,7 +225,6 @@ Interface of the IERC6372 standard.
 --
 * xref:#IERC6372-clock[`++clock()++`]
 * xref:#IERC6372-CLOCK_MODE[`++CLOCK_MODE()++`]
-* xref:#IERC6372-CLOCK_REFERENCE[`++CLOCK_REFERENCE()++`]
 --
 
 [#IERC6372-Functions]
@@ -242,12 +241,6 @@ Returns the current clock value used for time-dependent operations.
 ==== `[.contract-item-name]#++CLOCK_MODE++#++() → ByteArray++` [.item-kind]#external#
 
 Returns a parsable description of the clock's mode or time measurement mechanism.
-
-[.contract-item]
-[[IERC6372-CLOCK_REFERENCE]]
-==== `[.contract-item-name]#++CLOCK_REFERENCE++#++() → ClockReference++` [.item-kind]#external#
-
-Returns the clock reference indicating whether the clock is based on block number or timestamp.
 
 [#contract_clock-Impls]
 ==== Impls

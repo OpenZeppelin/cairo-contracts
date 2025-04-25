@@ -11,7 +11,6 @@ use openzeppelin_token::erc721::ERC721Component::{
     ERC721CamelOnlyImpl, ERC721Impl, ERC721MetadataImpl, InternalImpl as ERC721InternalImpl,
 };
 use openzeppelin_token::erc721::interface::IERC721;
-use openzeppelin_utils::contract_clock::ClockReference;
 use openzeppelin_utils::cryptography::snip12::OffchainMessageHash;
 use openzeppelin_utils::structs::checkpoint::TraceTrait;
 use snforge_std::signature::stark_curve::{StarkCurveKeyPairImpl, StarkCurveSignerImpl};
@@ -637,12 +636,6 @@ fn test_clock() {
 fn test_CLOCK_MODE() {
     let state = COMPONENT_STATE();
     assert_eq!(state.CLOCK_MODE(), "mode=timestamp&from=starknet::SN_MAIN");
-}
-
-#[test]
-fn test_CLOCK_REFERENCE() {
-    let state = COMPONENT_STATE();
-    assert_eq!(state.CLOCK_REFERENCE(), ClockReference::Timestamp);
 }
 
 //

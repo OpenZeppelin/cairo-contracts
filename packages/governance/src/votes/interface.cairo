@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v2.0.0-alpha.0 (governance/src/votes/interface.cairo)
 
-use openzeppelin_utils::contract_clock::ClockReference;
 use starknet::ContractAddress;
 
 /// Common interface for Votes-enabled contracts.
@@ -42,10 +41,6 @@ pub trait IVotes<TState> {
 
     /// Returns a parsable description of the clock's mode or time measurement mechanism.
     fn CLOCK_MODE(self: @TState) -> ByteArray;
-
-    /// Returns the clock reference indicating whether the clock is based on block number or
-    /// timestamp.
-    fn CLOCK_REFERENCE(self: @TState) -> ClockReference;
 }
 
 /// Common interface to interact with the `Votes` component.

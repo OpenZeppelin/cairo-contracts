@@ -428,7 +428,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9c387a696a29cea52ddedb3097706dd8168958ef5388157d6e5b388a2c0de061"
 dependencies = [
  "hashbrown 0.15.2",
- "indexmap 2.9.0",
+ "indexmap 2.8.0",
  "itertools",
  "num-bigint",
  "num-traits",
@@ -1056,7 +1056,7 @@ checksum = "b410bbe7e14ab526a0e86877eb47c6996a2bd7746f027ba551028c925390e4e9"
 
 [[package]]
 name = "openzeppelin_macros"
-version = "2.0.0-alpha.0"
+version = "2.0.0-alpha.1"
 dependencies = [
  "cairo-lang-defs",
  "cairo-lang-formatter",

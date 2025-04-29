@@ -527,6 +527,7 @@ await provider.waitForTransaction(tx.transaction_hash);
 
 == Account Utilities
 
+<<<<<<< Updated upstream
 :account-utils: xref:/api/account.adoc#AccountUtils[Account Utils]
 
 OpenZeppelin Contracts for Cairo provides a set of utility functions in the {account-utils} section that can be helpful when working with accounts. These utilities include:
@@ -537,3 +538,50 @@ OpenZeppelin Contracts for Cairo provides a set of utility functions in the {acc
 4. Utilities for working with secp256 points in storage
 
 See the {account-utils} API reference for detailed documentation on these utilities.
+=======
+The `AccountComponent` provides several utility functions accessible via its `InternalImpl` trait:
+
+[.fn]
+====
+`fn execute_call(ref self: ComponentState<T>, call: Call)`
+
+Executes a single call through the account. Useful for internal operations or meta-transactions.
+====
+
+[.fn]
+====
+`fn is_valid_transaction_version(transaction_version: felt252) -> bool`
+
+Checks if the provided transaction version is supported by the account contract.
+====
+
+[.fn]
+====
+`fn hash_transaction(sender_address: ContractAddress, calls: Array<Call>, nonce: felt252, max_fee: u128, chain_id: felt252, transaction_version: felt252) -> felt252`
+
+Computes the transaction hash according to the Starknet specification for the given parameters.
+====
+
+[.fn]
+====
+`fn verify_signature(ref self: ComponentState<T>, hash: felt252, signature: Span<felt252>)`
+
+Verifies a Stark curve signature against the account's public key for a given message hash. Asserts if the signature is invalid.
+====
+
+Additionally, the following constants are available:
+
+[.const]
+====
+`VALIDATION_SUCCESS: felt252`
+
+The value returned by validation functions (`__validate__`, `__validate_declare__`, `__validate_deploy__`, `is_valid_signature`) upon successful validation.
+====
+
+[.const]
+====
+`VALIDATION_FAILED: felt252`
+
+The value returned by validation functions when validation fails.
+====
+>>>>>>> Stashed changes

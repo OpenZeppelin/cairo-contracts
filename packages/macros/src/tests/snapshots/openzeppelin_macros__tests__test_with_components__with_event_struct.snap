@@ -12,7 +12,7 @@ pub mod Owned {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        ownable: OwnableComponent::Storage,
+        pub ownable: OwnableComponent::Storage,
     }
 
     #[event]
@@ -37,7 +37,6 @@ pub mod Owned {
     fn constructor(ref self: ContractState, owner: ContractAddress) {
         self.ownable.initializer(owner);
     }
-
     use openzeppelin_access::ownable::OwnableComponent;
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);

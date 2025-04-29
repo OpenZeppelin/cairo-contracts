@@ -10,7 +10,7 @@ pub mod MyContract {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        pausable: PausableComponent::Storage,
+        pub pausable: PausableComponent::Storage,
     }
 
     #[generate_trait]
@@ -26,7 +26,6 @@ pub mod MyContract {
             self.pausable.unpause();
         }
     }
-
     use openzeppelin_security::PausableComponent;
 
     component!(path: PausableComponent, storage: pausable, event: PausableEvent);

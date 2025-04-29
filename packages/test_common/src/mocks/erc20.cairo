@@ -1,11 +1,10 @@
 use starknet::ContractAddress;
 
 #[starknet::contract]
+#[with_components(ERC20)]
 pub mod DualCaseERC20Mock {
-    use openzeppelin_token::erc20::{DefaultConfig, ERC20Component, ERC20HooksEmptyImpl};
+    use openzeppelin_token::erc20::{DefaultConfig, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
-
-    component!(path: ERC20Component, storage: erc20, event: ERC20Event);
 
     #[abi(embed_v0)]
     impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
@@ -13,20 +12,9 @@ pub mod DualCaseERC20Mock {
     impl ERC20MetadataImpl = ERC20Component::ERC20MetadataImpl<ContractState>;
     #[abi(embed_v0)]
     impl ERC20CamelOnlyImpl = ERC20Component::ERC20CamelOnlyImpl<ContractState>;
-    impl InternalImpl = ERC20Component::InternalImpl<ContractState>;
 
     #[storage]
-    pub struct Storage {
-        #[substorage(v0)]
-        pub erc20: ERC20Component::Storage,
-    }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        #[flat]
-        ERC20Event: ERC20Component::Event,
-    }
+    pub struct Storage {}
 
     #[constructor]
     fn constructor(
@@ -42,30 +30,18 @@ pub mod DualCaseERC20Mock {
 }
 
 #[starknet::contract]
+#[with_components(ERC20)]
 pub mod SnakeERC20Mock {
-    use openzeppelin_token::erc20::{DefaultConfig, ERC20Component, ERC20HooksEmptyImpl};
+    use openzeppelin_token::erc20::{DefaultConfig, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
-
-    component!(path: ERC20Component, storage: erc20, event: ERC20Event);
 
     #[abi(embed_v0)]
     impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
     #[abi(embed_v0)]
     impl ERC20MetadataImpl = ERC20Component::ERC20MetadataImpl<ContractState>;
-    impl InternalImpl = ERC20Component::InternalImpl<ContractState>;
 
     #[storage]
-    pub struct Storage {
-        #[substorage(v0)]
-        pub erc20: ERC20Component::Storage,
-    }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        #[flat]
-        ERC20Event: ERC20Component::Event,
-    }
+    pub struct Storage {}
 
     #[constructor]
     fn constructor(
@@ -83,29 +59,22 @@ pub mod SnakeERC20Mock {
 /// Similar to `SnakeERC20Mock`, but emits events for `before_update` and `after_update` hooks.
 /// This is used to test that the hooks are called with the correct arguments.
 #[starknet::contract]
+#[with_components(ERC20)]
 pub mod SnakeERC20MockWithHooks {
-    use openzeppelin_token::erc20::{DefaultConfig, ERC20Component};
+    use openzeppelin_token::erc20::DefaultConfig;
     use starknet::ContractAddress;
-
-    component!(path: ERC20Component, storage: erc20, event: ERC20Event);
 
     #[abi(embed_v0)]
     impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
     #[abi(embed_v0)]
     impl ERC20MetadataImpl = ERC20Component::ERC20MetadataImpl<ContractState>;
-    impl InternalImpl = ERC20Component::InternalImpl<ContractState>;
 
     #[storage]
-    pub struct Storage {
-        #[substorage(v0)]
-        pub erc20: ERC20Component::Storage,
-    }
+    pub struct Storage {}
 
     #[event]
     #[derive(Drop, starknet::Event)]
     pub enum Event {
-        #[flat]
-        ERC20Event: ERC20Component::Event,
         BeforeUpdate: BeforeUpdate,
         AfterUpdate: AfterUpdate,
     }
@@ -162,19 +131,15 @@ pub mod SnakeERC20MockWithHooks {
 }
 
 #[starknet::contract]
+#[with_components(ERC20, Nonces)]
 pub mod DualCaseERC20PermitMock {
-    use openzeppelin_token::erc20::{DefaultConfig, ERC20Component, ERC20HooksEmptyImpl};
-    use openzeppelin_utils::cryptography::nonces::NoncesComponent;
+    use openzeppelin_token::erc20::{DefaultConfig, ERC20HooksEmptyImpl};
     use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
     use starknet::ContractAddress;
-
-    component!(path: ERC20Component, storage: erc20, event: ERC20Event);
-    component!(path: NoncesComponent, storage: nonces, event: NoncesEvent);
 
     // ERC20Mixin
     #[abi(embed_v0)]
     impl ERC20MixinImpl = ERC20Component::ERC20MixinImpl<ContractState>;
-    impl InternalImpl = ERC20Component::InternalImpl<ContractState>;
 
     // IERC20Permit
     #[abi(embed_v0)]
@@ -186,21 +151,7 @@ pub mod DualCaseERC20PermitMock {
         ERC20Component::SNIP12MetadataExternalImpl<ContractState>;
 
     #[storage]
-    pub struct Storage {
-        #[substorage(v0)]
-        pub erc20: ERC20Component::Storage,
-        #[substorage(v0)]
-        pub nonces: NoncesComponent::Storage,
-    }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        #[flat]
-        ERC20Event: ERC20Component::Event,
-        #[flat]
-        NoncesEvent: NoncesComponent::Event,
-    }
+    pub struct Storage {}
 
     /// Required for hash computation.
     pub impl SNIP12MetadataImpl of SNIP12Metadata {
@@ -274,8 +225,9 @@ pub trait IERC20Reentrant<TState> {
 }
 
 #[starknet::contract]
+#[with_components(ERC20)]
 pub mod ERC20ReentrantMock {
-    use openzeppelin_token::erc20::{DefaultConfig, ERC20Component};
+    use openzeppelin_token::erc20::DefaultConfig;
     use starknet::storage::{
         MutableVecTrait, StoragePointerReadAccess, StoragePointerWriteAccess, Vec,
     };
@@ -283,31 +235,19 @@ pub mod ERC20ReentrantMock {
     use starknet::{ContractAddress, SyscallResultTrait};
     use super::Type;
 
-    component!(path: ERC20Component, storage: erc20, event: ERC20Event);
-
     #[abi(embed_v0)]
     impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
     #[abi(embed_v0)]
     impl ERC20MetadataImpl = ERC20Component::ERC20MetadataImpl<ContractState>;
     #[abi(embed_v0)]
     impl ERC20CamelOnlyImpl = ERC20Component::ERC20CamelOnlyImpl<ContractState>;
-    impl InternalImpl = ERC20Component::InternalImpl<ContractState>;
 
     #[storage]
     pub struct Storage {
-        #[substorage(v0)]
-        pub erc20: ERC20Component::Storage,
         reenter_type: Type,
         reenter_target: ContractAddress,
         reenter_selector: felt252,
         reenter_calldata: Vec<felt252>,
-    }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        #[flat]
-        ERC20Event: ERC20Component::Event,
     }
 
     //

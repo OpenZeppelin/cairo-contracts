@@ -13,6 +13,8 @@ use crate::accesscontrol::interface::{
     IACCESSCONTROL_ID, IAccessControl, IAccessControlCamel, IAccessControlWithDelay, RoleStatus,
 };
 use crate::accesscontrol::{AccessControlComponent, DEFAULT_ADMIN_ROLE};
+use openzeppelin_test_common::accesscontrol::AccessControlSpyHelpers;
+use openzeppelin_testing::events::assert_indexed_keys;
 
 //
 // Setup
@@ -745,4 +747,37 @@ impl AccessControlSpyHelpersImpl of AccessControlSpyHelpers {
         );
         self.assert_only_event(from_address, expected);
     }
+}
+
+#[test]
+fn test_role_granted_event_indexed_keys() {
+    let role = ROLE;
+    let account = OTHER;
+    let sender = ADMIN;
+
+    let grant_event = AccessControlComponent::RoleGranted { role, account, sender };
+    let expected_keys = array![role.into(), account.into(), sender.into()];
+    assert_indexed_keys(@grant_event, @expected_keys);
+}
+
+#[test]
+fn test_role_revoked_event_indexed_keys() {
+    let role = ROLE;
+    let account = OTHER;
+    let sender = ADMIN;
+
+    let revoke_event = AccessControlComponent::RoleRevoked { role, account, sender };
+    let expected_keys = array![role.into(), account.into(), sender.into()];
+    assert_indexed_keys(@revoke_event, @expected_keys);
+}
+
+#[test]
+fn test_role_admin_changed_event_indexed_keys() {
+    let role = ROLE;
+    let previous_admin_role = ZERO;
+    let new_admin_role = ADMIN;
+
+    let admin_event = AccessControlComponent::RoleAdminChanged { role, previous_admin_role, new_admin_role };
+    let expected_keys = array![role.into(), previous_admin_role.into(), new_admin_role.into()];
+    assert_indexed_keys(@admin_event, @expected_keys);
 }

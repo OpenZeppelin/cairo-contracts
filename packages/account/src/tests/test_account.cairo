@@ -9,6 +9,7 @@ use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::stark::{KEY_PAIR, KEY_PAIR_2};
 use openzeppelin_testing::constants::{
     CALLER, MIN_TRANSACTION_VERSION, OTHER, QUERY_OFFSET, QUERY_VERSION, SALT, ZERO,
+    NEW_PUBKEY, PUBKEY,
 };
 use openzeppelin_testing::signing::StarkKeyPair;
 use openzeppelin_testing::spy_events;
@@ -20,6 +21,7 @@ use starknet::account::Call;
 use crate::AccountComponent;
 use crate::AccountComponent::{InternalTrait, PublicKeyCamelImpl, PublicKeyImpl, SRC6CamelOnlyImpl};
 use crate::interface::{AccountABIDispatcher, AccountABIDispatcherTrait, ISRC6, ISRC6_ID};
+use openzeppelin_testing::events::assert_indexed_keys;
 
 //
 // Setup
@@ -496,4 +498,22 @@ fn test__set_public_key() {
 
     spy.assert_only_event_owner_added(account_address, public_key);
     assert_eq!(state.get_public_key(), public_key);
+}
+
+#[test]
+fn test_owner_added_event_indexed_keys() {
+    let new_owner = NEW_PUBKEY;
+
+    let owner_added_event = AccountComponent::OwnerAdded { new_owner };
+    let expected_keys = array![new_owner.into()];
+    assert_indexed_keys(@owner_added_event, @expected_keys);
+}
+
+#[test]
+fn test_owner_removed_event_indexed_keys() {
+    let removed_owner = PUBKEY;
+
+    let owner_removed_event = AccountComponent::OwnerRemoved { removed_owner };
+    let expected_keys = array![removed_owner.into()];
+    assert_indexed_keys(@owner_removed_event, @expected_keys);
 }

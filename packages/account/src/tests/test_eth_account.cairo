@@ -8,6 +8,7 @@ use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::secp256k1::{KEY_PAIR, KEY_PAIR_2};
 use openzeppelin_testing::constants::{
     CALLER, MIN_TRANSACTION_VERSION, OTHER, QUERY_VERSION, SALT, ZERO,
+    ETH_SIGNER, NEW_ETH_SIGNER,
 };
 use openzeppelin_testing::signing::Secp256k1KeyPair;
 use openzeppelin_testing::spy_events;
@@ -24,6 +25,7 @@ use crate::EthAccountComponent::{
 use crate::interface::{EthAccountABIDispatcher, EthAccountABIDispatcherTrait, ISRC6, ISRC6_ID};
 use crate::utils::secp256_point::{DebugSecp256Point, Secp256PointPartialEq};
 use crate::utils::signature::Secp256Signature;
+use openzeppelin_testing::events::assert_indexed_keys;
 
 //
 // Setup
@@ -539,4 +541,22 @@ fn test__set_public_key() {
     spy.assert_only_event_owner_added(test_address(), key_pair.public_key);
 
     assert_eq!(state.get_public_key(), key_pair.public_key);
+}
+
+#[test]
+fn test_eth_owner_added_event_indexed_keys() {
+    let new_owner = NEW_ETH_SIGNER;
+
+    let owner_added_event = EthAccountComponent::EthOwnerAdded { new_owner };
+    let expected_keys = array![new_owner.into()];
+    assert_indexed_keys(@owner_added_event, @expected_keys);
+}
+
+#[test]
+fn test_eth_owner_removed_event_indexed_keys() {
+    let removed_owner = ETH_SIGNER;
+
+    let owner_removed_event = EthAccountComponent::EthOwnerRemoved { removed_owner };
+    let expected_keys = array![removed_owner.into()];
+    assert_indexed_keys(@owner_removed_event, @expected_keys);
 }

@@ -5,6 +5,9 @@ use snforge_std::{start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
 use crate::PausableComponent;
 use crate::PausableComponent::{InternalImpl, PausableImpl, Paused, Unpaused};
+use openzeppelin_test_common::pausable::PausableSpyHelpers;
+use openzeppelin_testing::constants::OWNER;
+use openzeppelin_testing::events::assert_indexed_keys;
 
 type ComponentState = PausableComponent::ComponentState<PausableMock::ContractState>;
 
@@ -149,4 +152,22 @@ impl PausableSpyHelpersImpl of PausableSpyHelpers {
         self.assert_event_unpaused(contract, account);
         self.assert_no_events_left_from(contract);
     }
+}
+
+#[test]
+fn test_paused_event_indexed_keys() {
+    let account = OWNER;
+
+    let paused_event = PausableComponent::Paused { account };
+    let expected_keys = array![account.into()];
+    assert_indexed_keys(@paused_event, @expected_keys);
+}
+
+#[test]
+fn test_unpaused_event_indexed_keys() {
+    let account = OWNER;
+
+    let unpaused_event = PausableComponent::Unpaused { account };
+    let expected_keys = array![account.into()];
+    assert_indexed_keys(@unpaused_event, @expected_keys);
 }

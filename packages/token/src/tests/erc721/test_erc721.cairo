@@ -16,6 +16,7 @@ use crate::erc721::ERC721Component;
 use crate::erc721::ERC721Component::{
     ERC721CamelOnlyImpl, ERC721Impl, ERC721MetadataImpl, InternalImpl,
 };
+use openzeppelin_testing::events::assert_indexed_keys;
 
 //
 // Setup
@@ -1507,4 +1508,37 @@ impl ERC721HooksSpyHelpersImpl of ERC721HooksSpyHelpers {
         );
         self.assert_emitted_single(contract, expected);
     }
+}
+
+#[test]
+fn test_transfer_event_indexed_keys() {
+    let from = OWNER;
+    let to = RECIPIENT;
+    let token_id = TOKEN_ID;
+
+    let transfer_event = ERC721Component::Transfer { from, to, token_id };
+    let expected_keys = array![from.into(), to.into(), token_id.into()];
+    assert_indexed_keys(@transfer_event, @expected_keys);
+}
+
+#[test]
+fn test_approval_event_indexed_keys() {
+    let owner = OWNER;
+    let approved = SPENDER;
+    let token_id = TOKEN_ID;
+
+    let approval_event = ERC721Component::Approval { owner, approved, token_id };
+    let expected_keys = array![owner.into(), approved.into(), token_id.into()];
+    assert_indexed_keys(@approval_event, @expected_keys);
+}
+
+#[test]
+fn test_approval_for_all_event_indexed_keys() {
+    let owner = OWNER;
+    let operator = OPERATOR;
+    let approved = true;
+
+    let approval_for_all_event = ERC721Component::ApprovalForAll { owner, operator, approved };
+    let expected_keys = array![owner.into(), operator.into()];
+    assert_indexed_keys(@approval_for_all_event, @expected_keys);
 }

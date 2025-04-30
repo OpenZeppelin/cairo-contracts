@@ -7,6 +7,7 @@ use snforge_std::{start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
 use crate::erc20::ERC20Component;
 use crate::erc20::ERC20Component::{ERC20CamelOnlyImpl, ERC20Impl, ERC20MetadataImpl, InternalImpl};
+use openzeppelin_testing::events::assert_indexed_keys;
 
 // Custom implementation of the ERC20Component ImmutableConfig used for testing.
 impl ERC20ImmutableConfig of ERC20Component::ImmutableConfig {
@@ -686,4 +687,27 @@ impl ERC20HooksSpyHelpersImpl of ERC20HooksSpyHelpers {
         );
         self.assert_emitted_single(contract, expected);
     }
+}
+
+#[test]
+fn test_transfer_event_indexed_keys() {
+    let mut state = setup();
+    let from = OWNER;
+    let to = RECIPIENT;
+    let value = VALUE;
+
+    let transfer_event = ERC20Component::Transfer { from, to, value };
+    let expected_keys = array![from.into(), to.into()];
+    assert_indexed_keys(@transfer_event, @expected_keys);
+}
+
+#[test]
+fn test_approval_event_indexed_keys() {
+    let owner = OWNER;
+    let spender = SPENDER;
+    let value = VALUE;
+
+    let approval_event = ERC20Component::Approval { owner, spender, value };
+    let expected_keys = array![owner.into(), spender.into()];
+    assert_indexed_keys(@approval_event, @expected_keys);
 }

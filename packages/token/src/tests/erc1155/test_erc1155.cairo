@@ -18,6 +18,7 @@ use crate::erc1155::ERC1155Component;
 use crate::erc1155::ERC1155Component::{
     ERC1155CamelImpl, ERC1155Impl, ERC1155MetadataURIImpl, InternalImpl,
 };
+use openzeppelin_testing::events::assert_indexed_keys;
 
 //
 // Setup
@@ -1411,4 +1412,41 @@ impl ERC1155HooksSpyHelpersImpl of ERC1155HooksSpyHelpers {
         );
         self.assert_emitted_single(contract, expected);
     }
+}
+
+#[test]
+fn test_transfer_single_event_indexed_keys() {
+    let operator = OPERATOR;
+    let from = OWNER;
+    let to = RECIPIENT;
+    let id = TOKEN_ID;
+    let amount = TOKEN_VALUE;
+
+    let transfer_event = ERC1155Component::TransferSingle { operator, from, to, id, amount };
+    let expected_keys = array![operator.into(), from.into(), to.into()];
+    assert_indexed_keys(@transfer_event, @expected_keys);
+}
+
+#[test]
+fn test_transfer_batch_event_indexed_keys() {
+    let operator = OPERATOR;
+    let from = OWNER;
+    let to = RECIPIENT;
+    let ids = array![TOKEN_ID, TOKEN_ID_2, TOKEN_ID_3];
+    let amounts = array![TOKEN_VALUE, TOKEN_VALUE_2, TOKEN_VALUE_3];
+
+    let transfer_event = ERC1155Component::TransferBatch { operator, from, to, ids, amounts };
+    let expected_keys = array![operator.into(), from.into(), to.into()];
+    assert_indexed_keys(@transfer_event, @expected_keys);
+}
+
+#[test]
+fn test_approval_for_all_event_indexed_keys() {
+    let owner = OWNER;
+    let operator = OPERATOR;
+    let approved = true;
+
+    let approval_event = ERC1155Component::ApprovalForAll { owner, operator, approved };
+    let expected_keys = array![owner.into(), operator.into()];
+    assert_indexed_keys(@approval_event, @expected_keys);
 }

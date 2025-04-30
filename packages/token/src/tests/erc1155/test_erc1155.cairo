@@ -9,6 +9,7 @@ use openzeppelin_testing::constants::{
     EMPTY_DATA, OPERATOR, OTHER, OWNER, RECIPIENT, TOKEN_ID, TOKEN_ID_2, TOKEN_VALUE, TOKEN_VALUE_2,
     ZERO,
 };
+use openzeppelin_testing::events::assert_indexed_keys;
 use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use snforge_std::{start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
@@ -18,7 +19,6 @@ use crate::erc1155::ERC1155Component;
 use crate::erc1155::ERC1155Component::{
     ERC1155CamelImpl, ERC1155Impl, ERC1155MetadataURIImpl, InternalImpl,
 };
-use openzeppelin_testing::events::assert_indexed_keys;
 
 //
 // Setup

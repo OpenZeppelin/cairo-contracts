@@ -8,9 +8,10 @@ use openzeppelin_test_common::mocks::simple::{ISimpleMockDispatcher, ISimpleMock
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::stark::{KEY_PAIR, KEY_PAIR_2};
 use openzeppelin_testing::constants::{
-    CALLER, MIN_TRANSACTION_VERSION, OTHER, QUERY_OFFSET, QUERY_VERSION, SALT, ZERO,
-    NEW_PUBKEY, PUBKEY,
+    CALLER, MIN_TRANSACTION_VERSION, NEW_PUBKEY, OTHER, PUBKEY, QUERY_OFFSET, QUERY_VERSION, SALT,
+    ZERO,
 };
+use openzeppelin_testing::events::assert_indexed_keys;
 use openzeppelin_testing::signing::StarkKeyPair;
 use openzeppelin_testing::spy_events;
 use snforge_std::{
@@ -21,7 +22,6 @@ use starknet::account::Call;
 use crate::AccountComponent;
 use crate::AccountComponent::{InternalTrait, PublicKeyCamelImpl, PublicKeyImpl, SRC6CamelOnlyImpl};
 use crate::interface::{AccountABIDispatcher, AccountABIDispatcherTrait, ISRC6, ISRC6_ID};
-use openzeppelin_testing::events::assert_indexed_keys;
 
 //
 // Setup

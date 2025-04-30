@@ -5,7 +5,10 @@ use openzeppelin_test_common::mocks::erc20::{
 };
 use openzeppelin_test_common::mocks::erc4626::{ERC4626LimitsMock, ERC4626Mock};
 use openzeppelin_testing as utils;
-use openzeppelin_testing::constants::{ALICE, BOB, NAME, OTHER, RECIPIENT, SPENDER, SYMBOL, ZERO, OWNER, VALUE};
+use openzeppelin_testing::constants::{
+    ALICE, BOB, NAME, OTHER, OWNER, RECIPIENT, SPENDER, SYMBOL, VALUE, ZERO,
+};
+use openzeppelin_testing::events::assert_indexed_keys;
 use openzeppelin_testing::{AsAddressTrait, EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{CheatSpan, cheat_caller_address};
@@ -16,7 +19,6 @@ use crate::erc20::extensions::erc4626::ERC4626Component::{
 };
 use crate::erc20::extensions::erc4626::interface::{ERC4626ABIDispatcher, ERC4626ABIDispatcherTrait};
 use crate::erc20::extensions::erc4626::{DefaultConfig, ERC4626Component};
-use openzeppelin_testing::events::assert_indexed_keys;
 
 //
 // Constants

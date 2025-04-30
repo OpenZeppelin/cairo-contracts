@@ -2,12 +2,12 @@ use core::num::traits::Bounded;
 use openzeppelin_test_common::erc20::ERC20SpyHelpers;
 use openzeppelin_test_common::mocks::erc20::{DualCaseERC20Mock, SnakeERC20MockWithHooks};
 use openzeppelin_testing::constants::{NAME, OWNER, RECIPIENT, SPENDER, SUPPLY, SYMBOL, VALUE, ZERO};
+use openzeppelin_testing::events::assert_indexed_keys;
 use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use snforge_std::{start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
 use crate::erc20::ERC20Component;
 use crate::erc20::ERC20Component::{ERC20CamelOnlyImpl, ERC20Impl, ERC20MetadataImpl, InternalImpl};
-use openzeppelin_testing::events::assert_indexed_keys;
 
 // Custom implementation of the ERC20Component ImmutableConfig used for testing.
 impl ERC20ImmutableConfig of ERC20Component::ImmutableConfig {

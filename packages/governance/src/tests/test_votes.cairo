@@ -1,7 +1,10 @@
+use core::num::traits::Zero;
 use openzeppelin_test_common::mocks::votes::ERC721VotesMock::SNIP12MetadataImpl;
 use openzeppelin_test_common::mocks::votes::{ERC20VotesMock, ERC721VotesMock};
+use openzeppelin_test_common::votes::VotesSpyHelpers;
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{DELEGATEE, DELEGATOR, OTHER, RECIPIENT, SUPPLY, ZERO};
+use openzeppelin_testing::events::assert_indexed_keys;
 use openzeppelin_testing::{AsAddressTrait, EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use openzeppelin_token::erc20::ERC20Component::InternalTrait;
 use openzeppelin_token::erc20::interface::IERC20;
@@ -22,9 +25,6 @@ use crate::votes::VotesComponent::{
     DelegateChanged, DelegateVotesChanged, InternalImpl, VotesImpl, VotingUnitsTrait,
 };
 use crate::votes::{Delegation, VotesComponent};
-use core::num::traits::Zero;
-use openzeppelin_test_common::votes::VotesSpyHelpers;
-use openzeppelin_testing::events::assert_indexed_keys;
 
 const ERC721_INITIAL_MINT: u256 = 10;
 

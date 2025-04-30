@@ -1,13 +1,12 @@
 use openzeppelin_test_common::mocks::security::PausableMock;
-use openzeppelin_testing::constants::CALLER;
+use openzeppelin_test_common::pausable::PausableSpyHelpers;
+use openzeppelin_testing::constants::{CALLER, OWNER};
+use openzeppelin_testing::events::assert_indexed_keys;
 use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use snforge_std::{start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
 use crate::PausableComponent;
 use crate::PausableComponent::{InternalImpl, PausableImpl, Paused, Unpaused};
-use openzeppelin_test_common::pausable::PausableSpyHelpers;
-use openzeppelin_testing::constants::OWNER;
-use openzeppelin_testing::events::assert_indexed_keys;
 
 type ComponentState = PausableComponent::ComponentState<PausableMock::ContractState>;
 

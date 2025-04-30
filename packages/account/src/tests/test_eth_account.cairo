@@ -7,9 +7,9 @@ use openzeppelin_test_common::mocks::simple::{ISimpleMockDispatcher, ISimpleMock
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::secp256k1::{KEY_PAIR, KEY_PAIR_2};
 use openzeppelin_testing::constants::{
-    CALLER, MIN_TRANSACTION_VERSION, OTHER, QUERY_VERSION, SALT, ZERO,
-    ETH_SIGNER, NEW_ETH_SIGNER,
+    CALLER, ETH_SIGNER, MIN_TRANSACTION_VERSION, NEW_ETH_SIGNER, OTHER, QUERY_VERSION, SALT, ZERO,
 };
+use openzeppelin_testing::events::assert_indexed_keys;
 use openzeppelin_testing::signing::Secp256k1KeyPair;
 use openzeppelin_testing::spy_events;
 use openzeppelin_utils::serde::SerializedAppend;
@@ -25,7 +25,6 @@ use crate::EthAccountComponent::{
 use crate::interface::{EthAccountABIDispatcher, EthAccountABIDispatcherTrait, ISRC6, ISRC6_ID};
 use crate::utils::secp256_point::{DebugSecp256Point, Secp256PointPartialEq};
 use crate::utils::signature::Secp256Signature;
-use openzeppelin_testing::events::assert_indexed_keys;
 
 //
 // Setup

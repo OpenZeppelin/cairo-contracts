@@ -1,8 +1,10 @@
 use openzeppelin_introspection::interface::ISRC5;
+use openzeppelin_test_common::accesscontrol::AccessControlSpyHelpers;
 use openzeppelin_test_common::mocks::access::DualCaseAccessControlMock;
 use openzeppelin_testing::constants::{
     ADMIN, AUTHORIZED, OTHER, OTHER_ADMIN, OTHER_ROLE, ROLE, TIMESTAMP, ZERO,
 };
+use openzeppelin_testing::events::assert_indexed_keys;
 use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use snforge_std::{start_cheat_block_timestamp_global, start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
@@ -13,8 +15,6 @@ use crate::accesscontrol::interface::{
     IACCESSCONTROL_ID, IAccessControl, IAccessControlCamel, IAccessControlWithDelay, RoleStatus,
 };
 use crate::accesscontrol::{AccessControlComponent, DEFAULT_ADMIN_ROLE};
-use openzeppelin_test_common::accesscontrol::AccessControlSpyHelpers;
-use openzeppelin_testing::events::assert_indexed_keys;
 
 //
 // Setup
@@ -777,7 +777,9 @@ fn test_role_admin_changed_event_indexed_keys() {
     let previous_admin_role = ZERO;
     let new_admin_role = ADMIN;
 
-    let admin_event = AccessControlComponent::RoleAdminChanged { role, previous_admin_role, new_admin_role };
+    let admin_event = AccessControlComponent::RoleAdminChanged {
+        role, previous_admin_role, new_admin_role,
+    };
     let expected_keys = array![role.into(), previous_admin_role.into(), new_admin_role.into()];
     assert_indexed_keys(@admin_event, @expected_keys);
 }

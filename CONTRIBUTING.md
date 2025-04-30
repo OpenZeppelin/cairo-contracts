@@ -22,7 +22,7 @@ As a contributor, you are expected to fork this repository, work on your own for
 
     ```sh
     cd cairo-contracts
-    git remote add upstream https://github.com/OpenZeppelin/cairo-contracts.git
+    git remote add upstream https://github.com/OpenZeppelin/cairo-contracts
     git fetch upstream
     git pull --rebase upstream main
     ```

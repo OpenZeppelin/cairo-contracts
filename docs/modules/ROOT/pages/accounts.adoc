@@ -527,18 +527,6 @@ await provider.waitForTransaction(tx.transaction_hash);
 
 == Account Utilities
 
-<<<<<<< Updated upstream
-:account-utils: xref:/api/account.adoc#AccountUtils[Account Utils]
-
-OpenZeppelin Contracts for Cairo provides a set of utility functions in the {account-utils} section that can be helpful when working with accounts. These utilities include:
-
-1. Functions for executing calls and handling transaction execution
-2. Signature validation for different cryptographic curves (Stark, secp256k1, P256)
-3. Transaction version validation 
-4. Utilities for working with secp256 points in storage
-
-See the {account-utils} API reference for detailed documentation on these utilities.
-=======
 The `AccountComponent` provides several utility functions accessible via its `InternalImpl` trait:
 
 [.fn]
@@ -584,4 +572,3 @@ The value returned by validation functions (`__validate__`, `__validate_declare_
 
 The value returned by validation functions when validation fails.
 ====
->>>>>>> Stashed changes

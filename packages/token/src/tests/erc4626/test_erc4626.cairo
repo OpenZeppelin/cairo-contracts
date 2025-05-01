@@ -15,7 +15,7 @@ use snforge_std::{CheatSpan, cheat_caller_address};
 use starknet::ContractAddress;
 use crate::erc20::ERC20Component::InternalImpl as ERC20InternalImpl;
 use crate::erc20::extensions::erc4626::ERC4626Component::{
-    Deposit, ERC4626Impl, ERC4626MetadataImpl, InternalImpl, Withdraw,
+    ERC4626Impl, ERC4626MetadataImpl, InternalImpl,
 };
 use crate::erc20::extensions::erc4626::interface::{ERC4626ABIDispatcher, ERC4626ABIDispatcherTrait};
 use crate::erc20::extensions::erc4626::{DefaultConfig, ERC4626Component};

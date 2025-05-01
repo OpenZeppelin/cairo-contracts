@@ -546,7 +546,7 @@ fn test__set_public_key() {
 fn test_eth_owner_added_event_indexed_keys() {
     let new_owner = NEW_ETH_SIGNER;
 
-    let owner_added_event = EthAccountComponent::EthOwnerAdded { new_owner };
+    let owner_added_event = EthAccountComponent::OwnerAdded { new_owner_guid: new_owner };
     let expected_keys = array![new_owner.into()];
     assert_indexed_keys(@owner_added_event, @expected_keys);
 }
@@ -555,7 +555,9 @@ fn test_eth_owner_added_event_indexed_keys() {
 fn test_eth_owner_removed_event_indexed_keys() {
     let removed_owner = ETH_SIGNER;
 
-    let owner_removed_event = EthAccountComponent::EthOwnerRemoved { removed_owner };
+    let owner_removed_event = EthAccountComponent::OwnerRemoved {
+        removed_owner_guid: removed_owner,
+    };
     let expected_keys = array![removed_owner.into()];
     assert_indexed_keys(@owner_removed_event, @expected_keys);
 }

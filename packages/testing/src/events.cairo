@@ -156,7 +156,7 @@ fn is_emitted<T, impl TEvent: starknet::Event<T>, impl TDrop: Drop<T>>(
 
 /// Asserts that the event's indexed keys match the expected values in order.
 /// This checks that specific fields are properly marked as indexed in the event definition.
-fn assert_indexed_keys<T, impl TEvent: starknet::Event<T>, impl TDrop: Drop<T>>(
+pub fn assert_indexed_keys<T, impl TEvent: starknet::Event<T>, impl TDrop: Drop<T>>(
     event: @T, expected_indexed_values: @Array<felt252>,
 ) {
     let mut actual_keys = array![];

@@ -711,3 +711,9 @@ fn test_approval_event_indexed_keys() {
     let expected_keys = array![owner.into(), spender.into()];
     assert_indexed_keys(@approval_event, @expected_keys);
 }
+
+#[test]
+fn test_setup() {
+    let mut _state = setup();
+    // ... rest of the test
+}

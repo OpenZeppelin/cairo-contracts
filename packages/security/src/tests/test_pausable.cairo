@@ -1,5 +1,4 @@
 use openzeppelin_test_common::mocks::security::PausableMock;
-use openzeppelin_test_common::pausable::PausableSpyHelpers;
 use openzeppelin_testing::constants::{CALLER, OWNER};
 use openzeppelin_testing::events::assert_indexed_keys;
 use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};

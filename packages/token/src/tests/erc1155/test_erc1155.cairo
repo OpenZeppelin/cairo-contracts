@@ -1420,9 +1420,9 @@ fn test_transfer_single_event_indexed_keys() {
     let from = OWNER;
     let to = RECIPIENT;
     let id = TOKEN_ID;
-    let amount = TOKEN_VALUE;
+    let value = TOKEN_VALUE;
 
-    let transfer_event = ERC1155Component::TransferSingle { operator, from, to, id, amount };
+    let transfer_event = ERC1155Component::TransferSingle { operator, from, to, id, value };
     let expected_keys = array![operator.into(), from.into(), to.into()];
     assert_indexed_keys(@transfer_event, @expected_keys);
 }
@@ -1432,10 +1432,10 @@ fn test_transfer_batch_event_indexed_keys() {
     let operator = OPERATOR;
     let from = OWNER;
     let to = RECIPIENT;
-    let ids = array![TOKEN_ID, TOKEN_ID_2, TOKEN_ID_3];
-    let amounts = array![TOKEN_VALUE, TOKEN_VALUE_2, TOKEN_VALUE_3];
+    let ids = array![TOKEN_ID, TOKEN_ID_2].span();
+    let values = array![TOKEN_VALUE, TOKEN_VALUE_2].span();
 
-    let transfer_event = ERC1155Component::TransferBatch { operator, from, to, ids, amounts };
+    let transfer_event = ERC1155Component::TransferBatch { operator, from, to, ids, values };
     let expected_keys = array![operator.into(), from.into(), to.into()];
     assert_indexed_keys(@transfer_event, @expected_keys);
 }

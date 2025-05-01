@@ -1,7 +1,6 @@
-use core::num::traits::Zero;
+// use core::num::traits::Zero;
 use openzeppelin_test_common::mocks::votes::ERC721VotesMock::SNIP12MetadataImpl;
 use openzeppelin_test_common::mocks::votes::{ERC20VotesMock, ERC721VotesMock};
-use openzeppelin_test_common::votes::VotesSpyHelpers;
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{DELEGATEE, DELEGATOR, OTHER, RECIPIENT, SUPPLY, ZERO};
 use openzeppelin_testing::events::assert_indexed_keys;
@@ -691,10 +690,10 @@ fn test_delegate_changed_event_indexed_keys() {
 #[test]
 fn test_delegate_votes_changed_event_indexed_keys() {
     let delegate = DELEGATOR;
-    let old_votes = 0;
+    let previous_votes = 0;
     let new_votes = SUPPLY;
 
-    let votes_event = VotesComponent::DelegateVotesChanged { delegate, old_votes, new_votes };
+    let votes_event = VotesComponent::DelegateVotesChanged { delegate, previous_votes, new_votes };
     let expected_keys = array![delegate.into()];
     assert_indexed_keys(@votes_event, @expected_keys);
 }

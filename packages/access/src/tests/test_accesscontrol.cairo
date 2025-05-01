@@ -1,5 +1,4 @@
 use openzeppelin_introspection::interface::ISRC5;
-use openzeppelin_test_common::accesscontrol::AccessControlSpyHelpers;
 use openzeppelin_test_common::mocks::access::DualCaseAccessControlMock;
 use openzeppelin_testing::constants::{
     ADMIN, AUTHORIZED, OTHER, OTHER_ADMIN, OTHER_ROLE, ROLE, TIMESTAMP, ZERO,
@@ -778,7 +777,9 @@ fn test_role_admin_changed_event_indexed_keys() {
     let new_admin_role = ADMIN;
 
     let admin_event = AccessControlComponent::RoleAdminChanged {
-        role, previous_admin_role, new_admin_role,
+        role: role.into(),
+        previous_admin_role: previous_admin_role.into(),
+        new_admin_role: new_admin_role.into(),
     };
     let expected_keys = array![role.into(), previous_admin_role.into(), new_admin_role.into()];
     assert_indexed_keys(@admin_event, @expected_keys);

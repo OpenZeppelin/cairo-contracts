@@ -117,16 +117,14 @@ mod test_governor_superquorum {
         impl InternalImpl of InternalTrait {
             // Delegate internal calls to embedded components
             // This connects the base Governor to its extensions
-            impl GovernorSettingsInternalImpl of GovernorSettingsTrait<ContractState> {
-                fn voting_delay(self: @ContractState) -> u64 {
-                    self.settings.voting_delay()
-                }
-                fn voting_period(self: @ContractState) -> u64 {
-                    self.settings.voting_period()
-                }
-                fn proposal_threshold(self: @ContractState) -> u256 {
-                    self.settings.proposal_threshold()
-                }
+            fn voting_delay(self: @ContractState) -> u64 {
+                self.settings.voting_delay()
+            }
+            fn voting_period(self: @ContractState) -> u64 {
+                self.settings.voting_period()
+            }
+            fn proposal_threshold(self: @ContractState) -> u256 {
+                self.settings.proposal_threshold()
             }
 
             impl GovernorCountingInternalImpl of GovernorCounting<ContractState> {
@@ -152,8 +150,8 @@ mod test_governor_superquorum {
                   fn vote_succeeded(self: @ContractState, proposal_id: ProposalId) -> bool {
                      // Needs logic based on GovernorCountingSimple storage (For > Against)
                      // Placeholder: Implement based on self.counting storage access
-                     let (against, for, _) = self.counting._proposal_votes(proposal_id);
-                     for > against // Basic Bravo logic
+                     let (against, for_votes, _) = self.counting._proposal_votes(proposal_id);
+                     for_votes > against // Basic Bravo logic
                  }
             }
 
@@ -195,8 +193,8 @@ mod test_governor_superquorum {
                 fn vote_succeeded(self: @ContractState, proposal_id: ProposalId) -> bool {
                     // Delegate to the *actual* counting module logic
                     // Need to ensure this matches the counting module implementation
-                    let (against, for, _) = self.counting._proposal_votes(proposal_id);
-                    for > against // Basic Bravo logic assumption
+                    let (against, for_votes, _) = self.counting._proposal_votes(proposal_id);
+                    for_votes > against // Basic Bravo logic assumption
                  }
                  fn quorum(self: @ContractState, timepoint: u64) -> u256 {
                     // Delegate to the quorum component implementation

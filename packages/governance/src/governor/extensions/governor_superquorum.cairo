@@ -55,7 +55,7 @@ pub trait GovernorSuperQuorumInternal<TState> {
 }
 
 #[starknet::component]
-pub mod GovernorSuperQuorumComponent<
+mod GovernorSuperQuorumComponent<
     TContractState,
     +HasComponent<TContractState>,
     +GovernorCounting<ComponentState<TContractState>>,

@@ -1,4 +1,4 @@
-"""// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: MIT
 // Test suite for GovernorSuperQuorum extension.
 
 #[cfg(test)]
@@ -314,6 +314,4 @@ mod test_governor_superquorum {
     // - Test case where super quorum is met but vote fails (e.g., FOR < AGAINST) -> Should remain Active
     // - Test interaction with Timelock (Queued state) if applicable
     // - Test events emitted
-}
-
-"" 
+} 

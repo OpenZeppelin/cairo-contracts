@@ -3,7 +3,7 @@
 
 = ERC1155
 
-The ERC1155 multi token standard is a specification for {fungibility-agnostic} token contracts.
+The ERC1155 multi-token standard is a specification for {fungibility-agnostic} token contracts.
 The ERC1155 library implements an approximation of {eip-1155} in Cairo for StarkNet.
 
 == Multi Token Standard
@@ -181,7 +181,7 @@ tokens, this yields execution to the receiver which can result in a xref:securit
 :on_erc1155_batch_received: xref:/api/erc1155.adoc#IERC1155Receiver-on_erc1155_batch_received[on_erc1155_batch_received]
 :computing-interface-id: xref:introspection.adoc#computing_the_interface_id[Computing the interface ID]
 
-In order to be sure a non-account contract can safely accept ERC1155 tokens, said contract must implement the `IERC1155Receiver` interface.
+In order to be sure a non-account contract can safely accept ERC1155 tokens, the contract must implement the `IERC1155Receiver` interface.
 The recipient contract must also implement the {src5} interface which supports interface introspection.
 
 === IERC1155Receiver

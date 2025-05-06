@@ -184,10 +184,10 @@ pub mod GovernorComponent {
     }
 
     pub trait GovernorVotesTrait<TContractState> {
-        /// See `interface::IERC6372::clock`.
+        /// See `interface::IERC6372Clock::clock`.
         fn clock(self: @ComponentState<TContractState>) -> u64;
 
-        /// See `interface::IERC6372::CLOCK_MODE`.
+        /// See `interface::IERC6372Clock::CLOCK_MODE`.
         fn clock_mode(self: @ComponentState<TContractState>) -> ByteArray;
 
         /// See `interface::IGovernor::get_votes`.

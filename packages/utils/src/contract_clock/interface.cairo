@@ -1,4 +1,4 @@
-pub trait IERC6372 {
+pub trait IERC6372Clock {
     /// Returns the current clock value used for time-dependent operations.
     fn clock() -> u64;
 

@@ -199,7 +199,7 @@ Module containing ...
 .Members
 --
 .Traits
-* xref:#IERC6372[`++IERC6372++`]
+* xref:#IERC6372Clock[`++IERC6372Clock++`]
 --
 
 [.contract-index]
@@ -210,28 +210,28 @@ Module containing ...
 --
 
 [.contract]
-[#IERC6372]
-=== `++IERC6372++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.0/packages/utils/src/contract_clock.cairo[{github-icon},role=heading-link]
+[#IERC6372Clock]
+=== `++IERC6372Clock++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.0/packages/utils/src/contract_clock.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
-use openzeppelin_utils::contract_clock::IERC6372;
+use openzeppelin_utils::contract_clock::IERC6372Clock;
 ```
 
-Interface of the IERC6372 standard.
+Interface of the IERC6372Clock standard.
 
 [.contract-index]
 .Functions
 --
-* xref:#IERC6372-clock[`++clock()++`]
-* xref:#IERC6372-CLOCK_MODE[`++CLOCK_MODE()++`]
+* xref:#IERC6372Clock-clock[`++clock()++`]
+* xref:#IERC6372Clock-CLOCK_MODE[`++CLOCK_MODE()++`]
 --
 
-[#IERC6372-Functions]
+[#IERC6372Clock-Functions]
 ==== Functions
 
 [.contract-item]
-[[IERC6372-clock]]
+[[IERC6372Clock-clock]]
 ==== `[.contract-item-name]#++clock++#++() → u64++` [.item-kind]#external#
 
 Returns the current clock value used for time-dependent operations.
@@ -239,7 +239,7 @@ Returns the current clock value used for time-dependent operations.
 CAUTION: This function MUST always be non-decreasing.
 
 [.contract-item]
-[[IERC6372-CLOCK_MODE]]
+[[IERC6372Clock-CLOCK_MODE]]
 ==== `[.contract-item-name]#++CLOCK_MODE++#++() → ByteArray++` [.item-kind]#external#
 
 Returns a parsable description of the clock's mode or time measurement mechanism.
@@ -251,13 +251,13 @@ Returns a parsable description of the clock's mode or time measurement mechanism
 [[contract_clock-ERC6372BlockNumberClock]]
 ==== `[.contract-item-name]#++ERC6372BlockNumberClock++#` [.item-kind]#impl#
 
-Implementation of the `IERC6372` trait that uses the block number as its clock reference.
+Implementation of the `IERC6372Clock` trait that uses the block number as its clock reference.
 
 [.contract-item]
 [[contract_clock-ERC6372TimestampClock]]
 ==== `[.contract-item-name]#++ERC6372TimestampClock++#` [.item-kind]#impl#
 
-Implementation of the `IERC6372` trait that uses the block timestamp as its clock reference.
+Implementation of the `IERC6372Clock` trait that uses the block timestamp as its clock reference.
 
 [.contract]
 [[serde]]

@@ -10,9 +10,8 @@ pub mod MyContract {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        erc721_enumerable: ERC721EnumerableComponent::Storage,
+        pub erc721_enumerable: ERC721EnumerableComponent::Storage,
     }
-
     use openzeppelin_token::erc721::extensions::ERC721EnumerableComponent;
 
     component!(
@@ -37,7 +36,8 @@ Warning: It looks like the initializers for the following components are missing
 
 ERC721Enumerable
 
-This may lead to unexpected behavior. We recommend adding the corresponding initializer calls to the constructor.
+This may lead to unexpected behavior.
+We recommend adding the corresponding initializer calls to the constructor.
 ====
 
 AuxData:

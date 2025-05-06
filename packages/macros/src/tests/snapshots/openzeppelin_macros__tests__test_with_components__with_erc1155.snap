@@ -12,14 +12,13 @@ pub mod MyContract {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        erc1155: ERC1155Component::Storage,
+        pub erc1155: ERC1155Component::Storage,
     }
 
     #[constructor]
     fn constructor(ref self: ContractState) {
         self.erc1155.initializer("");
     }
-
     use openzeppelin_token::erc1155::ERC1155Component;
 
     component!(path: ERC1155Component, storage: erc1155, event: ERC1155Event);

@@ -36,8 +36,8 @@ fn test_quorum() {
     start_mock_call(ZERO, selector!("get_past_total_supply"), past_total_supply);
 
     let quorum = GovernorQuorum::quorum(@component_state, timepoint);
-    let quorum_numerator = mock_state.governor_votes.quorum_numerator(timepoint);
-    let quorum_denominator = mock_state.governor_votes.quorum_denominator();
+    let quorum_numerator = mock_state.governor_votes_quorum_fraction.quorum_numerator(timepoint);
+    let quorum_denominator = mock_state.governor_votes_quorum_fraction.quorum_denominator();
 
     assert_eq!(quorum, quorum_numerator * past_total_supply / quorum_denominator);
 }
@@ -85,14 +85,14 @@ fn test_token() {
     let mock_state = CONTRACT_STATE();
 
     store(test_address(), selector!("Governor_token"), array![VOTES_TOKEN.into()].span());
-    let token = mock_state.governor_votes.token();
+    let token = mock_state.governor_votes_quorum_fraction.token();
     assert_eq!(token, VOTES_TOKEN);
 }
 
 #[test]
 fn test_quorum_denominator() {
     let mock_state = CONTRACT_STATE();
-    let quorum_denominator = mock_state.governor_votes.quorum_denominator();
+    let quorum_denominator = mock_state.governor_votes_quorum_fraction.quorum_denominator();
     assert_eq!(quorum_denominator, 1000);
 }
 
@@ -105,12 +105,12 @@ fn test_initializer() {
     let mut mock_state = CONTRACT_STATE();
     let now = starknet::get_block_timestamp();
 
-    mock_state.governor_votes.initializer(VOTES_TOKEN, 600);
+    mock_state.governor_votes_quorum_fraction.initializer(VOTES_TOKEN, 600);
 
-    let quorum_numerator = mock_state.governor_votes.quorum_numerator(now);
+    let quorum_numerator = mock_state.governor_votes_quorum_fraction.quorum_numerator(now);
     assert_eq!(quorum_numerator, 600);
 
-    let token = mock_state.governor_votes.token();
+    let token = mock_state.governor_votes_quorum_fraction.token();
     assert_eq!(token, VOTES_TOKEN);
 }
 
@@ -118,7 +118,7 @@ fn test_initializer() {
 #[should_panic(expected: 'Invalid votes token')]
 fn test_initializer_with_zero_token() {
     let mut mock_state = CONTRACT_STATE();
-    mock_state.governor_votes.initializer(ZERO, 600);
+    mock_state.governor_votes_quorum_fraction.initializer(ZERO, 600);
 }
 
 
@@ -126,7 +126,7 @@ fn test_initializer_with_zero_token() {
 #[should_panic(expected: 'Invalid quorum fraction')]
 fn test_initializer_with_invalid_numerator() {
     let mut mock_state = CONTRACT_STATE();
-    mock_state.governor_votes.initializer(VOTES_TOKEN, 1001);
+    mock_state.governor_votes_quorum_fraction.initializer(VOTES_TOKEN, 1001);
 }
 
 //
@@ -137,7 +137,7 @@ fn test_initializer_with_invalid_numerator() {
 #[should_panic(expected: 'Invalid quorum fraction')]
 fn test_update_quorum_numerator_invalid_numerator() {
     let mut mock_state = CONTRACT_STATE();
-    mock_state.governor_votes.update_quorum_numerator(1001);
+    mock_state.governor_votes_quorum_fraction.update_quorum_numerator(1001);
 }
 
 #[test]
@@ -157,41 +157,43 @@ fn test_update_quorum_numerator() {
 
     // 1. Update the numerators
     start_cheat_block_timestamp_global(ts1);
-    mock_state.governor_votes.update_quorum_numerator(new_quorum_numerator_1);
+    mock_state.governor_votes_quorum_fraction.update_quorum_numerator(new_quorum_numerator_1);
     spy.assert_only_event_quorum_numerator_updated(contract_address, 0, new_quorum_numerator_1);
 
     start_cheat_block_timestamp_global(ts2);
-    mock_state.governor_votes.update_quorum_numerator(new_quorum_numerator_2);
+    mock_state.governor_votes_quorum_fraction.update_quorum_numerator(new_quorum_numerator_2);
     spy
         .assert_only_event_quorum_numerator_updated(
             contract_address, new_quorum_numerator_1, new_quorum_numerator_2,
         );
 
     start_cheat_block_timestamp_global(ts3);
-    mock_state.governor_votes.update_quorum_numerator(new_quorum_numerator_3);
+    mock_state.governor_votes_quorum_fraction.update_quorum_numerator(new_quorum_numerator_3);
     spy
         .assert_only_event_quorum_numerator_updated(
             contract_address, new_quorum_numerator_2, new_quorum_numerator_3,
         );
 
     // 2. Check the current quorum numerator
-    let current_quorum_numerator = mock_state.governor_votes.current_quorum_numerator();
+    let current_quorum_numerator = mock_state
+        .governor_votes_quorum_fraction
+        .current_quorum_numerator();
     assert_eq!(current_quorum_numerator, new_quorum_numerator_3);
 
     // 3. Check the history
-    let history = mock_state.governor_votes.quorum_numerator(ts1);
+    let history = mock_state.governor_votes_quorum_fraction.quorum_numerator(ts1);
     assert_eq!(history, new_quorum_numerator_1);
 
-    let history = mock_state.governor_votes.quorum_numerator(ts2);
+    let history = mock_state.governor_votes_quorum_fraction.quorum_numerator(ts2);
     assert_eq!(history, new_quorum_numerator_2);
 
-    let history = mock_state.governor_votes.quorum_numerator(ts3);
+    let history = mock_state.governor_votes_quorum_fraction.quorum_numerator(ts3);
     assert_eq!(history, new_quorum_numerator_3);
 
-    let history = mock_state.governor_votes.quorum_numerator(ts4);
+    let history = mock_state.governor_votes_quorum_fraction.quorum_numerator(ts4);
     assert_eq!(history, new_quorum_numerator_1);
 
-    let history = mock_state.governor_votes.quorum_numerator(ts5);
+    let history = mock_state.governor_votes_quorum_fraction.quorum_numerator(ts5);
     assert_eq!(history, new_quorum_numerator_3);
 }
 

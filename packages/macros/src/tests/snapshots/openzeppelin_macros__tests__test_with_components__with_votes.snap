@@ -12,7 +12,7 @@ pub mod MyContract {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        votes: VotesComponent::Storage,
+        pub votes: VotesComponent::Storage,
     }
 
     /// Required for hash computation.
@@ -24,7 +24,6 @@ pub mod MyContract {
             'DAPP_VERSION'
         }
     }
-
     use openzeppelin_governance::votes::VotesComponent;
 
     component!(path: VotesComponent, storage: votes, event: VotesEvent);

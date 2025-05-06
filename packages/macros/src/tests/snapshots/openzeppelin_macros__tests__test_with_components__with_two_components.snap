@@ -7,15 +7,15 @@ TokenStream:
 
 #[starknet::contract]
 pub mod MyToken {
-    use openzeppelin_token::erc20::ERC20HooksEmptyImpl;
+    use openzeppelin_token::erc20::{DefaultConfig, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
 
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        erc20: ERC20Component::Storage,
+        pub erc20: ERC20Component::Storage,
         #[substorage(v0)]
-        ownable: OwnableComponent::Storage,
+        pub ownable: OwnableComponent::Storage,
     }
 
     #[constructor]
@@ -23,9 +23,8 @@ pub mod MyToken {
         self.ownable.initializer(owner);
         self.erc20.initializer("MyToken", "MTK");
     }
-
-    use openzeppelin_token::erc20::ERC20Component;
     use openzeppelin_access::ownable::OwnableComponent;
+    use openzeppelin_token::erc20::ERC20Component;
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);

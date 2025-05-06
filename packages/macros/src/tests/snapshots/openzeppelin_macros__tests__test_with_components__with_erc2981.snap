@@ -13,14 +13,13 @@ pub mod MyContract {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        erc2981: ERC2981Component::Storage,
+        pub erc2981: ERC2981Component::Storage,
     }
 
     #[constructor]
     fn constructor(ref self: ContractState, default_royalty_receiver: ContractAddress) {
         self.erc2981.initializer(default_royalty_receiver, 0);
     }
-
     use openzeppelin_token::common::erc2981::ERC2981Component;
 
     component!(path: ERC2981Component, storage: erc2981, event: ERC2981Event);

@@ -12,14 +12,13 @@ pub mod MyContract {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        erc2981: ERC2981Component::Storage,
+        pub erc2981: ERC2981Component::Storage,
     }
 
     #[constructor]
     fn constructor(ref self: ContractState, default_royalty_receiver: ContractAddress) {
         self.erc2981.initializer(default_royalty_receiver, 0);
     }
-
     use openzeppelin_token::common::erc2981::ERC2981Component;
 
     component!(path: ERC2981Component, storage: erc2981, event: ERC2981Event);
@@ -38,9 +37,10 @@ pub mod MyContract {
 Diagnostics:
 
 ====
-Warning: The ERC2981 component requires an ImmutableConfig implementation in scope. It looks like this implementation is missing.
+Warning: The ERC2981 component requires an ImmutableConfig implementation in scope and
+it looks like it is missing.
 
-You can use the default implementation by importing:
+You can use the default implementation by importing it:
 
 `use openzeppelin_token::common::erc2981::DefaultConfig;`
 ====

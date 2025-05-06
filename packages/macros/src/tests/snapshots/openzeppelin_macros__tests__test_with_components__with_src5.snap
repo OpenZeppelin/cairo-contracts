@@ -10,9 +10,8 @@ pub mod MyContract {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        src5: SRC5Component::Storage,
+        pub src5: SRC5Component::Storage,
     }
-
     use openzeppelin_introspection::src5::SRC5Component;
 
     component!(path: SRC5Component, storage: src5, event: SRC5Event);

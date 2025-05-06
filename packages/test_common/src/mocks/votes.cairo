@@ -1,50 +1,25 @@
 #[starknet::contract]
+#[with_components(ERC20, Votes, Nonces)]
 pub mod ERC20TimestampVotesMock {
-    use openzeppelin_governance::votes::VotesComponent;
-    use openzeppelin_token::erc20::{DefaultConfig, ERC20Component};
+    use openzeppelin_token::erc20::DefaultConfig;
     use openzeppelin_utils::contract_clock::ERC6372TimestampClock;
-    use openzeppelin_utils::cryptography::nonces::NoncesComponent;
     use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
     use starknet::ContractAddress;
-
-    component!(path: VotesComponent, storage: erc20_votes, event: ERC20VotesEvent);
-    component!(path: ERC20Component, storage: erc20, event: ERC20Event);
-    component!(path: NoncesComponent, storage: nonces, event: NoncesEvent);
 
     // Votes
     #[abi(embed_v0)]
     impl VotesImpl = VotesComponent::VotesImpl<ContractState>;
-    impl VotesInternalImpl = VotesComponent::InternalImpl<ContractState>;
 
     // ERC20
     #[abi(embed_v0)]
     impl ERC20MixinImpl = ERC20Component::ERC20MixinImpl<ContractState>;
-    impl ERC20InternalImpl = ERC20Component::InternalImpl<ContractState>;
 
     // Nonces
     #[abi(embed_v0)]
     impl NoncesImpl = NoncesComponent::NoncesImpl<ContractState>;
 
     #[storage]
-    pub struct Storage {
-        #[substorage(v0)]
-        pub erc20_votes: VotesComponent::Storage,
-        #[substorage(v0)]
-        pub erc20: ERC20Component::Storage,
-        #[substorage(v0)]
-        pub nonces: NoncesComponent::Storage,
-    }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        #[flat]
-        ERC20VotesEvent: VotesComponent::Event,
-        #[flat]
-        ERC20Event: ERC20Component::Event,
-        #[flat]
-        NoncesEvent: NoncesComponent::Event,
-    }
+    pub struct Storage {}
 
     /// Required for hash computation.
     pub impl SNIP12MetadataImpl of SNIP12Metadata {
@@ -64,7 +39,7 @@ pub mod ERC20TimestampVotesMock {
             amount: u256,
         ) {
             let mut contract_state = self.get_contract_mut();
-            contract_state.erc20_votes.transfer_voting_units(from, recipient, amount);
+            contract_state.votes.transfer_voting_units(from, recipient, amount);
         }
     }
 
@@ -75,52 +50,27 @@ pub mod ERC20TimestampVotesMock {
 }
 
 #[starknet::contract]
+#[with_components(ERC20, Votes, Nonces)]
 pub mod ERC20BlockNumberVotesMock {
-    use openzeppelin_governance::votes::VotesComponent;
-    use openzeppelin_token::erc20::{DefaultConfig, ERC20Component};
+    use openzeppelin_token::erc20::DefaultConfig;
     use openzeppelin_utils::contract_clock::ERC6372BlockNumberClock;
-    use openzeppelin_utils::cryptography::nonces::NoncesComponent;
     use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
     use starknet::ContractAddress;
-
-    component!(path: VotesComponent, storage: erc20_votes, event: ERC20VotesEvent);
-    component!(path: ERC20Component, storage: erc20, event: ERC20Event);
-    component!(path: NoncesComponent, storage: nonces, event: NoncesEvent);
 
     // Votes
     #[abi(embed_v0)]
     impl VotesImpl = VotesComponent::VotesImpl<ContractState>;
-    impl VotesInternalImpl = VotesComponent::InternalImpl<ContractState>;
 
     // ERC20
     #[abi(embed_v0)]
     impl ERC20MixinImpl = ERC20Component::ERC20MixinImpl<ContractState>;
-    impl ERC20InternalImpl = ERC20Component::InternalImpl<ContractState>;
 
     // Nonces
     #[abi(embed_v0)]
     impl NoncesImpl = NoncesComponent::NoncesImpl<ContractState>;
 
     #[storage]
-    pub struct Storage {
-        #[substorage(v0)]
-        pub erc20_votes: VotesComponent::Storage,
-        #[substorage(v0)]
-        pub erc20: ERC20Component::Storage,
-        #[substorage(v0)]
-        pub nonces: NoncesComponent::Storage,
-    }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        #[flat]
-        ERC20VotesEvent: VotesComponent::Event,
-        #[flat]
-        ERC20Event: ERC20Component::Event,
-        #[flat]
-        NoncesEvent: NoncesComponent::Event,
-    }
+    pub struct Storage {}
 
     /// Required for hash computation.
     pub impl SNIP12MetadataImpl of SNIP12Metadata {
@@ -140,7 +90,7 @@ pub mod ERC20BlockNumberVotesMock {
             amount: u256,
         ) {
             let mut contract_state = self.get_contract_mut();
-            contract_state.erc20_votes.transfer_voting_units(from, recipient, amount);
+            contract_state.votes.transfer_voting_units(from, recipient, amount);
         }
     }
 
@@ -151,58 +101,26 @@ pub mod ERC20BlockNumberVotesMock {
 }
 
 #[starknet::contract]
+#[with_components(ERC721, Votes, SRC5, Nonces)]
 pub mod ERC721TimestampVotesMock {
-    use openzeppelin_governance::votes::VotesComponent;
-    use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_token::erc721::ERC721Component;
-    use openzeppelin_utils::contract_clock::ERC6372TimestampClock;
-    use openzeppelin_utils::cryptography::nonces::NoncesComponent;
     use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
+    use openzeppelin_utils::contract_clock::ERC6372TimestampClock;
     use starknet::ContractAddress;
-
-    component!(path: VotesComponent, storage: erc721_votes, event: ERC721VotesEvent);
-    component!(path: ERC721Component, storage: erc721, event: ERC721Event);
-    component!(path: SRC5Component, storage: src5, event: SRC5Event);
-    component!(path: NoncesComponent, storage: nonces, event: NoncesEvent);
 
     // Votes
     #[abi(embed_v0)]
     impl VotesImpl = VotesComponent::VotesImpl<ContractState>;
-    impl VotesInternalImpl = VotesComponent::InternalImpl<ContractState>;
 
     // ERC721
     #[abi(embed_v0)]
     impl ERC721MixinImpl = ERC721Component::ERC721MixinImpl<ContractState>;
-    impl ERC721InternalImpl = ERC721Component::InternalImpl<ContractState>;
 
     // Nonces
     #[abi(embed_v0)]
     impl NoncesImpl = NoncesComponent::NoncesImpl<ContractState>;
 
     #[storage]
-    pub struct Storage {
-        #[substorage(v0)]
-        pub erc721_votes: VotesComponent::Storage,
-        #[substorage(v0)]
-        pub erc721: ERC721Component::Storage,
-        #[substorage(v0)]
-        pub src5: SRC5Component::Storage,
-        #[substorage(v0)]
-        pub nonces: NoncesComponent::Storage,
-    }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        #[flat]
-        ERC721VotesEvent: VotesComponent::Event,
-        #[flat]
-        ERC721Event: ERC721Component::Event,
-        #[flat]
-        SRC5Event: SRC5Component::Event,
-        #[flat]
-        NoncesEvent: NoncesComponent::Event,
-    }
+    pub struct Storage {}
 
     /// Required for hash computation.
     pub impl SNIP12MetadataImpl of SNIP12Metadata {
@@ -228,7 +146,7 @@ pub mod ERC721TimestampVotesMock {
             // We use the internal function here since it does not check if the token id exists
             // which is necessary for mints
             let previous_owner = self._owner_of(token_id);
-            contract_state.erc721_votes.transfer_voting_units(previous_owner, to, 1);
+            contract_state.votes.transfer_voting_units(previous_owner, to, 1);
         }
     }
 
@@ -239,58 +157,26 @@ pub mod ERC721TimestampVotesMock {
 }
 
 #[starknet::contract]
+#[with_components(ERC721, Votes, SRC5, Nonces)]
 pub mod ERC721BlockNumberVotesMock {
-    use openzeppelin_governance::votes::VotesComponent;
-    use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_token::erc721::ERC721Component;
-    use openzeppelin_utils::contract_clock::ERC6372BlockNumberClock;
-    use openzeppelin_utils::cryptography::nonces::NoncesComponent;
     use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
+    use openzeppelin_utils::contract_clock::ERC6372BlockNumberClock;
     use starknet::ContractAddress;
-
-    component!(path: VotesComponent, storage: erc721_votes, event: ERC721VotesEvent);
-    component!(path: ERC721Component, storage: erc721, event: ERC721Event);
-    component!(path: SRC5Component, storage: src5, event: SRC5Event);
-    component!(path: NoncesComponent, storage: nonces, event: NoncesEvent);
 
     // Votes
     #[abi(embed_v0)]
     impl VotesImpl = VotesComponent::VotesImpl<ContractState>;
-    impl VotesInternalImpl = VotesComponent::InternalImpl<ContractState>;
 
     // ERC721
     #[abi(embed_v0)]
     impl ERC721MixinImpl = ERC721Component::ERC721MixinImpl<ContractState>;
-    impl ERC721InternalImpl = ERC721Component::InternalImpl<ContractState>;
 
     // Nonces
     #[abi(embed_v0)]
     impl NoncesImpl = NoncesComponent::NoncesImpl<ContractState>;
 
     #[storage]
-    pub struct Storage {
-        #[substorage(v0)]
-        pub erc721_votes: VotesComponent::Storage,
-        #[substorage(v0)]
-        pub erc721: ERC721Component::Storage,
-        #[substorage(v0)]
-        pub src5: SRC5Component::Storage,
-        #[substorage(v0)]
-        pub nonces: NoncesComponent::Storage,
-    }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        #[flat]
-        ERC721VotesEvent: VotesComponent::Event,
-        #[flat]
-        ERC721Event: ERC721Component::Event,
-        #[flat]
-        SRC5Event: SRC5Component::Event,
-        #[flat]
-        NoncesEvent: NoncesComponent::Event,
-    }
+    pub struct Storage {}
 
     /// Required for hash computation.
     pub impl SNIP12MetadataImpl of SNIP12Metadata {
@@ -316,7 +202,7 @@ pub mod ERC721BlockNumberVotesMock {
             // We use the internal function here since it does not check if the token id exists
             // which is necessary for mints
             let previous_owner = self._owner_of(token_id);
-            contract_state.erc721_votes.transfer_voting_units(previous_owner, to, 1);
+            contract_state.votes.transfer_voting_units(previous_owner, to, 1);
         }
     }
 

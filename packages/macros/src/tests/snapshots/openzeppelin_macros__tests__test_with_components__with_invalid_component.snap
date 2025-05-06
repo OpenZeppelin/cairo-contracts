@@ -10,10 +10,7 @@ None
 Diagnostics:
 
 ====
-Error: Invalid component: ERC6000
-
-Allowed components are:
-Account, EthAccount, SRC9, AccessControl, Ownable, Vesting, SRC5, Initializable, Pausable, ReentrancyGuard, ERC20, ERC721, ERC721Enumerable, ERC721Receiver, ERC1155, ERC1155Receiver, ERC2981, Upgradeable, Nonces, Multisig, TimelockController, Votes
+Error: ERC6000 is not in the list of allowed components.
 ====
 
 AuxData:

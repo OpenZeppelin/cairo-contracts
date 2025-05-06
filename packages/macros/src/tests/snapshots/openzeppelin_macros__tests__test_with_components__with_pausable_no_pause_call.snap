@@ -10,7 +10,7 @@ pub mod MyContract {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        pausable: PausableComponent::Storage,
+        pub pausable: PausableComponent::Storage,
     }
 
     #[generate_trait]
@@ -21,7 +21,6 @@ pub mod MyContract {
             self.pausable.unpause();
         }
     }
-
     use openzeppelin_security::PausableComponent;
 
     component!(path: PausableComponent, storage: pausable, event: PausableEvent);
@@ -40,7 +39,7 @@ pub mod MyContract {
 Diagnostics:
 
 ====
-Warning: It looks like either the `self.pausable.pause()` or `self.pausable.unpause()` mechanisms are not implemented in the contract. If
+Warning: It looks like the `self.pausable.pause()` and `self.pausable.unpause()` functions are not used in the contract. If
 this is intentional, you may consider removing the Pausable component.
 ====
 

@@ -12,9 +12,9 @@ pub mod VestingWallet {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        vesting: VestingComponent::Storage,
+        pub vesting: VestingComponent::Storage,
         #[substorage(v0)]
-        ownable: OwnableComponent::Storage,
+        pub ownable: OwnableComponent::Storage,
     }
 
     #[constructor]
@@ -28,9 +28,8 @@ pub mod VestingWallet {
         self.ownable.initializer(beneficiary);
         self.vesting.initializer(start, duration, cliff_duration);
     }
-
-    use openzeppelin_finance::vesting::VestingComponent;
     use openzeppelin_access::ownable::OwnableComponent;
+    use openzeppelin_finance::vesting::VestingComponent;
 
     component!(path: VestingComponent, storage: vesting, event: VestingEvent);
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
@@ -52,7 +51,8 @@ pub mod VestingWallet {
 Diagnostics:
 
 ====
-Warning: The Vesting component requires an implementation of the VestingScheduleTrait in scope. It looks like this implementation is missing.
+Warning: The Vesting component requires an implementation of the VestingScheduleTrait in scope and
+it looks like it is missing.
 
 You can use the LinearVestingSchedule implementation by importing it:
 

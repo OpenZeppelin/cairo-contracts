@@ -37,6 +37,8 @@ pub trait IVotes<TState> {
     );
 
     /// Returns the current clock value used for time-dependent operations.
+    ///
+    /// CAUTION: This function MUST always be non-decreasing.
     fn clock(self: @TState) -> u64;
 
     /// Returns a parsable description of the clock's mode or time measurement mechanism.

@@ -236,6 +236,8 @@ Interface of the IERC6372 standard.
 
 Returns the current clock value used for time-dependent operations.
 
+CAUTION: This function MUST always be non-decreasing.
+
 [.contract-item]
 [[IERC6372-CLOCK_MODE]]
 ==== `[.contract-item-name]#++CLOCK_MODE++#++() → ByteArray++` [.item-kind]#external#

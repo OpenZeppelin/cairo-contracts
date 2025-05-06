@@ -1,28 +1,7 @@
-#[starknet::interface]
-pub trait IERC6372<TState> {
-    /// Returns the current clock value used for time-dependent operations.
-    fn clock(self: @TState) -> u64;
+pub mod interface;
+pub mod block_number;
+pub mod timestamp;
 
-    /// Returns a parsable description of the clock's mode or time measurement mechanism.
-    fn CLOCK_MODE(self: @TState) -> ByteArray;
-}
-
-pub impl ERC6372BlockNumberClock<TState, +Drop<TState>> of IERC6372<TState> {
-    fn clock(self: @TState) -> u64 {
-        starknet::get_block_number()
-    }
-
-    fn CLOCK_MODE(self: @TState) -> ByteArray {
-        "mode=blocknumber&from=default"
-    }
-}
-
-pub impl ERC6372TimestampClock<TState, +Drop<TState>> of IERC6372<TState> {
-    fn clock(self: @TState) -> u64 {
-        starknet::get_block_timestamp()
-    }
-
-    fn CLOCK_MODE(self: @TState) -> ByteArray {
-        "mode=timestamp&from=starknet::SN_MAIN"
-    }
-}
+pub use block_number::ERC6372BlockNumberClock;
+pub use interface::IERC6372;
+pub use timestamp::ERC6372TimestampClock;

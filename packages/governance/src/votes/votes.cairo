@@ -200,13 +200,11 @@ pub mod VotesComponent {
         }
 
         /// Returns the current clock value used for time-dependent operations.
-        ///
-        /// CAUTION: This function MUST always be non-decreasing.
         fn clock(self: @ComponentState<TContractState>) -> u64 {
             Clock::clock()
         }
 
-        /// Returns a parsable description of the clock's mode or time measurement mechanism.
+        /// Returns a description of the clock's mode or time measurement mechanism.
         fn CLOCK_MODE(self: @ComponentState<TContractState>) -> ByteArray {
             Clock::CLOCK_MODE()
         }

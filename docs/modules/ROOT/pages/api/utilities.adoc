@@ -1,6 +1,7 @@
 = Utilities
 
 :deploy_syscall: link:https://docs.starknet.io/architecture-and-concepts/smart-contracts/system-calls-cairo1/#deploy[deploy_syscall]
+:eip6372: link:https://eips.ethereum.org/EIPS/eip-6372[EIP-6372]
 
 This crate provides miscellaneous components and libraries containing utility functions to handle common tasks.
 
@@ -211,14 +212,14 @@ Module containing ...
 
 [.contract]
 [#IERC6372Clock]
-=== `++IERC6372Clock++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.0/packages/utils/src/contract_clock.cairo[{github-icon},role=heading-link]
+=== `++IERC6372Clock++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.1/packages/utils/src/contract_clock.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
 use openzeppelin_utils::contract_clock::IERC6372Clock;
 ```
 
-Interface of the IERC6372Clock standard.
+Interface of the {eip6372} standard for exposing a contract's clock value and details.
 
 [.contract-index]
 .Functions
@@ -236,13 +237,19 @@ Interface of the IERC6372Clock standard.
 
 Returns the current clock value used for time-dependent operations.
 
-CAUTION: This function MUST always be non-decreasing.
+Requirements:
+
+- This function MUST always be non-decreasing.
 
 [.contract-item]
 [[IERC6372Clock-CLOCK_MODE]]
 ==== `[.contract-item-name]#++CLOCK_MODE++#++() → ByteArray++` [.item-kind]#external#
 
-Returns a parsable description of the clock's mode or time measurement mechanism.
+Returns a description of the clock's mode or time measurement mechanism.
+
+Requirements:
+
+- The output MUST be formatted like a URL query string, decodable in standard JavaScript.
 
 [#contract_clock-Impls]
 ==== Impls

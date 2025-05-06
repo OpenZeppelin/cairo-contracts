@@ -1,4 +1,4 @@
-use openzeppelin_utils::contract_clock::interface::IERC6372;
+use openzeppelin_utils::contract_clock::IERC6372;
 
 pub impl ERC6372TimestampClock of IERC6372 {
     fn clock() -> u64 {

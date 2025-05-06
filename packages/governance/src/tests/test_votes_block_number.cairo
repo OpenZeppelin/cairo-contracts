@@ -1,5 +1,5 @@
-use openzeppelin_test_common::mocks::votes::ERC721VotesMock::SNIP12MetadataImpl;
-use openzeppelin_test_common::mocks::votes::{ERC20VotesMock, ERC721VotesMock};
+use openzeppelin_test_common::mocks::votes::ERC721BlockNumberVotesMock::SNIP12MetadataImpl;
+use openzeppelin_test_common::mocks::votes::{ERC20BlockNumberVotesMock, ERC721BlockNumberVotesMock};
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{
     DELEGATEE, DELEGATOR, OTHER, RECIPIENT, SUPPLY, TIMESTAMP, ZERO,
@@ -11,12 +11,13 @@ use openzeppelin_token::erc721::ERC721Component::{
     ERC721CamelOnlyImpl, ERC721Impl, ERC721MetadataImpl, InternalImpl as ERC721InternalImpl,
 };
 use openzeppelin_token::erc721::interface::IERC721;
+use openzeppelin_utils::contract_clock::ERC6372BlockNumberClock;
 use openzeppelin_utils::cryptography::snip12::OffchainMessageHash;
 use openzeppelin_utils::structs::checkpoint::TraceTrait;
 use snforge_std::signature::stark_curve::{StarkCurveKeyPairImpl, StarkCurveSignerImpl};
 use snforge_std::{
-    start_cheat_block_timestamp_global, start_cheat_caller_address, start_cheat_chain_id_global,
-    test_address,
+    start_cheat_block_number_global, start_cheat_block_timestamp_global, start_cheat_caller_address,
+    start_cheat_chain_id_global, test_address,
 };
 use starknet::ContractAddress;
 use starknet::storage::StoragePathEntry;
@@ -31,8 +32,8 @@ const ERC721_INITIAL_MINT: u256 = 10;
 // Setup
 //
 
-type ComponentState = VotesComponent::ComponentState<ERC721VotesMock::ContractState>;
-type ERC20ComponentState = VotesComponent::ComponentState<ERC20VotesMock::ContractState>;
+type ComponentState = VotesComponent::ComponentState<ERC721BlockNumberVotesMock::ContractState>;
+type ERC20ComponentState = VotesComponent::ComponentState<ERC20BlockNumberVotesMock::ContractState>;
 
 fn COMPONENT_STATE() -> ComponentState {
     VotesComponent::component_state_for_testing()
@@ -42,12 +43,12 @@ fn ERC20_COMPONENT_STATE() -> ERC20ComponentState {
     VotesComponent::component_state_for_testing()
 }
 
-fn ERC721VOTES_CONTRACT_STATE() -> ERC721VotesMock::ContractState {
-    ERC721VotesMock::contract_state_for_testing()
+fn ERC721VOTES_CONTRACT_STATE() -> ERC721BlockNumberVotesMock::ContractState {
+    ERC721BlockNumberVotesMock::contract_state_for_testing()
 }
 
-fn ERC20VOTES_CONTRACT_STATE() -> ERC20VotesMock::ContractState {
-    ERC20VotesMock::contract_state_for_testing()
+fn ERC20VOTES_CONTRACT_STATE() -> ERC20BlockNumberVotesMock::ContractState {
+    ERC20BlockNumberVotesMock::contract_state_for_testing()
 }
 
 fn setup_erc721_votes() -> ComponentState {
@@ -102,17 +103,17 @@ fn test_get_past_votes() {
     let mut state = setup_erc721_votes();
     let mut trace = state.Votes_delegate_checkpoints.entry(DELEGATOR);
 
-    start_cheat_block_timestamp_global('ts10');
+    start_cheat_block_number_global('bn10');
 
-    trace.push('ts1', 3);
-    trace.push('ts2', 5);
-    trace.push('ts3', 7);
+    trace.push('bn1', 3);
+    trace.push('bn2', 5);
+    trace.push('bn3', 7);
 
-    assert_eq!(state.get_past_votes(DELEGATOR, 'ts1'), 3);
-    assert_eq!(state.get_past_votes(DELEGATOR, 'ts2'), 5);
-    assert_eq!(state.get_past_votes(DELEGATOR, 'ts5'), 7);
-    // This is because we had not delegated at 'ts0'
-    assert_eq!(state.get_past_votes(DELEGATOR, 'ts0'), 0);
+    assert_eq!(state.get_past_votes(DELEGATOR, 'bn1'), 3);
+    assert_eq!(state.get_past_votes(DELEGATOR, 'bn2'), 5);
+    assert_eq!(state.get_past_votes(DELEGATOR, 'bn5'), 7);
+    // This is because we had not delegated at 'bn0'
+    assert_eq!(state.get_past_votes(DELEGATOR, 'bn0'), 0);
 }
 
 #[test]
@@ -120,8 +121,8 @@ fn test_get_past_votes() {
 fn test_get_past_votes_future_lookup() {
     let state = setup_erc721_votes();
 
-    start_cheat_block_timestamp_global('ts1');
-    state.get_past_votes(DELEGATOR, 'ts2');
+    start_cheat_block_number_global('bn1');
+    state.get_past_votes(DELEGATOR, 'bn2');
 }
 
 //
@@ -133,37 +134,37 @@ fn test_get_past_total_supply() {
     let mut state = setup_erc721_votes();
     let mut trace = state.Votes_total_checkpoints.deref();
 
-    start_cheat_block_timestamp_global('ts10');
-    trace.push('ts1', 3);
-    trace.push('ts2', 5);
-    trace.push('ts3', 7);
+    start_cheat_block_number_global('bn10');
+    trace.push('bn1', 3);
+    trace.push('bn2', 5);
+    trace.push('bn3', 7);
 
-    // At ts 'ts0', the total supply is the initial mint
-    assert_eq!(state.get_past_total_supply('ts0'), ERC721_INITIAL_MINT);
-    assert_eq!(state.get_past_total_supply('ts1'), 3);
-    assert_eq!(state.get_past_total_supply('ts2'), 5);
-    assert_eq!(state.get_past_total_supply('ts5'), 7);
+    // At ts 'bn0', the total supply is the initial mint
+    assert_eq!(state.get_past_total_supply('bn0'), ERC721_INITIAL_MINT);
+    assert_eq!(state.get_past_total_supply('bn1'), 3);
+    assert_eq!(state.get_past_total_supply('bn2'), 5);
+    assert_eq!(state.get_past_total_supply('bn5'), 7);
 }
 
 #[test]
 fn test_get_past_total_supply_before_checkpoints() {
-    start_cheat_block_timestamp_global('ts1');
+    start_cheat_block_number_global('bn1');
     let mut state = setup_erc721_votes();
     let mut trace = state.Votes_total_checkpoints.deref();
 
-    start_cheat_block_timestamp_global('ts10');
-    trace.push('ts1', 3);
-    trace.push('ts2', 5);
+    start_cheat_block_number_global('bn10');
+    trace.push('bn1', 3);
+    trace.push('bn2', 5);
 
-    assert_eq!(state.get_past_total_supply('ts0'), 0);
+    assert_eq!(state.get_past_total_supply('bn0'), 0);
 }
 
 #[test]
 #[should_panic(expected: 'Votes: future Lookup')]
 fn test_get_past_total_supply_future_lookup() {
     let state = setup_erc721_votes();
-    start_cheat_block_timestamp_global('ts1');
-    state.get_past_total_supply('ts2');
+    start_cheat_block_number_global('bn1');
+    state.get_past_total_supply('bn2');
 }
 
 //
@@ -406,11 +407,11 @@ fn test_num_checkpoints() {
     let mut state = setup_erc721_votes();
     let mut trace = state.Votes_delegate_checkpoints.entry(DELEGATOR);
 
-    start_cheat_block_timestamp_global('ts10');
+    start_cheat_block_number_global('bn10');
 
-    trace.push('ts1', 3);
-    trace.push('ts2', 5);
-    trace.push('ts3', 7);
+    trace.push('bn1', 3);
+    trace.push('bn2', 5);
+    trace.push('bn3', 7);
 
     assert_eq!(state.num_checkpoints(DELEGATOR), 3);
     assert_eq!(state.num_checkpoints(OTHER), 0);
@@ -425,22 +426,22 @@ fn test_checkpoints() {
     let mut state = setup_erc721_votes();
     let mut trace = state.Votes_delegate_checkpoints.entry(DELEGATOR);
 
-    start_cheat_block_timestamp_global('ts10');
+    start_cheat_block_number_global('bn10');
 
-    trace.push('ts1', 3);
-    trace.push('ts2', 5);
-    trace.push('ts3', 7);
+    trace.push('bn1', 3);
+    trace.push('bn2', 5);
+    trace.push('bn3', 7);
 
     let checkpoint0 = state.checkpoints(DELEGATOR, 0);
-    assert_eq!(checkpoint0.key, 'ts1');
+    assert_eq!(checkpoint0.key, 'bn1');
     assert_eq!(checkpoint0.value, 3);
 
     let checkpoint1 = state.checkpoints(DELEGATOR, 1);
-    assert_eq!(checkpoint1.key, 'ts2');
+    assert_eq!(checkpoint1.key, 'bn2');
     assert_eq!(checkpoint1.value, 5);
 
     let checkpoint2 = state.checkpoints(DELEGATOR, 2);
-    assert_eq!(checkpoint2.key, 'ts3');
+    assert_eq!(checkpoint2.key, 'bn3');
     assert_eq!(checkpoint2.value, 7);
 }
 
@@ -470,7 +471,7 @@ fn test_erc20_burn_updates_votes() {
     let mut mock_state = ERC20VOTES_CONTRACT_STATE();
     let contract_address = test_address();
     start_cheat_caller_address(contract_address, DELEGATOR);
-    start_cheat_block_timestamp_global('ts1');
+    start_cheat_block_number_global('bn1');
 
     state.delegate(DELEGATOR);
 
@@ -480,13 +481,13 @@ fn test_erc20_burn_updates_votes() {
     mock_state.erc20.burn(DELEGATOR, burn_amount);
 
     // We need to move the timestamp forward to be able to call get_past_total_supply
-    start_cheat_block_timestamp_global('ts2');
+    start_cheat_block_number_global('bn2');
     spy
         .assert_event_delegate_votes_changed(
             contract_address, DELEGATOR, SUPPLY, SUPPLY - burn_amount,
         );
     assert_eq!(state.get_votes(DELEGATOR), SUPPLY - burn_amount);
-    assert_eq!(state.get_past_total_supply('ts1'), SUPPLY - burn_amount);
+    assert_eq!(state.get_past_total_supply('bn1'), SUPPLY - burn_amount);
 }
 
 #[test]
@@ -495,7 +496,7 @@ fn test_erc721_burn_updates_votes() {
     let mut mock_state = ERC721VOTES_CONTRACT_STATE();
     let contract_address = test_address();
     start_cheat_caller_address(contract_address, DELEGATOR);
-    start_cheat_block_timestamp_global('ts1');
+    start_cheat_block_number_global('bn1');
 
     state.delegate(DELEGATOR);
 
@@ -511,9 +512,9 @@ fn test_erc721_burn_updates_votes() {
     }
 
     // We need to move the timestamp forward to be able to call get_past_total_supply
-    start_cheat_block_timestamp_global('ts2');
+    start_cheat_block_number_global('bn2');
     assert_eq!(state.get_votes(DELEGATOR), ERC721_INITIAL_MINT - burn_amount);
-    assert_eq!(state.get_past_total_supply('ts1'), ERC721_INITIAL_MINT - burn_amount);
+    assert_eq!(state.get_past_total_supply('bn1'), ERC721_INITIAL_MINT - burn_amount);
 }
 
 #[test]
@@ -628,14 +629,14 @@ fn test_erc721_voting_units_update_with_single_token_transfer() {
 #[test]
 fn test_clock() {
     let state = COMPONENT_STATE();
-    start_cheat_block_timestamp_global(TIMESTAMP);
+    start_cheat_block_number_global(TIMESTAMP);
     assert_eq!(state.clock(), TIMESTAMP);
 }
 
 #[test]
 fn test_CLOCK_MODE() {
     let state = COMPONENT_STATE();
-    assert_eq!(state.CLOCK_MODE(), "mode=timestamp&from=starknet::SN_MAIN");
+    assert_eq!(state.CLOCK_MODE(), "mode=blocknumber&from=default");
 }
 
 //

@@ -573,7 +573,7 @@ fn test_execute_failing_tx() {
 }
 
 #[test]
-#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND'))]
+#[should_panic(expected: 'ENTRYPOINT_NOT_FOUND')]
 fn test_execute_bad_selector() {
     let (mut timelock, mut target) = setup_dispatchers();
     let predecessor = NO_PREDECESSOR;

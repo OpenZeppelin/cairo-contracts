@@ -556,7 +556,7 @@ fn test_safeTransferFrom_to_receiver_failure() {
 }
 
 #[test]
-#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND'))]
+#[should_panic(expected: 'ENTRYPOINT_NOT_FOUND')]
 fn test_safe_transfer_from_to_non_receiver() {
     let (_, dispatcher) = setup_dispatcher();
     let recipient = utils::declare_and_deploy("NonImplementingMock", array![]);
@@ -567,7 +567,7 @@ fn test_safe_transfer_from_to_non_receiver() {
 }
 
 #[test]
-#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND'))]
+#[should_panic(expected: 'ENTRYPOINT_NOT_FOUND')]
 fn test_safeTransferFrom_to_non_receiver() {
     let (_, dispatcher) = setup_dispatcher();
     let recipient = utils::declare_and_deploy("NonImplementingMock", array![]);

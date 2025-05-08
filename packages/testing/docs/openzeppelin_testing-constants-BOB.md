@@ -2,7 +2,5 @@
 
 Fully qualified path: `openzeppelin_testing::constants::BOB`
 
-```rust
-pub const BOB: ContractAddress = 'BOB'.as_address();
-```
+<pre><code class="language-rust">pub const BOB: ContractAddress = &apos;BOB&apos;.as_address();</code></pre>
 

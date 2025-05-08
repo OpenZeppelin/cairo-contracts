@@ -4,9 +4,7 @@ Asserts that the syscall result of a call failed with an "Entrypoint not found" 
 
 Fully qualified path: `openzeppelin_testing::common::assert_entrypoint_not_found_error`
 
-```rust
-pub fn assert_entrypoint_not_found_error<T, +Drop<T>>(
-    result: SyscallResult<T>, selector: felt252, contract_address: ContractAddress,
-)
-```
+<pre><code class="language-rust">pub fn assert_entrypoint_not_found_error&lt;T, +Drop&lt;T&gt;&gt;(
+    result: SyscallResult&lt;T&gt;, selector: felt252, contract_address: ContractAddress,
+)</code></pre>
 

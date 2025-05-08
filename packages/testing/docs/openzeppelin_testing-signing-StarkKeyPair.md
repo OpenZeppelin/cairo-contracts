@@ -2,7 +2,5 @@
 
 Fully qualified path: `openzeppelin_testing::signing::StarkKeyPair`
 
-```rust
-pub type StarkKeyPair = KeyPair<felt252, felt252>;
-```
+<pre><code class="language-rust">pub type StarkKeyPair = KeyPair&lt;felt252, felt252&gt;;</code></pre>
 

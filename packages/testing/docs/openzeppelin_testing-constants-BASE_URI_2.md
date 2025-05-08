@@ -2,7 +2,5 @@
 
 Fully qualified path: `openzeppelin_testing::constants::BASE_URI_2`
 
-```rust
-pub fn BASE_URI_2() -> ByteArray
-```
+<pre><code class="language-rust">pub fn BASE_URI_2() -&gt; ByteArray</code></pre>
 

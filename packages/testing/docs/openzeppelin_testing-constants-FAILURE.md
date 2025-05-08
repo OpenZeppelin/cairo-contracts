@@ -2,7 +2,5 @@
 
 Fully qualified path: `openzeppelin_testing::constants::FAILURE`
 
-```rust
-pub const FAILURE: felt252 = 'FAILURE';
-```
+<pre><code class="language-rust">pub const FAILURE: felt252 = &apos;FAILURE&apos;;</code></pre>
 

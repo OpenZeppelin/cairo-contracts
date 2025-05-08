@@ -10,14 +10,13 @@ pub mod MyContract {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        erc1155_receiver: ERC1155ReceiverComponent::Storage,
+        pub erc1155_receiver: ERC1155ReceiverComponent::Storage,
     }
 
     #[constructor]
     fn constructor(ref self: ContractState) {
         self.erc1155_receiver.initializer();
     }
-
     use openzeppelin_token::erc1155::ERC1155ReceiverComponent;
 
     component!(

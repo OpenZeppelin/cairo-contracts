@@ -10,14 +10,13 @@ pub mod MyContract {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        src9: SRC9Component::Storage,
+        pub src9: SRC9Component::Storage,
     }
 
     #[constructor]
     fn constructor(ref self: ContractState) {
         self.src9.initializer();
     }
-
     use openzeppelin_account::extensions::SRC9Component;
 
     component!(path: SRC9Component, storage: src9, event: SRC9Event);

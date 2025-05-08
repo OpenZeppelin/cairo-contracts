@@ -12,14 +12,13 @@ pub mod MyContract {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        eth_account: EthAccountComponent::Storage,
+        pub eth_account: EthAccountComponent::Storage,
     }
 
     #[constructor]
     fn constructor(ref self: ContractState, public_key: EthPublicKey) {
         self.eth_account.initializer(public_key);
     }
-
     use openzeppelin_account::EthAccountComponent;
 
     component!(path: EthAccountComponent, storage: eth_account, event: EthAccountEvent);

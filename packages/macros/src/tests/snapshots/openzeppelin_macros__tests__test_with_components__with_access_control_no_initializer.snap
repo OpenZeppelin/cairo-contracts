@@ -13,12 +13,11 @@ pub mod Contract {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        access_control: AccessControlComponent::Storage,
+        pub access_control: AccessControlComponent::Storage,
     }
 
     #[constructor]
     fn constructor(ref self: ContractState) {}
-
     use openzeppelin_access::accesscontrol::AccessControlComponent;
 
     component!(path: AccessControlComponent, storage: access_control, event: AccessControlEvent);
@@ -41,7 +40,8 @@ Warning: It looks like the initializers for the following components are missing
 
 AccessControl
 
-This may lead to unexpected behavior. We recommend adding the corresponding initializer calls to the constructor.
+This may lead to unexpected behavior.
+We recommend adding the corresponding initializer calls to the constructor.
 ====
 
 AuxData:

@@ -10,14 +10,13 @@ pub mod MyContract {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        erc1155: ERC1155Component::Storage,
+        pub erc1155: ERC1155Component::Storage,
     }
 
     #[constructor]
     fn constructor(ref self: ContractState) {
         self.erc1155.initializer("");
     }
-
     use openzeppelin_token::erc1155::ERC1155Component;
 
     component!(path: ERC1155Component, storage: erc1155, event: ERC1155Event);
@@ -36,7 +35,8 @@ pub mod MyContract {
 Diagnostics:
 
 ====
-Warning: The ERC1155 component requires an implementation of the ERC1155HooksTrait in scope. It looks like this implementation is missing.
+Warning: The ERC1155 component requires an implementation of the ERC1155HooksTrait in scope and
+it looks like it is missing.
 
 You can use the ERC1155HooksEmptyImpl implementation by importing it:
 

@@ -12,14 +12,13 @@ pub mod MyContract {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        multisig: MultisigComponent::Storage,
+        pub multisig: MultisigComponent::Storage,
     }
 
     #[constructor]
     fn constructor(ref self: ContractState, quorum: u32, signers: Span<ContractAddress>) {
         self.multisig.initializer(quorum, signers);
     }
-
     use openzeppelin_governance::multisig::MultisigComponent;
 
     component!(path: MultisigComponent, storage: multisig, event: MultisigEvent);

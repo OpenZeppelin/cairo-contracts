@@ -1,13 +1,10 @@
 const SUCCESS: felt252 = 'SUCCESS';
 
 #[starknet::contract]
+#[with_components(ERC721, SRC5)]
 pub mod DualCaseERC721Mock {
-    use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_token::erc721::{ERC721Component, ERC721HooksEmptyImpl};
+    use openzeppelin_token::erc721::ERC721HooksEmptyImpl;
     use starknet::ContractAddress;
-
-    component!(path: ERC721Component, storage: erc721, event: ERC721Event);
-    component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
     // ERC721
     #[abi(embed_v0)]
@@ -19,28 +16,13 @@ pub mod DualCaseERC721Mock {
     #[abi(embed_v0)]
     impl ERC721MetadataCamelOnly =
         ERC721Component::ERC721MetadataCamelOnlyImpl<ContractState>;
-    impl ERC721InternalImpl = ERC721Component::InternalImpl<ContractState>;
 
     // SRC5
     #[abi(embed_v0)]
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[storage]
-    pub struct Storage {
-        #[substorage(v0)]
-        pub erc721: ERC721Component::Storage,
-        #[substorage(v0)]
-        pub src5: SRC5Component::Storage,
-    }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        #[flat]
-        ERC721Event: ERC721Component::Event,
-        #[flat]
-        SRC5Event: SRC5Component::Event,
-    }
+    pub struct Storage {}
 
     #[constructor]
     fn constructor(
@@ -57,41 +39,23 @@ pub mod DualCaseERC721Mock {
 }
 
 #[starknet::contract]
+#[with_components(ERC721, SRC5)]
 pub mod SnakeERC721Mock {
-    use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_token::erc721::{ERC721Component, ERC721HooksEmptyImpl};
+    use openzeppelin_token::erc721::ERC721HooksEmptyImpl;
     use starknet::ContractAddress;
-
-    component!(path: ERC721Component, storage: erc721, event: ERC721Event);
-    component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
     // ERC721
     #[abi(embed_v0)]
     impl ERC721Impl = ERC721Component::ERC721Impl<ContractState>;
     #[abi(embed_v0)]
     impl ERC721MetadataImpl = ERC721Component::ERC721MetadataImpl<ContractState>;
-    impl ERC721InternalImpl = ERC721Component::InternalImpl<ContractState>;
 
     // SRC5
     #[abi(embed_v0)]
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[storage]
-    pub struct Storage {
-        #[substorage(v0)]
-        pub erc721: ERC721Component::Storage,
-        #[substorage(v0)]
-        pub src5: SRC5Component::Storage,
-    }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        #[flat]
-        ERC721Event: ERC721Component::Event,
-        #[flat]
-        SRC5Event: SRC5Component::Event,
-    }
+    pub struct Storage {}
 
     #[constructor]
     fn constructor(
@@ -110,40 +74,26 @@ pub mod SnakeERC721Mock {
 /// Similar as `SnakeERC721Mock`, but emits events for `before_update` and `after_update` hooks.
 /// This is used to test that the hooks are called with the correct arguments.
 #[starknet::contract]
+#[with_components(ERC721, SRC5)]
 pub mod SnakeERC721MockWithHooks {
-    use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_token::erc721::ERC721Component;
     use starknet::ContractAddress;
-
-    component!(path: ERC721Component, storage: erc721, event: ERC721Event);
-    component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
     // ERC721
     #[abi(embed_v0)]
     impl ERC721Impl = ERC721Component::ERC721Impl<ContractState>;
     #[abi(embed_v0)]
     impl ERC721MetadataImpl = ERC721Component::ERC721MetadataImpl<ContractState>;
-    impl ERC721InternalImpl = ERC721Component::InternalImpl<ContractState>;
 
     // SRC5
     #[abi(embed_v0)]
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[storage]
-    pub struct Storage {
-        #[substorage(v0)]
-        pub erc721: ERC721Component::Storage,
-        #[substorage(v0)]
-        pub src5: SRC5Component::Storage,
-    }
+    pub struct Storage {}
 
     #[event]
     #[derive(Drop, starknet::Event)]
     pub enum Event {
-        #[flat]
-        ERC721Event: ERC721Component::Event,
-        #[flat]
-        SRC5Event: SRC5Component::Event,
         BeforeUpdate: BeforeUpdate,
         AfterUpdate: AfterUpdate,
     }
@@ -201,38 +151,19 @@ pub mod SnakeERC721MockWithHooks {
 }
 
 #[starknet::contract]
+#[with_components(ERC721Receiver, SRC5)]
 pub mod DualCaseERC721ReceiverMock {
-    use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_token::erc721::ERC721ReceiverComponent;
     use starknet::ContractAddress;
-
-    component!(path: ERC721ReceiverComponent, storage: erc721_receiver, event: ERC721ReceiverEvent);
-    component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
     // ERC721Receiver
     impl ERC721ReceiverImpl = ERC721ReceiverComponent::ERC721ReceiverImpl<ContractState>;
-    impl ERC721ReceiverInternalImpl = ERC721ReceiverComponent::InternalImpl<ContractState>;
 
     // SRC5
     #[abi(embed_v0)]
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[storage]
-    pub struct Storage {
-        #[substorage(v0)]
-        pub erc721_receiver: ERC721ReceiverComponent::Storage,
-        #[substorage(v0)]
-        pub src5: SRC5Component::Storage,
-    }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        #[flat]
-        ERC721ReceiverEvent: ERC721ReceiverComponent::Event,
-        #[flat]
-        SRC5Event: SRC5Component::Event,
-    }
+    pub struct Storage {}
 
     #[constructor]
     fn constructor(ref self: ContractState) {
@@ -271,54 +202,25 @@ pub mod DualCaseERC721ReceiverMock {
 }
 
 #[starknet::contract]
+#[with_components(ERC721, ERC721Enumerable, SRC5)]
 pub mod ERC721EnumerableMock {
-    use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_token::erc721::ERC721Component;
-    use openzeppelin_token::erc721::extensions::ERC721EnumerableComponent;
-    use openzeppelin_token::erc721::extensions::ERC721EnumerableComponent::InternalTrait;
     use starknet::ContractAddress;
-
-    component!(path: ERC721Component, storage: erc721, event: ERC721Event);
-    component!(
-        path: ERC721EnumerableComponent, storage: erc721_enumerable, event: ERC721EnumerableEvent,
-    );
-    component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
     // ERC721
     #[abi(embed_v0)]
     impl ERC721MixinImpl = ERC721Component::ERC721Impl<ContractState>;
-    impl ERC721InternalImpl = ERC721Component::InternalImpl<ContractState>;
 
     // ERC721Enumerable
     #[abi(embed_v0)]
     impl ERC721EnumerableImpl =
         ERC721EnumerableComponent::ERC721EnumerableImpl<ContractState>;
-    impl ERC721EnumerableInternalImpl = ERC721EnumerableComponent::InternalImpl<ContractState>;
 
     // SRC5
     #[abi(embed_v0)]
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[storage]
-    pub struct Storage {
-        #[substorage(v0)]
-        pub erc721: ERC721Component::Storage,
-        #[substorage(v0)]
-        pub erc721_enumerable: ERC721EnumerableComponent::Storage,
-        #[substorage(v0)]
-        pub src5: SRC5Component::Storage,
-    }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        #[flat]
-        ERC721Event: ERC721Component::Event,
-        #[flat]
-        ERC721EnumerableEvent: ERC721EnumerableComponent::Event,
-        #[flat]
-        SRC5Event: SRC5Component::Event,
-    }
+    pub struct Storage {}
 
     impl ERC721HooksImpl of ERC721Component::ERC721HooksTrait<ContractState> {
         fn before_update(

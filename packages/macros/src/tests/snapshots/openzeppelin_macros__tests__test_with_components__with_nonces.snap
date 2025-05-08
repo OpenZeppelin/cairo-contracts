@@ -10,9 +10,8 @@ pub mod MyContract {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        nonces: NoncesComponent::Storage,
+        pub nonces: NoncesComponent::Storage,
     }
-
     use openzeppelin_utils::nonces::NoncesComponent;
 
     component!(path: NoncesComponent, storage: nonces, event: NoncesEvent);

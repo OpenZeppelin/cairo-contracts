@@ -10,7 +10,7 @@ pub mod MyContract {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        initializable: InitializableComponent::Storage,
+        pub initializable: InitializableComponent::Storage,
     }
 
     #[generate_trait]
@@ -21,7 +21,6 @@ pub mod MyContract {
             self.initializable.initialize();
         }
     }
-
     use openzeppelin_security::InitializableComponent;
 
     component!(path: InitializableComponent, storage: initializable, event: InitializableEvent);

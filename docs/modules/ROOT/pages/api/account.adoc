@@ -14,7 +14,7 @@ include::../utils/_common.adoc[]
 
 [.contract]
 [[ISRC6]]
-=== `++ISRC6++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.0/packages/account/src/interface.cairo[{github-icon},role=heading-link]
+=== `++ISRC6++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.1/packages/account/src/interface.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin_account::interface::ISRC6;
@@ -65,7 +65,7 @@ Returns the short string `'VALID'` if valid, otherwise it reverts.
 
 [.contract]
 [[AccountComponent]]
-=== `++AccountComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.0/packages/account/src/account.cairo[{github-icon},role=heading-link]
+=== `++AccountComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.1/packages/account/src/account.cairo[{github-icon},role=heading-link]
 
 :OwnerAdded: xref:AccountComponent-OwnerAdded[OwnerAdded]
 :OwnerRemoved: xref:AccountComponent-OwnerRemoved[OwnerRemoved]
@@ -315,7 +315,7 @@ Emitted when a `public_key` is removed.
 
 [.contract]
 [[EthAccountComponent]]
-=== `++EthAccountComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.0/packages/account/src/eth_account.cairo[{github-icon},role=heading-link]
+=== `++EthAccountComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.1/packages/account/src/eth_account.cairo[{github-icon},role=heading-link]
 
 :OwnerAdded: xref:EthAccountComponent-OwnerAdded[OwnerAdded]
 :OwnerRemoved: xref:EthAccountComponent-OwnerRemoved[OwnerRemoved]
@@ -570,7 +570,7 @@ Emitted when a `public_key` is removed.
 
 [.contract]
 [[ISRC9_V2]]
-=== `++ISRC9_V2++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.0/packages/account/src/extensions/src9/interface.cairo[{github-icon},role=heading-link]
+=== `++ISRC9_V2++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.1/packages/account/src/extensions/src9/interface.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin_account::extensions::src9::ISRC9_V2;
@@ -620,7 +620,7 @@ Get the status of a given nonce. `true` if the nonce is available to use.
 
 [.contract]
 [[SRC9Component]]
-=== `++SRC9Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.0/packages/account/src/extensions/src9/src9.cairo[{github-icon},role=heading-link]
+=== `++SRC9Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.1/packages/account/src/extensions/src9/src9.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin_account::extensions::SRC9Component;
@@ -696,7 +696,7 @@ Initializes the account by registering the `ISRC9_V2` interface ID.
 
 [.contract]
 [[AccountUpgradeable]]
-=== `++AccountUpgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.0/packages/presets/src/account.cairo[{github-icon},role=heading-link]
+=== `++AccountUpgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.1/packages/presets/src/account.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin_presets::AccountUpgradeable;
@@ -760,7 +760,7 @@ Requirements:
 
 [.contract]
 [[EthAccountUpgradeable]]
-=== `++EthAccountUpgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.0/packages/presets/src/eth_account.cairo[{github-icon},role=heading-link]
+=== `++EthAccountUpgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.1/packages/presets/src/eth_account.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin_presets::EthAccountUpgradeable;

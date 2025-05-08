@@ -58,7 +58,7 @@ Install the library by declaring it as a dependency in the project's `Scarb.toml
 [,text]
 ----
 [dependencies]
-openzeppelin = "2.0.0-alpha.0"
+openzeppelin = "2.0.0-alpha.1"
 ----
 
 The previous example would import the entire library. We can also add each package as a separate dependency to
@@ -67,8 +67,8 @@ improve the building time by not including modules that won't be used:
 [,text]
 ----
 [dependencies]
-openzeppelin_access = "2.0.0-alpha.0"
-openzeppelin_token = "2.0.0-alpha.0"
+openzeppelin_access = "2.0.0-alpha.1"
+openzeppelin_token = "2.0.0-alpha.1"
 ----
 
 == Basic usage
@@ -76,12 +76,12 @@ openzeppelin_token = "2.0.0-alpha.0"
 This is how it looks to build an ERC20 contract using the xref:erc20.adoc[ERC20 component].
 Copy the code into `src/lib.cairo`.
 
-TIP: If you added the entire library as a dependency, use `openzeppelin::token` instead of `openzeppelin_token` for the imports.
-
 [,cairo]
 ----
 #[starknet::contract]
 mod MyERC20Token {
+    // NOTE: If you added the entire library as a dependency,
+    // use `openzeppelin::token` instead.
     use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl, DefaultConfig};
     use starknet::ContractAddress;
 

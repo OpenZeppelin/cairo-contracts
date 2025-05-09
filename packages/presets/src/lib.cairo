@@ -3,8 +3,8 @@ pub mod erc1155;
 pub mod erc20;
 pub mod erc721;
 pub mod eth_account;
-pub mod meta_tx_v0;
 pub mod interfaces;
+pub mod meta_tx_v0;
 
 #[cfg(test)]
 mod tests;

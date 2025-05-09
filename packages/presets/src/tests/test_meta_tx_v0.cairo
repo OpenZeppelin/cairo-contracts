@@ -1,10 +1,8 @@
-use crate::interfaces::{
-    MetaTransactionV0ABIDispatcher, MetaTransactionV0ABIDispatcherTrait,
-};
 use openzeppelin_test_common::mocks::get_info::{IGetInfoDispatcher, IGetInfoDispatcherTrait};
 use openzeppelin_testing as utils;
 use snforge_std::start_cheat_transaction_version_global;
 use starknet::SyscallResultTrait;
+use crate::interfaces::{MetaTransactionV0ABIDispatcher, MetaTransactionV0ABIDispatcherTrait};
 
 //
 // Setup

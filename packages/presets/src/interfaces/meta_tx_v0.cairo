@@ -21,5 +21,5 @@ pub trait MetaTransactionV0ABI<TState> {
         entry_point_selector: felt252,
         calldata: Span<felt252>,
         signature: Span<felt252>,
-    );
+    ) -> starknet::SyscallResult<Span<felt252>>;
 }

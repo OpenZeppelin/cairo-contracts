@@ -21,5 +21,7 @@ pub use eth_account::{
     EthAccountUpgradeableABI, EthAccountUpgradeableABIDispatcher,
     EthAccountUpgradeableABIDispatcherTrait,
 };
-pub use meta_tx_v0::MetaTransactionV0ABI;
+pub use meta_tx_v0::{
+    MetaTransactionV0ABI, MetaTransactionV0ABIDispatcher, MetaTransactionV0ABIDispatcherTrait,
+};
 pub use vesting::{VestingWalletABI, VestingWalletABIDispatcher, VestingWalletABIDispatcherTrait};

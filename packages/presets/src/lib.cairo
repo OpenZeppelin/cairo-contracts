@@ -3,6 +3,7 @@ pub mod erc1155;
 pub mod erc20;
 pub mod erc721;
 pub mod eth_account;
+pub mod meta_tx_v0;
 pub mod interfaces;
 
 #[cfg(test)]
@@ -16,5 +17,6 @@ pub use erc1155::ERC1155Upgradeable;
 pub use erc20::ERC20Upgradeable;
 pub use erc721::ERC721Upgradeable;
 pub use eth_account::EthAccountUpgradeable;
+pub use meta_tx_v0::MetaTransactionV0;
 pub use universal_deployer::UniversalDeployer;
 pub use vesting::VestingWallet;

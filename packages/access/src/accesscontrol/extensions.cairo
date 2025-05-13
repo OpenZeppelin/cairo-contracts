@@ -1,0 +1,5 @@
+pub mod accesscontrol_default_admin_rules;
+pub mod interface;
+
+pub use accesscontrol_default_admin_rules::AccessControlDefaultAdminRulesComponent;
+pub use accesscontrol_default_admin_rules::AccessControlDefaultAdminRulesComponent::DEFAULT_ADMIN_ROLE;

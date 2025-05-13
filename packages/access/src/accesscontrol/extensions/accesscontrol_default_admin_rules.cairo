@@ -114,7 +114,7 @@ pub mod AccessControlDefaultAdminRulesComponent {
     /// Constants expected to be defined at the contract level used to configure the component
     /// behaviour.
     ///
-    /// - `DEFAULT_ADMIN_DELAY_INCREASE_WAIT`: Returns the maximun number of seconds to wait for a
+    /// - `DEFAULT_ADMIN_DELAY_INCREASE_WAIT`: Returns the maximum number of seconds to wait for a
     /// delay increase.
     pub trait ImmutableConfig {
         const DEFAULT_ADMIN_DELAY_INCREASE_WAIT: u64;

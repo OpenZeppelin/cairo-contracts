@@ -2,6 +2,7 @@
 
 [![Lint and test](https://github.com/OpenZeppelin/cairo-contracts/actions/workflows/test.yml/badge.svg)](https://github.com/OpenZeppelin/cairo-contracts/actions/workflows/test.yml)
 [![License](https://img.shields.io/github/license/OpenZeppelin/cairo-contracts)](https://github.com/OpenZeppelin/cairo-contracts/blob/main/LICENSE)
+[![Docs](https://img.shields.io/badge/docs-%F0%9F%93%84-yellow)](https://docs.openzeppelin.com/contracts-cairo/1.0.0/)
 
 **A library for secure smart contract development** written in Cairo for [Starknet](https://starkware.co/product/starknet/), a decentralized ZK Rollup.
 

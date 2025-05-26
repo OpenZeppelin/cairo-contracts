@@ -20,7 +20,6 @@ pub mod MetaTransactionV0 {
         /// * The caller is the OS (address 0).
         /// * The transaction version is replaced by 0.
         /// * The transaction hash is replaced by the corresponding version-0 transaction hash.
-        /// * The calldata is passed to the __execute__ entry point of the target contract.
         ///
         /// The context changes apply to the called contract and the inner contracts it calls,
         /// except for the caller, which is updated appropriately in subcalls.
@@ -30,10 +29,11 @@ pub mod MetaTransactionV0 {
         fn execute_meta_tx_v0(
             ref self: ContractState,
             target: ContractAddress,
+            entry_point_selector: felt252,
             calldata: Span<felt252>,
             signature: Span<felt252>,
         ) -> starknet::SyscallResult<Span<felt252>> {
-            meta_tx_v0_syscall(target, '__execute__', calldata, signature)
+            meta_tx_v0_syscall(target, entry_point_selector, calldata, signature)
         }
     }
 }

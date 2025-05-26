@@ -133,7 +133,7 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_testing"
-version = "4.0.0"
+version = "4.0.1"
 dependencies = [
  "snforge_std",
 ]

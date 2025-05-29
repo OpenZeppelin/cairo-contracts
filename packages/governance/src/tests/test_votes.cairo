@@ -1,7 +1,9 @@
+// use core::num::traits::Zero;
 use openzeppelin_test_common::mocks::votes::ERC721VotesMock::SNIP12MetadataImpl;
 use openzeppelin_test_common::mocks::votes::{ERC20VotesMock, ERC721VotesMock};
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{DELEGATEE, DELEGATOR, OTHER, RECIPIENT, SUPPLY, ZERO};
+use openzeppelin_testing::events::assert_indexed_keys;
 use openzeppelin_testing::{AsAddressTrait, EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use openzeppelin_token::erc20::ERC20Component::InternalTrait;
 use openzeppelin_token::erc20::interface::IERC20;
@@ -672,4 +674,26 @@ impl VotesSpyHelpersImpl of VotesSpyHelpers {
         self.assert_event_delegate_votes_changed(contract, delegate, previous_votes, new_votes);
         self.assert_no_events_left_from(contract);
     }
+}
+
+#[test]
+fn test_delegate_changed_event_indexed_keys() {
+    let delegator = DELEGATOR;
+    let from_delegate = ZERO;
+    let to_delegate = RECIPIENT;
+
+    let delegate_event = VotesComponent::DelegateChanged { delegator, from_delegate, to_delegate };
+    let expected_keys = array![delegator.into(), from_delegate.into(), to_delegate.into()];
+    assert_indexed_keys(@delegate_event, @expected_keys);
+}
+
+#[test]
+fn test_delegate_votes_changed_event_indexed_keys() {
+    let delegate = DELEGATOR;
+    let previous_votes = 0;
+    let new_votes = SUPPLY;
+
+    let votes_event = VotesComponent::DelegateVotesChanged { delegate, previous_votes, new_votes };
+    let expected_keys = array![delegate.into()];
+    assert_indexed_keys(@votes_event, @expected_keys);
 }

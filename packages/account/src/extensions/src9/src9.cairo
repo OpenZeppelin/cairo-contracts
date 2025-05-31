@@ -16,7 +16,7 @@ pub mod SRC9Component {
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
     use crate::extensions::src9::snip12_utils::OutsideExecutionStructHash;
     use crate::extensions::src9::{OutsideExecution, interface};
-    use crate::utils::{execute_calls, assert_valid_signature};
+    use crate::utils::{assert_valid_signature, execute_calls};
 
     #[storage]
     pub struct Storage {
@@ -103,7 +103,9 @@ pub mod SRC9Component {
 
             // Make this component agnostic to the account implementation, as long
             // as the contract implements the SRC6 interface.
-            assert_valid_signature(this, outside_tx_hash, signature.into(), Errors::INVALID_SIGNATURE);
+            assert_valid_signature(
+                this, outside_tx_hash, signature.into(), Errors::INVALID_SIGNATURE,
+            );
 
             // 5. Execute the calls
             execute_calls(outside_execution.calls)

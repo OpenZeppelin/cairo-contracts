@@ -1,6 +1,6 @@
 use openzeppelin_testing::constants::{TRANSACTION_HASH, stark};
 use openzeppelin_testing::signing::SerializedSigning;
-use snforge_std::{declare, ContractClassTrait, DeclareResultTrait};
+use snforge_std::{ContractClassTrait, DeclareResultTrait, declare};
 use crate::utils::assert_valid_signature;
 
 //

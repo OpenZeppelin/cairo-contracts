@@ -1517,7 +1517,8 @@ fn test_transfer_event_indexed_keys() {
     let token_id = TOKEN_ID;
 
     let transfer_event = ERC721Component::Transfer { from, to, token_id };
-    let expected_keys = array![from.into(), to.into(), token_id.try_into().unwrap()];
+    let token_id_felt: felt252 = token_id.low.into();
+    let expected_keys = array![from.into(), to.into(), token_id_felt];
     assert_indexed_keys(@transfer_event, @expected_keys);
 }
 
@@ -1528,7 +1529,8 @@ fn test_approval_event_indexed_keys() {
     let token_id = TOKEN_ID;
 
     let approval_event = ERC721Component::Approval { owner, approved, token_id };
-    let expected_keys = array![owner.into(), approved.into(), token_id.try_into().unwrap()];
+    let token_id_felt: felt252 = token_id.low.into();
+    let expected_keys = array![owner.into(), approved.into(), token_id_felt];
     assert_indexed_keys(@approval_event, @expected_keys);
 }
 

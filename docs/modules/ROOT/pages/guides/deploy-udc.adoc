@@ -1,7 +1,132 @@
-= Deploying the Universal Deployer Contract
+= UDC Appchain Deployment
 
-This guide will walk you through the process of deploying the Universal Deployer Contract (UDC) on Starknet.
+While the Universal Deployer Contract (UDC) is deployed on Starknet public networks, appchains may need to deploy
+their own instance of the UDC for their own use. This guide will walk you through this process while keeping the 
+same final address on all networks.
 
 == Prerequisites
 
-- A Starknet account with testnet funds.
+:declare-transaction: https://docs.starknet.io/resources/transactions-reference/#declare_transaction[declare transaction]
+:sncast: https://foundry-rs.github.io/starknet-foundry/starknet/declare.html[sncast]
+:starknet-foundry: https://foundry-rs.github.io/starknet-foundry/index.html[starknet-foundry]
+:scarb: https://docs.swmansion.com/scarb/docs.html[scarb]
+
+This guide assumes you have:
+
+- Familiarity with {scarb} and starknet development environment.
+- A functional account available on the network you're deploying to.
+- Familiarity with the process of declaring contracts through the {declare-transaction}.
+
+NOTE: For declaring contracts on Starknet, you can use the {sncast} tool from the {starknet-foundry} project.
+
+== Madara Appchains
+
+:madara: https://github.com/madara-alliance/madara/blob/main/README.md[Madara]
+:madara-bootstrapper: https://github.com/madara-alliance/madara/tree/main/bootstrapper#readme[Madara Bootstrapper]
+
+{madara} is a popular Starknet node implementation that has a friendly and robust interface for building appchains. If
+you are using it for this purpose, you are probably familiar with the {madara-bootstrapper}, which already declares and
+deploys a few contracts for you when you create a new appchain, including accounts and the UDC.
+
+However, since the UDC was migrated to a new version in June 2025, it's possible that the appchain was created before
+this change, meaning the UDC on the appchain is an older version. If that's the case, you can follow the steps below to
+deploy the new UDC.
+
+=== 1. Declare and deploy the Bootstrapper
+
+In the Starknet ecosystem, contracts need to be declared before they can be deployed, and deployments can only happen
+either via the `deploy_syscall`, or using a `deploy_account` transaction. The latter would require to add account
+functionality to the UDC, which is not optimal, so we'll use the `deploy_syscall`, which requires having an account
+with this functionality enabled.
+
+NOTE: Madara declares an account with this functionality enabled as part of the bootstrapping process. You may be able to
+use that implementation directly to skip this step.
+
+==== Bootstrapper Contract
+
+The bootstrapper contract is a simple contract that declares the UDC and allows for its deployment via the `deploy_syscall`.
+You can find a reference implementation below:
+
+```cairo
+#[starknet::contract(account)]
+mod UniversalDeployerBootstrapper {
+    use core::num::traits::Zero;
+    use openzeppelin_account::AccountComponent;
+    use openzeppelin_introspection::src5::SRC5Component;
+    use openzeppelin_utils::deployments::calculate_contract_address_from_deploy_syscall;
+    use starknet::{ClassHash, ContractAddress, SyscallResultTrait};
+
+    component!(path: AccountComponent, storage: account, event: AccountEvent);
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
+
+    //
+    // Account features (deployable, declarer, and invoker)
+    //
+
+    #[abi(embed_v0)]
+    pub(crate) impl DeployableImpl =
+        AccountComponent::DeployableImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl DeclarerImpl = AccountComponent::DeclarerImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl SRC6Impl = AccountComponent::SRC6Impl<ContractState>;
+    impl AccountInternalImpl = AccountComponent::InternalImpl<ContractState>;
+
+    #[storage]
+    struct Storage {
+        #[substorage(v0)]
+        pub account: AccountComponent::Storage,
+        #[substorage(v0)]
+        pub src5: SRC5Component::Storage,
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    pub(crate) enum Event {
+        #[flat]
+        AccountEvent: AccountComponent::Event,
+        #[flat]
+        SRC5Event: SRC5Component::Event,
+    }
+
+    #[constructor]
+    pub fn constructor(ref self: ContractState, public_key: felt252) {
+        self.account.initializer(public_key);
+    }
+
+    #[abi(per_item)]
+    #[generate_trait]
+    impl ExternalImpl of ExternalTrait {
+        #[external(v0)]
+        fn deploy_udc(ref self: ContractState, udc_class_hash: ClassHash) {
+            self.account.assert_only_self();
+            starknet::syscalls::deploy_syscall(udc_class_hash, 0, array![].span(), true)
+                .unwrap_syscall();
+        }
+
+        #[external(v0)]
+        fn get_udc_address(ref self: ContractState, udc_class_hash: ClassHash) -> ContractAddress {
+            calculate_contract_address_from_deploy_syscall(
+                0, udc_class_hash, array![].span(), Zero::zero(),
+            )
+        }
+    }
+}
+```
+
+==== Deploying the Bootstrapper
+
+This guide assumes you have a functional account available on the network you're deploying to, and familiarity
+with the process of declaring contracts through the `declare` transaction. To recap, the reason we are deploying
+this bootstrapper account contract is to be able to deploy the UDC via the `deploy_syscall`.
+
+The bootstrapper implements the `IDeployable` trait, meaning it can be counterfactually deployed. Check out the
+xref:guides/deployment.adoc[Counterfactual Deployments] guide for more information on how to do this.
+
+=== 2. Declare and deploy the UDC
+
+Once the bootstrapper is deployed, you can declare and deploy the UDC through it.
+
+==== UDC Contract
+
+

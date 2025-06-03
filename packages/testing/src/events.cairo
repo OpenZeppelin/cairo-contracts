@@ -98,7 +98,9 @@ pub impl EventSpyDebugImpl of EventSpyDebug {
     }
 
     fn print_events_from(ref self: EventSpyQueue, from_address: ContractAddress) {
-        let events = ContractEventsInfo { from_address, events: self.get_events().events };
+        let events = ContractEventsInfo {
+            from_address, events: self.get_events().emitted_by(from_address).events,
+        };
         print!("{:?}", events);
     }
 }

@@ -188,7 +188,7 @@ pub mod GovernorComponent {
         fn clock(self: @ComponentState<TContractState>) -> u64;
 
         /// See `interface::IERC6372Clock::CLOCK_MODE`.
-        fn clock_mode(self: @ComponentState<TContractState>) -> ByteArray;
+        fn CLOCK_MODE(self: @ComponentState<TContractState>) -> ByteArray;
 
         /// See `interface::IGovernor::get_votes`.
         fn get_votes(

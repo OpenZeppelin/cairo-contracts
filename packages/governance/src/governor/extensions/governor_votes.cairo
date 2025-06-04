@@ -39,14 +39,14 @@ pub mod GovernorVotesComponent {
     > of GovernorComponent::GovernorVotesTrait<TContractState> {
         /// See `GovernorComponent::GovernorVotesTrait::clock`.
         fn clock(self: @GovernorComponentState<TContractState>) -> u64 {
-            // VotesComponent uses the block timestamp for tracking checkpoints.
-            // That must be updated in order to allow for more flexible clock modes.
-            starknet::get_block_timestamp()
+            let votes_dispatcher = IVotesDispatcher { contract_address: get_votes_token(self) };
+            votes_dispatcher.clock()
         }
 
         /// See `GovernorComponent::GovernorVotesTrait::CLOCK_MODE`.
-        fn clock_mode(self: @GovernorComponentState<TContractState>) -> ByteArray {
-            "mode=timestamp&from=starknet::SN_MAIN"
+        fn CLOCK_MODE(self: @GovernorComponentState<TContractState>) -> ByteArray {
+            let votes_dispatcher = IVotesDispatcher { contract_address: get_votes_token(self) };
+            votes_dispatcher.CLOCK_MODE()
         }
 
         /// See `GovernorComponent::GovernorVotesTrait::get_votes`.
@@ -56,14 +56,19 @@ pub mod GovernorVotesComponent {
             timepoint: u64,
             params: Span<felt252>,
         ) -> u256 {
-            let contract = self.get_contract();
-            let this_component = GovernorVotes::get_component(contract);
-
-            let token = this_component.Governor_token.read();
-            let votes_dispatcher = IVotesDispatcher { contract_address: token };
-
+            let votes_dispatcher = IVotesDispatcher { contract_address: get_votes_token(self) };
             votes_dispatcher.get_past_votes(account, timepoint)
         }
+    }
+
+    fn get_votes_token<
+        TContractState,
+        +GovernorComponent::HasComponent<TContractState>,
+        impl GovernorVotes: HasComponent<TContractState>,
+    >(self: @GovernorComponentState<TContractState>) -> ContractAddress {
+        let contract = self.get_contract();
+        let this_component = GovernorVotes::get_component(contract);
+        this_component.Governor_token.read()
     }
 
     //

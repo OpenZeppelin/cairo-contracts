@@ -81,14 +81,14 @@ pub mod GovernorVotesQuorumFractionComponent {
     > of GovernorComponent::GovernorVotesTrait<TContractState> {
         /// See `GovernorComponent::GovernorVotesTrait::clock`.
         fn clock(self: @GovernorComponentState<TContractState>) -> u64 {
-            // VotesComponent uses the block timestamp for tracking checkpoints.
-            // That must be updated in order to allow for more flexible clock modes.
-            starknet::get_block_timestamp()
+            let votes_dispatcher = IVotesDispatcher { contract_address: get_votes_token(self) };
+            votes_dispatcher.clock()
         }
 
         /// See `GovernorComponent::GovernorVotesTrait::CLOCK_MODE`.
-        fn clock_mode(self: @GovernorComponentState<TContractState>) -> ByteArray {
-            "mode=timestamp&from=starknet::SN_MAIN"
+        fn CLOCK_MODE(self: @GovernorComponentState<TContractState>) -> ByteArray {
+            let votes_dispatcher = IVotesDispatcher { contract_address: get_votes_token(self) };
+            votes_dispatcher.CLOCK_MODE()
         }
 
         /// See `GovernorComponent::GovernorVotesTrait::get_votes`.
@@ -98,14 +98,19 @@ pub mod GovernorVotesQuorumFractionComponent {
             timepoint: u64,
             params: Span<felt252>,
         ) -> u256 {
-            let contract = self.get_contract();
-            let this_component = GovernorVotesQuorumFraction::get_component(contract);
-
-            let token = this_component.Governor_token.read();
-            let votes_dispatcher = IVotesDispatcher { contract_address: token };
-
+            let votes_dispatcher = IVotesDispatcher { contract_address: get_votes_token(self) };
             votes_dispatcher.get_past_votes(account, timepoint)
         }
+    }
+
+    fn get_votes_token<
+        TContractState,
+        +GovernorComponent::HasComponent<TContractState>,
+        impl GovernorVotesQuorumFraction: HasComponent<TContractState>,
+    >(self: @GovernorComponentState<TContractState>) -> ContractAddress {
+        let contract = self.get_contract();
+        let this_component = GovernorVotesQuorumFraction::get_component(contract);
+        this_component.Governor_token.read()
     }
 
     //
@@ -131,7 +136,7 @@ pub mod GovernorVotesQuorumFractionComponent {
             // Optimistic search: check the latest checkpoint.
             // The initializer call ensures that there is at least one checkpoint in the history.
             //
-            // NOTE: This optimization is especially helpful when the supply is not updated often.
+            // NOTE: This optimization is especially helpful when the value is not updated often.
             let history = self.Governor_quorum_numerator_history.deref();
             let (_, key, value) = history.latest_checkpoint();
 

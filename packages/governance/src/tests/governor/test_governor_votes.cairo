@@ -1,12 +1,10 @@
 use openzeppelin_test_common::mocks::governor::GovernorMock::SNIP12MetadataImpl;
 use openzeppelin_testing::constants::{OTHER, VOTES_TOKEN, ZERO};
-use snforge_std::{start_cheat_block_timestamp_global, start_mock_call, store, test_address};
+use snforge_std::{start_cheat_block_timestamp_global, start_mock_call};
 use crate::governor::DefaultConfig;
 use crate::governor::GovernorComponent::InternalImpl;
-use crate::governor::extensions::GovernorVotesComponent::{
-    GovernorVotes, InternalTrait, VotesTokenImpl,
-};
-use crate::tests::governor::common::{COMPONENT_STATE, CONTRACT_STATE};
+use crate::governor::extensions::GovernorVotesComponent::{GovernorVotes, InternalTrait, VotesTokenImpl};
+use crate::tests::governor::common::{COMPONENT_STATE, CONTRACT_STATE, deploy_votes_token};
 
 //
 // GovernorVotes
@@ -14,8 +12,12 @@ use crate::tests::governor::common::{COMPONENT_STATE, CONTRACT_STATE};
 
 #[test]
 fn test_clock() {
-    let component_state = COMPONENT_STATE();
-    let timestamp = 10;
+    let component_state = COMPONENT_STATE();    
+    deploy_votes_token();
+    // initialize_component(VOTES_TOKEN);
+    let mut mock_state = CONTRACT_STATE();
+    mock_state.governor_votes.initializer(VOTES_TOKEN);
+    let timestamp = 'ts0';
 
     start_cheat_block_timestamp_global(timestamp);
     let clock = GovernorVotes::clock(@component_state);
@@ -23,22 +25,34 @@ fn test_clock() {
 }
 
 #[test]
-fn test_clock_mode() {
+fn test_CLOCK_MODE() {
     let component_state = COMPONENT_STATE();
-    let mode = GovernorVotes::clock_mode(@component_state);
+    deploy_votes_token();
+    // initialize_component(VOTES_TOKEN);
+    let mut mock_state = CONTRACT_STATE();
+    mock_state.governor_votes.initializer(VOTES_TOKEN);
+
+    let mode = GovernorVotes::CLOCK_MODE(@component_state);
     assert_eq!(mode, "mode=timestamp&from=starknet::SN_MAIN");
 }
 
 #[test]
 fn test_get_votes() {
-    let mut component_state = COMPONENT_STATE();
-    let timepoint = 0;
+    let component_state = COMPONENT_STATE();
+    deploy_votes_token();
+    let mut mock_state = CONTRACT_STATE();
+    mock_state.governor_votes.initializer(VOTES_TOKEN);
+    // initialize_component(VOTES_TOKEN);
+
+    let past_timepoint = 'ts0';
+    let now_timepoint = 'ts1';
     let expected_weight = 100;
     let params = array!['param'].span();
 
-    start_mock_call(ZERO, selector!("get_past_votes"), expected_weight);
+    start_cheat_block_timestamp_global(now_timepoint);
+    start_mock_call(VOTES_TOKEN, selector!("get_past_votes"), expected_weight);
 
-    let votes = GovernorVotes::get_votes(@component_state, OTHER, timepoint, params);
+    let votes = GovernorVotes::get_votes(@component_state, OTHER, past_timepoint, params);
     assert_eq!(votes, expected_weight);
 }
 
@@ -48,9 +62,11 @@ fn test_get_votes() {
 
 #[test]
 fn test_token() {
-    let mock_state = CONTRACT_STATE();
+    let mut mock_state = CONTRACT_STATE();
+    deploy_votes_token();
+    mock_state.governor_votes.initializer(VOTES_TOKEN);
+    // initialize_component(VOTES_TOKEN);
 
-    store(test_address(), selector!("Governor_token"), array![VOTES_TOKEN.into()].span());
     let token = mock_state.governor_votes.token();
     assert_eq!(token, VOTES_TOKEN);
 }
@@ -63,6 +79,7 @@ fn test_token() {
 fn test_initializer() {
     let mut mock_state = CONTRACT_STATE();
 
+    // initialize_component(VOTES_TOKEN);
     mock_state.governor_votes.initializer(VOTES_TOKEN);
 
     let token = mock_state.governor_votes.token();
@@ -74,4 +91,14 @@ fn test_initializer() {
 fn test_initializer_with_zero_token() {
     let mut mock_state = CONTRACT_STATE();
     mock_state.governor_votes.initializer(ZERO);
+    // initialize_component(ZERO);
 }
+
+//
+// Helpers
+//
+
+// fn initialize_component(votes_token: ContractAddress) {
+//     let mut mock_state = CONTRACT_STATE();
+//     mock_state.governor_votes.initializer(votes_token);
+// }

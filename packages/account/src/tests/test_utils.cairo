@@ -1,7 +1,19 @@
 use openzeppelin_testing::constants::{TRANSACTION_HASH, stark};
+use openzeppelin_testing::declare_and_deploy;
 use openzeppelin_testing::signing::SerializedSigning;
-use snforge_std::{ContractClassTrait, DeclareResultTrait, declare};
+use starknet::ContractAddress;
 use crate::utils::assert_valid_signature;
+
+//
+// Setup
+//
+
+fn setup() -> ContractAddress {
+    let key_pair = stark::KEY_PAIR();
+    let mut calldata = array![];
+    key_pair.public_key.serialize(ref calldata);
+    declare_and_deploy("DualCaseAccountMock", calldata)
+}
 
 //
 // assert_valid_signature
@@ -9,11 +21,8 @@ use crate::utils::assert_valid_signature;
 
 #[test]
 fn test_assert_valid_signature_valid() {
+    let account_address = setup();
     let key_pair = stark::KEY_PAIR();
-    let contract_class = declare("DualCaseAccountMock").unwrap().contract_class();
-    let mut calldata = array![];
-    key_pair.public_key.serialize(ref calldata);
-    let (account_address, _) = contract_class.deploy(@calldata).unwrap();
 
     // Create a valid signature
     let hash = TRANSACTION_HASH;
@@ -27,11 +36,7 @@ fn test_assert_valid_signature_valid() {
 #[test]
 #[should_panic(expected: 'Invalid signature')]
 fn test_assert_valid_signature_invalid_signature() {
-    let key_pair = stark::KEY_PAIR();
-    let contract_class = declare("DualCaseAccountMock").unwrap().contract_class();
-    let mut calldata = array![];
-    key_pair.public_key.serialize(ref calldata);
-    let (account_address, _) = contract_class.deploy(@calldata).unwrap();
+    let account_address = setup();
 
     let hash = TRANSACTION_HASH;
     // Create an invalid signature
@@ -44,11 +49,7 @@ fn test_assert_valid_signature_invalid_signature() {
 #[test]
 #[should_panic(expected: 'Custom error msg')]
 fn test_assert_valid_signature_custom_error() {
-    let key_pair = stark::KEY_PAIR();
-    let contract_class = declare("DualCaseAccountMock").unwrap().contract_class();
-    let mut calldata = array![];
-    key_pair.public_key.serialize(ref calldata);
-    let (account_address, _) = contract_class.deploy(@calldata).unwrap();
+    let account_address = setup();
 
     let hash = TRANSACTION_HASH;
     let invalid_signature = array![0x123, 0x456].span();

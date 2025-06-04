@@ -378,7 +378,7 @@ pub mod ERC20Component {
                 owner, permit_hash, signature.into(), Errors::INVALID_PERMIT_SIGNATURE,
             );
 
-            // 5. Approve
+            // 4. Approve
             self._approve(owner, spender, amount);
         }
 

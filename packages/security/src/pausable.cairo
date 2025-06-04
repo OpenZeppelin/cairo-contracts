@@ -27,12 +27,14 @@ pub mod PausableComponent {
     /// Emitted when the pause is triggered by `account`.
     #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct Paused {
+        #[key]
         pub account: ContractAddress,
     }
 
     /// Emitted when the pause is lifted by `account`.
     #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct Unpaused {
+        #[key]
         pub account: ContractAddress,
     }
 

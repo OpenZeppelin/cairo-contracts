@@ -276,8 +276,11 @@ pub mod ERC4626Fees {
 
     const _BASIS_POINT_SCALE: u256 = 10_000;
 
+    ///
     /// Hooks
-    impl ERC4626HooksEmptyImpl of ERC4626Component::ERC4626HooksTrait<ContractState> {
+    ///
+
+    impl ERC4626HooksImpl of ERC4626Component::ERC4626HooksTrait<ContractState> {
         fn after_deposit(
             ref self: ERC4626Component::ComponentState<ContractState>, assets: u256, shares: u256,
         ) {

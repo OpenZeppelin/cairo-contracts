@@ -38,6 +38,7 @@ pub mod AccessControlDefaultAdminRulesComponent {
     };
     use crate::accesscontrol::account_role_info::AccountRoleInfo;
     use crate::accesscontrol::extensions::interface as default_admin_rules_interface;
+    use crate::accesscontrol::extensions::pending_delay::PendingDelay;
     use crate::accesscontrol::interface;
     use crate::accesscontrol::interface::RoleStatus;
 
@@ -51,9 +52,7 @@ pub mod AccessControlDefaultAdminRulesComponent {
         pub AccessControl_pending_default_admin_schedule: u64, // 0 if not scheduled
         pub AccessControl_current_delay: u64,
         pub AccessControl_current_default_admin: ContractAddress,
-        // TODO!: These next two can be packed together to save storage
-        pub AccessControl_pending_delay: u64,
-        pub AccessControl_pending_delay_schedule: u64 // 0 if not scheduled
+        pub AccessControl_pending_delay: PendingDelay,
     }
 
     #[event]
@@ -165,9 +164,11 @@ pub mod AccessControlDefaultAdminRulesComponent {
         ///
         /// See `change_default_admin_delay`.
         fn default_admin_delay(self: @ComponentState<TContractState>) -> u64 {
-            let schedule = self.AccessControl_pending_delay_schedule.read();
+            let pending_delay = self.AccessControl_pending_delay.read();
+            let schedule = pending_delay.schedule;
+
             if is_schedule_set(schedule) && has_schedule_passed(schedule) {
-                self.AccessControl_pending_delay.read()
+                pending_delay.delay
             } else {
                 self.AccessControl_current_delay.read()
             }
@@ -183,9 +184,11 @@ pub mod AccessControlDefaultAdminRulesComponent {
         /// NOTE: A zero value only for `new_delay` means that the next `default_admin_delay`
         /// will be zero after the effect schedule.
         fn pending_default_admin_delay(self: @ComponentState<TContractState>) -> (u64, u64) {
-            let schedule = self.AccessControl_pending_delay_schedule.read();
+            let pending_delay = self.AccessControl_pending_delay.read();
+            let schedule = pending_delay.schedule;
+
             if is_schedule_set(schedule) && !has_schedule_passed(schedule) {
-                let delay = self.AccessControl_pending_delay.read();
+                let delay = pending_delay.delay;
                 (delay, schedule)
             } else {
                 (0, 0)
@@ -750,21 +753,21 @@ pub mod AccessControlDefaultAdminRulesComponent {
         fn set_pending_delay(
             ref self: ComponentState<TContractState>, new_delay: u64, new_schedule: u64,
         ) {
-            let old_schedule = self.AccessControl_pending_delay_schedule.read();
+            let pending_delay = self.AccessControl_pending_delay.read();
+            let old_schedule = pending_delay.schedule;
 
             if is_schedule_set(old_schedule) {
                 if has_schedule_passed(old_schedule) {
                     // Materialize a virtual delay
-                    let pending_delay = self.AccessControl_pending_delay.read();
-                    self.AccessControl_current_delay.write(pending_delay);
+                    self.AccessControl_current_delay.write(pending_delay.delay);
                 } else {
                     // Emit for implicit cancellations when another delay was scheduled
                     self.emit(DefaultAdminDelayChangeCanceled {});
                 }
             }
 
-            self.AccessControl_pending_delay.write(new_delay);
-            self.AccessControl_pending_delay_schedule.write(new_schedule);
+            let new_pending_delay = PendingDelay { delay: new_delay, schedule: new_schedule };
+            self.AccessControl_pending_delay.write(new_pending_delay);
         }
 
         /// Returns the amount of seconds to wait after the `new_delay` will

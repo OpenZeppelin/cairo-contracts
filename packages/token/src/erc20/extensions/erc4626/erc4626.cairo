@@ -222,6 +222,12 @@ pub mod ERC4626Component {
         /// Hooks into `InternalImpl::_withdraw`.
         /// Executes logic before burning shares and transferring assets.
         fn before_withdraw(ref self: ComponentState<TContractState>, assets: u256, shares: u256) {}
+        /// Hooks into `InternalImpl::_withdraw`.
+        /// Executes logic after burning shares and transferring assets.
+        fn after_withdraw(ref self: ComponentState<TContractState>, assets: u256, shares: u256) {}
+        /// Hooks into `InternalImpl::_deposit`.
+        /// Executes logic before transferring assets and minting shares.
+        fn before_deposit(ref self: ComponentState<TContractState>, assets: u256, shares: u256) {}
         /// Hooks into `InternalImpl::_deposit`.
         /// Executes logic after transferring assets and minting shares.
         fn after_deposit(ref self: ComponentState<TContractState>, assets: u256, shares: u256) {}
@@ -567,6 +573,9 @@ pub mod ERC4626Component {
             assets: u256,
             shares: u256,
         ) {
+            // Before deposit hook
+            Hooks::before_deposit(ref self, assets, shares);
+
             // Transfer assets first
             let this = starknet::get_contract_address();
             let asset_dispatcher = IERC20Dispatcher { contract_address: self.ERC4626_asset.read() };
@@ -618,6 +627,9 @@ pub mod ERC4626Component {
             assert(asset_dispatcher.transfer(receiver, assets), Errors::TOKEN_TRANSFER_FAILED);
 
             self.emit(Withdraw { sender: caller, receiver, owner, assets, shares });
+
+            // After withdraw hook
+            Hooks::after_withdraw(ref self, assets, shares);
         }
 
         /// Internal conversion function (from assets to shares) with support for `rounding`

@@ -197,7 +197,7 @@ pub mod ERC4626FeesMock {
     const _BASIS_POINT_SCALE: u256 = 10_000;
 
     /// Hooks
-    impl ERC4626HooksEmptyImpl of ERC4626Component::ERC4626HooksTrait<ContractState> {
+    impl ERC4626HooksImpl of ERC4626Component::ERC4626HooksTrait<ContractState> {
         fn after_deposit(
             ref self: ERC4626Component::ComponentState<ContractState>, assets: u256, shares: u256,
         ) {
@@ -322,6 +322,114 @@ pub mod ERC4626FeesMock {
             math::u256_mul_div(
                 assets, fee_basis_points, fee_basis_points + _BASIS_POINT_SCALE, Rounding::Ceil,
             )
+        }
+    }
+}
+
+#[starknet::contract]
+#[with_components(ERC20, ERC4626)]
+pub mod ERC4626MockWithHooks {
+    use openzeppelin_token::erc20::extensions::erc4626::{
+        DefaultConfig, ERC4626DefaultLimits, ERC4626DefaultNoFees,
+    };
+    use openzeppelin_token::erc20::{DefaultConfig as ERC20DefaultConfig, ERC20HooksEmptyImpl};
+    use starknet::ContractAddress;
+
+    // ERC4626
+    #[abi(embed_v0)]
+    impl ERC4626ComponentImpl = ERC4626Component::ERC4626Impl<ContractState>;
+    // ERC4626MetadataImpl is a custom impl of IERC20Metadata
+    #[abi(embed_v0)]
+    impl ERC4626MetadataImpl = ERC4626Component::ERC4626MetadataImpl<ContractState>;
+
+    // ERC20
+    #[abi(embed_v0)]
+    impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC20CamelOnlyImpl = ERC20Component::ERC20CamelOnlyImpl<ContractState>;
+
+    #[storage]
+    pub struct Storage {}
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    pub enum Event {
+        BeforeDeposit: BeforeDeposit,
+        AfterDeposit: AfterDeposit,
+        BeforeWithdraw: BeforeWithdraw,
+        AfterWithdraw: AfterWithdraw,
+    }
+
+    /// Event used to test that `before_deposit` hook is called.
+    #[derive(Drop, PartialEq, starknet::Event)]
+    pub struct BeforeDeposit {
+        pub assets: u256,
+        pub shares: u256,
+    }
+
+    /// Event used to test that `after_deposit` hook is called.
+    #[derive(Drop, PartialEq, starknet::Event)]
+    pub struct AfterDeposit {
+        pub assets: u256,
+        pub shares: u256,
+    }
+
+    /// Event used to test that `before_withdraw` hook is called.
+    #[derive(Drop, PartialEq, starknet::Event)]
+    pub struct BeforeWithdraw {
+        pub assets: u256,
+        pub shares: u256,
+    }
+
+    /// Event used to test that `after_withdraw` hook is called.
+    #[derive(Drop, PartialEq, starknet::Event)]
+    pub struct AfterWithdraw {
+        pub assets: u256,
+        pub shares: u256,
+    }
+
+    #[constructor]
+    fn constructor(
+        ref self: ContractState,
+        name: ByteArray,
+        symbol: ByteArray,
+        underlying_asset: ContractAddress,
+        initial_supply: u256,
+        recipient: ContractAddress,
+    ) {
+        self.erc20.initializer(name, symbol);
+        self.erc20.mint(recipient, initial_supply);
+        self.erc4626.initializer(underlying_asset);
+    }
+
+    /// Hooks
+    impl ERC4626HooksImpl of ERC4626Component::ERC4626HooksTrait<ContractState> {
+        fn before_deposit(
+            ref self: ERC4626Component::ComponentState<ContractState>, assets: u256, shares: u256,
+        ) {
+            let mut contract_state = self.get_contract_mut();
+            contract_state.emit(BeforeDeposit { assets, shares });
+        }
+
+        fn after_deposit(
+            ref self: ERC4626Component::ComponentState<ContractState>, assets: u256, shares: u256,
+        ) {
+            let mut contract_state = self.get_contract_mut();
+            contract_state.emit(AfterDeposit { assets, shares });
+        }
+
+        fn before_withdraw(
+            ref self: ERC4626Component::ComponentState<ContractState>, assets: u256, shares: u256,
+        ) {
+            let mut contract_state = self.get_contract_mut();
+            contract_state.emit(BeforeWithdraw { assets, shares });
+        }
+
+        fn after_withdraw(
+            ref self: ERC4626Component::ComponentState<ContractState>, assets: u256, shares: u256,
+        ) {
+            let mut contract_state = self.get_contract_mut();
+            contract_state.emit(AfterWithdraw { assets, shares });
         }
     }
 }

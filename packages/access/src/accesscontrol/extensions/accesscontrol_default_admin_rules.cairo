@@ -18,7 +18,7 @@
 /// - Enforces a 2-step process to transfer the `DEFAULT_ADMIN_ROLE` to another account.
 /// - Enforces a configurable delay between the two steps, with the ability to cancel before the
 /// transfer is accepted.
-/// - The delay can be changed by scheduling, see `changeDefaultAdminDelay`.
+/// - The delay can be changed by scheduling, see `change_default_admin_delay`.
 /// - It is not possible to use another role to manage the `DEFAULT_ADMIN_ROLE`.
 #[starknet::component]
 pub mod AccessControlDefaultAdminRulesComponent {
@@ -100,13 +100,15 @@ pub mod AccessControlDefaultAdminRulesComponent {
     pub struct DefaultAdminDelayChangeCanceled {}
 
     pub mod Errors {
-        /// AccessControlComponent::Errors
+        /// AccessControl errors
         pub const INVALID_CALLER: felt252 = 'Can only renounce role for self';
         pub const MISSING_ROLE: felt252 = 'Caller is missing role';
         pub const INVALID_DELAY: felt252 = 'Delay must be greater than 0';
         pub const ALREADY_EFFECTIVE: felt252 = 'Role is already effective';
 
+        /// DefaultAdminRules extension errors
         pub const INVALID_DEFAULT_ADMIN: felt252 = 'Invalid default admin';
+        pub const ONLY_NEW_DEFAULT_ADMIN: felt252 = 'Only new default admin allowed';
         pub const ENFORCED_DEFAULT_ADMIN_RULES: felt252 = 'Default admin rules enforced';
         pub const ENFORCED_DEFAULT_ADMIN_DELAY: felt252 = 'Default admin delay enforced';
     }
@@ -182,7 +184,7 @@ pub mod AccessControlDefaultAdminRulesComponent {
         /// will be zero after the effect schedule.
         fn pending_default_admin_delay(self: @ComponentState<TContractState>) -> (u64, u64) {
             let schedule = self.AccessControl_pending_delay_schedule.read();
-            if is_schedule_set(schedule) && has_schedule_passed(schedule) {
+            if is_schedule_set(schedule) && !has_schedule_passed(schedule) {
                 let delay = self.AccessControl_pending_delay.read();
                 (delay, schedule)
             } else {
@@ -240,7 +242,7 @@ pub mod AccessControlDefaultAdminRulesComponent {
             let (new_default_admin, schedule) = Self::pending_default_admin(@self);
             // Enforce that the caller is the `new_default_admin`
             assert(
-                new_default_admin == starknet::get_caller_address(), Errors::INVALID_DEFAULT_ADMIN,
+                new_default_admin == starknet::get_caller_address(), Errors::ONLY_NEW_DEFAULT_ADMIN,
             );
 
             if !is_schedule_set(schedule) || !has_schedule_passed(schedule) {
@@ -309,7 +311,7 @@ pub mod AccessControlDefaultAdminRulesComponent {
 
         /// Maximum time in seconds for an increase to `default_admin_delay` (that is scheduled
         /// using `change_default_admin_delay`)
-        /// to take effect. Default to 5 days.
+        /// to take effect. Defaults to 5 days.
         ///
         /// When the `default_admin_delay` is scheduled to be increased, it goes into effect after
         /// the new delay has passed with the purpose of giving enough time for reverting any

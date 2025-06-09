@@ -68,9 +68,9 @@ pub trait IAccessControlDefaultAdminRules<TState> {
     ///
     /// After calling the function:
     ///
-    /// - `DEFAULT_ADMIN_ROLE` should be granted to the caller.
-    /// - `DEFAULT_ADMIN_ROLE` should be revoked from the previous holder.
-    /// - `pending_default_admin` should be reset to zero values.
+    /// - `DEFAULT_ADMIN_ROLE` must be granted to the caller.
+    /// - `DEFAULT_ADMIN_ROLE` must be revoked from the previous holder.
+    /// - `pending_default_admin` must be reset to zero value.
     ///
     /// Requirements:
     ///
@@ -79,21 +79,19 @@ pub trait IAccessControlDefaultAdminRules<TState> {
     fn accept_default_admin_transfer(ref self: TState);
 
     /// Initiates a `default_admin_delay` update by setting a `pending_default_admin_delay`
-    /// scheduled for getting into effect after the current timestamp plus a `default_admin_delay`.
+    /// scheduled to take effect after the current timestamp plus a `default_admin_delay`.
     ///
     /// This function guarantees that any call to `begin_default_admin_transfer` done between the
     /// timestamp this method is called and the `pending_default_admin_delay` effect schedule will
-    /// use the current `default_admin_delay`
-    /// set before calling.
+    /// use the current `default_admin_delay` set before calling.
     ///
     /// The `pending_default_admin_delay`'s effect schedule is defined in a way that waiting until
     /// the schedule and then calling `begin_default_admin_transfer` with the new delay will take at
-    /// least the same as another `default_admin`
-    /// complete transfer (including acceptance).
+    /// least the same as another `default_admin` complete transfer (including acceptance).
     ///
     /// The schedule is designed for two scenarios:
     ///
-    /// - When the delay is changed for a larger one the schedule is `block.timestamp + newDelay`
+    /// - When the delay is changed for a larger one the schedule is `block.timestamp + new delay`
     /// capped by `default_admin_delay_increase_wait`.
     /// - When the delay is changed for a shorter one, the schedule is `block.timestamp + (current
     /// delay - new delay)`.
@@ -119,18 +117,19 @@ pub trait IAccessControlDefaultAdminRules<TState> {
     fn rollback_default_admin_delay(ref self: TState);
 
     /// Maximum time in seconds for an increase to `default_admin_delay` (that is scheduled using
-    /// `change_default_admin_delay`)
-    /// to take effect. Default to 5 days.
+    /// `change_default_admin_delay`) to take effect. Default to 5 days.
     ///
     /// When the `default_admin_delay` is scheduled to be increased, it goes into effect after the
     /// new delay has passed with the purpose of giving enough time for reverting any accidental
     /// change (i.e. using milliseconds instead of seconds)
     /// that may lock the contract. However, to avoid excessive schedules, the wait is capped by
-    /// this function and it can be overrode for a custom `default_admin_delay` increase scheduling.
+    /// this function and it can be overridden for a custom `default_admin_delay` increase
+    /// scheduling.
     ///
     /// IMPORTANT: Make sure to add a reasonable amount of time while overriding this value,
     /// otherwise, there's a risk of setting a high new delay that goes into effect almost
-    /// immediately without the possibility of human intervention in the case of an input error (eg.
+    /// immediately without the possibility of human intervention in the case of an input error
+    /// (e.g.
     /// set milliseconds instead of seconds).
     fn default_admin_delay_increase_wait(self: @TState) -> u64;
 }

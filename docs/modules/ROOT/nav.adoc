@@ -54,6 +54,7 @@
 *** xref:/api/token_common.adoc[Common]
 
 ** xref:udc.adoc[Universal Deployer Contract]
+*** xref:/guides/deploy-udc.adoc[UDC Appchain Deployment]
 *** xref:/api/udc.adoc[API Reference]
 
 ** xref:upgrades.adoc[Upgrades]

@@ -2,9 +2,7 @@
 
 Fully qualified path: `openzeppelin_testing::common::IntoBase16StringTrait`
 
-```rust
-pub trait IntoBase16StringTrait<T, +Into<T, felt252>>
-```
+<pre><code class="language-rust">pub trait IntoBase16StringTrait&lt;T, +Into&lt;T, felt252&gt;&gt;</code></pre>
 
 ## Trait functions
 
@@ -12,17 +10,13 @@ pub trait IntoBase16StringTrait<T, +Into<T, felt252>>
 
 Fully qualified path: `openzeppelin_testing::common::IntoBase16StringTrait::into_base_16_string`
 
-```rust
-fn into_base_16_string(self: T) -> ByteArray
-```
+<pre><code class="language-rust">fn into_base_16_string(self: T) -&gt; ByteArray</code></pre>
 
 
 ### into_base_16_string_no_padding
 
 Fully qualified path: `openzeppelin_testing::common::IntoBase16StringTrait::into_base_16_string_no_padding`
 
-```rust
-fn into_base_16_string_no_padding(self: T) -> ByteArray
-```
+<pre><code class="language-rust">fn into_base_16_string_no_padding(self: T) -&gt; ByteArray</code></pre>
 
 

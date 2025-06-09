@@ -2,7 +2,5 @@
 
 Fully qualified path: `openzeppelin_testing::constants::OTHER`
 
-```rust
-pub const OTHER: ContractAddress = 'OTHER'.as_address();
-```
+<pre><code class="language-rust">pub const OTHER: ContractAddress = &apos;OTHER&apos;.as_address();</code></pre>
 

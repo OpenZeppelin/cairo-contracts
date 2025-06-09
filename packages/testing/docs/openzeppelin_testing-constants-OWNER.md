@@ -2,7 +2,5 @@
 
 Fully qualified path: `openzeppelin_testing::constants::OWNER`
 
-```rust
-pub const OWNER: ContractAddress = 'OWNER'.as_address();
-```
+<pre><code class="language-rust">pub const OWNER: ContractAddress = &apos;OWNER&apos;.as_address();</code></pre>
 

@@ -2,9 +2,7 @@
 
 Fully qualified path: `openzeppelin_testing::constants::AsAddressTrait`
 
-```rust
-pub trait AsAddressTrait
-```
+<pre><code class="language-rust">pub trait AsAddressTrait</code></pre>
 
 ## Trait functions
 
@@ -14,8 +12,6 @@ Converts a felt252 to a ContractAddress as a constant function.Requirements:`val
 
 Fully qualified path: `openzeppelin_testing::constants::AsAddressTrait::as_address`
 
-```rust
-const fn as_address(self: felt252) -> ContractAddress
-```
+<pre><code class="language-rust">const fn as_address(self: felt252) -&gt; ContractAddress</code></pre>
 
 

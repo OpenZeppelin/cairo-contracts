@@ -4,9 +4,7 @@ A helper trait that facilitates converting a signature into a serialized format.
 
 Fully qualified path: `openzeppelin_testing::signing::SerializedSigning`
 
-```rust
-pub trait SerializedSigning<KP, M>
-```
+<pre><code class="language-rust">pub trait SerializedSigning&lt;KP, M&gt;</code></pre>
 
 ## Trait functions
 
@@ -14,8 +12,6 @@ pub trait SerializedSigning<KP, M>
 
 Fully qualified path: `openzeppelin_testing::signing::SerializedSigning::serialized_sign`
 
-```rust
-fn serialized_sign(self: KP, msg: M) -> Array<felt252>
-```
+<pre><code class="language-rust">fn serialized_sign(self: KP, msg: M) -&gt; Array&lt;felt252&gt;</code></pre>
 
 

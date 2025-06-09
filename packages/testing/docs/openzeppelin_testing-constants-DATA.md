@@ -2,7 +2,5 @@
 
 Fully qualified path: `openzeppelin_testing::constants::DATA`
 
-```rust
-pub fn DATA(success: bool) -> Span<felt252>
-```
+<pre><code class="language-rust">pub fn DATA(success: bool) -&gt; Span&lt;felt252&gt;</code></pre>
 

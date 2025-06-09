@@ -2,7 +2,5 @@
 
 Fully qualified path: `openzeppelin_testing::constants::SALT`
 
-```rust
-pub const SALT: felt252 = 'SALT';
-```
+<pre><code class="language-rust">pub const SALT: felt252 = &apos;SALT&apos;;</code></pre>
 

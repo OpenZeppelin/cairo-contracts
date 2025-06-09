@@ -4,7 +4,5 @@ Combines the declaration of a class and the deployment of a contract into one fu
 
 Fully qualified path: `openzeppelin_testing::deployment::declare_and_deploy`
 
-```rust
-pub fn declare_and_deploy(contract_name: ByteArray, calldata: Array<felt252>) -> ContractAddress
-```
+<pre><code class="language-rust">pub fn declare_and_deploy(contract_name: ByteArray, calldata: Array&lt;felt252&gt;) -&gt; ContractAddress</code></pre>
 

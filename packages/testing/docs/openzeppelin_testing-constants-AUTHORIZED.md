@@ -2,7 +2,5 @@
 
 Fully qualified path: `openzeppelin_testing::constants::AUTHORIZED`
 
-```rust
-pub const AUTHORIZED: ContractAddress = 'AUTHORIZED'.as_address();
-```
+<pre><code class="language-rust">pub const AUTHORIZED: ContractAddress = &apos;AUTHORIZED&apos;.as_address();</code></pre>
 

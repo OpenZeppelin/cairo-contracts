@@ -139,7 +139,7 @@ fn test_upgrade_and_call_with_no_return_value() {
 }
 
 #[test]
-#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: 'ENTRYPOINT_NOT_FOUND')]
 fn test_upgrade_and_call_with_removed_selector() {
     let (v1, v2_class) = setup_test();
     let removed_selector = selector!("remove_selector");

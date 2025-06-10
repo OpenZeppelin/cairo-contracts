@@ -199,11 +199,13 @@ pub mod ERC4626FeesMock {
     /// Hooks
     impl ERC4626HooksEmptyImpl of ERC4626Component::ERC4626HooksTrait<ContractState> {
         fn after_deposit(
-            ref self: ERC4626Component::ComponentState<ContractState>, assets: u256, shares: u256,
+            ref self: ERC4626Component::ComponentState<ContractState>, net_assets: u256, fee: u256, shares: u256,
         ) {
             let mut contract_state = self.get_contract_mut();
             let entry_basis_points = contract_state.entry_fee_basis_point_value.read();
-            let fee = contract_state.fee_on_total(assets, entry_basis_points);
+            let total_assets = net_assets + fee;
+            let calculated_fee = contract_state.fee_on_total(total_assets, entry_basis_points);
+            assert(fee == calculated_fee, 'ERC4626FeesMock: incorrect fee');
             let recipient = contract_state.entry_fee_recipient.read();
 
             if (fee > 0 && recipient != starknet::get_contract_address()) {
@@ -212,11 +214,12 @@ pub mod ERC4626FeesMock {
         }
 
         fn before_withdraw(
-            ref self: ERC4626Component::ComponentState<ContractState>, assets: u256, shares: u256,
+            ref self: ERC4626Component::ComponentState<ContractState>, net_assets: u256, fee: u256, shares: u256,
         ) {
             let mut contract_state = self.get_contract_mut();
             let exit_basis_points = contract_state.exit_fee_basis_point_value.read();
-            let fee = contract_state.fee_on_raw(assets, exit_basis_points);
+            let calculated_fee = contract_state.fee_on_raw(net_assets, exit_basis_points);
+            assert(fee == calculated_fee, 'ERC4626FeesMock: incorrect fee');
             let recipient = contract_state.exit_fee_recipient.read();
 
             if (fee > 0 && recipient != starknet::get_contract_address()) {
@@ -227,32 +230,32 @@ pub mod ERC4626FeesMock {
 
     /// Adjust fees
     impl AdjustFeesImpl of FeeConfigTrait<ContractState> {
-        fn adjust_deposit(
-            self: @ERC4626Component::ComponentState<ContractState>, assets: u256,
+        fn deduct_deposit_fee(
+            self: @ERC4626Component::ComponentState<ContractState>, total_assets: u256,
         ) -> u256 {
             let contract_state = self.get_contract();
-            contract_state.remove_fee_from_deposit(assets)
+            contract_state.remove_fee_from_deposit(total_assets)
         }
 
-        fn adjust_mint(
-            self: @ERC4626Component::ComponentState<ContractState>, assets: u256,
+        fn add_mint_fee(
+            self: @ERC4626Component::ComponentState<ContractState>, net_assets: u256,
         ) -> u256 {
             let contract_state = self.get_contract();
-            contract_state.add_fee_to_mint(assets)
+            contract_state.add_fee_to_mint(net_assets)
         }
 
-        fn adjust_withdraw(
-            self: @ERC4626Component::ComponentState<ContractState>, assets: u256,
+        fn add_withdraw_fee(
+            self: @ERC4626Component::ComponentState<ContractState>, net_assets: u256,
         ) -> u256 {
             let contract_state = self.get_contract();
-            contract_state.add_fee_to_withdraw(assets)
+            contract_state.add_fee_to_withdraw(net_assets)
         }
 
-        fn adjust_redeem(
-            self: @ERC4626Component::ComponentState<ContractState>, assets: u256,
+        fn deduct_redeem_fee(
+            self: @ERC4626Component::ComponentState<ContractState>, total_assets: u256,
         ) -> u256 {
             let contract_state = self.get_contract();
-            contract_state.remove_fee_from_redeem(assets)
+            contract_state.remove_fee_from_redeem(total_assets)
         }
     }
 

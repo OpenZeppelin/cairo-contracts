@@ -2,9 +2,9 @@ use core::hash::{HashStateExTrait, HashStateTrait};
 use core::pedersen::PedersenTrait;
 use openzeppelin_test_common::mocks::governor::GovernorMock::SNIP12MetadataImpl;
 use openzeppelin_test_common::mocks::governor::{GovernorMock, GovernorTimelockedMock};
-use openzeppelin_testing::constants::{ADMIN, OTHER, VOTES_TOKEN};
 use openzeppelin_testing as utils;
-
+use openzeppelin_testing::constants::{ADMIN, OTHER, VOTES_TOKEN};
+use openzeppelin_token::erc20::interface::IERC20Dispatcher;
 use openzeppelin_utils::bytearray::ByteArrayExtTrait;
 use snforge_std::{start_cheat_block_timestamp_global, start_mock_call};
 use starknet::ContractAddress;
@@ -104,8 +104,9 @@ pub fn set_executor(
     mock_state.governor_timelock_execution.Governor_timelock_controller.write(executor);
 }
 
-pub fn deploy_votes_token() {
+pub fn deploy_votes_token() -> IERC20Dispatcher {
     utils::declare_and_deploy_at("ERC20TimestampVotesMock", VOTES_TOKEN, array![]);
+    IERC20Dispatcher { contract_address: VOTES_TOKEN }
 }
 
 //

@@ -2,8 +2,7 @@ use openzeppelin_test_common::mocks::governor::GovernorQuorumFractionMock;
 use openzeppelin_test_common::mocks::governor::GovernorQuorumFractionMock::SNIP12MetadataImpl;
 use openzeppelin_testing::constants::{OTHER, VOTES_TOKEN, ZERO};
 use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
-use openzeppelin_testing as utils;
-use snforge_std::{start_cheat_block_timestamp_global, start_mock_call, store, test_address};
+use snforge_std::{start_cheat_block_timestamp_global, start_mock_call, test_address};
 use starknet::ContractAddress;
 use crate::governor::GovernorComponent::InternalImpl;
 use crate::governor::extensions::GovernorVotesQuorumFractionComponent;
@@ -33,12 +32,12 @@ const DEFAULT_NUMERATOR: u256 = 600; // 60% given the denominator of 1000
 #[test]
 fn test_quorum() {
     let component_state = COMPONENT_STATE();
-    let mut mock_state = CONTRACT_STATE();
+    let mock_state = CONTRACT_STATE();
     let past_total_supply = 100;
     let timepoint = 'ts0';
 
     deploy_votes_token();
-    mock_state.governor_votes_quorum_fraction.initializer(VOTES_TOKEN, DEFAULT_NUMERATOR);
+    initialize_component(VOTES_TOKEN, DEFAULT_NUMERATOR);
     start_cheat_block_timestamp_global('ts1');
     start_mock_call(VOTES_TOKEN, selector!("get_past_total_supply"), past_total_supply);
 
@@ -57,8 +56,7 @@ fn test_quorum() {
 fn test_clock() {
     let component_state = COMPONENT_STATE();
     deploy_votes_token();
-    let mut mock_state = CONTRACT_STATE();
-    mock_state.governor_votes_quorum_fraction.initializer(VOTES_TOKEN, DEFAULT_NUMERATOR);
+    initialize_component(VOTES_TOKEN, DEFAULT_NUMERATOR);
     let timestamp = 'ts0';
 
     start_cheat_block_timestamp_global(timestamp);
@@ -70,8 +68,7 @@ fn test_clock() {
 fn test_CLOCK_MODE() {
     let component_state = COMPONENT_STATE();
     deploy_votes_token();
-    let mut mock_state = CONTRACT_STATE();
-    mock_state.governor_votes_quorum_fraction.initializer(VOTES_TOKEN, DEFAULT_NUMERATOR);
+    initialize_component(VOTES_TOKEN, DEFAULT_NUMERATOR);
 
     let mode = GovernorVotes::CLOCK_MODE(@component_state);
     assert_eq!(mode, "mode=timestamp&from=starknet::SN_MAIN");
@@ -84,8 +81,7 @@ fn test_get_votes() {
     let expected_weight = 100;
     let params = array!['param'].span();
     deploy_votes_token();
-    let mut mock_state = CONTRACT_STATE();
-    mock_state.governor_votes_quorum_fraction.initializer(VOTES_TOKEN, DEFAULT_NUMERATOR);
+    initialize_component(VOTES_TOKEN, DEFAULT_NUMERATOR);
 
     start_cheat_block_timestamp_global('ts1');
     start_mock_call(VOTES_TOKEN, selector!("get_past_votes"), expected_weight);
@@ -100,9 +96,9 @@ fn test_get_votes() {
 
 #[test]
 fn test_token() {
-    let mut mock_state = CONTRACT_STATE();
+    let mock_state = CONTRACT_STATE();
     deploy_votes_token();
-    mock_state.governor_votes_quorum_fraction.initializer(VOTES_TOKEN, DEFAULT_NUMERATOR);
+    initialize_component(VOTES_TOKEN, DEFAULT_NUMERATOR);
 
     let token = mock_state.governor_votes_quorum_fraction.token();
     assert_eq!(token, VOTES_TOKEN);
@@ -110,9 +106,9 @@ fn test_token() {
 
 #[test]
 fn test_quorum_denominator() {
-    let mut mock_state = CONTRACT_STATE();
+    let mock_state = CONTRACT_STATE();
     deploy_votes_token();
-    mock_state.governor_votes_quorum_fraction.initializer(VOTES_TOKEN, DEFAULT_NUMERATOR);
+    initialize_component(VOTES_TOKEN, DEFAULT_NUMERATOR);
     let quorum_denominator = mock_state.governor_votes_quorum_fraction.quorum_denominator();
     assert_eq!(quorum_denominator, 1000);
 }
@@ -123,12 +119,12 @@ fn test_quorum_denominator() {
 
 #[test]
 fn test_initializer() {
-    let mut mock_state = CONTRACT_STATE();
+    let mock_state = CONTRACT_STATE();
     let now = 'ts0';
     deploy_votes_token();
     start_cheat_block_timestamp_global(now);
 
-    mock_state.governor_votes_quorum_fraction.initializer(VOTES_TOKEN, DEFAULT_NUMERATOR);
+    initialize_component(VOTES_TOKEN, DEFAULT_NUMERATOR);
 
     let quorum_numerator = mock_state.governor_votes_quorum_fraction.quorum_numerator(now);
     assert_eq!(quorum_numerator, DEFAULT_NUMERATOR);
@@ -140,16 +136,14 @@ fn test_initializer() {
 #[test]
 #[should_panic(expected: 'Invalid votes token')]
 fn test_initializer_with_zero_token() {
-    let mut mock_state = CONTRACT_STATE();
-    mock_state.governor_votes_quorum_fraction.initializer(ZERO, DEFAULT_NUMERATOR);
+    initialize_component(ZERO, DEFAULT_NUMERATOR);
 }
 
 
 #[test]
 #[should_panic(expected: 'Invalid quorum fraction')]
 fn test_initializer_with_invalid_numerator() {
-    let mut mock_state = CONTRACT_STATE();
-    mock_state.governor_votes_quorum_fraction.initializer(VOTES_TOKEN, 1001);
+    initialize_component(VOTES_TOKEN, 1001);
 }
 
 //
@@ -167,7 +161,7 @@ fn test_update_quorum_numerator_invalid_numerator() {
 fn test_update_quorum_numerator() {
     let mut mock_state = CONTRACT_STATE();
     deploy_votes_token();
-    mock_state.governor_votes_quorum_fraction.initializer(VOTES_TOKEN, DEFAULT_NUMERATOR);
+    initialize_component(VOTES_TOKEN, DEFAULT_NUMERATOR);
     let ts1 = '10';
     let ts2 = '20';
     let ts3 = '30';
@@ -183,7 +177,10 @@ fn test_update_quorum_numerator() {
     // 1. Update the numerators
     start_cheat_block_timestamp_global(ts1);
     mock_state.governor_votes_quorum_fraction.update_quorum_numerator(new_quorum_numerator_1);
-    spy.assert_only_event_quorum_numerator_updated(contract_address, DEFAULT_NUMERATOR, new_quorum_numerator_1);
+    spy
+        .assert_only_event_quorum_numerator_updated(
+            contract_address, DEFAULT_NUMERATOR, new_quorum_numerator_1,
+        );
 
     start_cheat_block_timestamp_global(ts2);
     mock_state.governor_votes_quorum_fraction.update_quorum_numerator(new_quorum_numerator_2);
@@ -220,6 +217,15 @@ fn test_update_quorum_numerator() {
 
     let history = mock_state.governor_votes_quorum_fraction.quorum_numerator(ts5);
     assert_eq!(history, new_quorum_numerator_3);
+}
+
+//
+// Helpers
+//
+
+fn initialize_component(votes_token: ContractAddress, quorum_numerator: u256) {
+    let mut mock_state = CONTRACT_STATE();
+    mock_state.governor_votes_quorum_fraction.initializer(votes_token, quorum_numerator);
 }
 
 //

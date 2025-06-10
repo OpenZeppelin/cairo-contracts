@@ -1,15 +1,18 @@
 use openzeppelin_test_common::mocks::governor::GovernorMock::SNIP12MetadataImpl;
-use openzeppelin_testing::constants::OTHER;
-use snforge_std::start_cheat_block_timestamp_global;
+use openzeppelin_testing::constants::{OTHER, VOTES_TOKEN};
+use snforge_std::start_cheat_block_number_global;
+use starknet::ContractAddress;
 use starknet::storage::{StorageMapWriteAccess, StoragePathEntry, StoragePointerWriteAccess};
 use crate::governor::DefaultConfig;
 use crate::governor::GovernorComponent::InternalImpl;
 use crate::governor::extensions::GovernorCoreExecutionComponent::GovernorExecution;
+use crate::governor::extensions::GovernorVotesComponent::InternalTrait;
 use crate::governor::interface::{IGovernor, ProposalState};
-use crate::tests::governor::common::{
-    COMPONENT_STATE, CONTRACT_STATE, get_calls, get_proposal_info, setup_active_proposal,
-    setup_canceled_proposal, setup_defeated_proposal, setup_executed_proposal,
-    setup_pending_proposal, setup_queued_proposal, setup_succeeded_proposal,
+use crate::tests::governor::block_number::common::{
+    COMPONENT_STATE, CONTRACT_STATE, deploy_votes_token, get_calls, get_proposal_info,
+    setup_active_proposal, setup_canceled_proposal, setup_defeated_proposal,
+    setup_executed_proposal, setup_pending_proposal, setup_queued_proposal,
+    setup_succeeded_proposal,
 };
 
 //
@@ -19,6 +22,8 @@ use crate::tests::governor::common::{
 #[test]
 fn test_state_executed() {
     let mut component_state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_executed_proposal(ref component_state, false);
 
     let state = GovernorExecution::state(@component_state, id);
@@ -28,6 +33,8 @@ fn test_state_executed() {
 #[test]
 fn test_state_canceled() {
     let mut component_state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_canceled_proposal(ref component_state, false);
 
     let state = GovernorExecution::state(@component_state, id);
@@ -38,6 +45,8 @@ fn test_state_canceled() {
 #[should_panic(expected: 'Nonexistent proposal')]
 fn test_state_non_existent() {
     let component_state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
 
     GovernorExecution::state(@component_state, 1);
 }
@@ -45,6 +54,8 @@ fn test_state_non_existent() {
 #[test]
 fn test_state_pending() {
     let mut component_state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_pending_proposal(ref component_state, false);
 
     let state = GovernorExecution::state(@component_state, id);
@@ -54,6 +65,8 @@ fn test_state_pending() {
 #[test]
 fn test_state_active() {
     let mut component_state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, proposal) = get_proposal_info();
 
     component_state.Governor_proposals.write(id, proposal);
@@ -62,12 +75,12 @@ fn test_state_active() {
     let expected = ProposalState::Active;
 
     // Is active before deadline
-    start_cheat_block_timestamp_global(deadline - 1);
+    start_cheat_block_number_global(deadline - 1);
     let state = GovernorExecution::state(@component_state, id);
     assert_eq!(state, expected);
 
     // Is active at deadline
-    start_cheat_block_timestamp_global(deadline);
+    start_cheat_block_number_global(deadline);
     let state = GovernorExecution::state(@component_state, id);
     assert_eq!(state, expected);
 }
@@ -76,6 +89,8 @@ fn test_state_active() {
 fn test_state_defeated_quorum_not_reached() {
     let mut mock_state = CONTRACT_STATE();
     let component_state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, proposal) = get_proposal_info();
 
     mock_state.governor.Governor_proposals.write(id, proposal);
@@ -83,7 +98,7 @@ fn test_state_defeated_quorum_not_reached() {
     let deadline = proposal.vote_start + proposal.vote_duration;
     let expected = ProposalState::Defeated;
 
-    start_cheat_block_timestamp_global(deadline + 1);
+    start_cheat_block_number_global(deadline + 1);
 
     // Quorum not reached
     let quorum = mock_state.governor.quorum(0);
@@ -98,6 +113,8 @@ fn test_state_defeated_quorum_not_reached() {
 fn test_state_defeated_vote_not_succeeded() {
     let mut mock_state = CONTRACT_STATE();
     let component_state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, proposal) = get_proposal_info();
 
     mock_state.governor.Governor_proposals.write(id, proposal);
@@ -105,7 +122,7 @@ fn test_state_defeated_vote_not_succeeded() {
     let deadline = proposal.vote_start + proposal.vote_duration;
     let expected = ProposalState::Defeated;
 
-    start_cheat_block_timestamp_global(deadline + 1);
+    start_cheat_block_number_global(deadline + 1);
 
     // Quorum reached
     let quorum = mock_state.governor.quorum(0);
@@ -123,6 +140,8 @@ fn test_state_defeated_vote_not_succeeded() {
 fn test_state_queued() {
     let mut mock_state = CONTRACT_STATE();
     let component_state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_queued_proposal(ref mock_state, false);
 
     let state = GovernorExecution::state(@component_state, id);
@@ -133,6 +152,8 @@ fn test_state_queued() {
 fn test_state_succeeded() {
     let mut mock_state = CONTRACT_STATE();
     let component_state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_succeeded_proposal(ref mock_state, false);
 
     let state = GovernorExecution::state(@component_state, id);
@@ -146,6 +167,8 @@ fn test_state_succeeded() {
 #[test]
 fn test_executor() {
     let component_state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let expected = starknet::get_contract_address();
 
     assert_eq!(GovernorExecution::executor(@component_state), expected);
@@ -159,6 +182,8 @@ fn test_executor() {
 #[fuzzer]
 fn test_execute_operations(id: felt252) {
     let mut component_state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let calls = get_calls(OTHER, true);
     let description_hash = 'hash';
 
@@ -169,6 +194,8 @@ fn test_execute_operations(id: felt252) {
 #[should_panic(expected: "Contract not deployed at address: 0x4f54484552")]
 fn test_execute_operations_panics() {
     let mut component_state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let id = 0;
     let calls = get_calls(OTHER, false);
     let description_hash = 'hash';
@@ -184,6 +211,8 @@ fn test_execute_operations_panics() {
 #[fuzzer]
 fn test_queue_operations(id: felt252) {
     let mut component_state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let calls = array![].span();
     let description_hash = 'hash';
 
@@ -200,6 +229,8 @@ fn test_queue_operations(id: felt252) {
 #[fuzzer]
 fn test_proposal_needs_queuing(id: felt252) {
     let component_state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
 
     assert_eq!(GovernorExecution::proposal_needs_queuing(@component_state, id), false);
 }
@@ -211,6 +242,8 @@ fn test_proposal_needs_queuing(id: felt252) {
 #[test]
 fn test_cancel_operations_pending() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_pending_proposal(ref state, false);
 
     GovernorExecution::cancel_operations(ref state, id, 0);
@@ -222,6 +255,8 @@ fn test_cancel_operations_pending() {
 #[test]
 fn test_cancel_operations_active() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_active_proposal(ref state, false);
 
     GovernorExecution::cancel_operations(ref state, id, 0);
@@ -234,6 +269,8 @@ fn test_cancel_operations_active() {
 fn test_cancel_operations_defeated() {
     let mut mock_state = CONTRACT_STATE();
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_defeated_proposal(ref mock_state, false);
 
     GovernorExecution::cancel_operations(ref state, id, 0);
@@ -246,6 +283,8 @@ fn test_cancel_operations_defeated() {
 fn test_cancel_operations_succeeded() {
     let mut mock_state = CONTRACT_STATE();
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_succeeded_proposal(ref mock_state, false);
 
     GovernorExecution::cancel_operations(ref state, id, 0);
@@ -258,6 +297,8 @@ fn test_cancel_operations_succeeded() {
 fn test_cancel_operations_queued() {
     let mut mock_state = CONTRACT_STATE();
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_queued_proposal(ref mock_state, false);
 
     GovernorExecution::cancel_operations(ref state, id, 0);
@@ -270,6 +311,8 @@ fn test_cancel_operations_queued() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test_cancel_operations_canceled() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_canceled_proposal(ref state, false);
 
     // Cancel again
@@ -280,7 +323,18 @@ fn test_cancel_operations_canceled() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test_cancel_operations_executed() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_executed_proposal(ref state, false);
 
     GovernorExecution::cancel_operations(ref state, id, 0);
+}
+
+//
+// Helpers
+//
+
+fn initialize_votes_component(votes_token: ContractAddress) {
+    let mut mock_state = CONTRACT_STATE();
+    mock_state.governor_votes.initializer(votes_token);
 }

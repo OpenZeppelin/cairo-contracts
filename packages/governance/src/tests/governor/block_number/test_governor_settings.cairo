@@ -10,7 +10,7 @@ use crate::governor::extensions::GovernorSettingsComponent;
 use crate::governor::extensions::GovernorSettingsComponent::{
     GovernorSettings, GovernorSettingsAdminImpl, InternalImpl as GovernorSettingsInternalImpl,
 };
-use crate::tests::governor::common::{
+use crate::tests::governor::block_number::common::{
     COMPONENT_STATE_TIMELOCKED as COMPONENT_STATE, CONTRACT_STATE_TIMELOCKED as CONTRACT_STATE,
     set_executor,
 };

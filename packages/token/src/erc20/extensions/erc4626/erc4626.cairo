@@ -94,6 +94,7 @@ pub mod ERC4626Component {
         pub const TOKEN_TRANSFER_FAILED: felt252 = 'ERC4626: token transfer failed';
         pub const INVALID_ASSET_ADDRESS: felt252 = 'ERC4626: asset address set to 0';
         pub const DECIMALS_OVERFLOW: felt252 = 'ERC4626: decimals overflow';
+        pub const NEGATIVE_FEE: felt252 = 'ERC4626: negative fee';
     }
 
     /// Constants expected to be defined at the contract level which configure virtual
@@ -141,26 +142,26 @@ pub mod ERC4626Component {
     pub trait FeeConfigTrait<TContractState, +HasComponent<TContractState>> {
         /// Adjusts deposits within `preview_deposit` to account for entry fees.
         /// Entry fees should be transferred in the `after_deposit` hook.
-        fn adjust_deposit(self: @ComponentState<TContractState>, assets: u256) -> u256 {
-            assets
+        fn deduct_deposit_fee(self: @ComponentState<TContractState>, total_assets: u256) -> u256 {
+            total_assets
         }
 
         /// Adjusts mints within `preview_mint` to account for entry fees.
         /// Entry fees should be transferred in the `after_deposit` hook.
-        fn adjust_mint(self: @ComponentState<TContractState>, assets: u256) -> u256 {
-            assets
+        fn add_mint_fee(self: @ComponentState<TContractState>, net_assets: u256) -> u256 {
+            net_assets
         }
 
         /// Adjusts withdraws within `preview_withdraw` to account for exit fees.
         /// Exit fees should be transferred in the `before_withdraw` hook.
-        fn adjust_withdraw(self: @ComponentState<TContractState>, assets: u256) -> u256 {
-            assets
+        fn add_withdraw_fee(self: @ComponentState<TContractState>, net_assets: u256) -> u256 {
+            net_assets
         }
 
         /// Adjusts redeems within `preview_redeem` to account for exit fees.
         /// Exit fees should be transferred in the `before_withdraw` hook.
-        fn adjust_redeem(self: @ComponentState<TContractState>, assets: u256) -> u256 {
-            assets
+        fn deduct_redeem_fee(self: @ComponentState<TContractState>, total_assets: u256) -> u256 {
+            total_assets
         }
     }
 
@@ -221,10 +222,10 @@ pub mod ERC4626Component {
     pub trait ERC4626HooksTrait<TContractState, +HasComponent<TContractState>> {
         /// Hooks into `InternalImpl::_withdraw`.
         /// Executes logic before burning shares and transferring assets.
-        fn before_withdraw(ref self: ComponentState<TContractState>, assets: u256, shares: u256) {}
+        fn before_withdraw(ref self: ComponentState<TContractState>, net_assets: u256, fee: u256, shares: u256) {}
         /// Hooks into `InternalImpl::_deposit`.
         /// Executes logic after transferring assets and minting shares.
-        fn after_deposit(ref self: ComponentState<TContractState>, assets: u256, shares: u256) {}
+        fn after_deposit(ref self: ComponentState<TContractState>, net_assets: u256, fee: u256, shares: u256) {}
     }
 
     //
@@ -292,13 +293,12 @@ pub mod ERC4626Component {
         ///
         /// The default deposit preview value is the full amount of shares.
         /// This can be changed to account for fees, for example, in the implementing contract by
-        /// defining custom logic in `FeeConfigTrait::adjust_deposit`.
+        /// defining custom logic in `FeeConfigTrait::deduct_deposit_fee`.
         ///
         /// NOTE: `preview_deposit` must be inclusive of entry fees to be compliant with the
         /// EIP-4626 spec.
         fn preview_deposit(self: @ComponentState<TContractState>, assets: u256) -> u256 {
-            let adjusted_assets = Fee::adjust_deposit(self, assets);
-            self._convert_to_shares(adjusted_assets, Rounding::Floor)
+            self._preview_deposit(assets).shares
         }
 
         /// Mints Vault shares to `receiver` by depositing exactly `assets` of underlying tokens.
@@ -315,9 +315,9 @@ pub mod ERC4626Component {
             let max_assets = self.max_deposit(receiver);
             assert(assets <= max_assets, Errors::EXCEEDED_MAX_DEPOSIT);
 
-            let shares = self.preview_deposit(assets);
+            let Preview { net_assets, fee, shares } = self._preview_deposit(assets);
             let caller = starknet::get_caller_address();
-            self._deposit(caller, receiver, assets, shares);
+            self._deposit(caller, receiver, net_assets, fee, shares);
 
             shares
         }
@@ -340,13 +340,13 @@ pub mod ERC4626Component {
         ///
         /// The default mint preview value is the full amount of assets.
         /// This can be changed to account for fees, for example, in the implementing contract by
-        /// defining custom logic in `FeeConfigTrait::adjust_mint`.
+        /// defining custom logic in `FeeConfigTrait::add_mint_fee`.
         ///
         /// NOTE: `preview_mint` must be inclusive of entry fees to be compliant with the EIP-4626
         /// spec.
         fn preview_mint(self: @ComponentState<TContractState>, shares: u256) -> u256 {
-            let full_assets = self._convert_to_assets(shares, Rounding::Ceil);
-            Fee::adjust_mint(self, full_assets)
+            let Preview { net_assets, fee, shares: _ } = self._preview_mint(shares);
+            net_assets + fee   
         }
 
         /// Mints exactly Vault `shares` to `receiver` by depositing amount of underlying tokens.
@@ -363,11 +363,11 @@ pub mod ERC4626Component {
             let max_shares = self.max_mint(receiver);
             assert(shares <= max_shares, Errors::EXCEEDED_MAX_MINT);
 
-            let assets = self.preview_mint(shares);
+            let Preview { net_assets, fee, shares } = self._preview_mint(shares);
             let caller = starknet::get_caller_address();
-            self._deposit(caller, receiver, assets, shares);
+            self._deposit(caller, receiver, net_assets, fee, shares);
 
-            assets
+            net_assets + fee
         }
 
         /// Returns the maximum amount of the underlying asset that can be withdrawn from the owner
@@ -401,13 +401,12 @@ pub mod ERC4626Component {
         ///
         /// The default withdraw preview value is the full amount of shares.
         /// This can be changed to account for fees, for example, in the implementing contract by
-        /// defining custom logic in `FeeConfigTrait::adjust_withdraw`.
+        /// defining custom logic in `FeeConfigTrait::add_withdraw_fee`.
         ///
         /// NOTE: `preview_withdraw` must be inclusive of exit fees to be compliant with the
         /// EIP-4626 spec.
         fn preview_withdraw(self: @ComponentState<TContractState>, assets: u256) -> u256 {
-            let adjusted_assets = Fee::adjust_withdraw(self, assets);
-            self._convert_to_shares(adjusted_assets, Rounding::Ceil)
+            self._preview_withdraw(assets).shares
         }
 
         /// Burns shares from `owner` and sends exactly `assets` of underlying tokens to `receiver`.
@@ -426,9 +425,9 @@ pub mod ERC4626Component {
             let max_assets = self.max_withdraw(owner);
             assert(assets <= max_assets, Errors::EXCEEDED_MAX_WITHDRAW);
 
-            let shares = self.preview_withdraw(assets);
+            let Preview { net_assets, fee, shares } = self._preview_withdraw(assets);
             let caller = starknet::get_caller_address();
-            self._withdraw(caller, receiver, owner, assets, shares);
+            self._withdraw(caller, receiver, owner, net_assets, fee, shares);
 
             shares
         }
@@ -460,13 +459,12 @@ pub mod ERC4626Component {
         ///
         /// The default redeem preview value is the full amount of assets.
         /// This can be changed to account for fees, for example, in the implementing contract by
-        /// defining custom logic in `FeeConfigTrait::adjust_redeem`.
+        /// defining custom logic in `FeeConfigTrait::deduct_redeem_fee`.
         ///
         /// NOTE: `preview_redeem` must be inclusive of exit fees to be compliant with the EIP-4626
         /// spec.
         fn preview_redeem(self: @ComponentState<TContractState>, shares: u256) -> u256 {
-            let full_assets = self._convert_to_assets(shares, Rounding::Floor);
-            Fee::adjust_redeem(self, full_assets)
+            self._preview_redeem(shares).net_assets
         }
 
         /// Burns exactly `shares` from `owner` and sends assets of underlying tokens to `receiver`.
@@ -485,11 +483,11 @@ pub mod ERC4626Component {
             let max_shares = self.max_redeem(owner);
             assert(shares <= max_shares, Errors::EXCEEDED_MAX_REDEEM);
 
-            let assets = self.preview_redeem(shares);
+            let Preview { net_assets, fee, shares } = self._preview_redeem(shares);
             let caller = starknet::get_caller_address();
-            self._withdraw(caller, receiver, owner, assets, shares);
+            self._withdraw(caller, receiver, owner, net_assets, fee, shares);
 
-            assets
+            net_assets
         }
     }
 
@@ -524,6 +522,14 @@ pub mod ERC4626Component {
     // Internal
     //
 
+    /// TODO: - add doc
+    #[derive(Drop)]
+    pub struct Preview {
+        net_assets: u256,
+        fee: u256,
+        shares: u256,
+    }
+
     #[generate_trait]
     pub impl InternalImpl<
         TContractState,
@@ -531,7 +537,7 @@ pub mod ERC4626Component {
         impl Hooks: ERC4626HooksTrait<TContractState>,
         impl Immutable: ImmutableConfig,
         impl ERC20: ERC20Component::HasComponent<TContractState>,
-        +FeeConfigTrait<TContractState>,
+        impl Fee: FeeConfigTrait<TContractState>,
         +LimitConfigTrait<TContractState>,
         +ERC20Component::ERC20HooksTrait<TContractState>,
         +Drop<TContractState>,
@@ -546,6 +552,42 @@ pub mod ERC4626Component {
             Immutable::validate();
             assert(asset_address.is_non_zero(), Errors::INVALID_ASSET_ADDRESS);
             self.ERC4626_asset.write(asset_address);
+        }
+
+        /// TODO: - add doc
+        fn _preview_deposit(self: @ComponentState<TContractState>, total_assets: u256) -> Preview {
+            let net_assets = Fee::deduct_deposit_fee(self, total_assets);
+            assert(total_assets >= net_assets, Errors::NEGATIVE_FEE);
+            let fee = total_assets - net_assets;
+            let shares = self._convert_to_shares(net_assets, Rounding::Floor);
+            Preview { net_assets, fee, shares }
+        }
+
+        /// TODO: - add doc
+        fn _preview_mint(self: @ComponentState<TContractState>, shares: u256) -> Preview {
+            let net_assets = self._convert_to_assets(shares, Rounding::Ceil);
+            let total_assets = Fee::add_mint_fee(self, net_assets);
+            assert(total_assets >= net_assets, Errors::NEGATIVE_FEE);
+            let fee = total_assets - net_assets;
+            Preview { net_assets, fee, shares }
+        }
+
+        /// TODO: - add doc
+        fn _preview_withdraw(self: @ComponentState<TContractState>, net_assets: u256) -> Preview {
+            let total_assets = Fee::add_withdraw_fee(self, net_assets);
+            assert(total_assets >= net_assets, Errors::NEGATIVE_FEE);
+            let fee = total_assets - net_assets;
+            let shares = self._convert_to_shares(total_assets, Rounding::Ceil);
+            Preview { net_assets, fee, shares }
+        }
+
+        /// TODO: - add doc
+        fn _preview_redeem(self: @ComponentState<TContractState>, shares: u256) -> Preview {
+            let total_assets = self._convert_to_assets(shares, Rounding::Floor);
+            let net_assets = Fee::deduct_redeem_fee(self, total_assets);
+            assert(total_assets >= net_assets, Errors::NEGATIVE_FEE);
+            let fee = total_assets - net_assets;
+            Preview { net_assets, fee, shares }
         }
 
         /// Internal logic for `deposit` and `mint`.
@@ -564,23 +606,25 @@ pub mod ERC4626Component {
             ref self: ComponentState<TContractState>,
             caller: ContractAddress,
             receiver: ContractAddress,
-            assets: u256,
+            net_assets: u256,
+            fee: u256,
             shares: u256,
         ) {
             // Transfer assets first
             let this = starknet::get_contract_address();
             let asset_dispatcher = IERC20Dispatcher { contract_address: self.ERC4626_asset.read() };
+            let total_assets = net_assets + fee;
             assert(
-                asset_dispatcher.transfer_from(caller, this, assets), Errors::TOKEN_TRANSFER_FAILED,
+                asset_dispatcher.transfer_from(caller, this, total_assets), Errors::TOKEN_TRANSFER_FAILED,
             );
 
             // Mint shares after transferring assets
             let mut erc20_component = get_dep_component_mut!(ref self, ERC20);
             erc20_component.mint(receiver, shares);
-            self.emit(Deposit { sender: caller, owner: receiver, assets, shares });
+            self.emit(Deposit { sender: caller, owner: receiver, assets: total_assets, shares });
 
             // After deposit hook
-            Hooks::after_deposit(ref self, assets, shares);
+            Hooks::after_deposit(ref self, net_assets, fee, shares);
         }
 
         /// Internal logic for `withdraw` and `redeem`.
@@ -600,11 +644,12 @@ pub mod ERC4626Component {
             caller: ContractAddress,
             receiver: ContractAddress,
             owner: ContractAddress,
-            assets: u256,
+            net_assets: u256,
+            fee: u256,
             shares: u256,
         ) {
             // Before withdraw hook
-            Hooks::before_withdraw(ref self, assets, shares);
+            Hooks::before_withdraw(ref self, net_assets, fee, shares);
 
             // Burn shares first
             let mut erc20_component = get_dep_component_mut!(ref self, ERC20);
@@ -615,9 +660,9 @@ pub mod ERC4626Component {
 
             // Transfer assets after burn
             let asset_dispatcher = IERC20Dispatcher { contract_address: self.ERC4626_asset.read() };
-            assert(asset_dispatcher.transfer(receiver, assets), Errors::TOKEN_TRANSFER_FAILED);
+            assert(asset_dispatcher.transfer(receiver, net_assets), Errors::TOKEN_TRANSFER_FAILED);
 
-            self.emit(Withdraw { sender: caller, receiver, owner, assets, shares });
+            self.emit(Withdraw { sender: caller, receiver, owner, assets: net_assets, shares });
         }
 
         /// Internal conversion function (from assets to shares) with support for `rounding`

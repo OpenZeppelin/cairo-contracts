@@ -65,7 +65,9 @@ pub mod GovernorVotesComponent {
         TContractState,
         +GovernorComponent::HasComponent<TContractState>,
         impl GovernorVotes: HasComponent<TContractState>,
-    >(self: @GovernorComponentState<TContractState>) -> ContractAddress {
+    >(
+        self: @GovernorComponentState<TContractState>,
+    ) -> ContractAddress {
         let contract = self.get_contract();
         let this_component = GovernorVotes::get_component(contract);
         this_component.Governor_token.read()

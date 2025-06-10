@@ -199,7 +199,10 @@ pub mod ERC4626FeesMock {
     /// Hooks
     impl ERC4626HooksEmptyImpl of ERC4626Component::ERC4626HooksTrait<ContractState> {
         fn after_deposit(
-            ref self: ERC4626Component::ComponentState<ContractState>, net_assets: u256, fee: u256, shares: u256,
+            ref self: ERC4626Component::ComponentState<ContractState>,
+            net_assets: u256,
+            fee: u256,
+            shares: u256,
         ) {
             let mut contract_state = self.get_contract_mut();
             let entry_basis_points = contract_state.entry_fee_basis_point_value.read();
@@ -214,7 +217,10 @@ pub mod ERC4626FeesMock {
         }
 
         fn before_withdraw(
-            ref self: ERC4626Component::ComponentState<ContractState>, net_assets: u256, fee: u256, shares: u256,
+            ref self: ERC4626Component::ComponentState<ContractState>,
+            net_assets: u256,
+            fee: u256,
+            shares: u256,
         ) {
             let mut contract_state = self.get_contract_mut();
             let exit_basis_points = contract_state.exit_fee_basis_point_value.read();

@@ -142,25 +142,33 @@ pub mod ERC4626Component {
     pub trait FeeConfigTrait<TContractState, +HasComponent<TContractState>> {
         /// Adjusts deposits within `preview_deposit` to account for entry fees.
         /// Entry fees should be transferred in the `after_deposit` hook.
-        fn deduct_deposit_fee(self: @ComponentState<TContractState>, total_assets: u256) -> u256 {
+        fn deduct_deposit_fee(
+            self: @ComponentState<TContractState>, total_assets: u256,
+        ) -> u256 {
             total_assets
         }
 
         /// Adjusts mints within `preview_mint` to account for entry fees.
         /// Entry fees should be transferred in the `after_deposit` hook.
-        fn add_mint_fee(self: @ComponentState<TContractState>, net_assets: u256) -> u256 {
+        fn add_mint_fee(
+            self: @ComponentState<TContractState>, net_assets: u256,
+        ) -> u256 {
             net_assets
         }
 
         /// Adjusts withdraws within `preview_withdraw` to account for exit fees.
         /// Exit fees should be transferred in the `before_withdraw` hook.
-        fn add_withdraw_fee(self: @ComponentState<TContractState>, net_assets: u256) -> u256 {
+        fn add_withdraw_fee(
+            self: @ComponentState<TContractState>, net_assets: u256,
+        ) -> u256 {
             net_assets
         }
 
         /// Adjusts redeems within `preview_redeem` to account for exit fees.
         /// Exit fees should be transferred in the `before_withdraw` hook.
-        fn deduct_redeem_fee(self: @ComponentState<TContractState>, total_assets: u256) -> u256 {
+        fn deduct_redeem_fee(
+            self: @ComponentState<TContractState>, total_assets: u256,
+        ) -> u256 {
             total_assets
         }
     }
@@ -222,10 +230,14 @@ pub mod ERC4626Component {
     pub trait ERC4626HooksTrait<TContractState, +HasComponent<TContractState>> {
         /// Hooks into `InternalImpl::_withdraw`.
         /// Executes logic before burning shares and transferring assets.
-        fn before_withdraw(ref self: ComponentState<TContractState>, net_assets: u256, fee: u256, shares: u256) {}
+        fn before_withdraw(
+            ref self: ComponentState<TContractState>, net_assets: u256, fee: u256, shares: u256,
+        ) {}
         /// Hooks into `InternalImpl::_deposit`.
         /// Executes logic after transferring assets and minting shares.
-        fn after_deposit(ref self: ComponentState<TContractState>, net_assets: u256, fee: u256, shares: u256) {}
+        fn after_deposit(
+            ref self: ComponentState<TContractState>, net_assets: u256, fee: u256, shares: u256,
+        ) {}
     }
 
     //
@@ -236,7 +248,7 @@ pub mod ERC4626Component {
     impl ERC4626<
         TContractState,
         +HasComponent<TContractState>,
-        impl Fee: FeeConfigTrait<TContractState>,
+        +FeeConfigTrait<TContractState>,
         impl Limit: LimitConfigTrait<TContractState>,
         impl Hooks: ERC4626HooksTrait<TContractState>,
         impl Immutable: ImmutableConfig,
@@ -346,7 +358,7 @@ pub mod ERC4626Component {
         /// spec.
         fn preview_mint(self: @ComponentState<TContractState>, shares: u256) -> u256 {
             let Preview { net_assets, fee, shares: _ } = self._preview_mint(shares);
-            net_assets + fee   
+            net_assets + fee
         }
 
         /// Mints exactly Vault `shares` to `receiver` by depositing amount of underlying tokens.
@@ -537,7 +549,7 @@ pub mod ERC4626Component {
         impl Hooks: ERC4626HooksTrait<TContractState>,
         impl Immutable: ImmutableConfig,
         impl ERC20: ERC20Component::HasComponent<TContractState>,
-        impl Fee: FeeConfigTrait<TContractState>,
+        impl FeeConfig: FeeConfigTrait<TContractState>,
         +LimitConfigTrait<TContractState>,
         +ERC20Component::ERC20HooksTrait<TContractState>,
         +Drop<TContractState>,
@@ -556,7 +568,7 @@ pub mod ERC4626Component {
 
         /// TODO: - add doc
         fn _preview_deposit(self: @ComponentState<TContractState>, total_assets: u256) -> Preview {
-            let net_assets = Fee::deduct_deposit_fee(self, total_assets);
+            let net_assets = FeeConfig::deduct_deposit_fee(self, total_assets);
             assert(total_assets >= net_assets, Errors::NEGATIVE_FEE);
             let fee = total_assets - net_assets;
             let shares = self._convert_to_shares(net_assets, Rounding::Floor);
@@ -566,7 +578,7 @@ pub mod ERC4626Component {
         /// TODO: - add doc
         fn _preview_mint(self: @ComponentState<TContractState>, shares: u256) -> Preview {
             let net_assets = self._convert_to_assets(shares, Rounding::Ceil);
-            let total_assets = Fee::add_mint_fee(self, net_assets);
+            let total_assets = FeeConfig::add_mint_fee(self, net_assets);
             assert(total_assets >= net_assets, Errors::NEGATIVE_FEE);
             let fee = total_assets - net_assets;
             Preview { net_assets, fee, shares }
@@ -574,7 +586,7 @@ pub mod ERC4626Component {
 
         /// TODO: - add doc
         fn _preview_withdraw(self: @ComponentState<TContractState>, net_assets: u256) -> Preview {
-            let total_assets = Fee::add_withdraw_fee(self, net_assets);
+            let total_assets = FeeConfig::add_withdraw_fee(self, net_assets);
             assert(total_assets >= net_assets, Errors::NEGATIVE_FEE);
             let fee = total_assets - net_assets;
             let shares = self._convert_to_shares(total_assets, Rounding::Ceil);
@@ -584,7 +596,7 @@ pub mod ERC4626Component {
         /// TODO: - add doc
         fn _preview_redeem(self: @ComponentState<TContractState>, shares: u256) -> Preview {
             let total_assets = self._convert_to_assets(shares, Rounding::Floor);
-            let net_assets = Fee::deduct_redeem_fee(self, total_assets);
+            let net_assets = FeeConfig::deduct_redeem_fee(self, total_assets);
             assert(total_assets >= net_assets, Errors::NEGATIVE_FEE);
             let fee = total_assets - net_assets;
             Preview { net_assets, fee, shares }
@@ -615,7 +627,8 @@ pub mod ERC4626Component {
             let asset_dispatcher = IERC20Dispatcher { contract_address: self.ERC4626_asset.read() };
             let total_assets = net_assets + fee;
             assert(
-                asset_dispatcher.transfer_from(caller, this, total_assets), Errors::TOKEN_TRANSFER_FAILED,
+                asset_dispatcher.transfer_from(caller, this, total_assets),
+                Errors::TOKEN_TRANSFER_FAILED,
             );
 
             // Mint shares after transferring assets

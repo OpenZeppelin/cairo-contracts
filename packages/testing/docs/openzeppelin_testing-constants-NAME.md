@@ -2,7 +2,5 @@
 
 Fully qualified path: `openzeppelin_testing::constants::NAME`
 
-```rust
-pub fn NAME() -> ByteArray
-```
+<pre><code class="language-rust">pub fn NAME() -&gt; ByteArray</code></pre>
 

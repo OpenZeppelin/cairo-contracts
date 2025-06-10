@@ -2,7 +2,5 @@
 
 Fully qualified path: `openzeppelin_testing::constants::TOKEN_ID`
 
-```rust
-pub const TOKEN_ID: u256 = 21;
-```
+<pre><code class="language-rust">pub const TOKEN_ID: u256 = 21;</code></pre>
 

@@ -25,7 +25,7 @@ use crate::governor::interface::{
 };
 use crate::governor::vote::{Vote, VoteWithReasonAndParams};
 use crate::governor::{DefaultConfig, GovernorComponent, ProposalCore};
-use crate::tests::governor::common::{
+use crate::tests::governor::timestamp::common::{
     COMPONENT_STATE, CONTRACT_STATE, deploy_votes_token, get_calls, get_mock_state,
     get_proposal_info, get_state, hash_proposal, setup_active_proposal, setup_canceled_proposal,
     setup_defeated_proposal, setup_executed_proposal, setup_pending_proposal, setup_queued_proposal,

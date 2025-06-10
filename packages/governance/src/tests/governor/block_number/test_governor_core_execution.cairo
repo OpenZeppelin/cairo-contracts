@@ -1,6 +1,6 @@
 use openzeppelin_test_common::mocks::governor::GovernorMock::SNIP12MetadataImpl;
 use openzeppelin_testing::constants::{OTHER, VOTES_TOKEN};
-use snforge_std::start_cheat_block_timestamp_global;
+use snforge_std::start_cheat_block_number_global;
 use starknet::ContractAddress;
 use starknet::storage::{StorageMapWriteAccess, StoragePathEntry, StoragePointerWriteAccess};
 use crate::governor::DefaultConfig;
@@ -8,7 +8,7 @@ use crate::governor::GovernorComponent::InternalImpl;
 use crate::governor::extensions::GovernorCoreExecutionComponent::GovernorExecution;
 use crate::governor::extensions::GovernorVotesComponent::InternalTrait;
 use crate::governor::interface::{IGovernor, ProposalState};
-use crate::tests::governor::common::{
+use crate::tests::governor::block_number::common::{
     COMPONENT_STATE, CONTRACT_STATE, deploy_votes_token, get_calls, get_proposal_info,
     setup_active_proposal, setup_canceled_proposal, setup_defeated_proposal,
     setup_executed_proposal, setup_pending_proposal, setup_queued_proposal,
@@ -75,12 +75,12 @@ fn test_state_active() {
     let expected = ProposalState::Active;
 
     // Is active before deadline
-    start_cheat_block_timestamp_global(deadline - 1);
+    start_cheat_block_number_global(deadline - 1);
     let state = GovernorExecution::state(@component_state, id);
     assert_eq!(state, expected);
 
     // Is active at deadline
-    start_cheat_block_timestamp_global(deadline);
+    start_cheat_block_number_global(deadline);
     let state = GovernorExecution::state(@component_state, id);
     assert_eq!(state, expected);
 }
@@ -98,7 +98,7 @@ fn test_state_defeated_quorum_not_reached() {
     let deadline = proposal.vote_start + proposal.vote_duration;
     let expected = ProposalState::Defeated;
 
-    start_cheat_block_timestamp_global(deadline + 1);
+    start_cheat_block_number_global(deadline + 1);
 
     // Quorum not reached
     let quorum = mock_state.governor.quorum(0);
@@ -122,7 +122,7 @@ fn test_state_defeated_vote_not_succeeded() {
     let deadline = proposal.vote_start + proposal.vote_duration;
     let expected = ProposalState::Defeated;
 
-    start_cheat_block_timestamp_global(deadline + 1);
+    start_cheat_block_number_global(deadline + 1);
 
     // Quorum reached
     let quorum = mock_state.governor.quorum(0);

@@ -24,11 +24,11 @@ use crate::governor::extensions::GovernorTimelockExecutionComponent::GovernorExe
 use crate::governor::extensions::GovernorVotesComponent::InternalTrait;
 use crate::governor::extensions::interface::{ITimelockedDispatcher, ITimelockedDispatcherTrait};
 use crate::governor::interface::{IGovernorDispatcher, IGovernorDispatcherTrait, ProposalState};
-use crate::tests::governor::common::{
+use crate::tests::governor::timestamp::common::{
     COMPONENT_STATE_TIMELOCKED as COMPONENT_STATE, CONTRACT_STATE_TIMELOCKED as CONTRACT_STATE,
     ComponentStateTimelocked, deploy_votes_token, get_proposal_info, set_executor,
 };
-use crate::tests::governor::test_governor::GovernorSpyHelpersImpl;
+use crate::tests::governor::timestamp::test_governor::GovernorSpyHelpersImpl;
 use crate::tests::test_timelock::TimelockSpyHelpersImpl;
 use crate::timelock::interface::{ITimelockDispatcher, OperationState};
 

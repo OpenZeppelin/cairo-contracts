@@ -20,7 +20,7 @@
 /// purpose, as shown in the following ERC20 example:
 ///
 /// See [the documentation]
-/// (https://docs.openzeppelin.com/contracts-cairo/1.0.0/governance/votes#usage)
+/// (https://docs.openzeppelin.com/contracts-cairo/2.0.0-alpha.1/governance/votes#usage)
 /// for examples and more details.
 #[starknet::component]
 pub mod VotesComponent {

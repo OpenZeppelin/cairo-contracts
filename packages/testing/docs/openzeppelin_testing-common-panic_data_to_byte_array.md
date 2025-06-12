@@ -4,7 +4,5 @@ Converts panic data into a string (ByteArray).`panic_data` is expected to be a v
 
 Fully qualified path: `openzeppelin_testing::common::panic_data_to_byte_array`
 
-```rust
-pub fn panic_data_to_byte_array(panic_data: Array<felt252>) -> ByteArray
-```
+<pre><code class="language-rust">pub fn panic_data_to_byte_array(panic_data: Array&lt;felt252&gt;) -&gt; ByteArray</code></pre>
 

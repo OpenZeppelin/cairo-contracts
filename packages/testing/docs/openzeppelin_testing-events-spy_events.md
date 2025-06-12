@@ -4,7 +4,5 @@ Creates a new `EventSpyQueue` instance.
 
 Fully qualified path: `openzeppelin_testing::events::spy_events`
 
-```rust
-pub fn spy_events() -> EventSpyQueue
-```
+<pre><code class="language-rust">pub fn spy_events() -&gt; EventSpyQueue</code></pre>
 

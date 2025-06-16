@@ -92,11 +92,13 @@ pub impl EventSpyQueueImpl of EventSpyExt {
 
 #[generate_trait]
 pub impl EventSpyQueueDebugImpl of EventSpyQueueDebug {
+    /// Prints out all events remaining on the queue.
     fn print_all_events(ref self: EventSpyQueue) {
         let events = AllEventsInfo { events: self.get_events().events };
         print!("{:?}", events);
     }
 
+    /// Prints out events on the queue emitted from the given address.
     fn print_events_from(ref self: EventSpyQueue, from_address: ContractAddress) {
         let events = ContractEventsInfo {
             from_address, events: self.get_events().emitted_by(from_address).events,

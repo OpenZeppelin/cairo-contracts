@@ -7,11 +7,10 @@ use openzeppelin_testing::constants::{
 use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use snforge_std::{start_cheat_block_timestamp_global, start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
-use crate::accesscontrol::AccessControlComponent;
-use crate::accesscontrol::AccessControlComponent::{
-    RoleAdminChanged, RoleGranted, RoleGrantedWithDelay, RoleRevoked,
+use crate::accesscontrol::extensions::AccessControlDefaultAdminRulesComponent::{
+    DefaultAdminDelayChangeCanceled, DefaultAdminDelayChangeScheduled, DefaultAdminTransferCanceled,
+    DefaultAdminTransferScheduled, InternalTrait,
 };
-use crate::accesscontrol::extensions::AccessControlDefaultAdminRulesComponent::InternalTrait;
 use crate::accesscontrol::extensions::interface::IAccessControlDefaultAdminRules;
 use crate::accesscontrol::extensions::{
     AccessControlDefaultAdminRulesComponent, DEFAULT_ADMIN_ROLE, DefaultConfig,
@@ -19,6 +18,7 @@ use crate::accesscontrol::extensions::{
 use crate::accesscontrol::interface::{
     IACCESSCONTROL_ID, IAccessControl, IAccessControlCamel, IAccessControlWithDelay, RoleStatus,
 };
+use crate::tests::test_accesscontrol::AccessControlSpyHelpers;
 
 //
 // Setup
@@ -72,6 +72,359 @@ fn test_initializer() {
 fn test_initializer_with_zero_address() {
     let mut state = COMPONENT_STATE();
     state.initializer(INITIAL_DELAY, ZERO);
+}
+
+//
+// default_admin
+//
+
+#[test]
+fn test_default_admin() {
+    let mut state = setup();
+    let default_admin = state.default_admin();
+    assert_eq!(default_admin, ADMIN);
+}
+
+//
+// pending_default_admin
+//
+
+#[test]
+fn test_pending_default_admin_default_values() {
+    let mut state = setup();
+    let (pending_default_admin, pending_default_admin_schedule) = state.pending_default_admin();
+    assert_eq!(pending_default_admin, ZERO);
+    assert_eq!(pending_default_admin_schedule, 0);
+}
+
+#[test]
+fn test_pending_default_admin_set() {
+    let mut state = setup();
+    let contract_address = test_address();
+
+    start_cheat_block_timestamp_global(TIMESTAMP);
+    start_cheat_caller_address(contract_address, ADMIN);
+    state.begin_default_admin_transfer(OTHER_ADMIN);
+    let (pending_default_admin, pending_default_admin_schedule) = state.pending_default_admin();
+
+    assert_eq!(pending_default_admin, OTHER_ADMIN);
+    assert_eq!(pending_default_admin_schedule, TIMESTAMP + INITIAL_DELAY);
+}
+
+//
+// default_admin_delay
+//
+
+#[test]
+fn test_default_admin_delay_default_values() {
+    let mut state = setup();
+    let delay = state.default_admin_delay();
+    assert_eq!(delay, INITIAL_DELAY);
+}
+
+#[test]
+fn test_default_admin_delay_pending_delay_schedule_not_passed() {
+    let mut state = setup();
+    let new_delay = INITIAL_DELAY + ONE_HOUR;
+    let contract_address = test_address();
+
+    start_cheat_caller_address(contract_address, ADMIN);
+    state.change_default_admin_delay(new_delay);
+
+    // Check that the delay is not changed since the schedule
+    // for a delay change has not passed
+    let delay = state.default_admin_delay();
+    assert_eq!(delay, INITIAL_DELAY);
+}
+
+#[test]
+fn test_default_admin_delay_pending_delay_schedule_passed() {
+    let mut state = setup();
+    let new_delay = INITIAL_DELAY + ONE_HOUR;
+    let contract_address = test_address();
+
+    start_cheat_caller_address(contract_address, ADMIN);
+    start_cheat_block_timestamp_global(TIMESTAMP);
+    state.change_default_admin_delay(new_delay);
+
+    // Check that the delay is changed since the schedule
+    // for a delay change has passed
+    start_cheat_block_timestamp_global(TIMESTAMP + new_delay);
+    let delay = state.default_admin_delay();
+    assert_eq!(delay, new_delay);
+}
+
+//
+// pending_default_admin_delay && change_default_admin_delay
+//
+
+#[test]
+fn test_pending_default_admin_delay_is_not_pending() {
+    let mut state = setup();
+    let (pending_delay, pending_delay_schedule) = state.pending_default_admin_delay();
+    assert_eq!(pending_delay, 0);
+    assert_eq!(pending_delay_schedule, 0);
+}
+
+#[test]
+#[should_panic(expected: 'Caller is missing role')]
+fn test_change_default_admin_delay_unauthorized() {
+    let mut state = setup();
+    let new_delay = INITIAL_DELAY + ONE_HOUR;
+    let contract_address = test_address();
+
+    start_cheat_caller_address(contract_address, OTHER);
+    state.change_default_admin_delay(new_delay);
+}
+
+#[test]
+fn test_pending_default_admin_delay_is_pending_increasing_delay() {
+    let mut state = setup();
+    let new_delay = INITIAL_DELAY + ONE_HOUR;
+    let contract_address = test_address();
+
+    let mut spy = spy_events();
+    start_cheat_caller_address(contract_address, ADMIN);
+    start_cheat_block_timestamp_global(TIMESTAMP);
+    state.change_default_admin_delay(new_delay);
+
+    // The schedule must be the new delay since the it is increasing
+    let expected_schedule = TIMESTAMP + new_delay;
+    let (pending_delay, pending_delay_schedule) = state.pending_default_admin_delay();
+    assert_eq!(pending_delay, new_delay);
+    assert_eq!(pending_delay_schedule, expected_schedule);
+
+    spy
+        .assert_only_event_default_admin_delay_change_scheduled(
+            contract_address, new_delay, expected_schedule,
+        );
+}
+
+#[test]
+fn test_pending_default_admin_delay_is_pending_decreasing_delay() {
+    let mut state = setup();
+    let new_delay = INITIAL_DELAY - ONE_HOUR / 2;
+    let contract_address = test_address();
+
+    let mut spy = spy_events();
+    start_cheat_caller_address(contract_address, ADMIN);
+    start_cheat_block_timestamp_global(TIMESTAMP);
+    state.change_default_admin_delay(new_delay);
+
+    // The schedule must be the difference between the current delay and the new delay
+    let expected_schedule = TIMESTAMP + INITIAL_DELAY - new_delay;
+    let (pending_delay, pending_delay_schedule) = state.pending_default_admin_delay();
+    assert_eq!(pending_delay, new_delay);
+    assert_eq!(pending_delay_schedule, expected_schedule);
+
+    spy
+        .assert_only_event_default_admin_delay_change_scheduled(
+            contract_address, new_delay, expected_schedule,
+        );
+}
+
+#[test]
+fn test_pending_default_admin_delay_increasing_after_schedule_limit() {
+    let mut state = setup();
+    let new_delay = ONE_HOUR * 24 * 10; // 10 days
+    let contract_address = test_address();
+
+    let mut spy = spy_events();
+    start_cheat_caller_address(contract_address, ADMIN);
+    start_cheat_block_timestamp_global(TIMESTAMP);
+    state.change_default_admin_delay(new_delay);
+
+    // The schedule must be the limit of the increase wait
+    let expected_schedule = TIMESTAMP + DefaultConfig::DEFAULT_ADMIN_DELAY_INCREASE_WAIT;
+    let (pending_delay, pending_delay_schedule) = state.pending_default_admin_delay();
+    assert_eq!(pending_delay, new_delay);
+    assert_eq!(pending_delay_schedule, expected_schedule);
+
+    spy
+        .assert_only_event_default_admin_delay_change_scheduled(
+            contract_address, new_delay, expected_schedule,
+        );
+}
+
+//
+// begin_default_admin_transfer
+//
+
+#[test]
+fn test_begin_default_admin_transfer() {
+    let mut state = setup();
+    let contract_address = test_address();
+
+    let mut spy = spy_events();
+    start_cheat_caller_address(contract_address, ADMIN);
+    start_cheat_block_timestamp_global(TIMESTAMP);
+    state.begin_default_admin_transfer(OTHER_ADMIN);
+
+    let expected_schedule = TIMESTAMP + state.default_admin_delay();
+    spy
+        .assert_only_event_default_admin_transfer_scheduled(
+            contract_address, OTHER_ADMIN, expected_schedule,
+        );
+
+    let (pending_default_admin, pending_default_admin_schedule) = state.pending_default_admin();
+    assert_eq!(pending_default_admin, OTHER_ADMIN);
+    assert_eq!(pending_default_admin_schedule, expected_schedule);
+}
+
+#[test]
+#[should_panic(expected: 'Caller is missing role')]
+fn test_begin_default_admin_transfer_unauthorized() {
+    let mut state = setup();
+    let contract_address = test_address();
+
+    start_cheat_caller_address(contract_address, OTHER);
+    state.begin_default_admin_transfer(OTHER_ADMIN);
+}
+
+//
+// cancel_default_admin_transfer
+//
+
+#[test]
+fn test_cancel_default_admin_transfer() {
+    let mut state = setup();
+    let contract_address = test_address();
+
+    start_cheat_caller_address(contract_address, ADMIN);
+    state.begin_default_admin_transfer(OTHER_ADMIN);
+
+    let mut spy = spy_events();
+    state.cancel_default_admin_transfer();
+
+    spy.assert_only_event_default_admin_transfer_canceled(contract_address);
+
+    let (pending_default_admin, pending_default_admin_schedule) = state.pending_default_admin();
+    assert_eq!(pending_default_admin, ZERO);
+    assert_eq!(pending_default_admin_schedule, 0);
+}
+
+#[test]
+#[should_panic(expected: 'Caller is missing role')]
+fn test_cancel_default_admin_transfer_unauthorized() {
+    let mut state = setup();
+    let contract_address = test_address();
+
+    start_cheat_caller_address(contract_address, OTHER);
+    state.cancel_default_admin_transfer();
+}
+
+//
+// accept_default_admin_transfer
+//
+
+#[test]
+fn test_accept_default_admin_transfer() {
+    let mut state = setup();
+    let contract_address = test_address();
+    start_cheat_block_timestamp_global(TIMESTAMP);
+
+    start_cheat_caller_address(contract_address, ADMIN);
+    state.begin_default_admin_transfer(OTHER_ADMIN);
+
+    let mut spy = spy_events();
+    start_cheat_caller_address(contract_address, OTHER_ADMIN);
+    start_cheat_block_timestamp_global(TIMESTAMP + state.default_admin_delay());
+    state.accept_default_admin_transfer();
+
+    spy.assert_event_role_revoked(contract_address, DEFAULT_ADMIN_ROLE, ADMIN, OTHER_ADMIN);
+    spy
+        .assert_only_event_role_granted(
+            contract_address, DEFAULT_ADMIN_ROLE, OTHER_ADMIN, OTHER_ADMIN,
+        );
+
+    let has_role = state.has_role(DEFAULT_ADMIN_ROLE, OTHER_ADMIN);
+    assert!(has_role);
+
+    let has_not_role = !state.has_role(DEFAULT_ADMIN_ROLE, ADMIN);
+    assert!(has_not_role);
+
+    let (pending_default_admin, pending_default_admin_schedule) = state.pending_default_admin();
+    assert_eq!(pending_default_admin, ZERO);
+    assert_eq!(pending_default_admin_schedule, 0);
+}
+
+#[test]
+#[should_panic(expected: 'Only new default admin allowed')]
+fn test_accept_default_admin_transfer_unauthorized() {
+    let mut state = setup();
+    let contract_address = test_address();
+
+    start_cheat_caller_address(contract_address, ADMIN);
+    state.begin_default_admin_transfer(OTHER_ADMIN);
+
+    start_cheat_caller_address(contract_address, OTHER);
+    state.accept_default_admin_transfer();
+}
+
+#[test]
+#[should_panic(expected: 'Default admin delay enforced')]
+fn test_accept_default_admin_transfer_unauthorized_when_schedule_not_passed() {
+    let mut state = setup();
+    let contract_address = test_address();
+
+    start_cheat_caller_address(contract_address, ADMIN);
+    state.begin_default_admin_transfer(OTHER_ADMIN);
+
+    start_cheat_caller_address(contract_address, OTHER_ADMIN);
+    state.accept_default_admin_transfer();
+}
+
+//
+// rollback_default_admin_delay
+//
+
+#[test]
+fn test_rollback_default_admin_delay() {
+    let mut state = setup();
+    let new_delay = ONE_HOUR * 24 * 1; // 1 day
+    let contract_address = test_address();
+
+    start_cheat_block_timestamp_global(TIMESTAMP);
+    start_cheat_caller_address(contract_address, ADMIN);
+    state.change_default_admin_delay(new_delay);
+
+    let (pending_delay, pending_delay_schedule) = state.pending_default_admin_delay();
+    assert_eq!(pending_delay, new_delay);
+    assert_eq!(pending_delay_schedule, TIMESTAMP + new_delay);
+
+    start_cheat_caller_address(contract_address, ADMIN);
+    let mut spy = spy_events();
+    state.rollback_default_admin_delay();
+
+    spy.assert_only_event_default_admin_delay_change_canceled(contract_address);
+
+    let (pending_delay, pending_delay_schedule) = state.pending_default_admin_delay();
+    assert_eq!(pending_delay, 0);
+    assert_eq!(pending_delay_schedule, 0);
+}
+
+#[test]
+#[should_panic(expected: 'Caller is missing role')]
+fn test_rollback_default_admin_delay_unauthorized() {
+    let mut state = setup();
+    let contract_address = test_address();
+
+    start_cheat_caller_address(contract_address, ADMIN);
+    state.change_default_admin_delay(ONE_HOUR);
+
+    start_cheat_caller_address(contract_address, OTHER);
+    state.rollback_default_admin_delay();
+}
+
+//
+// default_admin_delay_increase_wait
+//
+
+#[test]
+fn test_default_admin_delay_increase_wait() {
+    let state = setup();
+    let wait = state.default_admin_delay_increase_wait();
+    assert_eq!(wait, DefaultConfig::DEFAULT_ADMIN_DELAY_INCREASE_WAIT);
 }
 
 //
@@ -801,58 +1154,46 @@ fn test_default_admin_role_is_its_own_admin() {
 //
 
 #[generate_trait]
-impl AccessControlSpyHelpersImpl of AccessControlSpyHelpers {
-    fn assert_only_event_role_revoked(
+impl AccessControlDefaultAdminRulesSpyHelpersImpl of AccessControlDefaultAdminRulesSpyHelpers {
+    fn assert_only_event_default_admin_transfer_scheduled(
         ref self: EventSpy,
         contract: ContractAddress,
-        role: felt252,
-        account: ContractAddress,
-        sender: ContractAddress,
+        new_admin: ContractAddress,
+        accept_schedule: u64,
     ) {
-        let expected = AccessControlComponent::Event::RoleRevoked(
-            RoleRevoked { role, account, sender },
+        let expected =
+            AccessControlDefaultAdminRulesComponent::Event::DefaultAdminTransferScheduled(
+            DefaultAdminTransferScheduled { new_admin, accept_schedule },
         );
         self.assert_only_event(contract, expected);
     }
 
-    fn assert_only_event_role_granted(
-        ref self: EventSpy,
-        contract: ContractAddress,
-        role: felt252,
-        account: ContractAddress,
-        sender: ContractAddress,
+    fn assert_only_event_default_admin_transfer_canceled(
+        ref self: EventSpy, contract: ContractAddress,
     ) {
-        let expected = AccessControlComponent::Event::RoleGranted(
-            RoleGranted { role, account, sender },
+        let expected = AccessControlDefaultAdminRulesComponent::Event::DefaultAdminTransferCanceled(
+            DefaultAdminTransferCanceled {},
         );
         self.assert_only_event(contract, expected);
     }
 
-    fn assert_only_event_role_granted_with_delay(
-        ref self: EventSpy,
-        contract: ContractAddress,
-        role: felt252,
-        account: ContractAddress,
-        sender: ContractAddress,
-        delay: u64,
+    fn assert_only_event_default_admin_delay_change_scheduled(
+        ref self: EventSpy, contract: ContractAddress, new_delay: u64, effect_schedule: u64,
     ) {
-        let expected = AccessControlComponent::Event::RoleGrantedWithDelay(
-            RoleGrantedWithDelay { role, account, sender, delay },
+        let expected =
+            AccessControlDefaultAdminRulesComponent::Event::DefaultAdminDelayChangeScheduled(
+            DefaultAdminDelayChangeScheduled { new_delay, effect_schedule },
         );
         self.assert_only_event(contract, expected);
     }
 
-    fn assert_only_event_role_admin_changed(
-        ref self: EventSpy,
-        from_address: ContractAddress,
-        role: felt252,
-        previous_admin_role: felt252,
-        new_admin_role: felt252,
+    fn assert_only_event_default_admin_delay_change_canceled(
+        ref self: EventSpy, contract: ContractAddress,
     ) {
-        let expected = AccessControlComponent::Event::RoleAdminChanged(
-            RoleAdminChanged { role, previous_admin_role, new_admin_role },
+        let expected =
+            AccessControlDefaultAdminRulesComponent::Event::DefaultAdminDelayChangeCanceled(
+            DefaultAdminDelayChangeCanceled {},
         );
-        self.assert_only_event(from_address, expected);
+        self.assert_only_event(contract, expected);
     }
 }
-

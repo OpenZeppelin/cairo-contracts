@@ -692,7 +692,20 @@ fn test_default_admin_role_is_its_own_admin() {
 //
 
 #[generate_trait]
-impl AccessControlSpyHelpersImpl of AccessControlSpyHelpers {
+pub impl AccessControlSpyHelpersImpl of AccessControlSpyHelpers {
+    fn assert_event_role_revoked(
+        ref self: EventSpy,
+        contract: ContractAddress,
+        role: felt252,
+        account: ContractAddress,
+        sender: ContractAddress,
+    ) {
+        let expected = AccessControlComponent::Event::RoleRevoked(
+            RoleRevoked { role, account, sender },
+        );
+        self.assert_emitted_single(contract, expected);
+    }
+
     fn assert_only_event_role_revoked(
         ref self: EventSpy,
         contract: ContractAddress,

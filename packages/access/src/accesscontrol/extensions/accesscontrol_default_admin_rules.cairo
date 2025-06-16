@@ -276,7 +276,7 @@ pub mod AccessControlDefaultAdminRulesComponent {
         /// The schedule is designed for two scenarios:
         ///
         /// - When the delay is changed for a larger one the schedule is `block.timestamp +
-        /// newDelay` capped by `default_admin_delay_increase_wait`.
+        /// new delay` capped by `default_admin_delay_increase_wait`.
         /// - When the delay is changed for a shorter one, the schedule is `block.timestamp +
         /// (current delay - new delay)`.
         ///
@@ -563,7 +563,7 @@ pub mod AccessControlDefaultAdminRulesComponent {
         ) -> bool {
             match self.resolve_role_status(role, account) {
                 RoleStatus::Effective => true,
-                RoleStatus::Delayed => false,
+                RoleStatus::Delayed(_) => false,
                 RoleStatus::NotGranted => false,
             }
         }
@@ -656,7 +656,7 @@ pub mod AccessControlDefaultAdminRulesComponent {
 
             match self.resolve_role_status(role, account) {
                 RoleStatus::Effective => (),
-                RoleStatus::Delayed |
+                RoleStatus::Delayed(_) |
                 RoleStatus::NotGranted => {
                     let caller = starknet::get_caller_address();
                     let role_info = AccountRoleInfo { is_granted: true, effective_from: 0 };
@@ -689,11 +689,11 @@ pub mod AccessControlDefaultAdminRulesComponent {
             delay: u64,
         ) {
             assert(role != DEFAULT_ADMIN_ROLE, Errors::ENFORCED_DEFAULT_ADMIN_RULES);
-
             assert(delay > 0, Errors::INVALID_DELAY);
+
             match self.resolve_role_status(role, account) {
                 RoleStatus::Effective => panic_with_const_felt252::<Errors::ALREADY_EFFECTIVE>(),
-                RoleStatus::Delayed |
+                RoleStatus::Delayed(_) |
                 RoleStatus::NotGranted => {
                     let caller = starknet::get_caller_address();
                     let effective_from = starknet::get_block_timestamp() + delay;
@@ -720,7 +720,7 @@ pub mod AccessControlDefaultAdminRulesComponent {
             match self.resolve_role_status(role, account) {
                 RoleStatus::NotGranted => (),
                 RoleStatus::Effective |
-                RoleStatus::Delayed => {
+                RoleStatus::Delayed(_) => {
                     let caller = starknet::get_caller_address();
                     let role_info = AccountRoleInfo { is_granted: false, effective_from: 0 };
                     self.AccessControl_role_member.write((role, account), role_info);

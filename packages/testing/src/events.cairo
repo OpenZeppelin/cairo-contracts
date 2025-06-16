@@ -91,7 +91,7 @@ pub impl EventSpyQueueImpl of EventSpyExt {
 }
 
 #[generate_trait]
-pub impl EventSpyDebugImpl of EventSpyDebug {
+pub impl EventSpyQueueDebugImpl of EventSpyQueueDebug {
     fn print_all_events(ref self: EventSpyQueue) {
         let events = AllEventsInfo { events: self.get_events().events };
         print!("{:?}", events);
@@ -120,7 +120,6 @@ impl DebugAllEventsInfo of Debug<AllEventsInfo> {
             writeln!(f, "[{}]:", index)?;
             writeln!(f, "From {:?}", *from_address)?;
             DebugEvent::fmt(event, ref f)?;
-            // writeln!(f, "{:?}", event)?;
             index += 1;
         }
         writeln!(f, "-----")
@@ -142,7 +141,6 @@ impl DebugContractEventsInfo of Debug<ContractEventsInfo> {
             writeln!(f, "-----")?;
             writeln!(f, "[{}]:", index)?;
             DebugEvent::fmt(event, ref f)?;
-            // writeln!(f, "{:?}", event)?;
             index += 1;
         }
         writeln!(f, "-----")

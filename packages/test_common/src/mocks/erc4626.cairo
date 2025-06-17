@@ -2,7 +2,7 @@
 #[with_components(ERC20, ERC4626)]
 pub mod ERC4626Mock {
     use openzeppelin_token::erc20::extensions::erc4626::{
-        DefaultConfig, ERC4626DefaultLimits, ERC4626DefaultNoFees, ERC4626HooksEmptyImpl,
+        DefaultConfig, ERC4626DefaultLimits, ERC4626DefaultNoFees, ERC4626HooksEmptyImpl, ERC4626SelfAssetsManagement,
     };
     use openzeppelin_token::erc20::{DefaultConfig as ERC20DefaultConfig, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
@@ -42,7 +42,7 @@ pub mod ERC4626Mock {
 #[with_components(ERC20, ERC4626)]
 pub mod ERC4626OffsetMock {
     use openzeppelin_token::erc20::extensions::erc4626::{
-        ERC4626DefaultLimits, ERC4626DefaultNoFees, ERC4626HooksEmptyImpl,
+        ERC4626DefaultLimits, ERC4626DefaultNoFees, ERC4626HooksEmptyImpl, ERC4626SelfAssetsManagement,
     };
     use openzeppelin_token::erc20::{DefaultConfig, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
@@ -87,7 +87,7 @@ pub mod ERC4626OffsetMock {
 #[with_components(ERC20, ERC4626)]
 pub mod ERC4626LimitsMock {
     use openzeppelin_token::erc20::extensions::erc4626::{
-        ERC4626DefaultNoFees, ERC4626HooksEmptyImpl,
+        ERC4626DefaultNoFees, ERC4626HooksEmptyImpl, ERC4626SelfAssetsManagement,
     };
     use openzeppelin_token::erc20::{DefaultConfig, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
@@ -165,7 +165,7 @@ pub mod ERC4626LimitsMock {
 #[with_components(ERC20, ERC4626)]
 pub mod ERC4626FeesMock {
     use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component::FeeConfigTrait;
-    use openzeppelin_token::erc20::extensions::erc4626::{DefaultConfig, ERC4626DefaultLimits};
+    use openzeppelin_token::erc20::extensions::erc4626::{DefaultConfig, ERC4626DefaultLimits, ERC4626SelfAssetsManagement};
     use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
     use openzeppelin_token::erc20::{DefaultConfig as ERC20DefaultConfig, ERC20HooksEmptyImpl};
     use openzeppelin_utils::math;
@@ -330,7 +330,7 @@ pub mod ERC4626FeesMock {
 #[with_components(ERC20, ERC4626)]
 pub mod ERC4626MockWithHooks {
     use openzeppelin_token::erc20::extensions::erc4626::{
-        DefaultConfig, ERC4626DefaultLimits, ERC4626DefaultNoFees,
+        DefaultConfig, ERC4626DefaultLimits, ERC4626DefaultNoFees, ERC4626SelfAssetsManagement,
     };
     use openzeppelin_token::erc20::{DefaultConfig as ERC20DefaultConfig, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;

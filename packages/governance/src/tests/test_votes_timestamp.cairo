@@ -1,7 +1,9 @@
-use openzeppelin_test_common::mocks::votes::ERC721VotesMock::SNIP12MetadataImpl;
-use openzeppelin_test_common::mocks::votes::{ERC20VotesMock, ERC721VotesMock};
+use openzeppelin_test_common::mocks::votes::ERC721TimestampVotesMock::SNIP12MetadataImpl;
+use openzeppelin_test_common::mocks::votes::{ERC20TimestampVotesMock, ERC721TimestampVotesMock};
 use openzeppelin_testing as utils;
-use openzeppelin_testing::constants::{DELEGATEE, DELEGATOR, OTHER, RECIPIENT, SUPPLY, ZERO};
+use openzeppelin_testing::constants::{
+    DELEGATEE, DELEGATOR, OTHER, RECIPIENT, SUPPLY, TIMESTAMP, ZERO,
+};
 use openzeppelin_testing::{AsAddressTrait, EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use openzeppelin_token::erc20::ERC20Component::InternalTrait;
 use openzeppelin_token::erc20::interface::IERC20;
@@ -9,6 +11,7 @@ use openzeppelin_token::erc721::ERC721Component::{
     ERC721CamelOnlyImpl, ERC721Impl, ERC721MetadataImpl, InternalImpl as ERC721InternalImpl,
 };
 use openzeppelin_token::erc721::interface::IERC721;
+use openzeppelin_utils::contract_clock::ERC6372TimestampClock;
 use openzeppelin_utils::cryptography::snip12::OffchainMessageHash;
 use openzeppelin_utils::structs::checkpoint::TraceTrait;
 use snforge_std::signature::stark_curve::{StarkCurveKeyPairImpl, StarkCurveSignerImpl};
@@ -29,8 +32,8 @@ const ERC721_INITIAL_MINT: u256 = 10;
 // Setup
 //
 
-type ComponentState = VotesComponent::ComponentState<ERC721VotesMock::ContractState>;
-type ERC20ComponentState = VotesComponent::ComponentState<ERC20VotesMock::ContractState>;
+type ComponentState = VotesComponent::ComponentState<ERC721TimestampVotesMock::ContractState>;
+type ERC20ComponentState = VotesComponent::ComponentState<ERC20TimestampVotesMock::ContractState>;
 
 fn COMPONENT_STATE() -> ComponentState {
     VotesComponent::component_state_for_testing()
@@ -40,12 +43,12 @@ fn ERC20_COMPONENT_STATE() -> ERC20ComponentState {
     VotesComponent::component_state_for_testing()
 }
 
-fn ERC721VOTES_CONTRACT_STATE() -> ERC721VotesMock::ContractState {
-    ERC721VotesMock::contract_state_for_testing()
+fn ERC721VOTES_CONTRACT_STATE() -> ERC721TimestampVotesMock::ContractState {
+    ERC721TimestampVotesMock::contract_state_for_testing()
 }
 
-fn ERC20VOTES_CONTRACT_STATE() -> ERC20VotesMock::ContractState {
-    ERC20VotesMock::contract_state_for_testing()
+fn ERC20VOTES_CONTRACT_STATE() -> ERC20TimestampVotesMock::ContractState {
+    ERC20TimestampVotesMock::contract_state_for_testing()
 }
 
 fn setup_erc721_votes() -> ComponentState {
@@ -617,6 +620,23 @@ fn test_erc721_voting_units_update_with_single_token_transfer() {
 
     spy.assert_event_delegate_votes_changed(contract_address, RECIPIENT, 0, 1);
     assert_eq!(state.get_votes(RECIPIENT), 1);
+}
+
+//
+// ERC6372Clock
+//
+
+#[test]
+fn test_clock() {
+    let state = COMPONENT_STATE();
+    start_cheat_block_timestamp_global(TIMESTAMP);
+    assert_eq!(state.clock(), TIMESTAMP);
+}
+
+#[test]
+fn test_CLOCK_MODE() {
+    let state = COMPONENT_STATE();
+    assert_eq!(state.CLOCK_MODE(), "mode=timestamp&from=starknet::SN_MAIN");
 }
 
 //

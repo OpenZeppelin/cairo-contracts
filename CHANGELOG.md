@@ -11,11 +11,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `IERC6372Clock` interface to `openzeppelin_utils::contract_clock` (#1417)
+- `ERC6372Clock` interface to `openzeppelin_utils::contract_clock` (#1417)
 
 ### Changed (Breaking)
 
-- `VotesComponent` now supports customizable clock mechanisms via `IERC6372Clock`, enabling alternative clock sources (#1417)
+- `VotesComponent` now supports customizable clock mechanisms via `ERC6372Clock`, enabling alternative clock sources (#1417)
 
 ## 2.0.0-alpha.1 (2025-04-26)
 

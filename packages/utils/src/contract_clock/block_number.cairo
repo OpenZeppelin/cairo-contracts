@@ -1,6 +1,6 @@
-use openzeppelin_utils::contract_clock::IERC6372Clock;
+use openzeppelin_utils::contract_clock::ERC6372Clock;
 
-pub impl ERC6372BlockNumberClock of IERC6372Clock {
+pub impl ERC6372BlockNumberClock of ERC6372Clock {
     fn clock() -> u64 {
         starknet::get_block_number()
     }

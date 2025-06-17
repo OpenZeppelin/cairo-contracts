@@ -31,7 +31,7 @@ pub mod VotesComponent {
     use openzeppelin_token::erc20::interface::IERC20;
     use openzeppelin_token::erc721::ERC721Component;
     use openzeppelin_token::erc721::interface::IERC721;
-    use openzeppelin_utils::contract_clock::IERC6372Clock;
+    use openzeppelin_utils::contract_clock::ERC6372Clock;
     use openzeppelin_utils::cryptography::snip12::{OffchainMessageHash, SNIP12Metadata};
     use openzeppelin_utils::nonces::NoncesComponent;
     use openzeppelin_utils::nonces::NoncesComponent::InternalTrait as NoncesInternalTrait;
@@ -106,7 +106,7 @@ pub mod VotesComponent {
         +HasComponent<TContractState>,
         impl Nonces: NoncesComponent::HasComponent<TContractState>,
         +VotingUnitsTrait<ComponentState<TContractState>>,
-        impl Clock: IERC6372Clock,
+        impl Clock: ERC6372Clock,
         +SNIP12Metadata,
         +Drop<TContractState>,
     > of IVotes<ComponentState<TContractState>> {
@@ -265,7 +265,7 @@ pub mod VotesComponent {
         TContractState,
         +HasComponent<TContractState>,
         +VotingUnitsTrait<ComponentState<TContractState>>,
-        impl Clock: IERC6372Clock,
+        impl Clock: ERC6372Clock,
         +NoncesComponent::HasComponent<TContractState>,
         +SNIP12Metadata,
         +Drop<TContractState>,

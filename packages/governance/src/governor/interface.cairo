@@ -8,7 +8,7 @@ pub const IGOVERNOR_ID: felt252 = 0x1100a1f8546595b5bd75a6cd8fcc5b015370655e66f2
 
 /// Interface for a contract that implements the ERC-6372 standard.
 #[starknet::interface]
-pub trait IERC6372Clock<TState> {
+pub trait ERC6372Clock<TState> {
     /// Clock used for flagging checkpoints.
     fn clock(self: @TState) -> u64;
 

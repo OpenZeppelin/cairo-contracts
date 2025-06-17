@@ -623,7 +623,7 @@ fn test_erc721_voting_units_update_with_single_token_transfer() {
 }
 
 //
-// IERC6372Clock
+// ERC6372Clock
 //
 
 #[test]

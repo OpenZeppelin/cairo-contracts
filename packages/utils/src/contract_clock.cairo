@@ -3,5 +3,5 @@ pub mod interface;
 pub mod timestamp;
 
 pub use block_number::ERC6372BlockNumberClock;
-pub use interface::IERC6372Clock;
+pub use interface::ERC6372Clock;
 pub use timestamp::ERC6372TimestampClock;

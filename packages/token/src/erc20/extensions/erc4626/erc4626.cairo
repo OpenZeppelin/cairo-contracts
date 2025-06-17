@@ -464,15 +464,15 @@ pub mod ERC4626Component {
         /// the custom limit itself or ``owner``'s total asset balance, whichever value is less.
         fn max_redeem(self: @ComponentState<TContractState>, owner: ContractAddress) -> u256 {
             let erc20_component = get_dep_component!(self, ERC20);
-            let owner_assets = erc20_component.balance_of(owner);
+            let owner_shares = erc20_component.balance_of(owner);
 
             match Limit::redeem_limit(self, owner) {
-                Option::Some(limit) => { if owner_assets < limit {
-                    owner_assets
+                Option::Some(limit) => { if owner_shares < limit {
+                    owner_shares
                 } else {
                     limit
                 } },
-                Option::None => { owner_assets },
+                Option::None => { owner_shares },
             }
         }
 
@@ -656,11 +656,11 @@ pub mod ERC4626Component {
             self: @ComponentState<TContractState>, assets: u256, rounding: Rounding,
         ) -> u256 {
             let erc20_component = get_dep_component!(self, ERC20);
-            let total_supply = erc20_component.total_supply();
+            let total_shares = erc20_component.total_supply();
 
             math::u256_mul_div(
                 assets,
-                total_supply + 10_u256.pow(Immutable::DECIMALS_OFFSET.into()),
+                total_shares + 10_u256.pow(Immutable::DECIMALS_OFFSET.into()),
                 self.total_assets() + 1,
                 rounding,
             )
@@ -672,12 +672,12 @@ pub mod ERC4626Component {
             self: @ComponentState<TContractState>, shares: u256, rounding: Rounding,
         ) -> u256 {
             let erc20_component = get_dep_component!(self, ERC20);
-            let total_supply = erc20_component.total_supply();
+            let total_shares = erc20_component.total_supply();
 
             math::u256_mul_div(
                 shares,
                 self.total_assets() + 1,
-                total_supply + 10_u256.pow(Immutable::DECIMALS_OFFSET.into()),
+                total_shares + 10_u256.pow(Immutable::DECIMALS_OFFSET.into()),
                 rounding,
             )
         }

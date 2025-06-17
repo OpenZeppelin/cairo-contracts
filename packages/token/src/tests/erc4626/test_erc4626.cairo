@@ -26,6 +26,7 @@ use crate::erc20::extensions::erc4626::{DefaultConfig, ERC4626Component};
 const ASSET: ContractAddress = 'ASSET'.as_address();
 const HOLDER: ContractAddress = 'HOLDER'.as_address();
 const TREASURY: ContractAddress = 'TREASURY'.as_address();
+const EXTERNAL_STORAGE: ContractAddress = 'EXTERNAL_STORAGE'.as_address();
 
 fn VAULT_NAME() -> ByteArray {
     "VAULT"
@@ -178,6 +179,21 @@ fn deploy_vault_with_hooks(asset_address: ContractAddress) -> ERC4626ABIDispatch
     vault_calldata.append_serde(HOLDER);
 
     let contract_address = utils::declare_and_deploy("ERC4626MockWithHooks", vault_calldata);
+    ERC4626ABIDispatcher { contract_address }
+}
+
+fn deploy_vault_with_external_storage(asset_address: ContractAddress, external_storage: ContractAddress) -> ERC4626ABIDispatcher {
+    let no_shares = 0_u256;
+
+    let mut vault_calldata: Array<felt252> = array![];
+    vault_calldata.append_serde(VAULT_NAME());
+    vault_calldata.append_serde(VAULT_SYMBOL());
+    vault_calldata.append_serde(asset_address);
+    vault_calldata.append_serde(external_storage);
+    vault_calldata.append_serde(no_shares);
+    vault_calldata.append_serde(HOLDER);
+
+    let contract_address = utils::declare_and_deploy("ERC4626ExternalVaultMock", vault_calldata);
     ERC4626ABIDispatcher { contract_address }
 }
 
@@ -1693,6 +1709,147 @@ fn test_hooks_called_when_redeem() {
     // Check hooks called
     spy.assert_event_before_withdraw(vault.contract_address, assets, shares);
     spy.assert_event_after_withdraw(vault.contract_address, assets, shares);
+}
+
+//
+// Vault holding assets in another contract
+//
+
+fn setup_vault_with_external_storage() -> (IERC20ReentrantDispatcher, ERC4626ABIDispatcher) {
+    let asset = deploy_asset();
+    let vault = deploy_vault_with_external_storage(asset.contract_address, EXTERNAL_STORAGE);
+
+    // Connect vault to external storage
+    cheat_caller_address(asset.contract_address, EXTERNAL_STORAGE, CheatSpan::TargetCalls(1));
+    asset.approve(vault.contract_address, Bounded::MAX);
+
+    // Mint assets to HOLDER and approve vault
+    asset.unsafe_mint(HOLDER, Bounded::MAX / 2); // 50% of max
+    cheat_caller_address(asset.contract_address, HOLDER, CheatSpan::TargetCalls(1));
+    asset.approve(vault.contract_address, Bounded::MAX);
+
+    (asset, vault)
+}
+
+#[test]
+fn test_external_storage_deposit() {
+    let (asset, vault) = setup_vault_with_external_storage();
+    let amount = parse_token(1);
+
+    // Check max deposit
+    let max_deposit = vault.max_deposit(HOLDER);
+    assert_eq!(max_deposit, Bounded::MAX);
+
+    // Check preview == expected shares
+    let preview_deposit = vault.preview_deposit(amount);
+    let exp_shares = parse_share_offset(1);
+    assert_eq!(preview_deposit, exp_shares);
+
+    let holder_balance_before = asset.balance_of(HOLDER);
+    let mut spy = spy_events();
+
+    // Deposit
+    cheat_caller_address(vault.contract_address, HOLDER, CheatSpan::TargetCalls(1));
+    let shares = vault.deposit(amount, RECIPIENT);
+
+    // Check balances
+    let holder_balance_after = asset.balance_of(HOLDER);
+    assert_eq!(holder_balance_after, holder_balance_before - amount);
+
+    let recipient_shares = vault.balance_of(RECIPIENT);
+    assert_eq!(recipient_shares, exp_shares);
+
+    // Check events
+    spy.assert_event_transfer(asset.contract_address, HOLDER, EXTERNAL_STORAGE, amount);
+    spy.assert_event_transfer(vault.contract_address, ZERO, RECIPIENT, shares);
+    spy.assert_only_event_deposit(vault.contract_address, HOLDER, RECIPIENT, amount, shares);
+}
+
+#[test]
+fn test_external_storage_mint() {
+    let (asset, vault) = setup_vault_with_external_storage();
+
+    // Check max mint
+    let max_mint = vault.max_mint(HOLDER);
+    assert_eq!(max_mint, Bounded::MAX);
+
+    // Check preview mint
+    let preview_mint = vault.preview_mint(parse_share_offset(1));
+    let exp_assets = parse_token(1);
+    assert_eq!(preview_mint, exp_assets);
+
+    let mut spy = spy_events();
+    let holder_balance_before = asset.balance_of(HOLDER);
+
+    // Mint
+    cheat_caller_address(vault.contract_address, HOLDER, CheatSpan::TargetCalls(1));
+    vault.mint(parse_share_offset(1), RECIPIENT);
+
+    // Check balances
+    let holder_balance_after = asset.balance_of(HOLDER);
+    assert_eq!(holder_balance_after, holder_balance_before - parse_token(1));
+
+    let recipient_shares = vault.balance_of(RECIPIENT);
+    assert_eq!(recipient_shares, parse_share_offset(1));
+
+    // Check events
+    spy
+        .assert_event_transfer(
+            asset.contract_address, HOLDER, EXTERNAL_STORAGE, parse_token(1),
+        );
+    spy.assert_event_transfer(vault.contract_address, ZERO, RECIPIENT, parse_share_offset(1));
+    spy
+        .assert_only_event_deposit(
+            vault.contract_address, HOLDER, RECIPIENT, parse_token(1), parse_share_offset(1),
+        );
+}
+
+#[test]
+fn test_external_storage_withdraw() {
+    let (asset, vault) = setup_vault_with_external_storage();
+
+    // Check max withdraw
+    let max_withdraw = vault.max_withdraw(HOLDER);
+    assert_eq!(max_withdraw, 0);
+
+    // Check preview withdraw
+    let preview_withdraw = vault.preview_withdraw(0);
+    assert_eq!(preview_withdraw, 0);
+
+    let mut spy = spy_events();
+
+    // Withdraw
+    cheat_caller_address(vault.contract_address, HOLDER, CheatSpan::TargetCalls(1));
+    vault.withdraw(0, RECIPIENT, HOLDER);
+
+    // Check events
+    spy.assert_event_transfer(vault.contract_address, HOLDER, ZERO, 0);
+    spy.assert_event_transfer(asset.contract_address, EXTERNAL_STORAGE, RECIPIENT, 0);
+    spy.assert_only_event_withdraw(vault.contract_address, HOLDER, RECIPIENT, HOLDER, 0, 0);
+}
+
+#[test]
+fn test_external_storage_redeem() {
+    let (asset, vault) = setup_vault_with_external_storage();
+
+    // Check max redeem
+    let max_redeem = vault.max_redeem(HOLDER);
+    assert_eq!(max_redeem, 0);
+
+    // Check preview redeem
+    let preview_redeem = vault.preview_redeem(0);
+    assert_eq!(preview_redeem, 0);
+
+    let mut spy = spy_events();
+
+    // Redeem
+    cheat_caller_address(vault.contract_address, HOLDER, CheatSpan::TargetCalls(1));
+    vault.redeem(0, RECIPIENT, HOLDER);
+
+    // Check events
+    spy.assert_event_transfer(vault.contract_address, HOLDER, ZERO, 0);
+    spy.assert_event_transfer(asset.contract_address, EXTERNAL_STORAGE, RECIPIENT, 0);
+    spy.assert_only_event_withdraw(vault.contract_address, HOLDER, RECIPIENT, HOLDER, 0, 0);
 }
 
 //

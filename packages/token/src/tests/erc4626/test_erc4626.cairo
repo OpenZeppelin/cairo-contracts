@@ -182,7 +182,9 @@ fn deploy_vault_with_hooks(asset_address: ContractAddress) -> ERC4626ABIDispatch
     ERC4626ABIDispatcher { contract_address }
 }
 
-fn deploy_vault_with_external_storage(asset_address: ContractAddress, external_storage: ContractAddress) -> ERC4626ABIDispatcher {
+fn deploy_vault_with_external_storage(
+    asset_address: ContractAddress, external_storage: ContractAddress,
+) -> ERC4626ABIDispatcher {
     let no_shares = 0_u256;
 
     let mut vault_calldata: Array<felt252> = array![];
@@ -1793,10 +1795,7 @@ fn test_external_storage_mint() {
     assert_eq!(recipient_shares, parse_share_offset(1));
 
     // Check events
-    spy
-        .assert_event_transfer(
-            asset.contract_address, HOLDER, EXTERNAL_STORAGE, parse_token(1),
-        );
+    spy.assert_event_transfer(asset.contract_address, HOLDER, EXTERNAL_STORAGE, parse_token(1));
     spy.assert_event_transfer(vault.contract_address, ZERO, RECIPIENT, parse_share_offset(1));
     spy
         .assert_only_event_deposit(

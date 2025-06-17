@@ -2,7 +2,8 @@
 #[with_components(ERC20, ERC4626)]
 pub mod ERC4626Mock {
     use openzeppelin_token::erc20::extensions::erc4626::{
-        DefaultConfig, ERC4626DefaultLimits, ERC4626DefaultNoFees, ERC4626HooksEmptyImpl, ERC4626SelfAssetsManagement,
+        DefaultConfig, ERC4626DefaultLimits, ERC4626DefaultNoFees, ERC4626HooksEmptyImpl,
+        ERC4626SelfAssetsManagement,
     };
     use openzeppelin_token::erc20::{DefaultConfig as ERC20DefaultConfig, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
@@ -44,10 +45,10 @@ pub mod ERC4626ExternalVaultMock {
     use openzeppelin_token::erc20::extensions::erc4626::{
         ERC4626DefaultLimits, ERC4626DefaultNoFees, ERC4626HooksEmptyImpl,
     };
+    use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
     use openzeppelin_token::erc20::{DefaultConfig as ERC20DefaultConfig, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
-    use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 
     // ERC4626
     #[abi(embed_v0)]
@@ -90,8 +91,8 @@ pub mod ERC4626ExternalVaultMock {
 
     impl ERC4626ExternalAssetsManagement of ERC4626Component::AssetsManagementTrait<ContractState> {
         fn transfer_assets_in(
-            ref self: ERC4626Component::ComponentState<ContractState>, 
-            from: ContractAddress, 
+            ref self: ERC4626Component::ComponentState<ContractState>,
+            from: ContractAddress,
             assets: u256,
             error: felt252,
         ) {
@@ -101,8 +102,8 @@ pub mod ERC4626ExternalVaultMock {
         }
 
         fn transfer_assets_out(
-            ref self: ERC4626Component::ComponentState<ContractState>, 
-            to: ContractAddress, 
+            ref self: ERC4626Component::ComponentState<ContractState>,
+            to: ContractAddress,
             assets: u256,
             error: felt252,
         ) {
@@ -123,7 +124,8 @@ pub mod ERC4626ExternalVaultMock {
 #[with_components(ERC20, ERC4626)]
 pub mod ERC4626OffsetMock {
     use openzeppelin_token::erc20::extensions::erc4626::{
-        ERC4626DefaultLimits, ERC4626DefaultNoFees, ERC4626HooksEmptyImpl, ERC4626SelfAssetsManagement,
+        ERC4626DefaultLimits, ERC4626DefaultNoFees, ERC4626HooksEmptyImpl,
+        ERC4626SelfAssetsManagement,
     };
     use openzeppelin_token::erc20::{DefaultConfig, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
@@ -246,7 +248,9 @@ pub mod ERC4626LimitsMock {
 #[with_components(ERC20, ERC4626)]
 pub mod ERC4626FeesMock {
     use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component::FeeConfigTrait;
-    use openzeppelin_token::erc20::extensions::erc4626::{DefaultConfig, ERC4626DefaultLimits, ERC4626SelfAssetsManagement};
+    use openzeppelin_token::erc20::extensions::erc4626::{
+        DefaultConfig, ERC4626DefaultLimits, ERC4626SelfAssetsManagement,
+    };
     use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
     use openzeppelin_token::erc20::{DefaultConfig as ERC20DefaultConfig, ERC20HooksEmptyImpl};
     use openzeppelin_utils::math;

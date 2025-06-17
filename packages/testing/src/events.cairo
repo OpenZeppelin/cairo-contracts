@@ -1,5 +1,6 @@
+use core::fmt::{Debug, Error, Formatter};
 use snforge_std::cheatcodes::events::Events;
-use snforge_std::{EventSpy, EventSpyTrait, EventsFilterTrait};
+use snforge_std::{Event, EventSpy, EventSpyTrait, EventsFilterTrait};
 use starknet::ContractAddress;
 
 /// A wrapper around the `EventSpy` structure to allow treating the events as a queue.
@@ -86,6 +87,73 @@ pub impl EventSpyQueueImpl of EventSpyExt {
     fn count_events_from(ref self: EventSpyQueue, from_address: ContractAddress) -> u32 {
         let events = self.get_events().emitted_by(from_address).events;
         events.len()
+    }
+}
+
+#[generate_trait]
+pub impl EventSpyQueueDebugImpl of EventSpyQueueDebug {
+    /// Prints out all events remaining on the queue.
+    fn print_all_events(ref self: EventSpyQueue) {
+        let events = AllEventsInfo { events: self.get_events().events };
+        print!("{:?}", events);
+    }
+
+    /// Prints out events on the queue emitted from the given address.
+    fn print_events_from(ref self: EventSpyQueue, from_address: ContractAddress) {
+        let events = ContractEventsInfo {
+            from_address, events: self.get_events().emitted_by(from_address).events,
+        };
+        print!("{:?}", events);
+    }
+}
+
+#[derive(Drop)]
+struct AllEventsInfo {
+    events: Array<(ContractAddress, Event)>,
+}
+
+impl DebugAllEventsInfo of Debug<AllEventsInfo> {
+    fn fmt(self: @AllEventsInfo, ref f: Formatter) -> Result<(), Error> {
+        let AllEventsInfo { events } = self;
+        writeln!(f, "Total of {} events emitted:", events.len())?;
+        let mut index = 0;
+        for (from_address, event) in events {
+            writeln!(f, "-----")?;
+            writeln!(f, "[{}]:", index)?;
+            writeln!(f, "From {:?}", *from_address)?;
+            DebugEvent::fmt(event, ref f)?;
+            index += 1;
+        }
+        writeln!(f, "-----")
+    }
+}
+
+#[derive(Drop)]
+struct ContractEventsInfo {
+    from_address: ContractAddress,
+    events: Array<(ContractAddress, Event)>,
+}
+
+impl DebugContractEventsInfo of Debug<ContractEventsInfo> {
+    fn fmt(self: @ContractEventsInfo, ref f: Formatter) -> Result<(), Error> {
+        let ContractEventsInfo { from_address, events } = self;
+        writeln!(f, "Total of {} events emitted from {:?}:", events.len(), *from_address)?;
+        let mut index = 0;
+        for (_, event) in events {
+            writeln!(f, "-----")?;
+            writeln!(f, "[{}]:", index)?;
+            DebugEvent::fmt(event, ref f)?;
+            index += 1;
+        }
+        writeln!(f, "-----")
+    }
+}
+
+impl DebugEvent of Debug<Event> {
+    fn fmt(self: @Event, ref f: Formatter) -> Result<(), Error> {
+        let Event { keys, data } = self.clone();
+        writeln!(f, "Keys: {:?}", keys)?;
+        writeln!(f, "Data: {:?}", data)
     }
 }
 

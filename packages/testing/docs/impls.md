@@ -4,6 +4,8 @@
 
 - [EventSpyQueueImpl](./openzeppelin_testing-events-EventSpyQueueImpl.md)
 
+- [EventSpyQueueDebugImpl](./openzeppelin_testing-events-EventSpyQueueDebugImpl.md)
+
 - [StarkSerializedSigning](./openzeppelin_testing-signing-StarkSerializedSigning.md)
 
 - [Secp256k1SerializedSigning](./openzeppelin_testing-signing-Secp256k1SerializedSigning.md)

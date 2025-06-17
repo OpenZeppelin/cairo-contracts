@@ -14,7 +14,11 @@ Fully qualified path: `openzeppelin_testing::events`
 
 - [EventSpyExt](./openzeppelin_testing-events-EventSpyExt.md)
 
+- [EventSpyQueueDebug](./openzeppelin_testing-events-EventSpyQueueDebug.md)
+
 ## Impls
 
 - [EventSpyQueueImpl](./openzeppelin_testing-events-EventSpyQueueImpl.md)
+
+- [EventSpyQueueDebugImpl](./openzeppelin_testing-events-EventSpyQueueDebugImpl.md)
 

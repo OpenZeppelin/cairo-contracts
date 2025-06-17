@@ -24,7 +24,7 @@ keywords.workspace = true
 edition.workspace = true
 
 [workspace.package]
-version = "2.0.0-alpha.1"
+version = "2.0.0"
 edition = "2024_07"
 cairo-version = "2.11.4"
 scarb-version = "2.11.4"

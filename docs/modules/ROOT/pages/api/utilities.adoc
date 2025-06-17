@@ -204,7 +204,7 @@ Module providing an interface for the {eip6372} standard along with default cloc
 --
 
 [.contract-index]
-.Impls
+.Implementations
 --
 * xref:#contract_clock-ERC6372BlockNumberClock[`++ERC6372BlockNumberClock++`]
 * xref:#contract_clock-ERC6372TimestampClock[`++ERC6372TimestampClock++`]
@@ -252,7 +252,7 @@ Requirements:
 - The output MUST be formatted like a URL query string, decodable in standard JavaScript.
 
 [#contract_clock-Impls]
-==== Impls
+==== Implementations
 
 [.contract-item]
 [[contract_clock-ERC6372BlockNumberClock]]

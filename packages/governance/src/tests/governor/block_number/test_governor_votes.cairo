@@ -7,7 +7,9 @@ use crate::governor::GovernorComponent::InternalImpl;
 use crate::governor::extensions::GovernorVotesComponent::{
     GovernorVotes, InternalTrait, VotesTokenImpl,
 };
-use crate::tests::governor::block_number::common::{COMPONENT_STATE, CONTRACT_STATE, deploy_votes_token};
+use crate::tests::governor::block_number::common::{
+    COMPONENT_STATE, CONTRACT_STATE, deploy_votes_token,
+};
 
 //
 // GovernorVotes

@@ -40,6 +40,87 @@ pub mod ERC4626Mock {
 
 #[starknet::contract]
 #[with_components(ERC20, ERC4626)]
+pub mod ERC4626ExternalVaultMock {
+    use openzeppelin_token::erc20::extensions::erc4626::{
+        ERC4626DefaultLimits, ERC4626DefaultNoFees, ERC4626HooksEmptyImpl,
+    };
+    use openzeppelin_token::erc20::{DefaultConfig as ERC20DefaultConfig, ERC20HooksEmptyImpl};
+    use starknet::ContractAddress;
+    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+
+    // ERC4626
+    #[abi(embed_v0)]
+    impl ERC4626ComponentImpl = ERC4626Component::ERC4626Impl<ContractState>;
+    // ERC4626MetadataImpl is a custom impl of IERC20Metadata
+    #[abi(embed_v0)]
+    impl ERC4626MetadataImpl = ERC4626Component::ERC4626MetadataImpl<ContractState>;
+
+    // ERC20
+    #[abi(embed_v0)]
+    impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC20CamelOnlyImpl = ERC20Component::ERC20CamelOnlyImpl<ContractState>;
+
+    #[storage]
+    pub struct Storage {
+        external_storage: ContractAddress,
+    }
+
+    pub impl OffsetConfig of ERC4626Component::ImmutableConfig {
+        const UNDERLYING_DECIMALS: u8 = ERC4626Component::DEFAULT_UNDERLYING_DECIMALS;
+        const DECIMALS_OFFSET: u8 = 1;
+    }
+
+    #[constructor]
+    fn constructor(
+        ref self: ContractState,
+        name: ByteArray,
+        symbol: ByteArray,
+        underlying_asset: ContractAddress,
+        external_storage: ContractAddress,
+        initial_supply: u256,
+        recipient: ContractAddress,
+    ) {
+        self.external_storage.write(external_storage);
+        self.erc20.initializer(name, symbol);
+        self.erc20.mint(recipient, initial_supply);
+        self.erc4626.initializer(underlying_asset);
+    }
+
+    impl ERC4626ExternalAssetsManagement of ERC4626Component::AssetsManagementTrait<ContractState> {
+        fn transfer_assets_in(
+            ref self: ERC4626Component::ComponentState<ContractState>, 
+            from: ContractAddress, 
+            assets: u256,
+            error: felt252,
+        ) {
+            let asset_storage = self.get_contract().external_storage.read();
+            let asset_dispatcher = IERC20Dispatcher { contract_address: self.ERC4626_asset.read() };
+            assert(asset_dispatcher.transfer_from(from, asset_storage, assets), error);
+        }
+
+        fn transfer_assets_out(
+            ref self: ERC4626Component::ComponentState<ContractState>, 
+            to: ContractAddress, 
+            assets: u256,
+            error: felt252,
+        ) {
+            let asset_storage = self.get_contract().external_storage.read();
+            let asset_dispatcher = IERC20Dispatcher { contract_address: self.ERC4626_asset.read() };
+            assert(asset_dispatcher.transfer_from(asset_storage, to, assets), error);
+        }
+
+        fn get_total_assets(self: @ERC4626Component::ComponentState<ContractState>) -> u256 {
+            let asset_storage = self.get_contract().external_storage.read();
+            let asset_dispatcher = IERC20Dispatcher { contract_address: self.ERC4626_asset.read() };
+            asset_dispatcher.balance_of(asset_storage)
+        }
+    }
+}
+
+#[starknet::contract]
+#[with_components(ERC20, ERC4626)]
 pub mod ERC4626OffsetMock {
     use openzeppelin_token::erc20::extensions::erc4626::{
         ERC4626DefaultLimits, ERC4626DefaultNoFees, ERC4626HooksEmptyImpl, ERC4626SelfAssetsManagement,

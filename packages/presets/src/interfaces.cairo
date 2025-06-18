@@ -3,6 +3,7 @@ pub mod erc1155;
 pub mod erc20;
 pub mod erc721;
 pub mod eth_account;
+pub mod meta_tx_v0;
 pub mod vesting;
 
 pub use account::AccountUpgradeableABI;
@@ -19,5 +20,8 @@ pub use erc721::{
 pub use eth_account::{
     EthAccountUpgradeableABI, EthAccountUpgradeableABIDispatcher,
     EthAccountUpgradeableABIDispatcherTrait,
+};
+pub use meta_tx_v0::{
+    MetaTransactionV0ABI, MetaTransactionV0ABIDispatcher, MetaTransactionV0ABIDispatcherTrait,
 };
 pub use vesting::{VestingWalletABI, VestingWalletABIDispatcher, VestingWalletABIDispatcherTrait};

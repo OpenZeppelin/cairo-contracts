@@ -6,6 +6,7 @@ pub mod erc20;
 pub mod erc2981;
 pub mod erc4626;
 pub mod erc721;
+pub mod get_info;
 pub mod governor;
 pub mod multisig;
 pub mod non_implementing;

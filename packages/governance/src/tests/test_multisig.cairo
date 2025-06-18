@@ -146,8 +146,7 @@ fn test_submit_tx_batch() {
     let contract_address = test_address();
 
     let calls = array![
-        build_call(MockCall::AddNumber(42)),
-        build_call(MockCall::AddNumber(18)),
+        build_call(MockCall::AddNumber(42)), build_call(MockCall::AddNumber(18)),
         build_call(MockCall::AddNumber(40)),
     ]
         .span();
@@ -173,8 +172,7 @@ fn test_submit_tx_batch_with_salt() {
     let contract_address = test_address();
 
     let calls = array![
-        build_call(MockCall::AddNumber(42)),
-        build_call(MockCall::AddNumber(18)),
+        build_call(MockCall::AddNumber(42)), build_call(MockCall::AddNumber(18)),
         build_call(MockCall::AddNumber(40)),
     ]
         .span();
@@ -201,8 +199,7 @@ fn test_submit_same_tx_batch_different_salt() {
     let contract_address = test_address();
 
     let calls = array![
-        build_call(MockCall::AddNumber(42)),
-        build_call(MockCall::AddNumber(18)),
+        build_call(MockCall::AddNumber(42)), build_call(MockCall::AddNumber(18)),
         build_call(MockCall::AddNumber(40)),
     ]
         .span();
@@ -246,8 +243,7 @@ fn test_cannot_submit_tx_batch_unauthorized() {
     let mut state = setup_component(quorum, signers);
 
     let calls = array![
-        build_call(MockCall::AddNumber(42)),
-        build_call(MockCall::AddNumber(18)),
+        build_call(MockCall::AddNumber(42)), build_call(MockCall::AddNumber(18)),
         build_call(MockCall::AddNumber(40)),
     ]
         .span();
@@ -276,8 +272,7 @@ fn test_cannot_submit_tx_batch_twice() {
     let mut state = setup_component(quorum, signers);
 
     let calls = array![
-        build_call(MockCall::AddNumber(42)),
-        build_call(MockCall::AddNumber(18)),
+        build_call(MockCall::AddNumber(42)), build_call(MockCall::AddNumber(18)),
         build_call(MockCall::AddNumber(40)),
     ]
         .span();
@@ -375,8 +370,7 @@ fn test_confirm_tx_batch() {
     let contract_address = test_address();
 
     let calls = array![
-        build_call(MockCall::AddNumber(42)),
-        build_call(MockCall::AddNumber(18)),
+        build_call(MockCall::AddNumber(42)), build_call(MockCall::AddNumber(18)),
         build_call(MockCall::AddNumber(40)),
     ]
         .span();
@@ -636,8 +630,7 @@ fn test_execute_tx_batch() {
     let mut spy = spy_events();
     let mock = deploy_mock();
     let calls = array![
-        build_call(MockCall::AddNumber(42)),
-        build_call(MockCall::AddNumber(18)),
+        build_call(MockCall::AddNumber(42)), build_call(MockCall::AddNumber(18)),
         build_call(MockCall::AddNumber(40)),
     ]
         .span();
@@ -713,8 +706,7 @@ fn test_cannot_execute_batch_unauthorized() {
     let mut state = setup_component(quorum, signers);
     let contract_address = test_address();
     let calls = array![
-        build_call(MockCall::AddNumber(42)),
-        build_call(MockCall::AddNumber(18)),
+        build_call(MockCall::AddNumber(42)), build_call(MockCall::AddNumber(18)),
         build_call(MockCall::AddNumber(40)),
     ]
         .span();
@@ -856,8 +848,7 @@ fn test_tx_batch_hash_depends_on_salt() {
     let (quorum, signers) = DEFAULT_DATA();
     let mut state = setup_component(quorum, signers);
     let calls = array![
-        build_call(MockCall::AddNumber(42)),
-        build_call(MockCall::AddNumber(18)),
+        build_call(MockCall::AddNumber(42)), build_call(MockCall::AddNumber(18)),
         build_call(MockCall::AddNumber(40)),
     ]
         .span();

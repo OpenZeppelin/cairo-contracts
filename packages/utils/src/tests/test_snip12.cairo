@@ -60,10 +60,7 @@ fn test_StructHashStarknetDomainImpl() {
 
     let expected = poseidon_hash_span(
         array![
-            STARKNET_DOMAIN_TYPE_HASH,
-            domain.name,
-            domain.version,
-            domain.chain_id,
+            STARKNET_DOMAIN_TYPE_HASH, domain.name, domain.version, domain.chain_id,
             domain.revision,
         ]
             .span(),

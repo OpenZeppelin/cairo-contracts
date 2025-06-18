@@ -26,7 +26,7 @@ In the case of breaking "upgrade compatibility", an entry to the changelog will 
 
 == Storage layout
 
-Patch updates will always preserve storage layout compatibility, and after `v2.0.0-alpha.1` minors will too. This means that a live contract can be upgraded from one minor to another without corrupting the storage layout. In some cases it may be necessary to initialize new state variables when upgrading, although we expect this to be infrequent.
+Patch updates will always preserve storage layout compatibility, and after `v2.0.0` minors will too. This means that a live contract can be upgraded from one minor to another without corrupting the storage layout. In some cases it may be necessary to initialize new state variables when upgrading, although we expect this to be infrequent.
 
 == Cairo version
 

@@ -197,9 +197,8 @@ use openzeppelin_utils::contract_clock;
 Module providing an interface for the {eip6372} standard along with default clock implementations based on either block number or block timestamp.
 
 [.contract-index]
-.Members
---
 .Traits
+--
 * xref:#ERC6372Clock[`++ERC6372Clock++`]
 --
 
@@ -210,16 +209,16 @@ Module providing an interface for the {eip6372} standard along with default cloc
 * xref:#contract_clock-ERC6372TimestampClock[`++ERC6372TimestampClock++`]
 --
 
-[.contract]
+[.contract-item]
 [#ERC6372Clock]
-=== `++ERC6372Clock++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.1/packages/utils/src/contract_clock.cairo[{github-icon},role=heading-link]
+==== `++ERC6372Clock++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/votes-erc6372/packages/utils/src/contract_clock.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
 use openzeppelin_utils::contract_clock::ERC6372Clock;
 ```
 
-Interface of the {eip6372} standard for exposing a contract's clock value and details.
+A trait for the {eip6372} standard that allows flexible internal clock implementation — based on block timestamp, block number, or a custom logic.
 
 [.contract-index]
 .Functions

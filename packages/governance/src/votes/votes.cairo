@@ -25,7 +25,7 @@
 #[starknet::component]
 pub mod VotesComponent {
     use core::num::traits::Zero;
-    use openzeppelin_account::interface::{ISRC6Dispatcher, ISRC6DispatcherTrait};
+    use openzeppelin_account::utils::assert_valid_signature;
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_token::erc20::ERC20Component;
     use openzeppelin_token::erc20::interface::IERC20;
@@ -184,14 +184,7 @@ pub mod VotesComponent {
             let delegation = Delegation { verifying_contract, delegatee, nonce, expiry };
             let hash = delegation.get_message_hash(delegator);
 
-            let is_valid_signature_felt = ISRC6Dispatcher { contract_address: delegator }
-                .is_valid_signature(hash, signature.into());
-
-            // Check either 'VALID' or true for backwards compatibility.
-            let is_valid_signature = is_valid_signature_felt == starknet::VALIDATED
-                || is_valid_signature_felt == 1;
-
-            assert(is_valid_signature, Errors::INVALID_SIGNATURE);
+            assert_valid_signature(delegator, hash, signature.into(), Errors::INVALID_SIGNATURE);
 
             // Delegate votes.
             self._delegate(delegator, delegatee);

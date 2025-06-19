@@ -3,10 +3,11 @@
 
 pub mod secp256_point;
 pub mod signature;
+use openzeppelin_account::interface::{ISRC6Dispatcher, ISRC6DispatcherTrait};
 
 pub use signature::{is_valid_eth_signature, is_valid_p256_signature, is_valid_stark_signature};
-use starknet::SyscallResultTrait;
 use starknet::account::Call;
+use starknet::{ContractAddress, SyscallResultTrait};
 
 pub const MIN_TRANSACTION_VERSION: u256 = 1;
 pub const QUERY_OFFSET: u256 = 0x100000000000000000000000000000000;
@@ -26,6 +27,24 @@ pub fn execute_calls(calls: Span<Call>) -> Array<Span<felt252>> {
 pub fn execute_single_call(call: @Call) -> Span<felt252> {
     let Call { to, selector, calldata } = *call;
     starknet::syscalls::call_contract_syscall(to, selector, calldata).unwrap_syscall()
+}
+
+/// Validates a signature using SRC6 `is_valid_signature` and asserts it's valid.
+/// Checks both 'VALID' (starknet::VALIDATED) and true (1) for backwards compatibility.
+pub fn assert_valid_signature(
+    signer: ContractAddress,
+    hash: felt252,
+    signature: Span<felt252>,
+    invalid_signature_error: felt252,
+) {
+    let is_valid_signature_felt = ISRC6Dispatcher { contract_address: signer }
+        .is_valid_signature(hash, signature.into());
+
+    // Check either 'VALID' or true for backwards compatibility
+    let is_valid_signature = is_valid_signature_felt == starknet::VALIDATED
+        || is_valid_signature_felt == 1;
+
+    assert(is_valid_signature, invalid_signature_error);
 }
 
 /// If the transaction is a simulation (version >= `QUERY_OFFSET`), it must be

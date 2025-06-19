@@ -46,7 +46,7 @@ jobs:
     - name: Setup class_hash
       uses: ericnordelo/setup-class-hash@c14dd33506c3eb8e1acfe2ade9f82585f5acf28c
       with:
-        version: "0.1.0"
+        version: "0.2.0"
 
     - name: Build presets artifacts
       run: scarb --release build -p openzeppelin_presets

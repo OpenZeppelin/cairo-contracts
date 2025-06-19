@@ -26,7 +26,9 @@ List of available presets and their corresponding {sierra-class-hashes}. Like Co
 use of preset contracts are subject to the terms of the
 https://github.com/OpenZeppelin/cairo-contracts?tab=MIT-1-ov-file#readme[MIT License].
 
-NOTE: Class hashes were computed using {class-hash-cairo-version}.
+NOTE: Class hashes were computed using {class-hash-cairo-version} and the `scarb --release` profile.
+
+CAUTION: Before version 2.0.0, class hashes were computed using the `scarb --dev` profile.
 
 |===
 | Name | Sierra Class Hash

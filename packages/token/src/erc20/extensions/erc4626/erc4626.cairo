@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v2.0.0-alpha.1
+// OpenZeppelin Contracts for Cairo v2.0.0
 // (token/src/erc20/extensions/erc4626/erc4626.cairo)
 
 /// # ERC4626 Component
@@ -215,6 +215,14 @@ pub mod ERC4626Component {
     /// The `AdjustFeesTrait` will adjust these values accordingly; therefore,
     /// fees must be set in the `AdjustFeesTrait` if the using contract enforces
     /// entry or exit fees.
+    ///
+    /// CAUTION: Special care must be taken when calling external contracts in these hooks. In
+    /// that case, consider implementing reentrancy protections. For example, in the
+    /// `withdraw` flow, the `withdraw_limit` is checked *before* the `before_withdraw` hook
+    /// is invoked. If this hook performs a reentrant call that invokes `withdraw` again, the
+    /// subsequent check on `withdraw_limit` will be done before the first withdrawal’s core logic
+    /// (e.g., burning shares and transferring assets) is executed. This could
+    /// lead to bypassing withdrawal constraints or draining funds.
     ///
     /// See the example:
     /// https://github.com/OpenZeppelin/cairo-contracts/tree/main/packages/test_common/src/mocks/erc4626.cairo

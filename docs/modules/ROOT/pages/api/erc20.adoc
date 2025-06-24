@@ -1028,7 +1028,7 @@ TIP: You can use `openzeppelin_token::erc20::extensions::erc4626::ERC4626HooksEm
 
 ==== FeeConfigTrait
 
-:mock-ex: https://github.com/OpenZeppelin/cairo-contracts/tree/main/packages/test_common/src/mocks/erc4626.cairo[ERC4626FeesMock example]
+:mock-ex: https://github.com/OpenZeppelin/cairo-contracts/tree/main/packages/test_common/src/mocks/erc4626.cairo[ERC4626AssetsFeesMock example]
 
 Adjustments for fees expected to be defined at the contract level.
 Defaults to no entry or exit fees.

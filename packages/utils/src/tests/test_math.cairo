@@ -139,9 +139,11 @@ fn test_mul_div_round_down_large_values() {
     let u256_max: u256 = Bounded::MAX;
     let args_list = array![
         // (x, y, denominator, expected result)
-        (42, u256_max - 1, u256_max, 41), (17, u256_max, u256_max, 17),
+        (42, u256_max - 1, u256_max, 41),
+        (17, u256_max, u256_max, 17),
         (u256_max - 1, u256_max - 1, u256_max, u256_max - 2),
-        (u256_max, u256_max - 1, u256_max, u256_max - 1), (u256_max, u256_max, u256_max, u256_max),
+        (u256_max, u256_max - 1, u256_max, u256_max - 1),
+        (u256_max, u256_max, u256_max, u256_max),
     ]
         .span();
 
@@ -174,9 +176,11 @@ fn test_mul_div_round_up_large_values() {
     let u256_max: u256 = Bounded::MAX;
     let args_list = array![
         // (x, y, denominator, expected result)
-        (42, u256_max - 1, u256_max, 42), (17, u256_max, u256_max, 17),
+        (42, u256_max - 1, u256_max, 42),
+        (17, u256_max, u256_max, 17),
         (u256_max - 1, u256_max - 1, u256_max, u256_max - 1),
-        (u256_max, u256_max - 1, u256_max, u256_max - 1), (u256_max, u256_max, u256_max, u256_max),
+        (u256_max, u256_max - 1, u256_max, u256_max - 1),
+        (u256_max, u256_max, u256_max, u256_max),
     ]
         .span();
 

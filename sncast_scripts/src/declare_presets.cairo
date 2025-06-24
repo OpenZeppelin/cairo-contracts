@@ -5,8 +5,12 @@ const MAX_FEE: felt252 = 99_999_999_999_999_999;
 
 fn main() {
     let contracts = array![
-        "AccountUpgradeable", "ERC20Upgradeable", "ERC721Upgradeable", "ERC1155Upgradeable",
-        "EthAccountUpgradeable", "VestingWallet",
+        "AccountUpgradeable",
+        "ERC20Upgradeable",
+        "ERC721Upgradeable",
+        "ERC1155Upgradeable",
+        "EthAccountUpgradeable",
+        "VestingWallet",
     ];
 
     let mut consumed_latest_nonce = false;

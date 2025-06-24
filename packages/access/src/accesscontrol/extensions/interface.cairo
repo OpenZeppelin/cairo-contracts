@@ -5,6 +5,9 @@
 use starknet::ContractAddress;
 use crate::accesscontrol::interface::RoleStatus;
 
+pub const IACCESSCONTROL_DEFAULT_ADMIN_RULES_ID: felt252 =
+    0x3509b3083c9586afe5dae781146b0608c3846870510f8d4d21ae38676cc33eb;
+
 #[starknet::interface]
 pub trait IAccessControlDefaultAdminRules<TState> {
     /// Returns the address of the current `DEFAULT_ADMIN_ROLE` holder.

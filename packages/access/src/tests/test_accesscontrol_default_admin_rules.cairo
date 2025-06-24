@@ -11,7 +11,9 @@ use crate::accesscontrol::extensions::AccessControlDefaultAdminRulesComponent::{
     DefaultAdminDelayChangeCanceled, DefaultAdminDelayChangeScheduled, DefaultAdminTransferCanceled,
     DefaultAdminTransferScheduled, InternalTrait,
 };
-use crate::accesscontrol::extensions::interface::IAccessControlDefaultAdminRules;
+use crate::accesscontrol::extensions::interface::{
+    IACCESSCONTROL_DEFAULT_ADMIN_RULES_ID, IAccessControlDefaultAdminRules,
+};
 use crate::accesscontrol::extensions::{
     AccessControlDefaultAdminRulesComponent, DEFAULT_ADMIN_ROLE, DefaultConfig,
 };
@@ -61,6 +63,12 @@ fn test_initializer() {
     // Check that the IAccessControl interface is registered
     let supports_iaccesscontrol = CONTRACT_STATE().src5.supports_interface(IACCESSCONTROL_ID);
     assert!(supports_iaccesscontrol);
+
+    // Check that the IAccessControlDefaultAdminRules interface is registered
+    let supports_iaccesscontrol_default_admin_rules = CONTRACT_STATE()
+        .src5
+        .supports_interface(IACCESSCONTROL_DEFAULT_ADMIN_RULES_ID);
+    assert!(supports_iaccesscontrol_default_admin_rules);
 
     // Check that the delay is set
     let delay = state.default_admin_delay();

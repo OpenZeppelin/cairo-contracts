@@ -537,7 +537,11 @@ pub mod AccessControlDefaultAdminRulesComponent {
             assert(initial_default_admin.is_non_zero(), Errors::INVALID_DEFAULT_ADMIN);
 
             let mut src5_component = get_dep_component_mut!(ref self, SRC5);
+
+            let default_admin_rules_interface_id =
+                default_admin_rules_interface::IACCESSCONTROL_DEFAULT_ADMIN_RULES_ID;
             src5_component.register_interface(interface::IACCESSCONTROL_ID);
+            src5_component.register_interface(default_admin_rules_interface_id);
 
             self.AccessControl_current_delay.write(initial_delay);
             self._grant_role(DEFAULT_ADMIN_ROLE, initial_default_admin);

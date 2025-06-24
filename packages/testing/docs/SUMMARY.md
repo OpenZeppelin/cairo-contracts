@@ -212,6 +212,8 @@
 
   - [events::EventSpyExt](./openzeppelin_testing-events-EventSpyExt.md)
 
+  - [EventSpyQueueDebug](./openzeppelin_testing-events-EventSpyQueueDebug.md)
+
   - [SerializedSigning](./openzeppelin_testing-signing-SerializedSigning.md)
 
 - [Impls](./impls.md)
@@ -219,6 +221,8 @@
   - [AsAddressImpl](./openzeppelin_testing-constants-AsAddressImpl.md)
 
   - [EventSpyQueueImpl](./openzeppelin_testing-events-EventSpyQueueImpl.md)
+
+  - [EventSpyQueueDebugImpl](./openzeppelin_testing-events-EventSpyQueueDebugImpl.md)
 
   - [StarkSerializedSigning](./openzeppelin_testing-signing-StarkSerializedSigning.md)
 

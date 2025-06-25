@@ -237,7 +237,7 @@ Summarizing, the steps to follow are:
 
 == Conclusion
 
-By following this guide, you have successfully deployed the Universal Deployer Contract (UDC) on your appchain while ensuring consistency with
+By following this guide, you have successfully deployed the Universal Deployer Contract on your appchain while ensuring consistency with
 Starknet’s public networks. Maintaining the same UDC address and class hash across all environments is crucial for seamless contract deployment
 and tooling compatibility, allowing developers to leverage tools like sncast and starkli without additional configuration. This process not only
 improves the reliability of your deployment workflows but also ensures that your appchain remains compatible with the broader Starknet ecosystem.

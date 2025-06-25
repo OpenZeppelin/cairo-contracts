@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v2.0.0-alpha.1
+// OpenZeppelin Contracts for Cairo v2.0.0
 // (token/src/erc20/extensions/erc4626/erc4626.cairo)
 
 /// # ERC4626 Component
@@ -216,12 +216,26 @@ pub mod ERC4626Component {
     /// fees must be set in the `AdjustFeesTrait` if the using contract enforces
     /// entry or exit fees.
     ///
+    /// CAUTION: Special care must be taken when calling external contracts in these hooks. In
+    /// that case, consider implementing reentrancy protections. For example, in the
+    /// `withdraw` flow, the `withdraw_limit` is checked *before* the `before_withdraw` hook
+    /// is invoked. If this hook performs a reentrant call that invokes `withdraw` again, the
+    /// subsequent check on `withdraw_limit` will be done before the first withdrawal’s core logic
+    /// (e.g., burning shares and transferring assets) is executed. This could
+    /// lead to bypassing withdrawal constraints or draining funds.
+    ///
     /// See the example:
     /// https://github.com/OpenZeppelin/cairo-contracts/tree/main/packages/test_common/src/mocks/erc4626.cairo
     pub trait ERC4626HooksTrait<TContractState, +HasComponent<TContractState>> {
         /// Hooks into `InternalImpl::_withdraw`.
         /// Executes logic before burning shares and transferring assets.
         fn before_withdraw(ref self: ComponentState<TContractState>, assets: u256, shares: u256) {}
+        /// Hooks into `InternalImpl::_withdraw`.
+        /// Executes logic after burning shares and transferring assets.
+        fn after_withdraw(ref self: ComponentState<TContractState>, assets: u256, shares: u256) {}
+        /// Hooks into `InternalImpl::_deposit`.
+        /// Executes logic before transferring assets and minting shares.
+        fn before_deposit(ref self: ComponentState<TContractState>, assets: u256, shares: u256) {}
         /// Hooks into `InternalImpl::_deposit`.
         /// Executes logic after transferring assets and minting shares.
         fn after_deposit(ref self: ComponentState<TContractState>, assets: u256, shares: u256) {}
@@ -567,6 +581,9 @@ pub mod ERC4626Component {
             assets: u256,
             shares: u256,
         ) {
+            // Before deposit hook
+            Hooks::before_deposit(ref self, assets, shares);
+
             // Transfer assets first
             let this = starknet::get_contract_address();
             let asset_dispatcher = IERC20Dispatcher { contract_address: self.ERC4626_asset.read() };
@@ -618,6 +635,9 @@ pub mod ERC4626Component {
             assert(asset_dispatcher.transfer(receiver, assets), Errors::TOKEN_TRANSFER_FAILED);
 
             self.emit(Withdraw { sender: caller, receiver, owner, assets, shares });
+
+            // After withdraw hook
+            Hooks::after_withdraw(ref self, assets, shares);
         }
 
         /// Internal conversion function (from assets to shares) with support for `rounding`

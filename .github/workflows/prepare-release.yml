@@ -46,14 +46,14 @@ jobs:
     - name: Setup class_hash
       uses: ericnordelo/setup-class-hash@c14dd33506c3eb8e1acfe2ade9f82585f5acf28c
       with:
-        version: "0.1.0"
+        version: "0.2.0"
 
     - name: Build presets artifacts
-      run: scarb build -p openzeppelin_presets
+      run: scarb --release build -p openzeppelin_presets
 
     - name: Update presets page
       run: |
-        class_hash get --no-compile --json | python3 scripts/get_hashes_page.py "$CAIRO_VERSION" \
+        class_hash get --no-compile --release --json | python3 scripts/get_hashes_page.py "$CAIRO_VERSION" \
           > ./docs/modules/ROOT/pages/utils/_class_hashes.adoc
 
     - name: Auto-commit changes

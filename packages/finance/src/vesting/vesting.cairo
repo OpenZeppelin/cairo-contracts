@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v2.0.0-alpha.1 (finance/src/vesting/vesting.cairo)
+// OpenZeppelin Contracts for Cairo v2.0.0 (finance/src/vesting/vesting.cairo)
 
 use starknet::ContractAddress;
 

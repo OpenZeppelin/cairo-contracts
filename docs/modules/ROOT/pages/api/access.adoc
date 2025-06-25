@@ -22,7 +22,7 @@ assigned each to multiple accounts.
 
 [.contract]
 [[OwnableComponent]]
-=== `++OwnableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.1/packages/access/src/ownable/ownable.cairo[{github-icon},role=heading-link]
+=== `++OwnableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0/packages/access/src/ownable/ownable.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin_access::ownable::OwnableComponent;
@@ -262,7 +262,7 @@ Emitted when the ownership is transferred.
 
 [.contract]
 [[IAccessControl]]
-=== `++IAccessControl++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.1/packages/access/src/accesscontrol/interface.cairo[{github-icon},role=heading-link]
+=== `++IAccessControl++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0/packages/access/src/accesscontrol/interface.cairo[{github-icon},role=heading-link]
 
 :grant_role: xref:#IAccessControl-grant_role[grant_role]
 :revoke_role: xref:#IAccessControl-revoke_role[revoke_role]
@@ -395,7 +395,7 @@ Emitted when `account` is revoked `role`.
 
 [.contract]
 [[IAccessControlWithDelay]]
-=== `++IAccessControlWithDelay++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.1/packages/access/src/accesscontrol/interface.cairo[{github-icon},role=heading-link]
+=== `++IAccessControlWithDelay++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0/packages/access/src/accesscontrol/interface.cairo[{github-icon},role=heading-link]
 
 :grant_role_with_delay: xref:#IAccessControlWithDelay-grant_role_with_delay[grant_role_with_delay]
 :RoleGrantedWithDelay: xref:#IAccessControlWithDelay-RoleGrantedWithDelay[RoleGrantedWithDelay]
@@ -463,7 +463,7 @@ or the deployer address if {_grant_role_with_delay} is called from the construct
 
 [.contract]
 [[AccessControlComponent]]
-=== `++AccessControlComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.1/packages/access/src/accesscontrol/accesscontrol.cairo[{github-icon},role=heading-link]
+=== `++AccessControlComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0/packages/access/src/accesscontrol/accesscontrol.cairo[{github-icon},role=heading-link]
 
 :assert_only_role: xref:#AccessControlComponent-assert_only_role
 :grant_role: xref:#AccessControlComponent-grant_role[grant_role]

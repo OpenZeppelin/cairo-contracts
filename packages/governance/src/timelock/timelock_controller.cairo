@@ -146,7 +146,7 @@ pub mod TimelockControllerComponent {
             Self::get_operation_state(self, id) == OperationState::Done
         }
 
-        /// Returns the timepoint (accroding to ERC-6372 implementation) at which `id` becomes
+        /// Returns the timepoint (according to ERC-6372 implementation) at which `id` becomes
         /// Ready.
         ///
         /// NOTE: `0` means the OperationState is `Unset` and `1` means the OperationState

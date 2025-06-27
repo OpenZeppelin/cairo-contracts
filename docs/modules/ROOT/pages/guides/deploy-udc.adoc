@@ -57,7 +57,7 @@ deploy the new UDC.
 === 1. Declare and deploy the Bootstrapper
 
 In the Starknet ecosystem, contracts need to be declared before they can be deployed, and deployments can only happen
-either via the `deploy_syscall`, or using a `deploy_account` transaction. The latter would require to add account
+either via the `deploy_syscall`, or using a `deploy_account` transaction. The latter would require adding account
 functionality to the UDC, which is not optimal, so we'll use the `deploy_syscall`, which requires having an account
 with this functionality enabled.
 

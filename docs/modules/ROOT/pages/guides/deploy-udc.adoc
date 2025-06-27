@@ -16,7 +16,7 @@ same final address on all networks.
 
 This guide assumes you have:
 
-- Familiarity with {scarb} and starknet development environment.
+- Familiarity with {scarb} and Starknet development environment.
 - A functional account available on the network you're deploying to.
 - Familiarity with the process of declaring contracts through the {declare-transaction}.
 

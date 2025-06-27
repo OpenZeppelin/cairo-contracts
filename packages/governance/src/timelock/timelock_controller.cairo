@@ -24,6 +24,7 @@ pub mod TimelockControllerComponent {
     use openzeppelin_access::accesscontrol::{AccessControlComponent, DEFAULT_ADMIN_ROLE};
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
+    use openzeppelin_utils::contract_clock::ERC6372Clock;
     use starknet::account::Call;
     use starknet::storage::{
         Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
@@ -117,6 +118,7 @@ pub mod TimelockControllerComponent {
     impl Timelock<
         TContractState,
         +HasComponent<TContractState>,
+        impl Clock: ERC6372Clock,
         +SRC5Component::HasComponent<TContractState>,
         +AccessControlComponent::HasComponent<TContractState>,
         +Drop<TContractState>,
@@ -144,11 +146,12 @@ pub mod TimelockControllerComponent {
             Self::get_operation_state(self, id) == OperationState::Done
         }
 
-        /// Returns the timestamp at which `id` becomes Ready.
+        /// Returns the timepoint (accroding to ERC-6372 implementation) at which `id` becomes
+        /// Ready.
         ///
         /// NOTE: `0` means the OperationState is `Unset` and `1` means the OperationState
         /// is `Done`.
-        fn get_timestamp(self: @ComponentState<TContractState>, id: felt252) -> u64 {
+        fn get_timepoint(self: @ComponentState<TContractState>, id: felt252) -> u64 {
             self.TimelockController_timestamps.read(id)
         }
 
@@ -163,15 +166,15 @@ pub mod TimelockControllerComponent {
         fn get_operation_state(
             self: @ComponentState<TContractState>, id: felt252,
         ) -> OperationState {
-            let timestamp = Self::get_timestamp(self, id);
-            if timestamp == 0 {
-                return OperationState::Unset;
-            } else if timestamp == DONE_TIMESTAMP {
-                return OperationState::Done;
-            } else if timestamp > starknet::get_block_timestamp() {
-                return OperationState::Waiting;
+            let timepoint = Self::get_timepoint(self, id);
+            if timepoint == 0 {
+                OperationState::Unset
+            } else if timepoint == DONE_TIMESTAMP {
+                OperationState::Done
+            } else if timepoint > Clock::clock() {
+                OperationState::Waiting
             } else {
-                return OperationState::Ready;
+                OperationState::Ready
             }
         }
 
@@ -358,6 +361,16 @@ pub mod TimelockControllerComponent {
 
             self.TimelockController_min_delay.write(new_delay);
         }
+
+        /// Returns the current clock value used for time-dependent operations.
+        fn clock(self: @ComponentState<TContractState>) -> u64 {
+            Clock::clock()
+        }
+
+        /// Returns a description of the clock's mode or time measurement mechanism.
+        fn CLOCK_MODE(self: @ComponentState<TContractState>) -> ByteArray {
+            Clock::CLOCK_MODE()
+        }
     }
 
     #[embeddable_as(TimelockMixinImpl)]
@@ -366,6 +379,7 @@ pub mod TimelockControllerComponent {
         +HasComponent<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
         impl AccessControl: AccessControlComponent::HasComponent<TContractState>,
+        impl Clock: ERC6372Clock,
         +Drop<TContractState>,
     > of TimelockABI<ComponentState<TContractState>> {
         fn is_operation(self: @ComponentState<TContractState>, id: felt252) -> bool {
@@ -384,8 +398,8 @@ pub mod TimelockControllerComponent {
             Timelock::is_operation_done(self, id)
         }
 
-        fn get_timestamp(self: @ComponentState<TContractState>, id: felt252) -> u64 {
-            Timelock::get_timestamp(self, id)
+        fn get_timepoint(self: @ComponentState<TContractState>, id: felt252) -> u64 {
+            Timelock::get_timepoint(self, id)
         }
 
         fn get_operation_state(
@@ -528,6 +542,15 @@ pub mod TimelockControllerComponent {
         ) {
             Self::renounce_role(ref self, role, account);
         }
+
+        // Clock (ERC-6372)
+        fn clock(self: @ComponentState<TContractState>) -> u64 {
+            Clock::clock()
+        }
+
+        fn CLOCK_MODE(self: @ComponentState<TContractState>) -> ByteArray {
+            Clock::CLOCK_MODE()
+        }
     }
 
     //
@@ -538,6 +561,7 @@ pub mod TimelockControllerComponent {
     pub impl InternalImpl<
         TContractState,
         +HasComponent<TContractState>,
+        impl Clock: ERC6372Clock,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
         impl AccessControl: AccessControlComponent::HasComponent<TContractState>,
         +Drop<TContractState>,
@@ -653,7 +677,7 @@ pub mod TimelockControllerComponent {
         fn _schedule(ref self: ComponentState<TContractState>, id: felt252, delay: u64) {
             assert(!Timelock::is_operation(@self, id), Errors::EXPECTED_UNSET_OPERATION);
             assert(Timelock::get_min_delay(@self) <= delay, Errors::INSUFFICIENT_DELAY);
-            self.TimelockController_timestamps.write(id, starknet::get_block_timestamp() + delay);
+            self.TimelockController_timestamps.write(id, Clock::clock() + delay);
         }
 
         /// Private function that executes an operation's calls.

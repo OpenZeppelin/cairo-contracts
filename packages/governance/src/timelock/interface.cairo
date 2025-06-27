@@ -18,7 +18,7 @@ pub trait ITimelock<TState> {
     fn is_operation_pending(self: @TState, id: felt252) -> bool;
     fn is_operation_ready(self: @TState, id: felt252) -> bool;
     fn is_operation_done(self: @TState, id: felt252) -> bool;
-    fn get_timestamp(self: @TState, id: felt252) -> u64;
+    fn get_timepoint(self: @TState, id: felt252) -> u64;
     fn get_operation_state(self: @TState, id: felt252) -> OperationState;
     fn get_min_delay(self: @TState) -> u64;
     fn hash_operation(self: @TState, call: Call, predecessor: felt252, salt: felt252) -> felt252;
@@ -33,6 +33,8 @@ pub trait ITimelock<TState> {
     fn execute(ref self: TState, call: Call, predecessor: felt252, salt: felt252);
     fn execute_batch(ref self: TState, calls: Span<Call>, predecessor: felt252, salt: felt252);
     fn update_delay(ref self: TState, new_delay: u64);
+    fn clock(self: @TState) -> u64;
+    fn CLOCK_MODE(self: @TState) -> ByteArray;
 }
 
 #[starknet::interface]
@@ -41,7 +43,7 @@ pub trait TimelockABI<TState> {
     fn is_operation_pending(self: @TState, id: felt252) -> bool;
     fn is_operation_ready(self: @TState, id: felt252) -> bool;
     fn is_operation_done(self: @TState, id: felt252) -> bool;
-    fn get_timestamp(self: @TState, id: felt252) -> u64;
+    fn get_timepoint(self: @TState, id: felt252) -> u64;
     fn get_operation_state(self: @TState, id: felt252) -> OperationState;
     fn get_min_delay(self: @TState) -> u64;
     fn hash_operation(self: @TState, call: Call, predecessor: felt252, salt: felt252) -> felt252;
@@ -73,4 +75,8 @@ pub trait TimelockABI<TState> {
     fn grantRole(ref self: TState, role: felt252, account: ContractAddress);
     fn revokeRole(ref self: TState, role: felt252, account: ContractAddress);
     fn renounceRole(ref self: TState, role: felt252, account: ContractAddress);
+
+    // Clock (ERC-6372)
+    fn clock(self: @TState) -> u64;
+    fn CLOCK_MODE(self: @TState) -> ByteArray;
 }

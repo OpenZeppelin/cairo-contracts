@@ -173,7 +173,7 @@ pub mod GovernorTimelockExecutionComponent {
 
             timelock_dispatcher.schedule_batch(calls, 0, salt, delay);
 
-            starknet::get_block_timestamp() + delay
+            timelock_dispatcher.clock() + delay
         }
 
         /// See `GovernorComponent::GovernorExecutionTrait::proposal_needs_queuing`.

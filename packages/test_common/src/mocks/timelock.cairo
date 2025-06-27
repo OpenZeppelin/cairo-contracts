@@ -1,6 +1,34 @@
 #[starknet::contract]
 #[with_components(AccessControl, SRC5, TimelockController)]
-pub mod TimelockControllerMock {
+pub mod TimestampTimelockControllerMock {
+    use openzeppelin_utils::contract_clock::ERC6372TimestampClock;
+    use starknet::ContractAddress;
+
+    // Timelock Mixin
+    #[abi(embed_v0)]
+    impl TimelockMixinImpl =
+        TimelockControllerComponent::TimelockMixinImpl<ContractState>;
+
+    #[storage]
+    pub struct Storage {}
+
+    #[constructor]
+    fn constructor(
+        ref self: ContractState,
+        min_delay: u64,
+        proposers: Span<ContractAddress>,
+        executors: Span<ContractAddress>,
+        admin: ContractAddress,
+    ) {
+        self.timelock_controller.initializer(min_delay, proposers, executors, admin);
+        self.access_control.initializer();
+    }
+}
+
+#[starknet::contract]
+#[with_components(AccessControl, SRC5, TimelockController)]
+pub mod BlockNumberTimelockControllerMock {
+    use openzeppelin_utils::contract_clock::ERC6372BlockNumberClock;
     use starknet::ContractAddress;
 
     // Timelock Mixin

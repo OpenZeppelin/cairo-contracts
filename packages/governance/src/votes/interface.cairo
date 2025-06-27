@@ -35,6 +35,20 @@ pub trait IVotes<TState> {
         expiry: u64,
         signature: Span<felt252>,
     );
+
+    /// Returns the current clock value used for time-dependent operations.
+    ///
+    /// Requirements:
+    ///
+    /// - This function MUST always be non-decreasing.
+    fn clock(self: @TState) -> u64;
+
+    /// Returns a description of the clock's mode or time measurement mechanism.
+    ///
+    /// Requirements:
+    ///
+    /// - The output MUST be formatted like a URL query string, decodable in standard JavaScript.
+    fn CLOCK_MODE(self: @TState) -> ByteArray;
 }
 
 /// Common interface to interact with the `Votes` component.
@@ -57,4 +71,8 @@ pub trait VotesABI<TState> {
 
     // Nonces
     fn nonces(self: @TState, owner: ContractAddress) -> felt252;
+
+    // Clock (ERC-6372)
+    fn clock(self: @TState) -> u64;
+    fn CLOCK_MODE(self: @TState) -> ByteArray;
 }

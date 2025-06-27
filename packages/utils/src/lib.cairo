@@ -1,4 +1,5 @@
 pub mod bytearray;
+pub mod contract_clock;
 pub mod cryptography;
 pub mod deployments;
 pub mod interfaces;

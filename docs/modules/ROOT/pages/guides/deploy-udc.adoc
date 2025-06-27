@@ -35,7 +35,7 @@ environment.
 In the following sections, we'll walk you through the process of deploying the UDC on appchains while keeping the same address,
 under one important assumption: *the declared UDC class hash MUST be the same across all networks*.
 Different compiler versions may produce different class hashes for the same contract, so you need to make
-sure you are using you are using the same compiler version to build the UDC class.
+sure you are using the same compiler version to build the UDC class.
 
 The latest version of the UDC available in the `openzeppelin_presets` package was compiled with *Cairo v2.11.4* (release profile) and the resulting class hash is `{udc-class-hash}`.
 

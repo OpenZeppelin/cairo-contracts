@@ -268,7 +268,7 @@ fn schedule_from_proposer(salt: felt252) {
     assert_operation_state(timelock, OperationState::Waiting, target_id);
 
     // Check timestamp
-    let operation_ts = timelock.get_timepoint(target_id);
+    let operation_ts = timelock.get_timestamp(target_id);
     let expected_ts = starknet::get_block_timestamp() + delay;
     assert_eq!(operation_ts, expected_ts);
 
@@ -367,7 +367,7 @@ fn schedule_batch_from_proposer(salt: felt252) {
     assert_operation_state(timelock, OperationState::Waiting, target_id);
 
     // Check timestamp
-    let operation_ts = timelock.get_timepoint(target_id);
+    let operation_ts = timelock.get_timestamp(target_id);
     let expected_ts = starknet::get_block_timestamp() + delay;
     assert_eq!(operation_ts, expected_ts);
 

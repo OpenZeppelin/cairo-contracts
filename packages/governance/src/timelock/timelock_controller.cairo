@@ -151,7 +151,7 @@ pub mod TimelockControllerComponent {
         ///
         /// NOTE: `0` means the OperationState is `Unset` and `1` means the OperationState
         /// is `Done`.
-        fn get_timepoint(self: @ComponentState<TContractState>, id: felt252) -> u64 {
+        fn get_timestamp(self: @ComponentState<TContractState>, id: felt252) -> u64 {
             self.TimelockController_timestamps.read(id)
         }
 
@@ -166,7 +166,7 @@ pub mod TimelockControllerComponent {
         fn get_operation_state(
             self: @ComponentState<TContractState>, id: felt252,
         ) -> OperationState {
-            let timepoint = Self::get_timepoint(self, id);
+            let timepoint = Self::get_timestamp(self, id);
             if timepoint == 0 {
                 OperationState::Unset
             } else if timepoint == DONE_TIMESTAMP {
@@ -398,8 +398,8 @@ pub mod TimelockControllerComponent {
             Timelock::is_operation_done(self, id)
         }
 
-        fn get_timepoint(self: @ComponentState<TContractState>, id: felt252) -> u64 {
-            Timelock::get_timepoint(self, id)
+        fn get_timestamp(self: @ComponentState<TContractState>, id: felt252) -> u64 {
+            Timelock::get_timestamp(self, id)
         }
 
         fn get_operation_state(

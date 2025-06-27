@@ -154,7 +154,7 @@ sncast -p <profile-name> declare \
 ```
 
 The bootstrapper implements the `IDeployable` trait, meaning it can be counterfactually deployed. Check out the
-xref:guides/deployment.adoc[Counterfactual Deployments] guide. Continuing with the sncast examples, you can create and deploy the bootstrapper with the following commands:
+xref:guides/deployment.adoc[Counterfactual Deployments] guide. Continuing with the *sncast* examples, you can create and deploy the bootstrapper with the following commands:
 
 ===== Create the account
 

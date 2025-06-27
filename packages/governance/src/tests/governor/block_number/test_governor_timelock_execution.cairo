@@ -28,8 +28,8 @@ use crate::tests::governor::block_number::common::{
     COMPONENT_STATE_TIMELOCKED as COMPONENT_STATE, CONTRACT_STATE_TIMELOCKED as CONTRACT_STATE,
     ComponentStateTimelocked, deploy_votes_token, get_proposal_info, set_executor,
 };
-use crate::tests::governor::block_number::test_governor::GovernorSpyHelpersImpl;
-use crate::tests::test_timelock::TimelockSpyHelpersImpl;
+use crate::tests::governor::common::GovernorSpyHelpersImpl;
+use crate::tests::timelock::common::TimelockSpyHelpersImpl;
 use crate::timelock::interface::{ITimelockDispatcher, OperationState};
 
 const MIN_DELAY: u64 = 100;
@@ -68,7 +68,7 @@ fn deploy_timelock(admin: ContractAddress) -> ITimelockDispatcher {
     calldata.append_serde(executors);
     calldata.append_serde(admin);
 
-    let address = utils::declare_and_deploy("TimelockControllerMock", calldata);
+    let address = utils::declare_and_deploy("BlockNumberTimelockControllerMock", calldata);
     ITimelockDispatcher { contract_address: address }
 }
 
@@ -408,7 +408,6 @@ fn test_execute_operations() {
 
     let mut spy = spy_events();
     governor.execute(calls, (@description).hash());
-
     // 6. Assertions
     let number = target.get_number();
     assert_eq!(number, new_number);

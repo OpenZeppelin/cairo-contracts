@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v2.0.0-alpha.1
+// OpenZeppelin Contracts for Cairo v2.0.0
 // (token/src/erc20/extensions/erc4626/erc4626.cairo)
 
 /// # ERC4626 Component
@@ -225,6 +225,14 @@ pub mod ERC4626Component {
     /// fees must be set in the `AdjustFeesTrait` if the using contract enforces
     /// entry or exit fees.
     ///
+    /// CAUTION: Special care must be taken when calling external contracts in these hooks. In
+    /// that case, consider implementing reentrancy protections. For example, in the
+    /// `withdraw` flow, the `withdraw_limit` is checked *before* the `before_withdraw` hook
+    /// is invoked. If this hook performs a reentrant call that invokes `withdraw` again, the
+    /// subsequent check on `withdraw_limit` will be done before the first withdrawal’s core logic
+    /// (e.g., burning shares and transferring assets) is executed. This could
+    /// lead to bypassing withdrawal constraints or draining funds.
+    ///
     /// See the example:
     /// https://github.com/OpenZeppelin/cairo-contracts/tree/main/packages/test_common/src/mocks/erc4626.cairo
     pub trait ERC4626HooksTrait<TContractState, +HasComponent<TContractState>> {
@@ -239,6 +247,8 @@ pub mod ERC4626Component {
             shares: u256,
             fee: Option<Fee>,
         ) {}
+        /// Hooks into `InternalImpl::_withdraw`.
+        /// Executes logic after burning shares and transferring assets.
         fn after_withdraw(
             ref self: ComponentState<TContractState>, 
             caller: ContractAddress,
@@ -248,6 +258,8 @@ pub mod ERC4626Component {
             shares: u256,
             fee: Option<Fee>,
         ) {}
+        /// Hooks into `InternalImpl::_deposit`.
+        /// Executes logic before transferring assets and minting shares.
         fn before_deposit(
             ref self: ComponentState<TContractState>,
             caller: ContractAddress,
@@ -671,28 +683,28 @@ pub mod ERC4626Component {
             ref self: ComponentState<TContractState>,
             caller: ContractAddress,
             receiver: ContractAddress,
-            assets_to_deposit: u256,
-            shares_to_mint: u256,
+            assets: u256,
+            shares: u256,
             fee: Option<Fee>,
         ) {     
             // Before deposit hook
-            Hooks::before_deposit(ref self, caller, receiver, assets_to_deposit, shares_to_mint, fee);
+            Hooks::before_deposit(ref self, caller, receiver, assets, shares, fee);
 
             // Transfer assets first
             let this = starknet::get_contract_address();
             let asset_dispatcher = IERC20Dispatcher { contract_address: self.ERC4626_asset.read() };
             assert(
-                asset_dispatcher.transfer_from(caller, this, assets_to_deposit),
+                asset_dispatcher.transfer_from(caller, this, assets),
                 Errors::TOKEN_TRANSFER_FAILED,
             );
 
             // Mint shares after transferring assets
             let mut erc20_component = get_dep_component_mut!(ref self, ERC20);
-            erc20_component.mint(receiver, shares_to_mint);
-            self.emit(Deposit { sender: caller, owner: receiver, assets: assets_to_deposit, shares: shares_to_mint });
+            erc20_component.mint(receiver, shares);
+            self.emit(Deposit { sender: caller, owner: receiver, assets, shares });
 
             // After deposit hook
-            Hooks::after_deposit(ref self, caller, receiver, assets_to_deposit, shares_to_mint, fee);
+            Hooks::after_deposit(ref self, caller, receiver, assets, shares, fee);
         }
 
         /// Internal logic for `withdraw` and `redeem`.
@@ -737,7 +749,7 @@ pub mod ERC4626Component {
             let asset_dispatcher = IERC20Dispatcher { contract_address: self.ERC4626_asset.read() };
             assert(asset_dispatcher.transfer(receiver, assets), Errors::TOKEN_TRANSFER_FAILED);
 
-            self.emit(Withdraw { sender: caller, receiver, owner, assets: assets, shares });
+            self.emit(Withdraw { sender: caller, receiver, owner, assets, shares });
 
             // After withdraw hook
             Hooks::after_withdraw(ref self, caller, receiver, owner, assets, shares, fee);

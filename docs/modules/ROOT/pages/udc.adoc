@@ -5,7 +5,7 @@
 :udc-proposal: link:https://community.starknet.io/t/universal-deployer-contract-proposal/1864[Universal Deployer Contract proposal]
 :deploy_contract: xref:/api/udc.adoc#UniversalDeployer-deploy_contract[deploy_contract]
 :contract-deployed: xref:/api/udc.adoc#IUniversalDeployer-ContractDeployed[ContractDeployed]
-:previous-udc-api: https://docs.starknet.io/architecture-and-concepts/accounts/universal-deployer/
+:previous-udc-api: https://docs.starknet.io/architecture-and-concepts/accounts/#using-the-universal-deployer-contract
 
 The Universal Deployer Contract (UDC) is a singleton smart contract that wraps the {deploy-syscall} to expose it to any contract that doesn't implement it, such as account contracts. You can think of it as a standardized generic factory for Starknet contracts.
 

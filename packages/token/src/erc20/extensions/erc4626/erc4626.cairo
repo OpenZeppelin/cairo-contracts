@@ -122,6 +122,12 @@ pub mod ERC4626Component {
         }
     }
 
+    #[derive(Copy, Drop)]
+    pub enum Fee {
+        Assets: u256,
+        Shares: u256,
+    }
+
     /// Adjustments for fees expected to be defined at the contract level.
     /// Defaults to no entry or exit fees.
     ///
@@ -239,7 +245,7 @@ pub mod ERC4626Component {
         /// Hooks into `InternalImpl::_withdraw`.
         /// Executes logic before burning shares and transferring assets.
         fn before_withdraw(
-            ref self: ComponentState<TContractState>, 
+            ref self: ComponentState<TContractState>,
             caller: ContractAddress,
             receiver: ContractAddress,
             owner: ContractAddress,
@@ -250,7 +256,7 @@ pub mod ERC4626Component {
         /// Hooks into `InternalImpl::_withdraw`.
         /// Executes logic after burning shares and transferring assets.
         fn after_withdraw(
-            ref self: ComponentState<TContractState>, 
+            ref self: ComponentState<TContractState>,
             caller: ContractAddress,
             receiver: ContractAddress,
             owner: ContractAddress,
@@ -573,14 +579,8 @@ pub mod ERC4626Component {
     // Internal
     //
 
-    #[derive(Copy, Drop)]
-    pub enum Fee {
-        Assets: u256,
-        Shares: u256,
-    }
-
     /// TODO: - add doc
-    #[derive(Drop)]
+    #[derive(Drop, Copy)]
     pub struct Preview {
         assets: u256,
         shares: u256,
@@ -617,7 +617,8 @@ pub mod ERC4626Component {
             let fee = FeeConfig::calculate_deposit_fee(self, assets, value_in_shares);
             let shares = match fee {
                 Option::Some(fee) => match fee {
-                    Fee::Assets(assets_fee) => self._convert_to_shares(assets - assets_fee, Rounding::Floor),
+                    Fee::Assets(assets_fee) => self
+                        ._convert_to_shares(assets - assets_fee, Rounding::Floor),
                     Fee::Shares(shares_fee) => value_in_shares - shares_fee,
                 },
                 Option::None => value_in_shares,
@@ -632,7 +633,8 @@ pub mod ERC4626Component {
             let assets = match fee {
                 Option::Some(fee) => match fee {
                     Fee::Assets(assets_fee) => value_in_assets + assets_fee,
-                    Fee::Shares(shares_fee) => self._convert_to_assets(shares + shares_fee, Rounding::Ceil),
+                    Fee::Shares(shares_fee) => self
+                        ._convert_to_assets(shares + shares_fee, Rounding::Ceil),
                 },
                 Option::None => value_in_assets,
             };
@@ -645,7 +647,8 @@ pub mod ERC4626Component {
             let fee = FeeConfig::calculate_withdraw_fee(self, assets, value_in_shares);
             let shares = match fee {
                 Option::Some(fee) => match fee {
-                    Fee::Assets(assets_fee) => self._convert_to_shares(assets + assets_fee, Rounding::Ceil),
+                    Fee::Assets(assets_fee) => self
+                        ._convert_to_shares(assets + assets_fee, Rounding::Ceil),
                     Fee::Shares(shares_fee) => value_in_shares + shares_fee,
                 },
                 Option::None => value_in_shares,
@@ -660,7 +663,8 @@ pub mod ERC4626Component {
             let assets = match redeem_fee {
                 Option::Some(fee) => match fee {
                     Fee::Assets(assets_fee) => value_in_assets - assets_fee,
-                    Fee::Shares(shares_fee) => self._convert_to_assets(shares - shares_fee, Rounding::Floor),
+                    Fee::Shares(shares_fee) => self
+                        ._convert_to_assets(shares - shares_fee, Rounding::Floor),
                 },
                 Option::None => value_in_assets,
             };
@@ -686,7 +690,7 @@ pub mod ERC4626Component {
             assets: u256,
             shares: u256,
             fee: Option<Fee>,
-        ) {     
+        ) {
             // Before deposit hook
             Hooks::before_deposit(ref self, caller, receiver, assets, shares, fee);
 
@@ -694,8 +698,7 @@ pub mod ERC4626Component {
             let this = starknet::get_contract_address();
             let asset_dispatcher = IERC20Dispatcher { contract_address: self.ERC4626_asset.read() };
             assert(
-                asset_dispatcher.transfer_from(caller, this, assets),
-                Errors::TOKEN_TRANSFER_FAILED,
+                asset_dispatcher.transfer_from(caller, this, assets), Errors::TOKEN_TRANSFER_FAILED,
             );
 
             // Mint shares after transferring assets
@@ -737,7 +740,7 @@ pub mod ERC4626Component {
                 Option::Some(fee) => match fee {
                     Fee::Assets(_) => shares,
                     Fee::Shares(shares_fee) => shares - shares_fee,
-                }
+                },
             };
             let mut erc20_component = get_dep_component_mut!(ref self, ERC20);
             if caller != owner {
@@ -821,7 +824,7 @@ pub impl DefaultConfig of ERC4626Component::ImmutableConfig {
 mod Test {
     use openzeppelin_test_common::mocks::erc4626::ERC4626Mock;
     use super::ERC4626Component::InternalImpl;
-    use super::{ERC4626Component, ERC4626DefaultNoLimits, ERC4626DefaultNoFees};
+    use super::{ERC4626Component, ERC4626DefaultNoFees, ERC4626DefaultNoLimits};
 
     type ComponentState = ERC4626Component::ComponentState<ERC4626Mock::ContractState>;
 

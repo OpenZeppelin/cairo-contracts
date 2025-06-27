@@ -138,10 +138,18 @@ fn deploy_vault_fees(
 
     // Enter fees
     vault_calldata.append_serde(fees.entry);
-    vault_calldata.append_serde(if fees.entry == 0 { ZERO } else { TREASURY });
+    vault_calldata.append_serde(if fees.entry == 0 {
+        ZERO
+    } else {
+        TREASURY
+    });
     // Exit fees
     vault_calldata.append_serde(fees.exit);
-    vault_calldata.append_serde(if fees.exit == 0 { ZERO } else { TREASURY });
+    vault_calldata.append_serde(if fees.exit == 0 {
+        ZERO
+    } else {
+        TREASURY
+    });
 
     deploy_mock_for_fee_type(fees.kind, vault_calldata)
 }
@@ -1234,11 +1242,7 @@ fn test_max_limit_redeem_assets_lt_limit() {
 
 fn setup_input_fees(kind: FeeKind) -> (IERC20ReentrantDispatcher, ERC4626ABIDispatcher) {
     let asset = deploy_asset();
-    let fees = Fees {
-        kind,
-        entry: DEFAULT_FEE,
-        exit: 0
-    };
+    let fees = Fees { kind, entry: DEFAULT_FEE, exit: 0 };
     let vault = deploy_vault_fees(asset.contract_address, 0, HOLDER, fees);
 
     let half_max: u256 = Bounded::MAX / 2;
@@ -1252,11 +1256,7 @@ fn setup_input_fees(kind: FeeKind) -> (IERC20ReentrantDispatcher, ERC4626ABIDisp
 
 fn setup_output_fees(kind: FeeKind) -> (IERC20ReentrantDispatcher, ERC4626ABIDispatcher) {
     let asset = deploy_asset();
-    let fees = Fees {
-        kind,
-        entry: 0,
-        exit: DEFAULT_FEE
-    };
+    let fees = Fees { kind, entry: 0, exit: DEFAULT_FEE };
     let half_max: u256 = Bounded::MAX / 2;
 
     // Mint shares to HOLDER
@@ -1475,7 +1475,7 @@ fn test_input_shares_fees_deposit() {
             asset.contract_address, HOLDER, vault.contract_address, ASSETS_TO_DEPOSIT,
         );
     spy.assert_event_transfer(vault.contract_address, ZERO, RECIPIENT, SHARES_WITHOUT_FEES);
-    
+
     spy
         .assert_event_deposit(
             vault.contract_address, HOLDER, RECIPIENT, ASSETS_TO_DEPOSIT, SHARES_WITHOUT_FEES,
@@ -1830,8 +1830,8 @@ fn test_hooks_called_when_deposit() {
     let shares = vault.deposit(assets, RECIPIENT);
 
     // Check hooks called
-    spy.assert_event_before_deposit(vault.contract_address, assets, shares);
-    spy.assert_event_after_deposit(vault.contract_address, assets, shares);
+    spy.assert_event_before_deposit(vault.contract_address, HOLDER, RECIPIENT, assets, shares);
+    spy.assert_event_after_deposit(vault.contract_address, HOLDER, RECIPIENT, assets, shares);
 }
 
 #[test]
@@ -1845,8 +1845,8 @@ fn test_hooks_called_when_mint() {
     let assets = vault.mint(shares, RECIPIENT);
 
     // Check hooks called
-    spy.assert_event_before_deposit(vault.contract_address, assets, shares);
-    spy.assert_event_after_deposit(vault.contract_address, assets, shares);
+    spy.assert_event_before_deposit(vault.contract_address, HOLDER, RECIPIENT, assets, shares);
+    spy.assert_event_after_deposit(vault.contract_address, HOLDER, RECIPIENT, assets, shares);
 }
 
 #[test]
@@ -1860,8 +1860,14 @@ fn test_hooks_called_when_withdraw() {
     let shares = vault.withdraw(assets, RECIPIENT, HOLDER);
 
     // Check hooks called
-    spy.assert_event_before_withdraw(vault.contract_address, assets, shares);
-    spy.assert_event_after_withdraw(vault.contract_address, assets, shares);
+    spy
+        .assert_event_before_withdraw(
+            vault.contract_address, HOLDER, RECIPIENT, HOLDER, assets, shares,
+        );
+    spy
+        .assert_event_after_withdraw(
+            vault.contract_address, HOLDER, RECIPIENT, HOLDER, assets, shares,
+        );
 }
 
 #[test]
@@ -1875,8 +1881,14 @@ fn test_hooks_called_when_redeem() {
     let assets = vault.redeem(shares, RECIPIENT, HOLDER);
 
     // Check hooks called
-    spy.assert_event_before_withdraw(vault.contract_address, assets, shares);
-    spy.assert_event_after_withdraw(vault.contract_address, assets, shares);
+    spy
+        .assert_event_before_withdraw(
+            vault.contract_address, HOLDER, RECIPIENT, HOLDER, assets, shares,
+        );
+    spy
+        .assert_event_after_withdraw(
+            vault.contract_address, HOLDER, RECIPIENT, HOLDER, assets, shares,
+        );
 }
 
 //
@@ -1899,10 +1911,10 @@ fn assert_expected_assets(
 
 fn assert_vault_is_balanced(vault: ERC4626ABIDispatcher, asset: IERC20ReentrantDispatcher) {
     let total_assets = vault.total_assets();
-    let total_shares = IERC20ReentrantDispatcher { contract_address: vault.contract_address }.total_supply();
+    let total_shares = IERC20ReentrantDispatcher { contract_address: vault.contract_address }
+        .total_supply();
     assert_eq!(total_assets, total_shares);
 }
-
 use openzeppelin_utils::math;
 use openzeppelin_utils::math::Rounding;
 
@@ -1911,9 +1923,7 @@ fn fee_on_raw(value: u256) -> u256 {
 }
 
 fn fee_on_total(value: u256) -> u256 {
-    math::u256_mul_div(
-        value, DEFAULT_FEE, DEFAULT_FEE + BASIS_POINT_SCALE, Rounding::Ceil,
-    )
+    math::u256_mul_div(value, DEFAULT_FEE, DEFAULT_FEE + BASIS_POINT_SCALE, Rounding::Ceil)
 }
 
 #[generate_trait]
@@ -1974,37 +1984,59 @@ pub impl ERC4626SpyHelpersImpl of ERC4626SpyHelpers {
 #[generate_trait]
 impl ERC4626HooksSpyHelpersImpl of ERC4626HooksSpyHelpers {
     fn assert_event_before_deposit(
-        ref self: EventSpy, contract: ContractAddress, assets: u256, shares: u256,
+        ref self: EventSpy,
+        contract: ContractAddress,
+        caller: ContractAddress,
+        receiver: ContractAddress,
+        assets: u256,
+        shares: u256,
     ) {
         let expected = ERC4626MockWithHooks::Event::BeforeDeposit(
-            ERC4626MockWithHooks::BeforeDeposit { assets, shares },
+            ERC4626MockWithHooks::BeforeDeposit { caller, receiver, assets, shares },
         );
         self.assert_emitted_single(contract, expected);
     }
 
     fn assert_event_after_deposit(
-        ref self: EventSpy, contract: ContractAddress, assets: u256, shares: u256,
+        ref self: EventSpy,
+        contract: ContractAddress,
+        caller: ContractAddress,
+        receiver: ContractAddress,
+        assets: u256,
+        shares: u256,
     ) {
         let expected = ERC4626MockWithHooks::Event::AfterDeposit(
-            ERC4626MockWithHooks::AfterDeposit { assets, shares },
+            ERC4626MockWithHooks::AfterDeposit { caller, receiver, assets, shares },
         );
         self.assert_emitted_single(contract, expected);
     }
 
     fn assert_event_before_withdraw(
-        ref self: EventSpy, contract: ContractAddress, assets: u256, shares: u256,
+        ref self: EventSpy,
+        contract: ContractAddress,
+        caller: ContractAddress,
+        receiver: ContractAddress,
+        owner: ContractAddress,
+        assets: u256,
+        shares: u256,
     ) {
         let expected = ERC4626MockWithHooks::Event::BeforeWithdraw(
-            ERC4626MockWithHooks::BeforeWithdraw { assets, shares },
+            ERC4626MockWithHooks::BeforeWithdraw { caller, receiver, owner, assets, shares },
         );
         self.assert_emitted_single(contract, expected);
     }
 
     fn assert_event_after_withdraw(
-        ref self: EventSpy, contract: ContractAddress, assets: u256, shares: u256,
+        ref self: EventSpy,
+        contract: ContractAddress,
+        caller: ContractAddress,
+        receiver: ContractAddress,
+        owner: ContractAddress,
+        assets: u256,
+        shares: u256,
     ) {
         let expected = ERC4626MockWithHooks::Event::AfterWithdraw(
-            ERC4626MockWithHooks::AfterWithdraw { assets, shares },
+            ERC4626MockWithHooks::AfterWithdraw { caller, receiver, owner, assets, shares },
         );
         self.assert_emitted_single(contract, expected);
     }

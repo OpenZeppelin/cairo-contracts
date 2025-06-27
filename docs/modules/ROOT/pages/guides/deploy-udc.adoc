@@ -12,7 +12,7 @@ same final address on all networks.
 :declare-transaction: https://docs.starknet.io/resources/transactions-reference/#declare_transaction[declare transaction]
 :sncast: https://foundry-rs.github.io/starknet-foundry/starknet/declare.html[sncast]
 :starknet-foundry: https://foundry-rs.github.io/starknet-foundry/index.html[starknet-foundry]
-:scarb: https://docs.swmansion.com/scarb/docs.html[scarb]
+:scarb: https://docs.swmansion.com/scarb/docs.html[Scarb]
 
 This guide assumes you have:
 

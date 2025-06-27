@@ -71,4 +71,8 @@ pub trait VotesABI<TState> {
 
     // Nonces
     fn nonces(self: @TState, owner: ContractAddress) -> felt252;
+
+    // Clock (ERC-6372)
+    fn clock(self: @TState) -> u64;
+    fn CLOCK_MODE(self: @TState) -> ByteArray;
 }

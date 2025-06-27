@@ -146,7 +146,7 @@ this bootstrapper account contract is to be able to deploy the UDC via the `depl
 
 TIP: sncast v0.45.0 was used in the examples below.
 
-As a quick example, if your account is configured for sncast, you can declare the bootstrapper contract with the following command:
+As a quick example, if your account is configured for *sncast*, you can declare the bootstrapper contract with the following command:
 
 ```bash
 sncast -p <profile-name> declare \

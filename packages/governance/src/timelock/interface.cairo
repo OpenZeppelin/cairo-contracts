@@ -33,8 +33,6 @@ pub trait ITimelock<TState> {
     fn execute(ref self: TState, call: Call, predecessor: felt252, salt: felt252);
     fn execute_batch(ref self: TState, calls: Span<Call>, predecessor: felt252, salt: felt252);
     fn update_delay(ref self: TState, new_delay: u64);
-    fn clock(self: @TState) -> u64;
-    fn CLOCK_MODE(self: @TState) -> ByteArray;
 }
 
 #[starknet::interface]
@@ -75,8 +73,4 @@ pub trait TimelockABI<TState> {
     fn grantRole(ref self: TState, role: felt252, account: ContractAddress);
     fn revokeRole(ref self: TState, role: felt252, account: ContractAddress);
     fn renounceRole(ref self: TState, role: felt252, account: ContractAddress);
-
-    // Clock (ERC-6372)
-    fn clock(self: @TState) -> u64;
-    fn CLOCK_MODE(self: @TState) -> ByteArray;
 }

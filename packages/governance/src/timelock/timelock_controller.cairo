@@ -165,13 +165,13 @@ pub mod TimelockControllerComponent {
         ) -> OperationState {
             let timestamp = Self::get_timestamp(self, id);
             if timestamp == 0 {
-                return OperationState::Unset;
+                OperationState::Unset
             } else if timestamp == DONE_TIMESTAMP {
-                return OperationState::Done;
+                OperationState::Done
             } else if timestamp > starknet::get_block_timestamp() {
-                return OperationState::Waiting;
+                OperationState::Waiting
             } else {
-                return OperationState::Ready;
+                OperationState::Ready
             }
         }
 

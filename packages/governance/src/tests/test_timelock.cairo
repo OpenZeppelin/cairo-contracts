@@ -14,6 +14,7 @@ use openzeppelin_test_common::mocks::timelock::{
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{ADMIN, FELT_VALUE as VALUE, OTHER, SALT, ZERO};
 use openzeppelin_testing::{AsAddressTrait, EventSpyExt, EventSpyQueue as EventSpy, spy_events};
+use openzeppelin_utils::contract_clock::ERC6372TimestampClock;
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{
     CheatSpan, cheat_caller_address, start_cheat_block_timestamp_global, start_cheat_caller_address,
@@ -1635,47 +1636,6 @@ fn test__execute_with_bad_selector() {
 }
 
 //
-// Helpers
-//
-
-fn assert_operation_state(timelock: TimelockABIDispatcher, exp_state: OperationState, id: felt252) {
-    let operation_state = timelock.get_operation_state(id);
-    assert_eq!(operation_state, exp_state);
-
-    let is_operation = timelock.is_operation(id);
-    let is_pending = timelock.is_operation_pending(id);
-    let is_ready = timelock.is_operation_ready(id);
-    let is_done = timelock.is_operation_done(id);
-
-    match exp_state {
-        OperationState::Unset => {
-            assert!(!is_operation);
-            assert!(!is_pending);
-            assert!(!is_ready);
-            assert!(!is_done);
-        },
-        OperationState::Waiting => {
-            assert!(is_operation);
-            assert!(is_pending);
-            assert!(!is_ready);
-            assert!(!is_done);
-        },
-        OperationState::Ready => {
-            assert!(is_operation);
-            assert!(is_pending);
-            assert!(is_ready);
-            assert!(!is_done);
-        },
-        OperationState::Done => {
-            assert!(is_operation);
-            assert!(!is_pending);
-            assert!(!is_ready);
-            assert!(is_done);
-        },
-    };
-}
-
-//
 // Event helpers
 //
 
@@ -1833,4 +1793,47 @@ pub(crate) impl TimelockSpyHelpersImpl of TimelockSpyHelpers {
         self.assert_event_delay_changed(contract, old_duration, new_duration);
         self.assert_no_events_left_from(contract);
     }
+}
+
+//
+// Assertions
+//
+
+pub(crate) fn assert_operation_state(
+    timelock: TimelockABIDispatcher, exp_state: OperationState, id: felt252,
+) {
+    let operation_state = timelock.get_operation_state(id);
+    assert_eq!(operation_state, exp_state);
+
+    let is_operation = timelock.is_operation(id);
+    let is_pending = timelock.is_operation_pending(id);
+    let is_ready = timelock.is_operation_ready(id);
+    let is_done = timelock.is_operation_done(id);
+
+    match exp_state {
+        OperationState::Unset => {
+            assert!(!is_operation);
+            assert!(!is_pending);
+            assert!(!is_ready);
+            assert!(!is_done);
+        },
+        OperationState::Waiting => {
+            assert!(is_operation);
+            assert!(is_pending);
+            assert!(!is_ready);
+            assert!(!is_done);
+        },
+        OperationState::Ready => {
+            assert!(is_operation);
+            assert!(is_pending);
+            assert!(is_ready);
+            assert!(!is_done);
+        },
+        OperationState::Done => {
+            assert!(is_operation);
+            assert!(!is_pending);
+            assert!(!is_ready);
+            assert!(is_done);
+        },
+    };
 }

@@ -85,7 +85,7 @@ pub trait IAccessControlDefaultAdminRules<TState> {
     /// scheduled to take effect after the current timestamp plus a `default_admin_delay`.
     ///
     /// This function guarantees that any call to `begin_default_admin_transfer` done between the
-    /// timestamp this method is called and the `pending_default_admin_delay` effect schedule will
+    /// timestamp this method is called at and the `pending_default_admin_delay` effect schedule will
     /// use the current `default_admin_delay` set before calling.
     ///
     /// The `pending_default_admin_delay`'s effect schedule is defined in a way that waiting until

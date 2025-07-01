@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v2.0.0-alpha.1
+// OpenZeppelin Contracts for Cairo v2.0.0
 // (access/src/accesscontrol/extensions/pending_delay.cairo)
 
+use core::integer::u128_safe_divmod;
 use starknet::storage_access::StorePacking;
 
 /// Information about a scheduledpending delay.
@@ -11,26 +12,24 @@ pub struct PendingDelay {
     pub schedule: u64 // 0 if not scheduled
 }
 
-const _2_POW_64: felt252 = 0x10000000000000000;
+const _2_POW_64: NonZero<u128> = 0x10000000000000000;
 
-/// Packs an PendingDelay into a single felt252.
+/// Packs an PendingDelay into a single u128.
 ///
 /// The packing is done as follows:
 ///
-/// 1. `delay` is stored at range [124,187] (0-indexed starting from the most significant bits).
-/// 2. `schedule` is stored at range [188, 251], following `delay`.
-impl PendingDelayStorePacking of StorePacking<PendingDelay, felt252> {
-    fn pack(value: PendingDelay) -> felt252 {
+/// 1. `delay` is stored at range [0,63] (0-indexed starting from the most significant bits).
+/// 2. `schedule` is stored at range [64, 127], following `delay`.
+impl PendingDelayStorePacking of StorePacking<PendingDelay, u128> {
+    fn pack(value: PendingDelay) -> u128 {
         let PendingDelay { delay, schedule } = value;
-        let delay_with_offset = delay.into() * _2_POW_64;
+        let delay_with_offset = delay.into() * _2_POW_64.into();
 
         delay_with_offset + schedule.into()
     }
 
-    fn unpack(value: felt252) -> PendingDelay {
-        let value: u256 = value.into();
-        let delay = value / _2_POW_64.into();
-        let schedule = value % _2_POW_64.into();
+    fn unpack(value: u128) -> PendingDelay {
+        let (delay, schedule) = u128_safe_divmod(value, _2_POW_64);
 
         // It is safe to unwrap because the two values were packed from u64 integers
         PendingDelay { delay: delay.try_into().unwrap(), schedule: schedule.try_into().unwrap() }
@@ -56,5 +55,16 @@ mod tests {
         let packed = PendingDelayStorePacking::pack(pending_delay);
         let unpacked = PendingDelayStorePacking::unpack(packed);
         assert_eq!(pending_delay, unpacked);
+    }
+
+    #[test]
+    #[fuzzer]
+    fn test_pack_and_unpack_fuzz(delay: u64, schedule: u64) {
+        let pending_delay = PendingDelay { delay, schedule };
+        let packed_value = PendingDelayStorePacking::pack(pending_delay);
+        let unpacked_info = PendingDelayStorePacking::unpack(packed_value);
+
+        assert_eq!(unpacked_info.delay, delay);
+        assert_eq!(unpacked_info.schedule, schedule);
     }
 }

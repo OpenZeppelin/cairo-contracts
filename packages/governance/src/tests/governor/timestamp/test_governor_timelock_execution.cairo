@@ -29,7 +29,7 @@ use crate::tests::governor::timestamp::common::{
     COMPONENT_STATE_TIMELOCKED as COMPONENT_STATE, CONTRACT_STATE_TIMELOCKED as CONTRACT_STATE,
     ComponentStateTimelocked, deploy_votes_token, get_proposal_info, set_executor,
 };
-use crate::tests::timelock::common::TimelockSpyHelpersImpl;
+use crate::tests::test_timelock::TimelockSpyHelpersImpl;
 use crate::timelock::interface::{ITimelockDispatcher, OperationState};
 
 const MIN_DELAY: u64 = 100;
@@ -68,7 +68,7 @@ fn deploy_timelock(admin: ContractAddress) -> ITimelockDispatcher {
     calldata.append_serde(executors);
     calldata.append_serde(admin);
 
-    let address = utils::declare_and_deploy("TimestampTimelockControllerMock", calldata);
+    let address = utils::declare_and_deploy("TimelockControllerMock", calldata);
     ITimelockDispatcher { contract_address: address }
 }
 

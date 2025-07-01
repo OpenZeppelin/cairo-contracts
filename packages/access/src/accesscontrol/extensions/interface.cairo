@@ -58,7 +58,7 @@ pub trait IAccessControlDefaultAdminRules<TState> {
 
     /// Cancels a `default_admin` transfer previously started with `begin_default_admin_transfer`.
     ///
-    /// A `pending_default_admin` not yet accepted can also be cancelled with this function.
+    /// A `pending_default_admin` not yet accepted can also be canceled with this function.
     ///
     /// Requirements:
     ///
@@ -85,7 +85,7 @@ pub trait IAccessControlDefaultAdminRules<TState> {
     /// scheduled to take effect after the current timestamp plus a `default_admin_delay`.
     ///
     /// This function guarantees that any call to `begin_default_admin_transfer` done between the
-    /// timestamp this method is called and the `pending_default_admin_delay` effect schedule will
+    /// timestamp this method is called at and the `pending_default_admin_delay` effect schedule will
     /// use the current `default_admin_delay` set before calling.
     ///
     /// The `pending_default_admin_delay`'s effect schedule is defined in a way that waiting until
@@ -120,7 +120,7 @@ pub trait IAccessControlDefaultAdminRules<TState> {
     fn rollback_default_admin_delay(ref self: TState);
 
     /// Maximum time in seconds for an increase to `default_admin_delay` (that is scheduled using
-    /// `change_default_admin_delay`) to take effect. Default to 5 days.
+    /// `change_default_admin_delay`) to take effect. Defaults to 5 days.
     ///
     /// When the `default_admin_delay` is scheduled to be increased, it goes into effect after the
     /// new delay has passed with the purpose of giving enough time for reverting any accidental

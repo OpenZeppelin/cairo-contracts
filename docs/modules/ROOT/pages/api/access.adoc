@@ -1042,7 +1042,7 @@ May emit a {default_admin_delay_change_canceled} event.
 ==== `[.contract-item-name]#++default_admin_delay_increase_wait++#++() → u64++` [.item-kind]#external#
 
 Maximum time in seconds for an increase to {default_admin_delay} (that is scheduled using
-{change_default_admin_delay}) to take effect. Default to 5 days.
+{change_default_admin_delay}) to take effect. Defaults to 5 days.
 
 When the {default_admin_delay} is scheduled to be increased, it goes into effect after the
 new delay has passed with the purpose of giving enough time for reverting any accidental
@@ -1320,9 +1320,9 @@ Completes a `default_admin` transfer previously started with {begin_default_admi
 
 After calling the function:
 
-- `DEFAULT_ADMIN_ROLE` should be granted to the caller.
-- `DEFAULT_ADMIN_ROLE` should be revoked from the previous holder.
-- {pending_default_admin} should be reset to zero values.
+- `DEFAULT_ADMIN_ROLE` must be granted to the caller.
+- `DEFAULT_ADMIN_ROLE` must be revoked from the previous holder.
+- {pending_default_admin} must be reset to zero values.
 
 Requirements:
 
@@ -1387,7 +1387,7 @@ When the {default_admin_delay} is scheduled to be increased, it goes into effect
 the new delay has passed with the purpose of giving enough time for reverting any
 accidental change (i.e. using milliseconds instead of seconds)
 that may lock the contract. However, to avoid excessive schedules, the wait is capped by
-this function and it can be overrode for a custom {default_admin_delay} increase
+this function and it can be overridden for a custom {default_admin_delay} increase
 scheduling.
 
 IMPORTANT: Make sure to add a reasonable amount of time while overriding this value,

@@ -160,7 +160,7 @@ pub mod AccessControlDefaultAdminRulesComponent {
         /// `begin_default_admin_transfer` to set the acceptance schedule.
         ///
         /// NOTE: If a delay change has been scheduled, it will take effect as soon as the schedule
-        /// passes, making this function returns the new delay.
+        /// passes, making this function return the new delay.
         ///
         /// See `change_default_admin_delay`.
         fn default_admin_delay(self: @ComponentState<TContractState>) -> u64 {
@@ -216,7 +216,7 @@ pub mod AccessControlDefaultAdminRulesComponent {
         /// Cancels a `default_admin` transfer previously started with
         /// `begin_default_admin_transfer`.
         ///
-        /// A `pending_default_admin` not yet accepted can also be cancelled with this function.
+        /// A `pending_default_admin` not yet accepted can also be canceled with this function.
         ///
         /// Requirements:
         ///
@@ -233,9 +233,9 @@ pub mod AccessControlDefaultAdminRulesComponent {
         ///
         /// After calling the function:
         ///
-        /// - `DEFAULT_ADMIN_ROLE` should be granted to the caller.
-        /// - `DEFAULT_ADMIN_ROLE` should be revoked from the previous holder.
-        /// - `pending_default_admin` should be reset to zero values.
+        /// - `DEFAULT_ADMIN_ROLE` must be granted to the caller.
+        /// - `DEFAULT_ADMIN_ROLE` must be revoked from the previous holder.
+        /// - `pending_default_admin` must be reset to zero values.
         ///
         /// Requirements:
         ///
@@ -264,7 +264,7 @@ pub mod AccessControlDefaultAdminRulesComponent {
         /// `default_admin_delay`.
         ///
         /// This function guarantees that any call to `begin_default_admin_transfer` done between
-        /// the timestamp this method is called and the `pending_default_admin_delay` effect
+        /// the timestamp this method is called at and the `pending_default_admin_delay` effect
         /// schedule will use the current `default_admin_delay`
         /// set before calling.
         ///
@@ -320,7 +320,7 @@ pub mod AccessControlDefaultAdminRulesComponent {
         /// the new delay has passed with the purpose of giving enough time for reverting any
         /// accidental change (i.e. using milliseconds instead of seconds)
         /// that may lock the contract. However, to avoid excessive schedules, the wait is capped by
-        /// this function and it can be overrode for a custom `default_admin_delay` increase
+        /// this function and it can be overridden for a custom `default_admin_delay` increase
         /// scheduling.
         ///
         /// IMPORTANT: Make sure to add a reasonable amount of time while overriding this value,

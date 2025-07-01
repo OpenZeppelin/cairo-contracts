@@ -120,7 +120,7 @@ pub trait IAccessControlDefaultAdminRules<TState> {
     fn rollback_default_admin_delay(ref self: TState);
 
     /// Maximum time in seconds for an increase to `default_admin_delay` (that is scheduled using
-    /// `change_default_admin_delay`) to take effect. Default to 5 days.
+    /// `change_default_admin_delay`) to take effect. Defaults to 5 days.
     ///
     /// When the `default_admin_delay` is scheduled to be increased, it goes into effect after the
     /// new delay has passed with the purpose of giving enough time for reverting any accidental

@@ -12,11 +12,11 @@ same final address on all networks.
 :declare-transaction: https://docs.starknet.io/resources/transactions-reference/#declare_transaction[declare transaction]
 :sncast: https://foundry-rs.github.io/starknet-foundry/starknet/declare.html[sncast]
 :starknet-foundry: https://foundry-rs.github.io/starknet-foundry/index.html[starknet-foundry]
-:scarb: https://docs.swmansion.com/scarb/docs.html[scarb]
+:scarb: https://docs.swmansion.com/scarb/docs.html[Scarb]
 
 This guide assumes you have:
 
-- Familiarity with {scarb} and starknet development environment.
+- Familiarity with {scarb} and Starknet development environment.
 - A functional account available on the network you're deploying to.
 - Familiarity with the process of declaring contracts through the {declare-transaction}.
 
@@ -57,7 +57,7 @@ deploy the new UDC.
 === 1. Declare and deploy the Bootstrapper
 
 In the Starknet ecosystem, contracts need to be declared before they can be deployed, and deployments can only happen
-either via the `deploy_syscall`, or using a `deploy_account` transaction. The latter would require to add account
+either via the `deploy_syscall`, or using a `deploy_account` transaction. The latter would require adding account
 functionality to the UDC, which is not optimal, so we'll use the `deploy_syscall`, which requires having an account
 with this functionality enabled.
 
@@ -146,7 +146,7 @@ this bootstrapper account contract is to be able to deploy the UDC via the `depl
 
 TIP: sncast v0.45.0 was used in the examples below.
 
-As a quick example, if your account is configured for sncast, you can declare the bootstrapper contract with the following command:
+As a quick example, if your account is configured for *sncast*, you can declare the bootstrapper contract with the following command:
 
 ```bash
 sncast -p <profile-name> declare \
@@ -154,7 +154,7 @@ sncast -p <profile-name> declare \
 ```
 
 The bootstrapper implements the `IDeployable` trait, meaning it can be counterfactually deployed. Check out the
-xref:guides/deployment.adoc[Counterfactual Deployments] guide. Continuing with the sncast examples, you can create and deploy the bootstrapper with the following commands:
+xref:guides/deployment.adoc[Counterfactual Deployments] guide. Continuing with the *sncast* examples, you can create and deploy the bootstrapper with the following commands:
 
 ===== Create the account
 
@@ -239,7 +239,7 @@ Summarizing, the steps to follow are:
 
 By following this guide, you have successfully deployed the Universal Deployer Contract on your appchain while ensuring consistency with
 Starknet’s public networks. Maintaining the same UDC address and class hash across all environments is crucial for seamless contract deployment
-and tooling compatibility, allowing developers to leverage tools like sncast and starkli without additional configuration. This process not only
+and tooling compatibility, allowing developers to leverage tools like *sncast* and *starkli* without additional configuration. This process not only
 improves the reliability of your deployment workflows but also ensures that your appchain remains compatible with the broader Starknet ecosystem.
 With the UDC correctly deployed, you are now ready to take full advantage of streamlined contract
 deployments and robust developer tooling on your appchain.

@@ -160,7 +160,7 @@ pub mod AccessControlDefaultAdminRulesComponent {
         /// `begin_default_admin_transfer` to set the acceptance schedule.
         ///
         /// NOTE: If a delay change has been scheduled, it will take effect as soon as the schedule
-        /// passes, making this function returns the new delay.
+        /// passes, making this function return the new delay.
         ///
         /// See `change_default_admin_delay`.
         fn default_admin_delay(self: @ComponentState<TContractState>) -> u64 {

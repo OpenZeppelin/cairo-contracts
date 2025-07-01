@@ -264,7 +264,7 @@ pub mod AccessControlDefaultAdminRulesComponent {
         /// `default_admin_delay`.
         ///
         /// This function guarantees that any call to `begin_default_admin_transfer` done between
-        /// the timestamp this method is called and the `pending_default_admin_delay` effect
+        /// the timestamp this method is called at and the `pending_default_admin_delay` effect
         /// schedule will use the current `default_admin_delay`
         /// set before calling.
         ///

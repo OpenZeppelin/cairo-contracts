@@ -634,5 +634,5 @@ fn test_clock() {
 #[test]
 fn test_CLOCK_MODE() {
     let state = COMPONENT_STATE();
-    assert_eq!(state.CLOCK_MODE(), "mode=blocknumber&from=default");
+    assert_eq!(state.CLOCK_MODE(), "mode=blocknumber&from=starknet::SN_MAIN");
 }

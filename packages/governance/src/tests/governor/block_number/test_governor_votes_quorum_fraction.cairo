@@ -71,7 +71,7 @@ fn test_CLOCK_MODE() {
     initialize_component(VOTES_TOKEN, DEFAULT_NUMERATOR);
 
     let mode = GovernorVotes::CLOCK_MODE(@component_state);
-    assert_eq!(mode, "mode=blocknumber&from=default");
+    assert_eq!(mode, "mode=blocknumber&from=starknet::SN_MAIN");
 }
 
 #[test]

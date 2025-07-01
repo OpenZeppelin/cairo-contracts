@@ -6,6 +6,6 @@ pub impl ERC6372BlockNumberClock of ERC6372Clock {
     }
 
     fn CLOCK_MODE() -> ByteArray {
-        "mode=blocknumber&from=default"
+        "mode=blocknumber&from=starknet::SN_MAIN"
     }
 }

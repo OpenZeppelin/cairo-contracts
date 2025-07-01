@@ -233,9 +233,9 @@ pub mod AccessControlDefaultAdminRulesComponent {
         ///
         /// After calling the function:
         ///
-        /// - `DEFAULT_ADMIN_ROLE` should be granted to the caller.
-        /// - `DEFAULT_ADMIN_ROLE` should be revoked from the previous holder.
-        /// - `pending_default_admin` should be reset to zero values.
+        /// - `DEFAULT_ADMIN_ROLE` must be granted to the caller.
+        /// - `DEFAULT_ADMIN_ROLE` must be revoked from the previous holder.
+        /// - `pending_default_admin` must be reset to zero values.
         ///
         /// Requirements:
         ///

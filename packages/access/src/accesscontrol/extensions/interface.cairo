@@ -58,7 +58,7 @@ pub trait IAccessControlDefaultAdminRules<TState> {
 
     /// Cancels a `default_admin` transfer previously started with `begin_default_admin_transfer`.
     ///
-    /// A `pending_default_admin` not yet accepted can also be cancelled with this function.
+    /// A `pending_default_admin` not yet accepted can also be canceled with this function.
     ///
     /// Requirements:
     ///

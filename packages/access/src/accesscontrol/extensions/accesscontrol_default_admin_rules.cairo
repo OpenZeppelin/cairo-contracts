@@ -24,9 +24,11 @@
 pub mod AccessControlDefaultAdminRulesComponent {
     use core::num::traits::Zero;
     use core::panic_with_const_felt252;
-    use openzeppelin_interfaces::access::extensions::accesscontrol_default_admin_rules as default_admin_rules_interface;
-    use openzeppelin_interfaces::accesscontrol as interface;
     use openzeppelin_interfaces::accesscontrol::RoleStatus;
+    use openzeppelin_interfaces::{
+        accesscontrol as interface,
+        accesscontrol_default_admin_rules as default_admin_rules_interface,
+    };
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_introspection::src5::SRC5Component::{
         InternalImpl as SRC5InternalImpl, SRC5Impl,

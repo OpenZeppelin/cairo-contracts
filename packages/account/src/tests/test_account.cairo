@@ -19,7 +19,7 @@ use snforge_std::{
 use starknet::account::Call;
 use crate::AccountComponent;
 use crate::AccountComponent::{InternalTrait, PublicKeyCamelImpl, PublicKeyImpl, SRC6CamelOnlyImpl};
-use crate::interface::{AccountABIDispatcher, AccountABIDispatcherTrait, ISRC6, ISRC6_ID};
+use openzeppelin_interfaces::accounts::{AccountABIDispatcher, AccountABIDispatcherTrait, ISRC6, ISRC6_ID};
 
 //
 // Setup

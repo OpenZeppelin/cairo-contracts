@@ -1,3 +1,3 @@
 pub mod accesscontrol;
-pub mod extensions;
+pub mod accesscontrol_default_admin_rules;
 pub mod ownable;

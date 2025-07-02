@@ -3,7 +3,7 @@
 
 pub mod secp256_point;
 pub mod signature;
-use openzeppelin_account::interface::{ISRC6Dispatcher, ISRC6DispatcherTrait};
+use openzeppelin_interfaces::accounts::{ISRC6Dispatcher, ISRC6DispatcherTrait};
 
 pub use signature::{is_valid_eth_signature, is_valid_p256_signature, is_valid_stark_signature};
 use starknet::account::Call;

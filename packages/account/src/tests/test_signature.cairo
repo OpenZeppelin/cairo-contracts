@@ -6,7 +6,7 @@ use snforge_std::signature::secp256r1_curve::Secp256r1CurveSignerImpl;
 use starknet::secp256_trait::Secp256Trait;
 use starknet::secp256k1::Secp256k1Point;
 use starknet::secp256r1::Secp256r1Point;
-use crate::interface::P256PublicKey;
+use openzeppelin_interfaces::accounts::P256PublicKey;
 use crate::utils::signature::{
     Secp256Signature, is_valid_eth_signature, is_valid_p256_signature, is_valid_stark_signature,
 };

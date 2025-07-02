@@ -1,8 +1,8 @@
-use openzeppelin_interfaces::access::extensions::accesscontrol_default_admin_rules::{
-    IACCESSCONTROL_DEFAULT_ADMIN_RULES_ID, IAccessControlDefaultAdminRules,
-};
 use openzeppelin_interfaces::accesscontrol::{
     IACCESSCONTROL_ID, IAccessControl, IAccessControlCamel, IAccessControlWithDelay, RoleStatus,
+};
+use openzeppelin_interfaces::accesscontrol_default_admin_rules::{
+    IACCESSCONTROL_DEFAULT_ADMIN_RULES_ID, IAccessControlDefaultAdminRules,
 };
 use openzeppelin_introspection::interface::ISRC5;
 use openzeppelin_test_common::mocks::access::DualCaseAccessControlDefaultAdminRulesMock;

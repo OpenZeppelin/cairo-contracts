@@ -21,7 +21,7 @@ use crate::EthAccountComponent;
 use crate::EthAccountComponent::{
     InternalTrait, PublicKeyCamelImpl, PublicKeyImpl, SRC6CamelOnlyImpl,
 };
-use crate::interface::{EthAccountABIDispatcher, EthAccountABIDispatcherTrait, ISRC6, ISRC6_ID};
+use openzeppelin_interfaces::accounts::{EthAccountABIDispatcher, EthAccountABIDispatcherTrait, ISRC6, ISRC6_ID};
 use crate::utils::secp256_point::{DebugSecp256Point, Secp256PointPartialEq};
 use crate::utils::signature::Secp256Signature;
 

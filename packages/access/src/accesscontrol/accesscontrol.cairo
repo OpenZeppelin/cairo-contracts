@@ -19,6 +19,8 @@
 #[starknet::component]
 pub mod AccessControlComponent {
     use core::panic_with_const_felt252;
+    use openzeppelin_interfaces::accesscontrol as interface;
+    use openzeppelin_interfaces::accesscontrol::RoleStatus;
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_introspection::src5::SRC5Component::{
         InternalImpl as SRC5InternalImpl, SRC5Impl,
@@ -26,8 +28,6 @@ pub mod AccessControlComponent {
     use starknet::ContractAddress;
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
     use crate::accesscontrol::account_role_info::AccountRoleInfo;
-    use openzeppelin_interfaces::accesscontrol as interface;
-    use openzeppelin_interfaces::accesscontrol::RoleStatus;
 
     pub const DEFAULT_ADMIN_ROLE: felt252 = 0;
 

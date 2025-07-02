@@ -1,4 +1,3 @@
 // Access
 pub mod access;
-pub use access::accesscontrol;
-pub use access::ownable;
+pub use access::{accesscontrol, ownable};

@@ -24,6 +24,7 @@ scarb.workspace = true
 
 [dependencies]
 starknet.workspace = true
+openzeppelin_interfaces = { path = "../interfaces" }
 openzeppelin_introspection = { path = "../introspection" }
 
 [dev-dependencies]

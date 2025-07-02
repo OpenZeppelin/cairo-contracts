@@ -1,4 +1,5 @@
 use core::num::traits::Zero;
+use openzeppelin_interfaces::ownable::{IOwnableTwoStep, IOwnableTwoStepCamelOnly};
 use openzeppelin_test_common::mocks::access::DualCaseTwoStepOwnableMock;
 use openzeppelin_test_common::ownable::OwnableSpyHelpers;
 use openzeppelin_testing::constants::{NEW_OWNER, OTHER, OWNER, ZERO};
@@ -8,7 +9,6 @@ use starknet::ContractAddress;
 use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 use crate::ownable::OwnableComponent;
 use crate::ownable::OwnableComponent::{InternalTrait, OwnershipTransferStarted};
-use crate::ownable::interface::{IOwnableTwoStep, IOwnableTwoStepCamelOnly};
 
 //
 // Setup

@@ -9,6 +9,7 @@ dependencies = [
  "openzeppelin_account",
  "openzeppelin_finance",
  "openzeppelin_governance",
+ "openzeppelin_interfaces",
  "openzeppelin_introspection",
  "openzeppelin_merkle_tree",
  "openzeppelin_presets",
@@ -25,6 +26,7 @@ dependencies = [
 name = "openzeppelin_access"
 version = "2.0.0"
 dependencies = [
+ "openzeppelin_interfaces",
  "openzeppelin_introspection",
  "openzeppelin_test_common",
  "openzeppelin_testing",
@@ -47,6 +49,7 @@ name = "openzeppelin_finance"
 version = "2.0.0"
 dependencies = [
  "openzeppelin_access",
+ "openzeppelin_interfaces",
  "openzeppelin_test_common",
  "openzeppelin_testing",
  "openzeppelin_token",
@@ -65,6 +68,13 @@ dependencies = [
  "openzeppelin_testing",
  "openzeppelin_token",
  "openzeppelin_utils",
+ "snforge_std",
+]
+
+[[package]]
+name = "openzeppelin_interfaces"
+version = "1.0.0"
+dependencies = [
  "snforge_std",
 ]
 

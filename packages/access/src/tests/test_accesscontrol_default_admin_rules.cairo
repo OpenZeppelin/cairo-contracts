@@ -11,13 +11,13 @@ use crate::accesscontrol::extensions::AccessControlDefaultAdminRulesComponent::{
     DefaultAdminDelayChangeCanceled, DefaultAdminDelayChangeScheduled, DefaultAdminTransferCanceled,
     DefaultAdminTransferScheduled, InternalTrait,
 };
-use crate::accesscontrol::extensions::interface::{
+use openzeppelin_interfaces::access::extensions::accesscontrol_default_admin_rules::{
     IACCESSCONTROL_DEFAULT_ADMIN_RULES_ID, IAccessControlDefaultAdminRules,
 };
 use crate::accesscontrol::extensions::{
     AccessControlDefaultAdminRulesComponent, DEFAULT_ADMIN_ROLE, DefaultConfig,
 };
-use crate::accesscontrol::interface::{
+use openzeppelin_interfaces::accesscontrol::{
     IACCESSCONTROL_ID, IAccessControl, IAccessControlCamel, IAccessControlWithDelay, RoleStatus,
 };
 use crate::tests::test_accesscontrol::AccessControlSpyHelpers;

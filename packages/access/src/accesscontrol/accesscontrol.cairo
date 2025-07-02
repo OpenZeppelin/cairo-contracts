@@ -26,8 +26,8 @@ pub mod AccessControlComponent {
     use starknet::ContractAddress;
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
     use crate::accesscontrol::account_role_info::AccountRoleInfo;
-    use crate::accesscontrol::interface;
-    use crate::accesscontrol::interface::RoleStatus;
+    use openzeppelin_interfaces::accesscontrol as interface;
+    use openzeppelin_interfaces::accesscontrol::RoleStatus;
 
     pub const DEFAULT_ADMIN_ROLE: felt252 = 0;
 

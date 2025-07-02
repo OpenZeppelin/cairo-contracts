@@ -9,7 +9,7 @@ use starknet::ContractAddress;
 use crate::accesscontrol::AccessControlComponent::{
     InternalImpl, RoleAdminChanged, RoleGranted, RoleGrantedWithDelay, RoleRevoked,
 };
-use crate::accesscontrol::interface::{
+use openzeppelin_interfaces::accesscontrol::{
     IACCESSCONTROL_ID, IAccessControl, IAccessControlCamel, IAccessControlWithDelay, RoleStatus,
 };
 use crate::accesscontrol::{AccessControlComponent, DEFAULT_ADMIN_ROLE};

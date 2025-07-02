@@ -1,4 +1,4 @@
-use openzeppelin_access::ownable::interface::{IOwnableDispatcher, IOwnableDispatcherTrait};
+use openzeppelin_interfaces::ownable::{IOwnableDispatcher, IOwnableDispatcherTrait};
 use openzeppelin_test_common::mocks::vesting::StepsVestingMock;
 use openzeppelin_test_common::vesting::VestingSpyHelpers;
 use openzeppelin_testing::constants::{OTHER, OWNER};

@@ -7,7 +7,7 @@ use snforge_std::{start_cheat_caller_address, test_address};
 use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 use crate::ownable::OwnableComponent;
 use crate::ownable::OwnableComponent::InternalTrait;
-use crate::ownable::interface::{IOwnable, IOwnableCamelOnly};
+use openzeppelin_interfaces::ownable::{IOwnable, IOwnableCamelOnly};
 
 //
 // Setup

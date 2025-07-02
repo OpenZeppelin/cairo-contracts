@@ -8,7 +8,7 @@ use starknet::ContractAddress;
 use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 use crate::ownable::OwnableComponent;
 use crate::ownable::OwnableComponent::{InternalTrait, OwnershipTransferStarted};
-use crate::ownable::interface::{IOwnableTwoStep, IOwnableTwoStepCamelOnly};
+use openzeppelin_interfaces::ownable::{IOwnableTwoStep, IOwnableTwoStepCamelOnly};
 
 //
 // Setup

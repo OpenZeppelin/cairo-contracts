@@ -18,8 +18,7 @@ pub mod OwnableComponent {
     use core::num::traits::Zero;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
     use starknet::{ContractAddress, get_caller_address};
-    use crate::ownable::interface;
-    use crate::ownable::interface::IOwnableTwoStep;
+    use openzeppelin_interfaces::ownable as interface;
 
     #[storage]
     pub struct Storage {

@@ -6,17 +6,6 @@ use starknet::account::Call;
 
 pub const IGOVERNOR_ID: felt252 = 0x1100a1f8546595b5bd75a6cd8fcc5b015370655e66f275963321c5cd0357ac9;
 
-/// Interface for a contract that implements the ERC-6372 standard.
-#[starknet::interface]
-pub trait ERC6372Clock<TState> {
-    /// Clock used for flagging checkpoints.
-    fn clock(self: @TState) -> u64;
-
-    /// Description of the clock.
-    /// See https://eips.ethereum.org/EIPS/eip-6372#clock_mode
-    fn CLOCK_MODE(self: @TState) -> ByteArray;
-}
-
 #[derive(Copy, PartialEq, Drop, Serde, Debug)]
 pub enum ProposalState {
     Pending,

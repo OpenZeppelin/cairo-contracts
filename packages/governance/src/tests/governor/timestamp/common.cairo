@@ -109,6 +109,11 @@ pub fn deploy_votes_token() -> IERC20Dispatcher {
     IERC20Dispatcher { contract_address: VOTES_TOKEN }
 }
 
+pub fn deploy_legacy_votes_token() -> IERC20Dispatcher {
+    utils::declare_and_deploy_at("LegacyERC20VotesMock", VOTES_TOKEN, array![]);
+    IERC20Dispatcher { contract_address: VOTES_TOKEN }
+}
+
 //
 // Setup proposals
 //

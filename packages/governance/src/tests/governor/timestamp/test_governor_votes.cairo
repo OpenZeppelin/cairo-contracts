@@ -8,7 +8,7 @@ use crate::governor::extensions::GovernorVotesComponent::{
     GovernorVotes, InternalTrait, VotesTokenImpl,
 };
 use crate::tests::governor::timestamp::common::{
-    COMPONENT_STATE, CONTRACT_STATE, deploy_votes_token,
+    COMPONENT_STATE, CONTRACT_STATE, deploy_votes_token, deploy_legacy_votes_token,
 };
 
 //
@@ -31,6 +31,28 @@ fn test_clock() {
 fn test_CLOCK_MODE() {
     let component_state = COMPONENT_STATE();
     deploy_votes_token();
+    initialize_component(VOTES_TOKEN);
+
+    let mode = GovernorVotes::CLOCK_MODE(@component_state);
+    assert_eq!(mode, "mode=timestamp&from=starknet::SN_MAIN");
+}
+
+#[test]
+fn test_clock_legacy_token() {
+    let component_state = COMPONENT_STATE();
+    deploy_legacy_votes_token();
+    initialize_component(VOTES_TOKEN);
+    let timestamp = 'ts0';
+
+    start_cheat_block_timestamp_global(timestamp);
+    let clock = GovernorVotes::clock(@component_state);
+    assert_eq!(clock, timestamp);
+}
+
+#[test]
+fn test_CLOCK_MODE_legacy_token() {
+    let component_state = COMPONENT_STATE();
+    deploy_legacy_votes_token();
     initialize_component(VOTES_TOKEN);
 
     let mode = GovernorVotes::CLOCK_MODE(@component_state);

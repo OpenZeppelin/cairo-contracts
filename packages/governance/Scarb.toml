@@ -60,4 +60,5 @@ build-external-contracts = [
     "openzeppelin_test_common::mocks::votes::ERC721TimestampVotesMock",
     "openzeppelin_test_common::mocks::votes::ERC20BlockNumberVotesMock",
     "openzeppelin_test_common::mocks::votes::ERC20TimestampVotesMock",
+    "openzeppelin_test_common::mocks::votes::LegacyERC20VotesMock",
 ]

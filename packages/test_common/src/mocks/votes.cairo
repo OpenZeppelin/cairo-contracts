@@ -1,5 +1,88 @@
 #[starknet::contract]
 #[with_components(ERC20, Votes, Nonces)]
+pub mod LegacyERC20VotesMock {
+    use openzeppelin_token::erc20::DefaultConfig;
+    use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
+    use openzeppelin_governance::votes::interface::IVotes;
+    use starknet::ContractAddress;
+
+    // ERC20
+    #[abi(embed_v0)]
+    impl ERC20MixinImpl = ERC20Component::ERC20MixinImpl<ContractState>;
+
+    // Nonces
+    #[abi(embed_v0)]
+    impl NoncesImpl = NoncesComponent::NoncesImpl<ContractState>;
+
+    #[storage]
+    pub struct Storage {}
+
+    /// Required for hash computation.
+    pub impl SNIP12MetadataImpl of SNIP12Metadata {
+        fn name() -> felt252 {
+            'DAPP_NAME'
+        }
+        fn version() -> felt252 {
+            'DAPP_VERSION'
+        }
+    }
+
+    // Votes
+    #[abi(per_item)]
+    #[generate_trait]
+    impl VotesImpl of LegacyVotesABI {
+        fn get_votes(self: @ContractState, account: ContractAddress) -> u256 {
+            self.votes.get_votes(account)
+        }
+
+        fn get_past_votes(self: @ContractState, account: ContractAddress, timepoint: u64) -> u256 {
+            self.votes.get_past_votes(account, timepoint)
+        }
+
+        fn get_past_total_supply(self: @ContractState, timepoint: u64) -> u256 {
+            self.votes.get_past_total_supply(timepoint)
+        }
+
+        fn delegates(self: @ContractState, account: ContractAddress) -> ContractAddress {
+            self.votes.delegates(account)
+        }
+
+        fn delegate(ref self: ContractState, delegatee: ContractAddress) {
+            self.votes.delegate(delegatee)
+        }
+
+        fn delegate_by_sig(
+            ref self: ContractState,
+            delegator: ContractAddress,
+            delegatee: ContractAddress,
+            nonce: felt252,
+            expiry: u64,
+            signature: Span<felt252>,
+        ) {
+            self.votes.delegate_by_sig(delegator, delegatee, nonce, expiry, signature)
+        }
+    }
+
+    impl ERC20VotesHooksImpl of ERC20Component::ERC20HooksTrait<ContractState> {
+        fn after_update(
+            ref self: ERC20Component::ComponentState<ContractState>,
+            from: ContractAddress,
+            recipient: ContractAddress,
+            amount: u256,
+        ) {
+            let mut contract_state = self.get_contract_mut();
+            contract_state.votes.transfer_voting_units(from, recipient, amount);
+        }
+    }
+
+    #[constructor]
+    fn constructor(ref self: ContractState) {
+        self.erc20.initializer("MyToken", "MTK");
+    }
+}
+
+#[starknet::contract]
+#[with_components(ERC20, Votes, Nonces)]
 pub mod ERC20TimestampVotesMock {
     use openzeppelin_token::erc20::DefaultConfig;
     use openzeppelin_utils::contract_clock::ERC6372TimestampClock;

@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `ERC6372Clock` interface to `openzeppelin_utils::contract_clock` (#1417)
 
+### Changed
+
+- `GovernorComponent` and its extensions support voting tokens that follow the `ERC6372` clock standard (#1417)
+
 ### Changed (Breaking)
 
 - `VotesComponent` now supports customizable clock mechanisms via `ERC6372Clock`, enabling alternative clock sources (#1417)

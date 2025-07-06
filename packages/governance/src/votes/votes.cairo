@@ -207,7 +207,8 @@ pub mod VotesComponent {
         ///
         /// Requirements:
         ///
-        /// - The output MUST be formatted like a URL query string, decodable in standard JavaScript.
+        /// - The output MUST be formatted like a URL query string, decodable in standard
+        /// JavaScript.
         fn CLOCK_MODE(self: @ComponentState<TContractState>) -> ByteArray {
             Clock::CLOCK_MODE()
         }

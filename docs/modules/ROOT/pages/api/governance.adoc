@@ -3418,6 +3418,8 @@ Common interface for Votes-enabled contracts.
 * xref:#IVotes-delegates[`++delegates(account)++`]
 * xref:#IVotes-delegate[`++delegate(delegatee)++`]
 * xref:#IVotes-delegate_by_sig[`++delegate_by_sig(delegator, delegatee, nonce, expiry, signature)++`]
+* xref:#IVotes-clock[`++clock()++`]
+* xref:#IVotes-CLOCK_MODE[`++CLOCK_MODE()++`]
 --
 
 [#IVotes-Functions]
@@ -3463,6 +3465,28 @@ Delegates votes from the sender to `delegatee`.
 
 Delegates votes from `delegator` to `delegatee` through a {SNIP-12} message signature validation.
 
+[.contract-item]
+[[IVotes-clock]]
+==== `[.contract-item-name]#++clock++#++() → u64++` [.item-kind]#external#
+
+Returns the current clock value used for time-dependent operations.
+See https://eips.ethereum.org/EIPS/eip-6372#clock.
+
+Requirements:
+
+- This function MUST always be non-decreasing.
+
+[.contract-item]
+[[IVotes-CLOCK_MODE]]
+==== `[.contract-item-name]#++CLOCK_MODE++#++() → u64++` [.item-kind]#external#
+
+Returns a description of the clock's mode or time measurement mechanism.
+See https://eips.ethereum.org/EIPS/eip-6372#clock_mode.
+
+Requirements:
+
+- The output MUST be formatted like a URL query string, decodable in standard JavaScript.
+
 [.contract]
 [[VotesComponent]]
 === `++VotesComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0/packages/governance/src/votes/votes.cairo[{github-icon},role=heading-link]
@@ -3498,6 +3522,8 @@ NOTE: When using this module, your contract must implement the {VotingUnitsTrait
 * xref:#VotesComponent-delegates[`++delegates(self, account)++`]
 * xref:#VotesComponent-delegate[`++delegate(self, delegatee)++`]
 * xref:#VotesComponent-delegate_by_sig[`++delegate_by_sig(self, delegator, delegatee, nonce, expiry, signature)++`]
+* xref:#VotesComponent-clock[`++clock(self)++`]
+* xref:#VotesComponent-CLOCK_MODE[`++CLOCK_MODE(self)++`]
 --
 
 [.contract-index]
@@ -3623,6 +3649,28 @@ Requirements:
 Emits a {VotesComponent-DelegateChanged} event.
 
 May emit one or two {VotesComponent-DelegateVotesChanged} events.
+
+[.contract-item]
+[[VotesComponent-clock]]
+==== `[.contract-item-name]#++clock++#++(self: @ContractState) → u64++` [.item-kind]#external#
+
+Returns the current clock value used for time-dependent operations.
+See https://eips.ethereum.org/EIPS/eip-6372#clock.
+
+Requirements:
+
+- This function MUST always be non-decreasing.
+
+[.contract-item]
+[[VotesComponent-CLOCK_MODE]]
+==== `[.contract-item-name]#++CLOCK_MODE++#++(self: @ContractState) → u64++` [.item-kind]#external#
+
+Returns a description of the clock's mode or time measurement mechanism.
+See https://eips.ethereum.org/EIPS/eip-6372#clock_mode.
+
+Requirements:
+
+- The output MUST be formatted like a URL query string, decodable in standard JavaScript.
 
 [#VotesComponent-Internal-functions]
 ==== Internal functions

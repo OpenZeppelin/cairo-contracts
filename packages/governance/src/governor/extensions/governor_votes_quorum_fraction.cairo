@@ -114,7 +114,7 @@ pub mod GovernorVotesQuorumFractionComponent {
         }
     }
 
-    pub fn get_votes_token<
+    fn get_votes_token<
         TContractState,
         +GovernorComponent::HasComponent<TContractState>,
         impl GovernorVotesQuorumFraction: HasComponent<TContractState>,

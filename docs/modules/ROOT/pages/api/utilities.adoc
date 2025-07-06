@@ -234,7 +234,7 @@ A trait for the {eip6372} standard that allows flexible internal clock implement
 [[ERC6372Clock-clock]]
 ==== `[.contract-item-name]#++clock++#++() → u64++` [.item-kind]#external#
 
-Returns the current clock value used for time-dependent operations.
+Returns the current timepoint determined by the contract’s operational mode, intended for use in time-sensitive logic.
 
 Requirements:
 
@@ -244,7 +244,7 @@ Requirements:
 [[ERC6372Clock-CLOCK_MODE]]
 ==== `[.contract-item-name]#++CLOCK_MODE++#++() → ByteArray++` [.item-kind]#external#
 
-Returns a description of the clock's mode or time measurement mechanism.
+Returns a description of the clock the contract is operating in.
 
 Requirements:
 

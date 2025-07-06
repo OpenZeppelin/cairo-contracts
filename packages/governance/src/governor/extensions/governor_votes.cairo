@@ -72,7 +72,7 @@ pub mod GovernorVotesComponent {
         }
     }
 
-    pub fn get_votes_token<
+    fn get_votes_token<
         TContractState,
         +GovernorComponent::HasComponent<TContractState>,
         impl GovernorVotes: HasComponent<TContractState>,

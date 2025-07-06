@@ -36,7 +36,8 @@ pub trait IVotes<TState> {
         signature: Span<felt252>,
     );
 
-    /// Returns the current clock value used for time-dependent operations.
+    /// Returns the current timepoint determined by the contract’s operational mode, intended for
+    /// use in time-sensitive logic.
     /// See https://eips.ethereum.org/EIPS/eip-6372#clock.
     ///
     /// Requirements:
@@ -44,7 +45,7 @@ pub trait IVotes<TState> {
     /// - This function MUST always be non-decreasing.
     fn clock(self: @TState) -> u64;
 
-    /// Returns a description of the clock's mode or time measurement mechanism.
+    /// Returns a description of the clock the contract is operating in.
     /// See https://eips.ethereum.org/EIPS/eip-6372#clock_mode.
     ///
     /// Requirements:

@@ -10,7 +10,7 @@ use crate::governor::extensions::GovernorVotesQuorumFractionComponent::{
     GovernorQuorum, GovernorVotes, InternalTrait, QuorumFractionImpl,
 };
 use crate::governor::{DefaultConfig, GovernorComponent};
-use crate::tests::governor::timestamp::common::{deploy_votes_token, deploy_legacy_votes_token};
+use crate::tests::governor::timestamp::common::{deploy_legacy_votes_token, deploy_votes_token};
 
 pub type ComponentState =
     GovernorComponent::ComponentState<GovernorQuorumFractionMock::ContractState>;

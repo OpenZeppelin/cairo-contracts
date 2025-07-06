@@ -8,7 +8,7 @@ use crate::governor::extensions::GovernorVotesComponent::{
     GovernorVotes, InternalTrait, VotesTokenImpl,
 };
 use crate::tests::governor::timestamp::common::{
-    COMPONENT_STATE, CONTRACT_STATE, deploy_votes_token, deploy_legacy_votes_token,
+    COMPONENT_STATE, CONTRACT_STATE, deploy_legacy_votes_token, deploy_votes_token,
 };
 
 //

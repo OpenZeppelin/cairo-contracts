@@ -10,14 +10,15 @@
 pub mod GovernorVotesComponent {
     use core::num::traits::Zero;
     use openzeppelin_introspection::src5::SRC5Component;
+    use openzeppelin_utils::contract_clock::ERC6372TimestampClock;
     use starknet::ContractAddress;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
-    use openzeppelin_utils::contract_clock::ERC6372TimestampClock;
     use crate::governor::GovernorComponent;
     use crate::governor::GovernorComponent::ComponentState as GovernorComponentState;
     use crate::governor::extensions::interface::IVotesToken;
-    use crate::votes::interface::{IVotesDispatcher, IVotesDispatcherTrait};
-    use crate::votes::interface::{IVotesSafeDispatcher, IVotesSafeDispatcherTrait};
+    use crate::votes::interface::{
+        IVotesDispatcher, IVotesDispatcherTrait, IVotesSafeDispatcher, IVotesSafeDispatcherTrait,
+    };
 
     #[storage]
     pub struct Storage {

@@ -11,12 +11,14 @@ pub mod GovernorVotesQuorumFractionComponent {
     use core::num::traits::Zero;
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_utils::structs::checkpoint::{Trace, TraceTrait};
+    use openzeppelin_utils::contract_clock::ERC6372TimestampClock;
     use starknet::ContractAddress;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
     use crate::governor::GovernorComponent;
     use crate::governor::GovernorComponent::ComponentState as GovernorComponentState;
     use crate::governor::extensions::interface::IQuorumFraction;
     use crate::votes::interface::{IVotesDispatcher, IVotesDispatcherTrait};
+    use crate::votes::interface::{IVotesSafeDispatcher, IVotesSafeDispatcherTrait};
 
     #[storage]
     pub struct Storage {
@@ -80,15 +82,23 @@ pub mod GovernorVotesQuorumFractionComponent {
         +Drop<TContractState>,
     > of GovernorComponent::GovernorVotesTrait<TContractState> {
         /// See `GovernorComponent::GovernorVotesTrait::clock`.
+        #[feature("safe_dispatcher")]
         fn clock(self: @GovernorComponentState<TContractState>) -> u64 {
-            let votes_dispatcher = IVotesDispatcher { contract_address: get_votes_token(self) };
-            votes_dispatcher.clock()
+            let votes_dispatcher = IVotesSafeDispatcher { contract_address: get_votes_token(self) };
+            match votes_dispatcher.clock() {
+                Result::Ok(clock) => clock,
+                Result::Err(_) => ERC6372TimestampClock::clock(),
+            }
         }
 
         /// See `GovernorComponent::GovernorVotesTrait::CLOCK_MODE`.
+        #[feature("safe_dispatcher")]
         fn CLOCK_MODE(self: @GovernorComponentState<TContractState>) -> ByteArray {
-            let votes_dispatcher = IVotesDispatcher { contract_address: get_votes_token(self) };
-            votes_dispatcher.CLOCK_MODE()
+            let votes_dispatcher = IVotesSafeDispatcher { contract_address: get_votes_token(self) };
+            match votes_dispatcher.CLOCK_MODE() {
+                Result::Ok(clock_mode) => clock_mode,
+                Result::Err(_) => ERC6372TimestampClock::CLOCK_MODE(),
+            }
         }
 
         /// See `GovernorComponent::GovernorVotesTrait::get_votes`.
@@ -103,7 +113,7 @@ pub mod GovernorVotesQuorumFractionComponent {
         }
     }
 
-    fn get_votes_token<
+    pub fn get_votes_token<
         TContractState,
         +GovernorComponent::HasComponent<TContractState>,
         impl GovernorVotesQuorumFraction: HasComponent<TContractState>,

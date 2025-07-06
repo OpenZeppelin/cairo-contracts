@@ -37,6 +37,7 @@ pub trait IVotes<TState> {
     );
 
     /// Returns the current clock value used for time-dependent operations.
+    /// See https://eips.ethereum.org/EIPS/eip-6372#clock.
     ///
     /// Requirements:
     ///
@@ -44,6 +45,7 @@ pub trait IVotes<TState> {
     fn clock(self: @TState) -> u64;
 
     /// Returns a description of the clock's mode or time measurement mechanism.
+    /// See https://eips.ethereum.org/EIPS/eip-6372#clock_mode.
     ///
     /// Requirements:
     ///

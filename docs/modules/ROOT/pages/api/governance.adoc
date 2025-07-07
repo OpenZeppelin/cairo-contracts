@@ -10,6 +10,8 @@
 :GovernorComponent: xref:#GovernorComponent[GovernorComponent]
 :TimelockControllerComponent: xref:#TimelockControllerComponent[TimelockControllerComponent]
 :ERC-6372: https://eips.ethereum.org/EIPS/eip-6372[ERC-6372]
+:ERC-6372-clock: https://eips.ethereum.org/EIPS/eip-6372#clock[ERC-6372#clock]
+:ERC-6372-clock-mode: https://eips.ethereum.org/EIPS/eip-6372#clock_mode[ERC-6372#CLOCK_MODE]
 :SNIP-12: https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-12.md[SNIP-12]
 
 = Governance
@@ -584,13 +586,23 @@ Must return whether a proposal has succeeded or not.
 [[GovernorComponent-GovernorVotesTrait-clock]]
 ==== `[.contract-item-name]#++clock++#++(self: @ContractState) → u64++` [.item-kind]#extension#
 
-Returns the current timepoint determined by the mode the governor operates in, intended for use in time-sensitive logic.
+Returns the current timepoint determined by the governor's operational mode, intended for use in time-sensitive logic.
+See {ERC-6372-clock}.
+
+Requirements:
+
+- This function MUST always be non-decreasing.
 
 [.contract-item]
 [[GovernorComponent-GovernorVotesTrait-CLOCK_MODE]]
 ==== `[.contract-item-name]#++CLOCK_MODE++#++(self: @ContractState) → ByteArray++` [.item-kind]#extension#
 
 Returns a description of the clock the governor is operating in.
+See {ERC-6372-clock-mode}.
+
+Requirements:
+
+- The output MUST be formatted like a URL query string, decodable in standard JavaScript.
 
 [.contract-item]
 [[GovernorComponent-GovernorVotesTrait-get_votes]]
@@ -1582,7 +1594,7 @@ extension.
 ==== `[.contract-item-name]#++clock++#++(self: @ContractState) → u64++` [.item-kind]#internal#
 
 Returns the current timepoint determined by the governor's operational mode, intended for use in time-sensitive logic.
-See https://eips.ethereum.org/EIPS/eip-6372#clock.
+See {ERC-6372-clock}.
 
 Requirements:
 
@@ -1593,7 +1605,7 @@ Requirements:
 ==== `[.contract-item-name]#++CLOCK_MODE++#++(self: @ContractState) → ByteArray++` [.item-kind]#internal#
 
 Returns a description of the clock the governor is operating in.
-See https://eips.ethereum.org/EIPS/eip-6372#clock_mode.
+See {ERC-6372-clock-mode}.
 
 Requirements:
 
@@ -1695,7 +1707,7 @@ It is computed as a percentage of the votes token total supply at a given `timep
 ==== `[.contract-item-name]#++clock++#++(self: @ContractState) → u64++` [.item-kind]#internal#
 
 Returns the current timepoint determined by the governor's operational mode, intended for use in time-sensitive logic.
-See https://eips.ethereum.org/EIPS/eip-6372#clock.
+See {ERC-6372-clock}.
 
 Requirements:
 
@@ -1706,7 +1718,7 @@ Requirements:
 ==== `[.contract-item-name]#++CLOCK_MODE++#++(self: @ContractState) → ByteArray++` [.item-kind]#internal#
 
 Returns a description of the clock the governor is operating in.
-See https://eips.ethereum.org/EIPS/eip-6372#clock_mode.
+See {ERC-6372-clock-mode}.
 
 Requirements:
 
@@ -3475,7 +3487,7 @@ Delegates votes from `delegator` to `delegatee` through a {SNIP-12} message sign
 ==== `[.contract-item-name]#++clock++#++() → u64++` [.item-kind]#external#
 
 Returns the current timepoint determined by the contract’s operational mode, intended for use in time-sensitive logic.
-See https://eips.ethereum.org/EIPS/eip-6372#clock.
+See {ERC-6372-clock}.
 
 Requirements:
 
@@ -3486,7 +3498,7 @@ Requirements:
 ==== `[.contract-item-name]#++CLOCK_MODE++#++() → u64++` [.item-kind]#external#
 
 Returns a description of the clock the contract is operating in.
-See https://eips.ethereum.org/EIPS/eip-6372#clock_mode.
+See {ERC-6372-clock-mode}.
 
 Requirements:
 
@@ -3660,7 +3672,7 @@ May emit one or two {VotesComponent-DelegateVotesChanged} events.
 ==== `[.contract-item-name]#++clock++#++(self: @ContractState) → u64++` [.item-kind]#external#
 
 Returns the current timepoint determined by the contract’s operational mode, intended for use in time-sensitive logic.
-See https://eips.ethereum.org/EIPS/eip-6372#clock.
+See {ERC-6372-clock}.
 
 Requirements:
 
@@ -3671,7 +3683,7 @@ Requirements:
 ==== `[.contract-item-name]#++CLOCK_MODE++#++(self: @ContractState) → u64++` [.item-kind]#external#
 
 Returns a description of the clock the contract is operating in.
-See https://eips.ethereum.org/EIPS/eip-6372#clock_mode.
+See {ERC-6372-clock-mode}.
 
 Requirements:
 

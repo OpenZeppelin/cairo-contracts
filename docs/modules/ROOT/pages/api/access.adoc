@@ -1092,7 +1092,7 @@ Emitted when a {pending_default_admin_delay} is reset if its schedule didn't pas
 
 [.contract]
 [[AccessControlDefaultAdminRulesComponent]]
-=== `++AccessControlDefaultAdminRulesComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0/packages/access/src/accesscontrol/extensions/accesscontrol_default_admin_rules.cairo[{github-icon},role=heading-link]
+=== `++AccessControlDefaultAdminRulesComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/main/packages/access/src/accesscontrol/extensions/accesscontrol_default_admin_rules.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin_access::accesscontrol::extensions::AccessControlDefaultAdminRulesComponent;

@@ -8,7 +8,8 @@ use openzeppelin_test_common::mocks::erc1155::DualCaseERC1155Mock;
 use openzeppelin_testing::common::repeat;
 use openzeppelin_testing::constants::{BASE_URI, EMPTY_DATA, OPERATOR, RECIPIENT};
 
-use snforge_std::{spy_events, start_cheat_caller_address, test_address};
+use snforge_std::{start_cheat_caller_address, test_address};
+use openzeppelin_testing::spy_events;
 use starknet::ContractAddress;
 
 //
@@ -111,6 +112,7 @@ fn setup(ids_len_seed: u32, value_mult_seed: u32) -> (ComponentState, ContractAd
 //
 
 #[test]
+#[fuzzer]
 fn test_balance_of(ids_len_seed: u32, value_mult_seed: u32) {
     let (state, owner, tokens) = setup(ids_len_seed, value_mult_seed);
     for i in 0..tokens.ids.len() {
@@ -122,6 +124,7 @@ fn test_balance_of(ids_len_seed: u32, value_mult_seed: u32) {
 }
 
 #[test]
+#[fuzzer]
 fn test_balanceOf(ids_len_seed: u32, value_mult_seed: u32) {
     let (state, owner, tokens) = setup(ids_len_seed, value_mult_seed);
     for i in 0..tokens.ids.len() {
@@ -137,6 +140,7 @@ fn test_balanceOf(ids_len_seed: u32, value_mult_seed: u32) {
 //
 
 #[test]
+#[fuzzer]
 fn test_balance_of_batch(ids_len_seed: u32, value_mult_seed: u32) {
     let (state, owner, tokens) = setup(ids_len_seed, value_mult_seed);
     let accounts = repeat(owner, tokens.ids.len()).span();
@@ -149,6 +153,7 @@ fn test_balance_of_batch(ids_len_seed: u32, value_mult_seed: u32) {
 }
 
 #[test]
+#[fuzzer]
 fn test_balanceOfBatch(ids_len_seed: u32, value_mult_seed: u32) {
     let (state, owner, tokens) = setup(ids_len_seed, value_mult_seed);
     let accounts = repeat(owner, tokens.ids.len()).span();
@@ -165,6 +170,7 @@ fn test_balanceOfBatch(ids_len_seed: u32, value_mult_seed: u32) {
 //
 
 #[test]
+#[fuzzer]
 fn test_safe_transfer_from_owner_to_receiver(
     ids_len_seed: u32, value_mult_seed: u32, transfer_id_seed: u32, transfer_value_seed: u32,
 ) {
@@ -188,6 +194,7 @@ fn test_safe_transfer_from_owner_to_receiver(
 }
 
 #[test]
+#[fuzzer]
 fn test_safeTransferFrom_owner_to_receiver(
     ids_len_seed: u32, value_mult_seed: u32, transfer_id_seed: u32, transfer_value_seed: u32,
 ) {
@@ -211,6 +218,7 @@ fn test_safeTransferFrom_owner_to_receiver(
 }
 
 #[test]
+#[fuzzer]
 fn test_safe_transfer_from_owner_to_account(
     ids_len_seed: u32, value_mult_seed: u32, transfer_id_seed: u32, transfer_value_seed: u32,
 ) {
@@ -218,23 +226,23 @@ fn test_safe_transfer_from_owner_to_account(
     let (transfer_id, transfer_value) = resolve_single_transfer_info(
         tokens, transfer_id_seed, transfer_value_seed,
     );
-    let recipient = RECIPIENT();
     let contract_address = test_address();
-    deploy_another_account_at(owner, recipient);
+    deploy_another_account_at(owner, RECIPIENT);
     let mut spy = spy_events();
 
-    assert_balance(recipient, transfer_id, 0);
+    assert_balance(RECIPIENT, transfer_id, 0);
     start_cheat_caller_address(contract_address, owner);
-    state.safe_transfer_from(owner, recipient, transfer_id, transfer_value, EMPTY_DATA());
+    state.safe_transfer_from(owner, RECIPIENT, transfer_id, transfer_value, EMPTY_DATA());
     spy
         .assert_only_event_transfer_single(
-            contract_address, owner, owner, recipient, transfer_id, transfer_value,
+            contract_address, owner, owner, RECIPIENT, transfer_id, transfer_value,
         );
 
-    assert_balance(recipient, transfer_id, transfer_value);
+    assert_balance(RECIPIENT, transfer_id, transfer_value);
 }
 
 #[test]
+#[fuzzer]
 fn test_safeTransferFrom_owner_to_account(
     ids_len_seed: u32, value_mult_seed: u32, transfer_id_seed: u32, transfer_value_seed: u32,
 ) {
@@ -242,23 +250,23 @@ fn test_safeTransferFrom_owner_to_account(
     let (transfer_id, transfer_value) = resolve_single_transfer_info(
         tokens, transfer_id_seed, transfer_value_seed,
     );
-    let recipient = RECIPIENT();
-    deploy_another_account_at(owner, recipient);
+    deploy_another_account_at(owner, RECIPIENT);
     let mut spy = spy_events();
     let contract_address = test_address();
 
-    assert_balance(recipient, transfer_id, 0);
+    assert_balance(RECIPIENT, transfer_id, 0);
     start_cheat_caller_address(contract_address, owner);
-    state.safeTransferFrom(owner, recipient, transfer_id, transfer_value, EMPTY_DATA());
+    state.safeTransferFrom(owner, RECIPIENT, transfer_id, transfer_value, EMPTY_DATA());
     spy
         .assert_only_event_transfer_single(
-            contract_address, owner, owner, recipient, transfer_id, transfer_value,
+            contract_address, owner, owner, RECIPIENT, transfer_id, transfer_value,
         );
 
-    assert_balance(recipient, transfer_id, transfer_value);
+    assert_balance(RECIPIENT, transfer_id, transfer_value);
 }
 
 #[test]
+#[fuzzer]
 fn test_safe_transfer_from_approved_operator(
     ids_len_seed: u32, value_mult_seed: u32, transfer_id_seed: u32, transfer_value_seed: u32,
 ) {
@@ -266,29 +274,28 @@ fn test_safe_transfer_from_approved_operator(
     let (transfer_id, transfer_value) = resolve_single_transfer_info(
         tokens, transfer_id_seed, transfer_value_seed,
     );
-    let recipient = RECIPIENT();
-    deploy_another_account_at(owner, recipient);
-    let operator = OPERATOR();
+    deploy_another_account_at(owner, RECIPIENT);
     let mut spy = spy_events();
     let contract_address = test_address();
 
     start_cheat_caller_address(contract_address, owner);
-    state.set_approval_for_all(operator, true);
-    spy.assert_only_event_approval_for_all(contract_address, owner, operator, true);
+    state.set_approval_for_all(OPERATOR, true);
+    spy.assert_only_event_approval_for_all(contract_address, owner, OPERATOR, true);
 
-    assert_balance(recipient, transfer_id, 0);
+    assert_balance(RECIPIENT, transfer_id, 0);
 
-    start_cheat_caller_address(contract_address, operator);
-    state.safe_transfer_from(owner, recipient, transfer_id, transfer_value, EMPTY_DATA());
+    start_cheat_caller_address(contract_address, OPERATOR);
+    state.safe_transfer_from(owner, RECIPIENT, transfer_id, transfer_value, EMPTY_DATA());
     spy
         .assert_only_event_transfer_single(
-            contract_address, operator, owner, recipient, transfer_id, transfer_value,
+            contract_address, OPERATOR, owner, RECIPIENT, transfer_id, transfer_value,
         );
 
-    assert_balance(recipient, transfer_id, transfer_value);
+    assert_balance(RECIPIENT, transfer_id, transfer_value);
 }
 
 #[test]
+#[fuzzer]
 fn test_safeTransferFrom_approved_operator(
     ids_len_seed: u32, value_mult_seed: u32, transfer_id_seed: u32, transfer_value_seed: u32,
 ) {
@@ -296,26 +303,24 @@ fn test_safeTransferFrom_approved_operator(
     let (transfer_id, transfer_value) = resolve_single_transfer_info(
         tokens, transfer_id_seed, transfer_value_seed,
     );
-    let recipient = RECIPIENT();
-    deploy_another_account_at(owner, recipient);
-    let operator = OPERATOR();
+    deploy_another_account_at(owner, RECIPIENT);
     let contract_address = test_address();
     let mut spy = spy_events();
 
     start_cheat_caller_address(contract_address, owner);
-    state.set_approval_for_all(operator, true);
-    spy.assert_only_event_approval_for_all(contract_address, owner, operator, true);
+    state.set_approval_for_all(OPERATOR, true);
+    spy.assert_only_event_approval_for_all(contract_address, owner, OPERATOR, true);
 
-    assert_balance(recipient, transfer_id, 0);
+    assert_balance(RECIPIENT, transfer_id, 0);
 
-    start_cheat_caller_address(contract_address, operator);
-    state.safeTransferFrom(owner, recipient, transfer_id, transfer_value, EMPTY_DATA());
+    start_cheat_caller_address(contract_address, OPERATOR);
+    state.safeTransferFrom(owner, RECIPIENT, transfer_id, transfer_value, EMPTY_DATA());
     spy
         .assert_only_event_transfer_single(
-            contract_address, operator, owner, recipient, transfer_id, transfer_value,
+            contract_address, OPERATOR, owner, RECIPIENT, transfer_id, transfer_value,
         );
 
-    assert_balance(recipient, transfer_id, transfer_value);
+    assert_balance(RECIPIENT, transfer_id, transfer_value);
 }
 
 //
@@ -323,6 +328,7 @@ fn test_safeTransferFrom_approved_operator(
 //
 
 #[test]
+#[fuzzer]
 fn test_safe_batch_transfer_from_owner_to_receiver(
     ids_len_seed: u32, value_mult_seed: u32, batch_len_seed: u32, transfer_value_seed: u32,
 ) {
@@ -345,6 +351,7 @@ fn test_safe_batch_transfer_from_owner_to_receiver(
 }
 
 #[test]
+#[fuzzer]
 fn test_safeBatchTransferFrom_owner_to_receiver(
     ids_len_seed: u32, value_mult_seed: u32, batch_len_seed: u32, transfer_value_seed: u32,
 ) {
@@ -367,105 +374,103 @@ fn test_safeBatchTransferFrom_owner_to_receiver(
 }
 
 #[test]
+#[fuzzer]
 fn test_safe_batch_transfer_from_owner_to_account(
     ids_len_seed: u32, value_mult_seed: u32, batch_len_seed: u32, transfer_value_seed: u32,
 ) {
     let (mut state, owner, tokens) = setup(ids_len_seed, value_mult_seed);
     let transfers = resolve_batch_transfer_info(tokens, batch_len_seed, transfer_value_seed);
-    let recipient = RECIPIENT();
-    deploy_another_account_at(owner, recipient);
+    deploy_another_account_at(owner, RECIPIENT);
     let contract_address = test_address();
     let mut spy = spy_events();
 
     start_cheat_caller_address(contract_address, owner);
-    state.safe_batch_transfer_from(owner, recipient, transfers.ids, transfers.values, EMPTY_DATA());
+    state.safe_batch_transfer_from(owner, RECIPIENT, transfers.ids, transfers.values, EMPTY_DATA());
     spy
         .assert_only_event_transfer_batch(
-            contract_address, owner, owner, recipient, transfers.ids, transfers.values,
+            contract_address, owner, owner, RECIPIENT, transfers.ids, transfers.values,
         );
 
     let (owner_balances, recipient_balances) = calculate_expected_balances(tokens, transfers);
     assert_balance_of_batch(owner, owner_balances);
-    assert_balance_of_batch(recipient, recipient_balances);
+    assert_balance_of_batch(RECIPIENT, recipient_balances);
 }
 
 #[test]
+#[fuzzer]
 fn test_safeBatchTransferFrom_owner_to_account(
     ids_len_seed: u32, value_mult_seed: u32, batch_len_seed: u32, transfer_value_seed: u32,
 ) {
     let (mut state, owner, tokens) = setup(ids_len_seed, value_mult_seed);
     let transfers = resolve_batch_transfer_info(tokens, batch_len_seed, transfer_value_seed);
-    let recipient = RECIPIENT();
-    deploy_another_account_at(owner, recipient);
+    deploy_another_account_at(owner, RECIPIENT);
     let contract_address = test_address();
     let mut spy = spy_events();
 
     start_cheat_caller_address(contract_address, owner);
-    state.safeBatchTransferFrom(owner, recipient, transfers.ids, transfers.values, EMPTY_DATA());
+    state.safeBatchTransferFrom(owner, RECIPIENT, transfers.ids, transfers.values, EMPTY_DATA());
     spy
         .assert_only_event_transfer_batch(
-            contract_address, owner, owner, recipient, transfers.ids, transfers.values,
+            contract_address, owner, owner, RECIPIENT, transfers.ids, transfers.values,
         );
 
     let (owner_balances, recipient_balances) = calculate_expected_balances(tokens, transfers);
     assert_balance_of_batch(owner, owner_balances);
-    assert_balance_of_batch(recipient, recipient_balances);
+    assert_balance_of_batch(RECIPIENT, recipient_balances);
 }
 
 #[test]
+#[fuzzer]
 fn test_safe_batch_transfer_from_approved_operator(
     ids_len_seed: u32, value_mult_seed: u32, batch_len_seed: u32, transfer_value_seed: u32,
 ) {
     let (mut state, owner, tokens) = setup(ids_len_seed, value_mult_seed);
     let transfers = resolve_batch_transfer_info(tokens, batch_len_seed, transfer_value_seed);
-    let recipient = RECIPIENT();
-    deploy_another_account_at(owner, recipient);
-    let operator = OPERATOR();
+    deploy_another_account_at(owner, RECIPIENT);
     let contract_address = test_address();
     let mut spy = spy_events();
 
     start_cheat_caller_address(contract_address, owner);
-    state.set_approval_for_all(operator, true);
-    spy.assert_only_event_approval_for_all(contract_address, owner, operator, true);
+    state.set_approval_for_all(OPERATOR, true);
+    spy.assert_only_event_approval_for_all(contract_address, owner, OPERATOR, true);
 
-    start_cheat_caller_address(contract_address, operator);
-    state.safe_batch_transfer_from(owner, recipient, transfers.ids, transfers.values, EMPTY_DATA());
+    start_cheat_caller_address(contract_address, OPERATOR);
+    state.safe_batch_transfer_from(owner, RECIPIENT, transfers.ids, transfers.values, EMPTY_DATA());
     spy
         .assert_only_event_transfer_batch(
-            contract_address, operator, owner, recipient, transfers.ids, transfers.values,
+            contract_address, OPERATOR, owner, RECIPIENT, transfers.ids, transfers.values,
         );
 
     let (owner_balances, recipient_balances) = calculate_expected_balances(tokens, transfers);
     assert_balance_of_batch(owner, owner_balances);
-    assert_balance_of_batch(recipient, recipient_balances);
+    assert_balance_of_batch(RECIPIENT, recipient_balances);
 }
 
 #[test]
+#[fuzzer]
 fn test_safeBatchTransferFrom_approved_operator(
     ids_len_seed: u32, value_mult_seed: u32, batch_len_seed: u32, transfer_value_seed: u32,
 ) {
     let (mut state, owner, tokens) = setup(ids_len_seed, value_mult_seed);
     let transfers = resolve_batch_transfer_info(tokens, batch_len_seed, transfer_value_seed);
-    let recipient = RECIPIENT();
-    deploy_another_account_at(owner, recipient);
-    let operator = OPERATOR();
+    deploy_another_account_at(owner, RECIPIENT);
     let contract_address = test_address();
     let mut spy = spy_events();
 
     start_cheat_caller_address(contract_address, owner);
-    state.set_approval_for_all(operator, true);
-    spy.assert_only_event_approval_for_all(contract_address, owner, operator, true);
+    state.set_approval_for_all(OPERATOR, true);
+    spy.assert_only_event_approval_for_all(contract_address, owner, OPERATOR, true);
 
-    start_cheat_caller_address(contract_address, operator);
-    state.safeBatchTransferFrom(owner, recipient, transfers.ids, transfers.values, EMPTY_DATA());
+    start_cheat_caller_address(contract_address, OPERATOR);
+    state.safeBatchTransferFrom(owner, RECIPIENT, transfers.ids, transfers.values, EMPTY_DATA());
     spy
         .assert_only_event_transfer_batch(
-            contract_address, operator, owner, recipient, transfers.ids, transfers.values,
+            contract_address, OPERATOR, owner, RECIPIENT, transfers.ids, transfers.values,
         );
 
     let (owner_balances, recipient_balances) = calculate_expected_balances(tokens, transfers);
     assert_balance_of_batch(owner, owner_balances);
-    assert_balance_of_batch(recipient, recipient_balances);
+    assert_balance_of_batch(RECIPIENT, recipient_balances);
 }
 
 //

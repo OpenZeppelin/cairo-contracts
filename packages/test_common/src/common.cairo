@@ -4,6 +4,6 @@ pub fn repeat<T, N, +Copy<T>, +Drop<T>, +Into<N, u256>>(element: T, n_times: N) 
     let len: u256 = n_times.into();
     for _ in 0..len {
         result.append(element);
-    };
+    }
     result
 }

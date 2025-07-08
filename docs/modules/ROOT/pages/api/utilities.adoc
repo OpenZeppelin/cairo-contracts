@@ -194,7 +194,7 @@ NOTE: `T` is a generic value matching different numeric implementations.
 use openzeppelin_utils::contract_clock;
 ```
 
-Module providing an interface for the {eip6372} standard along with default clock implementations based on either block number or block timestamp.
+Module providing a trait for the {eip6372} standard along with default clock implementations based on either block number or block timestamp.
 
 [.contract-index]
 .Traits

@@ -9,9 +9,9 @@
 pub mod AccountUpgradeable {
     use openzeppelin_account::AccountComponent;
     use openzeppelin_account::extensions::SRC9Component;
+    use openzeppelin_interfaces::upgrades::IUpgradeable;
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_upgrades::UpgradeableComponent;
-    use openzeppelin_upgrades::interface::IUpgradeable;
     use starknet::ClassHash;
 
     component!(path: AccountComponent, storage: account, event: AccountEvent);

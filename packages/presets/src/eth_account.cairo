@@ -11,9 +11,9 @@ pub(crate) mod EthAccountUpgradeable {
     use openzeppelin_account::EthAccountComponent;
     use openzeppelin_account::extensions::SRC9Component;
     use openzeppelin_interfaces::accounts::EthPublicKey;
+    use openzeppelin_interfaces::upgrades::IUpgradeable;
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_upgrades::UpgradeableComponent;
-    use openzeppelin_upgrades::interface::IUpgradeable;
     use starknet::ClassHash;
 
     component!(path: EthAccountComponent, storage: eth_account, event: EthAccountEvent);

@@ -108,6 +108,7 @@ dependencies = [
  "openzeppelin_access",
  "openzeppelin_account",
  "openzeppelin_finance",
+ "openzeppelin_interfaces",
  "openzeppelin_introspection",
  "openzeppelin_test_common",
  "openzeppelin_testing",
@@ -121,6 +122,7 @@ dependencies = [
 name = "openzeppelin_security"
 version = "2.0.0"
 dependencies = [
+ "openzeppelin_interfaces",
  "openzeppelin_test_common",
  "openzeppelin_testing",
  "snforge_std",
@@ -179,6 +181,7 @@ dependencies = [
 name = "openzeppelin_utils"
 version = "2.0.0"
 dependencies = [
+ "openzeppelin_interfaces",
  "openzeppelin_test_common",
  "openzeppelin_testing",
  "snforge_std",

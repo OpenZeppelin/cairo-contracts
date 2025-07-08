@@ -1,13 +1,12 @@
+use openzeppelin_test_common::mocks::governor::GovernorMock::SNIP12MetadataImpl;
+use openzeppelin_testing::constants::{OTHER, VOTES_TOKEN, ZERO};
+use snforge_std::{start_cheat_block_timestamp_global, start_mock_call, store, test_address};
 use crate::governor::DefaultConfig;
 use crate::governor::GovernorComponent::InternalImpl;
 use crate::governor::extensions::GovernorVotesComponent::{
     GovernorVotes, InternalTrait, VotesTokenImpl,
 };
 use crate::tests::governor::common::{COMPONENT_STATE, CONTRACT_STATE};
-use openzeppelin_test_common::mocks::governor::GovernorMock::SNIP12MetadataImpl;
-use openzeppelin_testing::constants::{OTHER, VOTES_TOKEN, ZERO};
-use snforge_std::{start_cheat_block_timestamp_global, start_mock_call};
-use snforge_std::{store, test_address};
 
 //
 // GovernorVotes
@@ -37,9 +36,9 @@ fn test_get_votes() {
     let expected_weight = 100;
     let params = array!['param'].span();
 
-    start_mock_call(ZERO(), selector!("get_past_votes"), expected_weight);
+    start_mock_call(ZERO, selector!("get_past_votes"), expected_weight);
 
-    let votes = GovernorVotes::get_votes(@component_state, OTHER(), timepoint, params);
+    let votes = GovernorVotes::get_votes(@component_state, OTHER, timepoint, params);
     assert_eq!(votes, expected_weight);
 }
 
@@ -51,9 +50,9 @@ fn test_get_votes() {
 fn test_token() {
     let mock_state = CONTRACT_STATE();
 
-    store(test_address(), selector!("Governor_token"), array![VOTES_TOKEN().into()].span());
+    store(test_address(), selector!("Governor_token"), array![VOTES_TOKEN.into()].span());
     let token = mock_state.governor_votes.token();
-    assert_eq!(token, VOTES_TOKEN());
+    assert_eq!(token, VOTES_TOKEN);
 }
 
 //
@@ -64,15 +63,15 @@ fn test_token() {
 fn test_initializer() {
     let mut mock_state = CONTRACT_STATE();
 
-    mock_state.governor_votes.initializer(VOTES_TOKEN());
+    mock_state.governor_votes.initializer(VOTES_TOKEN);
 
     let token = mock_state.governor_votes.token();
-    assert_eq!(token, VOTES_TOKEN());
+    assert_eq!(token, VOTES_TOKEN);
 }
 
 #[test]
 #[should_panic(expected: 'Invalid votes token')]
 fn test_initializer_with_zero_token() {
     let mut mock_state = CONTRACT_STATE();
-    mock_state.governor_votes.initializer(ZERO());
+    mock_state.governor_votes.initializer(ZERO);
 }

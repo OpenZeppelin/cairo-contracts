@@ -1,12 +1,12 @@
-use openzeppelin_test_common::mocks::upgrades::IUpgradesV1SafeDispatcher;
-use openzeppelin_test_common::mocks::upgrades::IUpgradesV1SafeDispatcherTrait;
-use openzeppelin_test_common::mocks::upgrades::{IUpgradesV1Dispatcher, IUpgradesV1DispatcherTrait};
-use openzeppelin_test_common::mocks::upgrades::{IUpgradesV2Dispatcher, IUpgradesV2DispatcherTrait};
+use openzeppelin_test_common::mocks::upgrades::{
+    IUpgradesV1Dispatcher, IUpgradesV1DispatcherTrait, IUpgradesV1SafeDispatcher,
+    IUpgradesV1SafeDispatcherTrait, IUpgradesV2Dispatcher, IUpgradesV2DispatcherTrait,
+};
 use openzeppelin_test_common::upgrades::UpgradeableSpyHelpers;
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{CLASS_HASH_ZERO, FELT_VALUE as VALUE};
-use openzeppelin_testing::{declare_class, deploy};
-use snforge_std::{ContractClass, spy_events};
+use openzeppelin_testing::{declare_class, deploy, spy_events};
+use snforge_std::ContractClass;
 
 //
 // Setup
@@ -28,7 +28,7 @@ fn setup_test() -> (IUpgradesV1Dispatcher, ContractClass) {
 #[should_panic(expected: 'Class hash cannot be zero')]
 fn test_upgrade_with_class_hash_zero() {
     let (v1, _) = setup_test();
-    v1.upgrade(CLASS_HASH_ZERO());
+    v1.upgrade(CLASS_HASH_ZERO);
 }
 
 #[test]
@@ -95,7 +95,7 @@ fn test_remove_selector_fails_in_v2() {
 fn test_upgrade_and_call_with_class_hash_zero() {
     let (v1, _) = setup_test();
     let calldata = array![VALUE];
-    v1.upgrade_and_call(CLASS_HASH_ZERO(), selector!("set_value2"), calldata.span());
+    v1.upgrade_and_call(CLASS_HASH_ZERO, selector!("set_value2"), calldata.span());
 }
 
 #[test]
@@ -139,7 +139,7 @@ fn test_upgrade_and_call_with_no_return_value() {
 }
 
 #[test]
-#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: 'ENTRYPOINT_NOT_FOUND')]
 fn test_upgrade_and_call_with_removed_selector() {
     let (v1, v2_class) = setup_test();
     let removed_selector = selector!("remove_selector");

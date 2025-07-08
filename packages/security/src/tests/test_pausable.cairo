@@ -1,12 +1,10 @@
-use crate::PausableComponent;
-use crate::PausableComponent::{InternalImpl, PausableImpl};
-use crate::PausableComponent::{Paused, Unpaused};
 use openzeppelin_test_common::mocks::security::PausableMock;
 use openzeppelin_testing::constants::CALLER;
-use openzeppelin_testing::events::EventSpyExt;
-use snforge_std::EventSpy;
-use snforge_std::{spy_events, start_cheat_caller_address, test_address};
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
+use snforge_std::{start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
+use crate::PausableComponent;
+use crate::PausableComponent::{InternalImpl, PausableImpl, Paused, Unpaused};
 
 type ComponentState = PausableComponent::ComponentState<PausableMock::ContractState>;
 
@@ -76,10 +74,10 @@ fn test_pause_when_unpaused() {
     let contract_address = test_address();
 
     let mut spy = spy_events();
-    start_cheat_caller_address(contract_address, CALLER());
+    start_cheat_caller_address(contract_address, CALLER);
     state.pause();
 
-    spy.assert_only_event_paused(contract_address, CALLER());
+    spy.assert_only_event_paused(contract_address, CALLER);
     assert!(state.is_paused());
 }
 
@@ -101,12 +99,12 @@ fn test_unpause_when_paused() {
     let contract_address = test_address();
 
     let mut spy = spy_events();
-    start_cheat_caller_address(test_address(), CALLER());
+    start_cheat_caller_address(test_address(), CALLER);
     state.pause();
     state.unpause();
 
-    spy.assert_event_paused(contract_address, CALLER());
-    spy.assert_only_event_unpaused(contract_address, CALLER());
+    spy.assert_event_paused(contract_address, CALLER);
+    spy.assert_only_event_unpaused(contract_address, CALLER);
     assert!(!state.is_paused());
 }
 

@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v1.0.0 (governance/src/timelock/timelock_controller.cairo)
+// OpenZeppelin Contracts for Cairo v2.0.0
+// (governance/src/timelock/timelock_controller.cairo)
 
 /// # TimelockController Component
 ///
@@ -17,21 +18,20 @@ pub mod TimelockControllerComponent {
     use core::hash::{HashStateExTrait, HashStateTrait};
     use core::num::traits::Zero;
     use core::pedersen::PedersenTrait;
-    use crate::timelock::interface::{ITimelock, OperationState, TimelockABI};
-    use crate::utils::call_impls::{CallPartialEq, HashCallImpl, HashCallsImpl};
-    use openzeppelin_access::accesscontrol::AccessControlComponent;
-    use openzeppelin_access::accesscontrol::AccessControlComponent::InternalTrait as AccessControlInternalTrait;
     use openzeppelin_access::accesscontrol::AccessControlComponent::{
-        AccessControlCamelImpl, AccessControlImpl,
+        AccessControlCamelImpl, AccessControlImpl, InternalTrait as AccessControlInternalTrait,
     };
-    use openzeppelin_access::accesscontrol::DEFAULT_ADMIN_ROLE;
+    use openzeppelin_access::accesscontrol::{AccessControlComponent, DEFAULT_ADMIN_ROLE};
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
-    use starknet::ContractAddress;
-    use starknet::SyscallResultTrait;
     use starknet::account::Call;
-    use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
-    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use starknet::storage::{
+        Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
+        StoragePointerWriteAccess,
+    };
+    use starknet::{ContractAddress, SyscallResultTrait};
+    use crate::timelock::interface::{ITimelock, OperationState, TimelockABI};
+    use crate::utils::call_impls::{CallPartialEq, HashCallImpl, HashCallsImpl};
 
     // Constants
     pub const PROPOSER_ROLE: felt252 = selector!("PROPOSER_ROLE");
@@ -256,7 +256,7 @@ pub mod TimelockControllerComponent {
             for call in calls {
                 self.emit(CallScheduled { id, index, call: *call, predecessor, delay });
                 index += 1;
-            };
+            }
 
             if salt != 0 {
                 self.emit(CallSalt { id, salt });
@@ -336,7 +336,7 @@ pub mod TimelockControllerComponent {
                 self._execute(*call);
                 self.emit(CallExecuted { id, index, call: *call });
                 index += 1;
-            };
+            }
 
             self._after_call(id);
         }
@@ -579,18 +579,18 @@ pub mod TimelockControllerComponent {
             // Optional admin
             if admin != Zero::zero() {
                 access_component._grant_role(DEFAULT_ADMIN_ROLE, admin)
-            };
+            }
 
             // Register proposers and cancellers
             for proposer in proposers {
                 access_component._grant_role(PROPOSER_ROLE, *proposer);
                 access_component._grant_role(CANCELLER_ROLE, *proposer);
-            };
+            }
 
             // Register executors
             for executor in executors {
                 access_component._grant_role(EXECUTOR_ROLE, *executor);
-            };
+            }
 
             // Set minimum delay
             self.TimelockController_min_delay.write(min_delay);

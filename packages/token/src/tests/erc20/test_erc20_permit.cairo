@@ -1,9 +1,5 @@
 use core::hash::{HashStateExTrait, HashStateTrait};
 use core::poseidon::PoseidonTrait;
-use crate::erc20::ERC20Component::{ERC20MixinImpl, InternalImpl};
-use crate::erc20::ERC20Component::{ERC20PermitImpl, SNIP12MetadataExternalImpl};
-use crate::erc20::snip12_utils::permit::{PERMIT_TYPE_HASH, Permit};
-use crate::erc20::{DefaultConfig, ERC20Component};
 use openzeppelin_test_common::mocks::erc20::DualCaseERC20PermitMock;
 use openzeppelin_test_common::mocks::erc20::DualCaseERC20PermitMock::SNIP12MetadataImpl;
 use openzeppelin_testing as utils;
@@ -11,9 +7,16 @@ use openzeppelin_testing::constants;
 use openzeppelin_testing::signing::{StarkKeyPair, StarkSerializedSigning};
 use openzeppelin_utils::cryptography::snip12::{StarknetDomain, StructHash};
 use snforge_std::signature::stark_curve::StarkCurveSignerImpl;
-use snforge_std::{start_cheat_block_timestamp, start_cheat_chain_id_global};
-use snforge_std::{start_cheat_caller_address, test_address};
+use snforge_std::{
+    start_cheat_block_timestamp, start_cheat_caller_address, start_cheat_chain_id_global,
+    test_address,
+};
 use starknet::ContractAddress;
+use crate::erc20::ERC20Component::{
+    ERC20MixinImpl, ERC20PermitImpl, InternalImpl, SNIP12MetadataExternalImpl,
+};
+use crate::erc20::snip12_utils::permit::{PERMIT_TYPE_HASH, Permit};
+use crate::erc20::{DefaultConfig, ERC20Component};
 
 //
 // Constants
@@ -39,9 +42,9 @@ struct TestData {
 fn TEST_DATA() -> TestData {
     TestData {
         token_address: test_address(),
-        owner: constants::OWNER(),
+        owner: constants::OWNER,
         key_pair: constants::stark::KEY_PAIR(),
-        spender: constants::SPENDER(),
+        spender: constants::SPENDER,
         amount: constants::TOKEN_VALUE,
         deadline: constants::TIMESTAMP,
         token_supply: constants::SUPPLY,
@@ -101,7 +104,7 @@ fn test_valid_permit_default_data() {
 #[test]
 fn test_valid_permit_other_data() {
     let mut data = TEST_DATA();
-    data.spender = constants::OTHER();
+    data.spender = constants::OTHER;
     data.amount = constants::TOKEN_VALUE_2;
     let (owner, spender, amount, deadline) = (data.owner, data.spender, data.amount, data.deadline);
     let mut state = setup(data);
@@ -265,7 +268,7 @@ fn test_invalid_sig_bad_owner() {
     let (spender, amount, deadline) = (data.spender, data.amount, data.deadline);
     let mut state = setup(data);
 
-    let another_account = constants::OTHER();
+    let another_account = constants::OTHER;
     utils::deploy_another_at(data.owner, another_account, array![data.key_pair.public_key]);
     let nonce = state.nonces(another_account);
     let signature = prepare_permit_signature(data, nonce);
@@ -280,7 +283,7 @@ fn test_invalid_sig_bad_token_address() {
     let mut state = setup(data);
 
     let mut modified_data = data;
-    modified_data.token_address = constants::OTHER();
+    modified_data.token_address = constants::OTHER;
     let nonce = state.nonces(owner);
     let signature = prepare_permit_signature(modified_data, nonce);
     state.permit(owner, spender, amount, deadline, signature);
@@ -294,7 +297,7 @@ fn test_invalid_sig_bad_spender() {
     let mut state = setup(data);
 
     let mut modified_data = data;
-    modified_data.spender = constants::OTHER();
+    modified_data.spender = constants::OTHER;
     let nonce = state.nonces(owner);
     let signature = prepare_permit_signature(modified_data, nonce);
     state.permit(owner, spender, amount, deadline, signature);

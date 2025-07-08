@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v1.0.0 (governance/src/timelock/interface.cairo)
+// OpenZeppelin Contracts for Cairo v2.0.0 (governance/src/timelock/interface.cairo)
 
 use starknet::ContractAddress;
 use starknet::account::Call;
 
-#[derive(Drop, Serde, PartialEq, Debug)]
+#[derive(Copy, Drop, Serde, PartialEq, Debug)]
 pub enum OperationState {
     Unset,
     Waiting,

@@ -1,13 +1,15 @@
 use core::num::traits::Bounded;
+use openzeppelin_test_common::mocks::governor::GovernorMock::SNIP12MetadataImpl;
+use openzeppelin_testing::constants::OTHER;
+use starknet::storage::{
+    StorageMapReadAccess, StorageMapWriteAccess, StoragePathEntry, StoragePointerReadAccess,
+    StoragePointerWriteAccess,
+};
 use crate::governor::DefaultConfig;
 use crate::governor::GovernorComponent::InternalImpl;
 use crate::governor::extensions::GovernorCountingSimpleComponent::{GovernorCounting, VoteType};
 use crate::governor::interface::IGovernor;
 use crate::tests::governor::common::{COMPONENT_STATE, CONTRACT_STATE};
-use openzeppelin_test_common::mocks::governor::GovernorMock::SNIP12MetadataImpl;
-use openzeppelin_testing::constants::OTHER;
-use starknet::storage::{StorageMapReadAccess, StorageMapWriteAccess};
-use starknet::storage::{StoragePathEntry, StoragePointerReadAccess, StoragePointerWriteAccess};
 
 //
 // try_into
@@ -71,7 +73,7 @@ fn test_count_vote_against() {
     let mut state = COMPONENT_STATE();
 
     let proposal_id = 0;
-    let account = OTHER();
+    let account = OTHER;
     let support = 0;
     let total_weight = 100;
     let params = array![].span();
@@ -98,7 +100,7 @@ fn test_count_vote_for() {
     let mut state = COMPONENT_STATE();
 
     let proposal_id = 0;
-    let account = OTHER();
+    let account = OTHER;
     let support = 1;
     let total_weight = 100;
     let params = array![].span();
@@ -125,7 +127,7 @@ fn test_count_vote_abstain() {
     let mut state = COMPONENT_STATE();
 
     let proposal_id = 0;
-    let account = OTHER();
+    let account = OTHER;
     let support = 2;
     let total_weight = 100;
     let params = array![].span();
@@ -153,7 +155,7 @@ fn test_count_vote_already_voted() {
     let mut state = COMPONENT_STATE();
 
     let proposal_id = 0;
-    let account = OTHER();
+    let account = OTHER;
     let support = 2;
     let total_weight = 100;
     let params = array![].span();
@@ -173,7 +175,7 @@ fn test_count_vote_invalid_vote_type() {
     let mut state = COMPONENT_STATE();
 
     let proposal_id = 0;
-    let account = OTHER();
+    let account = OTHER;
     let support = 3;
     let total_weight = 100;
     let params = array![].span();
@@ -191,7 +193,7 @@ fn test_has_voted() {
     let state = COMPONENT_STATE();
 
     let proposal_id = 0;
-    let account = OTHER();
+    let account = OTHER;
 
     assert_eq!(GovernorCounting::has_voted(@state, proposal_id, account), false);
 

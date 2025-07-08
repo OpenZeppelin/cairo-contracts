@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v1.0.0
+// OpenZeppelin Contracts for Cairo v2.0.0
 // (governance/src/governor/extensions/governor_votes_quorum_fraction.cairo)
 
 /// # GovernorVotesQuorumFraction Component
@@ -9,14 +9,14 @@
 #[starknet::component]
 pub mod GovernorVotesQuorumFractionComponent {
     use core::num::traits::Zero;
-    use crate::governor::GovernorComponent;
-    use crate::governor::GovernorComponent::ComponentState as GovernorComponentState;
-    use crate::governor::extensions::interface::IQuorumFraction;
-    use crate::votes::interface::{IVotesDispatcher, IVotesDispatcherTrait};
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_utils::structs::checkpoint::{Trace, TraceTrait};
     use starknet::ContractAddress;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use crate::governor::GovernorComponent;
+    use crate::governor::GovernorComponent::ComponentState as GovernorComponentState;
+    use crate::governor::extensions::interface::IQuorumFraction;
+    use crate::votes::interface::{IVotesDispatcher, IVotesDispatcherTrait};
 
     #[storage]
     pub struct Storage {

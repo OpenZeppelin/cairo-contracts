@@ -1,25 +1,23 @@
 use core::num::traits::Zero;
-use crate::erc1155;
-use crate::erc1155::ERC1155Component;
-use crate::erc1155::ERC1155Component::ERC1155CamelImpl;
-use crate::erc1155::ERC1155Component::{ERC1155Impl, ERC1155MetadataURIImpl, InternalImpl};
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin_test_common::erc1155::{
-    ERC1155SpyHelpers, get_ids_and_split_values, get_ids_and_values,
-};
-use openzeppelin_test_common::erc1155::{
-    deploy_another_account_at, setup_account, setup_receiver, setup_src5,
+    ERC1155SpyHelpers, deploy_another_account_at, get_ids_and_split_values, get_ids_and_values,
+    setup_account, setup_receiver, setup_src5,
 };
 use openzeppelin_test_common::mocks::erc1155::{DualCaseERC1155Mock, SnakeERC1155MockWithHooks};
 use openzeppelin_testing::constants::{
     EMPTY_DATA, OPERATOR, OTHER, OWNER, RECIPIENT, TOKEN_ID, TOKEN_ID_2, TOKEN_VALUE, TOKEN_VALUE_2,
     ZERO,
 };
-use openzeppelin_testing::events::EventSpyExt;
-
-use snforge_std::{EventSpy, spy_events, start_cheat_caller_address, test_address};
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
+use snforge_std::{start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
 use starknet::storage::StoragePointerReadAccess;
+use crate::erc1155;
+use crate::erc1155::ERC1155Component;
+use crate::erc1155::ERC1155Component::{
+    ERC1155CamelImpl, ERC1155Impl, ERC1155MetadataURIImpl, InternalImpl,
+};
 
 //
 // Setup
@@ -77,7 +75,7 @@ fn test_initialize() {
     state.initializer("URI");
 
     assert_eq!(state.ERC1155_uri.read(), "URI");
-    assert!(state.balance_of(OWNER(), TOKEN_ID).is_zero());
+    assert!(state.balance_of(OWNER, TOKEN_ID).is_zero());
 
     let supports_ierc1155 = mock_state.supports_interface(erc1155::interface::IERC1155_ID);
     assert!(supports_ierc1155);
@@ -100,7 +98,7 @@ fn test_initialize_no_metadata() {
 
     let empty_str = "";
     assert_eq!(state.ERC1155_uri.read(), empty_str);
-    assert!(state.balance_of(OWNER(), TOKEN_ID).is_zero());
+    assert!(state.balance_of(OWNER, TOKEN_ID).is_zero());
 
     let supports_ierc1155 = mock_state.supports_interface(erc1155::interface::IERC1155_ID);
     assert!(supports_ierc1155);
@@ -139,7 +137,7 @@ fn test_balanceOf() {
 #[test]
 fn test_balance_of_batch() {
     let (state, owner) = setup();
-    let accounts = array![owner, OTHER()].span();
+    let accounts = array![owner, OTHER].span();
     let token_ids = array![TOKEN_ID, TOKEN_ID].span();
 
     let balances = state.balance_of_batch(accounts, token_ids);
@@ -150,7 +148,7 @@ fn test_balance_of_batch() {
 #[test]
 fn test_balanceOfBatch() {
     let (state, owner) = setup();
-    let accounts = array![owner, OTHER()].span();
+    let accounts = array![owner, OTHER].span();
     let token_ids = array![TOKEN_ID, TOKEN_ID].span();
 
     let balances = state.balanceOfBatch(accounts, token_ids);
@@ -162,7 +160,7 @@ fn test_balanceOfBatch() {
 #[should_panic(expected: 'ERC1155: no equal array length')]
 fn test_balance_of_batch_invalid_inputs() {
     let (state, owner) = setup();
-    let accounts = array![owner, OTHER()].span();
+    let accounts = array![owner, OTHER].span();
     let token_ids = array![TOKEN_ID].span();
 
     state.balance_of_batch(accounts, token_ids);
@@ -172,7 +170,7 @@ fn test_balance_of_batch_invalid_inputs() {
 #[should_panic(expected: 'ERC1155: no equal array length')]
 fn test_balanceOfBatch_invalid_inputs() {
     let (state, owner) = setup();
-    let accounts = array![owner, OTHER()].span();
+    let accounts = array![owner, OTHER].span();
     let token_ids = array![TOKEN_ID].span();
 
     state.balanceOfBatch(accounts, token_ids);
@@ -223,7 +221,7 @@ fn test_safeTransferFrom_owner_to_receiver() {
 #[test]
 fn test_safe_transfer_from_owner_to_account() {
     let (mut state, owner) = setup();
-    let recipient = RECIPIENT();
+    let recipient = RECIPIENT;
     deploy_another_account_at(owner, recipient);
     let mut spy = spy_events();
     let contract_address = test_address();
@@ -243,7 +241,7 @@ fn test_safe_transfer_from_owner_to_account() {
 #[test]
 fn test_safeTransferFrom_owner_to_account() {
     let (mut state, owner) = setup();
-    let recipient = RECIPIENT();
+    let recipient = RECIPIENT;
     deploy_another_account_at(owner, recipient);
     let mut spy = spy_events();
     let contract_address = test_address();
@@ -263,9 +261,9 @@ fn test_safeTransferFrom_owner_to_account() {
 #[test]
 fn test_safe_transfer_from_approved_operator() {
     let (mut state, owner) = setup();
-    let recipient = RECIPIENT();
+    let recipient = RECIPIENT;
     deploy_another_account_at(owner, recipient);
-    let operator = OPERATOR();
+    let operator = OPERATOR;
     let mut spy = spy_events();
     let contract_address = test_address();
 
@@ -288,9 +286,9 @@ fn test_safe_transfer_from_approved_operator() {
 #[test]
 fn test_safeTransferFrom_approved_operator() {
     let (mut state, owner) = setup();
-    let recipient = RECIPIENT();
+    let recipient = RECIPIENT;
     deploy_another_account_at(owner, recipient);
-    let operator = OPERATOR();
+    let operator = OPERATOR;
     let mut spy = spy_events();
     let contract_address = test_address();
 
@@ -316,7 +314,7 @@ fn test_safe_transfer_from_from_zero() {
     let (mut state, owner) = setup();
     start_cheat_caller_address(test_address(), owner);
 
-    state.safe_transfer_from(ZERO(), owner, TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
+    state.safe_transfer_from(ZERO, owner, TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
 }
 
 #[test]
@@ -325,7 +323,7 @@ fn test_safeTransferFrom_from_zero() {
     let (mut state, owner) = setup();
     start_cheat_caller_address(test_address(), owner);
 
-    state.safeTransferFrom(ZERO(), owner, TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
+    state.safeTransferFrom(ZERO, owner, TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
 }
 
 #[test]
@@ -334,7 +332,7 @@ fn test_safe_transfer_from_to_zero() {
     let (mut state, owner) = setup();
     start_cheat_caller_address(test_address(), owner);
 
-    state.safe_transfer_from(owner, ZERO(), TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
+    state.safe_transfer_from(owner, ZERO, TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
 }
 
 #[test]
@@ -343,7 +341,7 @@ fn test_safeTransferFrom_to_zero() {
     let (mut state, owner) = setup();
     start_cheat_caller_address(test_address(), owner);
 
-    state.safeTransferFrom(owner, ZERO(), TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
+    state.safeTransferFrom(owner, ZERO, TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
 }
 
 #[test]
@@ -352,7 +350,7 @@ fn test_safe_transfer_from_unauthorized() {
     let (mut state, owner) = setup();
     start_cheat_caller_address(test_address(), owner);
 
-    state.safe_transfer_from(OTHER(), owner, TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
+    state.safe_transfer_from(OTHER, owner, TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
 }
 
 #[test]
@@ -361,7 +359,7 @@ fn test_safeTransferFrom_unauthorized() {
     let (mut state, owner) = setup();
     start_cheat_caller_address(test_address(), owner);
 
-    state.safeTransferFrom(OTHER(), owner, TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
+    state.safeTransferFrom(OTHER, owner, TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
 }
 
 #[test]
@@ -370,7 +368,7 @@ fn test_safe_transfer_from_insufficient_balance() {
     let (mut state, owner) = setup();
     start_cheat_caller_address(test_address(), owner);
 
-    state.safe_transfer_from(owner, OTHER(), TOKEN_ID, TOKEN_VALUE + 1, EMPTY_DATA());
+    state.safe_transfer_from(owner, OTHER, TOKEN_ID, TOKEN_VALUE + 1, EMPTY_DATA());
 }
 
 #[test]
@@ -379,7 +377,7 @@ fn test_safeTransferFrom_insufficient_balance() {
     let (mut state, owner) = setup();
     start_cheat_caller_address(test_address(), owner);
 
-    state.safeTransferFrom(owner, OTHER(), TOKEN_ID, TOKEN_VALUE + 1, EMPTY_DATA());
+    state.safeTransferFrom(owner, OTHER, TOKEN_ID, TOKEN_VALUE + 1, EMPTY_DATA());
 }
 
 #[test]
@@ -449,7 +447,7 @@ fn test_safeBatchTransferFrom_owner_to_receiver() {
 #[test]
 fn test_safe_batch_transfer_from_owner_to_account() {
     let (mut state, owner) = setup();
-    let recipient = RECIPIENT();
+    let recipient = RECIPIENT;
     deploy_another_account_at(owner, recipient);
     let (token_ids, values) = get_ids_and_values();
     let mut spy = spy_events();
@@ -470,7 +468,7 @@ fn test_safe_batch_transfer_from_owner_to_account() {
 #[test]
 fn test_safeBatchTransferFrom_owner_to_account() {
     let (mut state, owner) = setup();
-    let recipient = RECIPIENT();
+    let recipient = RECIPIENT;
     deploy_another_account_at(owner, recipient);
     let (token_ids, values) = get_ids_and_values();
     let mut spy = spy_events();
@@ -492,9 +490,9 @@ fn test_safeBatchTransferFrom_owner_to_account() {
 #[test]
 fn test_safe_batch_transfer_from_approved_operator() {
     let (mut state, owner) = setup();
-    let recipient = RECIPIENT();
+    let recipient = RECIPIENT;
     deploy_another_account_at(owner, recipient);
-    let operator = OPERATOR();
+    let operator = OPERATOR;
     let (token_ids, values) = get_ids_and_values();
     let mut spy = spy_events();
     let contract_address = test_address();
@@ -518,9 +516,9 @@ fn test_safe_batch_transfer_from_approved_operator() {
 #[test]
 fn test_safeBatchTransferFrom_approved_operator() {
     let (mut state, owner) = setup();
-    let recipient = RECIPIENT();
+    let recipient = RECIPIENT;
     deploy_another_account_at(owner, recipient);
-    let operator = OPERATOR();
+    let operator = OPERATOR;
     let (token_ids, values) = get_ids_and_values();
     let mut spy = spy_events();
     let contract_address = test_address();
@@ -549,7 +547,7 @@ fn test_safe_batch_transfer_from_from_zero() {
 
     start_cheat_caller_address(test_address(), owner);
 
-    state.safe_batch_transfer_from(ZERO(), owner, token_ids, values, EMPTY_DATA());
+    state.safe_batch_transfer_from(ZERO, owner, token_ids, values, EMPTY_DATA());
 }
 
 #[test]
@@ -560,7 +558,7 @@ fn test_safeBatchTransferFrom_from_zero() {
 
     start_cheat_caller_address(test_address(), owner);
 
-    state.safeBatchTransferFrom(ZERO(), owner, token_ids, values, EMPTY_DATA());
+    state.safeBatchTransferFrom(ZERO, owner, token_ids, values, EMPTY_DATA());
 }
 
 #[test]
@@ -570,7 +568,7 @@ fn test_safe_batch_transfer_from_to_zero() {
     let (token_ids, values) = get_ids_and_values();
     start_cheat_caller_address(test_address(), owner);
 
-    state.safe_batch_transfer_from(owner, ZERO(), token_ids, values, EMPTY_DATA());
+    state.safe_batch_transfer_from(owner, ZERO, token_ids, values, EMPTY_DATA());
 }
 
 #[test]
@@ -580,7 +578,7 @@ fn test_safeBatchTransferFrom_to_zero() {
     let (token_ids, values) = get_ids_and_values();
     start_cheat_caller_address(test_address(), owner);
 
-    state.safeBatchTransferFrom(owner, ZERO(), token_ids, values, EMPTY_DATA());
+    state.safeBatchTransferFrom(owner, ZERO, token_ids, values, EMPTY_DATA());
 }
 
 #[test]
@@ -590,7 +588,7 @@ fn test_safe_batch_transfer_from_unauthorized() {
     let (token_ids, values) = get_ids_and_values();
     start_cheat_caller_address(test_address(), owner);
 
-    state.safe_batch_transfer_from(OTHER(), owner, token_ids, values, EMPTY_DATA());
+    state.safe_batch_transfer_from(OTHER, owner, token_ids, values, EMPTY_DATA());
 }
 
 #[test]
@@ -600,7 +598,7 @@ fn test_safeBatchTransferFrom_unauthorized() {
     let (token_ids, values) = get_ids_and_values();
     start_cheat_caller_address(test_address(), owner);
 
-    state.safeBatchTransferFrom(OTHER(), owner, token_ids, values, EMPTY_DATA());
+    state.safeBatchTransferFrom(OTHER, owner, token_ids, values, EMPTY_DATA());
 }
 
 #[test]
@@ -611,7 +609,7 @@ fn test_safe_batch_transfer_from_insufficient_balance() {
     let values = array![TOKEN_VALUE + 1, TOKEN_VALUE_2].span();
     start_cheat_caller_address(test_address(), owner);
 
-    state.safe_batch_transfer_from(owner, OTHER(), token_ids, values, EMPTY_DATA());
+    state.safe_batch_transfer_from(owner, OTHER, token_ids, values, EMPTY_DATA());
 }
 
 #[test]
@@ -622,7 +620,7 @@ fn test_safeBatchTransferFrom_insufficient_balance() {
     let values = array![TOKEN_VALUE + 1, TOKEN_VALUE_2].span();
     start_cheat_caller_address(test_address(), owner);
 
-    state.safeBatchTransferFrom(owner, OTHER(), token_ids, values, EMPTY_DATA());
+    state.safeBatchTransferFrom(owner, OTHER, token_ids, values, EMPTY_DATA());
 }
 
 #[test]
@@ -657,21 +655,21 @@ fn test_set_approval_for_all_and_is_approved_for_all() {
     let mut spy = spy_events();
     let contract_address = test_address();
 
-    start_cheat_caller_address(contract_address, OWNER());
+    start_cheat_caller_address(contract_address, OWNER);
 
-    let not_approved_for_all = !state.is_approved_for_all(OWNER(), OPERATOR());
+    let not_approved_for_all = !state.is_approved_for_all(OWNER, OPERATOR);
     assert!(not_approved_for_all);
 
-    state.set_approval_for_all(OPERATOR(), true);
-    spy.assert_only_event_approval_for_all(contract_address, OWNER(), OPERATOR(), true);
+    state.set_approval_for_all(OPERATOR, true);
+    spy.assert_only_event_approval_for_all(contract_address, OWNER, OPERATOR, true);
 
-    let is_approved_for_all = state.is_approved_for_all(OWNER(), OPERATOR());
+    let is_approved_for_all = state.is_approved_for_all(OWNER, OPERATOR);
     assert!(is_approved_for_all);
 
-    state.set_approval_for_all(OPERATOR(), false);
-    spy.assert_only_event_approval_for_all(contract_address, OWNER(), OPERATOR(), false);
+    state.set_approval_for_all(OPERATOR, false);
+    spy.assert_only_event_approval_for_all(contract_address, OWNER, OPERATOR, false);
 
-    let not_approved_for_all = !state.is_approved_for_all(OWNER(), OPERATOR());
+    let not_approved_for_all = !state.is_approved_for_all(OWNER, OPERATOR);
     assert!(not_approved_for_all);
 }
 
@@ -679,16 +677,16 @@ fn test_set_approval_for_all_and_is_approved_for_all() {
 #[should_panic(expected: 'ERC1155: self approval')]
 fn test_set_approval_for_all_owner_equal_operator_true() {
     let mut state = COMPONENT_STATE();
-    start_cheat_caller_address(test_address(), OWNER());
-    state.set_approval_for_all(OWNER(), true);
+    start_cheat_caller_address(test_address(), OWNER);
+    state.set_approval_for_all(OWNER, true);
 }
 
 #[test]
 #[should_panic(expected: 'ERC1155: self approval')]
 fn test_set_approval_for_all_owner_equal_operator_false() {
     let mut state = COMPONENT_STATE();
-    start_cheat_caller_address(test_address(), OWNER());
-    state.set_approval_for_all(OWNER(), false);
+    start_cheat_caller_address(test_address(), OWNER);
+    state.set_approval_for_all(OWNER, false);
 }
 
 //
@@ -701,21 +699,21 @@ fn test_setApprovalForAll_and_isApprovedForAll() {
     let mut spy = spy_events();
     let contract_address = test_address();
 
-    start_cheat_caller_address(contract_address, OWNER());
+    start_cheat_caller_address(contract_address, OWNER);
 
-    let not_approved_for_all = !state.isApprovedForAll(OWNER(), OPERATOR());
+    let not_approved_for_all = !state.isApprovedForAll(OWNER, OPERATOR);
     assert!(not_approved_for_all);
 
-    state.setApprovalForAll(OPERATOR(), true);
-    spy.assert_only_event_approval_for_all(contract_address, OWNER(), OPERATOR(), true);
+    state.setApprovalForAll(OPERATOR, true);
+    spy.assert_only_event_approval_for_all(contract_address, OWNER, OPERATOR, true);
 
-    let is_approved_for_all = state.isApprovedForAll(OWNER(), OPERATOR());
+    let is_approved_for_all = state.isApprovedForAll(OWNER, OPERATOR);
     assert!(is_approved_for_all);
 
-    state.setApprovalForAll(OPERATOR(), false);
-    spy.assert_only_event_approval_for_all(contract_address, OWNER(), OPERATOR(), false);
+    state.setApprovalForAll(OPERATOR, false);
+    spy.assert_only_event_approval_for_all(contract_address, OWNER, OPERATOR, false);
 
-    let not_approved_for_all = !state.isApprovedForAll(OWNER(), OPERATOR());
+    let not_approved_for_all = !state.isApprovedForAll(OWNER, OPERATOR);
     assert!(not_approved_for_all);
 }
 
@@ -723,16 +721,16 @@ fn test_setApprovalForAll_and_isApprovedForAll() {
 #[should_panic(expected: 'ERC1155: self approval')]
 fn test_setApprovalForAll_owner_equal_operator_true() {
     let mut state = COMPONENT_STATE();
-    start_cheat_caller_address(test_address(), OWNER());
-    state.set_approval_for_all(OWNER(), true);
+    start_cheat_caller_address(test_address(), OWNER);
+    state.set_approval_for_all(OWNER, true);
 }
 
 #[test]
 #[should_panic(expected: 'ERC1155: self approval')]
 fn test_setApprovalForAll_owner_equal_operator_false() {
     let mut state = COMPONENT_STATE();
-    start_cheat_caller_address(test_address(), OWNER());
-    state.setApprovalForAll(OWNER(), false);
+    start_cheat_caller_address(test_address(), OWNER);
+    state.setApprovalForAll(OWNER, false);
 }
 
 //
@@ -742,7 +740,7 @@ fn test_setApprovalForAll_owner_equal_operator_false() {
 #[test]
 fn test_update_single_from_non_zero_to_non_zero() {
     let (mut state, owner) = setup();
-    let recipient = RECIPIENT();
+    let recipient = RECIPIENT;
     let token_ids = array![TOKEN_ID].span();
     let values = array![TOKEN_VALUE].span();
     let mut spy = spy_events();
@@ -763,7 +761,7 @@ fn test_update_single_from_non_zero_to_non_zero() {
 #[test]
 fn test_update_batch_from_non_zero_to_non_zero() {
     let (mut state, owner) = setup();
-    let recipient = RECIPIENT();
+    let recipient = RECIPIENT;
     let (token_ids, values) = get_ids_and_values();
     let mut spy = spy_events();
     let contract_address = test_address();
@@ -783,7 +781,7 @@ fn test_update_batch_from_non_zero_to_non_zero() {
 #[test]
 fn test_update_from_non_zero_to_zero() {
     let (mut state, owner) = setup();
-    let recipient = ZERO();
+    let recipient = ZERO;
     let (token_ids, values) = get_ids_and_values();
     let mut spy = spy_events();
     let contract_address = test_address();
@@ -803,8 +801,8 @@ fn test_update_from_non_zero_to_zero() {
 #[test]
 fn test_update_from_zero_to_non_zero() {
     let (mut state, owner) = setup();
-    let recipient = RECIPIENT();
-    let sender = ZERO();
+    let recipient = RECIPIENT;
+    let sender = ZERO;
     let (token_ids, values) = get_ids_and_values();
     let mut spy = spy_events();
     let contract_address = test_address();
@@ -825,7 +823,7 @@ fn test_update_from_zero_to_non_zero() {
 #[should_panic(expected: 'ERC1155: no equal array length')]
 fn test_update_token_ids_len_greater_than_values() {
     let (mut state, owner) = setup();
-    let recipient = RECIPIENT();
+    let recipient = RECIPIENT;
     let token_ids = array![TOKEN_ID, TOKEN_ID_2].span();
     let values = array![TOKEN_VALUE].span();
 
@@ -836,7 +834,7 @@ fn test_update_token_ids_len_greater_than_values() {
 #[should_panic(expected: 'ERC1155: no equal array length')]
 fn test_update_values_len_greater_than_token_ids() {
     let (mut state, owner) = setup();
-    let recipient = RECIPIENT();
+    let recipient = RECIPIENT;
     let token_ids = array![TOKEN_ID].span();
     let values = array![TOKEN_VALUE, TOKEN_VALUE_2].span();
 
@@ -847,7 +845,7 @@ fn test_update_values_len_greater_than_token_ids() {
 #[should_panic(expected: 'ERC1155: insufficient balance')]
 fn test_update_insufficient_balance() {
     let (mut state, owner) = setup();
-    let recipient = RECIPIENT();
+    let recipient = RECIPIENT;
     let token_ids = array![TOKEN_ID].span();
     let values = array![TOKEN_VALUE + 1].span();
 
@@ -857,7 +855,7 @@ fn test_update_insufficient_balance() {
 #[test]
 fn test_update_calls_before_update_hook() {
     let (mut state, owner) = setup_with_hooks();
-    let recipient = RECIPIENT();
+    let recipient = RECIPIENT;
     let token_ids = array![TOKEN_ID].span();
     let values = array![TOKEN_VALUE].span();
 
@@ -871,7 +869,7 @@ fn test_update_calls_before_update_hook() {
 #[test]
 fn test_update_calls_after_update_hook() {
     let (mut state, owner) = setup_with_hooks();
-    let recipient = RECIPIENT();
+    let recipient = RECIPIENT;
     let token_ids = array![TOKEN_ID].span();
     let values = array![TOKEN_VALUE].span();
 
@@ -911,7 +909,7 @@ fn test_update_wac_single_from_non_zero_to_non_zero() {
 #[test]
 fn test_update_wac_single_from_non_zero_to_non_zero_account() {
     let (mut state, owner) = setup();
-    let recipient = RECIPIENT();
+    let recipient = RECIPIENT;
     deploy_another_account_at(owner, recipient);
     let token_ids = array![TOKEN_ID].span();
     let values = array![TOKEN_VALUE].span();
@@ -953,7 +951,7 @@ fn test_update_wac_batch_from_non_zero_to_non_zero() {
 #[test]
 fn test_update_wac_batch_from_non_zero_to_non_zero_account() {
     let (mut state, owner) = setup();
-    let recipient = RECIPIENT();
+    let recipient = RECIPIENT;
     deploy_another_account_at(owner, recipient);
     let (token_ids, values) = get_ids_and_values();
     let mut spy = spy_events();
@@ -975,7 +973,7 @@ fn test_update_wac_batch_from_non_zero_to_non_zero_account() {
 #[should_panic(expected: "Contract not deployed at address: 0x0")]
 fn test_update_wac_from_non_zero_to_zero() {
     let (mut state, owner) = setup();
-    let recipient = ZERO();
+    let recipient = ZERO;
     let (token_ids, values) = get_ids_and_values();
     start_cheat_caller_address(test_address(), owner);
 
@@ -986,7 +984,7 @@ fn test_update_wac_from_non_zero_to_zero() {
 fn test_update_wac_from_zero_to_non_zero() {
     let (mut state, owner) = setup();
     let recipient = setup_receiver();
-    let sender = ZERO();
+    let sender = ZERO;
     let (token_ids, values) = get_ids_and_values();
     let mut spy = spy_events();
     let contract_address = test_address();
@@ -1006,9 +1004,9 @@ fn test_update_wac_from_zero_to_non_zero() {
 #[test]
 fn test_update_wac_from_zero_to_non_zero_account() {
     let (mut state, owner) = setup();
-    let recipient = RECIPIENT();
+    let recipient = RECIPIENT;
     deploy_another_account_at(owner, recipient);
-    let sender = ZERO();
+    let sender = ZERO;
     let (token_ids, values) = get_ids_and_values();
     let mut spy = spy_events();
     let contract_address = test_address();
@@ -1029,7 +1027,7 @@ fn test_update_wac_from_zero_to_non_zero_account() {
 #[should_panic(expected: 'ERC1155: no equal array length')]
 fn test_update_wac_token_ids_len_greater_than_values() {
     let (mut state, owner) = setup();
-    let recipient = RECIPIENT();
+    let recipient = RECIPIENT;
     let token_ids = array![TOKEN_ID, TOKEN_ID_2].span();
     let values = array![TOKEN_VALUE].span();
 
@@ -1040,7 +1038,7 @@ fn test_update_wac_token_ids_len_greater_than_values() {
 #[should_panic(expected: 'ERC1155: no equal array length')]
 fn test_update_wac_values_len_greater_than_token_ids() {
     let (mut state, owner) = setup();
-    let recipient = RECIPIENT();
+    let recipient = RECIPIENT;
     let token_ids = array![TOKEN_ID].span();
     let values = array![TOKEN_VALUE, TOKEN_VALUE_2].span();
 
@@ -1051,7 +1049,7 @@ fn test_update_wac_values_len_greater_than_token_ids() {
 #[should_panic(expected: 'ERC1155: insufficient balance')]
 fn test_update_wac_insufficient_balance() {
     let (mut state, owner) = setup();
-    let recipient = RECIPIENT();
+    let recipient = RECIPIENT;
     let token_ids = array![TOKEN_ID].span();
     let values = array![TOKEN_VALUE + 1].span();
 
@@ -1092,7 +1090,7 @@ fn test_mint_wac_to_receiver() {
     let mut spy = spy_events();
     let contract_address = test_address();
 
-    start_cheat_caller_address(test_address(), OTHER());
+    start_cheat_caller_address(test_address(), OTHER);
 
     let balance_of_recipient = state.balance_of(recipient, TOKEN_ID);
     assert!(balance_of_recipient.is_zero());
@@ -1100,7 +1098,7 @@ fn test_mint_wac_to_receiver() {
     state.mint_with_acceptance_check(recipient, TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
     spy
         .assert_only_event_transfer_single(
-            contract_address, OTHER(), ZERO(), recipient, TOKEN_ID, TOKEN_VALUE,
+            contract_address, OTHER, ZERO, recipient, TOKEN_ID, TOKEN_VALUE,
         );
 
     let balance_of_recipient = state.balance_of(recipient, TOKEN_ID);
@@ -1114,7 +1112,7 @@ fn test_mint_wac_to_account() {
     let mut spy = spy_events();
     let contract_address = test_address();
 
-    start_cheat_caller_address(test_address(), OTHER());
+    start_cheat_caller_address(test_address(), OTHER);
 
     let balance_of_recipient = state.balance_of(recipient, TOKEN_ID);
     assert!(balance_of_recipient.is_zero());
@@ -1122,7 +1120,7 @@ fn test_mint_wac_to_account() {
     state.mint_with_acceptance_check(recipient, TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
     spy
         .assert_only_event_transfer_single(
-            contract_address, OTHER(), ZERO(), recipient, TOKEN_ID, TOKEN_VALUE,
+            contract_address, OTHER, ZERO, recipient, TOKEN_ID, TOKEN_VALUE,
         );
 
     let balance_of_recipient = state.balance_of(recipient, TOKEN_ID);
@@ -1133,7 +1131,7 @@ fn test_mint_wac_to_account() {
 #[should_panic(expected: 'ERC1155: invalid receiver')]
 fn test_mint_wac_to_zero() {
     let mut state = COMPONENT_STATE();
-    let recipient = ZERO();
+    let recipient = ZERO;
 
     state.mint_with_acceptance_check(recipient, TOKEN_ID, TOKEN_VALUE, EMPTY_DATA());
 }
@@ -1159,7 +1157,7 @@ fn test_batch_mint_wac_to_receiver() {
     let mut spy = spy_events();
     let contract_address = test_address();
 
-    start_cheat_caller_address(contract_address, OTHER());
+    start_cheat_caller_address(contract_address, OTHER);
 
     let balance_of_recipient_token_1_before = state.balance_of(recipient, TOKEN_ID);
     assert!(balance_of_recipient_token_1_before.is_zero());
@@ -1169,7 +1167,7 @@ fn test_batch_mint_wac_to_receiver() {
     state.batch_mint_with_acceptance_check(recipient, token_ids, values, EMPTY_DATA());
     spy
         .assert_only_event_transfer_batch(
-            contract_address, OTHER(), ZERO(), recipient, token_ids, values,
+            contract_address, OTHER, ZERO, recipient, token_ids, values,
         );
 
     let balance_of_recipient_token_1_after = state.balance_of(recipient, TOKEN_ID);
@@ -1186,7 +1184,7 @@ fn test_batch_mint_wac_to_account() {
     let mut spy = spy_events();
     let contract_address = test_address();
 
-    start_cheat_caller_address(contract_address, OTHER());
+    start_cheat_caller_address(contract_address, OTHER);
 
     let balance_of_recipient_token_1_before = state.balance_of(recipient, TOKEN_ID);
     assert!(balance_of_recipient_token_1_before.is_zero());
@@ -1196,7 +1194,7 @@ fn test_batch_mint_wac_to_account() {
     state.batch_mint_with_acceptance_check(recipient, token_ids, values, EMPTY_DATA());
     spy
         .assert_only_event_transfer_batch(
-            contract_address, OTHER(), ZERO(), recipient, token_ids, values,
+            contract_address, OTHER, ZERO, recipient, token_ids, values,
         );
 
     let balance_of_recipient_token_1_after = state.balance_of(recipient, TOKEN_ID);
@@ -1209,7 +1207,7 @@ fn test_batch_mint_wac_to_account() {
 #[should_panic(expected: 'ERC1155: invalid receiver')]
 fn test_batch_mint_wac_to_zero() {
     let mut state = COMPONENT_STATE();
-    let recipient = ZERO();
+    let recipient = ZERO;
     let (token_ids, values) = get_ids_and_values();
 
     state.batch_mint_with_acceptance_check(recipient, token_ids, values, EMPTY_DATA());
@@ -1243,7 +1241,7 @@ fn test_burn() {
     state.burn(owner, TOKEN_ID, TOKEN_VALUE);
     spy
         .assert_only_event_transfer_single(
-            contract_address, owner, owner, ZERO(), TOKEN_ID, TOKEN_VALUE,
+            contract_address, owner, owner, ZERO, TOKEN_ID, TOKEN_VALUE,
         );
 
     let balance_of_owner = state.balance_of(owner, TOKEN_ID);
@@ -1254,7 +1252,7 @@ fn test_burn() {
 #[should_panic(expected: 'ERC1155: invalid sender')]
 fn test_burn_from_zero() {
     let mut state = COMPONENT_STATE();
-    state.burn(ZERO(), TOKEN_ID, TOKEN_VALUE);
+    state.burn(ZERO, TOKEN_ID, TOKEN_VALUE);
 }
 
 
@@ -1273,7 +1271,7 @@ fn test_batch_burn() {
     assert_eq!(balance_of_owner_token_2_before, TOKEN_VALUE_2);
 
     state.batch_burn(owner, token_ids, values);
-    spy.assert_only_event_transfer_batch(contract_address, owner, owner, ZERO(), token_ids, values);
+    spy.assert_only_event_transfer_batch(contract_address, owner, owner, ZERO, token_ids, values);
 
     let balance_of_owner_token_1_after = state.balance_of(owner, TOKEN_ID);
     assert!(balance_of_owner_token_1_after.is_zero());
@@ -1286,7 +1284,7 @@ fn test_batch_burn() {
 fn test_batch_burn_from_zero() {
     let mut state = COMPONENT_STATE();
     let (token_ids, values) = get_ids_and_values();
-    state.batch_burn(ZERO(), token_ids, values);
+    state.batch_burn(ZERO, token_ids, values);
 }
 
 //
@@ -1314,10 +1312,7 @@ fn assert_state_before_transfer_batch(
 ) {
     let state = COMPONENT_STATE();
     let mut index = 0;
-    loop {
-        if index == token_ids.len() {
-            break;
-        }
+    while index != token_ids.len() {
         let balance_of_sender = state.balance_of(sender, *token_ids.at(index));
         assert_eq!(balance_of_sender, *values.at(index));
         let balance_of_recipient = state.balance_of(recipient, *token_ids.at(index));
@@ -1332,10 +1327,7 @@ fn assert_state_before_transfer_from_zero_batch(
 ) {
     let state = COMPONENT_STATE();
     let mut index = 0;
-    loop {
-        if index == token_ids.len() {
-            break;
-        }
+    while index != token_ids.len() {
         let balance_of_sender = state.balance_of(sender, *token_ids.at(index));
         assert!(balance_of_sender.is_zero());
         let balance_of_recipient = state.balance_of(recipient, *token_ids.at(index));
@@ -1350,10 +1342,7 @@ fn assert_state_after_transfer_batch(
 ) {
     let state = COMPONENT_STATE();
     let mut index = 0;
-    loop {
-        if index == token_ids.len() {
-            break;
-        }
+    while index != token_ids.len() {
         let balance_of_sender = state.balance_of(sender, *token_ids.at(index));
         assert!(balance_of_sender.is_zero());
         let balance_of_recipient = state.balance_of(recipient, *token_ids.at(index));
@@ -1368,10 +1357,7 @@ fn assert_state_after_transfer_to_zero_batch(
 ) {
     let state = COMPONENT_STATE();
     let mut index = 0;
-    loop {
-        if index == token_ids.len() {
-            break;
-        }
+    while index != token_ids.len() {
         let balance_of_sender = state.balance_of(sender, *token_ids.at(index));
         assert!(balance_of_sender.is_zero());
         let balance_of_recipient = state.balance_of(recipient, *token_ids.at(index));
@@ -1386,10 +1372,7 @@ fn assert_state_after_transfer_from_zero_batch(
 ) {
     let state = COMPONENT_STATE();
     let mut index = 0;
-    loop {
-        if index == token_ids.len() {
-            break;
-        }
+    while index != token_ids.len() {
         let balance_of_sender = state.balance_of(sender, *token_ids.at(index));
         assert!(balance_of_sender.is_zero());
         let balance_of_recipient = state.balance_of(recipient, *token_ids.at(index));

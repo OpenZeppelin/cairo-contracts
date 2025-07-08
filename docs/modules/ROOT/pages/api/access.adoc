@@ -4,6 +4,8 @@
 :src5: https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-5.md[SRC5]
 :inner-src5: xref:api/introspection.adoc#ISRC5[SRC5 ID]
 :set_role_admin: xref:#AccessControlComponent-set_role_admin[set_role_admin]
+:_grant_role: xref:#AccessControlComponent-_grant_role[_grant_role]
+:_grant_role_with_delay: xref:#AccessControlComponent-_grant_role_with_delay[_grant_role_with_delay]
 
 = Access Control
 
@@ -16,11 +18,11 @@ This mechanism can be useful in simple scenarios, but fine grained access needs 
 - {AccessControl} provides a general role based access control mechanism. Multiple hierarchical roles can be created and
 assigned each to multiple accounts.
 
-== Authorization
+== Core
 
 [.contract]
 [[OwnableComponent]]
-=== `++OwnableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/access/src/ownable/ownable.cairo[{github-icon},role=heading-link]
+=== `++OwnableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0/packages/access/src/ownable/ownable.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin_access::ownable::OwnableComponent;
@@ -260,7 +262,7 @@ Emitted when the ownership is transferred.
 
 [.contract]
 [[IAccessControl]]
-=== `++IAccessControl++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/access/src/accesscontrol/interface.cairo[{github-icon},role=heading-link]
+=== `++IAccessControl++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0/packages/access/src/accesscontrol/interface.cairo[{github-icon},role=heading-link]
 
 :grant_role: xref:#IAccessControl-grant_role[grant_role]
 :revoke_role: xref:#IAccessControl-revoke_role[revoke_role]
@@ -306,7 +308,7 @@ External interface of AccessControl.
 [[IAccessControl-has_role]]
 ==== `[.contract-item-name]#++has_role++#++(role: felt252, account: ContractAddress) → bool++` [.item-kind]#external#
 
-Returns `true` if `account` has been granted `role`.
+Returns whether `account` can act as `role`.
 
 [.contract-item]
 [[IAccessControl-get_role_admin]]
@@ -377,8 +379,8 @@ Emitted when `new_admin_role` is set as ``role``'s admin role, replacing `previo
 
 Emitted when `account` is granted `role`.
 
-`sender` is the account that originated the contract call, an admin role
-bearer.
+`sender` is the account that originated the contract call, an account with the admin role
+or the deployer address if `_grant_role` is called from the constructor.
 
 [.contract-item]
 [[IAccessControl-RoleRevoked]]
@@ -392,8 +394,76 @@ Emitted when `account` is revoked `role`.
 - if using `renounce_role`, it is the role bearer (i.e. `account`).
 
 [.contract]
+[[IAccessControlWithDelay]]
+=== `++IAccessControlWithDelay++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0/packages/access/src/accesscontrol/interface.cairo[{github-icon},role=heading-link]
+
+:grant_role_with_delay: xref:#IAccessControlWithDelay-grant_role_with_delay[grant_role_with_delay]
+:RoleGrantedWithDelay: xref:#IAccessControlWithDelay-RoleGrantedWithDelay[RoleGrantedWithDelay]
+
+```cairo
+use openzeppelin_access::accesscontrol::interface::IAccessControlWithDelay;
+```
+
+External interface for the extended `AccessControlWithDelay` functionality.
+
+[.contract-index]
+.Functions
+--
+* xref:IAccessControlWithDelay-get_role_status[`++get_role_status(role, account)++`]
+* xref:IAccessControlWithDelay-grant_role_with_delay[`++grant_role_with_delay(role, account, delay)++`]
+--
+
+[.contract-index]
+.Events
+--
+* xref:IAccessControlWithDelay-RoleGrantedWithDelay[`++RoleGrantedWithDelay(role, account, sender, delay)++`]
+
+--
+
+[#IAccessControlWithDelay-Functions]
+==== Functions
+
+[.contract-item]
+[[IAccessControlWithDelay-get_role_status]]
+==== `[.contract-item-name]#++get_role_status++#++(role: felt252, account: ContractAddress) → RoleStatus++` [.item-kind]#external#
+
+Returns the account's status for the given role.
+The possible statuses are:
+
+- `NotGranted`: the role has not been granted to the account.
+- `Delayed`: The role has been granted to the account but is not yet active due to a
+time delay.
+- `Effective`: the role has been granted to the account and is currently active.
+
+[.contract-item]
+[[IAccessControlWithDelay-grant_role_with_delay]]
+==== `[.contract-item-name]#++grant_role_with_delay++#++(role: felt252, account: ContractAddress, delay: u64)++` [.item-kind]#external#
+
+Attempts to grant `role` to `account` with the specified activation delay.
+
+Requirements:
+
+- The caller must have ``role``'s admin role.
+- delay must be greater than 0.
+- the `role` must not be already effective for `account`.
+
+May emit a {RoleGrantedWithDelay} event.
+
+[#IAccessControlWithDelay-Events]
+==== Events
+
+[.contract-item]
+[[IAccessControlWithDelay-RoleGrantedWithDelay]]
+==== `[.contract-item-name]#++RoleGrantedWithDelay++#++(role: felt252, account: ContractAddress, sender: ContractAddress, delay: u64)++` [.item-kind]#event#
+
+Emitted when `account` is granted `role` with a delay.
+
+`sender` is the account that originated the contract call, an account with the admin role
+or the deployer address if {_grant_role_with_delay} is called from the constructor.
+
+[.contract]
 [[AccessControlComponent]]
-=== `++AccessControlComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v1.0.0/packages/access/src/accesscontrol/accesscontrol.cairo[{github-icon},role=heading-link]
+=== `++AccessControlComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0/packages/access/src/accesscontrol/accesscontrol.cairo[{github-icon},role=heading-link]
 
 :assert_only_role: xref:#AccessControlComponent-assert_only_role
 :grant_role: xref:#AccessControlComponent-grant_role[grant_role]
@@ -424,18 +494,20 @@ fn foo(ref self: ContractState) {
 }
 ```
 
-Roles can be granted and revoked dynamically via the {grant_role} and
+Roles can be granted and revoked dynamically via the {grant_role}, {grant_role_with_delay} and
 {revoke_role} functions. Each role has an associated admin role, and only
-accounts that have a role's admin role can call {grant_role} and {revoke_role}.
+accounts that have a role's admin role can call {grant_role}, {grant_role_with_delay} and {revoke_role}.
 
 By default, the admin role for all roles is `DEFAULT_ADMIN_ROLE`, which means
 that only accounts with this role will be able to grant or revoke other
 roles. More complex role relationships can be created by using
 {set_role_admin}.
 
+:AccessControlDefaultAdminRulesComponent: xref:#AccessControlDefaultAdminRulesComponent[AccessControlDefaultAdminRulesComponent]
+
 WARNING: The `DEFAULT_ADMIN_ROLE` is also its own admin: it has permission to
 grant and revoke this role. Extra precautions should be taken to secure
-accounts that have been granted it.
+accounts that have been granted it. See {AccessControlDefaultAdminRulesComponent}.
 
 [.contract-index#AccessControl-Mixin-Impl]
 .{mixin-impls}
@@ -445,6 +517,7 @@ accounts that have been granted it.
 
 * xref:#AccessControlComponent-Embeddable-Impls-AccessControlImpl[`++AccessControlImpl++`]
 * xref:#AccessControlComponent-Embeddable-Impls-AccessControlCamelImpl[`++AccessControlCamelImpl++`]
+* xref:#AccessControlComponent-Embeddable-Impls-AccessControlWithDelayImpl[`++AccessControlWithDelayImpl++`]
 * xref:api/introspection.adoc#SRC5Component-Embeddable-Impls[`++SRC5Impl++`]
 --
 
@@ -469,6 +542,12 @@ accounts that have been granted it.
 * xref:#AccessControlComponent-revokeRole[`++revokeRole(self, role, account)++`]
 * xref:#AccessControlComponent-renounceRole[`++renounceRole(self, role, account)++`]
 
+[.sub-index#AccessControlComponent-Embeddable-Impls-AccessControlWithDelayImpl]
+.AccessControlWithDelayImpl
+
+* xref:#AccessControlComponent-get_role_status[`++get_role_status(self, role, account)++`]
+* xref:#AccessControlComponent-grant_role_with_delay[`++grant_role_with_delay(self, role, account, delay)++`]
+
 .SRC5Impl
 * xref:api/introspection.adoc#ISRC5-supports_interface[`supports_interface(self, interface_id: felt252)`]
 --
@@ -480,8 +559,12 @@ accounts that have been granted it.
 
 * xref:#AccessControlComponent-initializer[`++initializer(self)++`]
 * xref:#AccessControlComponent-assert_only_role[`++assert_only_role(self, role)++`]
+* xref:#AccessControlComponent-is_role_effective[`++is_role_effective(self, role, account)++`]
+* xref:#AccessControlComponent-resolve_role_status[`++resolve_role_status(self, role, account)++`]
+* xref:#AccessControlComponent-is_role_granted[`++is_role_granted(self, role, account)++`]
 * xref:#AccessControlComponent-set_role_admin[`++set_role_admin(self, role, admin_role)++`]
 * xref:#AccessControlComponent-_grant_role[`++_grant_role(self, role, account)++`]
+* xref:#AccessControlComponent-_grant_role_with_delay[`++_grant_role_with_delay(self, role, account, delay)++`]
 * xref:#AccessControlComponent-_revoke_role[`++_revoke_role(self, role, account)++`]
 --
 
@@ -492,6 +575,9 @@ accounts that have been granted it.
 * xref:#AccessControlComponent-RoleAdminChanged[`++RoleAdminChanged(role, previous_admin_role, new_admin_role)++`]
 * xref:#AccessControlComponent-RoleGranted[`++RoleGranted(role, account, sender)++`]
 * xref:#AccessControlComponent-RoleRevoked[`++RoleRevoked(role, account, sender)++`]
+
+.IAccessControlWithDelay
+* xref:#AccessControlComponent-RoleGrantedWithDelay[`++RoleGrantedWithDelay(role, account, sender, delay)++`]
 --
 
 [#AccessControlComponent-Embeddable-Functions]
@@ -501,7 +587,7 @@ accounts that have been granted it.
 [[AccessControlComponent-has_role]]
 ==== `[.contract-item-name]#++has_role++#++(self: @ContractState, role: felt252, account: ContractAddress) → bool++` [.item-kind]#external#
 
-Returns `true` if `account` has been granted `role`.
+Returns whether `account` can act as `role`.
 
 [.contract-item]
 [[AccessControlComponent-get_role_admin]]
@@ -511,6 +597,19 @@ Returns the admin role that controls `role`. See {grant_role} and
 {revoke_role}.
 
 To change a role's admin, use {set_role_admin}.
+
+[.contract-item]
+[[AccessControlComponent-get_role_status]]
+==== `[.contract-item-name]#++get_role_status++#++(self: @ContractState, role: felt252, account: ContractAddress) → RoleStatus++` [.item-kind]#external#
+
+Returns the account's status for the given role.
+
+The possible statuses are:
+
+- `NotGranted`: the role has not been granted to the account.
+- `Delayed`: The role has been granted to the account but is not yet active due to a
+time delay.
+- `Effective`: the role has been granted to the account and is currently active.
 
 [.contract-item]
 [[AccessControlComponent-grant_role]]
@@ -526,6 +625,20 @@ Requirements:
 - the caller must have ``role``'s admin role.
 
 May emit a {RoleGranted} event.
+
+[.contract-item]
+[[AccessControlComponent-grant_role_with_delay]]
+==== `[.contract-item-name]#++grant_role_with_delay++#++(ref self: ContractState, role: felt252, account: ContractAddress, delay: u64)++` [.item-kind]#external#
+
+Attempts to grant `role` to `account` with the specified activation delay.
+
+Requirements:
+
+- The caller must have `role`'s admin role.
+- delay must be greater than 0.
+- the `role` must not be already effective for `account`.
+
+May emit a {RoleGrantedWithDelay} event.
 
 [.contract-item]
 [[AccessControlComponent-revoke_role]]
@@ -609,7 +722,42 @@ Initializes the contract by registering the xref:#IAccessControl[IAccessControl]
 [[AccessControlComponent-assert_only_role]]
 ==== `[.contract-item-name]#++assert_only_role++#++(self: @ContractState, role: felt252)++` [.item-kind]#internal#
 
-Panics if called by any account without the given `role`.
+Validates that the caller can act as the given role. Otherwise it panics.
+
+[.contract-item]
+[[AccessControlComponent-is_role_effective]]
+==== `[.contract-item-name]#++is_role_effective++#++(self: @ContractState, role: felt252, account: ContractAddress) → bool++` [.item-kind]#internal#
+
+Returns whether the account can act as the given role.
+
+The account can act as the role if it is active and the `effective_from` time is before
+or equal to the current time.
+
+NOTE: If the `effective_from` timepoint is 0, the role is effective immediately.
+This is backwards compatible with implementations that didn't use delays but
+a single boolean flag.
+
+[.contract-item]
+[[AccessControlComponent-resolve_role_status]]
+==== `[.contract-item-name]#++resolve_role_status++#++(self: @ContractState, role: felt252, account: ContractAddress) → RoleStatus++` [.item-kind]#internal#
+
+Returns the account's status for the given role.
+
+The possible statuses are:
+
+- `NotGranted`: the role has not been granted to the account.
+- `Delayed`: The role has been granted to the account but is not yet active due to a
+time delay.
+- `Effective`: the role has been granted to the account and is currently active.
+
+[.contract-item]
+[[AccessControlComponent-is_role_granted]]
+==== `[.contract-item-name]#++is_role_granted++#++(self: @ContractState, role: felt252, account: ContractAddress) → bool++` [.item-kind]#internal#
+
+Returns whether the account has the given role granted.
+
+NOTE: The account may not be able to act as the role yet, if a delay was set and has not
+passed yet. Use `is_role_effective` to check if the account can act as the role.
 
 [.contract-item]
 [[AccessControlComponent-set_role_admin]]
@@ -625,11 +773,33 @@ Emits a {RoleAdminChanged} event.
 [[AccessControlComponent-_grant_role]]
 ==== `[.contract-item-name]#++_grant_role++#++(ref self: ContractState, role: felt252, account: ContractAddress)++` [.item-kind]#internal#
 
-Grants `role` to `account`.
+Attempts to grant `role` to `account`. The function does nothing if `role` is already
+effective for `account`. If `role` has been granted to `account`, but is not yet active
+due to a time delay, the delay is removed and `role` becomes effective immediately.
 
 Internal function without access restriction.
 
 May emit a {RoleGranted} event.
+
+[.contract-item]
+[[AccessControlComponent-_grant_role_with_delay]]
+==== `[.contract-item-name]#++_grant_role_with_delay++#++(ref self: ContractState, role: felt252, account: ContractAddress, delay: u64)++` [.item-kind]#internal#
+
+Attempts to grant `role` to `account` with the specified activation delay.
+
+The role will become effective after the given delay has passed. If the role is already
+active (`Effective`) for the account, the function will panic. If the role has been
+granted but is not yet active (being in the `Delayed` state), the existing delay will be
+overwritten with the new `delay`.
+
+Internal function without access restriction.
+
+Requirements:
+
+- delay must be greater than 0.
+- the `role` must not be already effective for `account`.
+
+May emit a {RoleGrantedWithDelay} event.
 
 [.contract-item]
 [[AccessControlComponent-_revoke_role]]
@@ -657,7 +827,917 @@ See xref:IAccessControl-RoleAdminChanged[IAccessControl::RoleAdminChanged].
 See xref:IAccessControl-RoleGranted[IAccessControl::RoleGranted].
 
 [.contract-item]
+[[AccessControlComponent-RoleGrantedWithDelay]]
+==== `[.contract-item-name]#++RoleGrantedWithDelay++#++(role: felt252, account: ContractAddress, sender: ContractAddress, delay: u64)++` [.item-kind]#event#
+
+See xref:IAccessControlWithDelay-RoleGrantedWithDelay[IAccessControlWithDelay::RoleGrantedWithDelay].
+
+[.contract-item]
 [[AccessControlComponent-RoleRevoked]]
 ==== `[.contract-item-name]#++RoleRevoked++#++(role: felt252, account: ContractAddress, sender: ContractAddress)++` [.item-kind]#event#
 
 See xref:IAccessControl-RoleRevoked[IAccessControl::RoleRevoked].
+
+== Extensions
+
+[.contract]
+[[IAccessControlDefaultAdminRules]]
+=== `++IAccessControlDefaultAdminRules++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0/packages/access/src/accesscontrol/extensions/interface.cairo[{github-icon},role=heading-link]
+
+:grant_role: xref:#IAccessControl-grant_role[grant_role]
+
+```cairo
+use openzeppelin_access::accesscontrol::extensions::interface::IAccessControlDefaultAdminRules;
+```
+
+External interface of AccessControlDefaultAdminRules declared to support {src5} detection.
+
+[.contract-index]
+.{inner-src5}
+--
+0x3509b3083c9586afe5dae781146b0608c3846870510f8d4d21ae38676cc33eb
+--
+
+[.contract-index]
+.Functions
+--
+* xref:IAccessControlDefaultAdminRules-default_admin[`++default_admin()++`]
+* xref:IAccessControlDefaultAdminRules-pending_default_admin[`++pending_default_admin()++`]
+* xref:IAccessControlDefaultAdminRules-default_admin_delay[`++default_admin_delay()++`]
+* xref:IAccessControlDefaultAdminRules-pending_default_admin_delay[`++pending_default_admin_delay()++`]
+* xref:IAccessControlDefaultAdminRules-begin_default_admin_transfer[`++begin_default_admin_transfer(new_admin)++`]
+* xref:IAccessControlDefaultAdminRules-cancel_default_admin_transfer[`++cancel_default_admin_transfer()++`]
+* xref:IAccessControlDefaultAdminRules-accept_default_admin_transfer[`++accept_default_admin_transfer()++`]
+* xref:IAccessControlDefaultAdminRules-change_default_admin_delay[`++change_default_admin_delay(new_delay)++`]
+* xref:IAccessControlDefaultAdminRules-rollback_default_admin_delay[`++rollback_default_admin_delay()++`]
+* xref:IAccessControlDefaultAdminRules-default_admin_delay_increase_wait[`++default_admin_delay_increase_wait()++`]
+--
+
+[.contract-index]
+.Events
+--
+* xref:IAccessControlDefaultAdminRules-DefaultAdminTransferScheduled[`++DefaultAdminTransferScheduled(new_admin, accept_schedule)++`]
+* xref:IAccessControlDefaultAdminRules-DefaultAdminTransferCanceled[`++DefaultAdminTransferCanceled()++`]
+* xref:IAccessControlDefaultAdminRules-DefaultAdminDelayChangeScheduled[`++DefaultAdminDelayChangeScheduled(new_delay, effect_schedule)++`]
+* xref:IAccessControlDefaultAdminRules-DefaultAdminDelayChangeCanceled[`++DefaultAdminDelayChangeCanceled()++`]
+--
+
+:default_admin_transfer_scheduled: xref:IAccessControlDefaultAdminRules-DefaultAdminTransferScheduled[DefaultAdminTransferScheduled]
+:default_admin_transfer_canceled: xref:IAccessControlDefaultAdminRules-DefaultAdminTransferCanceled[DefaultAdminTransferCanceled]
+:default_admin_delay_change_scheduled: xref:IAccessControlDefaultAdminRules-DefaultAdminDelayChangeScheduled[DefaultAdminDelayChangeScheduled]
+:default_admin_delay_change_canceled: xref:IAccessControlDefaultAdminRules-DefaultAdminDelayChangeCanceled[DefaultAdminDelayChangeCanceled]
+
+:default_admin: xref:IAccessControlDefaultAdminRules-default_admin[default_admin]
+:pending_default_admin: xref:IAccessControlDefaultAdminRules-pending_default_admin[pending_default_admin]
+:default_admin_delay: xref:IAccessControlDefaultAdminRules-default_admin_delay[default_admin_delay]
+:pending_default_admin_delay: xref:IAccessControlDefaultAdminRules-pending_default_admin_delay[pending_default_admin_delay]
+:begin_default_admin_transfer: xref:IAccessControlDefaultAdminRules-begin_default_admin_transfer[begin_default_admin_transfer]
+:cancel_default_admin_transfer: xref:IAccessControlDefaultAdminRules-cancel_default_admin_transfer[cancel_default_admin_transfer]
+:accept_default_admin_transfer: xref:IAccessControlDefaultAdminRules-accept_default_admin_transfer[accept_default_admin_transfer]
+:change_default_admin_delay: xref:IAccessControlDefaultAdminRules-change_default_admin_delay[change_default_admin_delay]
+:rollback_default_admin_delay: xref:IAccessControlDefaultAdminRules-rollback_default_admin_delay[rollback_default_admin_delay]
+:default_admin_delay_increase_wait: xref:IAccessControlDefaultAdminRules-default_admin_delay_increase_wait[default_admin_delay_increase_wait]
+
+[#IAccessControlDefaultAdminRules-Functions]
+==== Functions
+
+[.contract-item]
+[[IAccessControlDefaultAdminRules-default_admin]]
+==== `[.contract-item-name]#++default_admin++#++() → ContractAddress++` [.item-kind]#external#
+
+Returns the address of the current `DEFAULT_ADMIN_ROLE` holder.
+
+[.contract-item]
+[[IAccessControlDefaultAdminRules-pending_default_admin]]
+==== `[.contract-item-name]#++pending_default_admin++#++() → (ContractAddress, u64)++` [.item-kind]#external#
+
+Returns a tuple of a `new_admin` and an `accept_schedule`.
+
+After the `accept_schedule` passes, the `new_admin` will be able to accept the
+`default_admin` role by calling {accept_default_admin_transfer}, completing the role
+transfer.
+
+A zero value only in `accept_schedule` indicates no pending admin transfer.
+
+NOTE: A zero address `new_admin` means that `default_admin` is being renounced.
+
+[.contract-item]
+[[IAccessControlDefaultAdminRules-default_admin_delay]]
+==== `[.contract-item-name]#++default_admin_delay++#++() → u64++` [.item-kind]#external#
+
+Returns the delay required to schedule the acceptance of a `default_admin` transfer started.
+
+This delay will be added to the current timestamp when calling
+{begin_default_admin_transfer} to set the acceptance schedule.
+
+NOTE: If a delay change has been scheduled, it will take effect as soon as the schedule
+passes, making this function return the new delay.
+
+See {change_default_admin_delay}.
+
+[.contract-item]
+[[IAccessControlDefaultAdminRules-pending_default_admin_delay]]
+==== `[.contract-item-name]#++pending_default_admin_delay++#++() → (u64, u64)++` [.item-kind]#external#
+
+Returns a tuple of `new_delay` and an `effect_schedule`.
+
+After the `effect_schedule` passes, the `new_delay` will get into effect immediately for
+every new `default_admin` transfer started with {begin_default_admin_transfer}.
+
+A zero value only in `effect_schedule` indicates no pending delay change.
+
+NOTE: A zero value only for `new_delay` means that the next {default_admin_delay}
+will be zero after the effect schedule.
+
+[.contract-item]
+[[IAccessControlDefaultAdminRules-begin_default_admin_transfer]]
+==== `[.contract-item-name]#++begin_default_admin_transfer++#++(new_admin)++` [.item-kind]#external#
+
+Starts a `default_admin` transfer by setting a {pending_default_admin} scheduled for
+acceptance after the current timestamp plus a {default_admin_delay}.
+
+Requirements:
+
+- Only can be called by the current `default_admin`.
+
+Emits a {default_admin_transfer_scheduled} event.
+
+[.contract-item]
+[[IAccessControlDefaultAdminRules-cancel_default_admin_transfer]]
+==== `[.contract-item-name]#++cancel_default_admin_transfer++#++()++` [.item-kind]#external#
+
+Cancels a `default_admin` transfer previously started with {begin_default_admin_transfer}.
+
+A {pending_default_admin} not yet accepted can also be cancelled with this function.
+
+Requirements:
+
+- Only can be called by the current `default_admin`.
+
+May emit a {default_admin_transfer_canceled} event.
+
+[.contract-item]
+[[IAccessControlDefaultAdminRules-accept_default_admin_transfer]]
+==== `[.contract-item-name]#++accept_default_admin_transfer++#++()++` [.item-kind]#external#
+
+Completes a `default_admin` transfer previously started with {begin_default_admin_transfer}.
+
+After calling the function:
+
+- `DEFAULT_ADMIN_ROLE` must be granted to the caller.
+- `DEFAULT_ADMIN_ROLE` must be revoked from the previous holder.
+- {pending_default_admin} must be reset to zero value.
+
+Requirements:
+
+- Only can be called by the {pending_default_admin}'s `new_admin`.
+- The {pending_default_admin}'s `accept_schedule` should've passed.
+
+[.contract-item]
+[[IAccessControlDefaultAdminRules-change_default_admin_delay]]
+==== `[.contract-item-name]#++change_default_admin_delay++#++(new_delay)++` [.item-kind]#external#
+
+Initiates a {default_admin_delay} update by setting a {pending_default_admin_delay}
+scheduled to take effect after the current timestamp plus a {default_admin_delay}.
+
+This function guarantees that any call to {begin_default_admin_transfer} done between the
+timestamp this method is called and the {pending_default_admin_delay} effect schedule will
+use the current {default_admin_delay} set before calling.
+
+The {pending_default_admin_delay}'s effect schedule is defined in a way that waiting until
+the schedule and then calling {begin_default_admin_transfer} with the new delay will take at
+least the same as another `default_admin` complete transfer (including acceptance).
+
+The schedule is designed for two scenarios:
+
+- When the delay is changed for a larger one the schedule is `block.timestamp + new delay`
+capped by {default_admin_delay_increase_wait}.
+- When the delay is changed for a shorter one, the schedule is `block.timestamp + (current
+delay - new delay)`.
+
+A {pending_default_admin_delay} that never got into effect will be canceled in favor of a
+new scheduled change.
+
+Requirements:
+
+- Only can be called by the current `default_admin`.
+
+Emits a {default_admin_delay_change_scheduled} event and may emit a
+{default_admin_delay_change_canceled} event.
+
+[.contract-item]
+[[IAccessControlDefaultAdminRules-rollback_default_admin_delay]]
+==== `[.contract-item-name]#++rollback_default_admin_delay++#++()++` [.item-kind]#external#
+
+Cancels a scheduled {default_admin_delay} change.
+
+Requirements:
+
+- Only can be called by the current `default_admin`.
+
+May emit a {default_admin_delay_change_canceled} event.
+
+[.contract-item]
+[[IAccessControlDefaultAdminRules-default_admin_delay_increase_wait]]
+==== `[.contract-item-name]#++default_admin_delay_increase_wait++#++() → u64++` [.item-kind]#external#
+
+Maximum time in seconds for an increase to {default_admin_delay} (that is scheduled using
+{change_default_admin_delay}) to take effect. Defaults to 5 days.
+
+When the {default_admin_delay} is scheduled to be increased, it goes into effect after the
+new delay has passed with the purpose of giving enough time for reverting any accidental
+change (i.e. using milliseconds instead of seconds)
+that may lock the contract. However, to avoid excessive schedules, the wait is capped by
+this function and it can be overridden for a custom {default_admin_delay} increase
+scheduling.
+
+IMPORTANT: Make sure to add a reasonable amount of time while overriding this value,
+otherwise, there's a risk of setting a high new delay that goes into effect almost
+immediately without the possibility of human intervention in the case of an input error
+(e.g.
+set milliseconds instead of seconds).
+
+[#IAccessControlDefaultAdminRules-Events]
+==== Events
+
+[.contract-item]
+[[IAccessControlDefaultAdminRules-DefaultAdminTransferScheduled]]
+==== `[.contract-item-name]#++DefaultAdminTransferScheduled++#++(new_admin: ContractAddress, accept_schedule: u64)++` [.item-kind]#event#
+
+Emitted when a `default_admin` transfer is started.
+
+Sets `new_admin` as the next address to become the `default_admin` by calling
+{accept_default_admin_transfer} only after `accept_schedule` passes.
+
+[.contract-item]
+[[IAccessControlDefaultAdminRules-DefaultAdminTransferCanceled]]
+==== `[.contract-item-name]#++DefaultAdminTransferCanceled++#++()++` [.item-kind]#event#
+
+Emitted when a {pending_default_admin} is reset if it was never
+accepted, regardless of its schedule.
+
+[.contract-item]
+[[IAccessControlDefaultAdminRules-DefaultAdminDelayChangeScheduled]]
+==== `[.contract-item-name]#++DefaultAdminDelayChangeScheduled++#++(new_delay: u64, effect_schedule: u64)++` [.item-kind]#event#
+
+Emitted when a {default_admin_delay} change is started.
+
+Sets `new_delay` as the next delay to be applied between default admins transfers
+after `effect_schedule` has passed.
+
+[.contract-item]
+[[IAccessControlDefaultAdminRules-DefaultAdminDelayChangeCanceled]]
+
+Emitted when a {pending_default_admin_delay} is reset if its schedule didn't pass.
+
+[.contract]
+[[AccessControlDefaultAdminRulesComponent]]
+=== `++AccessControlDefaultAdminRulesComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0/packages/access/src/accesscontrol/extensions/accesscontrol_default_admin_rules.cairo[{github-icon},role=heading-link]
+
+```cairo
+use openzeppelin_access::accesscontrol::extensions::AccessControlDefaultAdminRulesComponent;
+```
+
+Extension of {AccessControl} that allows specifying special rules to manage the `DEFAULT_ADMIN_ROLE` holder,
+which is a sensitive role with special permissions over other roles that may potentially have
+privileged rights in the system.
+
+If a specific role doesn’t have an admin role assigned, the holder of the `DEFAULT_ADMIN_ROLE` will
+have the ability to grant it and revoke it.
+
+This contract implements the following risk mitigations on top of {AccessControl}:
+
+- Only one account holds the `DEFAULT_ADMIN_ROLE` since deployment until it’s potentially renounced.
+
+- Enforces a 2-step process to transfer the `DEFAULT_ADMIN_ROLE` to another account.
+
+- Enforces a configurable delay between the two steps, with the ability to cancel before the transfer is accepted.
+
+- The delay can be changed by scheduling, see {change_default_admin_delay}.
+
+- It is not possible to use another role to manage the `DEFAULT_ADMIN_ROLE`.
+
+[.contract-index#AccessControlDefaultAdminRules-Mixin-Impl]
+.{mixin-impls}
+
+--
+.AccessControlMixinImpl
+
+* xref:#AccessControlDefaultAdminRulesComponent-Embeddable-Impls-AccessControlDefaultAdminRulesImpl[`++AccessControlDefaultAdminRulesImpl++`]
+* xref:#AccessControlDefaultAdminRulesComponent-Embeddable-Impls-AccessControlImpl[`++AccessControlImpl++`]
+* xref:#AccessControlDefaultAdminRulesComponent-Embeddable-Impls-AccessControlCamelImpl[`++AccessControlCamelImpl++`]
+* xref:#AccessControlDefaultAdminRulesComponent-Embeddable-Impls-AccessControlWithDelayImpl[`++AccessControlWithDelayImpl++`]
+* xref:api/introspection.adoc#SRC5Component-Embeddable-Impls[`++SRC5Impl++`]
+--
+
+[.contract-index#AccessControlDefaultAdminRulesComponent-Embeddable-Impls]
+.Embeddable Implementations
+--
+[.sub-index#AccessControlDefaultAdminRulesComponent-Embeddable-Impls-AccessControlDefaultAdminRulesImpl]
+.AccessControlDefaultAdminRulesImpl
+
+* xref:#IAccessControlDefaultAdminRules-default_admin[`++default_admin(self)++`]
+* xref:#IAccessControlDefaultAdminRules-pending_default_admin[`++pending_default_admin(self)++`]
+* xref:#IAccessControlDefaultAdminRules-default_admin_delay[`++default_admin_delay(self)++`]
+* xref:#IAccessControlDefaultAdminRules-pending_default_admin_delay[`++pending_default_admin_delay(self)++`]
+* xref:#IAccessControlDefaultAdminRules-begin_default_admin_transfer[`++begin_default_admin_transfer(self, new_admin)++`]
+* xref:#IAccessControlDefaultAdminRules-cancel_default_admin_transfer[`++cancel_default_admin_transfer(self)++`]
+* xref:#IAccessControlDefaultAdminRules-accept_default_admin_transfer[`++accept_default_admin_transfer(self)++`]
+* xref:#IAccessControlDefaultAdminRules-change_default_admin_delay[`++change_default_admin_delay(self, new_delay)++`]
+* xref:#IAccessControlDefaultAdminRules-rollback_default_admin_delay[`++rollback_default_admin_delay(self)++`]
+* xref:#IAccessControlDefaultAdminRules-default_admin_delay_increase_wait[`++default_admin_delay_increase_wait(self)++`]
+
+[.sub-index#AccessControlDefaultAdminRulesComponent-Embeddable-Impls-AccessControlImpl]
+.AccessControlImpl
+
+* xref:#AccessControlDefaultAdminRulesComponent-has_role[`++has_role(self, role, account)++`]
+* xref:#AccessControlDefaultAdminRulesComponent-get_role_admin[`++get_role_admin(self, role)++`]
+* xref:#AccessControlDefaultAdminRulesComponent-grant_role[`++grant_role(self, role, account)++`]
+* xref:#AccessControlDefaultAdminRulesComponent-revoke_role[`++revoke_role(self, role, account)++`]
+* xref:#AccessControlDefaultAdminRulesComponent-renounce_role[`++renounce_role(self, role, account)++`]
+
+[.sub-index#AccessControlDefaultAdminRulesComponent-Embeddable-Impls-AccessControlCamelImpl]
+.AccessControlCamelImpl
+
+* xref:#AccessControlDefaultAdminRulesComponent-hasRole[`++hasRole(self, role, account)++`]
+* xref:#AccessControlDefaultAdminRulesComponent-getRoleAdmin[`++getRoleAdmin(self, role)++`]
+* xref:#AccessControlDefaultAdminRulesComponent-grantRole[`++grantRole(self, role, account)++`]
+* xref:#AccessControlDefaultAdminRulesComponent-revokeRole[`++revokeRole(self, role, account)++`]
+* xref:#AccessControlDefaultAdminRulesComponent-renounceRole[`++renounceRole(self, role, account)++`]
+
+[.sub-index#AccessControlDefaultAdminRulesComponent-Embeddable-Impls-AccessControlWithDelayImpl]
+.AccessControlWithDelayImpl
+
+* xref:#AccessControlDefaultAdminRulesComponent-get_role_status[`++get_role_status(self, role, account)++`]
+* xref:#AccessControlDefaultAdminRulesComponent-grant_role_with_delay[`++grant_role_with_delay(self, role, account, delay)++`]
+
+.SRC5Impl
+* xref:api/introspection.adoc#ISRC5-supports_interface[`supports_interface(self, interface_id: felt252)`]
+--
+
+[.contract-index]
+.Internal Implementations
+--
+.InternalImpl
+
+* xref:#AccessControlDefaultAdminRulesComponent-initializer[`++initializer(self, initial_delay, initial_default_admin)++`]
+* xref:#AccessControlDefaultAdminRulesComponent-assert_only_role[`++assert_only_role(self, role)++`]
+* xref:#AccessControlDefaultAdminRulesComponent-is_role_effective[`++is_role_effective(self, role, account)++`]
+* xref:#AccessControlDefaultAdminRulesComponent-resolve_role_status[`++resolve_role_status(self, role, account)++`]
+* xref:#AccessControlDefaultAdminRulesComponent-is_role_granted[`++is_role_granted(self, role, account)++`]
+* xref:#AccessControlDefaultAdminRulesComponent-set_role_admin[`++set_role_admin(self, role, admin_role)++`]
+* xref:#AccessControlDefaultAdminRulesComponent-_grant_role[`++_grant_role(self, role, account)++`]
+* xref:#AccessControlDefaultAdminRulesComponent-_grant_role_with_delay[`++_grant_role_with_delay(self, role, account, delay)++`]
+* xref:#AccessControlDefaultAdminRulesComponent-_revoke_role[`++_revoke_role(self, role, account)++`]
+* xref:#AccessControlDefaultAdminRulesComponent-set_pending_default_admin[`++set_pending_default_admin(self, new_admin, new_schedule)++`]
+* xref:#AccessControlDefaultAdminRulesComponent-set_pending_delay[`++set_pending_delay(self, new_delay, new_schedule)++`]
+* xref:#AccessControlDefaultAdminRulesComponent-delay_change_wait[`++delay_change_wait(self, new_delay)++`]
+--
+
+[.contract-index]
+.Events
+--
+.IAccessControl
+* xref:#AccessControlDefaultAdminRulesComponent-RoleAdminChanged[`++RoleAdminChanged(role, previous_admin_role, new_admin_role)++`]
+* xref:#AccessControlDefaultAdminRulesComponent-RoleGranted[`++RoleGranted(role, account, sender)++`]
+* xref:#AccessControlDefaultAdminRulesComponent-RoleRevoked[`++RoleRevoked(role, account, sender)++`]
+
+.IAccessControlWithDelay
+* xref:#AccessControlDefaultAdminRulesComponent-RoleGrantedWithDelay[`++RoleGrantedWithDelay(role, account, sender, delay)++`]
+
+.IAccessControlDefaultAdminRules
+* xref:#AccessControlDefaultAdminRulesComponent-DefaultAdminTransferScheduled[`++DefaultAdminTransferScheduled(new_admin, accept_schedule)++`]
+* xref:#AccessControlDefaultAdminRulesComponent-DefaultAdminTransferCanceled[`++DefaultAdminTransferCanceled()++`]
+* xref:#AccessControlDefaultAdminRulesComponent-DefaultAdminDelayChangeScheduled[`++DefaultAdminDelayChangeScheduled(new_delay, effect_schedule)++`]
+* xref:#AccessControlDefaultAdminRulesComponent-DefaultAdminDelayChangeCanceled[`++DefaultAdminDelayChangeCanceled()++`]
+--
+
+:default_admin_transfer_scheduled: xref:AccessControlDefaultAdminRulesComponent-DefaultAdminTransferScheduled[DefaultAdminTransferScheduled]
+:default_admin_transfer_canceled: xref:AccessControlDefaultAdminRulesComponent-DefaultAdminTransferCanceled[DefaultAdminTransferCanceled]
+:default_admin_delay_change_scheduled: xref:AccessControlDefaultAdminRulesComponent-DefaultAdminDelayChangeScheduled[DefaultAdminDelayChangeScheduled]
+:default_admin_delay_change_canceled: xref:AccessControlDefaultAdminRulesComponent-DefaultAdminDelayChangeCanceled[DefaultAdminDelayChangeCanceled]
+
+:RoleGranted: xref:AccessControlDefaultAdminRulesComponent-RoleGranted[RoleGranted]
+:RoleGrantedWithDelay: xref:AccessControlDefaultAdminRulesComponent-RoleGrantedWithDelay[RoleGrantedWithDelay]
+:RoleRevoked: xref:AccessControlDefaultAdminRulesComponent-RoleRevoked[RoleRevoked]
+:RoleAdminChanged: xref:AccessControlDefaultAdminRulesComponent-RoleAdminChanged[RoleAdminChanged]
+
+:default_admin: xref:AccessControlDefaultAdminRulesComponent-default_admin[default_admin]
+:pending_default_admin: xref:AccessControlDefaultAdminRulesComponent-pending_default_admin[pending_default_admin]
+:default_admin_delay: xref:AccessControlDefaultAdminRulesComponent-default_admin_delay[default_admin_delay]
+:pending_default_admin_delay: xref:AccessControlDefaultAdminRulesComponent-pending_default_admin_delay[pending_default_admin_delay]
+:begin_default_admin_transfer: xref:AccessControlDefaultAdminRulesComponent-begin_default_admin_transfer[begin_default_admin_transfer]
+:cancel_default_admin_transfer: xref:AccessControlDefaultAdminRulesComponent-cancel_default_admin_transfer[cancel_default_admin_transfer]
+:accept_default_admin_transfer: xref:AccessControlDefaultAdminRulesComponent-accept_default_admin_transfer[accept_default_admin_transfer]
+:change_default_admin_delay: xref:AccessControlDefaultAdminRulesComponent-change_default_admin_delay[change_default_admin_delay]
+:rollback_default_admin_delay: xref:AccessControlDefaultAdminRulesComponent-rollback_default_admin_delay[rollback_default_admin_delay]
+:default_admin_delay_increase_wait: xref:AccessControlDefaultAdminRulesComponent-default_admin_delay_increase_wait[default_admin_delay_increase_wait]
+
+[#AccessControlDefaultAdminRulesComponent-Embeddable-Functions]
+==== Embeddable functions
+
+[.contract-item]
+[[AccessControlDefaultAdminRulesComponent-default_admin]]
+==== `[.contract-item-name]#++default_admin++#++(self: @ContractState) → ContractAddress++` [.item-kind]#external#
+
+Returns the address of the current `DEFAULT_ADMIN_ROLE` holder.
+
+[.contract-item]
+[[AccessControlDefaultAdminRulesComponent-pending_default_admin]]
+==== `[.contract-item-name]#++pending_default_admin++#++(self: @ContractState) → (ContractAddress, u64)++` [.item-kind]#external#
+
+Returns a tuple of a `new_admin` and an `accept_schedule`.
+
+After the `accept_schedule` passes, the `new_admin` will be able to accept the
+`default_admin` role by calling {accept_default_admin_transfer}, completing the role
+transfer.
+
+A zero value only in `accept_schedule` indicates no pending admin transfer.
+
+NOTE: A zero address `new_admin` means that `default_admin` is being renounced.
+
+[.contract-item]
+[[AccessControlDefaultAdminRulesComponent-default_admin_delay]]
+==== `[.contract-item-name]#++default_admin_delay++#++(self: @ContractState) → u64++` [.item-kind]#external#
+
+Returns the delay required to schedule the acceptance of a `default_admin` transfer
+started.
+
+This delay will be added to the current timestamp when calling
+{begin_default_admin_transfer} to set the acceptance schedule.
+
+NOTE: If a delay change has been scheduled, it will take effect as soon as the schedule
+passes, making this function returns the new delay.
+
+See {change_default_admin_delay}.
+
+[.contract-item]
+[[AccessControlDefaultAdminRulesComponent-pending_default_admin_delay]]
+==== `[.contract-item-name]#++pending_default_admin_delay++#++(self: @ContractState) → (u64, u64)++` [.item-kind]#external#
+
+Returns a tuple of `new_delay` and an `effect_schedule`.
+
+After the `effect_schedule` passes, the `new_delay` will get into effect immediately for
+every new `default_admin` transfer started with {begin_default_admin_transfer}.
+
+A zero value only in `effect_schedule` indicates no pending delay change.
+
+NOTE: A zero value only for `new_delay` means that the next {default_admin_delay}
+will be zero after the effect schedule.
+
+[.contract-item]
+[[AccessControlDefaultAdminRulesComponent-begin_default_admin_transfer]]
+==== `[.contract-item-name]#++begin_default_admin_transfer++#++(ref self: ContractState, new_admin: ContractAddress)++` [.item-kind]#external#
+
+Starts a `default_admin` transfer by setting a {pending_default_admin} scheduled for
+acceptance after the current timestamp plus a {default_admin_delay}.
+
+Requirements:
+
+- Only can be called by the current `default_admin`.
+
+Emits a {default_admin_transfer_scheduled} event.
+
+[.contract-item]
+[[AccessControlDefaultAdminRulesComponent-cancel_default_admin_transfer]]
+==== `[.contract-item-name]#++cancel_default_admin_transfer++#++(ref self: ContractState)++` [.item-kind]#external#
+
+Cancels a `default_admin` transfer previously started with {begin_default_admin_transfer}.
+
+A {pending_default_admin} not yet accepted can also be cancelled with this function.
+
+Requirements:
+
+- Only can be called by the current `default_admin`.
+
+May emit a {default_admin_transfer_canceled} event.
+
+[.contract-item]
+[[AccessControlDefaultAdminRulesComponent-accept_default_admin_transfer]]
+==== `[.contract-item-name]#++accept_default_admin_transfer++#++(ref self: ContractState)++` [.item-kind]#external#
+
+Completes a `default_admin` transfer previously started with {begin_default_admin_transfer}.
+
+After calling the function:
+
+- `DEFAULT_ADMIN_ROLE` must be granted to the caller.
+- `DEFAULT_ADMIN_ROLE` must be revoked from the previous holder.
+- {pending_default_admin} must be reset to zero values.
+
+Requirements:
+
+- Only can be called by the {pending_default_admin}'s `new_admin`.
+- The {pending_default_admin}'s `accept_schedule` should've passed.
+
+[.contract-item]
+[[AccessControlDefaultAdminRulesComponent-change_default_admin_delay]]
+==== `[.contract-item-name]#++change_default_admin_delay++#++(ref self: ContractState, new_delay: u64)++` [.item-kind]#external#
+
+Initiates a {default_admin_delay} update by setting a {pending_default_admin_delay}
+scheduled for getting into effect after the current timestamp plus a
+{default_admin_delay}.
+
+This function guarantees that any call to {begin_default_admin_transfer} done between
+the timestamp this method is called and the {pending_default_admin_delay} effect
+schedule will use the current {default_admin_delay}
+set before calling.
+
+The {pending_default_admin_delay}'s effect schedule is defined in a way that waiting
+until the schedule and then calling {begin_default_admin_transfer} with the new delay
+will take at least the same as another `default_admin`
+complete transfer (including acceptance).
+
+The schedule is designed for two scenarios:
+
+- When the delay is changed for a larger one the schedule is `block.timestamp +
+new delay` capped by {default_admin_delay_increase_wait}.
+- When the delay is changed for a shorter one, the schedule is `block.timestamp +
+(current delay - new delay)`.
+
+A {pending_default_admin_delay} that never got into effect will be canceled in favor of
+a new scheduled change.
+
+Requirements:
+
+- Only can be called by the current `default_admin`.
+
+Emits a {default_admin_delay_change_scheduled} event and may emit a
+{default_admin_delay_change_canceled} event.
+
+[.contract-item]
+[[AccessControlDefaultAdminRulesComponent-rollback_default_admin_delay]]
+==== `[.contract-item-name]#++rollback_default_admin_delay++#++(ref self: ContractState)++` [.item-kind]#external#
+
+Cancels a scheduled {default_admin_delay} change.
+
+Requirements:
+
+- Only can be called by the current `default_admin`.
+
+May emit a {default_admin_delay_change_canceled} event.
+
+[.contract-item]
+[[AccessControlDefaultAdminRulesComponent-default_admin_delay_increase_wait]]
+==== `[.contract-item-name]#++default_admin_delay_increase_wait++#++(self: @ContractState) → u64++` [.item-kind]#external#
+
+Maximum time in seconds for an increase to {default_admin_delay} (that is scheduled
+using {change_default_admin_delay}) to take effect. Defaults to 5 days.
+
+When the {default_admin_delay} is scheduled to be increased, it goes into effect after
+the new delay has passed with the purpose of giving enough time for reverting any
+accidental change (i.e. using milliseconds instead of seconds)
+that may lock the contract. However, to avoid excessive schedules, the wait is capped by
+this function and it can be overridden for a custom {default_admin_delay} increase
+scheduling.
+
+IMPORTANT: Make sure to add a reasonable amount of time while overriding this value,
+otherwise, there's a risk of setting a high new delay that goes into effect almost
+immediately without the possibility of human intervention in the case of an input error
+(eg. set milliseconds instead of seconds).
+
+[.contract-item]
+[[AccessControlDefaultAdminRulesComponent-has_role]]
+==== `[.contract-item-name]#++has_role++#++(self: @ContractState, role: felt252, account: ContractAddress) → bool++` [.item-kind]#external#
+
+Returns whether `account` can act as `role`.
+
+[.contract-item]
+[[AccessControlDefaultAdminRulesComponent-get_role_admin]]
+==== `[.contract-item-name]#++get_role_admin++#++(self: @ContractState, role: felt252) → felt252++` [.item-kind]#external#
+
+Returns the admin role that controls `role`. See {grant_role} and
+{revoke_role}.
+
+To change a role's admin, use {set_role_admin}.
+
+[.contract-item]
+[[AccessControlDefaultAdminRulesComponent-get_role_status]]
+==== `[.contract-item-name]#++get_role_status++#++(self: @ContractState, role: felt252, account: ContractAddress) → RoleStatus++` [.item-kind]#external#
+
+Returns the account's status for the given role.
+
+The possible statuses are:
+
+- `NotGranted`: the role has not been granted to the account.
+- `Delayed`: The role has been granted to the account but is not yet active due to a
+time delay.
+- `Effective`: the role has been granted to the account and is currently active.
+
+[.contract-item]
+[[AccessControlDefaultAdminRulesComponent-grant_role]]
+==== `[.contract-item-name]#++grant_role++#++(ref self: ContractState, role: felt252, account: ContractAddress)++` [.item-kind]#external#
+
+Grants `role` to `account`.
+
+If `account` had not been already granted `role`, emits a {RoleGranted}
+event.
+
+Requirements:
+
+- the caller must have ``role``'s admin role.
+
+May emit a {RoleGranted} event.
+
+[.contract-item]
+[[AccessControlDefaultAdminRulesComponent-grant_role_with_delay]]
+==== `[.contract-item-name]#++grant_role_with_delay++#++(ref self: ContractState, role: felt252, account: ContractAddress, delay: u64)++` [.item-kind]#external#
+
+Attempts to grant `role` to `account` with the specified activation delay.
+
+Requirements:
+
+- The caller must have `role`'s admin role.
+- delay must be greater than 0.
+- the `role` must not be already effective for `account`.
+
+May emit a {RoleGrantedWithDelay} event.
+
+[.contract-item]
+[[AccessControlDefaultAdminRulesComponent-revoke_role]]
+==== `[.contract-item-name]#++revoke_role++#++(ref self: ContractState, role: felt252, account: ContractAddress)++` [.item-kind]#external#
+
+Revokes `role` from `account`.
+
+If `account` had been granted `role`, emits a {RoleRevoked} event.
+
+Requirements:
+
+- the caller must have ``role``'s admin role.
+
+May emit a {RoleRevoked} event.
+
+[.contract-item]
+[[AccessControlDefaultAdminRulesComponent-renounce_role]]
+==== `[.contract-item-name]#++renounce_role++#++(ref self: ContractState, role: felt252, account: ContractAddress)++` [.item-kind]#external#
+
+Revokes `role` from the calling account.
+
+Roles are often managed via {grant_role} and {revoke_role}. This function's
+purpose is to provide a mechanism for accounts to lose their privileges
+if they are compromised (such as when a trusted device is misplaced).
+
+If the calling account had been revoked `role`, emits a {RoleRevoked}
+event.
+
+Requirements:
+
+- the caller must be `account`.
+
+May emit a {RoleRevoked} event.
+
+[.contract-item]
+[[AccessControlDefaultAdminRulesComponent-supports_interface]]
+==== `[.contract-item-name]#++supports_interface++#++(self: @ContractState, interface_id: felt252) → bool++` [.item-kind]#external#
+
+See xref:api/introspection.adoc#ISRC5-supports_interface[ISRC5::supports_interface].
+
+[.contract-item]
+[[AccessControlDefaultAdminRulesComponent-hasRole]]
+==== `[.contract-item-name]#++hasRole++#++(self: @ContractState, role: felt252, account: ContractAddress) → bool++` [.item-kind]#external#
+
+See xref:AccessControlDefaultAdminRulesComponent-has_role[has_role].
+
+[.contract-item]
+[[AccessControlDefaultAdminRulesComponent-getRoleAdmin]]
+==== `[.contract-item-name]#++getRoleAdmin++#++(self: @ContractState, role: felt252) → felt252++` [.item-kind]#external#
+
+See xref:AccessControlDefaultAdminRulesComponent-get_role_admin[get_role_admin].
+
+[.contract-item]
+[[AccessControlDefaultAdminRulesComponent-grantRole]]
+==== `[.contract-item-name]#++grantRole++#++(ref self: ContractState, role: felt252, account: ContractAddress)++` [.item-kind]#external#
+
+See xref:AccessControlDefaultAdminRulesComponent-grant_role[grant_role].
+
+[.contract-item]
+[[AccessControlDefaultAdminRulesComponent-revokeRole]]
+==== `[.contract-item-name]#++revokeRole++#++(ref self: ContractState, role: felt252, account: ContractAddress)++` [.item-kind]#external#
+
+See xref:AccessControlDefaultAdminRulesComponent-revoke_role[revoke_role].
+
+[.contract-item]
+[[AccessControlDefaultAdminRulesComponent-renounceRole]]
+==== `[.contract-item-name]#++renounceRole++#++(ref self: ContractState, role: felt252, account: ContractAddress)++` [.item-kind]#external#
+
+See xref:AccessControlDefaultAdminRulesComponent-renounce_role[renounce_role].
+
+[#AccessControlDefaultAdminRulesComponent-Internal-Functions]
+==== Internal functions
+
+[.contract-item]
+[[AccessControlDefaultAdminRulesComponent-initializer]]
+==== `[.contract-item-name]#++initializer++#++(ref self: ContractState, initial_delay: u64, initial_default_admin: ContractAddress)++` [.item-kind]#external#
+
+Initializes the contract by registering the IAccessControl interface ID and
+setting the initial delay and default admin.
+
+Requirements:
+
+- `initial_default_admin` must not be the zero address.
+
+[.contract-item]
+[[AccessControlDefaultAdminRulesComponent-assert_only_role]]
+==== `[.contract-item-name]#++assert_only_role++#++(self: @ContractState, role: felt252)++` [.item-kind]#external#
+
+Validates that the caller can act as the given role. Otherwise it panics.
+
+[.contract-item]
+[[AccessControlDefaultAdminRulesComponent-is_role_effective]]
+==== `[.contract-item-name]#++is_role_effective++#++(self: @ContractState, role: felt252, account: ContractAddress) → bool++` [.item-kind]#external#
+
+Returns whether the account can act as the given role.
+
+The account can act as the role if it is active and the `effective_from` time is before
+or equal to the current time.
+
+NOTE: If the `effective_from` timepoint is 0, the role is effective immediately.
+This is backwards compatible with implementations that didn't use delays but
+a single boolean flag.
+
+[.contract-item]
+[[AccessControlDefaultAdminRulesComponent-resolve_role_status]]
+==== `[.contract-item-name]#++resolve_role_status++#++(self: @ContractState, role: felt252, account: ContractAddress) → RoleStatus++` [.item-kind]#external#
+
+Returns the account's status for the given role.
+
+The possible statuses are:
+
+- `NotGranted`: the role has not been granted to the account.
+- `Delayed`: The role has been granted to the account but is not yet active due to a
+time delay.
+- `Effective`: the role has been granted to the account and is currently active.
+
+[.contract-item]
+[[AccessControlDefaultAdminRulesComponent-is_role_granted]]
+==== `[.contract-item-name]#++is_role_granted++#++(self: @ContractState, role: felt252, account: ContractAddress) → bool++` [.item-kind]#external#
+
+Returns whether the account has the given role granted.
+
+NOTE: The account may not be able to act as the role yet, if a delay was set and has not
+passed yet. Use {is_role_effective} to check if the account can act as the role.
+
+[.contract-item]
+[[AccessControlDefaultAdminRulesComponent-set_role_admin]]
+==== `[.contract-item-name]#++set_role_admin++#++(ref self: ContractState, role: felt252, admin_role: felt252)++` [.item-kind]#external#
+
+Sets `admin_role` as `role`'s admin role.
+
+Internal function without access restriction.
+
+Requirements:
+
+- `role` must not be `DEFAULT_ADMIN_ROLE`.
+
+Emits a {RoleAdminChanged} event.
+
+[.contract-item]
+[[AccessControlDefaultAdminRulesComponent-_grant_role]]
+==== `[.contract-item-name]#++_grant_role++#++(ref self: ContractState, role: felt252, account: ContractAddress)++` [.item-kind]#external#
+
+Attempts to grant `role` to `account`. The function does nothing if `role` is already
+effective for `account`. If `role` has been granted to `account`, but is not yet active
+due to a time delay, the delay is removed and `role` becomes effective immediately.
+
+Internal function without access restriction.
+
+For `DEFAULT_ADMIN_ROLE`, it only allows granting if there isn't already a
+`default_admin`
+or if the role has been previously renounced.
+
+NOTE: Exposing this function through another mechanism may make the `DEFAULT_ADMIN_ROLE`
+assignable again. Make sure to guarantee this is the expected behavior in your
+implementation.
+
+May emit a {RoleGranted} event.
+
+[.contract-item]
+[[AccessControlDefaultAdminRulesComponent-_grant_role_with_delay]]
+==== `[.contract-item-name]#++_grant_role_with_delay++#++(ref self: ContractState, role: felt252, account: ContractAddress, delay: u64)++` [.item-kind]#external#
+
+Attempts to grant `role` to `account` with the specified activation delay.
+
+The role will become effective after the given delay has passed. If the role is already
+active (`Effective`) for the account, the function will panic. If the role has been
+granted but is not yet active (being in the `Delayed` state), the existing delay will be
+overwritten with the new `delay`.
+
+Internal function without access restriction.
+
+Requirements:
+
+- `delay` must be greater than 0.
+- the `role` must not be already effective for `account`.
+- `role` must not be `DEFAULT_ADMIN_ROLE`.
+
+May emit a {RoleGrantedWithDelay} event.
+
+[.contract-item]
+[[AccessControlDefaultAdminRulesComponent-_revoke_role]]
+==== `[.contract-item-name]#++_revoke_role++#++(ref self: ContractState, role: felt252, account: ContractAddress)++` [.item-kind]#external#
+
+Attempts to revoke `role` from `account`. The function does nothing if `role` is not
+effective for `account`. If `role` has been revoked from `account`, but is still active
+due to a time delay, the delay is removed and `role` becomes inactive immediately.
+
+Internal function without access restriction.
+
+May emit a {RoleRevoked} event.
+
+[.contract-item]
+[[AccessControlDefaultAdminRulesComponent-set_pending_default_admin]]
+==== `[.contract-item-name]#++set_pending_default_admin++#++(ref self: ContractState, new_admin: ContractAddress, new_schedule: u64)++` [.item-kind]#external#
+
+Setter of the tuple for pending admin and its schedule.
+
+May emit a {DefaultAdminTransferCanceled} event.
+
+[.contract-item]
+[[AccessControlDefaultAdminRulesComponent-set_pending_delay]]
+==== `[.contract-item-name]#++set_pending_delay++#++(ref self: ContractState, new_delay: u64, new_schedule: u64)++` [.item-kind]#external#
+
+Setter of the tuple for pending delay and its schedule.
+
+May emit a {DefaultAdminDelayChangeCanceled} event.
+
+[.contract-item]
+[[AccessControlDefaultAdminRulesComponent-delay_change_wait]]
+==== `[.contract-item-name]#++delay_change_wait++#++(self: @ContractState, new_delay: u64) → u64++` [.item-kind]#external#
+
+Returns the amount of seconds to wait after the `new_delay` will
+become the new `default_admin_delay`.
+
+The value returned guarantees that if the delay is reduced, it will go into effect
+after a wait that honors the previously set delay.
+
+See {default_admin_delay_increase_wait}.
+
+[#AccessControlDefaultAdminRulesComponent-Events]
+==== Events
+
+[.contract-item]
+[#AccessControlDefaultAdminRulesComponent-RoleAdminChanged]
+==== `[.contract-item-name]#++RoleAdminChanged++#++(role: felt252, previous_admin_role: felt252, new_admin_role: felt252)++` [.item-kind]#event#
+
+Emitted when `new_admin_role` is set as `role`'s admin role, replacing `previous_admin_role`
+
+`DEFAULT_ADMIN_ROLE` is the starting admin for all roles, despite
+`RoleAdminChanged` not being emitted signaling this.
+
+[.contract-item]
+[#AccessControlDefaultAdminRulesComponent-RoleGranted]
+==== `[.contract-item-name]#++RoleGranted++#++(role: felt252, account: ContractAddress, sender: ContractAddress)++` [.item-kind]#event#
+
+Emitted when `account` is granted `role`.
+
+`sender` is the account that originated the contract call, an account with the admin role
+or the deployer address if `_grant_role` is called from the constructor.
+
+[.contract-item]
+[#AccessControlDefaultAdminRulesComponent-RoleRevoked]
+==== `[.contract-item-name]#++RoleRevoked++#++(role: felt252, account: ContractAddress, sender: ContractAddress)++` [.item-kind]#event#
+
+Emitted when `role` is revoked for `account`.
+
+`sender` is the account that originated the contract call:
+
+- If using `revoke_role`, it is the admin role bearer.
+- If using `renounce_role`, it is the role bearer (i.e. `account`).
+
+[.contract-item]
+[#AccessControlDefaultAdminRulesComponent-RoleGrantedWithDelay]
+==== `[.contract-item-name]#++RoleGrantedWithDelay++#++(role: felt252, account: ContractAddress, sender: ContractAddress, delay: u64)++` [.item-kind]#event#
+
+Emitted when `account` is granted `role` with a delay.
+
+`sender` is the account that originated the contract call, an account with the admin role
+or the deployer address if `_grant_role_with_delay` is called from the constructor.
+
+[.contract-item]
+[[AccessControlDefaultAdminRulesComponent-DefaultAdminTransferScheduled]]
+==== `[.contract-item-name]#++DefaultAdminTransferScheduled++#++(new_admin: ContractAddress, accept_schedule: u64)++` [.item-kind]#event#
+
+Emitted when a `default_admin` transfer is started.
+
+Sets `new_admin` as the next address to become the `default_admin` by calling
+{accept_default_admin_transfer} only after `accept_schedule` passes.
+
+[.contract-item]
+[[AccessControlDefaultAdminRulesComponent-DefaultAdminTransferCanceled]]
+==== `[.contract-item-name]#++DefaultAdminTransferCanceled++#++()++` [.item-kind]#event#
+
+Emitted when a {pending_default_admin} is reset if it was never
+accepted, regardless of its schedule.
+
+[.contract-item]
+[[AccessControlDefaultAdminRulesComponent-DefaultAdminDelayChangeScheduled]]
+==== `[.contract-item-name]#++DefaultAdminDelayChangeScheduled++#++(new_delay: u64, effect_schedule: u64)++` [.item-kind]#event#
+
+Emitted when a {default_admin_delay} change is started.
+
+Sets `new_delay` as the next delay to be applied between default admins transfers
+after `effect_schedule` has passed.
+
+[.contract-item]
+[[AccessControlDefaultAdminRulesComponent-DefaultAdminDelayChangeCanceled]]
+
+Emitted when a {pending_default_admin_delay} is reset if its schedule didn't pass.

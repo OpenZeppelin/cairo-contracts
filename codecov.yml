@@ -17,7 +17,7 @@ coverage:
         threshold: 4%
     patch:
       default:
-        # Require new code to have 90%+ coverage.
+        # Require new code to have 80%+ coverage.
         # TMP target and threshold until cairo-coverage becomes more stable
         target: 80%
         threshold: 4%
@@ -27,6 +27,7 @@ ignore:
   - "docs/"
   - "scripts/"
   - "packages/test_common/"
+  - "packages/testing/"
 
 github_checks:
   annotations: false

@@ -1,21 +1,19 @@
+use openzeppelin_test_common::mocks::governor::GovernorTimelockedMock::SNIP12MetadataImpl;
+use openzeppelin_testing::constants::OTHER;
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
+use snforge_std::{start_cheat_caller_address, test_address};
+use starknet::ContractAddress;
+use starknet::storage::StoragePointerWriteAccess;
 use crate::governor::DefaultConfig;
 use crate::governor::GovernorComponent::InternalImpl;
 use crate::governor::extensions::GovernorSettingsComponent;
-use crate::governor::extensions::GovernorSettingsComponent::InternalImpl as GovernorSettingsInternalImpl;
 use crate::governor::extensions::GovernorSettingsComponent::{
-    GovernorSettings, GovernorSettingsAdminImpl,
+    GovernorSettings, GovernorSettingsAdminImpl, InternalImpl as GovernorSettingsInternalImpl,
 };
-use crate::tests::governor::common::set_executor;
 use crate::tests::governor::common::{
     COMPONENT_STATE_TIMELOCKED as COMPONENT_STATE, CONTRACT_STATE_TIMELOCKED as CONTRACT_STATE,
+    set_executor,
 };
-use openzeppelin_test_common::mocks::governor::GovernorTimelockedMock::SNIP12MetadataImpl;
-use openzeppelin_testing::constants::OTHER;
-use openzeppelin_testing::events::EventSpyExt;
-use snforge_std::start_cheat_caller_address;
-use snforge_std::{EventSpy, spy_events, test_address};
-use starknet::ContractAddress;
-use starknet::storage::StoragePointerWriteAccess;
 
 //
 // Extensions
@@ -71,8 +69,8 @@ fn test_set_voting_delay() {
 
     let expected = 15;
 
-    set_executor(ref mock_state, OTHER());
-    start_cheat_caller_address(contract_address, OTHER());
+    set_executor(ref mock_state, OTHER);
+    start_cheat_caller_address(contract_address, OTHER);
 
     assert_eq!(GovernorSettings::voting_delay(component_state), 0);
     mock_state.governor_settings.set_voting_delay(expected);
@@ -90,8 +88,8 @@ fn test_set_voting_delay_no_change() {
     let expected = 15;
     mock_state.governor_settings.Governor_voting_delay.write(expected);
 
-    set_executor(ref mock_state, OTHER());
-    start_cheat_caller_address(test_address(), OTHER());
+    set_executor(ref mock_state, OTHER);
+    start_cheat_caller_address(test_address(), OTHER);
 
     mock_state.governor_settings.set_voting_delay(expected);
     assert_eq!(GovernorSettings::voting_delay(component_state), expected);
@@ -105,7 +103,7 @@ fn test_set_voting_delay_only_governance() {
     let mut mock_state = CONTRACT_STATE();
     let expected = 15;
 
-    set_executor(ref mock_state, OTHER());
+    set_executor(ref mock_state, OTHER);
 
     mock_state.governor_settings.set_voting_delay(expected);
 }
@@ -123,8 +121,8 @@ fn test_set_voting_period() {
 
     let expected = 15;
 
-    set_executor(ref mock_state, OTHER());
-    start_cheat_caller_address(contract_address, OTHER());
+    set_executor(ref mock_state, OTHER);
+    start_cheat_caller_address(contract_address, OTHER);
 
     assert_eq!(GovernorSettings::voting_period(component_state), 0);
     mock_state.governor_settings.set_voting_period(expected);
@@ -142,8 +140,8 @@ fn test_set_voting_period_no_change() {
     let expected = 15;
     mock_state.governor_settings.Governor_voting_period.write(expected);
 
-    set_executor(ref mock_state, OTHER());
-    start_cheat_caller_address(test_address(), OTHER());
+    set_executor(ref mock_state, OTHER);
+    start_cheat_caller_address(test_address(), OTHER);
 
     mock_state.governor_settings.set_voting_period(expected);
     assert_eq!(GovernorSettings::voting_period(component_state), expected);
@@ -157,7 +155,7 @@ fn test_set_voting_period_only_governance() {
     let mut mock_state = CONTRACT_STATE();
     let expected = 15;
 
-    set_executor(ref mock_state, OTHER());
+    set_executor(ref mock_state, OTHER);
 
     mock_state.governor_settings.set_voting_period(expected);
 }
@@ -175,8 +173,8 @@ fn test_set_proposal_threshold() {
 
     let expected = 15;
 
-    set_executor(ref mock_state, OTHER());
-    start_cheat_caller_address(contract_address, OTHER());
+    set_executor(ref mock_state, OTHER);
+    start_cheat_caller_address(contract_address, OTHER);
 
     assert_eq!(GovernorSettings::proposal_threshold(component_state), 0);
     mock_state.governor_settings.set_proposal_threshold(expected);
@@ -194,8 +192,8 @@ fn test_set_proposal_threshold_no_change() {
     let expected = 15;
     mock_state.governor_settings.Governor_proposal_threshold.write(expected);
 
-    set_executor(ref mock_state, OTHER());
-    start_cheat_caller_address(test_address(), OTHER());
+    set_executor(ref mock_state, OTHER);
+    start_cheat_caller_address(test_address(), OTHER);
 
     mock_state.governor_settings.set_proposal_threshold(expected);
     assert_eq!(GovernorSettings::proposal_threshold(component_state), expected);
@@ -209,7 +207,7 @@ fn test_set_proposal_threshold_only_governance() {
     let mut mock_state = CONTRACT_STATE();
     let expected = 15;
 
-    set_executor(ref mock_state, OTHER());
+    set_executor(ref mock_state, OTHER);
 
     mock_state.governor_settings.set_proposal_threshold(expected);
 }
@@ -248,8 +246,8 @@ fn test_initializer() {
 fn test_assert_only_governance() {
     let mut mock_state = CONTRACT_STATE();
 
-    set_executor(ref mock_state, OTHER());
-    start_cheat_caller_address(test_address(), OTHER());
+    set_executor(ref mock_state, OTHER);
+    start_cheat_caller_address(test_address(), OTHER);
 
     mock_state.governor_settings.assert_only_governance();
 }
@@ -259,7 +257,7 @@ fn test_assert_only_governance() {
 fn test_assert_only_governance_not_executor() {
     let mut mock_state = CONTRACT_STATE();
 
-    set_executor(ref mock_state, OTHER());
+    set_executor(ref mock_state, OTHER);
 
     mock_state.governor_settings.assert_only_governance();
 }
@@ -278,8 +276,8 @@ fn test__set_voting_delay() {
 
     let expected = 15;
 
-    set_executor(ref mock_state, OTHER());
-    start_cheat_caller_address(contract_address, OTHER());
+    set_executor(ref mock_state, OTHER);
+    start_cheat_caller_address(contract_address, OTHER);
 
     assert_eq!(GovernorSettings::voting_delay(component_state), 0);
     mock_state.governor_settings._set_voting_delay(expected);
@@ -297,8 +295,8 @@ fn test__set_voting_delay_no_change() {
     let expected = 15;
     mock_state.governor_settings.Governor_voting_delay.write(expected);
 
-    set_executor(ref mock_state, OTHER());
-    start_cheat_caller_address(test_address(), OTHER());
+    set_executor(ref mock_state, OTHER);
+    start_cheat_caller_address(test_address(), OTHER);
 
     mock_state.governor_settings._set_voting_delay(expected);
     assert_eq!(GovernorSettings::voting_delay(component_state), expected);
@@ -319,8 +317,8 @@ fn test__set_voting_period() {
 
     let expected = 15;
 
-    set_executor(ref mock_state, OTHER());
-    start_cheat_caller_address(contract_address, OTHER());
+    set_executor(ref mock_state, OTHER);
+    start_cheat_caller_address(contract_address, OTHER);
 
     assert_eq!(GovernorSettings::voting_period(component_state), 0);
     mock_state.governor_settings._set_voting_period(expected);
@@ -338,8 +336,8 @@ fn test__set_voting_period_no_change() {
     let expected = 15;
     mock_state.governor_settings.Governor_voting_period.write(expected);
 
-    set_executor(ref mock_state, OTHER());
-    start_cheat_caller_address(test_address(), OTHER());
+    set_executor(ref mock_state, OTHER);
+    start_cheat_caller_address(test_address(), OTHER);
 
     mock_state.governor_settings._set_voting_period(expected);
     assert_eq!(GovernorSettings::voting_period(component_state), expected);
@@ -360,8 +358,8 @@ fn test__set_proposal_threshold() {
 
     let expected = 15;
 
-    set_executor(ref mock_state, OTHER());
-    start_cheat_caller_address(contract_address, OTHER());
+    set_executor(ref mock_state, OTHER);
+    start_cheat_caller_address(contract_address, OTHER);
 
     assert_eq!(GovernorSettings::proposal_threshold(component_state), 0);
     mock_state.governor_settings._set_proposal_threshold(expected);
@@ -379,8 +377,8 @@ fn test__set_proposal_threshold_no_change() {
     let expected = 15;
     mock_state.governor_settings.Governor_proposal_threshold.write(expected);
 
-    set_executor(ref mock_state, OTHER());
-    start_cheat_caller_address(test_address(), OTHER());
+    set_executor(ref mock_state, OTHER);
+    start_cheat_caller_address(test_address(), OTHER);
 
     mock_state.governor_settings._set_proposal_threshold(expected);
     assert_eq!(GovernorSettings::proposal_threshold(component_state), expected);

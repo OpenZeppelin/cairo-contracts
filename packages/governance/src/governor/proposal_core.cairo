@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v1.0.0 (governance/src/governor/proposal_core.cairo)
+// OpenZeppelin Contracts for Cairo v2.0.0 (governance/src/governor/proposal_core.cairo)
 
 use core::traits::DivRem;
 use starknet::ContractAddress;
@@ -88,7 +88,7 @@ mod tests {
     #[test]
     fn test_pack_and_unpack() {
         let proposal = ProposalCore {
-            proposer: ALICE(),
+            proposer: ALICE,
             vote_start: 100,
             vote_duration: 200,
             executed: false,
@@ -103,7 +103,7 @@ mod tests {
     #[test]
     fn test_pack_and_unpack_big_values() {
         let proposal = ProposalCore {
-            proposer: ALICE(),
+            proposer: ALICE,
             vote_start: Bounded::MAX,
             vote_duration: Bounded::MAX,
             executed: true,

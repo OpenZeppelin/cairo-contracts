@@ -1,9 +1,4 @@
 use core::num::traits::Zero;
-use crate::AccountUpgradeable;
-use crate::interfaces::account::{
-    AccountUpgradeableABISafeDispatcher, AccountUpgradeableABISafeDispatcherTrait,
-};
-use crate::interfaces::{AccountUpgradeableABIDispatcher, AccountUpgradeableABIDispatcherTrait};
 use openzeppelin_account::account::AccountComponent::AccountMixinImpl;
 use openzeppelin_account::extensions::SRC9Component::{OutsideExecutionV2Impl, SNIP12MetadataImpl};
 use openzeppelin_account::extensions::src9::interface::{ISRC9_V2_ID, OutsideExecution};
@@ -21,20 +16,23 @@ use openzeppelin_testing::constants::{
     CALLER, CLASS_HASH_ZERO, FELT_VALUE, MIN_TRANSACTION_VERSION, OTHER, QUERY_OFFSET,
     QUERY_VERSION, RECIPIENT, SALT, ZERO,
 };
-use openzeppelin_testing::signing::SerializedSigning;
-use openzeppelin_testing::signing::StarkKeyPair;
+use openzeppelin_testing::signing::{SerializedSigning, StarkKeyPair};
+use openzeppelin_testing::spy_events;
 use openzeppelin_token::erc20::interface::IERC20DispatcherTrait;
 use openzeppelin_utils::cryptography::snip12::OffchainMessageHash;
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{
-    CheatSpan, cheat_caller_address, load, spy_events, start_cheat_caller_address, test_address,
-};
-use snforge_std::{
-    start_cheat_block_timestamp_global, start_cheat_signature_global,
-    start_cheat_transaction_hash_global, start_cheat_transaction_version_global,
+    CheatSpan, cheat_caller_address, load, start_cheat_block_timestamp_global,
+    start_cheat_caller_address, start_cheat_signature_global, start_cheat_transaction_hash_global,
+    start_cheat_transaction_version_global, test_address,
 };
 use starknet::account::Call;
-use starknet::{ClassHash, ContractAddress, contract_address_const};
+use starknet::{ClassHash, ContractAddress};
+use crate::AccountUpgradeable;
+use crate::interfaces::account::{
+    AccountUpgradeableABISafeDispatcher, AccountUpgradeableABISafeDispatcherTrait,
+};
+use crate::interfaces::{AccountUpgradeableABIDispatcher, AccountUpgradeableABIDispatcherTrait};
 
 //
 // Setup
@@ -63,7 +61,7 @@ fn setup_dispatcher_with_data(
     start_cheat_signature_global(array![data.r, data.s].span());
     start_cheat_transaction_hash_global(data.tx_hash);
     start_cheat_transaction_version_global(MIN_TRANSACTION_VERSION);
-    start_cheat_caller_address(contract_address, ZERO());
+    start_cheat_caller_address(contract_address, ZERO);
 
     (account_dispatcher, account_class.class_hash.into())
 }
@@ -358,7 +356,7 @@ fn test_execute_with_version(version: Option<felt252>) {
     // Craft call and add to calls array
     let amount: u256 = 200;
 
-    let recipient = RECIPIENT();
+    let recipient = RECIPIENT;
     let mut calldata = array![];
     calldata.append_serde(recipient);
     calldata.append_serde(amount);
@@ -374,16 +372,11 @@ fn test_execute_with_version(version: Option<felt252>) {
     }
 
     // Execute
-    let ret = account.__execute__(calls);
+    account.__execute__(calls);
 
     // Assert that the transfer was successful
     assert_eq!(erc20.balance_of(account.contract_address), 800, "Should have remainder");
     assert_eq!(erc20.balance_of(recipient), amount, "Should have transferred");
-
-    // Test return value
-    let mut call_serialized_retval = *ret.at(0);
-    let call_retval = Serde::<bool>::deserialize(ref call_serialized_retval);
-    assert!(call_retval.unwrap());
 }
 
 #[test]
@@ -445,8 +438,8 @@ fn test_multicall() {
     let key_pair = KEY_PAIR();
     let (account, _) = setup_dispatcher_with_data(key_pair, SIGNED_TX_DATA(key_pair));
     let erc20 = deploy_erc20(account.contract_address, 1000);
-    let recipient1 = RECIPIENT();
-    let recipient2 = OTHER();
+    let recipient1 = RECIPIENT;
+    let recipient2 = OTHER;
     let mut calls = array![];
 
     // Craft 1st call
@@ -470,32 +463,12 @@ fn test_multicall() {
     // Bundle calls and execute
     calls.append(call1);
     calls.append(call2);
-    let ret = account.__execute__(calls);
+    account.__execute__(calls);
 
     // Assert that the transfers were successful
     assert_eq!(erc20.balance_of(account.contract_address), 200, "Should have remainder");
     assert_eq!(erc20.balance_of(recipient1), 300, "Should have transferred");
     assert_eq!(erc20.balance_of(recipient2), 500, "Should have transferred");
-
-    // Test return value
-    let mut call1_serialized_retval = *ret.at(0);
-    let mut call2_serialized_retval = *ret.at(1);
-
-    let call1_retval = Serde::<bool>::deserialize(ref call1_serialized_retval);
-    assert!(call1_retval.unwrap());
-
-    let call2_retval = Serde::<bool>::deserialize(ref call2_serialized_retval);
-    assert!(call2_retval.unwrap());
-}
-
-#[test]
-fn test_multicall_zero_calls() {
-    let key_pair = KEY_PAIR();
-    let (account, _) = setup_dispatcher_with_data(key_pair, SIGNED_TX_DATA(key_pair));
-
-    let calls = array![];
-    let response = account.__execute__(calls);
-    assert!(response.is_empty());
 }
 
 #[test]
@@ -505,7 +478,7 @@ fn test_account_called_from_contract() {
     let (account_address, dispatcher) = setup_dispatcher(key_pair);
 
     let calls = array![];
-    start_cheat_caller_address(account_address, CALLER());
+    start_cheat_caller_address(account_address, CALLER);
     dispatcher.__execute__(calls);
 }
 
@@ -519,7 +492,7 @@ fn test_upgrade_access_control() {
     let key_pair = KEY_PAIR();
     let (_, v1_dispatcher) = setup_dispatcher(key_pair);
 
-    v1_dispatcher.upgrade(CLASS_HASH_ZERO());
+    v1_dispatcher.upgrade(CLASS_HASH_ZERO);
 }
 
 #[test]
@@ -529,7 +502,7 @@ fn test_upgrade_with_class_hash_zero() {
     let (account_address, v1_dispatcher) = setup_dispatcher(key_pair);
 
     start_cheat_caller_address(account_address, account_address);
-    v1_dispatcher.upgrade(CLASS_HASH_ZERO());
+    v1_dispatcher.upgrade(CLASS_HASH_ZERO);
 }
 
 #[test]
@@ -609,12 +582,12 @@ fn test_execute_from_outside_v2_specific_caller() {
     let (account_address, dispatcher) = setup_dispatcher(key_pair);
     let simple_mock = setup_simple_mock();
     let mut outside_execution = setup_outside_execution(simple_mock, false);
-    outside_execution.caller = CALLER();
+    outside_execution.caller = CALLER;
 
     let msg_hash = outside_execution.get_message_hash(account_address);
     let signature = key_pair.serialized_sign(msg_hash);
 
-    cheat_caller_address(account_address, CALLER(), CheatSpan::TargetCalls(1));
+    cheat_caller_address(account_address, CALLER, CheatSpan::TargetCalls(1));
 
     dispatcher.execute_from_outside_v2(outside_execution, signature.span());
 
@@ -648,9 +621,9 @@ fn test_execute_from_outside_v2_caller_mismatch() {
     let key_pair = KEY_PAIR();
     let (account_address, dispatcher) = setup_dispatcher(key_pair);
     let mut outside_execution = setup_outside_execution(account_address, false);
-    outside_execution.caller = CALLER();
+    outside_execution.caller = CALLER;
 
-    start_cheat_caller_address(account_address, OTHER());
+    start_cheat_caller_address(account_address, OTHER);
 
     dispatcher.execute_from_outside_v2(outside_execution, array![].span());
 }
@@ -756,7 +729,7 @@ fn setup_outside_execution(target: ContractAddress, panic: bool) -> OutsideExecu
         selector: selector!("set_balance"),
         calldata: array![FELT_VALUE, panic.into()].span(),
     };
-    let caller = contract_address_const::<'ANY_CALLER'>();
+    let caller = 'ANY_CALLER'.try_into().unwrap();
     let nonce = 5;
     let execute_after = 10;
     let execute_before = 20;

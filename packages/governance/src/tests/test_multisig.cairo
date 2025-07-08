@@ -1,21 +1,21 @@
 use core::integer::u128_safe_divmod;
 use core::num::traits::{Bounded, Zero};
-use crate::multisig::MultisigComponent::{CallSalt, QuorumUpdated, SignerAdded, SignerRemoved};
-use crate::multisig::MultisigComponent::{ConfirmationRevoked, TransactionExecuted};
-use crate::multisig::MultisigComponent::{Event, InternalImpl, MultisigImpl};
-use crate::multisig::MultisigComponent::{TransactionConfirmed, TransactionSubmitted};
-use crate::multisig::storage_utils::{SignersInfo, SignersInfoStorePackingV2};
-use crate::multisig::{MultisigComponent, TransactionID, TransactionState};
-use openzeppelin_test_common::mocks::multisig::IMultisigTargetMockDispatcherTrait;
-use openzeppelin_test_common::mocks::multisig::{IMultisigTargetMockDispatcher, MultisigWalletMock};
+use openzeppelin_test_common::mocks::multisig::{
+    IMultisigTargetMockDispatcher, IMultisigTargetMockDispatcherTrait, MultisigWalletMock,
+};
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{ALICE, BLOCK_NUMBER, BOB, CHARLIE, OTHER, SALT, ZERO};
-use openzeppelin_testing::events::EventSpyExt;
-use snforge_std::{EventSpy, spy_events, test_address};
-use snforge_std::{start_cheat_block_number_global, start_cheat_caller_address};
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
+use snforge_std::{start_cheat_block_number_global, start_cheat_caller_address, test_address};
+use starknet::ContractAddress;
 use starknet::account::Call;
 use starknet::storage_access::StorePacking;
-use starknet::{ContractAddress, contract_address_const};
+use crate::multisig::MultisigComponent::{
+    CallSalt, ConfirmationRevoked, Event, InternalImpl, MultisigImpl, QuorumUpdated, SignerAdded,
+    SignerRemoved, TransactionConfirmed, TransactionExecuted, TransactionSubmitted,
+};
+use crate::multisig::storage_utils::{SignersInfo, SignersInfoStorePackingV2};
+use crate::multisig::{MultisigComponent, TransactionID, TransactionState};
 
 //
 // Setup
@@ -28,14 +28,12 @@ fn COMPONENT_STATE() -> ComponentState {
 }
 
 fn DEFAULT_DATA() -> (u32, Span<ContractAddress>) {
-    let signers = array![ALICE(), BOB(), CHARLIE()];
+    let signers = array![ALICE, BOB, CHARLIE];
     let quorum = signers.len() - 1;
     (quorum, signers.span())
 }
 
-fn MOCK_ADDRESS() -> ContractAddress {
-    contract_address_const::<'MOCK_ADDRESS'>()
-}
+const MOCK_ADDRESS: ContractAddress = 'MOCK_ADDRESS'.try_into().unwrap();
 
 fn setup_component(quorum: u32, signers: Span<ContractAddress>) -> ComponentState {
     start_cheat_block_number_global(BLOCK_NUMBER);
@@ -45,7 +43,7 @@ fn setup_component(quorum: u32, signers: Span<ContractAddress>) -> ComponentStat
 }
 
 fn deploy_mock() -> IMultisigTargetMockDispatcher {
-    let contract_address = MOCK_ADDRESS();
+    let contract_address = MOCK_ADDRESS;
     utils::declare_and_deploy_at("MultisigTargetMock", contract_address, array![]);
     IMultisigTargetMockDispatcher { contract_address }
 }
@@ -78,7 +76,7 @@ fn test_submit_tx() {
     let expected_id = state.hash_transaction(to, selector, calldata, salt);
     assert_tx_state(expected_id, TransactionState::NotFound);
 
-    let signer = ALICE();
+    let signer = ALICE;
     start_cheat_caller_address(contract_address, signer);
 
     let id = state.submit_transaction(to, selector, calldata, salt);
@@ -100,7 +98,7 @@ fn test_submit_tx_with_salt() {
     let expected_id = state.hash_transaction(to, selector, calldata, salt);
     assert_tx_state(expected_id, TransactionState::NotFound);
 
-    let signer = ALICE();
+    let signer = ALICE;
     start_cheat_caller_address(contract_address, signer);
 
     let id = state.submit_transaction(to, selector, calldata, salt);
@@ -125,7 +123,7 @@ fn test_submit_same_tx_again_different_salt() {
     let expected_id_2 = state.hash_transaction(to, selector, calldata, salt_2);
     assert!(expected_id_1 != expected_id_2);
 
-    let signer = ALICE();
+    let signer = ALICE;
     start_cheat_caller_address(contract_address, signer);
 
     let id_1 = state.submit_transaction(to, selector, calldata, salt_1);
@@ -157,7 +155,7 @@ fn test_submit_tx_batch() {
     let expected_id = state.hash_transaction_batch(calls, salt);
     assert_tx_state(expected_id, TransactionState::NotFound);
 
-    let signer = ALICE();
+    let signer = ALICE;
     start_cheat_caller_address(contract_address, signer);
 
     let id = state.submit_transaction_batch(calls, salt);
@@ -184,7 +182,7 @@ fn test_submit_tx_batch_with_salt() {
     let expected_id = state.hash_transaction_batch(calls, salt);
     assert_tx_state(expected_id, TransactionState::NotFound);
 
-    let signer = ALICE();
+    let signer = ALICE;
     start_cheat_caller_address(contract_address, signer);
 
     let id = state.submit_transaction_batch(calls, salt);
@@ -214,7 +212,7 @@ fn test_submit_same_tx_batch_different_salt() {
     let expected_id_2 = state.hash_transaction_batch(calls, salt_2);
     assert!(expected_id_1 != expected_id_2);
 
-    let signer = ALICE();
+    let signer = ALICE;
     start_cheat_caller_address(contract_address, signer);
 
     let id_1 = state.submit_transaction_batch(calls, salt_1);
@@ -236,7 +234,7 @@ fn test_cannot_submit_tx_unauthorized() {
     let mut state = setup_component(quorum, signers);
 
     let Call { to, selector, calldata } = build_call(MockCall::AddNumber(42));
-    let signer = OTHER();
+    let signer = OTHER;
     start_cheat_caller_address(test_address(), signer);
     state.submit_transaction(to, selector, calldata, 0);
 }
@@ -253,7 +251,7 @@ fn test_cannot_submit_tx_batch_unauthorized() {
         build_call(MockCall::AddNumber(40)),
     ]
         .span();
-    let signer = OTHER();
+    let signer = OTHER;
     start_cheat_caller_address(test_address(), signer);
     state.submit_transaction_batch(calls, 0);
 }
@@ -265,7 +263,7 @@ fn test_cannot_submit_tx_twice() {
     let mut state = setup_component(quorum, signers);
 
     let Call { to, selector, calldata } = build_call(MockCall::AddNumber(42));
-    let signer = ALICE();
+    let signer = ALICE;
     start_cheat_caller_address(test_address(), signer);
     state.submit_transaction(to, selector, calldata, 0);
     state.submit_transaction(to, selector, calldata, 0);
@@ -283,7 +281,7 @@ fn test_cannot_submit_tx_batch_twice() {
         build_call(MockCall::AddNumber(40)),
     ]
         .span();
-    let signer = ALICE();
+    let signer = ALICE;
     start_cheat_caller_address(test_address(), signer);
     state.submit_transaction_batch(calls, 0);
     state.submit_transaction_batch(calls, 0);
@@ -302,27 +300,27 @@ fn test_confirm_tx() {
     let Call { to, selector, calldata } = build_call(MockCall::AddNumber(42));
 
     // Submit by Alice
-    start_cheat_caller_address(contract_address, ALICE());
+    start_cheat_caller_address(contract_address, ALICE);
     let id = state.submit_transaction(to, selector, calldata, 0);
 
     // Confirm by Bob
     spy.drop_all_events();
-    start_cheat_caller_address(contract_address, BOB());
-    assert_eq!(state.is_confirmed_by(id, BOB()), false);
+    start_cheat_caller_address(contract_address, BOB);
+    assert_eq!(state.is_confirmed_by(id, BOB), false);
     state.confirm_transaction(id);
-    assert_eq!(state.is_confirmed_by(id, BOB()), true);
+    assert_eq!(state.is_confirmed_by(id, BOB), true);
     assert_tx_state(id, TransactionState::Pending);
     assert_eq!(state.get_transaction_confirmations(id), 1);
-    spy.assert_only_event_tx_confirmed(contract_address, id, BOB());
+    spy.assert_only_event_tx_confirmed(contract_address, id, BOB);
 
     // Confirm by Charlie
-    start_cheat_caller_address(contract_address, CHARLIE());
-    assert_eq!(state.is_confirmed_by(id, CHARLIE()), false);
+    start_cheat_caller_address(contract_address, CHARLIE);
+    assert_eq!(state.is_confirmed_by(id, CHARLIE), false);
     state.confirm_transaction(id);
-    assert_eq!(state.is_confirmed_by(id, CHARLIE()), true);
+    assert_eq!(state.is_confirmed_by(id, CHARLIE), true);
     assert_tx_state(id, TransactionState::Confirmed);
     assert_eq!(state.get_transaction_confirmations(id), 2);
-    spy.assert_only_event_tx_confirmed(contract_address, id, CHARLIE());
+    spy.assert_only_event_tx_confirmed(contract_address, id, CHARLIE);
 }
 
 #[test]
@@ -333,15 +331,15 @@ fn test_confirmed_status_changed_when_quorum_increased() {
     let Call { to, selector, calldata } = build_call(MockCall::AddNumber(42));
 
     // Submit by Alice
-    start_cheat_caller_address(contract_address, ALICE());
+    start_cheat_caller_address(contract_address, ALICE);
     let id = state.submit_transaction(to, selector, calldata, 0);
 
     // Confirm by Bob
-    start_cheat_caller_address(contract_address, BOB());
+    start_cheat_caller_address(contract_address, BOB);
     state.confirm_transaction(id);
 
     // Confirm by Charlie
-    start_cheat_caller_address(contract_address, CHARLIE());
+    start_cheat_caller_address(contract_address, CHARLIE);
     state.confirm_transaction(id);
 
     assert_tx_state(id, TransactionState::Confirmed);
@@ -357,11 +355,11 @@ fn test_pending_status_changed_when_quorum_reduced() {
     let Call { to, selector, calldata } = build_call(MockCall::AddNumber(42));
 
     // Submit by Alice
-    start_cheat_caller_address(contract_address, ALICE());
+    start_cheat_caller_address(contract_address, ALICE);
     let id = state.submit_transaction(to, selector, calldata, 0);
 
     // Confirm by Bob
-    start_cheat_caller_address(contract_address, BOB());
+    start_cheat_caller_address(contract_address, BOB);
     state.confirm_transaction(id);
 
     assert_tx_state(id, TransactionState::Pending);
@@ -384,29 +382,29 @@ fn test_confirm_tx_batch() {
         .span();
 
     // Submit by Alice
-    start_cheat_caller_address(contract_address, ALICE());
+    start_cheat_caller_address(contract_address, ALICE);
     let id = state.submit_transaction_batch(calls, 0);
     assert_tx_state(id, TransactionState::Pending);
     assert_eq!(state.get_transaction_confirmations(id), 0);
     spy.drop_all_events();
 
     // Confirm by Bob
-    start_cheat_caller_address(contract_address, BOB());
-    assert_eq!(state.is_confirmed_by(id, BOB()), false);
+    start_cheat_caller_address(contract_address, BOB);
+    assert_eq!(state.is_confirmed_by(id, BOB), false);
     state.confirm_transaction(id);
-    assert_eq!(state.is_confirmed_by(id, BOB()), true);
+    assert_eq!(state.is_confirmed_by(id, BOB), true);
     assert_tx_state(id, TransactionState::Pending);
     assert_eq!(state.get_transaction_confirmations(id), 1);
-    spy.assert_only_event_tx_confirmed(contract_address, id, BOB());
+    spy.assert_only_event_tx_confirmed(contract_address, id, BOB);
 
     // Confirm by Charlie
-    start_cheat_caller_address(contract_address, CHARLIE());
-    assert_eq!(state.is_confirmed_by(id, CHARLIE()), false);
+    start_cheat_caller_address(contract_address, CHARLIE);
+    assert_eq!(state.is_confirmed_by(id, CHARLIE), false);
     state.confirm_transaction(id);
-    assert_eq!(state.is_confirmed_by(id, CHARLIE()), true);
+    assert_eq!(state.is_confirmed_by(id, CHARLIE), true);
     assert_tx_state(id, TransactionState::Confirmed);
     assert_eq!(state.get_transaction_confirmations(id), 2);
-    spy.assert_only_event_tx_confirmed(contract_address, id, CHARLIE());
+    spy.assert_only_event_tx_confirmed(contract_address, id, CHARLIE);
 }
 
 #[test]
@@ -419,7 +417,7 @@ fn test_cannot_confirm_nonexistent_tx() {
     let Call { to, selector, calldata } = build_call(MockCall::AddNumber(42));
     let id = state.hash_transaction(to, selector, calldata, 0);
 
-    start_cheat_caller_address(contract_address, ALICE());
+    start_cheat_caller_address(contract_address, ALICE);
     state.confirm_transaction(id);
 }
 
@@ -432,10 +430,10 @@ fn test_cannot_confirm_tx_unauthorized() {
 
     let Call { to, selector, calldata } = build_call(MockCall::AddNumber(42));
     let id = state.hash_transaction(to, selector, calldata, 0);
-    start_cheat_caller_address(contract_address, ALICE());
+    start_cheat_caller_address(contract_address, ALICE);
     state.submit_transaction(to, selector, calldata, 0);
 
-    start_cheat_caller_address(contract_address, OTHER());
+    start_cheat_caller_address(contract_address, OTHER);
     state.confirm_transaction(id);
 }
 
@@ -449,13 +447,13 @@ fn test_cannot_confirm_tx_twice() {
     // Submit by Alice
     let Call { to, selector, calldata } = build_call(MockCall::AddNumber(42));
     let id = state.hash_transaction(to, selector, calldata, 0);
-    start_cheat_caller_address(contract_address, ALICE());
+    start_cheat_caller_address(contract_address, ALICE);
     state.submit_transaction(to, selector, calldata, 0);
 
     // Confirm by Bob
-    start_cheat_caller_address(contract_address, BOB());
+    start_cheat_caller_address(contract_address, BOB);
     state.confirm_transaction(id);
-    assert_eq!(state.is_confirmed_by(id, BOB()), true);
+    assert_eq!(state.is_confirmed_by(id, BOB), true);
     assert_eq!(state.get_transaction_confirmations(id), 1);
 
     // Try to confirm again by Bob
@@ -475,27 +473,27 @@ fn test_revoke_confirmation() {
 
     // Submit by Alice
     let Call { to, selector, calldata } = build_call(MockCall::AddNumber(42));
-    start_cheat_caller_address(contract_address, ALICE());
+    start_cheat_caller_address(contract_address, ALICE);
     let id = state.submit_transaction(to, selector, calldata, 0);
 
     // Confirm by Bob
-    start_cheat_caller_address(contract_address, BOB());
+    start_cheat_caller_address(contract_address, BOB);
     state.confirm_transaction(id);
 
     // Confirm by Charlie
-    start_cheat_caller_address(contract_address, CHARLIE());
+    start_cheat_caller_address(contract_address, CHARLIE);
     state.confirm_transaction(id);
 
     // Revoke confirmation by Charlie
     spy.drop_all_events();
     assert_tx_state(id, TransactionState::Confirmed);
-    assert_eq!(state.is_confirmed_by(id, CHARLIE()), true);
+    assert_eq!(state.is_confirmed_by(id, CHARLIE), true);
     assert_eq!(state.get_transaction_confirmations(id), 2);
     state.revoke_confirmation(id);
     assert_tx_state(id, TransactionState::Pending);
-    assert_eq!(state.is_confirmed_by(id, CHARLIE()), false);
+    assert_eq!(state.is_confirmed_by(id, CHARLIE), false);
     assert_eq!(state.get_transaction_confirmations(id), 1);
-    spy.assert_only_event_confirmation_revoked(contract_address, id, CHARLIE());
+    spy.assert_only_event_confirmation_revoked(contract_address, id, CHARLIE);
 }
 
 #[test]
@@ -506,26 +504,26 @@ fn test_tx_not_confirmed_after_signer_removal() {
 
     // Submit & confirm by Alice
     let Call { to, selector, calldata } = build_call(MockCall::AddNumber(42));
-    start_cheat_caller_address(contract_address, ALICE());
+    start_cheat_caller_address(contract_address, ALICE);
     let id = state.submit_transaction(to, selector, calldata, 0);
     state.confirm_transaction(id);
 
     // Confirm by Bob
-    start_cheat_caller_address(contract_address, BOB());
+    start_cheat_caller_address(contract_address, BOB);
     state.confirm_transaction(id);
 
     // Check state before removal
     assert_tx_state(id, TransactionState::Confirmed);
-    assert_eq!(state.is_confirmed_by(id, BOB()), true);
+    assert_eq!(state.is_confirmed_by(id, BOB), true);
     assert_eq!(state.get_transaction_confirmations(id), 2);
 
     // Remove Bob from signers
     start_cheat_caller_address(contract_address, contract_address);
-    state.remove_signers(quorum, array![BOB()].span());
+    state.remove_signers(quorum, array![BOB].span());
 
     // Check state after removal
     assert_tx_state(id, TransactionState::Pending);
-    assert_eq!(state.is_confirmed_by(id, BOB()), true);
+    assert_eq!(state.is_confirmed_by(id, BOB), true);
     assert_eq!(state.get_transaction_confirmations(id), 1);
 }
 
@@ -537,30 +535,30 @@ fn test_can_revoke_confirmation_after_being_removed() {
 
     // Submit & confirm by Alice
     let Call { to, selector, calldata } = build_call(MockCall::AddNumber(42));
-    start_cheat_caller_address(contract_address, ALICE());
+    start_cheat_caller_address(contract_address, ALICE);
     let id = state.submit_transaction(to, selector, calldata, 0);
     state.confirm_transaction(id);
 
     // Confirm by Bob
-    start_cheat_caller_address(contract_address, BOB());
+    start_cheat_caller_address(contract_address, BOB);
     state.confirm_transaction(id);
 
     // Remove Bob from signers
     start_cheat_caller_address(contract_address, contract_address);
-    state.remove_signers(quorum, array![BOB()].span());
+    state.remove_signers(quorum, array![BOB].span());
 
     // Check state before revocation
     assert_tx_state(id, TransactionState::Pending);
-    assert_eq!(state.is_confirmed_by(id, BOB()), true);
+    assert_eq!(state.is_confirmed_by(id, BOB), true);
     assert_eq!(state.get_transaction_confirmations(id), 1);
 
     // Revoke confirmation by Bob
-    start_cheat_caller_address(contract_address, BOB());
+    start_cheat_caller_address(contract_address, BOB);
     state.revoke_confirmation(id);
 
     // Check state after revocation
     assert_tx_state(id, TransactionState::Pending);
-    assert_eq!(state.is_confirmed_by(id, BOB()), false);
+    assert_eq!(state.is_confirmed_by(id, BOB), false);
     assert_eq!(state.get_transaction_confirmations(id), 1);
 }
 
@@ -571,12 +569,12 @@ fn test_cannot_revoke_confirmation_has_not_confirmed() {
     let mut state = setup_component(quorum, signers);
 
     // Submit by Alice
-    start_cheat_caller_address(test_address(), ALICE());
+    start_cheat_caller_address(test_address(), ALICE);
     let Call { to, selector, calldata } = build_call(MockCall::AddNumber(42));
     let id = state.submit_transaction(to, selector, calldata, 0);
 
     // Revoke confirmation by Bob
-    start_cheat_caller_address(test_address(), BOB());
+    start_cheat_caller_address(test_address(), BOB);
     state.revoke_confirmation(id);
 }
 
@@ -606,13 +604,13 @@ fn test_execute_tx() {
     // Submit
     let Call { to, selector, calldata } = build_call(MockCall::AddNumber(42));
     let salt = 0;
-    start_cheat_caller_address(contract_address, ALICE());
+    start_cheat_caller_address(contract_address, ALICE);
     let id = state.submit_transaction(to, selector, calldata, salt);
 
     // Confirm
-    start_cheat_caller_address(contract_address, BOB());
+    start_cheat_caller_address(contract_address, BOB);
     state.confirm_transaction(id);
-    start_cheat_caller_address(contract_address, CHARLIE());
+    start_cheat_caller_address(contract_address, CHARLIE);
     state.confirm_transaction(id);
 
     // Check state before
@@ -621,7 +619,7 @@ fn test_execute_tx() {
 
     // Execute
     spy.drop_all_events();
-    start_cheat_caller_address(contract_address, ALICE());
+    start_cheat_caller_address(contract_address, ALICE);
     state.execute_transaction(to, selector, calldata, salt);
 
     // Check state after
@@ -646,13 +644,13 @@ fn test_execute_tx_batch() {
     let salt = 0;
 
     // Submit
-    start_cheat_caller_address(contract_address, ALICE());
+    start_cheat_caller_address(contract_address, ALICE);
     let id = state.submit_transaction_batch(calls, salt);
 
     // Confirm
-    start_cheat_caller_address(contract_address, BOB());
+    start_cheat_caller_address(contract_address, BOB);
     state.confirm_transaction(id);
-    start_cheat_caller_address(contract_address, CHARLIE());
+    start_cheat_caller_address(contract_address, CHARLIE);
     state.confirm_transaction(id);
 
     // Check state before
@@ -661,7 +659,7 @@ fn test_execute_tx_batch() {
 
     // Execute
     spy.drop_all_events();
-    start_cheat_caller_address(contract_address, ALICE());
+    start_cheat_caller_address(contract_address, ALICE);
     state.execute_transaction_batch(calls, salt);
 
     // Check state after
@@ -680,7 +678,7 @@ fn test_cannot_execute_not_submitted_tx() {
     let salt = 0;
 
     // Try to execute
-    start_cheat_caller_address(contract_address, ALICE());
+    start_cheat_caller_address(contract_address, ALICE);
     state.execute_transaction(to, selector, calldata, salt);
 }
 
@@ -694,17 +692,17 @@ fn test_cannot_execute_unauthorized() {
     let salt = 0;
 
     // Submit
-    start_cheat_caller_address(contract_address, ALICE());
+    start_cheat_caller_address(contract_address, ALICE);
     let id = state.submit_transaction(to, selector, calldata, salt);
 
     // Confirm
-    start_cheat_caller_address(contract_address, BOB());
+    start_cheat_caller_address(contract_address, BOB);
     state.confirm_transaction(id);
-    start_cheat_caller_address(contract_address, CHARLIE());
+    start_cheat_caller_address(contract_address, CHARLIE);
     state.confirm_transaction(id);
 
     // Try to execute
-    start_cheat_caller_address(contract_address, OTHER());
+    start_cheat_caller_address(contract_address, OTHER);
     state.execute_transaction(to, selector, calldata, salt);
 }
 
@@ -723,17 +721,17 @@ fn test_cannot_execute_batch_unauthorized() {
     let salt = 0;
 
     // Submit
-    start_cheat_caller_address(contract_address, ALICE());
+    start_cheat_caller_address(contract_address, ALICE);
     let id = state.submit_transaction_batch(calls, salt);
 
     // Confirm
-    start_cheat_caller_address(contract_address, BOB());
+    start_cheat_caller_address(contract_address, BOB);
     state.confirm_transaction(id);
-    start_cheat_caller_address(contract_address, CHARLIE());
+    start_cheat_caller_address(contract_address, CHARLIE);
     state.confirm_transaction(id);
 
     // Try to execute
-    start_cheat_caller_address(contract_address, OTHER());
+    start_cheat_caller_address(contract_address, OTHER);
     state.execute_transaction_batch(calls, salt);
 }
 
@@ -747,11 +745,11 @@ fn test_cannot_execute_not_confirmed() {
     let salt = 0;
 
     // Submit
-    start_cheat_caller_address(contract_address, ALICE());
+    start_cheat_caller_address(contract_address, ALICE);
     let id = state.submit_transaction(to, selector, calldata, salt);
 
     // Confirm once
-    start_cheat_caller_address(contract_address, BOB());
+    start_cheat_caller_address(contract_address, BOB);
     state.confirm_transaction(id);
 
     // Execute
@@ -768,11 +766,11 @@ fn test_cannot_execute_batch_not_confirmed() {
     let salt = 0;
 
     // Submit
-    start_cheat_caller_address(contract_address, ALICE());
+    start_cheat_caller_address(contract_address, ALICE);
     let id = state.submit_transaction(to, selector, calldata, salt);
 
     // Confirm once
-    start_cheat_caller_address(contract_address, BOB());
+    start_cheat_caller_address(contract_address, BOB);
     state.confirm_transaction(id);
 
     // Execute
@@ -790,13 +788,13 @@ fn test_cannot_execute_twice() {
     deploy_mock();
 
     // Submit
-    start_cheat_caller_address(contract_address, ALICE());
+    start_cheat_caller_address(contract_address, ALICE);
     let id = state.submit_transaction(to, selector, calldata, salt);
 
     // Confirm
-    start_cheat_caller_address(contract_address, BOB());
+    start_cheat_caller_address(contract_address, BOB);
     state.confirm_transaction(id);
-    start_cheat_caller_address(contract_address, CHARLIE());
+    start_cheat_caller_address(contract_address, CHARLIE);
     state.confirm_transaction(id);
 
     // Execute 1st time
@@ -817,13 +815,13 @@ fn test_cannot_execute_batch_twice() {
     // Submit
     let Call { to, selector, calldata } = build_call(MockCall::AddNumber(42));
     let salt = 0;
-    start_cheat_caller_address(contract_address, ALICE());
+    start_cheat_caller_address(contract_address, ALICE);
     let id = state.submit_transaction(to, selector, calldata, salt);
 
     // Confirm
-    start_cheat_caller_address(contract_address, BOB());
+    start_cheat_caller_address(contract_address, BOB);
     state.confirm_transaction(id);
-    start_cheat_caller_address(contract_address, CHARLIE());
+    start_cheat_caller_address(contract_address, CHARLIE);
     state.confirm_transaction(id);
 
     // Execute 1st time
@@ -842,7 +840,7 @@ fn test_tx_hash_depends_on_salt() {
     let (quorum, signers) = DEFAULT_DATA();
     let mut state = setup_component(quorum, signers);
     let Call { to, selector, calldata } = build_call(MockCall::AddNumber(42));
-    start_cheat_caller_address(test_address(), ALICE());
+    start_cheat_caller_address(test_address(), ALICE);
 
     let mut salt = 0;
     while salt != 10 {
@@ -863,7 +861,7 @@ fn test_tx_batch_hash_depends_on_salt() {
         build_call(MockCall::AddNumber(40)),
     ]
         .span();
-    start_cheat_caller_address(test_address(), ALICE());
+    start_cheat_caller_address(test_address(), ALICE);
 
     let mut salt = 0;
     while salt != 10 {
@@ -878,7 +876,7 @@ fn test_tx_batch_hash_depends_on_salt() {
 fn test_tx_hash_depends_on_calldata() {
     let (quorum, signers) = DEFAULT_DATA();
     let mut state = setup_component(quorum, signers);
-    start_cheat_caller_address(test_address(), ALICE());
+    start_cheat_caller_address(test_address(), ALICE);
 
     let mut num = 0;
     while num != 10 {
@@ -895,7 +893,7 @@ fn test_tx_hash_depends_on_selector() {
     let (quorum, signers) = DEFAULT_DATA();
     let state = setup_component(quorum, signers);
 
-    let to = MOCK_ADDRESS();
+    let to = MOCK_ADDRESS;
     let empty_calldata = array![].span();
     let id_1 = state.hash_transaction(to, selector!("selector_1"), empty_calldata, SALT);
     let id_2 = state.hash_transaction(to, selector!("selector_2"), empty_calldata, SALT);
@@ -911,9 +909,9 @@ fn test_tx_hash_depends_on_to_address() {
     let state = setup_component(quorum, signers);
 
     let Call { to: _, selector, calldata } = build_call(MockCall::AddNumber(42));
-    let id_1 = state.hash_transaction(ALICE(), selector, calldata, SALT);
-    let id_2 = state.hash_transaction(BOB(), selector, calldata, SALT);
-    let id_3 = state.hash_transaction(CHARLIE(), selector, calldata, SALT);
+    let id_1 = state.hash_transaction(ALICE, selector, calldata, SALT);
+    let id_2 = state.hash_transaction(BOB, selector, calldata, SALT);
+    let id_3 = state.hash_transaction(CHARLIE, selector, calldata, SALT);
     assert!(id_1 != id_2);
     assert!(id_2 != id_3);
     assert!(id_1 != id_3);
@@ -926,7 +924,7 @@ fn test_tx_hash_depends_on_to_address() {
 #[test]
 fn test_add_single_signer() {
     let quorum = 1;
-    let (alice, bob, charlie) = (ALICE(), BOB(), CHARLIE());
+    let (alice, bob, charlie) = (ALICE, BOB, CHARLIE);
     let mut state = setup_component(quorum, array![alice].span());
     let contract_address = test_address();
     let mut spy = spy_events();
@@ -946,7 +944,7 @@ fn test_add_single_signer() {
 #[test]
 fn test_add_multiple_signers() {
     let quorum = 1;
-    let (alice, bob, charlie) = (ALICE(), BOB(), CHARLIE());
+    let (alice, bob, charlie) = (ALICE, BOB, CHARLIE);
     let mut state = setup_component(quorum, array![alice].span());
     let contract_address = test_address();
     let mut spy = spy_events();
@@ -962,7 +960,7 @@ fn test_add_multiple_signers() {
 #[test]
 fn test_add_remove_add() {
     let quorum = 1;
-    let (alice, bob, charlie) = (ALICE(), BOB(), CHARLIE());
+    let (alice, bob, charlie) = (ALICE, BOB, CHARLIE);
     let mut state = setup_component(quorum, array![alice].span());
     let contract_address = test_address();
     start_cheat_caller_address(contract_address, contract_address);
@@ -991,7 +989,7 @@ fn test_add_remove_add() {
 #[test]
 fn test_signers_ignored_if_added_again() {
     let quorum = 1;
-    let (alice, bob, charlie) = (ALICE(), BOB(), CHARLIE());
+    let (alice, bob, charlie) = (ALICE, BOB, CHARLIE);
     let mut state = setup_component(quorum, array![alice].span());
     let contract_address = test_address();
     start_cheat_caller_address(contract_address, contract_address);
@@ -1025,11 +1023,11 @@ fn test_add_signers_does_nothing_if_signers_empty() {
 #[should_panic(expected: 'Multisig: unauthorized')]
 fn test_cannot_add_when_not_multisig_itself() {
     let quorum = 1;
-    let (alice, bob) = (ALICE(), BOB());
+    let (alice, bob) = (ALICE, BOB);
     let mut state = setup_component(quorum, array![alice].span());
 
     // Try to add signer
-    start_cheat_caller_address(test_address(), OTHER());
+    start_cheat_caller_address(test_address(), OTHER);
     state.add_signers(quorum, array![bob].span());
 }
 
@@ -1037,19 +1035,19 @@ fn test_cannot_add_when_not_multisig_itself() {
 #[should_panic(expected: 'Multisig: zero address signer')]
 fn test_cannot_add_zero_address_as_signer() {
     let quorum = 1;
-    let mut state = setup_component(quorum, array![ALICE()].span());
+    let mut state = setup_component(quorum, array![ALICE].span());
     let contract_address = test_address();
     start_cheat_caller_address(contract_address, contract_address);
 
     // Try to add zero address as signer
-    state.add_signers(quorum, array![ZERO()].span());
+    state.add_signers(quorum, array![ZERO].span());
 }
 
 #[test]
 #[should_panic(expected: 'Multisig: quorum cannot be 0')]
 fn test_cannot_add_with_zero_quorum() {
     let quorum = 1;
-    let (alice, bob) = (ALICE(), BOB());
+    let (alice, bob) = (ALICE, BOB);
     let mut state = setup_component(quorum, array![alice].span());
     let contract_address = test_address();
     start_cheat_caller_address(contract_address, contract_address);
@@ -1062,7 +1060,7 @@ fn test_cannot_add_with_zero_quorum() {
 #[should_panic(expected: 'Multisig: quorum > signers')]
 fn test_cannot_add_with_quorum_too_high() {
     let quorum = 1;
-    let (alice, bob, charlie) = (ALICE(), BOB(), CHARLIE());
+    let (alice, bob, charlie) = (ALICE, BOB, CHARLIE);
     let mut state = setup_component(quorum, array![alice].span());
     let contract_address = test_address();
     start_cheat_caller_address(contract_address, contract_address);
@@ -1078,7 +1076,7 @@ fn test_cannot_add_with_quorum_too_high() {
 #[test]
 fn test_remove_single_signer() {
     let quorum = 1;
-    let (alice, bob, charlie) = (ALICE(), BOB(), CHARLIE());
+    let (alice, bob, charlie) = (ALICE, BOB, CHARLIE);
     let mut state = setup_component(quorum, array![alice, bob, charlie].span());
     let contract_address = test_address();
     let mut spy = spy_events();
@@ -1101,7 +1099,7 @@ fn test_remove_single_signer() {
 #[test]
 fn test_remove_multiple_signers() {
     let quorum = 1;
-    let (alice, bob, charlie, other) = (ALICE(), BOB(), CHARLIE(), OTHER());
+    let (alice, bob, charlie, other) = (ALICE, BOB, CHARLIE, OTHER);
     let mut state = setup_component(quorum, array![alice, bob, charlie, other].span());
     let contract_address = test_address();
     let mut spy = spy_events();
@@ -1120,7 +1118,7 @@ fn test_remove_multiple_signers() {
 #[test]
 fn test_remove_add_remove() {
     let quorum = 1;
-    let (alice, bob, charlie) = (ALICE(), BOB(), CHARLIE());
+    let (alice, bob, charlie) = (ALICE, BOB, CHARLIE);
     let mut state = setup_component(quorum, array![alice, bob, charlie].span());
     let contract_address = test_address();
     start_cheat_caller_address(contract_address, contract_address);
@@ -1144,7 +1142,7 @@ fn test_remove_add_remove() {
 #[test]
 fn test_not_signers_ignored_when_removing() {
     let quorum = 1;
-    let (alice, bob, charlie, other) = (ALICE(), BOB(), CHARLIE(), OTHER());
+    let (alice, bob, charlie, other) = (ALICE, BOB, CHARLIE, OTHER);
     let mut state = setup_component(quorum, array![alice, bob, charlie].span());
     let contract_address = test_address();
     start_cheat_caller_address(contract_address, contract_address);
@@ -1161,7 +1159,7 @@ fn test_not_signers_ignored_when_removing() {
 #[test]
 fn test_remove_signers_does_nothing_if_signers_empty() {
     let quorum = 1;
-    let (alice, bob, charlie) = (ALICE(), BOB(), CHARLIE());
+    let (alice, bob, charlie) = (ALICE, BOB, CHARLIE);
     let mut state = setup_component(quorum, array![alice, bob, charlie].span());
     let contract_address = test_address();
     start_cheat_caller_address(contract_address, contract_address);
@@ -1178,11 +1176,11 @@ fn test_remove_signers_does_nothing_if_signers_empty() {
 #[should_panic(expected: 'Multisig: unauthorized')]
 fn test_cannot_remove_when_not_multisig_itself() {
     let quorum = 1;
-    let (alice, bob, charlie) = (ALICE(), BOB(), CHARLIE());
+    let (alice, bob, charlie) = (ALICE, BOB, CHARLIE);
     let mut state = setup_component(quorum, array![alice, bob, charlie].span());
 
     // Try to call 'remove_signers' from Other
-    start_cheat_caller_address(test_address(), OTHER());
+    start_cheat_caller_address(test_address(), OTHER);
     state.remove_signers(quorum, array![alice].span());
 }
 
@@ -1190,7 +1188,7 @@ fn test_cannot_remove_when_not_multisig_itself() {
 #[should_panic(expected: 'Multisig: quorum cannot be 0')]
 fn test_cannot_remove_with_zero_quorum() {
     let quorum = 1;
-    let (alice, bob, charlie) = (ALICE(), BOB(), CHARLIE());
+    let (alice, bob, charlie) = (ALICE, BOB, CHARLIE);
     let mut state = setup_component(quorum, array![alice, bob, charlie].span());
     let contract_address = test_address();
     start_cheat_caller_address(contract_address, contract_address);
@@ -1203,7 +1201,7 @@ fn test_cannot_remove_with_zero_quorum() {
 #[should_panic(expected: 'Multisig: quorum > signers')]
 fn test_cannot_remove_with_quorum_too_high() {
     let quorum = 1;
-    let (alice, bob, charlie) = (ALICE(), BOB(), CHARLIE());
+    let (alice, bob, charlie) = (ALICE, BOB, CHARLIE);
     let mut state = setup_component(quorum, array![alice, bob, charlie].span());
     let contract_address = test_address();
     start_cheat_caller_address(contract_address, contract_address);
@@ -1216,7 +1214,7 @@ fn test_cannot_remove_with_quorum_too_high() {
 #[should_panic(expected: 'Multisig: quorum > signers')]
 fn test_cannot_remove_with_unchanged_quorum_that_becomes_too_high() {
     let quorum = 4;
-    let (alice, bob, charlie, other) = (ALICE(), BOB(), CHARLIE(), OTHER());
+    let (alice, bob, charlie, other) = (ALICE, BOB, CHARLIE, OTHER);
     let mut state = setup_component(quorum, array![alice, bob, charlie, other].span());
     let contract_address = test_address();
     start_cheat_caller_address(contract_address, contract_address);
@@ -1233,7 +1231,7 @@ fn test_cannot_remove_with_unchanged_quorum_that_becomes_too_high() {
 #[test]
 fn test_replace_signer() {
     let quorum = 1;
-    let (alice, bob, charlie) = (ALICE(), BOB(), CHARLIE());
+    let (alice, bob, charlie) = (ALICE, BOB, CHARLIE);
     let mut state = setup_component(quorum, array![alice, bob].span());
     let contract_address = test_address();
     let mut spy = spy_events();
@@ -1259,20 +1257,20 @@ fn test_replace_signer() {
 #[should_panic(expected: 'Multisig: not a signer')]
 fn test_cannot_replace_not_signer() {
     let quorum = 1;
-    let (alice, bob, charlie) = (ALICE(), BOB(), CHARLIE());
+    let (alice, bob, charlie) = (ALICE, BOB, CHARLIE);
     let mut state = setup_component(quorum, array![alice, bob].span());
     let contract_address = test_address();
     start_cheat_caller_address(contract_address, contract_address);
 
     // Try to replace not a signer
-    state.replace_signer(OTHER(), charlie);
+    state.replace_signer(OTHER, charlie);
 }
 
 #[test]
 #[should_panic(expected: 'Multisig: already a signer')]
 fn test_cannot_replace_with_existing_signer() {
     let quorum = 1;
-    let (alice, bob) = (ALICE(), BOB());
+    let (alice, bob) = (ALICE, BOB);
     let mut state = setup_component(quorum, array![alice, bob].span());
     let contract_address = test_address();
     start_cheat_caller_address(contract_address, contract_address);
@@ -1285,13 +1283,13 @@ fn test_cannot_replace_with_existing_signer() {
 #[should_panic(expected: 'Multisig: zero address signer')]
 fn test_cannot_replace_with_zero_address() {
     let quorum = 1;
-    let (alice, bob, charlie) = (ALICE(), BOB(), CHARLIE());
+    let (alice, bob, charlie) = (ALICE, BOB, CHARLIE);
     let mut state = setup_component(quorum, array![alice, bob, charlie].span());
     let contract_address = test_address();
     start_cheat_caller_address(contract_address, contract_address);
 
     // Try to replace with zero address
-    state.replace_signer(alice, ZERO());
+    state.replace_signer(alice, ZERO);
 }
 
 //
@@ -1402,7 +1400,7 @@ fn test_cannot_set_quorum_too_high() {
 fn test_cannot_change_quorum_when_not_multisig_itself() {
     let (initial_quorum, signers) = DEFAULT_DATA();
     let mut state = setup_component(initial_quorum, signers);
-    start_cheat_caller_address(test_address(), OTHER());
+    start_cheat_caller_address(test_address(), OTHER);
 
     // Try to set quorum to 0
     state.change_quorum(0);
@@ -1470,7 +1468,7 @@ fn build_call(call: MockCall) -> Call {
         MockCall::FailingFn => (selector!("failing_function"), array![]),
         MockCall::BadSelector => (selector!("bad_selector"), array![]),
     };
-    Call { to: MOCK_ADDRESS(), selector, calldata: calldata.span() }
+    Call { to: MOCK_ADDRESS, selector, calldata: calldata.span() }
 }
 
 fn assert_tx_state(id: TransactionID, expected_state: TransactionState) {

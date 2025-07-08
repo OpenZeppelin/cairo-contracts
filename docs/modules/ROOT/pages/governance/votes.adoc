@@ -181,7 +181,7 @@ pub mod ERC721VotesContract {
     // For this, we use the `before_update` hook of the
     //`ERC721Component::ERC721HooksTrait`.
     // This hook is called before the transfer is executed.
-    // This  gives us access to the previous owner.
+    // This gives us access to the previous owner.
     impl ERC721VotesHooksImpl of ERC721Component::ERC721HooksTrait<ContractState> {
         fn before_update(
             ref self: ERC721Component::ComponentState<ContractState>,

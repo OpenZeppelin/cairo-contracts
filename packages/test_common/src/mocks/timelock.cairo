@@ -1,40 +1,15 @@
 #[starknet::contract]
+#[with_components(AccessControl, SRC5, TimelockController)]
 pub mod TimelockControllerMock {
-    use openzeppelin_access::accesscontrol::AccessControlComponent;
-    use openzeppelin_governance::timelock::TimelockControllerComponent;
-    use openzeppelin_introspection::src5::SRC5Component;
     use starknet::ContractAddress;
-
-    component!(path: AccessControlComponent, storage: access_control, event: AccessControlEvent);
-    component!(path: SRC5Component, storage: src5, event: SRC5Event);
-    component!(path: TimelockControllerComponent, storage: timelock, event: TimelockEvent);
 
     // Timelock Mixin
     #[abi(embed_v0)]
     impl TimelockMixinImpl =
         TimelockControllerComponent::TimelockMixinImpl<ContractState>;
-    impl TimelockInternalImpl = TimelockControllerComponent::InternalImpl<ContractState>;
 
     #[storage]
-    pub struct Storage {
-        #[substorage(v0)]
-        pub access_control: AccessControlComponent::Storage,
-        #[substorage(v0)]
-        pub src5: SRC5Component::Storage,
-        #[substorage(v0)]
-        pub timelock: TimelockControllerComponent::Storage,
-    }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        #[flat]
-        AccessControlEvent: AccessControlComponent::Event,
-        #[flat]
-        SRC5Event: SRC5Component::Event,
-        #[flat]
-        TimelockEvent: TimelockControllerComponent::Event,
-    }
+    pub struct Storage {}
 
     #[constructor]
     fn constructor(
@@ -44,7 +19,8 @@ pub mod TimelockControllerMock {
         executors: Span<ContractAddress>,
         admin: ContractAddress,
     ) {
-        self.timelock.initializer(min_delay, proposers, executors, admin);
+        self.timelock_controller.initializer(min_delay, proposers, executors, admin);
+        self.access_control.initializer();
     }
 }
 
@@ -76,7 +52,7 @@ pub mod MockContract {
         }
 
         fn failing_function(self: @ContractState) {
-            core::panic_with_felt252('Expected failure');
+            core::panic_with_const_felt252::<'Expected failure'>();
         }
     }
 }

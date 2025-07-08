@@ -1,15 +1,15 @@
-use crate::erc721::ERC721Component::{ERC721Impl, InternalImpl as ERC721InternalImpl};
-use crate::erc721::extensions::erc721_enumerable::ERC721EnumerableComponent;
-use crate::erc721::extensions::erc721_enumerable::ERC721EnumerableComponent::{
-    ERC721EnumerableImpl, InternalImpl,
-};
-use crate::erc721::extensions::erc721_enumerable::interface::IERC721ENUMERABLE_ID;
 use openzeppelin_introspection::interface::ISRC5_ID;
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin_test_common::mocks::erc721::ERC721EnumerableMock;
 use openzeppelin_testing::constants::{OTHER, OWNER, RECIPIENT, ZERO};
 use starknet::ContractAddress;
 use starknet::storage::StorageMapReadAccess;
+use crate::erc721::ERC721Component::{ERC721Impl, InternalImpl as ERC721InternalImpl};
+use crate::erc721::extensions::erc721_enumerable::ERC721EnumerableComponent;
+use crate::erc721::extensions::erc721_enumerable::ERC721EnumerableComponent::{
+    ERC721EnumerableImpl, InternalImpl,
+};
+use crate::erc721::extensions::erc721_enumerable::interface::IERC721ENUMERABLE_ID;
 
 // Token IDs
 const TOKEN_1: u256 = 'TOKEN_1';
@@ -40,8 +40,8 @@ fn setup() -> (ComponentState, Span<u256>) {
 
     let tokens_list = array![TOKEN_1, TOKEN_2, TOKEN_3].span();
     for token in tokens_list {
-        mock_state.erc721.mint(OWNER(), *token);
-    };
+        mock_state.erc721.mint(OWNER, *token);
+    }
 
     (state, tokens_list)
 }
@@ -78,7 +78,7 @@ fn test_total_supply() {
     assert_eq!(no_supply, 0);
 
     // Mint
-    contract_state.erc721.mint(OWNER(), token);
+    contract_state.erc721.mint(OWNER, token);
 
     let new_supply = state.total_supply();
     assert_eq!(new_supply, 1);
@@ -157,9 +157,9 @@ fn test_token_by_index_burn_and_mint_all() {
     let supply = state.total_supply();
     assert_eq!(supply, 0);
 
-    contract_state.erc721.mint(OWNER(), TOKEN_1);
-    contract_state.erc721.mint(OWNER(), TOKEN_2);
-    contract_state.erc721.mint(OWNER(), TOKEN_3);
+    contract_state.erc721.mint(OWNER, TOKEN_1);
+    contract_state.erc721.mint(OWNER, TOKEN_2);
+    contract_state.erc721.mint(OWNER, TOKEN_3);
 
     let expected_list = array![TOKEN_1, TOKEN_2, TOKEN_3];
     assert_token_by_index(expected_list.span());
@@ -173,7 +173,7 @@ fn test_token_by_index_burn_and_mint_all() {
 fn test_token_of_owner_by_index() {
     let (_, tokens_list) = setup();
 
-    assert_token_of_owner_by_index(OWNER(), tokens_list);
+    assert_token_of_owner_by_index(OWNER, tokens_list);
 }
 
 #[test]
@@ -182,7 +182,7 @@ fn test_token_of_owner_by_index_when_index_equals_owned_tokens() {
     let (state, tokens_list) = setup();
     let owned_token_len = tokens_list.len().into();
 
-    state.token_of_owner_by_index(OWNER(), owned_token_len);
+    state.token_of_owner_by_index(OWNER, owned_token_len);
 }
 
 #[test]
@@ -191,7 +191,7 @@ fn test_token_of_owner_by_index_when_index_exceeds_owned_tokens() {
     let (state, tokens_list) = setup();
     let owned_tokens_len_plus_one = tokens_list.len().into() + 1;
 
-    state.token_of_owner_by_index(OWNER(), owned_tokens_len_plus_one);
+    state.token_of_owner_by_index(OWNER, owned_tokens_len_plus_one);
 }
 
 #[test]
@@ -199,7 +199,7 @@ fn test_token_of_owner_by_index_when_index_exceeds_owned_tokens() {
 fn test_token_of_owner_by_index_when_target_has_no_tokens() {
     let (state, _) = setup();
 
-    state.token_of_owner_by_index(OTHER(), 0);
+    state.token_of_owner_by_index(OTHER, 0);
 }
 
 #[test]
@@ -207,7 +207,7 @@ fn test_token_of_owner_by_index_when_target_has_no_tokens() {
 fn test_token_of_owner_by_index_when_owner_is_zero() {
     let (state, _) = setup();
 
-    state.token_of_owner_by_index(ZERO(), 0);
+    state.token_of_owner_by_index(ZERO, 0);
 }
 
 #[test]
@@ -216,10 +216,10 @@ fn test_token_of_owner_by_index_remove_last_token() {
     let mut contract_state = CONTRACT_STATE();
     let last_token = *tokens_list.at(tokens_list.len() - 1);
 
-    contract_state.erc721.transfer(OWNER(), RECIPIENT(), last_token);
+    contract_state.erc721.transfer(OWNER, RECIPIENT, last_token);
 
     let expected_list = array![TOKEN_1, TOKEN_2];
-    assert_token_of_owner_by_index(OWNER(), expected_list.span());
+    assert_token_of_owner_by_index(OWNER, expected_list.span());
 }
 
 #[test]
@@ -228,12 +228,12 @@ fn test_token_of_owner_by_index_remove_first_token() {
     let mut contract_state = CONTRACT_STATE();
     let first_token = *tokens_list.at(0);
 
-    contract_state.erc721.transfer(OWNER(), RECIPIENT(), first_token);
+    contract_state.erc721.transfer(OWNER, RECIPIENT, first_token);
 
     // Removed tokens are replaced by the last token
     // to prevent indexing gaps
     let expected_list = array![TOKEN_3, TOKEN_2];
-    assert_token_of_owner_by_index(OWNER(), expected_list.span());
+    assert_token_of_owner_by_index(OWNER, expected_list.span());
 }
 
 #[test]
@@ -241,11 +241,11 @@ fn test_token_of_owner_by_index_when_all_tokens_transferred() {
     let (_, tokens_list) = setup();
     let mut contract_state = CONTRACT_STATE();
 
-    contract_state.erc721.transfer(OWNER(), RECIPIENT(), TOKEN_1);
-    contract_state.erc721.transfer(OWNER(), RECIPIENT(), TOKEN_2);
-    contract_state.erc721.transfer(OWNER(), RECIPIENT(), TOKEN_3);
+    contract_state.erc721.transfer(OWNER, RECIPIENT, TOKEN_1);
+    contract_state.erc721.transfer(OWNER, RECIPIENT, TOKEN_2);
+    contract_state.erc721.transfer(OWNER, RECIPIENT, TOKEN_3);
 
-    assert_token_of_owner_by_index(RECIPIENT(), tokens_list);
+    assert_token_of_owner_by_index(RECIPIENT, tokens_list);
 }
 
 //
@@ -263,7 +263,7 @@ fn test_before_update_when_mint() {
     let initial_supply = state.total_supply();
     let new_token = 'TOKEN_4';
 
-    state.before_update(OWNER(), new_token);
+    state.before_update(OWNER, new_token);
 
     // Check new supply
     let new_supply = state.total_supply();
@@ -271,7 +271,7 @@ fn test_before_update_when_mint() {
 
     // Check owner's tokens
     let exp_owner_tokens = array![TOKEN_1, TOKEN_2, TOKEN_3, new_token];
-    assert_owned_tokens_list_after_update(OWNER(), exp_owner_tokens.span());
+    assert_owned_tokens_list_after_update(OWNER, exp_owner_tokens.span());
 
     // Check total tokens list
     let exp_total_tokens = array![TOKEN_1, TOKEN_2, TOKEN_3, new_token];
@@ -282,9 +282,9 @@ fn test_before_update_when_mint() {
 fn test_before_update_when_last_token_burned() {
     let (mut state, tokens_list) = setup();
     let initial_supply = state.total_supply();
-    let last_token_toburn = *tokens_list.at(initial_supply.try_into().unwrap() - 1);
+    let last_token_to_burn = *tokens_list.at(initial_supply.try_into().unwrap() - 1);
 
-    state.before_update(ZERO(), last_token_toburn);
+    state.before_update(ZERO, last_token_to_burn);
 
     // Check new supply
     let new_supply = state.total_supply();
@@ -292,7 +292,7 @@ fn test_before_update_when_last_token_burned() {
 
     // Check owner's tokens
     let exp_owner_tokens = array![TOKEN_1, TOKEN_2];
-    assert_owned_tokens_list_after_update(OWNER(), exp_owner_tokens.span());
+    assert_owned_tokens_list_after_update(OWNER, exp_owner_tokens.span());
 
     // Check total tokens
     let exp_total_tokens = array![TOKEN_1, TOKEN_2];
@@ -305,7 +305,7 @@ fn test_before_update_when_first_token_burned() {
     let initial_supply = state.total_supply();
     let first_token_toburn = *tokens_list.at(0);
 
-    state.before_update(ZERO(), first_token_toburn);
+    state.before_update(ZERO, first_token_toburn);
 
     // Check new supply
     let new_supply = state.total_supply();
@@ -316,7 +316,7 @@ fn test_before_update_when_first_token_burned() {
     //
     // Check owner's tokens
     let exp_owner_tokens = array![TOKEN_3, TOKEN_2];
-    assert_owned_tokens_list_after_update(OWNER(), exp_owner_tokens.span());
+    assert_owned_tokens_list_after_update(OWNER, exp_owner_tokens.span());
 
     // Check total tokens
     let exp_total_tokens = array![TOKEN_3, TOKEN_2];
@@ -329,7 +329,7 @@ fn test_before_update_when_transfer_last_token() {
     let initial_supply = state.total_supply();
     let transfer_token = *tokens_list.at(initial_supply.try_into().unwrap() - 1);
 
-    state.before_update(RECIPIENT(), transfer_token);
+    state.before_update(RECIPIENT, transfer_token);
 
     // Check supply doesn't change
     let new_supply = state.total_supply();
@@ -337,11 +337,11 @@ fn test_before_update_when_transfer_last_token() {
 
     // Check owner's tokens
     let exp_owner_tokens = array![TOKEN_1, TOKEN_2];
-    assert_owned_tokens_list_after_update(OWNER(), exp_owner_tokens.span());
+    assert_owned_tokens_list_after_update(OWNER, exp_owner_tokens.span());
 
     // Check recipient's tokens
     let exp_recipient_tokens = array![transfer_token];
-    assert_owned_tokens_list_after_update(RECIPIENT(), exp_recipient_tokens.span());
+    assert_owned_tokens_list_after_update(RECIPIENT, exp_recipient_tokens.span());
 
     // Check total tokens
     let exp_total_tokens = array![TOKEN_1, TOKEN_2, TOKEN_3];
@@ -354,7 +354,7 @@ fn test_before_update_when_transfer_first_token() {
     let initial_supply = state.total_supply();
     let transfer_token = *tokens_list.at(0);
 
-    state.before_update(RECIPIENT(), transfer_token);
+    state.before_update(RECIPIENT, transfer_token);
 
     // Check supply doesn't change
     let new_supply = state.total_supply();
@@ -365,11 +365,11 @@ fn test_before_update_when_transfer_first_token() {
     //
     // Check owner's tokens
     let exp_owner_tokens = array![TOKEN_3, TOKEN_2];
-    assert_owned_tokens_list_after_update(OWNER(), exp_owner_tokens.span());
+    assert_owned_tokens_list_after_update(OWNER, exp_owner_tokens.span());
 
     // Check recipient's tokens
     let exp_recipient_tokens = array![transfer_token];
-    assert_owned_tokens_list_after_update(RECIPIENT(), exp_recipient_tokens.span());
+    assert_owned_tokens_list_after_update(RECIPIENT, exp_recipient_tokens.span());
 
     // Check all tokens
     let exp_total_tokens = array![TOKEN_1, TOKEN_2, TOKEN_3];
@@ -386,12 +386,12 @@ fn test__add_token_to_owner_enumeration() {
     let new_token_id = 'TOKEN_4';
     let new_token_index = tokens_list.len().into();
 
-    assert_owner_tokens_index_to_id(OWNER(), new_token_index, 0);
+    assert_owner_tokens_index_to_id(OWNER, new_token_index, 0);
     assert_owner_tokens_id_to_index(new_token_id, 0);
 
-    state._add_token_to_owner_enumeration(OWNER(), new_token_id);
+    state._add_token_to_owner_enumeration(OWNER, new_token_id);
 
-    assert_owner_tokens_index_to_id(OWNER(), new_token_index, new_token_id);
+    assert_owner_tokens_index_to_id(OWNER, new_token_index, new_token_id);
     assert_owner_tokens_id_to_index(new_token_id, new_token_index);
 }
 
@@ -429,12 +429,12 @@ fn test__remove_token_from_owner_enumeration_with_last_token() {
     let last_token_index = state.total_supply() - 1;
     let last_token_id = *tokens_list.at(last_token_index.try_into().unwrap());
 
-    assert_owner_tokens_index_to_id(OWNER(), last_token_index, last_token_id);
+    assert_owner_tokens_index_to_id(OWNER, last_token_index, last_token_id);
     assert_owner_tokens_id_to_index(last_token_id, last_token_index);
 
-    state._remove_token_from_owner_enumeration(OWNER(), last_token_id);
+    state._remove_token_from_owner_enumeration(OWNER, last_token_id);
 
-    assert_owner_tokens_index_to_id(OWNER(), last_token_index, 0);
+    assert_owner_tokens_index_to_id(OWNER, last_token_index, 0);
     assert_owner_tokens_id_to_index(last_token_id, 0);
 }
 
@@ -446,14 +446,14 @@ fn test__remove_token_from_owner_enumeration_with_first_token() {
     let last_token_index = tokens_list.len() - 1;
     let last_token_id = *tokens_list.at(last_token_index);
 
-    assert_owner_tokens_index_to_id(OWNER(), first_token_index, first_token_id);
+    assert_owner_tokens_index_to_id(OWNER, first_token_index, first_token_id);
     assert_owner_tokens_id_to_index(first_token_id, first_token_index);
 
-    state._remove_token_from_owner_enumeration(OWNER(), first_token_id);
+    state._remove_token_from_owner_enumeration(OWNER, first_token_id);
 
     // Note that the original last indexed token id is now the first because of the
     // swap-and-pop operation.
-    assert_owner_tokens_index_to_id(OWNER(), first_token_index, last_token_id);
+    assert_owner_tokens_index_to_id(OWNER, first_token_index, last_token_id);
     assert_owner_tokens_id_to_index(first_token_id, 0);
 }
 
@@ -510,7 +510,7 @@ fn test__remove_token_from_all_tokens_enumeration_with_first_token() {
 #[test]
 fn test_all_tokens_of_owner() {
     let (_, tokens_list) = setup();
-    assert_all_tokens_of_owner(OWNER(), tokens_list);
+    assert_all_tokens_of_owner(OWNER, tokens_list);
 }
 
 #[test]
@@ -518,10 +518,10 @@ fn test_all_tokens_of_owner_after_transfer_first_token() {
     let _ = setup();
     let mut contract_state = CONTRACT_STATE();
 
-    contract_state.erc721.transfer(OWNER(), RECIPIENT(), TOKEN_1);
+    contract_state.erc721.transfer(OWNER, RECIPIENT, TOKEN_1);
 
-    assert_all_tokens_of_owner(OWNER(), array![TOKEN_3, TOKEN_2].span());
-    assert_all_tokens_of_owner(RECIPIENT(), array![TOKEN_1].span());
+    assert_all_tokens_of_owner(OWNER, array![TOKEN_3, TOKEN_2].span());
+    assert_all_tokens_of_owner(RECIPIENT, array![TOKEN_1].span());
 }
 
 #[test]
@@ -529,10 +529,10 @@ fn test_all_tokens_of_owner_after_transfer_last_token() {
     let _ = setup();
     let mut contract_state = CONTRACT_STATE();
 
-    contract_state.erc721.transfer(OWNER(), RECIPIENT(), TOKEN_3);
+    contract_state.erc721.transfer(OWNER, RECIPIENT, TOKEN_3);
 
-    assert_all_tokens_of_owner(OWNER(), array![TOKEN_1, TOKEN_2].span());
-    assert_all_tokens_of_owner(RECIPIENT(), array![TOKEN_3].span());
+    assert_all_tokens_of_owner(OWNER, array![TOKEN_1, TOKEN_2].span());
+    assert_all_tokens_of_owner(RECIPIENT, array![TOKEN_3].span());
 }
 
 #[test]
@@ -542,7 +542,7 @@ fn test_all_tokens_of_owner_after_burn_first_token() {
 
     contract_state.erc721.burn(TOKEN_1);
 
-    assert_all_tokens_of_owner(OWNER(), array![TOKEN_3, TOKEN_2].span());
+    assert_all_tokens_of_owner(OWNER, array![TOKEN_3, TOKEN_2].span());
 }
 
 #[test]
@@ -552,7 +552,7 @@ fn test_all_tokens_of_owner_after_burn_last_token() {
 
     contract_state.erc721.burn(TOKEN_3);
 
-    assert_all_tokens_of_owner(OWNER(), array![TOKEN_1, TOKEN_2].span());
+    assert_all_tokens_of_owner(OWNER, array![TOKEN_1, TOKEN_2].span());
 }
 
 //
@@ -569,7 +569,7 @@ fn assert_token_of_owner_by_index(owner: ContractAddress, expected_token_list: S
     assert_eq!(owner_bal, expected_list_len);
 
     let mut i = 0;
-    while i < expected_token_list.len() {
+    while i != expected_token_list.len() {
         let token = state.token_of_owner_by_index(owner, i.into());
         assert_eq!(token, *expected_token_list.at(i));
 
@@ -586,7 +586,7 @@ fn assert_token_by_index(expected_token_list: Span<u256>) {
     assert_eq!(total_supply, expected_list_len);
 
     let mut i = 0;
-    while i < expected_token_list.len() {
+    while i != expected_token_list.len() {
         let token = state.token_by_index(i.into());
         assert_eq!(token, *expected_token_list.at(i));
 
@@ -602,7 +602,7 @@ fn assert_owned_tokens_list_after_update(owner: ContractAddress, expected_list: 
     let state = @COMPONENT_STATE();
 
     let mut i = 0;
-    while i < expected_list.len() {
+    while i != expected_list.len() {
         // Check owned tokens list
         let token = state.ERC721Enumerable_owned_tokens.read((owner, i.into()));
         assert_eq!(token, *expected_list.at(i));

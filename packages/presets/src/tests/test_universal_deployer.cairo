@@ -1,16 +1,16 @@
-use crate::universal_deployer::UniversalDeployer;
-use crate::universal_deployer::UniversalDeployer::ContractDeployed;
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{CALLER, NAME, RECIPIENT, SALT, SUPPLY, SYMBOL};
-use openzeppelin_testing::events::EventSpyExt;
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use openzeppelin_utils::deployments::{DeployerInfo, calculate_contract_address_from_udc};
 use openzeppelin_utils::interfaces::{
-    IUniversalDeployerDispatcher, IUniversalDeployerDispatcherTrait,
+    UniversalDeployerABIDispatcher, UniversalDeployerABIDispatcherTrait,
 };
 use openzeppelin_utils::serde::SerializedAppend;
-use snforge_std::{EventSpy, spy_events, start_cheat_caller_address};
+use snforge_std::start_cheat_caller_address;
 use starknet::{ClassHash, ContractAddress};
+use crate::universal_deployer::UniversalDeployer;
+use crate::universal_deployer::UniversalDeployer::ContractDeployed;
 
 fn ERC20_CLASS_HASH() -> ClassHash {
     utils::declare_class("DualCaseERC20Mock").class_hash
@@ -21,26 +21,35 @@ fn ERC20_CALLDATA() -> Span<felt252> {
     calldata.append_serde(NAME());
     calldata.append_serde(SYMBOL());
     calldata.append_serde(SUPPLY);
-    calldata.append_serde(RECIPIENT());
+    calldata.append_serde(RECIPIENT);
     calldata.span()
 }
 
-fn deploy_udc() -> IUniversalDeployerDispatcher {
+fn deploy_udc() -> UniversalDeployerABIDispatcher {
     let mut calldata = array![];
 
     let address = utils::declare_and_deploy("UniversalDeployer", calldata);
-    IUniversalDeployerDispatcher { contract_address: address }
+    UniversalDeployerABIDispatcher { contract_address: address }
 }
 
 #[test]
 fn test_deploy_from_zero() {
+    test_deploy_from_zero_internal(false);
+}
+
+#[test]
+fn test_deploy_from_zero_camel_case() {
+    test_deploy_from_zero_internal(true);
+}
+
+fn test_deploy_from_zero_internal(camel_case: bool) {
     let udc = deploy_udc();
-    let caller = CALLER();
+    let caller = CALLER;
 
     // Deploy args
     let erc20_class_hash = ERC20_CLASS_HASH();
     let salt = SALT;
-    let from_zero = true;
+    let not_from_zero = false;
     let erc20_calldata = ERC20_CALLDATA();
 
     let mut spy = spy_events();
@@ -50,7 +59,11 @@ fn test_deploy_from_zero() {
     let expected_addr = calculate_contract_address_from_udc(
         salt, erc20_class_hash, erc20_calldata, Option::None,
     );
-    let deployed_addr = udc.deploy_contract(erc20_class_hash, salt, from_zero, erc20_calldata);
+    let deployed_addr = if camel_case {
+        udc.deployContract(erc20_class_hash, salt, not_from_zero, erc20_calldata)
+    } else {
+        udc.deploy_contract(erc20_class_hash, salt, not_from_zero, erc20_calldata)
+    };
     assert_eq!(expected_addr, deployed_addr);
 
     // Drop ERC20 event, check deploy event
@@ -60,7 +73,7 @@ fn test_deploy_from_zero() {
             udc.contract_address,
             deployed_addr,
             caller,
-            from_zero,
+            not_from_zero,
             erc20_class_hash,
             erc20_calldata,
             salt,
@@ -74,13 +87,22 @@ fn test_deploy_from_zero() {
 
 #[test]
 fn test_deploy_not_from_zero() {
+    test_deploy_not_from_zero_internal(false);
+}
+
+#[test]
+fn test_deploy_not_from_zero_camel_case() {
+    test_deploy_not_from_zero_internal(true);
+}
+
+fn test_deploy_not_from_zero_internal(camel_case: bool) {
     let udc = deploy_udc();
-    let caller = CALLER();
+    let caller = CALLER;
 
     // Deploy args
     let erc20_class_hash = ERC20_CLASS_HASH();
     let salt = SALT;
-    let from_zero = false;
+    let not_from_zero = true;
     let erc20_calldata = ERC20_CALLDATA();
 
     let mut spy = spy_events();
@@ -93,7 +115,11 @@ fn test_deploy_not_from_zero() {
         erc20_calldata,
         Option::Some(DeployerInfo { caller_address: caller, udc_address: udc.contract_address }),
     );
-    let deployed_addr = udc.deploy_contract(erc20_class_hash, salt, from_zero, erc20_calldata);
+    let deployed_addr = if camel_case {
+        udc.deployContract(erc20_class_hash, salt, not_from_zero, erc20_calldata)
+    } else {
+        udc.deploy_contract(erc20_class_hash, salt, not_from_zero, erc20_calldata)
+    };
     assert_eq!(expected_addr, deployed_addr);
 
     // Drop ERC20 event, check deploy event
@@ -103,7 +129,7 @@ fn test_deploy_not_from_zero() {
             udc.contract_address,
             deployed_addr,
             caller,
-            from_zero,
+            not_from_zero,
             erc20_class_hash,
             erc20_calldata,
             salt,
@@ -126,13 +152,13 @@ impl UniversalDeployerHelpersImpl of UniversalDeployerSpyHelpers {
         contract: ContractAddress,
         address: ContractAddress,
         deployer: ContractAddress,
-        from_zero: bool,
+        not_from_zero: bool,
         class_hash: ClassHash,
         calldata: Span<felt252>,
         salt: felt252,
     ) {
         let expected = UniversalDeployer::Event::ContractDeployed(
-            ContractDeployed { address, deployer, from_zero, class_hash, calldata, salt },
+            ContractDeployed { address, deployer, not_from_zero, class_hash, calldata, salt },
         );
         self.assert_only_event(contract, expected);
     }

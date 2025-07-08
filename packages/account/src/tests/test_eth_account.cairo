@@ -1,26 +1,29 @@
-use crate::EthAccountComponent;
-use crate::EthAccountComponent::{InternalTrait, SRC6CamelOnlyImpl};
-use crate::EthAccountComponent::{PublicKeyCamelImpl, PublicKeyImpl};
-use crate::interface::{EthAccountABIDispatcher, EthAccountABIDispatcherTrait};
-use crate::interface::{ISRC6, ISRC6_ID};
-use crate::utils::secp256_point::{DebugSecp256Point, Secp256PointPartialEq};
-use crate::utils::signature::Secp256Signature;
 use openzeppelin_introspection::interface::{ISRC5, ISRC5_ID};
-use openzeppelin_test_common::eth_account::EthAccountSpyHelpers;
 use openzeppelin_test_common::eth_account::{
-    SIGNED_TX_DATA, SignedTransactionData, get_accept_ownership_signature,
+    EthAccountSpyHelpers, SIGNED_TX_DATA, SignedTransactionData, get_accept_ownership_signature,
 };
 use openzeppelin_test_common::mocks::account::DualCaseEthAccountMock;
 use openzeppelin_test_common::mocks::simple::{ISimpleMockDispatcher, ISimpleMockDispatcherTrait};
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::secp256k1::{KEY_PAIR, KEY_PAIR_2};
-use openzeppelin_testing::constants::{CALLER, OTHER, ZERO};
-use openzeppelin_testing::constants::{MIN_TRANSACTION_VERSION, QUERY_VERSION, SALT};
+use openzeppelin_testing::constants::{
+    CALLER, MIN_TRANSACTION_VERSION, OTHER, QUERY_VERSION, SALT, ZERO,
+};
 use openzeppelin_testing::signing::Secp256k1KeyPair;
+use openzeppelin_testing::spy_events;
 use openzeppelin_utils::serde::SerializedAppend;
-use snforge_std::{spy_events, start_cheat_signature_global, start_cheat_transaction_hash_global};
-use snforge_std::{start_cheat_caller_address, start_cheat_transaction_version_global, test_address};
+use snforge_std::{
+    start_cheat_caller_address, start_cheat_signature_global, start_cheat_transaction_hash_global,
+    start_cheat_transaction_version_global, test_address,
+};
 use starknet::account::Call;
+use crate::EthAccountComponent;
+use crate::EthAccountComponent::{
+    InternalTrait, PublicKeyCamelImpl, PublicKeyImpl, SRC6CamelOnlyImpl,
+};
+use crate::interface::{EthAccountABIDispatcher, EthAccountABIDispatcherTrait, ISRC6, ISRC6_ID};
+use crate::utils::secp256_point::{DebugSecp256Point, Secp256PointPartialEq};
+use crate::utils::signature::Secp256Signature;
 
 //
 // Setup
@@ -56,7 +59,7 @@ fn setup_dispatcher(
     start_cheat_signature_global(serialized_signature.span());
     start_cheat_transaction_hash_global(data.tx_hash);
     start_cheat_transaction_version_global(MIN_TRANSACTION_VERSION);
-    start_cheat_caller_address(contract_address, ZERO());
+    start_cheat_caller_address(contract_address, ZERO);
 
     (dispatcher, contract_class.class_hash.into())
 }
@@ -235,15 +238,10 @@ fn test_execute_with_version(version: Option<felt252>) {
     }
 
     // Execute
-    let ret = account.__execute__(calls);
+    account.__execute__(calls);
 
     // Assert that the call was successful
     assert_eq!(simple_mock.get_balance(), amount);
-
-    // Test return value
-    let mut call_serialized_retval = *ret.at(0);
-    let call_retval = Serde::<bool>::deserialize(ref call_serialized_retval);
-    assert!(call_retval.unwrap());
 }
 
 #[test]
@@ -310,32 +308,11 @@ fn test_multicall() {
 
     // Bundle calls and execute
     let calls = array![call1, call2];
-    let ret = account.__execute__(calls);
+    account.__execute__(calls);
 
     // Assert that the txs were successful
     let total_balance = amount1 + amount2;
     assert_eq!(simple_mock.get_balance(), total_balance);
-
-    // Test return value
-    let mut call1_serialized_retval = *ret.at(0);
-    let call1_retval = Serde::<bool>::deserialize(ref call1_serialized_retval);
-    assert!(call1_retval.unwrap());
-
-    let mut call2_serialized_retval = *ret.at(1);
-    let call2_retval = Serde::<bool>::deserialize(ref call2_serialized_retval);
-    assert!(call2_retval.unwrap());
-}
-
-#[test]
-fn test_multicall_zero_calls() {
-    let key_pair = KEY_PAIR();
-    let (account, _) = setup_dispatcher(key_pair, SIGNED_TX_DATA(key_pair));
-    let calls = array![];
-
-    let ret = account.__execute__(calls);
-
-    // Test return value
-    assert_eq!(ret.len(), 0, "Should have an empty response");
 }
 
 #[test]
@@ -345,7 +322,7 @@ fn test_account_called_from_contract() {
     let state = setup(key_pair);
 
     let calls = array![];
-    start_cheat_caller_address(test_address(), CALLER());
+    start_cheat_caller_address(test_address(), CALLER);
     state.__execute__(calls);
 }
 
@@ -403,7 +380,7 @@ fn test_public_key_setter_different_account() {
     let key_pair = KEY_PAIR();
     let contract_address = test_address();
 
-    start_cheat_caller_address(contract_address, CALLER());
+    start_cheat_caller_address(contract_address, CALLER);
 
     let new_key_pair = KEY_PAIR_2();
     let signature = get_accept_ownership_signature(
@@ -447,7 +424,7 @@ fn test_public_key_setter_different_account_camel() {
     let key_pair = KEY_PAIR();
     let contract_address = test_address();
 
-    start_cheat_caller_address(contract_address, CALLER());
+    start_cheat_caller_address(contract_address, CALLER);
 
     let new_key_pair = KEY_PAIR_2();
     let signature = get_accept_ownership_signature(
@@ -493,7 +470,7 @@ fn test_assert_only_self_true() {
 fn test_assert_only_self_false() {
     let state = COMPONENT_STATE();
 
-    start_cheat_caller_address(test_address(), OTHER());
+    start_cheat_caller_address(test_address(), OTHER);
     state.assert_only_self();
 }
 

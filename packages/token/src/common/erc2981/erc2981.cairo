@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v1.0.0 (token/src/common/erc2981/erc2981.cairo)
+// OpenZeppelin Contracts for Cairo v2.0.0 (token/src/common/erc2981/erc2981.cairo)
 
 /// # ERC2981 Component
 ///
@@ -20,20 +20,21 @@
 #[starknet::component]
 pub mod ERC2981Component {
     use core::num::traits::Zero;
-    use crate::common::erc2981::interface;
-    use crate::common::erc2981::interface::IERC2981_ID;
     use openzeppelin_access::accesscontrol::AccessControlComponent;
     use openzeppelin_access::accesscontrol::AccessControlComponent::InternalTrait as AccessControlInternalTrait;
     use openzeppelin_access::ownable::OwnableComponent;
     use openzeppelin_access::ownable::OwnableComponent::InternalTrait as OwnableInternalTrait;
     use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
-    use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
+    use openzeppelin_introspection::src5::SRC5Component::{
+        InternalTrait as SRC5InternalTrait, SRC5Impl,
+    };
     use starknet::ContractAddress;
     use starknet::storage::{
         Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
         StoragePointerWriteAccess,
     };
+    use crate::common::erc2981::interface;
+    use crate::common::erc2981::interface::IERC2981_ID;
 
     /// Role for the admin responsible for managing royalty settings.
     pub const ROYALTY_ADMIN_ROLE: felt252 = selector!("ROYALTY_ADMIN_ROLE");
@@ -428,7 +429,6 @@ pub impl DefaultConfig of ERC2981Component::ImmutableConfig {
 #[cfg(test)]
 mod tests {
     use openzeppelin_test_common::mocks::erc2981::ERC2981Mock;
-    use starknet::contract_address_const;
     use super::ERC2981Component;
     use super::ERC2981Component::InternalImpl;
 
@@ -447,7 +447,7 @@ mod tests {
     #[should_panic(expected: 'Invalid fee denominator')]
     fn test_initializer_invalid_config_panics() {
         let mut state = COMPONENT_STATE();
-        let receiver = contract_address_const::<'DEFAULT_RECEIVER'>();
+        let receiver = 'DEFAULT_RECEIVER'.try_into().unwrap();
 
         state.initializer(receiver, 50);
     }

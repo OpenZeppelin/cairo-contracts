@@ -1,18 +1,4 @@
 use core::num::traits::{Bounded, Zero};
-use crate::governor::GovernorComponent::{InternalExtendedImpl, InternalImpl};
-use crate::governor::interface::{IGOVERNOR_ID, IGovernor, ProposalState};
-use crate::governor::interface::{IGovernorDispatcher, IGovernorDispatcherTrait};
-use crate::governor::vote::{Vote, VoteWithReasonAndParams};
-use crate::governor::{DefaultConfig, GovernorComponent, ProposalCore};
-use crate::tests::governor::common::{COMPONENT_STATE, CONTRACT_STATE};
-use crate::tests::governor::common::{
-    get_calls, get_mock_state, get_proposal_info, get_state, hash_proposal,
-};
-use crate::tests::governor::common::{
-    setup_active_proposal, setup_canceled_proposal, setup_defeated_proposal,
-    setup_executed_proposal, setup_pending_proposal, setup_queued_proposal,
-    setup_succeeded_proposal,
-};
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin_test_common::mocks::governor::GovernorMock;
 use openzeppelin_test_common::mocks::governor::GovernorMock::SNIP12MetadataImpl;
@@ -21,25 +7,36 @@ use openzeppelin_test_common::mocks::timelock::{
 };
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{ADMIN, OTHER, VOTES_TOKEN, ZERO};
-use openzeppelin_testing::events::EventSpyExt;
+use openzeppelin_testing::{AsAddressTrait, EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use openzeppelin_utils::bytearray::ByteArrayExtTrait;
 use openzeppelin_utils::cryptography::snip12::OffchainMessageHash;
 use snforge_std::signature::stark_curve::{StarkCurveKeyPairImpl, StarkCurveSignerImpl};
-use snforge_std::{EventSpy, spy_events, test_address};
 use snforge_std::{
     start_cheat_block_timestamp_global, start_cheat_caller_address, start_cheat_chain_id_global,
-    start_mock_call,
+    start_mock_call, test_address,
 };
+use starknet::ContractAddress;
 use starknet::account::Call;
 use starknet::storage::{StorageMapWriteAccess, StoragePathEntry, StoragePointerWriteAccess};
-use starknet::{ContractAddress, contract_address_const};
+use crate::governor::GovernorComponent::{InternalExtendedImpl, InternalImpl};
+use crate::governor::interface::{
+    IGOVERNOR_ID, IGovernor, IGovernorDispatcher, IGovernorDispatcherTrait, ProposalState,
+};
+use crate::governor::vote::{Vote, VoteWithReasonAndParams};
+use crate::governor::{DefaultConfig, GovernorComponent, ProposalCore};
+use crate::tests::governor::common::{
+    COMPONENT_STATE, CONTRACT_STATE, get_calls, get_mock_state, get_proposal_info, get_state,
+    hash_proposal, setup_active_proposal, setup_canceled_proposal, setup_defeated_proposal,
+    setup_executed_proposal, setup_pending_proposal, setup_queued_proposal,
+    setup_succeeded_proposal,
+};
 
 //
 // Dispatchers
 //
 
 fn deploy_governor() -> IGovernorDispatcher {
-    let mut calldata = array![VOTES_TOKEN().into()];
+    let mut calldata = array![VOTES_TOKEN.into()];
 
     let address = utils::declare_and_deploy("GovernorMock", calldata);
     IGovernorDispatcher { contract_address: address }
@@ -92,7 +89,7 @@ fn test_counting_mode() {
 #[test]
 fn test_hash_proposal() {
     let state = COMPONENT_STATE();
-    let calls = get_calls(ZERO(), false);
+    let calls = get_calls(ZERO, false);
     let description = @"proposal description";
     let description_hash = description.hash();
 
@@ -323,6 +320,7 @@ fn test_voting_period() {
 }
 
 #[test]
+#[fuzzer]
 fn test_quorum(timepoint: u64) {
     let state = COMPONENT_STATE();
 
@@ -348,7 +346,7 @@ fn test_get_votes() {
     // Mock the get_past_votes call
     start_mock_call(Zero::zero(), selector!("get_past_votes"), expected_weight);
 
-    let votes = state.get_votes(OTHER(), timepoint);
+    let votes = state.get_votes(OTHER, timepoint);
     assert_eq!(votes, expected_weight);
 }
 
@@ -362,7 +360,7 @@ fn test_get_votes_with_params() {
     // Mock the get_past_votes call
     start_mock_call(Zero::zero(), selector!("get_past_votes"), expected_weight);
 
-    let votes = state.get_votes_with_params(OTHER(), timepoint, params);
+    let votes = state.get_votes_with_params(OTHER, timepoint, params);
     assert_eq!(votes, expected_weight);
 }
 
@@ -379,15 +377,15 @@ fn test_has_voted() {
     let params = array![].span();
 
     // 1. Assert has not voted
-    let has_not_voted = !state.has_voted(id, OTHER());
+    let has_not_voted = !state.has_voted(id, OTHER);
     assert!(has_not_voted);
 
     // 2. Cast vote
     start_mock_call(Zero::zero(), selector!("get_past_votes"), 100_u256);
-    state._cast_vote(id, OTHER(), 0, reason, params);
+    state._cast_vote(id, OTHER, 0, reason, params);
 
     // 3. Assert has voted
-    let has_voted = state.has_voted(id, OTHER());
+    let has_voted = state.has_voted(id, OTHER);
     assert!(has_voted);
 }
 
@@ -400,9 +398,9 @@ fn test_propose_external_version(external_state_version: bool) {
     let mut spy = spy_events();
     let contract_address = test_address();
 
-    let calls = get_calls(OTHER(), false);
-    let proposer = ADMIN();
-    let address = ADMIN().to_byte_array(16, 64);
+    let calls = get_calls(OTHER, false);
+    let proposer = ADMIN;
+    let address = ADMIN.to_byte_array(16, 64);
     let mut description: ByteArray = "proposal description#proposer=0x";
     description.append(@address);
     let description_snap = @description;
@@ -434,7 +432,7 @@ fn test_propose_external_version(external_state_version: bool) {
     // 3. Check proposal
     let proposal = state.get_proposal(id);
     let expected = ProposalCore {
-        proposer: ADMIN(),
+        proposer: ADMIN,
         vote_start: starknet::get_block_timestamp() + GovernorMock::VOTING_DELAY,
         vote_duration: GovernorMock::VOTING_PERIOD,
         executed: false,
@@ -451,7 +449,7 @@ fn test_propose() {
 
     start_cheat_block_timestamp_global(10);
     start_mock_call(Zero::zero(), selector!("get_past_votes"), votes);
-    start_cheat_caller_address(test_address(), ADMIN());
+    start_cheat_caller_address(test_address(), ADMIN);
 
     test_propose_external_version(true);
 }
@@ -460,13 +458,13 @@ fn test_propose() {
 #[should_panic(expected: 'Existent proposal')]
 fn test_propose_existent_proposal() {
     let mut state = COMPONENT_STATE();
-    let calls = get_calls(OTHER(), false);
+    let calls = get_calls(OTHER, false);
     let description = "proposal description";
     let votes = GovernorMock::PROPOSAL_THRESHOLD + 1;
 
     start_cheat_block_timestamp_global(10);
     start_mock_call(Zero::zero(), selector!("get_past_votes"), votes);
-    start_cheat_caller_address(test_address(), ADMIN());
+    start_cheat_caller_address(test_address(), ADMIN);
 
     state.propose(calls, description.clone());
 
@@ -483,7 +481,7 @@ fn test_propose_insufficient_proposer_votes() {
     start_cheat_block_timestamp_global(10);
     start_mock_call(Zero::zero(), selector!("get_past_votes"), votes);
 
-    let calls = get_calls(ZERO(), false);
+    let calls = get_calls(ZERO, false);
     let description = "proposal description";
 
     state.propose(calls, description);
@@ -494,7 +492,7 @@ fn test_propose_insufficient_proposer_votes() {
 fn test_propose_restricted_proposer() {
     let mut state = COMPONENT_STATE();
 
-    let calls = get_calls(ZERO(), false);
+    let calls = get_calls(ZERO, false);
     let description =
         "#proposer=0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d";
 
@@ -523,7 +521,7 @@ fn test_execute() {
 
     // Mock the get_past_votes call
     let quorum = GovernorMock::QUORUM;
-    start_mock_call(VOTES_TOKEN(), selector!("get_past_votes"), quorum);
+    start_mock_call(VOTES_TOKEN, selector!("get_past_votes"), quorum);
 
     // 1. Propose
     let mut current_time = 10;
@@ -576,7 +574,7 @@ fn test_execute_panics() {
 
     // Mock the get_past_votes call
     let quorum = GovernorMock::QUORUM;
-    start_mock_call(VOTES_TOKEN(), selector!("get_past_votes"), quorum);
+    start_mock_call(VOTES_TOKEN, selector!("get_past_votes"), quorum);
 
     // 1. Propose
     let mut current_time = 10;
@@ -609,7 +607,7 @@ fn test_execute_correct_id() {
     let mut mock_state = CONTRACT_STATE();
     setup_succeeded_proposal(ref mock_state, false);
 
-    let calls = get_calls(OTHER(), true);
+    let calls = get_calls(OTHER, true);
     let description = @"proposal description";
 
     let id = mock_state.governor.execute(calls, description.hash());
@@ -622,7 +620,7 @@ fn test_execute_succeeded_passes() {
     let mut mock_state = CONTRACT_STATE();
     setup_succeeded_proposal(ref mock_state, false);
 
-    let calls = get_calls(OTHER(), true);
+    let calls = get_calls(OTHER, true);
     let description = @"proposal description";
 
     mock_state.governor.execute(calls, description.hash());
@@ -633,7 +631,7 @@ fn test_execute_queued_passes() {
     let mut mock_state = CONTRACT_STATE();
     setup_queued_proposal(ref mock_state, false);
 
-    let calls = get_calls(OTHER(), true);
+    let calls = get_calls(OTHER, true);
     let description = @"proposal description";
 
     mock_state.governor.execute(calls, description.hash());
@@ -645,7 +643,7 @@ fn test_execute_pending() {
     let mut state = COMPONENT_STATE();
     setup_pending_proposal(ref state, false);
 
-    let calls = get_calls(OTHER(), false);
+    let calls = get_calls(OTHER, false);
     let description = @"proposal description";
 
     state.execute(calls, description.hash());
@@ -657,7 +655,7 @@ fn test_execute_active() {
     let mut state = COMPONENT_STATE();
     setup_active_proposal(ref state, false);
 
-    let calls = get_calls(OTHER(), false);
+    let calls = get_calls(OTHER, false);
     let description = @"proposal description";
 
     state.execute(calls, description.hash());
@@ -669,7 +667,7 @@ fn test_execute_defeated() {
     let mut mock_state = CONTRACT_STATE();
     setup_defeated_proposal(ref mock_state, false);
 
-    let calls = get_calls(OTHER(), false);
+    let calls = get_calls(OTHER, false);
     let description = @"proposal description";
 
     mock_state.governor.execute(calls, description.hash());
@@ -681,7 +679,7 @@ fn test_execute_canceled() {
     let mut state = COMPONENT_STATE();
     setup_canceled_proposal(ref state, false);
 
-    let calls = get_calls(OTHER(), false);
+    let calls = get_calls(OTHER, false);
     let description = @"proposal description";
 
     state.execute(calls, description.hash());
@@ -693,7 +691,7 @@ fn test_execute_executed() {
     let mut state = COMPONENT_STATE();
     setup_executed_proposal(ref state, false);
 
-    let calls = get_calls(OTHER(), false);
+    let calls = get_calls(OTHER, false);
     let description = @"proposal description";
 
     state.execute(calls, description.hash());
@@ -707,9 +705,9 @@ fn test_execute_executed() {
 fn test_cancel() {
     let mut state = COMPONENT_STATE();
 
-    let calls = get_calls(OTHER(), false);
+    let calls = get_calls(OTHER, false);
     let description = @"proposal description";
-    let proposer = ADMIN();
+    let proposer = ADMIN;
 
     // 1. Propose
     let id = state._propose(calls, description, proposer);
@@ -721,7 +719,7 @@ fn test_cancel() {
     let mut spy = spy_events();
 
     // Proposer must be the caller
-    start_cheat_caller_address(test_address(), ADMIN());
+    start_cheat_caller_address(test_address(), ADMIN);
 
     state.cancel(calls, description.hash());
 
@@ -737,11 +735,11 @@ fn test_cancel_correct_id() {
     let mut state = COMPONENT_STATE();
     setup_pending_proposal(ref state, false);
 
-    let calls = get_calls(OTHER(), false);
+    let calls = get_calls(OTHER, false);
     let description = @"proposal description";
 
     // Proposer must be the caller
-    start_cheat_caller_address(test_address(), ADMIN());
+    start_cheat_caller_address(test_address(), ADMIN);
 
     let id = state.cancel(calls, description.hash());
     let expected_id = hash_proposal(calls, description.hash());
@@ -754,11 +752,11 @@ fn test_cancel_invalid_caller() {
     let mut state = COMPONENT_STATE();
     setup_pending_proposal(ref state, false);
 
-    let calls = get_calls(OTHER(), false);
+    let calls = get_calls(OTHER, false);
     let description = @"proposal description";
 
     // Proposer must be the caller
-    start_cheat_caller_address(test_address(), OTHER());
+    start_cheat_caller_address(test_address(), OTHER);
 
     state.cancel(calls, description.hash());
 }
@@ -769,7 +767,7 @@ fn test_cancel_succeeded() {
     let mut mock_state = CONTRACT_STATE();
     setup_succeeded_proposal(ref mock_state, false);
 
-    let calls = get_calls(OTHER(), true);
+    let calls = get_calls(OTHER, true);
     let description = @"proposal description";
 
     mock_state.governor.cancel(calls, description.hash());
@@ -781,7 +779,7 @@ fn test_cancel_queued() {
     let mut mock_state = CONTRACT_STATE();
     setup_queued_proposal(ref mock_state, false);
 
-    let calls = get_calls(OTHER(), true);
+    let calls = get_calls(OTHER, true);
     let description = @"proposal description";
 
     mock_state.governor.cancel(calls, description.hash());
@@ -793,7 +791,7 @@ fn test_cancel_active() {
     let mut state = COMPONENT_STATE();
     setup_active_proposal(ref state, false);
 
-    let calls = get_calls(OTHER(), false);
+    let calls = get_calls(OTHER, false);
     let description = @"proposal description";
 
     state.cancel(calls, description.hash());
@@ -805,7 +803,7 @@ fn test_cancel_defeated() {
     let mut mock_state = CONTRACT_STATE();
     setup_defeated_proposal(ref mock_state, false);
 
-    let calls = get_calls(OTHER(), false);
+    let calls = get_calls(OTHER, false);
     let description = @"proposal description";
 
     mock_state.governor.cancel(calls, description.hash());
@@ -817,7 +815,7 @@ fn test_cancel_canceled() {
     let mut state = COMPONENT_STATE();
     setup_canceled_proposal(ref state, false);
 
-    let calls = get_calls(OTHER(), false);
+    let calls = get_calls(OTHER, false);
     let description = @"proposal description";
 
     state.cancel(calls, description.hash());
@@ -829,7 +827,7 @@ fn test_cancel_executed() {
     let mut state = COMPONENT_STATE();
     setup_executed_proposal(ref state, false);
 
-    let calls = get_calls(OTHER(), false);
+    let calls = get_calls(OTHER, false);
     let description = @"proposal description";
 
     state.cancel(calls, description.hash());
@@ -860,11 +858,11 @@ fn test_cast_vote_active() {
     // Mock the get_past_votes call
     start_mock_call(Zero::zero(), selector!("get_past_votes"), expected_weight);
 
-    start_cheat_caller_address(contract_address, OTHER());
+    start_cheat_caller_address(contract_address, OTHER);
     let weight = state.cast_vote(id, 0);
     assert_eq!(weight, expected_weight);
 
-    spy.assert_only_event_vote_cast(contract_address, OTHER(), id, 0, expected_weight, @"");
+    spy.assert_only_event_vote_cast(contract_address, OTHER, id, 0, expected_weight, @"");
 }
 
 #[test]
@@ -929,11 +927,11 @@ fn test_cast_vote_with_reason_active() {
     // Mock the get_past_votes call
     start_mock_call(Zero::zero(), selector!("get_past_votes"), expected_weight);
 
-    start_cheat_caller_address(contract_address, OTHER());
+    start_cheat_caller_address(contract_address, OTHER);
     let weight = state.cast_vote_with_reason(id, 0, reason.clone());
     assert_eq!(weight, expected_weight);
 
-    spy.assert_only_event_vote_cast(contract_address, OTHER(), id, 0, expected_weight, @reason);
+    spy.assert_only_event_vote_cast(contract_address, OTHER, id, 0, expected_weight, @reason);
 }
 
 #[test]
@@ -1008,13 +1006,13 @@ fn test_cast_vote_with_reason_and_params_active() {
     // Mock the get_past_votes call
     start_mock_call(Zero::zero(), selector!("get_past_votes"), expected_weight);
 
-    start_cheat_caller_address(contract_address, OTHER());
+    start_cheat_caller_address(contract_address, OTHER);
     let weight = state.cast_vote_with_reason_and_params(id, 0, reason.clone(), params);
     assert_eq!(weight, expected_weight);
 
     spy
         .assert_only_event_vote_cast_with_params(
-            contract_address, OTHER(), id, 0, expected_weight, @reason, params,
+            contract_address, OTHER, id, 0, expected_weight, @reason, params,
         );
 }
 
@@ -1032,11 +1030,11 @@ fn test_cast_vote_with_reason_and_params_active_no_params() {
     // Mock the get_past_votes call
     start_mock_call(Zero::zero(), selector!("get_past_votes"), expected_weight);
 
-    start_cheat_caller_address(contract_address, OTHER());
+    start_cheat_caller_address(contract_address, OTHER);
     let weight = state.cast_vote_with_reason_and_params(id, 0, reason.clone(), params);
     assert_eq!(weight, expected_weight);
 
-    spy.assert_only_event_vote_cast(contract_address, OTHER(), id, 0, expected_weight, @reason);
+    spy.assert_only_event_vote_cast(contract_address, OTHER, id, 0, expected_weight, @reason);
 }
 
 #[test]
@@ -1092,12 +1090,12 @@ fn prepare_governor_and_signature(
     nonce: felt252,
 ) -> (IGovernorDispatcher, felt252, felt252, felt252, u8, ContractAddress, u256) {
     let mut governor = deploy_governor();
-    let calls = get_calls(OTHER(), false);
+    let calls = get_calls(OTHER, false);
     let description = "proposal description";
 
     // Mock the get_past_votes call
     let quorum = GovernorMock::QUORUM;
-    start_mock_call(VOTES_TOKEN(), selector!("get_past_votes"), quorum);
+    start_mock_call(VOTES_TOKEN, selector!("get_past_votes"), quorum);
 
     // 1. Propose
     let mut current_time = 10;
@@ -1161,11 +1159,11 @@ fn test_cast_vote_by_sig_invalid_msg_hash() {
 fn test_cast_vote_by_sig_hash_generation() {
     start_cheat_chain_id_global('SN_TEST');
 
-    let verifying_contract = contract_address_const::<'VERIFIER'>();
+    let verifying_contract = 'VERIFIER'.as_address();
     let nonce = 0;
     let proposal_id = 1;
     let support = 1;
-    let voter = contract_address_const::<'VOTER'>();
+    let voter = 'VOTER'.as_address();
 
     let vote = Vote { verifying_contract, nonce, proposal_id, support, voter };
     let hash = vote.get_message_hash(voter);
@@ -1193,12 +1191,12 @@ fn prepare_governor_and_signature_with_reason_and_params(
     reason: @ByteArray, params: Span<felt252>, nonce: felt252,
 ) -> (IGovernorDispatcher, felt252, felt252, felt252, u8, ContractAddress, u256) {
     let mut governor = deploy_governor();
-    let calls = get_calls(OTHER(), false);
+    let calls = get_calls(OTHER, false);
     let description = "proposal description";
 
     // Mock the get_past_votes call
     let quorum = GovernorMock::QUORUM;
-    start_mock_call(VOTES_TOKEN(), selector!("get_past_votes"), quorum);
+    start_mock_call(VOTES_TOKEN, selector!("get_past_votes"), quorum);
 
     // 1. Propose
     let mut current_time = 10;
@@ -1316,11 +1314,11 @@ fn test_cast_vote_with_reason_and_params_by_sig_invalid_msg_hash() {
 fn test_cast_vote_with_reason_and_params_by_sig_hash_generation() {
     start_cheat_chain_id_global('SN_TEST');
 
-    let verifying_contract = contract_address_const::<'VERIFIER'>();
+    let verifying_contract = 'VERIFIER'.as_address();
     let nonce = 0;
     let proposal_id = 1;
     let support = 1;
-    let voter = contract_address_const::<'VOTER'>();
+    let voter = 'VOTER'.as_address();
     let reason_hash = 'hash';
     let params = array!['param'].span();
     let vote = VoteWithReasonAndParams {
@@ -1352,11 +1350,11 @@ fn test_cast_vote_with_reason_and_params_by_sig_hash_generation() {
 #[test]
 fn test_nonces() {
     let mut state = COMPONENT_STATE();
-    let nonce = state.nonces(OTHER());
+    let nonce = state.nonces(OTHER);
     assert_eq!(nonce, 0);
 
-    state.Governor_nonces.write(OTHER(), 1);
-    let nonce = state.nonces(OTHER());
+    state.Governor_nonces.write(OTHER, 1);
+    let nonce = state.nonces(OTHER);
     assert_eq!(nonce, 1);
 }
 
@@ -1406,9 +1404,9 @@ fn test_relay_panics() {
 #[should_panic(expected: 'Executor only')]
 fn test_relay_invalid_caller() {
     let mut state = COMPONENT_STATE();
-    let call = Call { to: ADMIN(), selector: selector!("foo"), calldata: array![].span() };
+    let call = Call { to: ADMIN, selector: selector!("foo"), calldata: array![].span() };
 
-    start_cheat_caller_address(test_address(), OTHER());
+    start_cheat_caller_address(test_address(), OTHER);
     state.relay(call);
 }
 
@@ -1436,7 +1434,7 @@ fn test_get_empty_proposal() {
 
     let proposal = state.get_proposal(0);
 
-    assert_eq!(proposal.proposer, ZERO());
+    assert_eq!(proposal.proposer, ZERO);
     assert_eq!(proposal.vote_start, 0);
     assert_eq!(proposal.vote_duration, 0);
     assert_eq!(proposal.executed, false);
@@ -1466,7 +1464,7 @@ fn test_is_valid_description_too_short() {
         "fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
     assert_eq!(short_description.len(), 75);
 
-    let is_valid = state.is_valid_description_for_proposer(ADMIN(), @short_description);
+    let is_valid = state.is_valid_description_for_proposer(ADMIN, @short_description);
     assert!(is_valid);
 }
 
@@ -1476,7 +1474,7 @@ fn test_is_valid_description_wrong_suffix() {
     let description =
         "?proposer=0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d";
 
-    let is_valid = state.is_valid_description_for_proposer(ADMIN(), @description);
+    let is_valid = state.is_valid_description_for_proposer(ADMIN, @description);
     assert!(is_valid);
 }
 
@@ -1486,19 +1484,19 @@ fn test_is_valid_description_wrong_proposer() {
     let description =
         "#proposer=0x04718f5a0fc34cc1af16a1cdee98ffb20c31f5cd61d6ab07201858f4287c938d";
 
-    let is_valid = state.is_valid_description_for_proposer(ADMIN(), @description);
+    let is_valid = state.is_valid_description_for_proposer(ADMIN, @description);
     assert!(!is_valid);
 }
 
 #[test]
 fn test_is_valid_description_valid_proposer() {
     let state = COMPONENT_STATE();
-    let address = ADMIN().to_byte_array(16, 64);
+    let address = ADMIN.to_byte_array(16, 64);
     let mut description: ByteArray = "#proposer=0x";
 
     description.append(@address);
 
-    let is_valid = state.is_valid_description_for_proposer(ADMIN(), @description);
+    let is_valid = state.is_valid_description_for_proposer(ADMIN, @description);
     assert!(is_valid);
 }
 
@@ -1509,7 +1507,7 @@ fn test_is_valid_description_valid_proposer() {
 #[test]
 fn test__hash_proposal() {
     let state = COMPONENT_STATE();
-    let calls = get_calls(ZERO(), false);
+    let calls = get_calls(ZERO, false);
     let description = @"proposal description";
     let description_hash = description.hash();
 
@@ -1600,7 +1598,7 @@ fn test_assert_only_governance_not_executor() {
     let mut state = COMPONENT_STATE();
     let contract_address = test_address();
 
-    start_cheat_caller_address(contract_address, OTHER());
+    start_cheat_caller_address(contract_address, OTHER);
 
     state.assert_only_governance();
 }
@@ -1662,7 +1660,7 @@ fn test__get_votes() {
     // Mock the get_past_votes call
     start_mock_call(Zero::zero(), selector!("get_past_votes"), expected_weight);
 
-    let votes = state._get_votes(OTHER(), timepoint, params);
+    let votes = state._get_votes(OTHER, timepoint, params);
     assert_eq!(votes, expected_weight);
 }
 
@@ -1746,9 +1744,9 @@ fn test__propose() {
 #[should_panic(expected: 'Existent proposal')]
 fn test__propose_existent_proposal() {
     let mut state = COMPONENT_STATE();
-    let calls = get_calls(OTHER(), false);
+    let calls = get_calls(OTHER, false);
     let description = @"proposal description";
-    let proposer = ADMIN();
+    let proposer = ADMIN;
 
     let id = state._propose(calls, description, proposer);
     let expected_id = hash_proposal(calls, description.hash());
@@ -1847,7 +1845,7 @@ fn test__cast_vote_pending() {
     let (id, _) = setup_pending_proposal(ref state, false);
     let params = array![].span();
 
-    state._cast_vote(id, OTHER(), 0, "", params);
+    state._cast_vote(id, OTHER, 0, "", params);
 }
 
 #[test]
@@ -1864,10 +1862,10 @@ fn test__cast_vote_active_no_params() {
     // Mock the get_past_votes call
     start_mock_call(Zero::zero(), selector!("get_past_votes"), expected_weight);
 
-    let weight = state._cast_vote(id, OTHER(), 0, reason, params);
+    let weight = state._cast_vote(id, OTHER, 0, reason, params);
     assert_eq!(weight, expected_weight);
 
-    spy.assert_only_event_vote_cast(contract_address, OTHER(), id, 0, expected_weight, @"reason");
+    spy.assert_only_event_vote_cast(contract_address, OTHER, id, 0, expected_weight, @"reason");
 }
 
 #[test]
@@ -1884,12 +1882,12 @@ fn test__cast_vote_active_with_params() {
     // Mock the get_past_votes call
     start_mock_call(Zero::zero(), selector!("get_past_votes"), expected_weight);
 
-    let weight = state._cast_vote(id, OTHER(), 0, reason, params);
+    let weight = state._cast_vote(id, OTHER, 0, reason, params);
     assert_eq!(weight, expected_weight);
 
     spy
         .assert_event_vote_cast_with_params(
-            contract_address, OTHER(), id, 0, expected_weight, @"reason", params,
+            contract_address, OTHER, id, 0, expected_weight, @"reason", params,
         );
 }
 
@@ -1900,7 +1898,7 @@ fn test__cast_vote_defeated() {
     let (id, _) = setup_defeated_proposal(ref mock_state, false);
     let params = array![].span();
 
-    mock_state.governor._cast_vote(id, OTHER(), 0, "", params);
+    mock_state.governor._cast_vote(id, OTHER, 0, "", params);
 }
 
 #[test]
@@ -1910,7 +1908,7 @@ fn test__cast_vote_succeeded() {
     let (id, _) = setup_succeeded_proposal(ref mock_state, false);
     let params = array![].span();
 
-    mock_state.governor._cast_vote(id, OTHER(), 0, "", params);
+    mock_state.governor._cast_vote(id, OTHER, 0, "", params);
 }
 
 #[test]
@@ -1920,7 +1918,7 @@ fn test__cast_vote_queued() {
     let (id, _) = setup_queued_proposal(ref mock_state, false);
     let params = array![].span();
 
-    mock_state.governor._cast_vote(id, OTHER(), 0, "", params);
+    mock_state.governor._cast_vote(id, OTHER, 0, "", params);
 }
 
 #[test]
@@ -1930,7 +1928,7 @@ fn test__cast_vote_canceled() {
     let (id, _) = setup_canceled_proposal(ref state, false);
     let params = array![].span();
 
-    state._cast_vote(id, OTHER(), 0, "", params);
+    state._cast_vote(id, OTHER, 0, "", params);
 }
 
 #[test]
@@ -1940,7 +1938,7 @@ fn test__cast_vote_executed() {
     let (id, _) = setup_executed_proposal(ref state, false);
     let params = array![].span();
 
-    state._cast_vote(id, OTHER(), 0, "", params);
+    state._cast_vote(id, OTHER, 0, "", params);
 }
 
 //

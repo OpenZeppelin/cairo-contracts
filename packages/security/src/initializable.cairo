@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v1.0.0 (security/src/initializable.cairo)
+// OpenZeppelin Contracts for Cairo v2.0.0 (security/src/initializable.cairo)
 
 /// # Initializable Component
 ///
@@ -8,8 +8,8 @@
 /// initial state in scenarios where a constructor cannot be used.
 #[starknet::component]
 pub mod InitializableComponent {
-    use crate::interface::IInitializable;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use crate::interface::IInitializable;
 
     #[storage]
     pub struct Storage {
@@ -34,7 +34,7 @@ pub mod InitializableComponent {
     pub impl InternalImpl<
         TContractState, +HasComponent<TContractState>,
     > of InternalTrait<TContractState> {
-        /// Ensures the calling function can only be called once.
+        /// Ensures that the calling function can only be called once.
         ///
         /// Requirements:
         ///

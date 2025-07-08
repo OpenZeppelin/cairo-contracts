@@ -1,17 +1,16 @@
-use crate::governor::DefaultConfig;
-use crate::governor::GovernorComponent::InternalImpl;
-use crate::governor::extensions::GovernorCoreExecutionComponent::GovernorExecution;
-use crate::governor::interface::{IGovernor, ProposalState};
-use crate::tests::governor::common::{COMPONENT_STATE, CONTRACT_STATE, get_calls, get_proposal_info};
-use crate::tests::governor::common::{
-    setup_active_proposal, setup_canceled_proposal, setup_defeated_proposal,
-    setup_executed_proposal, setup_pending_proposal, setup_queued_proposal,
-    setup_succeeded_proposal,
-};
 use openzeppelin_test_common::mocks::governor::GovernorMock::SNIP12MetadataImpl;
 use openzeppelin_testing::constants::OTHER;
 use snforge_std::start_cheat_block_timestamp_global;
 use starknet::storage::{StorageMapWriteAccess, StoragePathEntry, StoragePointerWriteAccess};
+use crate::governor::DefaultConfig;
+use crate::governor::GovernorComponent::InternalImpl;
+use crate::governor::extensions::GovernorCoreExecutionComponent::GovernorExecution;
+use crate::governor::interface::{IGovernor, ProposalState};
+use crate::tests::governor::common::{
+    COMPONENT_STATE, CONTRACT_STATE, get_calls, get_proposal_info, setup_active_proposal,
+    setup_canceled_proposal, setup_defeated_proposal, setup_executed_proposal,
+    setup_pending_proposal, setup_queued_proposal, setup_succeeded_proposal,
+};
 
 //
 // state
@@ -157,9 +156,10 @@ fn test_executor() {
 //
 
 #[test]
+#[fuzzer]
 fn test_execute_operations(id: felt252) {
     let mut component_state = COMPONENT_STATE();
-    let calls = get_calls(OTHER(), true);
+    let calls = get_calls(OTHER, true);
     let description_hash = 'hash';
 
     GovernorExecution::execute_operations(ref component_state, id, calls, description_hash);
@@ -170,7 +170,7 @@ fn test_execute_operations(id: felt252) {
 fn test_execute_operations_panics() {
     let mut component_state = COMPONENT_STATE();
     let id = 0;
-    let calls = get_calls(OTHER(), false);
+    let calls = get_calls(OTHER, false);
     let description_hash = 'hash';
 
     GovernorExecution::execute_operations(ref component_state, id, calls, description_hash);
@@ -181,6 +181,7 @@ fn test_execute_operations_panics() {
 //
 
 #[test]
+#[fuzzer]
 fn test_queue_operations(id: felt252) {
     let mut component_state = COMPONENT_STATE();
     let calls = array![].span();
@@ -196,6 +197,7 @@ fn test_queue_operations(id: felt252) {
 //
 
 #[test]
+#[fuzzer]
 fn test_proposal_needs_queuing(id: felt252) {
     let component_state = COMPONENT_STATE();
 

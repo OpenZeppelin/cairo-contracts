@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v1.0.0 (account/src/extensions/src9/snip12_utils.cairo)
+// OpenZeppelin Contracts for Cairo v2.0.0 (account/src/extensions/src9/snip12_utils.cairo)
 
 use core::hash::{HashStateExTrait, HashStateTrait};
 use core::poseidon::{PoseidonTrait, poseidon_hash_span};
-use crate::extensions::src9::OutsideExecution;
 use openzeppelin_utils::cryptography::snip12::StructHash;
 use starknet::account::Call;
+use crate::extensions::src9::OutsideExecution;
 
 // sn_keccak(
 //   "\"OutsideExecution\"(\"Caller\":\"ContractAddress\",\"Nonce\":\"felt\",
@@ -39,7 +39,7 @@ pub impl OutsideExecutionStructHash of StructHash<OutsideExecution> {
 
         for call in calls_span {
             hashed_calls.append(call.hash_struct());
-        };
+        }
 
         let hash_state = PoseidonTrait::new();
         hash_state

@@ -64,6 +64,7 @@ version = "2.0.0"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_account",
+ "openzeppelin_interfaces",
  "openzeppelin_introspection",
  "openzeppelin_test_common",
  "openzeppelin_testing",
@@ -83,6 +84,7 @@ dependencies = [
 name = "openzeppelin_introspection"
 version = "2.0.0"
 dependencies = [
+ "openzeppelin_interfaces",
  "openzeppelin_test_common",
  "snforge_std",
 ]

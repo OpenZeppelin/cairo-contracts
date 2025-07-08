@@ -12,6 +12,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - AccessControlDefaultAdminRules interface and component (#1432)
+- `openzeppelin_interfaces` package (#1463)
+
+### Changed (Breaking)
+
+- Moved interfaces, ABIs and dispatchers into `openzeppelin_interfaces` (#1463)
 
 ## 2.0.0 (2025-06-18)
 

@@ -1,4 +1,4 @@
-use openzeppelin_introspection::interface::ISRC5_ID;
+use openzeppelin_interfaces::introspection::ISRC5_ID;
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin_test_common::mocks::erc721::ERC721EnumerableMock;
 use openzeppelin_testing::constants::{OTHER, OWNER, RECIPIENT, ZERO};

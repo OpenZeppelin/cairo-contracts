@@ -4,7 +4,7 @@ use openzeppelin_interfaces::accesscontrol::{
 use openzeppelin_interfaces::accesscontrol_default_admin_rules::{
     IACCESSCONTROL_DEFAULT_ADMIN_RULES_ID, IAccessControlDefaultAdminRules,
 };
-use openzeppelin_introspection::interface::ISRC5;
+use openzeppelin_interfaces::introspection::ISRC5;
 use openzeppelin_test_common::mocks::access::DualCaseAccessControlDefaultAdminRulesMock;
 use openzeppelin_test_common::mocks::access::DualCaseAccessControlDefaultAdminRulesMock::INITIAL_DELAY;
 use openzeppelin_testing::constants::{

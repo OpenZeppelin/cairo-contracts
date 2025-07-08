@@ -5,7 +5,7 @@ use openzeppelin_access::accesscontrol::AccessControlComponent::{
 };
 use openzeppelin_access::accesscontrol::DEFAULT_ADMIN_ROLE;
 use openzeppelin_interfaces::accesscontrol::{IACCESSCONTROL_ID, IAccessControl};
-use openzeppelin_introspection::interface::ISRC5_ID;
+use openzeppelin_interfaces::introspection::ISRC5_ID;
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin_test_common::mocks::timelock::{
     IMockContractDispatcher, IMockContractDispatcherTrait, ITimelockAttackerDispatcher,

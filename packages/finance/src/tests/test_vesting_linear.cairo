@@ -1,4 +1,5 @@
 use openzeppelin_interfaces::ownable::{IOwnableDispatcher, IOwnableDispatcherTrait};
+use openzeppelin_interfaces::vesting::IVestingDispatcherTrait;
 use openzeppelin_test_common::mocks::vesting::LinearVestingMock;
 use openzeppelin_test_common::vesting::VestingSpyHelpers;
 use openzeppelin_testing::constants::{OTHER, OWNER};
@@ -8,7 +9,6 @@ use snforge_std::{start_cheat_block_timestamp_global, start_cheat_caller_address
 use crate::tests::common::{TestData, VestingStrategy, set_transfer_to_fail, setup};
 use crate::vesting::VestingComponent;
 use crate::vesting::VestingComponent::InternalImpl;
-use crate::vesting::interface::IVestingDispatcherTrait;
 
 //
 // Setup

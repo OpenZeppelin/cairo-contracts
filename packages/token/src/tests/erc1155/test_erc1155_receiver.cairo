@@ -1,4 +1,4 @@
-use openzeppelin_introspection::interface::ISRC5_ID;
+use openzeppelin_interfaces::introspection::ISRC5_ID;
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin_test_common::mocks::erc1155::DualCaseERC1155ReceiverMock;
 use openzeppelin_testing::constants::{EMPTY_DATA, OPERATOR, OWNER, TOKEN_ID, TOKEN_VALUE};

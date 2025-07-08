@@ -82,7 +82,7 @@ fn test_initializer() {
     assert!(supports_ierc721_metadata);
 
     let supports_isrc5 = mock_state
-        .supports_interface(openzeppelin_introspection::interface::ISRC5_ID);
+        .supports_interface(openzeppelin_interfaces::introspection::ISRC5_ID);
     assert!(supports_isrc5);
 }
 
@@ -107,7 +107,7 @@ fn test_initializer_no_metadata() {
     assert!(does_not_support_ierc721_metadata);
 
     let supports_isrc5 = mock_state
-        .supports_interface(openzeppelin_introspection::interface::ISRC5_ID);
+        .supports_interface(openzeppelin_interfaces::introspection::ISRC5_ID);
     assert!(supports_isrc5);
 }
 

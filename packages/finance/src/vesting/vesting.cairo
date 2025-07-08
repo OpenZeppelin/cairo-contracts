@@ -31,13 +31,13 @@ use starknet::ContractAddress;
 pub mod VestingComponent {
     use openzeppelin_access::ownable::OwnableComponent;
     use openzeppelin_access::ownable::OwnableComponent::OwnableImpl;
+    use openzeppelin_interfaces::vesting as interface;
     use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
     use starknet::ContractAddress;
     use starknet::storage::{
         Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
         StoragePointerWriteAccess,
     };
-    use crate::vesting::interface;
 
     #[storage]
     pub struct Storage {

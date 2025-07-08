@@ -75,7 +75,7 @@ fn test_constructor() {
     assert!(supports_ierc1155_metadata_uri);
 
     let supports_isrc5 = dispatcher
-        .supports_interface(openzeppelin_introspection::interface::ISRC5_ID);
+        .supports_interface(openzeppelin_interfaces::introspection::ISRC5_ID);
     assert!(supports_isrc5);
 }
 

@@ -1,5 +1,5 @@
 use core::num::traits::Zero;
-use openzeppelin_introspection::interface::ISRC5_ID;
+use openzeppelin_interfaces::introspection::ISRC5_ID;
 use openzeppelin_test_common::erc721::ERC721SpyHelpers;
 use openzeppelin_test_common::ownable::OwnableSpyHelpers;
 use openzeppelin_test_common::upgrades::UpgradeableSpyHelpers;

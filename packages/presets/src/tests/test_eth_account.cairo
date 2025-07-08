@@ -3,9 +3,9 @@ use openzeppelin_account::eth_account::EthAccountComponent::EthAccountMixinImpl;
 use openzeppelin_account::extensions::SRC9Component::{OutsideExecutionV2Impl, SNIP12MetadataImpl};
 use openzeppelin_account::extensions::src9::interface::{ISRC9_V2_ID, OutsideExecution};
 use openzeppelin_account::extensions::src9::snip12_utils::OutsideExecutionStructHash;
-use openzeppelin_interfaces::accounts::ISRC6_ID;
 use openzeppelin_account::utils::secp256_point::{DebugSecp256Point, Secp256PointPartialEq};
-use openzeppelin_introspection::interface::ISRC5_ID;
+use openzeppelin_interfaces::accounts::ISRC6_ID;
+use openzeppelin_interfaces::introspection::ISRC5_ID;
 use openzeppelin_test_common::erc20::deploy_erc20;
 use openzeppelin_test_common::eth_account::{
     EthAccountSpyHelpers, SIGNED_TX_DATA, SignedTransactionData, get_accept_ownership_signature,

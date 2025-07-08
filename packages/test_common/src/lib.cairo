@@ -8,3 +8,4 @@ pub mod mocks;
 pub mod ownable;
 pub mod upgrades;
 pub mod vesting;
+pub mod common;

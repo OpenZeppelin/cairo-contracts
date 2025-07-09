@@ -524,3 +524,77 @@ const tx = await erc20.transfer(
 );
 await provider.waitForTransaction(tx.transaction_hash);
 ```
+
+== Account Utilities
+
+These utility modules support signature validation and secp256 elliptic curve operations for account implementations.
+
+=== secp256_point
+
+Import path:
+[,cairo]
+----
+use openzeppelin_account::utils::secp256_point;
+----
+
+Utilities for handling secp256 curve points, including packing, unpacking, equality checks, and debugging.
+
+==== Functions
+
+- `pack(value: Secp256Point) -> (felt252, felt252)`  
+  Packs a secp256 point into two felts for storage.  
+
+- `unpack(value: (felt252, felt252)) -> Secp256Point`  
+  Unpacks two felts into a secp256 point using x-coordinate and parity.  
+
+- `eq(lhs: @Secp256Point, rhs: @Secp256Point) -> bool`  
+  Compares two secp256 points by coordinates.  
+
+- `fmt(self: @Secp256Point, ref f: Formatter)`  
+  Formats the point for human-readable debugging output.
+
+---
+
+=== signature
+
+Import path:
+[,cairo]
+----
+use openzeppelin_account::utils::signature;
+----
+
+Provides helpers for signature verification using secp256k1 (Ethereum), P-256, and Stark signatures.  
+
+WARNING: These functions assume `s` is positive for efficiency and are not safe against malleability attacks outside transaction validation.
+
+==== Structs
+
+- `Secp256Signature`  
+  Represents an ECDSA signature with `r` and `s` values.
+
+==== Functions
+
+- `is_valid_stark_signature(msg_hash, public_key, signature) -> bool`  
+  Verifies a Stark-compatible ECDSA signature.
+
+- `is_valid_eth_signature(msg_hash, public_key: EthPublicKey, signature) -> bool`  
+  Verifies a secp256k1 signature over a hash using an Ethereum public key.
+
+- `is_valid_p256_signature(msg_hash, public_key: P256PublicKey, signature) -> bool`  
+  Verifies a P-256 signature over a hash using a P-256 public key.
+
+---
+
+=== utils
+
+Import path:
+[,cairo]
+----
+use openzeppelin_account::utils;
+----
+
+Re-exports `signature` helpers for convenience.  
+
+Functionality is identical to `utils::signature`.
+
+---

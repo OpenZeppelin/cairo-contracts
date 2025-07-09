@@ -6,8 +6,8 @@ pub mod GovernorMock {
     use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
     use starknet::ContractAddress;
 
-    pub const VOTING_DELAY: u64 = 86400; // 1 day
-    pub const VOTING_PERIOD: u64 = 604800; // 1 week
+    pub const VOTING_DELAY: u64 = 86400; // 1 day or 86'400 blocks
+    pub const VOTING_PERIOD: u64 = 604800; // 1 week or 604'800 blocks
     pub const PROPOSAL_THRESHOLD: u256 = 10;
     pub const QUORUM: u256 = 100_000_000;
 
@@ -88,8 +88,8 @@ pub mod GovernorQuorumFractionMock {
     use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
     use starknet::ContractAddress;
 
-    pub const VOTING_DELAY: u64 = 86400; // 1 day
-    pub const VOTING_PERIOD: u64 = 604800; // 1 week
+    pub const VOTING_DELAY: u64 = 86400; // 1 day or 86'400 blocks
+    pub const VOTING_PERIOD: u64 = 604800; // 1 week or 604'800 blocks
     pub const PROPOSAL_THRESHOLD: u256 = 10;
     pub const QUORUM_NUMERATOR: u256 = 600; // 60%
 
@@ -165,8 +165,8 @@ pub mod GovernorTimelockedMock {
     use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
     use starknet::ContractAddress;
 
-    pub const VOTING_DELAY: u64 = 86400; // 1 day
-    pub const VOTING_PERIOD: u64 = 604800; // 1 week
+    pub const VOTING_DELAY: u64 = 86400; // 1 day or 86'400 blocks
+    pub const VOTING_PERIOD: u64 = 604800; // 1 week or 604'800 blocks
     pub const PROPOSAL_THRESHOLD: u256 = 10;
     pub const QUORUM: u256 = 100_000_000;
 

@@ -9,7 +9,7 @@ use crate::governor::DefaultConfig;
 use crate::governor::GovernorComponent::InternalImpl;
 use crate::governor::extensions::GovernorCountingSimpleComponent::{GovernorCounting, VoteType};
 use crate::governor::interface::IGovernor;
-use crate::tests::governor::common::{COMPONENT_STATE, CONTRACT_STATE};
+use crate::tests::governor::timestamp::common::{COMPONENT_STATE, CONTRACT_STATE};
 
 //
 // try_into

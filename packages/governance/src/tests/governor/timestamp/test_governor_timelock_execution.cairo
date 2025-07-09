@@ -21,13 +21,14 @@ use crate::governor::DefaultConfig;
 use crate::governor::GovernorComponent::{InternalExtendedImpl, InternalImpl};
 use crate::governor::extensions::GovernorTimelockExecutionComponent;
 use crate::governor::extensions::GovernorTimelockExecutionComponent::GovernorExecution;
+use crate::governor::extensions::GovernorVotesComponent::InternalTrait;
 use crate::governor::extensions::interface::{ITimelockedDispatcher, ITimelockedDispatcherTrait};
 use crate::governor::interface::{IGovernorDispatcher, IGovernorDispatcherTrait, ProposalState};
-use crate::tests::governor::common::{
+use crate::tests::governor::common::GovernorSpyHelpersImpl;
+use crate::tests::governor::timestamp::common::{
     COMPONENT_STATE_TIMELOCKED as COMPONENT_STATE, CONTRACT_STATE_TIMELOCKED as CONTRACT_STATE,
-    ComponentStateTimelocked, get_proposal_info, set_executor,
+    ComponentStateTimelocked, deploy_votes_token, get_proposal_info, set_executor,
 };
-use crate::tests::governor::test_governor::GovernorSpyHelpersImpl;
 use crate::tests::test_timelock::TimelockSpyHelpersImpl;
 use crate::timelock::interface::{ITimelockDispatcher, OperationState};
 
@@ -79,6 +80,7 @@ fn deploy_mock_target() -> IMockContractDispatcher {
 }
 
 fn setup_dispatchers() -> (IGovernorDispatcher, ITimelockDispatcher, IMockContractDispatcher) {
+    deploy_votes_token();
     let governor = deploy_governor(TIMELOCK);
     let timelock = deploy_timelock(governor.contract_address);
     let target = deploy_mock_target();
@@ -136,6 +138,8 @@ fn test_timelock_salt_overflow() {
 #[test]
 fn test_state_executed() {
     let mut component_state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let id = setup_executed_proposal(ref component_state);
 
     let state = GovernorExecution::state(@component_state, id);
@@ -145,6 +149,8 @@ fn test_state_executed() {
 #[test]
 fn test_state_canceled() {
     let mut component_state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let id = setup_canceled_proposal(ref component_state);
 
     let state = GovernorExecution::state(@component_state, id);
@@ -155,6 +161,8 @@ fn test_state_canceled() {
 #[should_panic(expected: 'Nonexistent proposal')]
 fn test_state_non_existent() {
     let component_state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
 
     GovernorExecution::state(@component_state, 1);
 }
@@ -162,6 +170,8 @@ fn test_state_non_existent() {
 #[test]
 fn test_state_pending() {
     let mut component_state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let id = setup_pending_proposal(ref component_state);
 
     let state = GovernorExecution::state(@component_state, id);
@@ -171,6 +181,8 @@ fn test_state_pending() {
 #[test]
 fn test_state_active() {
     let mut component_state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, proposal) = get_proposal_info();
 
     component_state.Governor_proposals.write(id, proposal);
@@ -193,6 +205,8 @@ fn test_state_active() {
 fn test_state_defeated_quorum_not_reached() {
     let mut mock_state = CONTRACT_STATE();
     let component_state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, proposal) = get_proposal_info();
 
     mock_state.governor.Governor_proposals.write(id, proposal);
@@ -215,6 +229,8 @@ fn test_state_defeated_quorum_not_reached() {
 fn test_state_defeated_vote_not_succeeded() {
     let mut mock_state = CONTRACT_STATE();
     let component_state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, proposal) = get_proposal_info();
 
     mock_state.governor.Governor_proposals.write(id, proposal);
@@ -240,6 +256,8 @@ fn test_state_defeated_vote_not_succeeded() {
 fn test_state_queued_timelock_waiting() {
     let mut mock_state = CONTRACT_STATE();
     let component_state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let id = setup_queued_proposal(ref mock_state);
 
     // 1. Mock the timelock to return pending
@@ -254,6 +272,8 @@ fn test_state_queued_timelock_waiting() {
 fn test_state_queued_timelock_ready() {
     let mut mock_state = CONTRACT_STATE();
     let component_state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let id = setup_queued_proposal(ref mock_state);
 
     // 1. Mock the timelock to return pending
@@ -268,6 +288,8 @@ fn test_state_queued_timelock_ready() {
 fn test_state_queued_timelock_done() {
     let mut mock_state = CONTRACT_STATE();
     let component_state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let id = setup_queued_proposal(ref mock_state);
 
     // 1. Mock the timelock to return pending
@@ -282,6 +304,8 @@ fn test_state_queued_timelock_done() {
 fn test_state_queued_timelock_canceled() {
     let mut mock_state = CONTRACT_STATE();
     let component_state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let id = setup_queued_proposal(ref mock_state);
 
     // 1. Mock the timelock to return pending
@@ -296,6 +320,8 @@ fn test_state_queued_timelock_canceled() {
 fn test_state_succeeded() {
     let mut mock_state = CONTRACT_STATE();
     let component_state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let id = setup_succeeded_proposal(ref mock_state);
 
     let state = GovernorExecution::state(@component_state, id);
@@ -310,6 +336,8 @@ fn test_state_succeeded() {
 fn test_executor() {
     let mut mock_state = CONTRACT_STATE();
     let component_state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let expected = TIMELOCK;
 
     set_executor(ref mock_state, expected);
@@ -465,6 +493,8 @@ fn test_queue_operations() {
 #[fuzzer]
 fn test_proposal_needs_queuing(id: felt252) {
     let component_state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
 
     assert_eq!(GovernorExecution::proposal_needs_queuing(@component_state, id), true);
 }
@@ -543,6 +573,8 @@ fn test_cancel_operations_queued() {
 #[test]
 fn test_cancel_operations_pending() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let id = setup_pending_proposal(ref state);
 
     GovernorExecution::cancel_operations(ref state, id, 0);
@@ -554,6 +586,8 @@ fn test_cancel_operations_pending() {
 #[test]
 fn test_cancel_operations_active() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let id = setup_active_proposal(ref state);
 
     GovernorExecution::cancel_operations(ref state, id, 0);
@@ -566,6 +600,8 @@ fn test_cancel_operations_active() {
 fn test_cancel_operations_defeated() {
     let mut mock_state = CONTRACT_STATE();
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let id = setup_defeated_proposal(ref mock_state);
 
     GovernorExecution::cancel_operations(ref state, id, 0);
@@ -578,6 +614,8 @@ fn test_cancel_operations_defeated() {
 fn test_cancel_operations_succeeded() {
     let mut mock_state = CONTRACT_STATE();
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let id = setup_succeeded_proposal(ref mock_state);
 
     GovernorExecution::cancel_operations(ref state, id, 0);
@@ -590,6 +628,8 @@ fn test_cancel_operations_succeeded() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test_cancel_operations_canceled() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let id = setup_canceled_proposal(ref state);
 
     // Cancel again
@@ -600,6 +640,8 @@ fn test_cancel_operations_canceled() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test_cancel_operations_executed() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let id = setup_executed_proposal(ref state);
 
     GovernorExecution::cancel_operations(ref state, id, 0);
@@ -639,6 +681,11 @@ fn timelock_salt(contract_address: ContractAddress, description_hash: felt252) -
         value = value - max_felt - 1;
     }
     value.try_into().unwrap()
+}
+
+fn initialize_votes_component(votes_token: ContractAddress) {
+    let mut mock_state = CONTRACT_STATE();
+    mock_state.governor_votes.initializer(votes_token);
 }
 
 //

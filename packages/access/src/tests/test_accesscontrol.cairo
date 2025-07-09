@@ -1,15 +1,17 @@
 use openzeppelin_introspection::interface::ISRC5;
 use openzeppelin_test_common::mocks::access::DualCaseAccessControlMock;
 use openzeppelin_testing::constants::{
-    ADMIN, AUTHORIZED, OTHER, OTHER_ADMIN, OTHER_ROLE, ROLE, ZERO,
+    ADMIN, AUTHORIZED, OTHER, OTHER_ADMIN, OTHER_ROLE, ROLE, TIMESTAMP, ZERO,
 };
 use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
-use snforge_std::{start_cheat_caller_address, test_address};
+use snforge_std::{start_cheat_block_timestamp_global, start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
 use crate::accesscontrol::AccessControlComponent::{
-    InternalImpl, RoleAdminChanged, RoleGranted, RoleRevoked,
+    InternalImpl, RoleAdminChanged, RoleGranted, RoleGrantedWithDelay, RoleRevoked,
 };
-use crate::accesscontrol::interface::{IACCESSCONTROL_ID, IAccessControl, IAccessControlCamel};
+use crate::accesscontrol::interface::{
+    IACCESSCONTROL_ID, IAccessControl, IAccessControlCamel, IAccessControlWithDelay, RoleStatus,
+};
 use crate::accesscontrol::{AccessControlComponent, DEFAULT_ADMIN_ROLE};
 
 //
@@ -32,6 +34,8 @@ fn setup() -> ComponentState {
     state._grant_role(DEFAULT_ADMIN_ROLE, ADMIN);
     state
 }
+
+const ONE_HOUR: u64 = 3600;
 
 //
 // initializer
@@ -114,6 +118,8 @@ fn test_grant_role() {
 
     let has_role = state.has_role(ROLE, AUTHORIZED);
     assert!(has_role);
+    assert_eq!(state.get_role_status(ROLE, AUTHORIZED), RoleStatus::Effective);
+    assert_eq!(state.is_role_effective(ROLE, AUTHORIZED), true);
 }
 
 #[test]
@@ -128,6 +134,8 @@ fn test_grantRole() {
 
     let has_role = state.hasRole(ROLE, AUTHORIZED);
     assert!(has_role);
+    assert_eq!(state.get_role_status(ROLE, AUTHORIZED), RoleStatus::Effective);
+    assert_eq!(state.is_role_effective(ROLE, AUTHORIZED), true);
 }
 
 #[test]
@@ -138,6 +146,44 @@ fn test_grant_role_multiple_times_for_granted_role() {
     state.grant_role(ROLE, AUTHORIZED);
     state.grant_role(ROLE, AUTHORIZED);
     assert!(state.has_role(ROLE, AUTHORIZED));
+    assert_eq!(state.get_role_status(ROLE, AUTHORIZED), RoleStatus::Effective);
+    assert_eq!(state.is_role_effective(ROLE, AUTHORIZED), true);
+}
+
+#[test]
+fn test_grant_role_when_delayed() {
+    let mut state = setup();
+    let contract_address = test_address();
+    start_cheat_caller_address(contract_address, ADMIN);
+    start_cheat_block_timestamp_global(TIMESTAMP);
+    state.grant_role_with_delay(ROLE, AUTHORIZED, ONE_HOUR);
+
+    let mut spy = spy_events();
+    state.grant_role(ROLE, AUTHORIZED);
+    spy.assert_only_event_role_granted(contract_address, ROLE, AUTHORIZED, ADMIN);
+
+    let has_role = state.has_role(ROLE, AUTHORIZED);
+    assert!(has_role);
+    assert_eq!(state.get_role_status(ROLE, AUTHORIZED), RoleStatus::Effective);
+    assert_eq!(state.is_role_effective(ROLE, AUTHORIZED), true);
+}
+
+#[test]
+fn test_grantRole_when_delayed() {
+    let mut state = setup();
+    let contract_address = test_address();
+    start_cheat_caller_address(contract_address, ADMIN);
+    start_cheat_block_timestamp_global(TIMESTAMP);
+    state.grant_role_with_delay(ROLE, AUTHORIZED, ONE_HOUR);
+
+    let mut spy = spy_events();
+    state.grantRole(ROLE, AUTHORIZED);
+    spy.assert_only_event_role_granted(contract_address, ROLE, AUTHORIZED, ADMIN);
+
+    let has_role = state.has_role(ROLE, AUTHORIZED);
+    assert!(has_role);
+    assert_eq!(state.get_role_status(ROLE, AUTHORIZED), RoleStatus::Effective);
+    assert_eq!(state.is_role_effective(ROLE, AUTHORIZED), true);
 }
 
 #[test]
@@ -148,6 +194,8 @@ fn test_grantRole_multiple_times_for_granted_role() {
     state.grantRole(ROLE, AUTHORIZED);
     state.grantRole(ROLE, AUTHORIZED);
     assert!(state.hasRole(ROLE, AUTHORIZED));
+    assert_eq!(state.get_role_status(ROLE, AUTHORIZED), RoleStatus::Effective);
+    assert_eq!(state.is_role_effective(ROLE, AUTHORIZED), true);
 }
 
 #[test]
@@ -164,6 +212,66 @@ fn test_grantRole_unauthorized() {
     let mut state = setup();
     start_cheat_caller_address(test_address(), AUTHORIZED);
     state.grantRole(ROLE, AUTHORIZED);
+}
+
+//
+// grant_role_with_delay
+//
+
+#[test]
+fn test_grant_role_with_delay() {
+    let mut state = setup();
+    let mut spy = spy_events();
+    let delay = ONE_HOUR;
+    let contract_address = test_address();
+    start_cheat_caller_address(contract_address, ADMIN);
+    start_cheat_block_timestamp_global(TIMESTAMP);
+
+    state.grant_role_with_delay(ROLE, AUTHORIZED, delay);
+    spy.assert_only_event_role_granted_with_delay(contract_address, ROLE, AUTHORIZED, ADMIN, delay);
+
+    // Right after granting the role
+    let has_role = state.has_role(ROLE, AUTHORIZED);
+    assert_eq!(has_role, false);
+    assert_eq!(state.get_role_status(ROLE, AUTHORIZED), RoleStatus::Delayed(TIMESTAMP + delay));
+    assert_eq!(state.is_role_effective(ROLE, AUTHORIZED), false);
+
+    // When the delay has passed
+    start_cheat_block_timestamp_global(TIMESTAMP + delay);
+    let has_role = state.has_role(ROLE, AUTHORIZED);
+    assert_eq!(has_role, true);
+    assert_eq!(state.get_role_status(ROLE, AUTHORIZED), RoleStatus::Effective);
+    assert_eq!(state.is_role_effective(ROLE, AUTHORIZED), true);
+}
+
+#[test]
+#[should_panic(expected: 'Delay must be greater than 0')]
+fn test_grant_role_with_zero_delay() {
+    let mut state = setup();
+    let contract_address = test_address();
+    start_cheat_caller_address(contract_address, ADMIN);
+    start_cheat_block_timestamp_global(TIMESTAMP);
+    state.grant_role_with_delay(ROLE, AUTHORIZED, 0);
+}
+
+#[test]
+#[should_panic(expected: 'Role is already effective')]
+fn test_grant_role_with_delay_when_already_effective() {
+    let mut state = setup();
+    let contract_address = test_address();
+    start_cheat_caller_address(contract_address, ADMIN);
+    start_cheat_block_timestamp_global(TIMESTAMP);
+    state.grant_role(ROLE, AUTHORIZED);
+    state.grant_role_with_delay(ROLE, AUTHORIZED, ONE_HOUR);
+}
+
+#[test]
+#[should_panic(expected: 'Caller is missing role')]
+fn test_grant_role_with_delay_unauthorized() {
+    let mut state = setup();
+    start_cheat_caller_address(test_address(), AUTHORIZED);
+    start_cheat_block_timestamp_global(TIMESTAMP);
+    state.grant_role_with_delay(ROLE, AUTHORIZED, ONE_HOUR);
 }
 
 //
@@ -199,6 +307,9 @@ fn test_revoke_role_for_granted_role() {
 
     let has_not_role = !state.has_role(ROLE, AUTHORIZED);
     assert!(has_not_role);
+    assert_eq!(state.get_role_status(ROLE, AUTHORIZED), RoleStatus::NotGranted);
+    assert_eq!(state.is_role_granted(ROLE, AUTHORIZED), false);
+    assert_eq!(state.is_role_effective(ROLE, AUTHORIZED), false);
 }
 
 #[test]
@@ -216,6 +327,51 @@ fn test_revokeRole_for_granted_role() {
 
     let has_not_role = !state.hasRole(ROLE, AUTHORIZED);
     assert!(has_not_role);
+    assert_eq!(state.get_role_status(ROLE, AUTHORIZED), RoleStatus::NotGranted);
+    assert_eq!(state.is_role_granted(ROLE, AUTHORIZED), false);
+    assert_eq!(state.is_role_effective(ROLE, AUTHORIZED), false);
+}
+
+#[test]
+fn test_revoke_role_for_delayed_role() {
+    let mut state = setup();
+    let contract_address = test_address();
+    start_cheat_caller_address(contract_address, ADMIN);
+    start_cheat_block_timestamp_global(TIMESTAMP);
+
+    state.grant_role_with_delay(ROLE, AUTHORIZED, ONE_HOUR);
+
+    let mut spy = spy_events();
+    state.revoke_role(ROLE, AUTHORIZED);
+
+    spy.assert_only_event_role_revoked(contract_address, ROLE, AUTHORIZED, ADMIN);
+
+    let has_not_role = !state.has_role(ROLE, AUTHORIZED);
+    assert!(has_not_role);
+    assert_eq!(state.get_role_status(ROLE, AUTHORIZED), RoleStatus::NotGranted);
+    assert_eq!(state.is_role_granted(ROLE, AUTHORIZED), false);
+    assert_eq!(state.is_role_effective(ROLE, AUTHORIZED), false);
+}
+
+#[test]
+fn test_revokeRole_for_delayed_role() {
+    let mut state = setup();
+    let contract_address = test_address();
+    start_cheat_caller_address(contract_address, ADMIN);
+    start_cheat_block_timestamp_global(TIMESTAMP);
+
+    state.grant_role_with_delay(ROLE, AUTHORIZED, ONE_HOUR);
+
+    let mut spy = spy_events();
+    state.revokeRole(ROLE, AUTHORIZED);
+
+    spy.assert_only_event_role_revoked(contract_address, ROLE, AUTHORIZED, ADMIN);
+
+    let has_not_role = !state.hasRole(ROLE, AUTHORIZED);
+    assert!(has_not_role);
+    assert_eq!(state.get_role_status(ROLE, AUTHORIZED), RoleStatus::NotGranted);
+    assert_eq!(state.is_role_granted(ROLE, AUTHORIZED), false);
+    assert_eq!(state.is_role_effective(ROLE, AUTHORIZED), false);
 }
 
 #[test]
@@ -229,6 +385,9 @@ fn test_revoke_role_multiple_times_for_granted_role() {
 
     let has_not_role = !state.has_role(ROLE, AUTHORIZED);
     assert!(has_not_role);
+    assert_eq!(state.get_role_status(ROLE, AUTHORIZED), RoleStatus::NotGranted);
+    assert_eq!(state.is_role_granted(ROLE, AUTHORIZED), false);
+    assert_eq!(state.is_role_effective(ROLE, AUTHORIZED), false);
 }
 
 #[test]
@@ -242,6 +401,9 @@ fn test_revokeRole_multiple_times_for_granted_role() {
 
     let has_not_role = !state.hasRole(ROLE, AUTHORIZED);
     assert!(has_not_role);
+    assert_eq!(state.get_role_status(ROLE, AUTHORIZED), RoleStatus::NotGranted);
+    assert_eq!(state.is_role_granted(ROLE, AUTHORIZED), false);
+    assert_eq!(state.is_role_effective(ROLE, AUTHORIZED), false);
 }
 
 #[test]
@@ -303,6 +465,44 @@ fn test_renounceRole_for_granted_role() {
     start_cheat_caller_address(contract_address, ADMIN);
 
     state.grantRole(ROLE, AUTHORIZED);
+
+    let mut spy = spy_events();
+    start_cheat_caller_address(contract_address, AUTHORIZED);
+    state.renounceRole(ROLE, AUTHORIZED);
+
+    spy.assert_only_event_role_revoked(contract_address, ROLE, AUTHORIZED, AUTHORIZED);
+
+    let has_not_role = !state.hasRole(ROLE, AUTHORIZED);
+    assert!(has_not_role);
+}
+
+#[test]
+fn test_renounce_role_for_delayed_role() {
+    let mut state = setup();
+    let contract_address = test_address();
+    start_cheat_caller_address(contract_address, ADMIN);
+    start_cheat_block_timestamp_global(TIMESTAMP);
+
+    state.grant_role_with_delay(ROLE, AUTHORIZED, ONE_HOUR);
+
+    let mut spy = spy_events();
+    start_cheat_caller_address(contract_address, AUTHORIZED);
+    state.renounce_role(ROLE, AUTHORIZED);
+
+    spy.assert_only_event_role_revoked(contract_address, ROLE, AUTHORIZED, AUTHORIZED);
+
+    let has_not_role = !state.has_role(ROLE, AUTHORIZED);
+    assert!(has_not_role);
+}
+
+#[test]
+fn test_renounceRole_for_delayed_role() {
+    let mut state = setup();
+    let contract_address = test_address();
+    start_cheat_caller_address(contract_address, ADMIN);
+    start_cheat_block_timestamp_global(TIMESTAMP);
+
+    state.grant_role_with_delay(ROLE, AUTHORIZED, ONE_HOUR);
 
     let mut spy = spy_events();
     start_cheat_caller_address(contract_address, AUTHORIZED);
@@ -406,6 +606,25 @@ fn test_new_admin_can_grant_roles() {
 }
 
 #[test]
+fn test_new_admin_can_grant_roles_with_delay() {
+    let mut state = setup();
+    let contract_address = test_address();
+    state.set_role_admin(ROLE, OTHER_ROLE);
+    start_cheat_block_timestamp_global(TIMESTAMP);
+
+    start_cheat_caller_address(contract_address, ADMIN);
+    state.grant_role(OTHER_ROLE, OTHER_ADMIN);
+
+    let delay = ONE_HOUR;
+    start_cheat_caller_address(contract_address, OTHER_ADMIN);
+    state.grant_role_with_delay(ROLE, AUTHORIZED, delay);
+
+    start_cheat_block_timestamp_global(TIMESTAMP + delay);
+    let has_role = state.has_role(ROLE, AUTHORIZED);
+    assert!(has_role);
+}
+
+#[test]
 fn test_new_admin_can_revoke_roles() {
     let mut state = setup();
     let contract_address = test_address();
@@ -433,6 +652,16 @@ fn test_previous_admin_cannot_grant_roles() {
 
 #[test]
 #[should_panic(expected: 'Caller is missing role')]
+fn test_previous_admin_cannot_grant_roles_with_delay() {
+    let mut state = setup();
+    state.set_role_admin(ROLE, OTHER_ROLE);
+    start_cheat_caller_address(test_address(), ADMIN);
+    start_cheat_block_timestamp_global(TIMESTAMP);
+    state.grant_role_with_delay(ROLE, AUTHORIZED, ONE_HOUR);
+}
+
+#[test]
+#[should_panic(expected: 'Caller is missing role')]
 fn test_previous_admin_cannot_revoke_roles() {
     let mut state = setup();
     state.set_role_admin(ROLE, OTHER_ROLE);
@@ -447,7 +676,6 @@ fn test_previous_admin_cannot_revoke_roles() {
 #[test]
 fn test_other_role_admin_is_the_default_admin_role() {
     let state = setup();
-
     let current_admin_role = state.get_role_admin(OTHER_ROLE);
     assert_eq!(current_admin_role, DEFAULT_ADMIN_ROLE);
 }
@@ -464,7 +692,20 @@ fn test_default_admin_role_is_its_own_admin() {
 //
 
 #[generate_trait]
-impl AccessControlSpyHelpersImpl of AccessControlSpyHelpers {
+pub impl AccessControlSpyHelpersImpl of AccessControlSpyHelpers {
+    fn assert_event_role_revoked(
+        ref self: EventSpy,
+        contract: ContractAddress,
+        role: felt252,
+        account: ContractAddress,
+        sender: ContractAddress,
+    ) {
+        let expected = AccessControlComponent::Event::RoleRevoked(
+            RoleRevoked { role, account, sender },
+        );
+        self.assert_emitted_single(contract, expected);
+    }
+
     fn assert_only_event_role_revoked(
         ref self: EventSpy,
         contract: ContractAddress,
@@ -487,6 +728,20 @@ impl AccessControlSpyHelpersImpl of AccessControlSpyHelpers {
     ) {
         let expected = AccessControlComponent::Event::RoleGranted(
             RoleGranted { role, account, sender },
+        );
+        self.assert_only_event(contract, expected);
+    }
+
+    fn assert_only_event_role_granted_with_delay(
+        ref self: EventSpy,
+        contract: ContractAddress,
+        role: felt252,
+        account: ContractAddress,
+        sender: ContractAddress,
+        delay: u64,
+    ) {
+        let expected = AccessControlComponent::Event::RoleGrantedWithDelay(
+            RoleGrantedWithDelay { role, account, sender, delay },
         );
         self.assert_only_event(contract, expected);
     }

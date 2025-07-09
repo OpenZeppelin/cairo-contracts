@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v1.0.0 (account/src/account.cairo)
+// OpenZeppelin Contracts for Cairo v2.0.0 (account/src/account.cairo)
 
 /// # Account Component
 ///
@@ -9,14 +9,14 @@ pub mod AccountComponent {
     use core::hash::{HashStateExTrait, HashStateTrait};
     use core::num::traits::Zero;
     use core::poseidon::PoseidonTrait;
+    use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_introspection::src5::SRC5Component::{
         InternalTrait as SRC5InternalTrait, SRC5Impl,
     };
-    use openzeppelin_introspection::src5::SRC5Component;
     use starknet::account::Call;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
-    use crate::utils::{execute_calls, is_tx_version_valid, is_valid_stark_signature};
     use crate::interface;
+    use crate::utils::{execute_single_call, is_tx_version_valid, is_valid_stark_signature};
 
     #[storage]
     pub struct Storage {
@@ -67,16 +67,16 @@ pub mod AccountComponent {
         /// - The transaction version must be greater than or equal to `MIN_TRANSACTION_VERSION`.
         /// - If the transaction is a simulation (version >= `QUERY_OFFSET`), it must be
         /// greater than or equal to `QUERY_OFFSET` + `MIN_TRANSACTION_VERSION`.
-        fn __execute__(
-            self: @ComponentState<TContractState>, calls: Array<Call>,
-        ) -> Array<Span<felt252>> {
+        fn __execute__(self: @ComponentState<TContractState>, calls: Array<Call>) {
             // Avoid calls from other contracts
             // https://github.com/OpenZeppelin/cairo-contracts/issues/344
             let sender = starknet::get_caller_address();
             assert(sender.is_zero(), Errors::INVALID_CALLER);
             assert(is_tx_version_valid(), Errors::INVALID_TX_VERSION);
 
-            execute_calls(calls.span())
+            for call in calls.span() {
+                execute_single_call(call);
+            }
         }
 
         /// Verifies the validity of the signature for the current transaction.
@@ -211,9 +211,7 @@ pub mod AccountComponent {
         +Drop<TContractState>,
     > of interface::AccountABI<ComponentState<TContractState>> {
         // ISRC6
-        fn __execute__(
-            self: @ComponentState<TContractState>, calls: Array<Call>,
-        ) -> Array<Span<felt252>> {
+        fn __execute__(self: @ComponentState<TContractState>, calls: Array<Call>) {
             SRC6::__execute__(self, calls)
         }
 

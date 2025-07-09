@@ -5,10 +5,10 @@ use starknet::storage::{
     StorageMapReadAccess, StorageMapWriteAccess, StoragePathEntry, StoragePointerReadAccess,
     StoragePointerWriteAccess,
 };
+use crate::governor::DefaultConfig;
 use crate::governor::GovernorComponent::InternalImpl;
 use crate::governor::extensions::GovernorCountingSimpleComponent::{GovernorCounting, VoteType};
 use crate::governor::interface::IGovernor;
-use crate::governor::DefaultConfig;
 use crate::tests::governor::common::{COMPONENT_STATE, CONTRACT_STATE};
 
 //

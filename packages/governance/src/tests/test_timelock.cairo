@@ -3,14 +3,15 @@ use core::pedersen::PedersenTrait;
 use openzeppelin_access::accesscontrol::AccessControlComponent::{
     AccessControlImpl, InternalImpl as AccessControlInternalImpl,
 };
-use openzeppelin_access::accesscontrol::interface::{IACCESSCONTROL_ID, IAccessControl};
 use openzeppelin_access::accesscontrol::DEFAULT_ADMIN_ROLE;
+use openzeppelin_access::accesscontrol::interface::{IACCESSCONTROL_ID, IAccessControl};
 use openzeppelin_introspection::interface::ISRC5_ID;
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin_test_common::mocks::timelock::{
     IMockContractDispatcher, IMockContractDispatcherTrait, ITimelockAttackerDispatcher,
     TimelockControllerMock,
 };
+use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{ADMIN, FELT_VALUE as VALUE, OTHER, SALT, ZERO};
 use openzeppelin_testing::{AsAddressTrait, EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use openzeppelin_utils::serde::SerializedAppend;
@@ -18,9 +19,9 @@ use snforge_std::{
     CheatSpan, cheat_caller_address, start_cheat_block_timestamp_global, start_cheat_caller_address,
     test_address,
 };
+use starknet::ContractAddress;
 use starknet::account::Call;
 use starknet::storage::{StorageMapReadAccess, StorageMapWriteAccess, StoragePointerWriteAccess};
-use starknet::ContractAddress;
 use crate::timelock::TimelockControllerComponent::{
     CallCancelled, CallExecuted, CallSalt, CallScheduled, InternalImpl as TimelockInternalImpl,
     MinDelayChanged, TimelockImpl,
@@ -29,7 +30,6 @@ use crate::timelock::interface::{TimelockABIDispatcher, TimelockABIDispatcherTra
 use crate::timelock::{
     CANCELLER_ROLE, EXECUTOR_ROLE, OperationState, PROPOSER_ROLE, TimelockControllerComponent,
 };
-use openzeppelin_testing as utils;
 
 type ComponentState =
     TimelockControllerComponent::ComponentState<TimelockControllerMock::ContractState>;
@@ -573,7 +573,7 @@ fn test_execute_failing_tx() {
 }
 
 #[test]
-#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: 'ENTRYPOINT_NOT_FOUND')]
 fn test_execute_bad_selector() {
     let (mut timelock, mut target) = setup_dispatchers();
     let predecessor = NO_PREDECESSOR;

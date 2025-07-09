@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v1.0.0
+// OpenZeppelin Contracts for Cairo v2.0.0
 // (governance/src/governor/extensions/governor_counting_simple.cairo)
 
 /// # GovernorCountingSimple Component
@@ -8,15 +8,15 @@
 #[starknet::component]
 pub mod GovernorCountingSimpleComponent {
     use openzeppelin_introspection::src5::SRC5Component;
+    use starknet::ContractAddress;
     use starknet::storage::{
         Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePathEntry,
         StoragePointerReadAccess, StoragePointerWriteAccess,
     };
-    use starknet::ContractAddress;
+    use crate::governor::GovernorComponent;
     use crate::governor::GovernorComponent::{
         ComponentState as GovernorComponentState, InternalTrait,
     };
-    use crate::governor::GovernorComponent;
 
     type ProposalId = felt252;
 

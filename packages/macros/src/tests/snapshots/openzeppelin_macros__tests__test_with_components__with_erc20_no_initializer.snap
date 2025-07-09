@@ -7,18 +7,17 @@ TokenStream:
 
 #[starknet::contract]
 pub mod MyToken {
-    use openzeppelin_token::erc20::ERC20HooksEmptyImpl;
+    use openzeppelin_token::erc20::{DefaultConfig, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
 
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        erc20: ERC20Component::Storage,
+        pub erc20: ERC20Component::Storage,
     }
 
     #[constructor]
     fn constructor(ref self: ContractState) {}
-
     use openzeppelin_token::erc20::ERC20Component;
 
     component!(path: ERC20Component, storage: erc20, event: ERC20Event);
@@ -41,7 +40,8 @@ Warning: It looks like the initializers for the following components are missing
 
 ERC20
 
-This may lead to unexpected behavior. We recommend adding the corresponding initializer calls to the constructor.
+This may lead to unexpected behavior.
+We recommend adding the corresponding initializer calls to the constructor.
 ====
 
 AuxData:

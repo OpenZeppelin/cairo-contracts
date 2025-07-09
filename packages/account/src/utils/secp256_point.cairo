@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v1.0.0 (account/src/utils/secp256_point.cairo)
+// OpenZeppelin Contracts for Cairo v2.0.0 (account/src/utils/secp256_point.cairo)
 
 use core::fmt::{Error, Formatter};
+use starknet::SyscallResultTrait;
 use starknet::secp256_trait::{Secp256PointTrait, Secp256Trait};
 use starknet::storage_access::StorePacking;
-use starknet::SyscallResultTrait;
 
 /// Packs a Secp256Point into a (felt252, felt252).
 ///

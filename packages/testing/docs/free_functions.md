@@ -6,8 +6,6 @@
 
 - [common::to_base_16_string](./openzeppelin_testing-common-to_base_16_string.md)
 
-- [events::spy_events](./openzeppelin_testing-events-spy_events.md)
-
 - [deployment::declare_and_deploy](./openzeppelin_testing-deployment-declare_and_deploy.md)
 
 - [deployment::declare_and_deploy_at](./openzeppelin_testing-deployment-declare_and_deploy_at.md)
@@ -19,6 +17,8 @@
 - [deployment::deploy_another_at](./openzeppelin_testing-deployment-deploy_another_at.md)
 
 - [deployment::deploy_at](./openzeppelin_testing-deployment-deploy_at.md)
+
+- [events::spy_events](./openzeppelin_testing-events-spy_events.md)
 
 - [common::panic_data_to_byte_array](./openzeppelin_testing-common-panic_data_to_byte_array.md)
 

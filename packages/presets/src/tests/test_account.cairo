@@ -1,9 +1,4 @@
 use core::num::traits::Zero;
-use crate::interfaces::account::{
-    AccountUpgradeableABISafeDispatcher, AccountUpgradeableABISafeDispatcherTrait,
-};
-use crate::interfaces::{AccountUpgradeableABIDispatcher, AccountUpgradeableABIDispatcherTrait};
-use crate::AccountUpgradeable;
 use openzeppelin_account::account::AccountComponent::AccountMixinImpl;
 use openzeppelin_account::extensions::SRC9Component::{OutsideExecutionV2Impl, SNIP12MetadataImpl};
 use openzeppelin_account::extensions::src9::interface::{ISRC9_V2_ID, OutsideExecution};
@@ -15,6 +10,7 @@ use openzeppelin_test_common::account::{
 };
 use openzeppelin_test_common::erc20::deploy_erc20;
 use openzeppelin_test_common::upgrades::UpgradeableSpyHelpers;
+use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::stark::{KEY_PAIR, KEY_PAIR_2};
 use openzeppelin_testing::constants::{
     CALLER, CLASS_HASH_ZERO, FELT_VALUE, MIN_TRANSACTION_VERSION, OTHER, QUERY_OFFSET,
@@ -32,7 +28,11 @@ use snforge_std::{
 };
 use starknet::account::Call;
 use starknet::{ClassHash, ContractAddress};
-use openzeppelin_testing as utils;
+use crate::AccountUpgradeable;
+use crate::interfaces::account::{
+    AccountUpgradeableABISafeDispatcher, AccountUpgradeableABISafeDispatcherTrait,
+};
+use crate::interfaces::{AccountUpgradeableABIDispatcher, AccountUpgradeableABIDispatcherTrait};
 
 //
 // Setup
@@ -372,16 +372,11 @@ fn test_execute_with_version(version: Option<felt252>) {
     }
 
     // Execute
-    let ret = account.__execute__(calls);
+    account.__execute__(calls);
 
     // Assert that the transfer was successful
     assert_eq!(erc20.balance_of(account.contract_address), 800, "Should have remainder");
     assert_eq!(erc20.balance_of(recipient), amount, "Should have transferred");
-
-    // Test return value
-    let mut call_serialized_retval = *ret.at(0);
-    let call_retval = Serde::<bool>::deserialize(ref call_serialized_retval);
-    assert!(call_retval.unwrap());
 }
 
 #[test]
@@ -468,32 +463,12 @@ fn test_multicall() {
     // Bundle calls and execute
     calls.append(call1);
     calls.append(call2);
-    let ret = account.__execute__(calls);
+    account.__execute__(calls);
 
     // Assert that the transfers were successful
     assert_eq!(erc20.balance_of(account.contract_address), 200, "Should have remainder");
     assert_eq!(erc20.balance_of(recipient1), 300, "Should have transferred");
     assert_eq!(erc20.balance_of(recipient2), 500, "Should have transferred");
-
-    // Test return value
-    let mut call1_serialized_retval = *ret.at(0);
-    let mut call2_serialized_retval = *ret.at(1);
-
-    let call1_retval = Serde::<bool>::deserialize(ref call1_serialized_retval);
-    assert!(call1_retval.unwrap());
-
-    let call2_retval = Serde::<bool>::deserialize(ref call2_serialized_retval);
-    assert!(call2_retval.unwrap());
-}
-
-#[test]
-fn test_multicall_zero_calls() {
-    let key_pair = KEY_PAIR();
-    let (account, _) = setup_dispatcher_with_data(key_pair, SIGNED_TX_DATA(key_pair));
-
-    let calls = array![];
-    let response = account.__execute__(calls);
-    assert!(response.is_empty());
 }
 
 #[test]

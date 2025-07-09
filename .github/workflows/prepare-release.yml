@@ -34,6 +34,7 @@ jobs:
         find . -type f -not -path '*/\.*' -not -path './CHANGELOG.md' -not -path './docs/package-lock.json' \
           -not -path './RELEASING.md' \
           -not -path './packages/testing/*' \
+          -not -path './audits/*' \
           -exec sed -i "s/$ESCAPED_CURRENT_VERSION/$NEW_VERSION/g" {} +
 
     - name: Setup scarb
@@ -45,17 +46,17 @@ jobs:
     - name: Setup class_hash
       uses: ericnordelo/setup-class-hash@c14dd33506c3eb8e1acfe2ade9f82585f5acf28c
       with:
-        version: "0.1.0"
+        version: "0.2.0"
 
     - name: Build presets artifacts
-      run: scarb build -p openzeppelin_presets
+      run: scarb --release build -p openzeppelin_presets
 
     - name: Update presets page
       run: |
-        class_hash get --no-compile --json | python3 scripts/get_hashes_page.py "$CAIRO_VERSION" \
+        class_hash get --no-compile --release --json | python3 scripts/get_hashes_page.py "$CAIRO_VERSION" \
           > ./docs/modules/ROOT/pages/utils/_class_hashes.adoc
 
     - name: Auto-commit changes
-      uses: stefanzweifel/git-auto-commit-action@e348103e9026cc0eee72ae06630dbe30c8bf7a79 #v5.1.0
+      uses: stefanzweifel/git-auto-commit-action@778341af668090896ca464160c2def5d1d1a3eb0 #v6.0.1
       with:
         commit_message: Bump version to ${{ env.NEW_VERSION }} and update presets page

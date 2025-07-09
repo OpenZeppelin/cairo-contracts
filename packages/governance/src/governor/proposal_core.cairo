@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v1.0.0 (governance/src/governor/proposal_core.cairo)
+// OpenZeppelin Contracts for Cairo v2.0.0 (governance/src/governor/proposal_core.cairo)
 
 use core::traits::DivRem;
-use starknet::storage_access::StorePacking;
 use starknet::ContractAddress;
+use starknet::storage_access::StorePacking;
 
 /// Proposal state.
 #[derive(Copy, Drop, Serde, PartialEq, Debug)]

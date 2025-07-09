@@ -2,7 +2,5 @@
 
 Fully qualified path: `openzeppelin_testing::constants::EMPTY_DATA`
 
-```rust
-pub fn EMPTY_DATA() -> Span<felt252>
-```
+<pre><code class="language-rust">pub fn EMPTY_DATA() -&gt; Span&lt;felt252&gt;</code></pre>
 

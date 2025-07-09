@@ -1,12 +1,16 @@
+#[cfg(feature: 'fuzzing')]
+use core::integer::{u512, u512_safe_div_rem_by_u256};
 use core::num::traits::Bounded;
-use crate::math::Rounding;
+#[cfg(feature: 'fuzzing')]
+use core::num::traits::OverflowingAdd;
 use crate::math;
+use crate::math::Rounding;
 
 //
 // average
 //
 
-// #[cfg(feature: 'fuzzing')]
+#[cfg(feature: 'fuzzing')]
 mod fuzz_tests {
     use crate::math;
 
@@ -22,7 +26,6 @@ mod fuzz_tests {
         assert_eq!(actual, expected.try_into().unwrap());
     }
 
-    #[cfg(feature: 'fuzzing')]
     #[test]
     #[fuzzer]
     fn test_average_u16(a: u16, b: u16) {
@@ -35,7 +38,6 @@ mod fuzz_tests {
         assert_eq!(actual, expected.try_into().unwrap());
     }
 
-    #[cfg(feature: 'fuzzing')]
     #[test]
     #[fuzzer]
     fn test_average_u32(a: u32, b: u32) {
@@ -48,7 +50,6 @@ mod fuzz_tests {
         assert_eq!(actual, expected.try_into().unwrap());
     }
 
-    #[cfg(feature: 'fuzzing')]
     #[test]
     #[fuzzer]
     fn test_average_u64(a: u64, b: u64) {
@@ -61,7 +62,6 @@ mod fuzz_tests {
         assert_eq!(actual, expected.try_into().unwrap());
     }
 
-    #[cfg(feature: 'fuzzing')]
     #[test]
     #[fuzzer]
     fn test_average_u128(a: u128, b: u128) {
@@ -74,7 +74,6 @@ mod fuzz_tests {
         assert_eq!(actual, expected.try_into().unwrap());
     }
 
-    #[cfg(feature: 'fuzzing')]
     #[test]
     #[fuzzer]
     fn test_average_u256(a: u256, b: u256) {

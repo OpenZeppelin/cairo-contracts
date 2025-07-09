@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v1.0.0
+// OpenZeppelin Contracts for Cairo v2.0.0
 // (governance/src/governor/extensions/governor_core_execution.cairo)
 
 /// # GovernorCoreExecution Component
@@ -12,11 +12,11 @@ pub mod GovernorCoreExecutionComponent {
     use openzeppelin_introspection::src5::SRC5Component;
     use starknet::account::Call;
     use starknet::{ContractAddress, SyscallResultTrait};
+    use crate::governor::GovernorComponent;
     use crate::governor::GovernorComponent::{
         ComponentState as GovernorComponentState, InternalExtendedTrait,
     };
     use crate::governor::interface::ProposalState;
-    use crate::governor::GovernorComponent;
 
     #[storage]
     pub struct Storage {}

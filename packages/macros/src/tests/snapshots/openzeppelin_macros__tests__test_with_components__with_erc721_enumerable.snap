@@ -10,14 +10,13 @@ pub mod MyContract {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        erc721_enumerable: ERC721EnumerableComponent::Storage,
+        pub erc721_enumerable: ERC721EnumerableComponent::Storage,
     }
 
     #[constructor]
     fn constructor(ref self: ContractState) {
         self.erc721_enumerable.initializer();
     }
-
     use openzeppelin_token::erc721::extensions::ERC721EnumerableComponent;
 
     component!(

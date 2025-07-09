@@ -13,7 +13,7 @@ pub mod Contract {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        access_control: AccessControlComponent::Storage,
+        pub access_control: AccessControlComponent::Storage,
     }
 
     #[constructor]
@@ -22,7 +22,6 @@ pub mod Contract {
 
         self.access_control._grant_role(DEFAULT_ADMIN_ROLE, default_admin);
     }
-
     use openzeppelin_access::accesscontrol::AccessControlComponent;
 
     component!(path: AccessControlComponent, storage: access_control, event: AccessControlEvent);

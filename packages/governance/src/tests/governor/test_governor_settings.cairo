@@ -2,14 +2,14 @@ use openzeppelin_test_common::mocks::governor::GovernorTimelockedMock::SNIP12Met
 use openzeppelin_testing::constants::OTHER;
 use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use snforge_std::{start_cheat_caller_address, test_address};
-use starknet::storage::StoragePointerWriteAccess;
 use starknet::ContractAddress;
+use starknet::storage::StoragePointerWriteAccess;
+use crate::governor::DefaultConfig;
 use crate::governor::GovernorComponent::InternalImpl;
+use crate::governor::extensions::GovernorSettingsComponent;
 use crate::governor::extensions::GovernorSettingsComponent::{
     GovernorSettings, GovernorSettingsAdminImpl, InternalImpl as GovernorSettingsInternalImpl,
 };
-use crate::governor::extensions::GovernorSettingsComponent;
-use crate::governor::DefaultConfig;
 use crate::tests::governor::common::{
     COMPONENT_STATE_TIMELOCKED as COMPONENT_STATE, CONTRACT_STATE_TIMELOCKED as CONTRACT_STATE,
     set_executor,

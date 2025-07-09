@@ -1,5 +1,5 @@
-use openzeppelin_access::ownable::OwnableComponent::OwnershipTransferred;
 use openzeppelin_access::ownable::OwnableComponent;
+use openzeppelin_access::ownable::OwnableComponent::OwnershipTransferred;
 use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy};
 use starknet::ContractAddress;
 

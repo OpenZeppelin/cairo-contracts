@@ -12,14 +12,13 @@ pub mod MyContract {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        erc721: ERC721Component::Storage,
+        pub erc721: ERC721Component::Storage,
     }
 
     #[constructor]
     fn constructor(ref self: ContractState) {
         self.erc721.initializer("MyToken", "MTK", "");
     }
-
     use openzeppelin_token::erc721::ERC721Component;
 
     component!(path: ERC721Component, storage: erc721, event: ERC721Event);

@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v1.0.0 (account/src/extensions/src9/interface.cairo)
+// OpenZeppelin Contracts for Cairo v2.0.0 (account/src/extensions/src9/interface.cairo)
 
-use starknet::account::Call;
 use starknet::ContractAddress;
+use starknet::account::Call;
 
 pub const ISRC9_V2_ID: felt252 = 0x1d1144bb2138366ff28d8e9ab57456b1d332ac42196230c3a602003c89872;
 

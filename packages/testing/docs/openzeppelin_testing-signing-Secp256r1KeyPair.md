@@ -2,7 +2,5 @@
 
 Fully qualified path: `openzeppelin_testing::signing::Secp256r1KeyPair`
 
-```rust
-pub type Secp256r1KeyPair = KeyPair<u256, Secp256r1Point>;
-```
+<pre><code class="language-rust">pub type Secp256r1KeyPair = KeyPair&lt;u256, Secp256r1Point&gt;;</code></pre>
 

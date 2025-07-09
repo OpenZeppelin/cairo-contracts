@@ -1,16 +1,3 @@
-use crate::governor::GovernorComponent::{InternalExtendedImpl, InternalImpl};
-use crate::governor::extensions::GovernorTimelockExecutionComponent::GovernorExecution;
-use crate::governor::extensions::interface::{ITimelockedDispatcher, ITimelockedDispatcherTrait};
-use crate::governor::extensions::GovernorTimelockExecutionComponent;
-use crate::governor::interface::{IGovernorDispatcher, IGovernorDispatcherTrait, ProposalState};
-use crate::governor::DefaultConfig;
-use crate::tests::governor::common::{
-    COMPONENT_STATE_TIMELOCKED as COMPONENT_STATE, CONTRACT_STATE_TIMELOCKED as CONTRACT_STATE,
-    ComponentStateTimelocked, get_proposal_info, set_executor,
-};
-use crate::tests::governor::test_governor::GovernorSpyHelpersImpl;
-use crate::tests::test_timelock::TimelockSpyHelpersImpl;
-use crate::timelock::interface::{ITimelockDispatcher, OperationState};
 use openzeppelin_test_common::mocks::governor::GovernorMock::SNIP12MetadataImpl;
 use openzeppelin_test_common::mocks::governor::{
     CancelOperationsDispatcher, CancelOperationsDispatcherTrait, GovernorTimelockedMock,
@@ -19,6 +6,7 @@ use openzeppelin_test_common::mocks::governor::{
 use openzeppelin_test_common::mocks::timelock::{
     IMockContractDispatcher, IMockContractDispatcherTrait,
 };
+use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{OTHER, TIMELOCK, VOTES_TOKEN};
 use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use openzeppelin_utils::bytearray::ByteArrayExtTrait;
@@ -26,10 +14,22 @@ use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{
     start_cheat_block_timestamp_global, start_cheat_caller_address, start_mock_call, store,
 };
+use starknet::ContractAddress;
 use starknet::account::Call;
 use starknet::storage::{StorageMapWriteAccess, StoragePathEntry, StoragePointerWriteAccess};
-use starknet::ContractAddress;
-use openzeppelin_testing as utils;
+use crate::governor::DefaultConfig;
+use crate::governor::GovernorComponent::{InternalExtendedImpl, InternalImpl};
+use crate::governor::extensions::GovernorTimelockExecutionComponent;
+use crate::governor::extensions::GovernorTimelockExecutionComponent::GovernorExecution;
+use crate::governor::extensions::interface::{ITimelockedDispatcher, ITimelockedDispatcherTrait};
+use crate::governor::interface::{IGovernorDispatcher, IGovernorDispatcherTrait, ProposalState};
+use crate::tests::governor::common::{
+    COMPONENT_STATE_TIMELOCKED as COMPONENT_STATE, CONTRACT_STATE_TIMELOCKED as CONTRACT_STATE,
+    ComponentStateTimelocked, get_proposal_info, set_executor,
+};
+use crate::tests::governor::test_governor::GovernorSpyHelpersImpl;
+use crate::tests::test_timelock::TimelockSpyHelpersImpl;
+use crate::timelock::interface::{ITimelockDispatcher, OperationState};
 
 const MIN_DELAY: u64 = 100;
 

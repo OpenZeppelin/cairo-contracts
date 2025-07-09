@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v1.0.0 (token/src/erc721/erc721.cairo)
+// OpenZeppelin Contracts for Cairo v2.0.0 (token/src/erc721/erc721.cairo)
 
 /// # ERC721 Component
 ///
@@ -9,17 +9,17 @@
 pub mod ERC721Component {
     use core::num::traits::Zero;
     use openzeppelin_introspection::interface::{ISRC5Dispatcher, ISRC5DispatcherTrait};
+    use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_introspection::src5::SRC5Component::{
         InternalTrait as SRC5InternalTrait, SRC5Impl,
     };
-    use openzeppelin_introspection::src5::SRC5Component;
     use starknet::storage::{
         Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
         StoragePointerWriteAccess,
     };
     use starknet::{ContractAddress, get_caller_address};
-    use crate::erc721::interface::{IERC721ReceiverDispatcher, IERC721ReceiverDispatcherTrait};
     use crate::erc721::interface;
+    use crate::erc721::interface::{IERC721ReceiverDispatcher, IERC721ReceiverDispatcherTrait};
 
     #[storage]
     pub struct Storage {

@@ -10,9 +10,8 @@ pub mod MyContract {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        reentrancy_guard: ReentrancyGuardComponent::Storage,
+        pub reentrancy_guard: ReentrancyGuardComponent::Storage,
     }
-
     use openzeppelin_security::ReentrancyGuardComponent;
 
     component!(

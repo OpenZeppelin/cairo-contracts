@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v1.0.0 (presets/src/universal_deployer.cairo)
+// OpenZeppelin Contracts for Cairo v2.0.0 (presets/src/universal_deployer.cairo)
 
 /// # UniversalDeployerContract Preset
 ///

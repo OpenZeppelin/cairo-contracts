@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v1.0.0 (governance/src/governor/governor.cairo)
+// OpenZeppelin Contracts for Cairo v2.0.0 (governance/src/governor/governor.cairo)
 
 /// # Governor Component
 ///
@@ -10,17 +10,17 @@ pub mod GovernorComponent {
     use core::num::traits::Zero;
     use core::pedersen::PedersenTrait;
     use core::traits::PartialEq;
-    use openzeppelin_account::interface::{ISRC6Dispatcher, ISRC6DispatcherTrait};
-    use openzeppelin_introspection::src5::SRC5Component::InternalImpl as SRC5InternalImpl;
+    use openzeppelin_account::utils::assert_valid_signature;
     use openzeppelin_introspection::src5::SRC5Component;
+    use openzeppelin_introspection::src5::SRC5Component::InternalImpl as SRC5InternalImpl;
     use openzeppelin_utils::bytearray::ByteArrayExtTrait;
     use openzeppelin_utils::cryptography::snip12::{OffchainMessageHash, SNIP12Metadata};
     use starknet::account::Call;
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
     use starknet::{ContractAddress, SyscallResultTrait};
+    use crate::governor::ProposalCore;
     use crate::governor::interface::{IGOVERNOR_ID, IGovernor, ProposalState};
     use crate::governor::vote::{Vote, VoteWithReasonAndParams};
-    use crate::governor::ProposalCore;
     use crate::utils::call_impls::{HashCallImpl, HashCallsImpl};
 
     type ProposalId = felt252;
@@ -633,14 +633,7 @@ pub mod GovernorComponent {
             let vote = Vote { verifying_contract, nonce, proposal_id, support, voter };
             let hash = vote.get_message_hash(voter);
 
-            let is_valid_signature_felt = ISRC6Dispatcher { contract_address: voter }
-                .is_valid_signature(hash, signature.into());
-
-            // 3. Check either 'VALID' or true for backwards compatibility
-            let is_valid_signature = is_valid_signature_felt == starknet::VALIDATED
-                || is_valid_signature_felt == 1;
-
-            assert(is_valid_signature, Errors::INVALID_SIGNATURE);
+            assert_valid_signature(voter, hash, signature.into(), Errors::INVALID_SIGNATURE);
 
             // 4. Cast vote
             self._cast_vote(proposal_id, voter, support, "", Immutable::DEFAULT_PARAMS())
@@ -679,14 +672,7 @@ pub mod GovernorComponent {
             };
             let hash = vote.get_message_hash(voter);
 
-            let is_valid_signature_felt = ISRC6Dispatcher { contract_address: voter }
-                .is_valid_signature(hash, signature.into());
-
-            // 3. Check either 'VALID' or true for backwards compatibility
-            let is_valid_signature = is_valid_signature_felt == starknet::VALIDATED
-                || is_valid_signature_felt == 1;
-
-            assert(is_valid_signature, Errors::INVALID_SIGNATURE);
+            assert_valid_signature(voter, hash, signature.into(), Errors::INVALID_SIGNATURE);
 
             // 4. Cast vote
             self._cast_vote(proposal_id, voter, support, reason, params)

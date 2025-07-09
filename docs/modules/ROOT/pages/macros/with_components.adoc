@@ -1,20 +1,4 @@
-:github-icon: pass:[<svg class="icon"><use href="#github-icon"/></svg>]
-
-= Macros
-
-This crate provides a collection of macros that streamline and simplify development with the library.
-To use them, you need to add the `openzeppelin_macros` crate as a dependency in your `Scarb.toml` file:
-
-```toml
-[dependencies]
-openzeppelin_macros = "1.0.0"
-```
-
-== Attribute macros
-
-[.contract]
-[[with_components]]
-=== `++with_components++`
+= `++with_components++`
 
 This macro simplifies the syntax for adding a set of components to a contract. It:
 
@@ -29,7 +13,7 @@ CAUTION: Since the macro does not expose any external implementations, developer
 the ones required by the contract.
 
 [#with_components-security]
-==== Security considerations
+== Security considerations
 
 The macro was designed to be simple and effective while still being very hard to misuse. For this reason, the features
 that it provides are limited, and things that might make the contract behave in unexpected ways must be
@@ -39,7 +23,7 @@ the internal implementations into scope so these functions are available by defa
 they won't have any effect on the contract's behavior.
 
 [#with_components-usage]
-==== Usage
+== Usage
 
 This is how a contract with multiple components looks when using the macro.
 

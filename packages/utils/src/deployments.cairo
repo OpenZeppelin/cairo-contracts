@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v1.0.0 (utils/src/deployments.cairo)
+// OpenZeppelin Contracts for Cairo v2.0.0 (utils/src/deployments.cairo)
 
 pub mod interface;
 use core::hash::{HashStateExTrait, HashStateTrait};

@@ -3,6 +3,7 @@ use openzeppelin_introspection::interface::ISRC5_ID;
 use openzeppelin_test_common::erc721::ERC721SpyHelpers;
 use openzeppelin_test_common::ownable::OwnableSpyHelpers;
 use openzeppelin_test_common::upgrades::UpgradeableSpyHelpers;
+use openzeppelin_testing as utils;
 use openzeppelin_testing::common::IntoBase16String;
 use openzeppelin_testing::constants::{
     BASE_URI, CLASS_HASH_ZERO, DATA, NAME, OPERATOR, OTHER, OWNER, PUBKEY, RECIPIENT, SPENDER,
@@ -17,10 +18,9 @@ use openzeppelin_token::erc721::interface::{
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::start_cheat_caller_address;
 use starknet::{ClassHash, ContractAddress};
+use crate::ERC721Upgradeable;
 use crate::ERC721Upgradeable::InternalImpl;
 use crate::interfaces::{ERC721UpgradeableABIDispatcher, ERC721UpgradeableABIDispatcherTrait};
-use crate::ERC721Upgradeable;
-use openzeppelin_testing as utils;
 
 
 // Token IDs
@@ -556,7 +556,7 @@ fn test_safeTransferFrom_to_receiver_failure() {
 }
 
 #[test]
-#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: 'ENTRYPOINT_NOT_FOUND')]
 fn test_safe_transfer_from_to_non_receiver() {
     let (_, dispatcher) = setup_dispatcher();
     let recipient = utils::declare_and_deploy("NonImplementingMock", array![]);
@@ -567,7 +567,7 @@ fn test_safe_transfer_from_to_non_receiver() {
 }
 
 #[test]
-#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: 'ENTRYPOINT_NOT_FOUND')]
 fn test_safeTransferFrom_to_non_receiver() {
     let (_, dispatcher) = setup_dispatcher();
     let recipient = utils::declare_and_deploy("NonImplementingMock", array![]);

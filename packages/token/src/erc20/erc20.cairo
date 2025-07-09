@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v1.0.0 (token/src/erc20/erc20.cairo)
+// OpenZeppelin Contracts for Cairo v2.0.0 (token/src/erc20/erc20.cairo)
 
 /// # ERC20 Component
 ///
@@ -8,25 +8,25 @@
 /// component is agnostic regarding how tokens are created, which means that developers
 /// must create their own token distribution mechanism.
 /// See [the documentation]
-/// (https://docs.openzeppelin.com/contracts-cairo/1.0.0/guides/erc20-supply)
+/// (https://docs.openzeppelin.com/contracts-cairo/2.0.0/guides/erc20-supply)
 /// for examples.
 #[starknet::component]
 pub mod ERC20Component {
     use core::num::traits::{Bounded, Zero};
-    use openzeppelin_account::interface::{ISRC6Dispatcher, ISRC6DispatcherTrait};
+    use openzeppelin_account::utils::assert_valid_signature;
     use openzeppelin_utils::cryptography::interface::{INonces, ISNIP12Metadata};
     use openzeppelin_utils::cryptography::snip12::{
         OffchainMessageHash, SNIP12Metadata, StarknetDomain, StructHash,
     };
-    use openzeppelin_utils::nonces::NoncesComponent::InternalTrait as NoncesInternalTrait;
     use openzeppelin_utils::nonces::NoncesComponent;
+    use openzeppelin_utils::nonces::NoncesComponent::InternalTrait as NoncesInternalTrait;
+    use starknet::ContractAddress;
     use starknet::storage::{
         Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
         StoragePointerWriteAccess,
     };
-    use starknet::ContractAddress;
-    use crate::erc20::snip12_utils::permit::Permit;
     use crate::erc20::interface;
+    use crate::erc20::snip12_utils::permit::Permit;
 
     // This default decimals is only used when the DefaultConfig
     // is in scope in the implementing contract.
@@ -374,14 +374,11 @@ pub mod ERC20Component {
                 token: starknet::get_contract_address(), spender, amount, nonce, deadline,
             };
             let permit_hash = permit.get_message_hash(owner);
-            let is_valid_sig_felt = ISRC6Dispatcher { contract_address: owner }
-                .is_valid_signature(permit_hash, signature.into());
+            assert_valid_signature(
+                owner, permit_hash, signature.into(), Errors::INVALID_PERMIT_SIGNATURE,
+            );
 
-            // 4. Check the response is either 'VALID' or True (for backwards compatibility)
-            let is_valid_sig = is_valid_sig_felt == starknet::VALIDATED || is_valid_sig_felt == 1;
-            assert(is_valid_sig, Errors::INVALID_PERMIT_SIGNATURE);
-
-            // 5. Approve
+            // 4. Approve
             self._approve(owner, spender, amount);
         }
 

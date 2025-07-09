@@ -10,7 +10,7 @@ pub mod MyContract {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        upgradeable: UpgradeableComponent::Storage,
+        pub upgradeable: UpgradeableComponent::Storage,
     }
 
     #[abi(embed_v0)]
@@ -19,7 +19,6 @@ pub mod MyContract {
             self.upgradeable.upgrade(new_class_hash);
         }
     }
-
     use openzeppelin_upgrades::UpgradeableComponent;
 
     component!(path: UpgradeableComponent, storage: upgradeable, event: UpgradeableEvent);

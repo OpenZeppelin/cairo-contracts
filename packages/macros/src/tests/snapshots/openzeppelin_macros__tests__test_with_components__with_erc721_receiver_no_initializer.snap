@@ -10,9 +10,8 @@ pub mod MyContract {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        erc721_receiver: ERC721ReceiverComponent::Storage,
+        pub erc721_receiver: ERC721ReceiverComponent::Storage,
     }
-
     use openzeppelin_token::erc721::ERC721ReceiverComponent;
 
     component!(path: ERC721ReceiverComponent, storage: erc721_receiver, event: ERC721ReceiverEvent);
@@ -35,7 +34,8 @@ Warning: It looks like the initializers for the following components are missing
 
 ERC721Receiver
 
-This may lead to unexpected behavior. We recommend adding the corresponding initializer calls to the constructor.
+This may lead to unexpected behavior.
+We recommend adding the corresponding initializer calls to the constructor.
 ====
 
 AuxData:

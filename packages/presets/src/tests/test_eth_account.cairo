@@ -1,11 +1,4 @@
 use core::num::traits::Zero;
-use crate::interfaces::eth_account::{
-    EthAccountUpgradeableABISafeDispatcher, EthAccountUpgradeableABISafeDispatcherTrait,
-};
-use crate::interfaces::{
-    EthAccountUpgradeableABIDispatcher, EthAccountUpgradeableABIDispatcherTrait,
-};
-use crate::EthAccountUpgradeable;
 use openzeppelin_account::eth_account::EthAccountComponent::EthAccountMixinImpl;
 use openzeppelin_account::extensions::SRC9Component::{OutsideExecutionV2Impl, SNIP12MetadataImpl};
 use openzeppelin_account::extensions::src9::interface::{ISRC9_V2_ID, OutsideExecution};
@@ -18,6 +11,7 @@ use openzeppelin_test_common::eth_account::{
     EthAccountSpyHelpers, SIGNED_TX_DATA, SignedTransactionData, get_accept_ownership_signature,
 };
 use openzeppelin_test_common::upgrades::UpgradeableSpyHelpers;
+use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::secp256k1::{KEY_PAIR, KEY_PAIR_2};
 use openzeppelin_testing::constants::{
     CALLER, CLASS_HASH_ZERO, FELT_VALUE, MIN_TRANSACTION_VERSION, OTHER, QUERY_VERSION, RECIPIENT,
@@ -37,7 +31,13 @@ use starknet::account::Call;
 use starknet::secp256_trait::Secp256Trait;
 use starknet::secp256k1::Secp256k1Point;
 use starknet::{ClassHash, ContractAddress, SyscallResultTrait};
-use openzeppelin_testing as utils;
+use crate::EthAccountUpgradeable;
+use crate::interfaces::eth_account::{
+    EthAccountUpgradeableABISafeDispatcher, EthAccountUpgradeableABISafeDispatcherTrait,
+};
+use crate::interfaces::{
+    EthAccountUpgradeableABIDispatcher, EthAccountUpgradeableABIDispatcherTrait,
+};
 
 fn declare_v2_class() -> ClassHash {
     utils::declare_class("SnakeEthAccountMock").class_hash
@@ -349,14 +349,10 @@ fn test_execute_with_version(version: Option<felt252>) {
         start_cheat_transaction_version_global(version);
     }
 
-    let ret = account.__execute__(calls);
+    account.__execute__(calls);
 
     assert_eq!(erc20.balance_of(account.contract_address), 800, "Should have remainder");
     assert_eq!(erc20.balance_of(RECIPIENT), amount, "Should have transferred");
-
-    let mut call_serialized_retval = *ret.at(0);
-    let call_retval = Serde::<bool>::deserialize(ref call_serialized_retval);
-    assert!(call_retval.unwrap());
 }
 
 #[test]
@@ -424,29 +420,11 @@ fn test_multicall() {
     };
 
     let calls = array![call1, call2];
-    let ret = account.__execute__(calls);
+    account.__execute__(calls);
 
     assert_eq!(erc20.balance_of(account.contract_address), 200, "Should have remainder");
     assert_eq!(erc20.balance_of(recipient1), 300, "Should have transferred");
     assert_eq!(erc20.balance_of(recipient2), 500, "Should have transferred");
-
-    let mut call1_serialized_retval = *ret.at(0);
-    let mut call2_serialized_retval = *ret.at(1);
-    let call1_retval = Serde::<bool>::deserialize(ref call1_serialized_retval);
-    let call2_retval = Serde::<bool>::deserialize(ref call2_serialized_retval);
-    assert!(call1_retval.unwrap());
-    assert!(call2_retval.unwrap());
-}
-
-#[test]
-fn test_multicall_zero_calls() {
-    let key_pair = KEY_PAIR();
-    let (account, _) = setup_dispatcher_with_data(key_pair, SIGNED_TX_DATA(key_pair));
-
-    let calls = array![];
-    let ret = account.__execute__(calls);
-
-    assert!(ret.len().is_zero(), "Should have an empty response");
 }
 
 #[test]

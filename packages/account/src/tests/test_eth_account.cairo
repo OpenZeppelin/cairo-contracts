@@ -4,6 +4,7 @@ use openzeppelin_test_common::eth_account::{
 };
 use openzeppelin_test_common::mocks::account::DualCaseEthAccountMock;
 use openzeppelin_test_common::mocks::simple::{ISimpleMockDispatcher, ISimpleMockDispatcherTrait};
+use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::secp256k1::{KEY_PAIR, KEY_PAIR_2};
 use openzeppelin_testing::constants::{
     CALLER, MIN_TRANSACTION_VERSION, OTHER, QUERY_VERSION, SALT, ZERO,
@@ -16,14 +17,13 @@ use snforge_std::{
     start_cheat_transaction_version_global, test_address,
 };
 use starknet::account::Call;
+use crate::EthAccountComponent;
 use crate::EthAccountComponent::{
     InternalTrait, PublicKeyCamelImpl, PublicKeyImpl, SRC6CamelOnlyImpl,
 };
 use crate::interface::{EthAccountABIDispatcher, EthAccountABIDispatcherTrait, ISRC6, ISRC6_ID};
 use crate::utils::secp256_point::{DebugSecp256Point, Secp256PointPartialEq};
 use crate::utils::signature::Secp256Signature;
-use crate::EthAccountComponent;
-use openzeppelin_testing as utils;
 
 //
 // Setup
@@ -238,15 +238,10 @@ fn test_execute_with_version(version: Option<felt252>) {
     }
 
     // Execute
-    let ret = account.__execute__(calls);
+    account.__execute__(calls);
 
     // Assert that the call was successful
     assert_eq!(simple_mock.get_balance(), amount);
-
-    // Test return value
-    let mut call_serialized_retval = *ret.at(0);
-    let call_retval = Serde::<bool>::deserialize(ref call_serialized_retval);
-    assert!(call_retval.unwrap());
 }
 
 #[test]
@@ -313,32 +308,11 @@ fn test_multicall() {
 
     // Bundle calls and execute
     let calls = array![call1, call2];
-    let ret = account.__execute__(calls);
+    account.__execute__(calls);
 
     // Assert that the txs were successful
     let total_balance = amount1 + amount2;
     assert_eq!(simple_mock.get_balance(), total_balance);
-
-    // Test return value
-    let mut call1_serialized_retval = *ret.at(0);
-    let call1_retval = Serde::<bool>::deserialize(ref call1_serialized_retval);
-    assert!(call1_retval.unwrap());
-
-    let mut call2_serialized_retval = *ret.at(1);
-    let call2_retval = Serde::<bool>::deserialize(ref call2_serialized_retval);
-    assert!(call2_retval.unwrap());
-}
-
-#[test]
-fn test_multicall_zero_calls() {
-    let key_pair = KEY_PAIR();
-    let (account, _) = setup_dispatcher(key_pair, SIGNED_TX_DATA(key_pair));
-    let calls = array![];
-
-    let ret = account.__execute__(calls);
-
-    // Test return value
-    assert_eq!(ret.len(), 0, "Should have an empty response");
 }
 
 #[test]

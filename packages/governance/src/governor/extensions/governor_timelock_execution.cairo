@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v1.0.0
+// OpenZeppelin Contracts for Cairo v2.0.0
 // (governance/src/governor/extensions/governor_timelock_execution.cairo)
 
 /// # GovernorTimelockExecution Component
@@ -24,18 +24,18 @@
 pub mod GovernorTimelockExecutionComponent {
     use core::num::traits::Zero;
     use openzeppelin_introspection::src5::SRC5Component;
+    use starknet::ContractAddress;
     use starknet::account::Call;
     use starknet::storage::{
         Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
         StoragePointerWriteAccess,
     };
-    use starknet::ContractAddress;
+    use crate::governor::GovernorComponent;
     use crate::governor::GovernorComponent::{
         ComponentState as GovernorComponentState, InternalExtendedTrait,
     };
     use crate::governor::extensions::interface::ITimelocked;
     use crate::governor::interface::ProposalState;
-    use crate::governor::GovernorComponent;
     use crate::timelock::interface::{ITimelockDispatcher, ITimelockDispatcherTrait, OperationState};
 
     type ProposalId = felt252;

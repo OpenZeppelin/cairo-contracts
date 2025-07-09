@@ -1,65 +1,74 @@
 #[starknet::contract]
+#[with_components(AccessControl, SRC5)]
 pub mod DualCaseAccessControlMock {
-    use openzeppelin_access::accesscontrol::{AccessControlComponent, DEFAULT_ADMIN_ROLE};
-    use openzeppelin_introspection::src5::SRC5Component;
+    use openzeppelin_access::accesscontrol::DEFAULT_ADMIN_ROLE;
     use starknet::ContractAddress;
-
-    component!(path: AccessControlComponent, storage: accesscontrol, event: AccessControlEvent);
-    component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
     // AccessControlMixin
     #[abi(embed_v0)]
     impl AccessControlMixinImpl =
         AccessControlComponent::AccessControlMixinImpl<ContractState>;
-    impl AccessControlInternalImpl = AccessControlComponent::InternalImpl<ContractState>;
 
     #[storage]
-    pub struct Storage {
-        #[substorage(v0)]
-        pub accesscontrol: AccessControlComponent::Storage,
-        #[substorage(v0)]
-        pub src5: SRC5Component::Storage,
-    }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        #[flat]
-        AccessControlEvent: AccessControlComponent::Event,
-        #[flat]
-        SRC5Event: SRC5Component::Event,
-    }
+    pub struct Storage {}
 
     #[constructor]
     fn constructor(ref self: ContractState, admin: ContractAddress) {
-        self.accesscontrol.initializer();
-        self.accesscontrol._grant_role(DEFAULT_ADMIN_ROLE, admin);
+        self.access_control.initializer();
+        self.access_control._grant_role(DEFAULT_ADMIN_ROLE, admin);
     }
 }
 
 #[starknet::contract]
-pub mod DualCaseOwnableMock {
-    use openzeppelin_access::ownable::OwnableComponent;
+#[with_components(SRC5)]
+pub mod DualCaseAccessControlDefaultAdminRulesMock {
+    use openzeppelin_access::accesscontrol::extensions::AccessControlDefaultAdminRulesComponent::InternalImpl;
+    use openzeppelin_access::accesscontrol::extensions::{
+        AccessControlDefaultAdminRulesComponent, DefaultConfig,
+    };
     use starknet::ContractAddress;
 
-    component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
+    pub const INITIAL_DELAY: u64 = 3600; // 1 hour
+
+    component!(
+        path: AccessControlDefaultAdminRulesComponent,
+        storage: access_control_dar,
+        event: AccessControlDAREvent,
+    );
 
     #[abi(embed_v0)]
-    impl OwnableMixinImpl = OwnableComponent::OwnableMixinImpl<ContractState>;
-    impl InternalImpl = OwnableComponent::InternalImpl<ContractState>;
+    impl AccessControlMixinImpl =
+        AccessControlDefaultAdminRulesComponent::AccessControlMixinImpl<ContractState>;
 
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        pub ownable: OwnableComponent::Storage,
+        access_control_dar: AccessControlDefaultAdminRulesComponent::Storage,
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        OwnableEvent: OwnableComponent::Event,
+        AccessControlDAREvent: AccessControlDefaultAdminRulesComponent::Event,
     }
+
+    #[constructor]
+    fn constructor(ref self: ContractState, initial_default_admin: ContractAddress) {
+        self.access_control_dar.initializer(INITIAL_DELAY, initial_default_admin);
+    }
+}
+
+#[starknet::contract]
+#[with_components(Ownable)]
+pub mod DualCaseOwnableMock {
+    use starknet::ContractAddress;
+
+    #[abi(embed_v0)]
+    impl OwnableMixinImpl = OwnableComponent::OwnableMixinImpl<ContractState>;
+
+    #[storage]
+    pub struct Storage {}
 
     #[constructor]
     fn constructor(ref self: ContractState, owner: ContractAddress) {
@@ -68,29 +77,17 @@ pub mod DualCaseOwnableMock {
 }
 
 #[starknet::contract]
+#[with_components(Ownable)]
 pub mod DualCaseTwoStepOwnableMock {
-    use openzeppelin_access::ownable::OwnableComponent;
     use starknet::ContractAddress;
-
-    component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
 
     #[abi(embed_v0)]
     impl OwnableTwoStepMixinImpl =
         OwnableComponent::OwnableTwoStepMixinImpl<ContractState>;
-    impl InternalImpl = OwnableComponent::InternalImpl<ContractState>;
 
     #[storage]
-    pub struct Storage {
-        #[substorage(v0)]
-        ownable: OwnableComponent::Storage,
-    }
+    pub struct Storage {}
 
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        #[flat]
-        OwnableEvent: OwnableComponent::Event,
-    }
 
     #[constructor]
     fn constructor(ref self: ContractState, owner: ContractAddress) {

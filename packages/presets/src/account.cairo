@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v1.0.0 (presets/src/account.cairo)
+// OpenZeppelin Contracts for Cairo v2.0.0 (presets/src/account.cairo)
 
 /// # Account Preset
 ///
@@ -7,11 +7,11 @@
 /// contracts. Supports outside execution by implementing SRC9.
 #[starknet::contract(account)]
 pub mod AccountUpgradeable {
-    use openzeppelin_account::extensions::SRC9Component;
     use openzeppelin_account::AccountComponent;
+    use openzeppelin_account::extensions::SRC9Component;
     use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_upgrades::interface::IUpgradeable;
     use openzeppelin_upgrades::UpgradeableComponent;
+    use openzeppelin_upgrades::interface::IUpgradeable;
     use starknet::ClassHash;
 
     component!(path: AccountComponent, storage: account, event: AccountEvent);

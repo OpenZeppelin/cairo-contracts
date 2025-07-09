@@ -357,6 +357,8 @@ security practice. Note that each account may still have more than one role, if 
 
 === Granting and revoking roles
 
+:access-control-default-admin-rules: xref:api/access.adoc#AccessControlDefaultAdminRulesComponent[AccessControlDefaultAdminRules]
+
 The ERC20 token example above uses xref:api/access.adoc#AccessControlComponent-_grant_role[`_grant_role`],
 an `internal` function that is useful when programmatically assigning
 roles (such as during construction). But what if we later want to grant the 'minter' role to additional accounts?
@@ -377,6 +379,8 @@ provides an easy way to manage simpler applications. `AccessControl` includes a 
 of `0`, called `DEFAULT_ADMIN_ROLE`, which acts as the *default admin role for all roles*.
 An account with this role will be able to manage any other role, unless
 xref:api/access.adoc#AccessControlComponent-set_role_admin[`set_role_admin`] is used to select a new admin role.
+
+Since it is the admin for all roles by default, and in fact it is also its own admin, this role carries significant risk. To mitigate this risk we provide {access-control-default-admin-rules}, a recommended extension of AccessControl that adds a number of enforced security measures for this role: the admin is restricted to a single account, with a 2-step transfer procedure with a delay in between steps.
 
 Let's take a look at the ERC20 token example, this time taking advantage of the default admin role:
 

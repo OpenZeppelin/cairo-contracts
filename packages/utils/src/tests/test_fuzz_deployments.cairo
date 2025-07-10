@@ -1,6 +1,6 @@
-use crate::deployments::calculate_contract_address_from_deploy_syscall;
 use snforge_std::{ContractClass, ContractClassTrait, test_address};
 use starknet::ClassHash;
+use crate::deployments::calculate_contract_address_from_deploy_syscall;
 
 #[test]
 #[fuzzer]

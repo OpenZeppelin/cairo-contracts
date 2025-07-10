@@ -72,6 +72,7 @@ fn test_partial_eq() {
 
 #[cfg(feature: 'fuzzing')]
 mod fuzz_tests {
+    use openzeppelin_testing::FuzzableBool;
     use starknet::SyscallResultTrait;
     use starknet::secp256_trait::{Secp256PointTrait, Secp256Trait};
     use starknet::secp256k1::Secp256k1Point;
@@ -82,8 +83,7 @@ mod fuzz_tests {
 
     #[test]
     #[fuzzer]
-    fn test_pack_unpack_secp256k1_point(x: u256, y_parity_val: u8) {
-        let y_parity = y_parity_val % 2 == 0;
+    fn test_pack_unpack_secp256k1_point(x: u256, y_parity: bool) {
         let point: Secp256k1Point =
             match Secp256Trait::secp256_ec_get_point_from_x_syscall(x, y_parity) {
             Result::Ok(point) => match point {
@@ -104,8 +104,7 @@ mod fuzz_tests {
 
     #[test]
     #[fuzzer]
-    fn test_pack_unpack_secp256r1_point(x: u256, y_parity_val: u8) {
-        let y_parity = y_parity_val % 2 == 0;
+    fn test_pack_unpack_secp256r1_point(x: u256, y_parity: bool) {
         let point: Secp256r1Point =
             match Secp256Trait::secp256_ec_get_point_from_x_syscall(x, y_parity) {
             Result::Ok(point) => match point {

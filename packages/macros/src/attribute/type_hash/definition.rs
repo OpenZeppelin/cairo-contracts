@@ -115,8 +115,7 @@ fn parse_args(s: &str) -> Result<TypeHashArgs, Diagnostic> {
     let allowed_args_re = allowed_args.join("|");
 
     let re = Regex::new(&format!(
-        r#"^\(({}): ([\w"' ])+(?:, ({}): ([\w"' ])+)*\)$"#,
-        allowed_args_re, allowed_args_re
+        r#"^\(({allowed_args_re}): ([\w"' ])+(?:, ({allowed_args_re}): ([\w"' ])+)*\)$"#
     ))
     .unwrap();
 
@@ -131,7 +130,7 @@ fn parse_args(s: &str) -> Result<TypeHashArgs, Diagnostic> {
                 "name" => args.name = parse_string_arg(value)?,
                 "debug" => args.debug = value == "true",
                 // This should be unreachable as long as the regex is correct
-                _ => panic!("Invalid argument: {}", name),
+                _ => panic!("Invalid argument: {name}"),
             }
         }
         Ok(args)

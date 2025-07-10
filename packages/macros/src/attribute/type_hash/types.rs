@@ -320,7 +320,7 @@ pub fn split_types(s: &str) -> Vec<&str> {
     let mut start = 0;
     let mut paren_count = 0;
 
-    for (i, c) in s.chars().enumerate() {
+    for (i, c) in s.char_indices() {
         match c {
             '(' => paren_count += 1,
             ')' => paren_count -= 1,

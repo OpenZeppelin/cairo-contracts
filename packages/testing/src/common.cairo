@@ -1,4 +1,6 @@
 use core::to_byte_array::FormatAsByteArray;
+use snforge_std::cheatcodes::generate_arg::generate_arg;
+use snforge_std::fuzzable::Fuzzable;
 use starknet::{ContractAddress, SyscallResult};
 
 /// Converts panic data into a string (ByteArray).
@@ -70,5 +72,16 @@ pub fn assert_entrypoint_not_found_error<T, +Drop<T>>(
         );
     } else {
         panic!("{selector} call was expected to fail, but succeeded");
+    }
+}
+
+/// An implementation of Fuzzable trait from snforge to support boolean parameters in fuzz tests.
+pub impl FuzzableBool of Fuzzable<bool> {
+    fn blank() -> bool {
+        false
+    }
+
+    fn generate() -> bool {
+        generate_arg(0, 1) == 1
     }
 }

@@ -81,3 +81,32 @@ pub impl SignersInfoStorePackingV2 of StorePacking<SignersInfo, u128> {
         }
     }
 }
+
+#[cfg(test)]
+#[cfg(feature: 'fuzzing')]
+mod tests {
+    use openzeppelin_testing::FuzzableBool;
+    use starknet::storage_access::StorePacking;
+    use super::{SignersInfo, TxInfo};
+
+    #[test]
+    #[fuzzer]
+    fn test_pack_unpack_tx_info(is_executed: bool, submitted_block: u64) {
+        let packed_value = StorePacking::pack(TxInfo { is_executed, submitted_block });
+        let unpacked_tx_info: TxInfo = StorePacking::unpack(packed_value);
+
+        assert_eq!(unpacked_tx_info.is_executed, is_executed);
+        assert_eq!(unpacked_tx_info.submitted_block, submitted_block);
+    }
+
+    #[test]
+    #[fuzzer]
+    fn test_pack_unpack_signers_info_v2(quorum: u32, signers_count: u32) {
+        let info = SignersInfo { quorum, signers_count };
+        let packed_value = StorePacking::pack(info);
+        let unpacked_info: SignersInfo = StorePacking::unpack(packed_value);
+
+        assert_eq!(unpacked_info.quorum, quorum);
+        assert_eq!(unpacked_info.signers_count, signers_count);
+    }
+}

@@ -94,7 +94,7 @@ impl<'a> TypeHashParser<'a> {
             // Format the member depending on the type variant
             match self.plugin_type_info.type_variant {
                 TypeVariant::Struct => {
-                    encoded_type.push_str(&format!("\"{}\":\"{}\",", name, type_name))
+                    encoded_type.push_str(&format!("\"{name}\":\"{type_name}\","))
                 }
                 TypeVariant::Enum => {
                     encoded_type.push_str(&format!("\"{}\"({}),", name, maybe_tuple(&type_name)))
@@ -203,8 +203,7 @@ fn parse_snip12_args(s: &str) -> Result<Snip12Args, Diagnostic> {
     let allowed_args_re = allowed_args.join("|");
 
     let re = Regex::new(&format!(
-        r#"^\(({}): ([\w"'\(\),<> ])+(?:, ({}): ([\w"'\(\),<> ])+)*\)$"#,
-        allowed_args_re, allowed_args_re
+        r#"^\(({allowed_args_re}): ([\w"'\(\),<> ])+(?:, ({allowed_args_re}): ([\w"'\(\),<> ])+)*\)$"#
     ))
     .unwrap();
 
@@ -225,7 +224,7 @@ fn parse_snip12_args(s: &str) -> Result<Snip12Args, Diagnostic> {
                 "name" => args.name = parse_string_arg(value)?,
                 "kind" => args.kind = parse_string_arg(value)?,
                 // This should be unreachable as long as the regex is correct
-                _ => panic!("Invalid argument: {}", name),
+                _ => panic!("Invalid argument: {name}"),
             };
         }
         Ok(args)
@@ -261,6 +260,6 @@ fn maybe_tuple(s: &str) -> String {
             .collect::<Vec<_>>()
             .join(",")
     } else {
-        format!("\"{}\"", s)
+        format!("\"{s}\"")
     }
 }

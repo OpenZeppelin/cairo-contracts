@@ -82,8 +82,8 @@ impl ProposalCoreStorePacking of StorePacking<ProposalCore, (felt252, felt252)> 
 #[cfg(test)]
 mod tests {
     use core::num::traits::Bounded;
-    use openzeppelin_testing::FuzzableBool;
     use openzeppelin_testing::constants::ALICE;
+    use openzeppelin_testing::{FuzzableBool, FuzzableContractAddress};
     use super::{ProposalCore, ProposalCoreStorePacking as StorePacking};
 
     #[test]
@@ -120,21 +120,16 @@ mod tests {
     #[test]
     #[fuzzer]
     fn test_pack_unpack_proposal_core(
-        proposer_val: felt252,
+        proposer: ContractAddress,
         vote_start: u64,
         vote_duration: u64,
         executed: bool,
         canceled: bool,
         eta_seconds: u64,
     ) {
-        let proposer = match proposer_val.try_into() {
-            Option::Some(proposer) => proposer,
-            Option::None => { return; },
-        };
         let initial_proposal_core = ProposalCore {
             proposer, vote_start, vote_duration, executed, canceled, eta_seconds,
         };
-
         let packed_value = StorePacking::pack(initial_proposal_core);
         let unpacked_proposal_core = StorePacking::unpack(packed_value);
 

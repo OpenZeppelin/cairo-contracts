@@ -1,38 +1,19 @@
 #[starknet::contract]
+#[with_components(Ownable, Vesting)]
 pub mod LinearVestingMock {
-    use openzeppelin_access::ownable::OwnableComponent;
-    use openzeppelin_finance::vesting::{LinearVestingSchedule, VestingComponent};
+    use openzeppelin_finance::vesting::LinearVestingSchedule;
     use starknet::ContractAddress;
-
-    component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
-    component!(path: VestingComponent, storage: vesting, event: VestingEvent);
 
     // Ownable Mixin
     #[abi(embed_v0)]
     impl OwnableMixinImpl = OwnableComponent::OwnableMixinImpl<ContractState>;
-    impl OwnableInternalImpl = OwnableComponent::InternalImpl<ContractState>;
 
     // Vesting
     #[abi(embed_v0)]
     impl VestingImpl = VestingComponent::VestingImpl<ContractState>;
-    impl VestingInternalImpl = VestingComponent::InternalImpl<ContractState>;
 
     #[storage]
-    struct Storage {
-        #[substorage(v0)]
-        ownable: OwnableComponent::Storage,
-        #[substorage(v0)]
-        vesting: VestingComponent::Storage,
-    }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        #[flat]
-        OwnableEvent: OwnableComponent::Event,
-        #[flat]
-        VestingEvent: VestingComponent::Event,
-    }
+    struct Storage {}
 
     #[constructor]
     fn constructor(
@@ -48,42 +29,23 @@ pub mod LinearVestingMock {
 }
 
 #[starknet::contract]
+#[with_components(Ownable, Vesting)]
 pub mod StepsVestingMock {
-    use openzeppelin_access::ownable::OwnableComponent;
-    use openzeppelin_finance::vesting::VestingComponent;
     use openzeppelin_finance::vesting::VestingComponent::VestingScheduleTrait;
     use starknet::ContractAddress;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 
-    component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);
-    component!(path: VestingComponent, storage: vesting, event: VestingEvent);
-
     // Ownable Mixin
     #[abi(embed_v0)]
     impl OwnableMixinImpl = OwnableComponent::OwnableMixinImpl<ContractState>;
-    impl OwnableInternalImpl = OwnableComponent::InternalImpl<ContractState>;
 
     // Vesting
     #[abi(embed_v0)]
     impl VestingImpl = VestingComponent::VestingImpl<ContractState>;
-    impl VestingInternalImpl = VestingComponent::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
         total_steps: u64,
-        #[substorage(v0)]
-        ownable: OwnableComponent::Storage,
-        #[substorage(v0)]
-        vesting: VestingComponent::Storage,
-    }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        #[flat]
-        OwnableEvent: OwnableComponent::Event,
-        #[flat]
-        VestingEvent: VestingComponent::Event,
     }
 
     #[constructor]
@@ -127,31 +89,19 @@ pub mod StepsVestingMock {
 }
 
 #[starknet::contract]
+#[with_components(ERC20)]
 pub mod ERC20OptionalTransferPanicMock {
     use openzeppelin_token::erc20::interface::IERC20;
-    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
+    use openzeppelin_token::erc20::{DefaultConfig, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
-
-    component!(path: ERC20Component, storage: erc20, event: ERC20Event);
 
     #[abi(embed_v0)]
     impl ERC20MetadataImpl = ERC20Component::ERC20MetadataImpl<ContractState>;
 
-    impl InternalImpl = ERC20Component::InternalImpl<ContractState>;
-
     #[storage]
     struct Storage {
         transfer_should_fail: bool,
-        #[substorage(v0)]
-        erc20: ERC20Component::Storage,
-    }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        #[flat]
-        ERC20Event: ERC20Component::Event,
     }
 
     #[constructor]

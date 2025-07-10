@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0 (account/eth_account.cairo)
+// OpenZeppelin Contracts for Cairo v2.0.0 (account/src/eth_account.cairo)
 
 /// # EthAccount Component
 ///
@@ -9,17 +9,18 @@ pub mod EthAccountComponent {
     use core::hash::{HashStateExTrait, HashStateTrait};
     use core::num::traits::Zero;
     use core::poseidon::{PoseidonTrait, poseidon_hash_span};
-    use core::starknet::secp256_trait::Secp256PointTrait;
+    use openzeppelin_introspection::src5::SRC5Component;
+    use openzeppelin_introspection::src5::SRC5Component::{
+        InternalTrait as SRC5InternalTrait, SRC5Impl,
+    };
+    use starknet::SyscallResultTrait;
+    use starknet::account::Call;
+    use starknet::secp256_trait::Secp256PointTrait;
+    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
     use crate::interface;
     use crate::interface::EthPublicKey;
     use crate::utils::secp256_point::Secp256PointStorePacking;
-    use crate::utils::{execute_calls, is_tx_version_valid, is_valid_eth_signature};
-    use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
-    use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
-    use starknet::SyscallResultTrait;
-    use starknet::account::Call;
-    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use crate::utils::{execute_single_call, is_tx_version_valid, is_valid_eth_signature};
 
     #[storage]
     pub struct Storage {
@@ -27,19 +28,19 @@ pub mod EthAccountComponent {
     }
 
     #[event]
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub enum Event {
         OwnerAdded: OwnerAdded,
         OwnerRemoved: OwnerRemoved,
     }
 
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct OwnerAdded {
         #[key]
         pub new_owner_guid: felt252,
     }
 
-    #[derive(Drop, PartialEq, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct OwnerRemoved {
         #[key]
         pub removed_owner_guid: felt252,
@@ -70,16 +71,16 @@ pub mod EthAccountComponent {
         /// - The transaction version must be greater than or equal to `MIN_TRANSACTION_VERSION`.
         /// - If the transaction is a simulation (version >= `QUERY_OFFSET`), it must be
         /// greater than or equal to `QUERY_OFFSET` + `MIN_TRANSACTION_VERSION`.
-        fn __execute__(
-            self: @ComponentState<TContractState>, calls: Array<Call>,
-        ) -> Array<Span<felt252>> {
+        fn __execute__(self: @ComponentState<TContractState>, calls: Array<Call>) {
             // Avoid calls from other contracts
             // https://github.com/OpenZeppelin/cairo-contracts/issues/344
             let sender = starknet::get_caller_address();
             assert(sender.is_zero(), Errors::INVALID_CALLER);
             assert(is_tx_version_valid(), Errors::INVALID_TX_VERSION);
 
-            execute_calls(calls.span())
+            for call in calls.span() {
+                execute_single_call(call);
+            }
         }
 
         /// Verifies the validity of the signature for the current transaction.
@@ -216,9 +217,7 @@ pub mod EthAccountComponent {
         +Drop<TContractState>,
     > of interface::EthAccountABI<ComponentState<TContractState>> {
         // ISRC6
-        fn __execute__(
-            self: @ComponentState<TContractState>, calls: Array<Call>,
-        ) -> Array<Span<felt252>> {
+        fn __execute__(self: @ComponentState<TContractState>, calls: Array<Call>) {
             SRC6::__execute__(self, calls)
         }
 

@@ -1,9 +1,10 @@
-#[starknet::contract]
-pub mod DualCaseERC20Mock {
-    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
-    use starknet::ContractAddress;
+use starknet::ContractAddress;
 
-    component!(path: ERC20Component, storage: erc20, event: ERC20Event);
+#[starknet::contract]
+#[with_components(ERC20)]
+pub mod DualCaseERC20Mock {
+    use openzeppelin_token::erc20::{DefaultConfig, ERC20HooksEmptyImpl};
+    use starknet::ContractAddress;
 
     #[abi(embed_v0)]
     impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
@@ -11,20 +12,9 @@ pub mod DualCaseERC20Mock {
     impl ERC20MetadataImpl = ERC20Component::ERC20MetadataImpl<ContractState>;
     #[abi(embed_v0)]
     impl ERC20CamelOnlyImpl = ERC20Component::ERC20CamelOnlyImpl<ContractState>;
-    impl InternalImpl = ERC20Component::InternalImpl<ContractState>;
 
     #[storage]
-    pub struct Storage {
-        #[substorage(v0)]
-        pub erc20: ERC20Component::Storage,
-    }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        #[flat]
-        ERC20Event: ERC20Component::Event,
-    }
+    pub struct Storage {}
 
     #[constructor]
     fn constructor(
@@ -40,30 +30,18 @@ pub mod DualCaseERC20Mock {
 }
 
 #[starknet::contract]
+#[with_components(ERC20)]
 pub mod SnakeERC20Mock {
-    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
+    use openzeppelin_token::erc20::{DefaultConfig, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
-
-    component!(path: ERC20Component, storage: erc20, event: ERC20Event);
 
     #[abi(embed_v0)]
     impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
     #[abi(embed_v0)]
     impl ERC20MetadataImpl = ERC20Component::ERC20MetadataImpl<ContractState>;
-    impl InternalImpl = ERC20Component::InternalImpl<ContractState>;
 
     #[storage]
-    pub struct Storage {
-        #[substorage(v0)]
-        pub erc20: ERC20Component::Storage,
-    }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        #[flat]
-        ERC20Event: ERC20Component::Event,
-    }
+    pub struct Storage {}
 
     #[constructor]
     fn constructor(
@@ -81,29 +59,22 @@ pub mod SnakeERC20Mock {
 /// Similar to `SnakeERC20Mock`, but emits events for `before_update` and `after_update` hooks.
 /// This is used to test that the hooks are called with the correct arguments.
 #[starknet::contract]
+#[with_components(ERC20)]
 pub mod SnakeERC20MockWithHooks {
-    use openzeppelin_token::erc20::ERC20Component;
+    use openzeppelin_token::erc20::DefaultConfig;
     use starknet::ContractAddress;
-
-    component!(path: ERC20Component, storage: erc20, event: ERC20Event);
 
     #[abi(embed_v0)]
     impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
     #[abi(embed_v0)]
     impl ERC20MetadataImpl = ERC20Component::ERC20MetadataImpl<ContractState>;
-    impl InternalImpl = ERC20Component::InternalImpl<ContractState>;
 
     #[storage]
-    pub struct Storage {
-        #[substorage(v0)]
-        pub erc20: ERC20Component::Storage,
-    }
+    pub struct Storage {}
 
     #[event]
     #[derive(Drop, starknet::Event)]
     pub enum Event {
-        #[flat]
-        ERC20Event: ERC20Component::Event,
         BeforeUpdate: BeforeUpdate,
         AfterUpdate: AfterUpdate,
     }
@@ -160,19 +131,15 @@ pub mod SnakeERC20MockWithHooks {
 }
 
 #[starknet::contract]
+#[with_components(ERC20, Nonces)]
 pub mod DualCaseERC20PermitMock {
-    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
-    use openzeppelin_utils::cryptography::nonces::NoncesComponent;
+    use openzeppelin_token::erc20::{DefaultConfig, ERC20HooksEmptyImpl};
     use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
     use starknet::ContractAddress;
-
-    component!(path: ERC20Component, storage: erc20, event: ERC20Event);
-    component!(path: NoncesComponent, storage: nonces, event: NoncesEvent);
 
     // ERC20Mixin
     #[abi(embed_v0)]
     impl ERC20MixinImpl = ERC20Component::ERC20MixinImpl<ContractState>;
-    impl InternalImpl = ERC20Component::InternalImpl<ContractState>;
 
     // IERC20Permit
     #[abi(embed_v0)]
@@ -184,21 +151,7 @@ pub mod DualCaseERC20PermitMock {
         ERC20Component::SNIP12MetadataExternalImpl<ContractState>;
 
     #[storage]
-    pub struct Storage {
-        #[substorage(v0)]
-        pub erc20: ERC20Component::Storage,
-        #[substorage(v0)]
-        pub nonces: NoncesComponent::Storage,
-    }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        #[flat]
-        ERC20Event: ERC20Component::Event,
-        #[flat]
-        NoncesEvent: NoncesComponent::Event,
-    }
+    pub struct Storage {}
 
     /// Required for hash computation.
     pub impl SNIP12MetadataImpl of SNIP12Metadata {
@@ -222,5 +175,154 @@ pub mod DualCaseERC20PermitMock {
     ) {
         self.erc20.initializer(name, symbol);
         self.erc20.mint(recipient, initial_supply);
+    }
+}
+
+#[derive(Drop, Serde, PartialEq, Debug, starknet::Store)]
+pub enum Type {
+    #[default]
+    No,
+    Before,
+    After,
+}
+
+#[starknet::interface]
+pub trait IERC20ReentrantHelpers<TState> {
+    fn schedule_reenter(
+        ref self: TState,
+        when: Type,
+        target: ContractAddress,
+        selector: felt252,
+        calldata: Span<felt252>,
+    );
+    fn function_call(ref self: TState);
+    fn unsafe_mint(ref self: TState, recipient: ContractAddress, amount: u256);
+    fn unsafe_burn(ref self: TState, account: ContractAddress, amount: u256);
+}
+
+#[starknet::interface]
+pub trait IERC20Reentrant<TState> {
+    fn schedule_reenter(
+        ref self: TState,
+        when: Type,
+        target: ContractAddress,
+        selector: felt252,
+        calldata: Span<felt252>,
+    );
+    fn function_call(ref self: TState);
+    fn unsafe_mint(ref self: TState, recipient: ContractAddress, amount: u256);
+    fn unsafe_burn(ref self: TState, account: ContractAddress, amount: u256);
+
+    // IERC20
+    fn total_supply(self: @TState) -> u256;
+    fn balance_of(self: @TState, account: ContractAddress) -> u256;
+    fn allowance(self: @TState, owner: ContractAddress, spender: ContractAddress) -> u256;
+    fn transfer(ref self: TState, recipient: ContractAddress, amount: u256) -> bool;
+    fn transfer_from(
+        ref self: TState, sender: ContractAddress, recipient: ContractAddress, amount: u256,
+    ) -> bool;
+    fn approve(ref self: TState, spender: ContractAddress, amount: u256) -> bool;
+}
+
+#[starknet::contract]
+#[with_components(ERC20)]
+pub mod ERC20ReentrantMock {
+    use openzeppelin_token::erc20::DefaultConfig;
+    use starknet::storage::{
+        MutableVecTrait, StoragePointerReadAccess, StoragePointerWriteAccess, Vec,
+    };
+    use starknet::syscalls::call_contract_syscall;
+    use starknet::{ContractAddress, SyscallResultTrait};
+    use super::Type;
+
+    #[abi(embed_v0)]
+    impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC20MetadataImpl = ERC20Component::ERC20MetadataImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC20CamelOnlyImpl = ERC20Component::ERC20CamelOnlyImpl<ContractState>;
+
+    #[storage]
+    pub struct Storage {
+        reenter_type: Type,
+        reenter_target: ContractAddress,
+        reenter_selector: felt252,
+        reenter_calldata: Vec<felt252>,
+    }
+
+    //
+    // Hooks
+    //
+
+    impl ERC20ReentrantImpl of ERC20Component::ERC20HooksTrait<ContractState> {
+        fn before_update(
+            ref self: ERC20Component::ComponentState<ContractState>,
+            from: ContractAddress,
+            recipient: ContractAddress,
+            amount: u256,
+        ) {
+            let mut contract_state = self.get_contract_mut();
+
+            if contract_state.reenter_type.read() == Type::Before {
+                contract_state.reenter_type.write(Type::No);
+                contract_state.function_call();
+            }
+        }
+
+        fn after_update(
+            ref self: ERC20Component::ComponentState<ContractState>,
+            from: ContractAddress,
+            recipient: ContractAddress,
+            amount: u256,
+        ) {
+            let mut contract_state = self.get_contract_mut();
+
+            if contract_state.reenter_type.read() == Type::After {
+                contract_state.reenter_type.write(Type::No);
+                contract_state.function_call();
+            }
+        }
+    }
+
+    #[abi(embed_v0)]
+    pub impl ERC20ReentrantHelpers of super::IERC20ReentrantHelpers<ContractState> {
+        fn schedule_reenter(
+            ref self: ContractState,
+            when: Type,
+            target: ContractAddress,
+            selector: felt252,
+            calldata: Span<felt252>,
+        ) {
+            self.reenter_type.write(when);
+            self.reenter_target.write(target);
+            self.reenter_selector.write(selector);
+            for elem in calldata {
+                self.reenter_calldata.push(*elem);
+            }
+        }
+
+        fn function_call(ref self: ContractState) {
+            let target = self.reenter_target.read();
+            let selector = self.reenter_selector.read();
+            let mut calldata = array![];
+            for i in 0..self.reenter_calldata.len() {
+                calldata.append(self.reenter_calldata.at(i).read());
+            }
+            call_contract_syscall(target, selector, calldata.span()).unwrap_syscall();
+        }
+
+        fn unsafe_mint(ref self: ContractState, recipient: ContractAddress, amount: u256) {
+            self.erc20.mint(recipient, amount);
+        }
+
+        fn unsafe_burn(ref self: ContractState, account: ContractAddress, amount: u256) {
+            self.erc20.burn(account, amount);
+        }
+    }
+
+    #[constructor]
+    fn constructor(ref self: ContractState, name: ByteArray, symbol: ByteArray) {
+        self.erc20.initializer(name, symbol);
+        self.reenter_type.write(Type::No);
     }
 }

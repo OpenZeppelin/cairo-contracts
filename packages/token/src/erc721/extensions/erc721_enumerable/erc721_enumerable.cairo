@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0
-// (token/erc721/extensions/erc721_enumerable/erc721_enumerable.cairo)
+// OpenZeppelin Contracts for Cairo v2.0.0
+// (token/src/erc721/extensions/erc721_enumerable/erc721_enumerable.cairo)
 
 /// # ERC721Enumerable Component
 ///
@@ -17,15 +17,16 @@
 #[starknet::component]
 pub mod ERC721EnumerableComponent {
     use core::num::traits::Zero;
-    use crate::erc721::ERC721Component;
-    use crate::erc721::ERC721Component::ERC721Impl;
-    use crate::erc721::ERC721Component::InternalImpl as ERC721InternalImpl;
-    use crate::erc721::extensions::erc721_enumerable::interface;
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use starknet::ContractAddress;
-    use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
-    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use starknet::storage::{
+        Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
+        StoragePointerWriteAccess,
+    };
+    use crate::erc721::ERC721Component;
+    use crate::erc721::ERC721Component::{ERC721Impl, InternalImpl as ERC721InternalImpl};
+    use crate::erc721::extensions::erc721_enumerable::interface;
 
     #[storage]
     pub struct Storage {
@@ -144,7 +145,7 @@ pub mod ERC721EnumerableComponent {
             let balance = get_dep_component!(self, ERC721).balance_of(owner);
             for index in 0..balance {
                 result.append(self.ERC721Enumerable_owned_tokens.read((owner, index)));
-            };
+            }
             result.span()
         }
 
@@ -170,7 +171,7 @@ pub mod ERC721EnumerableComponent {
 
         /// Removes a token from this extension's ownership-tracking data structures.
         ///
-        /// This has 0(1) time complexity but alters the indexed order of owned-tokens by
+        /// This has O(1) time complexity but alters the indexed order of owned-tokens by
         /// swapping `token_id` and the index thereof with the last token id and the index
         /// thereof.
         fn _remove_token_from_owner_enumeration(
@@ -200,7 +201,7 @@ pub mod ERC721EnumerableComponent {
 
         /// Removes `token_id` from this extension's token-tracking data structures.
         ///
-        /// This has 0(1) time complexity but alters the indexed order by swapping
+        /// This has O(1) time complexity but alters the indexed order by swapping
         /// `token_id` and the index thereof with the last token id and the index thereof.
         fn _remove_token_from_all_tokens_enumeration(
             ref self: ComponentState<TContractState>, token_id: u256,

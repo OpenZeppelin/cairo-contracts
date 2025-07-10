@@ -12,27 +12,14 @@ pub trait IUpgradesV1<TState> {
 }
 
 #[starknet::contract]
+#[with_components(Upgradeable)]
 pub mod UpgradesV1 {
-    use openzeppelin_upgrades::UpgradeableComponent;
     use starknet::ClassHash;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 
-    component!(path: UpgradeableComponent, storage: upgradeable, event: UpgradeableEvent);
-
-    impl InternalImpl = UpgradeableComponent::InternalImpl<ContractState>;
-
     #[storage]
     pub struct Storage {
-        #[substorage(v0)]
-        pub upgradeable: UpgradeableComponent::Storage,
         pub value: felt252,
-    }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        #[flat]
-        UpgradeableEvent: UpgradeableComponent::Event,
     }
 
     #[abi(embed_v0)]
@@ -75,28 +62,15 @@ pub trait IUpgradesV2<TState> {
 }
 
 #[starknet::contract]
+#[with_components(Upgradeable)]
 pub mod UpgradesV2 {
-    use openzeppelin_upgrades::UpgradeableComponent;
     use starknet::ClassHash;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 
-    component!(path: UpgradeableComponent, storage: upgradeable, event: UpgradeableEvent);
-
-    impl InternalImpl = UpgradeableComponent::InternalImpl<ContractState>;
-
     #[storage]
     pub struct Storage {
-        #[substorage(v0)]
-        pub upgradeable: UpgradeableComponent::Storage,
         pub value: felt252,
         pub value2: felt252,
-    }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        #[flat]
-        UpgradeableEvent: UpgradeableComponent::Event,
     }
 
     #[abi(embed_v0)]

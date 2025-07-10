@@ -10,6 +10,6 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "@openzeppelin/docs-utils": "^0.1.2"
+    "@openzeppelin/docs-utils": "^0.1.6"
   }
 }

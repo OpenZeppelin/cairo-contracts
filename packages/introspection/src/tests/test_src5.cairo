@@ -1,7 +1,7 @@
+use openzeppelin_test_common::mocks::src5::SRC5Mock;
 use crate::interface::{ISRC5, ISRC5_ID};
 use crate::src5::SRC5Component;
 use crate::src5::SRC5Component::InternalTrait;
-use openzeppelin_test_common::mocks::src5::SRC5Mock;
 
 const OTHER_ID: felt252 = 0x12345678;
 
@@ -43,7 +43,7 @@ fn test_deregister_interface() {
 }
 
 #[test]
-#[should_panic(expected: ('SRC5: invalid id',))]
+#[should_panic(expected: 'SRC5: invalid id')]
 fn test_deregister_default_interface() {
     let mut state = COMPONENT_STATE();
     state.deregister_interface(ISRC5_ID);

@@ -1,15 +1,16 @@
 use core::num::traits::Zero;
-use crate::interfaces::{VestingWalletABIDispatcher, VestingWalletABIDispatcherTrait};
 use openzeppelin_finance::vesting::VestingComponent::InternalImpl;
 use openzeppelin_test_common::erc20::deploy_erc20;
 use openzeppelin_test_common::ownable::OwnableSpyHelpers;
 use openzeppelin_test_common::vesting::VestingSpyHelpers;
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{OTHER, OWNER, ZERO};
+use openzeppelin_testing::spy_events;
 use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use openzeppelin_utils::serde::SerializedAppend;
-use snforge_std::{spy_events, start_cheat_block_timestamp_global, start_cheat_caller_address};
+use snforge_std::{start_cheat_block_timestamp_global, start_cheat_caller_address};
 use starknet::ContractAddress;
+use crate::interfaces::{VestingWalletABIDispatcher, VestingWalletABIDispatcherTrait};
 
 //
 // Setup
@@ -26,7 +27,7 @@ struct TestData {
 
 fn TEST_DATA() -> TestData {
     TestData {
-        total_allocation: 200, beneficiary: OWNER(), start: 30, duration: 100, cliff_duration: 0,
+        total_allocation: 200, beneficiary: OWNER, start: 30, duration: 100, cliff_duration: 0,
     }
 }
 
@@ -71,7 +72,7 @@ fn test_vesting_schedule_no_cliff() {
         assert_eq!(actual_vested_amount, expected_vested_amount);
 
         time_passed += 1;
-    };
+    }
 
     let end_timestamp = data.start + data.duration;
     assert_eq!(vesting.vested_amount(token, end_timestamp), data.total_allocation);
@@ -90,7 +91,7 @@ fn test_vesting_schedule_with_cliff() {
         assert_eq!(actual_vested_amount, 0);
 
         time_passed += 1;
-    };
+    }
 
     while time_passed <= data.duration {
         let expected_vested_amount = tokens_per_sec * time_passed.into();
@@ -98,7 +99,7 @@ fn test_vesting_schedule_with_cliff() {
         assert_eq!(actual_vested_amount, expected_vested_amount);
 
         time_passed += 1;
-    };
+    }
 
     let end_timestamp = data.start + data.duration;
     assert_eq!(vesting.vested_amount(token, end_timestamp), data.total_allocation);
@@ -210,7 +211,7 @@ fn test_release_after_ownership_transferred() {
     assert_eq!(token_dispatcher.balance_of(data.beneficiary), release_amount_1);
 
     // 2. Transfer ownership
-    let new_owner = OTHER();
+    let new_owner = OTHER;
     start_cheat_caller_address(vesting.contract_address, data.beneficiary);
     vesting.transfer_ownership(new_owner);
 
@@ -231,54 +232,54 @@ fn test_release_after_ownership_transferred() {
 fn test_transfer_ownership() {
     let (vesting, _) = setup(TEST_DATA());
     let mut spy = spy_events();
-    start_cheat_caller_address(vesting.contract_address, OWNER());
-    vesting.transfer_ownership(OTHER());
+    start_cheat_caller_address(vesting.contract_address, OWNER);
+    vesting.transfer_ownership(OTHER);
 
-    spy.assert_event_ownership_transferred(vesting.contract_address, OWNER(), OTHER());
-    assert_eq!(vesting.owner(), OTHER());
+    spy.assert_event_ownership_transferred(vesting.contract_address, OWNER, OTHER);
+    assert_eq!(vesting.owner(), OTHER);
 }
 
 #[test]
 #[should_panic(expected: 'New owner is the zero address')]
 fn test_transfer_ownership_to_zero() {
     let (vesting, _) = setup(TEST_DATA());
-    start_cheat_caller_address(vesting.contract_address, OWNER());
-    vesting.transfer_ownership(ZERO());
+    start_cheat_caller_address(vesting.contract_address, OWNER);
+    vesting.transfer_ownership(ZERO);
 }
 
 #[test]
 #[should_panic(expected: 'Caller is not the owner')]
 fn test_transfer_ownership_from_nonowner() {
     let (vesting, _) = setup(TEST_DATA());
-    start_cheat_caller_address(vesting.contract_address, OTHER());
-    vesting.transfer_ownership(OTHER());
+    start_cheat_caller_address(vesting.contract_address, OTHER);
+    vesting.transfer_ownership(OTHER);
 }
 
 #[test]
 fn test_transferOwnership() {
     let (vesting, _) = setup(TEST_DATA());
     let mut spy = spy_events();
-    start_cheat_caller_address(vesting.contract_address, OWNER());
-    vesting.transferOwnership(OTHER());
+    start_cheat_caller_address(vesting.contract_address, OWNER);
+    vesting.transferOwnership(OTHER);
 
-    spy.assert_event_ownership_transferred(vesting.contract_address, OWNER(), OTHER());
-    assert_eq!(vesting.owner(), OTHER());
+    spy.assert_event_ownership_transferred(vesting.contract_address, OWNER, OTHER);
+    assert_eq!(vesting.owner(), OTHER);
 }
 
 #[test]
 #[should_panic(expected: 'New owner is the zero address')]
 fn test_transferOwnership_to_zero() {
     let (vesting, _) = setup(TEST_DATA());
-    start_cheat_caller_address(vesting.contract_address, OWNER());
-    vesting.transferOwnership(ZERO());
+    start_cheat_caller_address(vesting.contract_address, OWNER);
+    vesting.transferOwnership(ZERO);
 }
 
 #[test]
 #[should_panic(expected: 'Caller is not the owner')]
 fn test_transferOwnership_from_nonowner() {
     let (vesting, _) = setup(TEST_DATA());
-    start_cheat_caller_address(vesting.contract_address, OTHER());
-    vesting.transferOwnership(OTHER());
+    start_cheat_caller_address(vesting.contract_address, OTHER);
+    vesting.transferOwnership(OTHER);
 }
 
 //
@@ -289,10 +290,10 @@ fn test_transferOwnership_from_nonowner() {
 fn test_renounce_ownership() {
     let (vesting, _) = setup(TEST_DATA());
     let mut spy = spy_events();
-    start_cheat_caller_address(vesting.contract_address, OWNER());
+    start_cheat_caller_address(vesting.contract_address, OWNER);
     vesting.renounce_ownership();
 
-    spy.assert_event_ownership_transferred(vesting.contract_address, OWNER(), ZERO());
+    spy.assert_event_ownership_transferred(vesting.contract_address, OWNER, ZERO);
     assert!(vesting.owner().is_zero());
 }
 
@@ -300,7 +301,7 @@ fn test_renounce_ownership() {
 #[should_panic(expected: 'Caller is not the owner')]
 fn test_renounce_ownership_from_nonowner() {
     let (vesting, _) = setup(TEST_DATA());
-    start_cheat_caller_address(vesting.contract_address, OTHER());
+    start_cheat_caller_address(vesting.contract_address, OTHER);
     vesting.renounce_ownership();
 }
 
@@ -308,10 +309,10 @@ fn test_renounce_ownership_from_nonowner() {
 fn test_renounceOwnership() {
     let (vesting, _) = setup(TEST_DATA());
     let mut spy = spy_events();
-    start_cheat_caller_address(vesting.contract_address, OWNER());
+    start_cheat_caller_address(vesting.contract_address, OWNER);
     vesting.renounceOwnership();
 
-    spy.assert_event_ownership_transferred(vesting.contract_address, OWNER(), ZERO());
+    spy.assert_event_ownership_transferred(vesting.contract_address, OWNER, ZERO);
     assert!(vesting.owner().is_zero());
 }
 
@@ -319,6 +320,6 @@ fn test_renounceOwnership() {
 #[should_panic(expected: 'Caller is not the owner')]
 fn test_renounceOwnership_from_nonowner() {
     let (vesting, _) = setup(TEST_DATA());
-    start_cheat_caller_address(vesting.contract_address, OTHER());
+    start_cheat_caller_address(vesting.contract_address, OTHER);
     vesting.renounceOwnership();
 }

@@ -1,14 +1,12 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0 (utils/deployments.cairo)
+// OpenZeppelin Contracts for Cairo v2.0.0 (utils/src/deployments.cairo)
 
 pub mod interface;
-
 use core::hash::{HashStateExTrait, HashStateTrait};
 use core::num::traits::Zero;
-use core::pedersen::PedersenTrait;
-use core::poseidon::PoseidonTrait;
-use crate::serde::SerializedAppend;
+use core::pedersen::{PedersenTrait, pedersen};
 use starknet::{ClassHash, ContractAddress};
+use crate::serde::SerializedAppend;
 
 // 2**251 - 256
 pub const L2_ADDRESS_UPPER_BOUND: felt252 =
@@ -20,7 +18,7 @@ pub const CONTRACT_ADDRESS_PREFIX: felt252 = 'STARKNET_CONTRACT_ADDRESS';
 /// from zero).
 ///
 /// For more information, see
-/// https://docs.starknet.io/documentation/architecture_and_concepts/Smart_Contracts/contract-address/
+/// https://docs.starknet.io/architecture-and-concepts/smart-contracts/contract-address/
 pub fn calculate_contract_address_from_deploy_syscall(
     salt: felt252,
     class_hash: ClassHash,
@@ -50,7 +48,7 @@ fn compute_hash_on_elements(data: Span<felt252>) -> felt252 {
     let mut state = PedersenTrait::new(0);
     for elem in data {
         state = state.update_with(*elem);
-    };
+    }
 
     state.update_with(data.len()).finalize()
 }
@@ -72,11 +70,7 @@ pub fn calculate_contract_address_from_udc(
 ) -> ContractAddress {
     match deployer_info {
         Option::Some(deployer_info) => {
-            let mut state = PoseidonTrait::new();
-            let hashed_salt = state
-                .update_with(deployer_info.caller_address)
-                .update_with(salt)
-                .finalize();
+            let hashed_salt = pedersen(deployer_info.caller_address.into(), salt);
             calculate_contract_address_from_deploy_syscall(
                 hashed_salt, class_hash, constructor_calldata, deployer_info.udc_address,
             )

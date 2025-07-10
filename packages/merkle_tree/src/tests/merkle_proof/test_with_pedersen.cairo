@@ -126,7 +126,7 @@ fn test_verify_multi_proof_invalid_len_proof_flags_panics() {
 }
 
 #[test]
-#[should_panic(expected: ('Index out of bounds',))]
+#[should_panic(expected: 'Index out of bounds')]
 fn test_process_multi_proof_flags_extra_leaves_expected() {
     let leaves = LEAVES();
     let leaves_to_prove = [
@@ -142,7 +142,7 @@ fn test_process_multi_proof_flags_extra_leaves_expected() {
 }
 
 #[test]
-#[should_panic(expected: ('Index out of bounds',))]
+#[should_panic(expected: 'Index out of bounds')]
 fn test_process_multi_proof_flags_extra_proofs_expected() {
     let leaves = LEAVES();
     let leaves_to_prove = [
@@ -158,7 +158,7 @@ fn test_process_multi_proof_flags_extra_proofs_expected() {
 }
 
 #[test]
-#[should_panic(expected: ('Index out of bounds',))]
+#[should_panic(expected: 'Index out of bounds')]
 fn test_verify_multi_proof_flags_extra_leaves_expected() {
     let leaves = LEAVES();
     let leaves_to_prove = [
@@ -174,7 +174,7 @@ fn test_verify_multi_proof_flags_extra_leaves_expected() {
 }
 
 #[test]
-#[should_panic(expected: ('Index out of bounds',))]
+#[should_panic(expected: 'Index out of bounds')]
 fn test_verify_multi_proof_flags_extra_proofs_expected() {
     let leaves = LEAVES();
     let leaves_to_prove = [

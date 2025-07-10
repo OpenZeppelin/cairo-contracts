@@ -1,50 +1,24 @@
 use starknet::ContractAddress;
+
 #[starknet::contract]
+#[with_components(Initializable)]
 pub mod InitializableMock {
-    use openzeppelin_security::initializable::InitializableComponent;
-
-    component!(path: InitializableComponent, storage: initializable, event: InitializableEvent);
-
     #[abi(embed_v0)]
     impl InitializableImpl =
         InitializableComponent::InitializableImpl<ContractState>;
 
     #[storage]
-    pub struct Storage {
-        #[substorage(v0)]
-        pub initializable: InitializableComponent::Storage,
-    }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        #[flat]
-        InitializableEvent: InitializableComponent::Event,
-    }
+    pub struct Storage {}
 }
 
 #[starknet::contract]
+#[with_components(Pausable)]
 pub mod PausableMock {
-    use openzeppelin_security::pausable::PausableComponent;
-
-    component!(path: PausableComponent, storage: pausable, event: PausableEvent);
-
     #[abi(embed_v0)]
     impl PausableImpl = PausableComponent::PausableImpl<ContractState>;
-    impl InternalImpl = PausableComponent::InternalImpl<ContractState>;
 
     #[storage]
-    pub struct Storage {
-        #[substorage(v0)]
-        pub pausable: PausableComponent::Storage,
-    }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        #[flat]
-        PausableEvent: PausableComponent::Event,
-    }
+    pub struct Storage {}
 }
 
 #[starknet::interface]
@@ -63,34 +37,18 @@ pub trait IReentrancyMock<TState> {
 }
 
 #[starknet::contract]
+#[with_components(ReentrancyGuard)]
 pub mod ReentrancyMock {
-    use openzeppelin_security::reentrancyguard::ReentrancyGuardComponent;
-    use starknet::ContractAddress;
-    use starknet::get_contract_address;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
-    use super::IAttackerDispatcher;
-    use super::IAttackerDispatcherTrait;
-    use super::IReentrancyGuardedDispatcher;
-    use super::IReentrancyGuardedDispatcherTrait;
-
-    component!(
-        path: ReentrancyGuardComponent, storage: reentrancy_guard, event: ReentrancyGuardEvent,
-    );
-
-    impl InternalImpl = ReentrancyGuardComponent::InternalImpl<ContractState>;
+    use starknet::{ContractAddress, get_contract_address};
+    use super::{
+        IAttackerDispatcher, IAttackerDispatcherTrait, IReentrancyGuardedDispatcher,
+        IReentrancyGuardedDispatcherTrait,
+    };
 
     #[storage]
     pub struct Storage {
         pub counter: felt252,
-        #[substorage(v0)]
-        pub reentrancy_guard: ReentrancyGuardComponent::Storage,
-    }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        #[flat]
-        ReentrancyGuardEvent: ReentrancyGuardComponent::Event,
     }
 
     #[abi(embed_v0)]
@@ -155,10 +113,8 @@ trait IAttacker<TState> {
 
 #[starknet::contract]
 pub mod Attacker {
-    use starknet::ContractAddress;
-    use starknet::get_caller_address;
-    use super::IReentrancyMockDispatcher;
-    use super::IReentrancyMockDispatcherTrait;
+    use starknet::{ContractAddress, get_caller_address};
+    use super::{IReentrancyMockDispatcher, IReentrancyMockDispatcherTrait};
 
     #[storage]
     pub struct Storage {}

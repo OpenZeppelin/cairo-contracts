@@ -1,19 +1,19 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0
-// (governance/governor/extensions/governor_settings.cairo)
+// OpenZeppelin Contracts for Cairo v2.0.0
+// (governance/src/governor/extensions/governor_settings.cairo)
 
 /// # GovernorSettings Component
 ///
 /// Extension of GovernorComponent for settings that are updatable through governance.
 #[starknet::component]
 pub mod GovernorSettingsComponent {
+    use openzeppelin_introspection::src5::SRC5Component;
+    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
     use crate::governor::GovernorComponent;
     use crate::governor::GovernorComponent::{
         ComponentState as GovernorComponentState, InternalExtendedTrait,
     };
     use crate::governor::extensions::interface::IGovernorSettingsAdmin;
-    use openzeppelin_introspection::src5::SRC5Component;
-    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 
     #[storage]
     pub struct Storage {
@@ -23,7 +23,7 @@ pub mod GovernorSettingsComponent {
     }
 
     #[event]
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub enum Event {
         VotingDelayUpdated: VotingDelayUpdated,
         VotingPeriodUpdated: VotingPeriodUpdated,
@@ -31,21 +31,21 @@ pub mod GovernorSettingsComponent {
     }
 
     /// Emitted when `Governor_voting_delay` is updated.
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct VotingDelayUpdated {
         pub old_voting_delay: u64,
         pub new_voting_delay: u64,
     }
 
     /// Emitted when `Governor_voting_period` is updated.
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct VotingPeriodUpdated {
         pub old_voting_period: u64,
         pub new_voting_period: u64,
     }
 
     /// Emitted when `Governor_proposal_threshold` is updated.
-    #[derive(Drop, starknet::Event)]
+    #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct ProposalThresholdUpdated {
         pub old_proposal_threshold: u256,
         pub new_proposal_threshold: u256,

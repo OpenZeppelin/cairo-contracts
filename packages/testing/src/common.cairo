@@ -13,7 +13,8 @@ pub fn panic_data_to_byte_array(panic_data: Array<felt252>) -> ByteArray {
 
     match Serde::<ByteArray>::deserialize(ref panic_data) {
         Option::Some(string) => string,
-        Option::None => panic!("Failed to deserialize panic data."),
+        Option::None => { #[allow(panic)]
+        panic!("Failed to deserialize panic data.") },
     }
 }
 
@@ -22,17 +23,17 @@ pub fn to_base_16_string(value: felt252) -> ByteArray {
     let mut string = value.format_as_byte_array(16);
     let mut padding = 64 - string.len();
 
-    while padding > 0 {
+    while padding != 0 {
         string = "0" + string;
         padding -= 1;
-    };
+    }
     format!("0x{}", string)
 }
 
 /// Converts a `felt252` to a `base16` (hexadecimal) string without padding, but including the `0x`
 /// prefix.
 /// We need this because Starknet Foundry has a way of representing addresses and selectors that
-/// does not include 0's after `Ox`.
+/// does not include 0's after `0x`.
 pub fn to_base_16_string_no_padding(value: felt252) -> ByteArray {
     let string = value.format_as_byte_array(16);
     format!("0x{}", string)

@@ -9,14 +9,104 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+- `ERC6372Clock` interface to `openzeppelin_utils::contract_clock` (#1417)
+- AccessControlDefaultAdminRules interface and component (#1432)
+
+### Changed
+
+- `GovernorComponent` and its extensions support voting tokens that follow the `ERC6372` clock standard (#1417)
+
 ### Changed (Breaking)
 
-- Bump scarb to v2.9.2 (#1239)
+- `VotesComponent` now supports customizable clock mechanisms via `ERC6372Clock`, enabling alternative clock sources (#1417)
+
+## 2.0.0 (2025-06-18)
+
+### Added
+
+- ERC4626Component (#1170)
+- The openzeppelin_macros package with the `with_components` macro (#1282)
+- Support for granting a role with delay in AccessControl component (#1317)
+- The `type_hash` macro (#1399)
+- Enable Governor modules in the `with_components` macro (#1414)
+- `Math::u256_mul_div` (#1170)
+
+### Changed
+
+- Bump scarb to v2.11.4 (#1373)
+
+### Changed (Breaking)
+
+- Add SRC-107 to ERC20Component (#1294)
+  - `decimals` are now configurable using the ImmutableConfig trait
+- Update UDC interface and preset for backward compatibility with v1 (#1371)
+  - Change `from_zero` argument to `not_from_zero` in both the interface and the
+    ContractDeployed event
+  - Add `deployContract` function to the preset
+  - Update salt hashing algorithm from Poseidon to Pedersen
+- Update ISRC6 interface to match latest changes reflected in the SNIP (#1383)
+  - `__execute__` entry point now doesn't return any value
+  - Account and EthAccount components SRC6 implementation updated accordingly
+
+## 2.0.0-alpha.1 (2025-04-26)
+
+### Added
+
+- The `type_hash` macro (#1399)
+- Enable Governor modules in the `with_components` macro (#1414)
+
+## 2.0.0-alpha.0 (2025-03-20)
+
+### Added
+
+- Support for granting a role with delay in AccessControl component (#1317)
+- The openzeppelin_macros package with the `with_components` macro (#1282)
+- ERC4626Component (#1170)
+- `Math::u256_mul_div` (#1170)
+
+### Changed
+
+- Bump scarb to v2.11.1 (#1373)
+- Bump scarb to v2.10.1 (#1358)
+
+### Changed (Breaking)
+
+- Add SRC-107 to ERC20Component (#1294)
+  - `decimals` are now configurable using the ImmutableConfig trait
+- Update UDC interface and preset for backward compatibility with v1 (#1371)
+  - Change `from_zero` argument to `not_from_zero` in both the interface and the
+    ContractDeployed event
+  - Add `deployContract` function to the preset
+  - Update salt hashing algorithm from Poseidon to Pedersen
+- Update ISRC6 interface to match latest changes reflected in the SNIP (#1383)
+  - `__execute__` entry point now doesn't return any value
+  - Account and EthAccount components SRC6 implementation updated accordingly
+
+## 1.0.0 (2025-02-21)
+
+### Added
+
+- ERC721Component `initializer_no_metadata` (#1278)
+- ERC1155Component `initializer_no_metadata` (#1287)
+- Unsigned trait restriction to the `average` function (#1310)
+
+### Changed (Breaking)
+
+- Bump scarb to v2.9.4 (#1336)
+
+### Fixed (Breaking)
+
+- SNIP12 TimelockComponent `hash_operation` to use `hash_operation_batch` for single-call operations (#1313)
+- Permit and Message SNIP12 type hashes (#1283)
 
 ### Fixed
 
-- Fixed message type hash in SNIP12 doc (#1274)
-- Permit and Message SNIP12 hashes (#1283)
+- Multisig component issue arising when removing signers with unchanged quorum (#1315)
+- Governor timelock extension salt generation panicking on overflow (#1306)
+- SignersInfoStorePacking issue with bit operations (#1316)
+- Message type hash in SNIP12 doc (#1274)
 
 ## 0.20.0 (2024-12-06)
 
@@ -45,7 +135,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Bump scarb to v2.9.1 (#1239)
 - The initializer in `OwnableComponent` now checks that `owner` is not the zero address (#1221)
 - Add `verifying_contract` member to the `Delegation` struct used in Votes `delegate_by_sig` (#1214)
-use crate::votes::VotesComponent::VotingUnitsTrait;
 - VotingUnitsTrait moved from `openzeppelin_governance::votes::votes` to `openzeppelin_governance::votes::VotesComponent` (#1214)
 - VestingComponent `release` function won't emit an event or attempt to transfer when the amount is zero (#1209)
 - Bump snforge_std to v0.33.0 (#1203)
@@ -346,7 +435,7 @@ with new external functions (#1173)
 
 ### Removed
 
-- Non standard increase_allowance and decrease_allowance functions in ERC20 contract (#881)
+- Non-standard increase_allowance and decrease_allowance functions in ERC20 contract (#881)
 
 ## 0.8.1 (2024-01-23)
 

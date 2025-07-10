@@ -5,6 +5,7 @@ members = [
     "packages/finance",
     "packages/governance",
     "packages/introspection",
+    "packages/macros",
     "packages/merkle_tree",
     "packages/presets",
     "packages/security",
@@ -23,10 +24,10 @@ keywords.workspace = true
 edition.workspace = true
 
 [workspace.package]
-version = "0.20.0"
+version = "2.0.0"
 edition = "2024_07"
-cairo-version = "2.9.2"
-scarb-version = "2.9.2"
+cairo-version = "2.11.4"
+scarb-version = "2.11.4"
 authors = ["OpenZeppelin Community <maintainers@openzeppelin.org>"]
 description = "OpenZeppelin Contracts written in Cairo for Starknet, a decentralized ZK Rollup"
 documentation = "https://docs.openzeppelin.com/contracts-cairo"
@@ -41,9 +42,9 @@ keywords = [
 ]
 
 [workspace.dependencies]
-assert_macros = "2.9.2"
-starknet = "2.9.2"
-snforge_std = "0.34.0"
+assert_macros = "2.11.4"
+starknet = "2.11.4"
+snforge_std = "0.45.0"
 
 [dependencies]
 starknet.workspace = true
@@ -74,10 +75,14 @@ casm = false
 [workspace.tool.fmt]
 sort-module-level-items = true
 
+[workspace.tool.scarb]
+allow-prebuilt-plugins = ["snforge_std"]
+
 [tool]
 fmt.workspace = true
+scarb.workspace = true
 
 [profile.dev.cairo]
 unstable-add-statements-functions-debug-info = true
 unstable-add-statements-code-locations-debug-info = true
-inlining-strategy= "avoid"
+inlining-strategy = "avoid"

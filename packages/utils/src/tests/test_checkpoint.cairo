@@ -1,7 +1,7 @@
 use core::num::traits::Bounded;
-use crate::structs::checkpoint::Checkpoint;
 use openzeppelin_test_common::mocks::checkpoint::{IMockTrace, MockTrace};
 use starknet::storage_access::StorePacking;
+use crate::structs::checkpoint::Checkpoint;
 
 const _2_POW_184: felt252 = 0x10000000000000000000000000000000000000000000000;
 const KEY_MASK: u256 = 0xffffffffffffffff;
@@ -67,7 +67,7 @@ fn test_get_length() {
 }
 
 #[test]
-#[should_panic(expected: ('Unordered insertion',))]
+#[should_panic(expected: 'Unordered insertion')]
 fn test_unordered_insertion() {
     let mut mock_trace = CONTRACT_STATE();
 

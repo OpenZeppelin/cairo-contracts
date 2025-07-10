@@ -1,16 +1,14 @@
 use core::hash::{HashStateExTrait, HashStateTrait};
-use core::poseidon::PoseidonTrait;
-use core::poseidon::poseidon_hash_span;
-use core::starknet::secp256_trait::Secp256PointTrait;
+use core::poseidon::{PoseidonTrait, poseidon_hash_span};
 use openzeppelin_account::EthAccountComponent;
 use openzeppelin_account::EthAccountComponent::{OwnerAdded, OwnerRemoved};
 use openzeppelin_account::interface::EthPublicKey;
 use openzeppelin_account::utils::signature::Secp256Signature;
 use openzeppelin_testing::constants::TRANSACTION_HASH;
-use openzeppelin_testing::events::EventSpyExt;
 use openzeppelin_testing::signing::{Secp256k1KeyPair, Secp256k1SerializedSigning};
-use snforge_std::EventSpy;
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy};
 use snforge_std::signature::secp256k1_curve::Secp256k1CurveSignerImpl;
+use starknet::secp256_trait::Secp256PointTrait;
 use starknet::{ContractAddress, SyscallResultTrait};
 
 #[derive(Drop)]

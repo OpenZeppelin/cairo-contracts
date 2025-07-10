@@ -1,13 +1,13 @@
-use crate::erc721::ERC721Component::{ERC721Impl, InternalImpl as ERC721InternalImpl};
-use crate::erc721::extensions::erc721_enumerable::ERC721EnumerableComponent;
-use crate::erc721::extensions::erc721_enumerable::ERC721EnumerableComponent::{
-    ERC721EnumerableImpl, InternalImpl,
-};
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin_test_common::mocks::erc721::ERC721EnumerableMock;
 use openzeppelin_testing::constants::{OWNER, RECIPIENT};
 use starknet::ContractAddress;
 use starknet::storage::StorageMapReadAccess;
+use crate::erc721::ERC721Component::{ERC721Impl, InternalImpl as ERC721InternalImpl};
+use crate::erc721::extensions::erc721_enumerable::ERC721EnumerableComponent;
+use crate::erc721::extensions::erc721_enumerable::ERC721EnumerableComponent::{
+    ERC721EnumerableImpl, InternalImpl,
+};
 
 //
 // Setup
@@ -39,9 +39,9 @@ fn setup(supply: u32) -> (ComponentState, Span<u256>) {
     let mut tokens_list = array![];
     for i in 0..supply {
         let token_id = 'TOKEN'.into() + i.into();
-        mock_state.erc721.mint(OWNER(), token_id);
+        mock_state.erc721.mint(OWNER, token_id);
         tokens_list.append(token_id);
-    };
+    }
 
     (state, tokens_list.span())
 }
@@ -51,17 +51,19 @@ fn setup(supply: u32) -> (ComponentState, Span<u256>) {
 //
 
 #[test]
+#[fuzzer]
 fn test_initial_state(supply_seed: u32) {
     let supply = prepare_supply(supply_seed);
     let (_, tokens_list) = setup(supply);
 
     assert_total_supply(supply.into());
     assert_token_by_index(tokens_list);
-    assert_token_of_owner_by_index(OWNER(), tokens_list);
-    assert_all_tokens_of_owner(OWNER(), tokens_list);
+    assert_token_of_owner_by_index(OWNER, tokens_list);
+    assert_all_tokens_of_owner(OWNER, tokens_list);
 }
 
 #[test]
+#[fuzzer]
 fn test_burn_token(supply_seed: u32, burn_index_seed: u32) {
     let supply = prepare_supply(supply_seed);
     let (_, initial_list) = setup(supply);
@@ -74,17 +76,18 @@ fn test_burn_token(supply_seed: u32, burn_index_seed: u32) {
     let expected_list = remove_token_from_list(initial_list, token_to_burn);
     assert_total_supply(supply - 1);
     assert_token_by_index(expected_list);
-    assert_token_of_owner_by_index(OWNER(), expected_list);
-    assert_all_tokens_of_owner(OWNER(), expected_list);
+    assert_token_of_owner_by_index(OWNER, expected_list);
+    assert_all_tokens_of_owner(OWNER, expected_list);
 }
 
 #[test]
+#[fuzzer]
 fn test_transfer_single_token(supply_seed: u32, index_seed: u32) {
     let supply = prepare_supply(supply_seed);
     let (_, initial_list) = setup(supply);
     let token_index = index_seed % supply;
     let token_id = *initial_list.at(token_index);
-    let (owner, recipient) = (OWNER(), RECIPIENT());
+    let (owner, recipient) = (OWNER, RECIPIENT);
     let mut state = CONTRACT_STATE();
 
     state.erc721.transfer(owner, recipient, token_id);
@@ -100,6 +103,7 @@ fn test_transfer_single_token(supply_seed: u32, index_seed: u32) {
 }
 
 #[test]
+#[fuzzer]
 fn test_transfer_two_tokens(supply_seed: u32, index_seed_1: u32, index_seed_2: u32) {
     let supply = prepare_supply(supply_seed);
     let token_index_1 = index_seed_1 % supply;
@@ -110,7 +114,7 @@ fn test_transfer_two_tokens(supply_seed: u32, index_seed_1: u32, index_seed_2: u
     let (_, initial_list) = setup(supply);
     let token_1 = *initial_list.at(token_index_1);
     let token_2 = *initial_list.at(token_index_2);
-    let (owner, recipient) = (OWNER(), RECIPIENT());
+    let (owner, recipient) = (OWNER, RECIPIENT);
     let mut state = CONTRACT_STATE();
 
     state.erc721.transfer(owner, recipient, token_1);
@@ -129,22 +133,24 @@ fn test_transfer_two_tokens(supply_seed: u32, index_seed_1: u32, index_seed_2: u
 }
 
 #[test]
+#[fuzzer]
 fn test__add_token_to_owner_enumeration(supply_seed: u32, index_seed: u32) {
     let supply = prepare_supply(supply_seed);
     let (mut state, _) = setup(supply);
     let new_token_index = supply;
     let new_token_id = 'NEW_TOKEN'.into();
 
-    assert_owner_tokens_index_to_id(OWNER(), new_token_index, 0);
+    assert_owner_tokens_index_to_id(OWNER, new_token_index, 0);
     assert_owner_tokens_id_to_index(new_token_id, 0);
 
-    state._add_token_to_owner_enumeration(OWNER(), new_token_id);
+    state._add_token_to_owner_enumeration(OWNER, new_token_id);
 
-    assert_owner_tokens_index_to_id(OWNER(), new_token_index, new_token_id);
+    assert_owner_tokens_index_to_id(OWNER, new_token_index, new_token_id);
     assert_owner_tokens_id_to_index(new_token_id, new_token_index);
 }
 
 #[test]
+#[fuzzer]
 fn test__add_token_to_all_tokens_enumeration(supply_seed: u32) {
     let initial_supply = prepare_supply(supply_seed);
     let (mut state, _) = setup(initial_supply);
@@ -254,6 +260,6 @@ fn remove_token_from_list(tokens_list: Span<u256>, token_to_remove: u256) -> Spa
             }
         }
         index += 1;
-    };
+    }
     result.span()
 }

@@ -1,8 +1,3 @@
-use crate::extensions::SRC9Component;
-use crate::extensions::SRC9Component::{InternalImpl, OutsideExecutionV2Impl, SNIP12MetadataImpl};
-use crate::extensions::src9::interface::{ISRC9_V2Dispatcher, ISRC9_V2DispatcherTrait};
-use crate::extensions::src9::interface::{ISRC9_V2_ID, OutsideExecution};
-use crate::extensions::src9::snip12_utils::OutsideExecutionStructHash;
 use openzeppelin_introspection::interface::{ISRC5, ISRC5_ID};
 use openzeppelin_test_common::mocks::src9::SRC9AccountMock;
 use openzeppelin_testing as utils;
@@ -10,11 +5,19 @@ use openzeppelin_testing::constants::{FELT_VALUE, OTHER, OWNER, RECIPIENT};
 use openzeppelin_utils::cryptography::snip12::OffchainMessageHash;
 use snforge_std::signature::KeyPairTrait;
 use snforge_std::signature::stark_curve::{StarkCurveKeyPairImpl, StarkCurveSignerImpl};
-use snforge_std::{CheatSpan, load, start_cheat_block_timestamp_global, test_address};
-use snforge_std::{cheat_caller_address, start_cheat_caller_address};
+use snforge_std::{
+    CheatSpan, cheat_caller_address, load, start_cheat_block_timestamp_global,
+    start_cheat_caller_address, test_address,
+};
+use starknet::ContractAddress;
 use starknet::account::Call;
 use starknet::storage::StorageMapWriteAccess;
-use starknet::{ContractAddress, contract_address_const};
+use crate::extensions::SRC9Component;
+use crate::extensions::SRC9Component::{InternalImpl, OutsideExecutionV2Impl, SNIP12MetadataImpl};
+use crate::extensions::src9::interface::{
+    ISRC9_V2Dispatcher, ISRC9_V2DispatcherTrait, ISRC9_V2_ID, OutsideExecution,
+};
+use crate::extensions::src9::snip12_utils::OutsideExecutionStructHash;
 
 //
 // Setup
@@ -84,12 +87,12 @@ fn test_execute_from_outside_v2_specific_caller() {
     let key_pair = KeyPairTrait::generate();
     let account = setup_account(key_pair.public_key);
     let mut outside_execution = setup_outside_execution(account, false);
-    outside_execution.caller = OWNER();
+    outside_execution.caller = OWNER;
 
     let msg_hash = outside_execution.get_message_hash(account);
     let (r, s) = key_pair.sign(msg_hash).unwrap();
 
-    cheat_caller_address(account, OWNER(), CheatSpan::TargetCalls(1));
+    cheat_caller_address(account, OWNER, CheatSpan::TargetCalls(1));
 
     // Use the dispatcher to simulate the appropriate context
     let dispatcher = ISRC9_V2Dispatcher { contract_address: account };
@@ -125,10 +128,10 @@ fn test_execute_from_outside_v2_uses_nonce() {
 #[should_panic(expected: 'SRC9: invalid caller')]
 fn test_execute_from_outside_v2_caller_mismatch() {
     let mut state = setup();
-    let mut outside_execution = setup_outside_execution(RECIPIENT(), false);
-    outside_execution.caller = OWNER();
+    let mut outside_execution = setup_outside_execution(RECIPIENT, false);
+    outside_execution.caller = OWNER;
 
-    start_cheat_caller_address(test_address(), OTHER());
+    start_cheat_caller_address(test_address(), OTHER);
 
     state.execute_from_outside_v2(outside_execution, array![].span());
 }
@@ -137,7 +140,7 @@ fn test_execute_from_outside_v2_caller_mismatch() {
 #[should_panic(expected: 'SRC9: now >= execute_before')]
 fn test_execute_from_outside_v2_call_after_execute_before() {
     let mut state = setup();
-    let outside_execution = setup_outside_execution(RECIPIENT(), false);
+    let outside_execution = setup_outside_execution(RECIPIENT, false);
 
     start_cheat_block_timestamp_global(25);
 
@@ -148,7 +151,7 @@ fn test_execute_from_outside_v2_call_after_execute_before() {
 #[should_panic(expected: 'SRC9: now >= execute_before')]
 fn test_execute_from_outside_v2_call_equal_to_execute_before() {
     let mut state = setup();
-    let outside_execution = setup_outside_execution(RECIPIENT(), false);
+    let outside_execution = setup_outside_execution(RECIPIENT, false);
 
     start_cheat_block_timestamp_global(20);
 
@@ -159,7 +162,7 @@ fn test_execute_from_outside_v2_call_equal_to_execute_before() {
 #[should_panic(expected: 'SRC9: now <= execute_after')]
 fn test_execute_from_outside_v2_call_before_execute_after() {
     let mut state = setup();
-    let outside_execution = setup_outside_execution(RECIPIENT(), false);
+    let outside_execution = setup_outside_execution(RECIPIENT, false);
 
     start_cheat_block_timestamp_global(5);
 
@@ -170,7 +173,7 @@ fn test_execute_from_outside_v2_call_before_execute_after() {
 #[should_panic(expected: 'SRC9: now <= execute_after')]
 fn test_execute_from_outside_v2_call_equal_to_execute_after() {
     let mut state = setup();
-    let outside_execution = setup_outside_execution(RECIPIENT(), false);
+    let outside_execution = setup_outside_execution(RECIPIENT, false);
 
     start_cheat_block_timestamp_global(10);
 
@@ -181,7 +184,7 @@ fn test_execute_from_outside_v2_call_equal_to_execute_after() {
 #[should_panic(expected: 'SRC9: duplicated nonce')]
 fn test_execute_from_outside_v2_invalid_nonce() {
     let mut state = setup();
-    let outside_execution = setup_outside_execution(RECIPIENT(), false);
+    let outside_execution = setup_outside_execution(RECIPIENT, false);
 
     state.SRC9_nonces.write(outside_execution.nonce, true);
 
@@ -252,7 +255,7 @@ fn setup_outside_execution(target: ContractAddress, panic: bool) -> OutsideExecu
         selector: selector!("set_value"),
         calldata: array![FELT_VALUE, panic.into()].span(),
     };
-    let caller = contract_address_const::<'ANY_CALLER'>();
+    let caller = 'ANY_CALLER'.try_into().unwrap();
     let nonce = 5;
     let execute_after = 10;
     let execute_before = 20;

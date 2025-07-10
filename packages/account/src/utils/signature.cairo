@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.20.0 (account/utils/signature.cairo)
+// OpenZeppelin Contracts for Cairo v2.0.0 (account/src/utils/signature.cairo)
 
 use core::ecdsa::check_ecdsa_signature;
-use crate::interface::{EthPublicKey, P256PublicKey};
 use starknet::secp256_trait;
 use starknet::secp256_trait::{Secp256PointTrait, Secp256Trait};
+use crate::interface::{EthPublicKey, P256PublicKey};
 
 /// A signature format compatible with the family of secp256 curves.
 #[derive(Copy, Drop, Serde)]

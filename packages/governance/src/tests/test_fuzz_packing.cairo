@@ -1,9 +1,8 @@
-use crate::governor::ProposalCore;
-use crate::multisig::storage_utils::TxInfo;
-use starknet::storage_access::StorePacking;
 use core::integer::u128_safe_divmod;
 use core::num::traits::Bounded;
-use crate::multisig::storage_utils::{SignersInfo, SignersInfoStorePackingV2};
+use starknet::storage_access::StorePacking;
+use crate::governor::ProposalCore;
+use crate::multisig::storage_utils::{SignersInfo, SignersInfoStorePackingV2, TxInfo};
 
 #[test]
 #[fuzzer]

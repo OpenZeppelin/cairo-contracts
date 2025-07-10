@@ -11,9 +11,7 @@ pub mod errors {
     }
     /// Error when the module has no `#[starknet::contract]` attribute.
     pub fn NO_CONTRACT_ATTRIBUTE(contract_attribute: &str) -> String {
-        format!(
-            "Contract module must have the `#[{contract_attribute}]` attribute.\n"
-        )
+        format!("Contract module must have the `#[{contract_attribute}]` attribute.\n")
     }
 }
 

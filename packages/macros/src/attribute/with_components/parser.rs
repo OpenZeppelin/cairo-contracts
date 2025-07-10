@@ -168,7 +168,7 @@ fn validate_contract_module(
                 .strip_suffix(&component.name)
                 .expect("Component path must end with the component name");
             let re = Regex::new(&format!(
-                r"use {component_parent_path}[{{\w, \n]*DefaultConfig[{{\w}}, \n]*;"  
+                r"use {component_parent_path}[{{\w, \n]*DefaultConfig[{{\w}}, \n]*;"
             ))
             .unwrap();
 

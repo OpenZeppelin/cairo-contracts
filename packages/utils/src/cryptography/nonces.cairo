@@ -8,7 +8,7 @@
 /// when contracts accept signatures as input.
 #[starknet::component]
 pub mod NoncesComponent {
-    use openzeppelin_interfaces::utils::nonces::INonces;
+    use openzeppelin_interfaces::nonces::INonces;
     use starknet::ContractAddress;
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
 

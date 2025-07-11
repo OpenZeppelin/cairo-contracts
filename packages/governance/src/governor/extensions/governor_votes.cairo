@@ -44,20 +44,14 @@ pub mod GovernorVotesComponent {
         #[feature("safe_dispatcher")]
         fn clock(self: @GovernorComponentState<TContractState>) -> u64 {
             let votes_dispatcher = IVotesSafeDispatcher { contract_address: get_votes_token(self) };
-            match votes_dispatcher.clock() {
-                Result::Ok(clock) => clock,
-                Result::Err(_) => ERC6372TimestampClock::clock(),
-            }
+            votes_dispatcher.clock().unwrap_or(ERC6372TimestampClock::clock())
         }
 
         /// See `GovernorComponent::GovernorVotesTrait::CLOCK_MODE`.
         #[feature("safe_dispatcher")]
         fn CLOCK_MODE(self: @GovernorComponentState<TContractState>) -> ByteArray {
             let votes_dispatcher = IVotesSafeDispatcher { contract_address: get_votes_token(self) };
-            match votes_dispatcher.CLOCK_MODE() {
-                Result::Ok(clock_mode) => clock_mode,
-                Result::Err(_) => ERC6372TimestampClock::CLOCK_MODE(),
-            }
+            votes_dispatcher.CLOCK_MODE().unwrap_or(ERC6372TimestampClock::CLOCK_MODE())
         }
 
         /// See `GovernorComponent::GovernorVotesTrait::get_votes`.

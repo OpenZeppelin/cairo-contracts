@@ -21,9 +21,9 @@ before proceeding, and run the following command to check that the installation 
 ----
 $ scarb --version
 
-scarb 2.9.4 (d3be9ebe1 2025-02-19)
-cairo: 2.9.4 (https://crates.io/crates/cairo-lang-compiler/2.9.4)
-sierra: 1.6.0
+scarb 2.12.0-rc.1 (dd492084c 2025-07-10)
+cairo: 2.12.0-rc.1 (https://crates.io/crates/cairo-lang-compiler/2.12.0-rc.1)
+sierra: 1.7.0
 ----
 
 === Set up your project
@@ -53,9 +53,24 @@ Scarb.toml src
 
 === Install the library
 
+:versioning: xref:index.adoc#versioning_of_the_sub_packages[Versioning of the sub-packages]
+
+[IMPORTANT]
+====
+The `openzeppelin` package is an umbrella package that includes all the packages in the library.
+Before version 3.x.x, the `openzeppelin` and its sub-packages
+were versioned together meaning that the version of the `openzeppelin`
+package was the same as the version of the sub-packages.
+
+Starting from version 3.x.x, with the introduction of the `openzeppelin_interfaces` package,
+the `openzeppelin` package is versioned independently from the sub-packages.
+
+See the {versioning} section for more information.
+====
+
 Install the library by declaring it as a dependency in the project's `Scarb.toml` file:
 
-[,text]
+[,javascript]
 ----
 [dependencies]
 openzeppelin = "2.0.0"
@@ -64,11 +79,35 @@ openzeppelin = "2.0.0"
 The previous example would import the entire library. We can also add each package as a separate dependency to
 improve the building time by not including modules that won't be used:
 
-[,text]
+[,javascript]
 ----
 [dependencies]
 openzeppelin_access = "2.0.0"
 openzeppelin_token = "2.0.0"
+openzeppelin_interfaces = "1.0.0"
+----
+
+== Versioning of the sub-packages
+
+Here you can find a reference of the versioning of the sub-packages for this umbrella version:
+
+[,javascript]
+----
+[dependencies]
+openzeppelin_access = "2.0.0"
+openzeppelin_token = "2.0.0"
+openzeppelin_access = "2.0.0"
+openzeppelin_account = "2.0.0"
+openzeppelin_finance = "2.0.0"
+openzeppelin_interfaces = "1.0.0"
+openzeppelin_governance = "2.0.0"
+openzeppelin_introspection = "2.0.0"
+openzeppelin_merkle_tree = "2.0.0"
+openzeppelin_presets = "2.0.0"
+openzeppelin_security = "2.0.0"
+openzeppelin_token = "2.0.0"
+openzeppelin_upgrades = "2.0.0"
+openzeppelin_utils = "2.0.0"
 ----
 
 == Basic usage

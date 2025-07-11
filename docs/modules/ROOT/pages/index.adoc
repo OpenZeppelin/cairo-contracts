@@ -58,11 +58,11 @@ Scarb.toml src
 [IMPORTANT]
 ====
 The `openzeppelin` package is an umbrella package that includes all the packages in the library.
-Before version 3.x.x, the `openzeppelin` and its sub-packages
+Before version `3.x.x`, the `openzeppelin` and its sub-packages
 were versioned together meaning that the version of the `openzeppelin`
 package was the same as the version of the sub-packages.
 
-Starting from version 3.x.x, with the introduction of the `openzeppelin_interfaces` package,
+Starting from version `3.x.x`, with the introduction of the `openzeppelin_interfaces` package,
 the `openzeppelin` package is versioned independently from the sub-packages.
 
 See the {versioning} section for more information.

@@ -6,7 +6,7 @@ This section describes the interfaces OpenZeppelin Contracts for Cairo offer, an
 
 Interfaces can be found in the `openzeppelin_interfaces` package modules, such as `openzeppelin_interfaces::erc20`.
 
-NOTE: Starting from version 3.x.x, OpenZeppelin Contracts for Cairo interfaces have been separated from their implementation modules into a dedicated package.
+NOTE: Starting from version `3.x.x`, OpenZeppelin Contracts for Cairo interfaces have been separated from their implementation modules into a dedicated package.
 This architectural change brings several important benefits. Check the xref:interfaces.adoc[Interfaces] section for more information.
 
 For example:

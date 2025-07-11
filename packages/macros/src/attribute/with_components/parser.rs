@@ -168,8 +168,7 @@ fn validate_contract_module(
                 .strip_suffix(&component.name)
                 .expect("Component path must end with the component name");
             let re = Regex::new(&format!(
-                r"use {}[{{\w, \n]*DefaultConfig[{{\w}}, \n]*;",
-                component_parent_path
+                r"use {component_parent_path}[{{\w, \n]*DefaultConfig[{{\w}}, \n]*;"
             ))
             .unwrap();
 
@@ -180,7 +179,7 @@ fn validate_contract_module(
                 if !immutable_config_implemented {
                     let warning = Diagnostic::warn(warnings::IMMUTABLE_CONFIG_MISSING(
                         component.short_name(),
-                        &format!("{}DefaultConfig", component_parent_path),
+                        &format!("{component_parent_path}DefaultConfig"),
                     ));
                     warnings.push(warning);
                 }

@@ -224,7 +224,7 @@ fn validate_contract_module(
                 .path
                 .strip_suffix(&component.name)
                 .expect("Component path must end with the component name");
-            let default_config_path = format!("{}DefaultConfig", component_parent_path);
+            let default_config_path = format!("{component_parent_path}DefaultConfig");
             let default_config_used = code.contains(&default_config_path);
             if !default_config_used {
                 // Check if the ImmutableConfig is implemented

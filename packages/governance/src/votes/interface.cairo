@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v2.0.0-alpha.1 (governance/src/votes/interface.cairo)
+// OpenZeppelin Contracts for Cairo v2.0.0 (governance/src/votes/interface.cairo)
 
 use starknet::ContractAddress;
 
@@ -35,6 +35,23 @@ pub trait IVotes<TState> {
         expiry: u64,
         signature: Span<felt252>,
     );
+
+    /// Returns the current timepoint determined by the contract’s operational mode, intended for
+    /// use in time-sensitive logic.
+    /// See https://eips.ethereum.org/EIPS/eip-6372#clock.
+    ///
+    /// Requirements:
+    ///
+    /// - This function MUST always be non-decreasing.
+    fn clock(self: @TState) -> u64;
+
+    /// Returns a description of the clock the contract is operating in.
+    /// See https://eips.ethereum.org/EIPS/eip-6372#clock_mode.
+    ///
+    /// Requirements:
+    ///
+    /// - The output MUST be formatted like a URL query string, decodable in standard JavaScript.
+    fn CLOCK_MODE(self: @TState) -> ByteArray;
 }
 
 /// Common interface to interact with the `Votes` component.
@@ -57,4 +74,8 @@ pub trait VotesABI<TState> {
 
     // Nonces
     fn nonces(self: @TState, owner: ContractAddress) -> felt252;
+
+    // Clock (ERC-6372)
+    fn clock(self: @TState) -> u64;
+    fn CLOCK_MODE(self: @TState) -> ByteArray;
 }

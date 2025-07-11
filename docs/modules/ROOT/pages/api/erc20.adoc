@@ -21,7 +21,7 @@ TIP: For an overview of ERC20, read our {erc20-guide}.
 
 [.contract]
 [[IERC20]]
-=== `++IERC20++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.1/packages/token/src/erc20/interface.cairo[{github-icon},role=heading-link]
+=== `++IERC20++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0/packages/token/src/erc20/interface.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -34,7 +34,7 @@ Interface of the IERC20 standard as defined in {eip20}.
 .Functions
 --
 * xref:#IERC20-total_supply[`++total_supply()++`]
-* xref:#IERC20-balance_of[`++balance_of()++`]
+* xref:#IERC20-balance_of[`++balance_of(account)++`]
 * xref:#IERC20-allowance[`++allowance(owner, spender)++`]
 * xref:#IERC20-transfer[`++transfer(recipient, amount)++`]
 * xref:#IERC20-transfer_from[`++transfer_from(sender, recipient, amount)++`]
@@ -119,7 +119,7 @@ Emitted when the allowance of a `spender` for an `owner` is set.
 
 [.contract]
 [[IERC20Metadata]]
-=== `++IERC20Metadata++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.1/packages/token/src/erc20/interface.cairo#L19[{github-icon},role=heading-link]
+=== `++IERC20Metadata++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0/packages/token/src/erc20/interface.cairo#L19[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -167,7 +167,7 @@ NOTE: This information is only used for _display_ purposes: it in no way affects
 
 [.contract]
 [[ERC20Component]]
-=== `++ERC20Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.1/packages/token/src/erc20/erc20.cairo[{github-icon},role=heading-link]
+=== `++ERC20Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0/packages/token/src/erc20/erc20.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -518,7 +518,7 @@ See <<IERC20-Approval,IERC20::Approval>>.
 
 [.contract]
 [[IERC20Permit]]
-=== `++IERC20Permit++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.1/packages/token/src/erc20/interface.cairo#L19[{github-icon},role=heading-link]
+=== `++IERC20Permit++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0/packages/token/src/erc20/interface.cairo#L19[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -560,7 +560,7 @@ The domain hashing logic follows the {snip-12} standard.
 
 [.contract]
 [[IERC4626]]
-=== `++IERC4626++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.1/packages/token/src/erc20/extensions/erc4626/interface.cairo[{github-icon},role=heading-link]
+=== `++IERC4626++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0/packages/token/src/erc20/extensions/erc4626/interface.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -896,7 +896,7 @@ those `assets` to `receiver`.
 
 [.contract]
 [[ERC4626Component]]
-=== `++ERC4626Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.1/packages/token/src/erc20/extensions/erc4626/interface.cairo#L19[{github-icon},role=heading-link]
+=== `++ERC4626Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0/packages/token/src/erc20/extensions/erc4626/interface.cairo#L19[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -905,6 +905,14 @@ use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component;
 
 Extension of ERC20 that implements the <<IERC4626,IERC4626>> interface which allows the minting and burning of "shares" in exchange for an underlying "asset."
 The component leverages traits to configure fees, limits, and decimals.
+
+CAUTION: Note on hooks. Special care must be taken when calling external contracts from them. In
+that case, consider implementing reentrancy protections. For example, in the
+`withdraw` flow, the `withdraw_limit` is checked *before* the `before_withdraw` hook
+is invoked. If this hook performs a reentrant call that invokes `withdraw` again, the
+subsequent check on `withdraw_limit` will be done before the first withdrawal’s core logic
+(e.g., burning shares and transferring assets) is executed. This could
+lead to bypassing withdrawal constraints or draining funds.
 
 [.contract-index]
 .{immutable-config}
@@ -1418,7 +1426,7 @@ Internal conversion function (from shares to assets) with support for `rounding`
 
 [.contract]
 [[ERC20Upgradeable]]
-=== `++ERC20Upgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.1/packages/presets/src/erc20.cairo[{github-icon},role=heading-link]
+=== `++ERC20Upgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0/packages/presets/src/erc20.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin_presets::ERC20Upgradeable;

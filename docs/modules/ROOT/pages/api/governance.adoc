@@ -10,6 +10,8 @@
 :GovernorComponent: xref:#GovernorComponent[GovernorComponent]
 :TimelockControllerComponent: xref:#TimelockControllerComponent[TimelockControllerComponent]
 :ERC-6372: https://eips.ethereum.org/EIPS/eip-6372[ERC-6372]
+:ERC-6372-clock: https://eips.ethereum.org/EIPS/eip-6372#clock[ERC-6372#clock]
+:ERC-6372-clock-mode: https://eips.ethereum.org/EIPS/eip-6372#clock_mode[ERC-6372#CLOCK_MODE]
 :SNIP-12: https://github.com/starknet-io/SNIPs/blob/main/SNIPS/snip-12.md[SNIP-12]
 
 = Governance
@@ -428,7 +430,7 @@ NOTE: {src5-component-required-note}
 .GovernorVotesTrait
 
 * xref:#GovernorComponent-GovernorVotesTrait-clock[`++clock(self)++`]
-* xref:#GovernorComponent-GovernorVotesTrait-clock_mode[`++clock_mode(self)++`]
+* xref:#GovernorComponent-GovernorVotesTrait-CLOCK_MODE[`++CLOCK_MODE(self)++`]
 * xref:#GovernorComponent-GovernorVotesTrait-get_votes[`++get_votes(self, account, timepoint, params)++`]
 
 [.sub-index#GovernorComponent-Extensions-Traits-GovernorExecutionTrait]
@@ -584,17 +586,23 @@ Must return whether a proposal has succeeded or not.
 [[GovernorComponent-GovernorVotesTrait-clock]]
 ==== `[.contract-item-name]#++clock++#++(self: @ContractState) → u64++` [.item-kind]#extension#
 
-Must return the current timepoint according to the clock mode the governor is operating in.
+Returns the current timepoint determined by the governor's operational mode, intended for use in time-sensitive logic.
+See {ERC-6372-clock}.
 
-NOTE: For now, only timestamp is supported.
+Requirements:
+
+- This function MUST always be non-decreasing.
 
 [.contract-item]
-[[GovernorComponent-GovernorVotesTrait-clock_mode]]
-==== `[.contract-item-name]#++clock_mode++#++(self: @ContractState) → ByteArray++` [.item-kind]#extension#
+[[GovernorComponent-GovernorVotesTrait-CLOCK_MODE]]
+==== `[.contract-item-name]#++CLOCK_MODE++#++(self: @ContractState) → ByteArray++` [.item-kind]#extension#
 
-Must return the clock mode the governor is operating in.
+Returns a description of the clock the governor is operating in.
+See {ERC-6372-clock-mode}.
 
-NOTE: For now, only timestamp is supported.
+Requirements:
+
+- The output MUST be formatted like a URL query string, decodable in standard JavaScript.
 
 [.contract-item]
 [[GovernorComponent-GovernorVotesTrait-get_votes]]
@@ -1558,7 +1566,7 @@ extension.
 .GovernorVotes
 
 * xref:#GovernorVotesComponent-clock[`++clock(self)++`]
-* xref:#GovernorVotesComponent-clock_mode[`++clock_mode(self)++`]
+* xref:#GovernorVotesComponent-CLOCK_MODE[`++CLOCK_MODE(self)++`]
 * xref:#GovernorVotesComponent-get_votes[`++get_votes(self, account, timepoint, params)++`]
 --
 
@@ -1585,20 +1593,23 @@ extension.
 [[GovernorVotesComponent-clock]]
 ==== `[.contract-item-name]#++clock++#++(self: @ContractState) → u64++` [.item-kind]#internal#
 
-Returns the current timepoint according to the time mode the contract is operating in.
+Returns the current timepoint determined by the governor's operational mode, intended for use in time-sensitive logic.
+See {ERC-6372-clock}.
 
-In this implementation, returns the current block timestamp.
+Requirements:
 
-NOTE: {VotesComponent} always uses the block timestamp for tracking checkpoints.
-This must be updated in order to allow for more flexible clock modes.
+- This function MUST always be non-decreasing.
 
 [.contract-item]
-[[GovernorVotesComponent-clock_mode]]
-==== `[.contract-item-name]#++clock_mode++#++(self: @ContractState) → ByteArray++` [.item-kind]#internal#
+[[GovernorVotesComponent-CLOCK_MODE]]
+==== `[.contract-item-name]#++CLOCK_MODE++#++(self: @ContractState) → ByteArray++` [.item-kind]#internal#
 
-Returns `"mode=timestamp&from=starknet::SN_MAIN"`.
+Returns a description of the clock the governor is operating in.
+See {ERC-6372-clock-mode}.
 
-See https://eips.ethereum.org/EIPS/eip-6372#clock_mode
+Requirements:
+
+- The output MUST be formatted like a URL query string, decodable in standard JavaScript.
 
 [.contract-item]
 [[GovernorVotesComponent-get_votes]]
@@ -1652,7 +1663,7 @@ Extension of {GovernorComponent} for voting weight extraction from a token with 
 .GovernorVotes
 
 * xref:#GovernorVotesQuorumFractionComponent-clock[`++clock(self)++`]
-* xref:#GovernorVotesQuorumFractionComponent-clock_mode[`++clock_mode(self)++`]
+* xref:#GovernorVotesQuorumFractionComponent-CLOCK_MODE[`++CLOCK_MODE(self)++`]
 * xref:#GovernorVotesQuorumFractionComponent-get_votes[`++get_votes(self, account, timepoint, params)++`]
 --
 
@@ -1695,17 +1706,23 @@ It is computed as a percentage of the votes token total supply at a given `timep
 [[GovernorVotesQuorumFractionComponent-clock]]
 ==== `[.contract-item-name]#++clock++#++(self: @ContractState) → u64++` [.item-kind]#internal#
 
-Returns the current timepoint according to the time mode the contract is operating in.
+Returns the current timepoint determined by the governor's operational mode, intended for use in time-sensitive logic.
+See {ERC-6372-clock}.
 
-In this implementation, returns the current block timestamp.
+Requirements:
+
+- This function MUST always be non-decreasing.
 
 [.contract-item]
-[[GovernorVotesQuorumFractionComponent-clock_mode]]
-==== `[.contract-item-name]#++clock_mode++#++(self: @ContractState) → ByteArray++` [.item-kind]#internal#
+[[GovernorVotesQuorumFractionComponent-CLOCK_MODE]]
+==== `[.contract-item-name]#++CLOCK_MODE++#++(self: @ContractState) → ByteArray++` [.item-kind]#internal#
 
-Returns `"mode=timestamp&from=starknet::SN_MAIN"`.
+Returns a description of the clock the governor is operating in.
+See {ERC-6372-clock-mode}.
 
-See https://eips.ethereum.org/EIPS/eip-6372#clock_mode
+Requirements:
+
+- The output MUST be formatted like a URL query string, decodable in standard JavaScript.
 
 [.contract-item]
 [[GovernorVotesQuorumFractionComponent-get_votes]]
@@ -3418,6 +3435,8 @@ Common interface for Votes-enabled contracts.
 * xref:#IVotes-delegates[`++delegates(account)++`]
 * xref:#IVotes-delegate[`++delegate(delegatee)++`]
 * xref:#IVotes-delegate_by_sig[`++delegate_by_sig(delegator, delegatee, nonce, expiry, signature)++`]
+* xref:#IVotes-clock[`++clock()++`]
+* xref:#IVotes-CLOCK_MODE[`++CLOCK_MODE()++`]
 --
 
 [#IVotes-Functions]
@@ -3463,6 +3482,28 @@ Delegates votes from the sender to `delegatee`.
 
 Delegates votes from `delegator` to `delegatee` through a {SNIP-12} message signature validation.
 
+[.contract-item]
+[[IVotes-clock]]
+==== `[.contract-item-name]#++clock++#++() → u64++` [.item-kind]#external#
+
+Returns the current timepoint determined by the contract’s operational mode, intended for use in time-sensitive logic.
+See {ERC-6372-clock}.
+
+Requirements:
+
+- This function MUST always be non-decreasing.
+
+[.contract-item]
+[[IVotes-CLOCK_MODE]]
+==== `[.contract-item-name]#++CLOCK_MODE++#++() → u64++` [.item-kind]#external#
+
+Returns a description of the clock the contract is operating in.
+See {ERC-6372-clock-mode}.
+
+Requirements:
+
+- The output MUST be formatted like a URL query string, decodable in standard JavaScript.
+
 [.contract]
 [[VotesComponent]]
 === `++VotesComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0/packages/governance/src/votes/votes.cairo[{github-icon},role=heading-link]
@@ -3498,6 +3539,8 @@ NOTE: When using this module, your contract must implement the {VotingUnitsTrait
 * xref:#VotesComponent-delegates[`++delegates(self, account)++`]
 * xref:#VotesComponent-delegate[`++delegate(self, delegatee)++`]
 * xref:#VotesComponent-delegate_by_sig[`++delegate_by_sig(self, delegator, delegatee, nonce, expiry, signature)++`]
+* xref:#VotesComponent-clock[`++clock(self)++`]
+* xref:#VotesComponent-CLOCK_MODE[`++CLOCK_MODE(self)++`]
 --
 
 [.contract-index]
@@ -3623,6 +3666,28 @@ Requirements:
 Emits a {VotesComponent-DelegateChanged} event.
 
 May emit one or two {VotesComponent-DelegateVotesChanged} events.
+
+[.contract-item]
+[[VotesComponent-clock]]
+==== `[.contract-item-name]#++clock++#++(self: @ContractState) → u64++` [.item-kind]#external#
+
+Returns the current timepoint determined by the contract’s operational mode, intended for use in time-sensitive logic.
+See {ERC-6372-clock}.
+
+Requirements:
+
+- This function MUST always be non-decreasing.
+
+[.contract-item]
+[[VotesComponent-CLOCK_MODE]]
+==== `[.contract-item-name]#++CLOCK_MODE++#++(self: @ContractState) → u64++` [.item-kind]#external#
+
+Returns a description of the clock the contract is operating in.
+See {ERC-6372-clock-mode}.
+
+Requirements:
+
+- The output MUST be formatted like a URL query string, decodable in standard JavaScript.
 
 [#VotesComponent-Internal-functions]
 ==== Internal functions

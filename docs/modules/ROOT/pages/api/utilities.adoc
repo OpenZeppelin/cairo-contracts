@@ -1,6 +1,7 @@
 = Utilities
 
 :deploy_syscall: link:https://docs.starknet.io/architecture-and-concepts/smart-contracts/system-calls-cairo1/#deploy[deploy_syscall]
+:eip6372: link:https://eips.ethereum.org/EIPS/eip-6372[EIP-6372]
 
 This crate provides miscellaneous components and libraries containing utility functions to handle common tasks.
 
@@ -23,6 +24,7 @@ Module containing core utilities of the library.
 * xref:#utils-cryptography[`++cryptography++`]
 * xref:#utils-deployments[`++deployments++`]
 * xref:#utils-math[`++math++`]
+* xref:#utils-contract_clock[`++contract_clock++`]
 * xref:#utils-serde[`++serde++`]
 --
 
@@ -46,6 +48,12 @@ See xref:#deployments[`openzeppelin_utils::deployments`].
 ==== `[.contract-item-name]#++math++#` [.item-kind]#module#
 
 See xref:#math[`openzeppelin_utils::math`].
+
+[.contract-item]
+[[utils-contract_clock]]
+==== `[.contract-item-name]#++contract_clock++#` [.item-kind]#module#
+
+See xref:#contract_clock[`openzeppelin_utils::contract_clock`].
 
 [.contract-item]
 [[utils-serde]]
@@ -177,6 +185,85 @@ Module containing math utilities.
 Returns the average of two unsigned integers. The result is rounded down.
 
 NOTE: `T` is a generic value matching different numeric implementations.
+
+[.contract]
+[[contract_clock]]
+=== `++contract_clock++`
+
+```cairo
+use openzeppelin_utils::contract_clock;
+```
+
+Module providing a trait for the {eip6372} standard along with default clock implementations based on either block number or block timestamp.
+
+[.contract-index]
+.Traits
+--
+* xref:#ERC6372Clock[`++ERC6372Clock++`]
+--
+
+[.contract-index]
+.Implementations
+--
+* xref:#contract_clock-ERC6372BlockNumberClock[`++ERC6372BlockNumberClock++`]
+* xref:#contract_clock-ERC6372TimestampClock[`++ERC6372TimestampClock++`]
+--
+
+[.contract-item]
+[#ERC6372Clock]
+==== `++ERC6372Clock++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/votes-erc6372/packages/utils/src/contract_clock.cairo[{github-icon},role=heading-link]
+
+[.hljs-theme-dark]
+```cairo
+use openzeppelin_utils::contract_clock::ERC6372Clock;
+```
+
+A trait for the {eip6372} standard that allows flexible internal clock implementation — based on block timestamp, block number, or a custom logic.
+
+[.contract-index]
+.Functions
+--
+* xref:#ERC6372Clock-clock[`++clock()++`]
+* xref:#ERC6372Clock-CLOCK_MODE[`++CLOCK_MODE()++`]
+--
+
+[#ERC6372Clock-Functions]
+==== Functions
+
+[.contract-item]
+[[ERC6372Clock-clock]]
+==== `[.contract-item-name]#++clock++#++() → u64++` [.item-kind]#external#
+
+Returns the current timepoint determined by the contract’s operational mode, intended for use in time-sensitive logic.
+
+Requirements:
+
+- This function MUST always be non-decreasing.
+
+[.contract-item]
+[[ERC6372Clock-CLOCK_MODE]]
+==== `[.contract-item-name]#++CLOCK_MODE++#++() → ByteArray++` [.item-kind]#external#
+
+Returns a description of the clock the contract is operating in.
+
+Requirements:
+
+- The output MUST be formatted like a URL query string, decodable in standard JavaScript.
+
+[#contract_clock-Impls]
+==== Implementations
+
+[.contract-item]
+[[contract_clock-ERC6372BlockNumberClock]]
+==== `[.contract-item-name]#++ERC6372BlockNumberClock++#` [.item-kind]#impl#
+
+Implementation of the `ERC6372Clock` trait that uses the block number as its clock reference.
+
+[.contract-item]
+[[contract_clock-ERC6372TimestampClock]]
+==== `[.contract-item-name]#++ERC6372TimestampClock++#` [.item-kind]#impl#
+
+Implementation of the `ERC6372Clock` trait that uses the block timestamp as its clock reference.
 
 [.contract]
 [[serde]]

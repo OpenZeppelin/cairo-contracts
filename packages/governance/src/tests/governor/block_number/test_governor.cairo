@@ -1,4 +1,4 @@
-use core::num::traits::{Bounded, Zero};
+use core::num::traits::Bounded;
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin_test_common::mocks::governor::GovernorMock;
 use openzeppelin_test_common::mocks::governor::GovernorMock::SNIP12MetadataImpl;
@@ -7,49 +7,50 @@ use openzeppelin_test_common::mocks::timelock::{
 };
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{ADMIN, OTHER, VOTES_TOKEN, ZERO};
-use openzeppelin_testing::{AsAddressTrait, EventSpyExt, EventSpyQueue as EventSpy, spy_events};
+use openzeppelin_testing::{AsAddressTrait, spy_events};
 use openzeppelin_utils::bytearray::ByteArrayExtTrait;
 use openzeppelin_utils::cryptography::snip12::OffchainMessageHash;
 use snforge_std::signature::stark_curve::{StarkCurveKeyPairImpl, StarkCurveSignerImpl};
 use snforge_std::{
-    start_cheat_block_timestamp_global, start_cheat_caller_address, start_cheat_chain_id_global,
+    start_cheat_block_number_global, start_cheat_caller_address, start_cheat_chain_id_global,
     start_mock_call, test_address,
 };
 use starknet::ContractAddress;
 use starknet::account::Call;
 use starknet::storage::{StorageMapWriteAccess, StoragePathEntry, StoragePointerWriteAccess};
 use crate::governor::GovernorComponent::{InternalExtendedImpl, InternalImpl};
+use crate::governor::extensions::GovernorVotesComponent::InternalTrait;
 use crate::governor::interface::{
     IGOVERNOR_ID, IGovernor, IGovernorDispatcher, IGovernorDispatcherTrait, ProposalState,
 };
 use crate::governor::vote::{Vote, VoteWithReasonAndParams};
-use crate::governor::{DefaultConfig, GovernorComponent, ProposalCore};
-use crate::tests::governor::common::{
-    COMPONENT_STATE, CONTRACT_STATE, get_calls, get_mock_state, get_proposal_info, get_state,
-    hash_proposal, setup_active_proposal, setup_canceled_proposal, setup_defeated_proposal,
-    setup_executed_proposal, setup_pending_proposal, setup_queued_proposal,
+use crate::governor::{DefaultConfig, ProposalCore};
+use crate::tests::governor::block_number::common::{
+    COMPONENT_STATE, CONTRACT_STATE, deploy_votes_token, get_calls, get_mock_state,
+    get_proposal_info, get_state, hash_proposal, setup_active_proposal, setup_canceled_proposal,
+    setup_defeated_proposal, setup_executed_proposal, setup_pending_proposal, setup_queued_proposal,
     setup_succeeded_proposal,
 };
+use crate::tests::governor::common::GovernorSpyHelpersImpl;
 
 //
 // Dispatchers
 //
 
 fn deploy_governor() -> IGovernorDispatcher {
-    let mut calldata = array![VOTES_TOKEN.into()];
-
-    let address = utils::declare_and_deploy("GovernorMock", calldata);
-    IGovernorDispatcher { contract_address: address }
+    let calldata = array![VOTES_TOKEN.into()];
+    let contract_address = utils::declare_and_deploy("GovernorMock", calldata);
+    IGovernorDispatcher { contract_address }
 }
 
 fn deploy_mock_target() -> IMockContractDispatcher {
-    let mut calldata = array![];
-
-    let address = utils::declare_and_deploy("MockContract", calldata);
-    IMockContractDispatcher { contract_address: address }
+    let calldata = array![];
+    let contract_address = utils::declare_and_deploy("MockContract", calldata);
+    IMockContractDispatcher { contract_address }
 }
 
 fn setup_dispatchers() -> (IGovernorDispatcher, IMockContractDispatcher) {
+    deploy_votes_token();
     let governor = deploy_governor();
     let target = deploy_mock_target();
 
@@ -57,7 +58,7 @@ fn setup_dispatchers() -> (IGovernorDispatcher, IMockContractDispatcher) {
 }
 
 fn setup_account(public_key: felt252) -> ContractAddress {
-    let mut calldata = array![public_key];
+    let calldata = array![public_key];
     utils::declare_and_deploy("SnakeAccountMock", calldata)
 }
 
@@ -106,6 +107,8 @@ fn test_hash_proposal() {
 #[test]
 fn test_state_executed() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
 
     // The function already asserts the state
     setup_executed_proposal(ref state, true);
@@ -114,6 +117,8 @@ fn test_state_executed() {
 #[test]
 fn test_state_canceled() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
 
     // The function already asserts the state
     setup_canceled_proposal(ref state, true);
@@ -130,6 +135,8 @@ fn test_state_non_existent() {
 #[test]
 fn test_state_pending() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
 
     // The function already asserts the state
     setup_pending_proposal(ref state, true);
@@ -137,6 +144,8 @@ fn test_state_pending() {
 
 fn test_state_active_external_version(external_state_version: bool) {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, proposal) = get_proposal_info();
 
     state.Governor_proposals.write(id, proposal);
@@ -145,12 +154,12 @@ fn test_state_active_external_version(external_state_version: bool) {
     let expected = ProposalState::Active;
 
     // Is active before deadline
-    start_cheat_block_timestamp_global(deadline - 1);
+    start_cheat_block_number_global(deadline - 1);
     let current_state = get_state(@state, id, external_state_version);
     assert_eq!(current_state, expected);
 
     // Is active in deadline
-    start_cheat_block_timestamp_global(deadline);
+    start_cheat_block_number_global(deadline);
     let current_state = get_state(@state, id, external_state_version);
     assert_eq!(current_state, expected);
 }
@@ -162,6 +171,8 @@ fn test_state_active() {
 
 fn test_state_defeated_quorum_not_reached_external_version(external_state_version: bool) {
     let mut mock_state = CONTRACT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, proposal) = get_proposal_info();
 
     mock_state.governor.Governor_proposals.write(id, proposal);
@@ -169,7 +180,7 @@ fn test_state_defeated_quorum_not_reached_external_version(external_state_versio
     let deadline = proposal.vote_start + proposal.vote_duration;
     let expected = ProposalState::Defeated;
 
-    start_cheat_block_timestamp_global(deadline + 1);
+    start_cheat_block_number_global(deadline + 1);
 
     // Quorum not reached
     let quorum = mock_state.governor.quorum(0);
@@ -187,6 +198,8 @@ fn test_state_defeated_quorum_not_reached() {
 
 fn test_state_defeated_vote_not_succeeded_external_version(external_state_version: bool) {
     let mut mock_state = CONTRACT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, proposal) = get_proposal_info();
 
     mock_state.governor.Governor_proposals.write(id, proposal);
@@ -194,7 +207,7 @@ fn test_state_defeated_vote_not_succeeded_external_version(external_state_versio
     let deadline = proposal.vote_start + proposal.vote_duration;
     let expected = ProposalState::Defeated;
 
-    start_cheat_block_timestamp_global(deadline + 1);
+    start_cheat_block_number_global(deadline + 1);
 
     // Quorum reached
     let quorum = mock_state.governor.quorum(0);
@@ -216,6 +229,8 @@ fn test_state_defeated_vote_not_succeeded() {
 #[test]
 fn test_state_queued() {
     let mut mock_state = CONTRACT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
 
     // The function already asserts the state
     setup_queued_proposal(ref mock_state, true);
@@ -224,6 +239,8 @@ fn test_state_queued() {
 #[test]
 fn test_state_succeeded() {
     let mut mock_state = CONTRACT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
 
     // The function already asserts the state
     setup_succeeded_proposal(ref mock_state, true);
@@ -236,6 +253,8 @@ fn test_state_succeeded() {
 #[test]
 fn test_proposal_threshold() {
     let state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
 
     let threshold = state.proposal_threshold();
     let expected = GovernorMock::PROPOSAL_THRESHOLD;
@@ -245,6 +264,8 @@ fn test_proposal_threshold() {
 #[test]
 fn test_proposal_snapshot() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, proposal) = get_proposal_info();
 
     state.Governor_proposals.write(id, proposal);
@@ -257,6 +278,8 @@ fn test_proposal_snapshot() {
 #[test]
 fn test_proposal_deadline() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, proposal) = get_proposal_info();
 
     state.Governor_proposals.write(id, proposal);
@@ -269,6 +292,8 @@ fn test_proposal_deadline() {
 #[test]
 fn test_proposal_proposer() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, proposal) = get_proposal_info();
 
     state.Governor_proposals.write(id, proposal);
@@ -281,6 +306,8 @@ fn test_proposal_proposer() {
 #[test]
 fn test_proposal_eta() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, proposal) = get_proposal_info();
 
     state.Governor_proposals.write(id, proposal);
@@ -293,6 +320,8 @@ fn test_proposal_eta() {
 #[test]
 fn test_proposal_needs_queuing() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, proposal) = get_proposal_info();
 
     state.Governor_proposals.write(id, proposal);
@@ -304,6 +333,8 @@ fn test_proposal_needs_queuing() {
 #[test]
 fn test_voting_delay() {
     let state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
 
     let threshold = state.voting_delay();
     let expected = GovernorMock::VOTING_DELAY;
@@ -313,6 +344,8 @@ fn test_voting_delay() {
 #[test]
 fn test_voting_period() {
     let state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
 
     let threshold = state.voting_period();
     let expected = GovernorMock::VOTING_PERIOD;
@@ -323,6 +356,8 @@ fn test_voting_period() {
 #[fuzzer]
 fn test_quorum(timepoint: u64) {
     let state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
 
     let threshold = state.quorum(timepoint);
     let expected = if timepoint == Bounded::MAX {
@@ -340,11 +375,13 @@ fn test_quorum(timepoint: u64) {
 #[test]
 fn test_get_votes() {
     let state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let timepoint = 0;
     let expected_weight = 100;
 
     // Mock the get_past_votes call
-    start_mock_call(Zero::zero(), selector!("get_past_votes"), expected_weight);
+    start_mock_call(VOTES_TOKEN, selector!("get_past_votes"), expected_weight);
 
     let votes = state.get_votes(OTHER, timepoint);
     assert_eq!(votes, expected_weight);
@@ -353,12 +390,14 @@ fn test_get_votes() {
 #[test]
 fn test_get_votes_with_params() {
     let state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let timepoint = 0;
     let expected_weight = 100;
     let params = array!['param'].span();
 
     // Mock the get_past_votes call
-    start_mock_call(Zero::zero(), selector!("get_past_votes"), expected_weight);
+    start_mock_call(VOTES_TOKEN, selector!("get_past_votes"), expected_weight);
 
     let votes = state.get_votes_with_params(OTHER, timepoint, params);
     assert_eq!(votes, expected_weight);
@@ -371,6 +410,8 @@ fn test_get_votes_with_params() {
 #[test]
 fn test_has_voted() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_active_proposal(ref state, false);
 
     let reason = "reason";
@@ -381,7 +422,7 @@ fn test_has_voted() {
     assert!(has_not_voted);
 
     // 2. Cast vote
-    start_mock_call(Zero::zero(), selector!("get_past_votes"), 100_u256);
+    start_mock_call(VOTES_TOKEN, selector!("get_past_votes"), 100_u256);
     state._cast_vote(id, OTHER, 0, reason, params);
 
     // 3. Assert has voted
@@ -397,6 +438,8 @@ fn test_propose_external_version(external_state_version: bool) {
     let mut state = COMPONENT_STATE();
     let mut spy = spy_events();
     let contract_address = test_address();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
 
     let calls = get_calls(OTHER, false);
     let proposer = ADMIN;
@@ -404,7 +447,7 @@ fn test_propose_external_version(external_state_version: bool) {
     let mut description: ByteArray = "proposal description#proposer=0x";
     description.append(@address);
     let description_snap = @description;
-    let vote_start = starknet::get_block_timestamp() + GovernorMock::VOTING_DELAY;
+    let vote_start = starknet::get_block_number() + GovernorMock::VOTING_DELAY;
     let vote_end = vote_start + GovernorMock::VOTING_PERIOD;
 
     // 1. Check id
@@ -433,7 +476,7 @@ fn test_propose_external_version(external_state_version: bool) {
     let proposal = state.get_proposal(id);
     let expected = ProposalCore {
         proposer: ADMIN,
-        vote_start: starknet::get_block_timestamp() + GovernorMock::VOTING_DELAY,
+        vote_start: starknet::get_block_number() + GovernorMock::VOTING_DELAY,
         vote_duration: GovernorMock::VOTING_PERIOD,
         executed: false,
         canceled: false,
@@ -447,8 +490,8 @@ fn test_propose_external_version(external_state_version: bool) {
 fn test_propose() {
     let votes = GovernorMock::PROPOSAL_THRESHOLD + 1;
 
-    start_cheat_block_timestamp_global(10);
-    start_mock_call(Zero::zero(), selector!("get_past_votes"), votes);
+    start_cheat_block_number_global(10);
+    start_mock_call(VOTES_TOKEN, selector!("get_past_votes"), votes);
     start_cheat_caller_address(test_address(), ADMIN);
 
     test_propose_external_version(true);
@@ -458,12 +501,14 @@ fn test_propose() {
 #[should_panic(expected: 'Existent proposal')]
 fn test_propose_existent_proposal() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let calls = get_calls(OTHER, false);
     let description = "proposal description";
     let votes = GovernorMock::PROPOSAL_THRESHOLD + 1;
 
-    start_cheat_block_timestamp_global(10);
-    start_mock_call(Zero::zero(), selector!("get_past_votes"), votes);
+    start_cheat_block_number_global(10);
+    start_mock_call(VOTES_TOKEN, selector!("get_past_votes"), votes);
     start_cheat_caller_address(test_address(), ADMIN);
 
     state.propose(calls, description.clone());
@@ -476,10 +521,12 @@ fn test_propose_existent_proposal() {
 #[should_panic(expected: 'Insufficient votes')]
 fn test_propose_insufficient_proposer_votes() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let votes = GovernorMock::PROPOSAL_THRESHOLD - 1;
 
-    start_cheat_block_timestamp_global(10);
-    start_mock_call(Zero::zero(), selector!("get_past_votes"), votes);
+    start_cheat_block_number_global(10);
+    start_mock_call(VOTES_TOKEN, selector!("get_past_votes"), votes);
 
     let calls = get_calls(ZERO, false);
     let description = "proposal description";
@@ -491,6 +538,8 @@ fn test_propose_insufficient_proposer_votes() {
 #[should_panic(expected: 'Restricted proposer')]
 fn test_propose_restricted_proposer() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
 
     let calls = get_calls(ZERO, false);
     let description =
@@ -525,14 +574,14 @@ fn test_execute() {
 
     // 1. Propose
     let mut current_time = 10;
-    start_cheat_block_timestamp_global(current_time);
+    start_cheat_block_number_global(current_time);
     let id = governor.propose(calls, description.clone());
 
     // 2. Cast vote
 
     // Fast forward the vote delay
     current_time += GovernorMock::VOTING_DELAY;
-    start_cheat_block_timestamp_global(current_time);
+    start_cheat_block_number_global(current_time);
 
     // Cast vote
     governor.cast_vote(id, 1);
@@ -541,7 +590,7 @@ fn test_execute() {
 
     // Fast forward the vote duration
     current_time += (GovernorMock::VOTING_PERIOD + 1);
-    start_cheat_block_timestamp_global(current_time);
+    start_cheat_block_number_global(current_time);
 
     let state = governor.state(id);
     assert_eq!(state, ProposalState::Succeeded);
@@ -578,14 +627,14 @@ fn test_execute_panics() {
 
     // 1. Propose
     let mut current_time = 10;
-    start_cheat_block_timestamp_global(current_time);
+    start_cheat_block_number_global(current_time);
     let id = governor.propose(calls, description.clone());
 
     // 2. Cast vote
 
     // Fast forward the vote delay
     current_time += GovernorMock::VOTING_DELAY;
-    start_cheat_block_timestamp_global(current_time);
+    start_cheat_block_number_global(current_time);
 
     // Cast vote
     governor.cast_vote(id, 1);
@@ -594,7 +643,7 @@ fn test_execute_panics() {
 
     // Fast forward the vote duration
     current_time += (GovernorMock::VOTING_PERIOD + 1);
-    start_cheat_block_timestamp_global(current_time);
+    start_cheat_block_number_global(current_time);
 
     let state = governor.state(id);
     assert_eq!(state, ProposalState::Succeeded);
@@ -605,6 +654,8 @@ fn test_execute_panics() {
 #[test]
 fn test_execute_correct_id() {
     let mut mock_state = CONTRACT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     setup_succeeded_proposal(ref mock_state, false);
 
     let calls = get_calls(OTHER, true);
@@ -618,6 +669,8 @@ fn test_execute_correct_id() {
 #[test]
 fn test_execute_succeeded_passes() {
     let mut mock_state = CONTRACT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     setup_succeeded_proposal(ref mock_state, false);
 
     let calls = get_calls(OTHER, true);
@@ -629,6 +682,8 @@ fn test_execute_succeeded_passes() {
 #[test]
 fn test_execute_queued_passes() {
     let mut mock_state = CONTRACT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     setup_queued_proposal(ref mock_state, false);
 
     let calls = get_calls(OTHER, true);
@@ -641,6 +696,8 @@ fn test_execute_queued_passes() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test_execute_pending() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     setup_pending_proposal(ref state, false);
 
     let calls = get_calls(OTHER, false);
@@ -653,6 +710,8 @@ fn test_execute_pending() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test_execute_active() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     setup_active_proposal(ref state, false);
 
     let calls = get_calls(OTHER, false);
@@ -665,6 +724,8 @@ fn test_execute_active() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test_execute_defeated() {
     let mut mock_state = CONTRACT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     setup_defeated_proposal(ref mock_state, false);
 
     let calls = get_calls(OTHER, false);
@@ -677,6 +738,8 @@ fn test_execute_defeated() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test_execute_canceled() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     setup_canceled_proposal(ref state, false);
 
     let calls = get_calls(OTHER, false);
@@ -689,6 +752,8 @@ fn test_execute_canceled() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test_execute_executed() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     setup_executed_proposal(ref state, false);
 
     let calls = get_calls(OTHER, false);
@@ -704,6 +769,8 @@ fn test_execute_executed() {
 #[test]
 fn test_cancel() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
 
     let calls = get_calls(OTHER, false);
     let description = @"proposal description";
@@ -733,6 +800,8 @@ fn test_cancel() {
 #[test]
 fn test_cancel_correct_id() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     setup_pending_proposal(ref state, false);
 
     let calls = get_calls(OTHER, false);
@@ -750,6 +819,8 @@ fn test_cancel_correct_id() {
 #[should_panic(expected: 'Proposer only')]
 fn test_cancel_invalid_caller() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     setup_pending_proposal(ref state, false);
 
     let calls = get_calls(OTHER, false);
@@ -765,6 +836,8 @@ fn test_cancel_invalid_caller() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test_cancel_succeeded() {
     let mut mock_state = CONTRACT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     setup_succeeded_proposal(ref mock_state, false);
 
     let calls = get_calls(OTHER, true);
@@ -777,6 +850,8 @@ fn test_cancel_succeeded() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test_cancel_queued() {
     let mut mock_state = CONTRACT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     setup_queued_proposal(ref mock_state, false);
 
     let calls = get_calls(OTHER, true);
@@ -789,6 +864,8 @@ fn test_cancel_queued() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test_cancel_active() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     setup_active_proposal(ref state, false);
 
     let calls = get_calls(OTHER, false);
@@ -801,6 +878,8 @@ fn test_cancel_active() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test_cancel_defeated() {
     let mut mock_state = CONTRACT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     setup_defeated_proposal(ref mock_state, false);
 
     let calls = get_calls(OTHER, false);
@@ -813,6 +892,8 @@ fn test_cancel_defeated() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test_cancel_canceled() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     setup_canceled_proposal(ref state, false);
 
     let calls = get_calls(OTHER, false);
@@ -825,6 +906,8 @@ fn test_cancel_canceled() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test_cancel_executed() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     setup_executed_proposal(ref state, false);
 
     let calls = get_calls(OTHER, false);
@@ -841,6 +924,8 @@ fn test_cancel_executed() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test_cast_vote_pending() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_pending_proposal(ref state, false);
 
     state.cast_vote(id, 0);
@@ -849,6 +934,8 @@ fn test_cast_vote_pending() {
 #[test]
 fn test_cast_vote_active() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_active_proposal(ref state, false);
     let mut spy = spy_events();
     let contract_address = test_address();
@@ -856,7 +943,7 @@ fn test_cast_vote_active() {
     let expected_weight = 100;
 
     // Mock the get_past_votes call
-    start_mock_call(Zero::zero(), selector!("get_past_votes"), expected_weight);
+    start_mock_call(VOTES_TOKEN, selector!("get_past_votes"), expected_weight);
 
     start_cheat_caller_address(contract_address, OTHER);
     let weight = state.cast_vote(id, 0);
@@ -869,6 +956,8 @@ fn test_cast_vote_active() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test_cast_vote_defeated() {
     let mut mock_state = CONTRACT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_defeated_proposal(ref mock_state, false);
 
     mock_state.governor.cast_vote(id, 0);
@@ -878,6 +967,8 @@ fn test_cast_vote_defeated() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test_cast_vote_succeeded() {
     let mut mock_state = CONTRACT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_succeeded_proposal(ref mock_state, false);
 
     mock_state.governor.cast_vote(id, 0);
@@ -887,6 +978,8 @@ fn test_cast_vote_succeeded() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test_cast_vote_queued() {
     let mut mock_state = CONTRACT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_queued_proposal(ref mock_state, false);
 
     mock_state.governor.cast_vote(id, 0);
@@ -896,6 +989,8 @@ fn test_cast_vote_queued() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test_cast_vote_canceled() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_canceled_proposal(ref state, false);
 
     state.cast_vote(id, 0);
@@ -905,6 +1000,8 @@ fn test_cast_vote_canceled() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test_cast_vote_executed() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_executed_proposal(ref state, false);
 
     state.cast_vote(id, 0);
@@ -917,6 +1014,8 @@ fn test_cast_vote_executed() {
 #[test]
 fn test_cast_vote_with_reason_active() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_active_proposal(ref state, false);
     let mut spy = spy_events();
     let contract_address = test_address();
@@ -925,7 +1024,7 @@ fn test_cast_vote_with_reason_active() {
     let expected_weight = 100;
 
     // Mock the get_past_votes call
-    start_mock_call(Zero::zero(), selector!("get_past_votes"), expected_weight);
+    start_mock_call(VOTES_TOKEN, selector!("get_past_votes"), expected_weight);
 
     start_cheat_caller_address(contract_address, OTHER);
     let weight = state.cast_vote_with_reason(id, 0, reason.clone());
@@ -938,6 +1037,8 @@ fn test_cast_vote_with_reason_active() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test_cast_vote_with_reason_pending() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_pending_proposal(ref state, false);
 
     state.cast_vote_with_reason(id, 0, "");
@@ -947,6 +1048,8 @@ fn test_cast_vote_with_reason_pending() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test_cast_vote_with_reason_defeated() {
     let mut mock_state = CONTRACT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_defeated_proposal(ref mock_state, false);
 
     mock_state.governor.cast_vote_with_reason(id, 0, "");
@@ -956,6 +1059,8 @@ fn test_cast_vote_with_reason_defeated() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test_cast_vote_with_reason_succeeded() {
     let mut mock_state = CONTRACT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_succeeded_proposal(ref mock_state, false);
 
     mock_state.governor.cast_vote_with_reason(id, 0, "");
@@ -965,6 +1070,8 @@ fn test_cast_vote_with_reason_succeeded() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test_cast_vote_with_reason_queued() {
     let mut mock_state = CONTRACT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_queued_proposal(ref mock_state, false);
 
     mock_state.governor.cast_vote_with_reason(id, 0, "");
@@ -974,6 +1081,8 @@ fn test_cast_vote_with_reason_queued() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test_cast_vote_with_reason_canceled() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_canceled_proposal(ref state, false);
 
     state.cast_vote_with_reason(id, 0, "");
@@ -983,6 +1092,8 @@ fn test_cast_vote_with_reason_canceled() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test_cast_vote_with_reason_executed() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_executed_proposal(ref state, false);
 
     state.cast_vote_with_reason(id, 0, "");
@@ -995,6 +1106,8 @@ fn test_cast_vote_with_reason_executed() {
 #[test]
 fn test_cast_vote_with_reason_and_params_active() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_active_proposal(ref state, false);
     let mut spy = spy_events();
     let contract_address = test_address();
@@ -1004,7 +1117,7 @@ fn test_cast_vote_with_reason_and_params_active() {
     let expected_weight = 100;
 
     // Mock the get_past_votes call
-    start_mock_call(Zero::zero(), selector!("get_past_votes"), expected_weight);
+    start_mock_call(VOTES_TOKEN, selector!("get_past_votes"), expected_weight);
 
     start_cheat_caller_address(contract_address, OTHER);
     let weight = state.cast_vote_with_reason_and_params(id, 0, reason.clone(), params);
@@ -1019,6 +1132,8 @@ fn test_cast_vote_with_reason_and_params_active() {
 #[test]
 fn test_cast_vote_with_reason_and_params_active_no_params() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_active_proposal(ref state, false);
     let mut spy = spy_events();
     let contract_address = test_address();
@@ -1028,7 +1143,7 @@ fn test_cast_vote_with_reason_and_params_active_no_params() {
     let expected_weight = 100;
 
     // Mock the get_past_votes call
-    start_mock_call(Zero::zero(), selector!("get_past_votes"), expected_weight);
+    start_mock_call(VOTES_TOKEN, selector!("get_past_votes"), expected_weight);
 
     start_cheat_caller_address(contract_address, OTHER);
     let weight = state.cast_vote_with_reason_and_params(id, 0, reason.clone(), params);
@@ -1041,6 +1156,8 @@ fn test_cast_vote_with_reason_and_params_active_no_params() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test_cast_vote_with_reason_and_params_defeated() {
     let mut mock_state = CONTRACT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_defeated_proposal(ref mock_state, false);
 
     mock_state.governor.cast_vote_with_reason_and_params(id, 0, "", array![].span());
@@ -1050,6 +1167,8 @@ fn test_cast_vote_with_reason_and_params_defeated() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test_cast_vote_with_reason_and_params_succeeded() {
     let mut mock_state = CONTRACT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_succeeded_proposal(ref mock_state, false);
 
     mock_state.governor.cast_vote_with_reason_and_params(id, 0, "", array![].span());
@@ -1059,6 +1178,8 @@ fn test_cast_vote_with_reason_and_params_succeeded() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test_cast_vote_with_reason_and_params_queued() {
     let mut mock_state = CONTRACT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_queued_proposal(ref mock_state, false);
 
     mock_state.governor.cast_vote_with_reason_and_params(id, 0, "", array![].span());
@@ -1068,6 +1189,8 @@ fn test_cast_vote_with_reason_and_params_queued() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test_cast_vote_with_reason_and_params_canceled() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_canceled_proposal(ref state, false);
 
     state.cast_vote_with_reason_and_params(id, 0, "", array![].span());
@@ -1077,6 +1200,8 @@ fn test_cast_vote_with_reason_and_params_canceled() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test_cast_vote_with_reason_and_params_executed() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_executed_proposal(ref state, false);
 
     state.cast_vote_with_reason_and_params(id, 0, "", array![].span());
@@ -1089,6 +1214,7 @@ fn test_cast_vote_with_reason_and_params_executed() {
 fn prepare_governor_and_signature(
     nonce: felt252,
 ) -> (IGovernorDispatcher, felt252, felt252, felt252, u8, ContractAddress, u256) {
+    deploy_votes_token();
     let mut governor = deploy_governor();
     let calls = get_calls(OTHER, false);
     let description = "proposal description";
@@ -1099,12 +1225,12 @@ fn prepare_governor_and_signature(
 
     // 1. Propose
     let mut current_time = 10;
-    start_cheat_block_timestamp_global(current_time);
+    start_cheat_block_number_global(current_time);
     let proposal_id = governor.propose(calls, description.clone());
 
     // 2. Fast forward the vote delay
     current_time += GovernorMock::VOTING_DELAY;
-    start_cheat_block_timestamp_global(current_time);
+    start_cheat_block_number_global(current_time);
 
     // 3. Generate a key pair and set up an account
     let key_pair = StarkCurveKeyPairImpl::generate();
@@ -1190,6 +1316,7 @@ fn test_cast_vote_by_sig_hash_generation() {
 fn prepare_governor_and_signature_with_reason_and_params(
     reason: @ByteArray, params: Span<felt252>, nonce: felt252,
 ) -> (IGovernorDispatcher, felt252, felt252, felt252, u8, ContractAddress, u256) {
+    deploy_votes_token();
     let mut governor = deploy_governor();
     let calls = get_calls(OTHER, false);
     let description = "proposal description";
@@ -1200,12 +1327,12 @@ fn prepare_governor_and_signature_with_reason_and_params(
 
     // 1. Propose
     let mut current_time = 10;
-    start_cheat_block_timestamp_global(current_time);
+    start_cheat_block_number_global(current_time);
     let proposal_id = governor.propose(calls, description.clone());
 
     // 2. Fast forward the vote delay
     current_time += GovernorMock::VOTING_DELAY;
-    start_cheat_block_timestamp_global(current_time);
+    start_cheat_block_number_global(current_time);
 
     // 3. Generate a key pair and set up an account
     let key_pair = StarkCurveKeyPairImpl::generate();
@@ -1418,6 +1545,8 @@ fn test_relay_invalid_caller() {
 fn test_initializer() {
     let mut state = COMPONENT_STATE();
     let contract_state = CONTRACT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
 
     state.initializer();
 
@@ -1431,6 +1560,8 @@ fn test_initializer() {
 #[test]
 fn test_get_empty_proposal() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
 
     let proposal = state.get_proposal(0);
 
@@ -1445,6 +1576,8 @@ fn test_get_empty_proposal() {
 #[test]
 fn test_get_proposal() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (_, expected_proposal) = get_proposal_info();
 
     state.Governor_proposals.write(1, expected_proposal);
@@ -1524,6 +1657,8 @@ fn test__hash_proposal() {
 #[test]
 fn test__proposal_threshold() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
 
     let threshold = state._proposal_threshold();
     let expected = GovernorMock::PROPOSAL_THRESHOLD;
@@ -1533,6 +1668,8 @@ fn test__proposal_threshold() {
 #[test]
 fn test__proposal_snapshot() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, proposal) = get_proposal_info();
 
     state.Governor_proposals.write(id, proposal);
@@ -1545,6 +1682,8 @@ fn test__proposal_snapshot() {
 #[test]
 fn test__proposal_deadline() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, proposal) = get_proposal_info();
 
     state.Governor_proposals.write(id, proposal);
@@ -1557,6 +1696,8 @@ fn test__proposal_deadline() {
 #[test]
 fn test__proposal_proposer() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, proposal) = get_proposal_info();
 
     state.Governor_proposals.write(id, proposal);
@@ -1569,6 +1710,8 @@ fn test__proposal_proposer() {
 #[test]
 fn test__proposal_eta() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, proposal) = get_proposal_info();
 
     state.Governor_proposals.write(id, proposal);
@@ -1585,6 +1728,8 @@ fn test__proposal_eta() {
 #[test]
 fn test_assert_only_governance() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let contract_address = test_address();
 
     start_cheat_caller_address(contract_address, contract_address);
@@ -1596,6 +1741,8 @@ fn test_assert_only_governance() {
 #[should_panic(expected: 'Executor only')]
 fn test_assert_only_governance_not_executor() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let contract_address = test_address();
 
     start_cheat_caller_address(contract_address, OTHER);
@@ -1610,6 +1757,8 @@ fn test_assert_only_governance_not_executor() {
 #[test]
 fn test_validate_state() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, proposal) = get_proposal_info();
 
     state.Governor_proposals.write(id, proposal);
@@ -1634,6 +1783,8 @@ fn test_validate_state() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test_validate_state_invalid() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, proposal) = get_proposal_info();
 
     state.Governor_proposals.write(id, proposal);
@@ -1653,12 +1804,14 @@ fn test_validate_state_invalid() {
 #[test]
 fn test__get_votes() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let timepoint = 0;
     let expected_weight = 100;
     let params = array!['param'].span();
 
     // Mock the get_past_votes call
-    start_mock_call(Zero::zero(), selector!("get_past_votes"), expected_weight);
+    start_mock_call(VOTES_TOKEN, selector!("get_past_votes"), expected_weight);
 
     let votes = state._get_votes(OTHER, timepoint, params);
     assert_eq!(votes, expected_weight);
@@ -1671,6 +1824,8 @@ fn test__get_votes() {
 #[test]
 fn test__state_executed() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
 
     // The function already asserts the state
     setup_executed_proposal(ref state, false);
@@ -1679,6 +1834,8 @@ fn test__state_executed() {
 #[test]
 fn test__state_canceled() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
 
     // The function already asserts the state
     setup_canceled_proposal(ref state, false);
@@ -1688,6 +1845,8 @@ fn test__state_canceled() {
 #[should_panic(expected: 'Nonexistent proposal')]
 fn test__state_non_existent() {
     let state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
 
     state._state(1);
 }
@@ -1695,6 +1854,8 @@ fn test__state_non_existent() {
 #[test]
 fn test__state_pending() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
 
     // The function already asserts the state
     setup_pending_proposal(ref state, false);
@@ -1718,6 +1879,8 @@ fn test__state_defeated_vote_not_succeeded() {
 #[test]
 fn test__state_queued() {
     let mut mock_state = CONTRACT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
 
     // The function already asserts the state
     setup_queued_proposal(ref mock_state, false);
@@ -1726,6 +1889,8 @@ fn test__state_queued() {
 #[test]
 fn test__state_succeeded() {
     let mut mock_state = CONTRACT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
 
     // The function already asserts the state
     setup_succeeded_proposal(ref mock_state, false);
@@ -1744,6 +1909,8 @@ fn test__propose() {
 #[should_panic(expected: 'Existent proposal')]
 fn test__propose_existent_proposal() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let calls = get_calls(OTHER, false);
     let description = @"proposal description";
     let proposer = ADMIN;
@@ -1763,6 +1930,8 @@ fn test__propose_existent_proposal() {
 #[test]
 fn test__cancel_pending() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_pending_proposal(ref state, false);
 
     state._cancel(id, 0);
@@ -1774,6 +1943,8 @@ fn test__cancel_pending() {
 #[test]
 fn test__cancel_active() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_active_proposal(ref state, false);
 
     state._cancel(id, 0);
@@ -1785,6 +1956,8 @@ fn test__cancel_active() {
 #[test]
 fn test__cancel_defeated() {
     let mut mock_state = CONTRACT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_defeated_proposal(ref mock_state, false);
 
     mock_state.governor._cancel(id, 0);
@@ -1796,6 +1969,8 @@ fn test__cancel_defeated() {
 #[test]
 fn test__cancel_succeeded() {
     let mut mock_state = CONTRACT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_succeeded_proposal(ref mock_state, false);
 
     mock_state.governor._cancel(id, 0);
@@ -1807,6 +1982,8 @@ fn test__cancel_succeeded() {
 #[test]
 fn test__cancel_queued() {
     let mut mock_state = CONTRACT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_queued_proposal(ref mock_state, false);
 
     mock_state.governor._cancel(id, 0);
@@ -1819,6 +1996,8 @@ fn test__cancel_queued() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test__cancel_canceled() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_canceled_proposal(ref state, false);
 
     // Cancel again
@@ -1829,6 +2008,8 @@ fn test__cancel_canceled() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test__cancel_executed() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_executed_proposal(ref state, false);
 
     state._cancel(id, 0);
@@ -1842,6 +2023,8 @@ fn test__cancel_executed() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test__cast_vote_pending() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_pending_proposal(ref state, false);
     let params = array![].span();
 
@@ -1851,6 +2034,8 @@ fn test__cast_vote_pending() {
 #[test]
 fn test__cast_vote_active_no_params() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_active_proposal(ref state, false);
     let mut spy = spy_events();
     let contract_address = test_address();
@@ -1860,7 +2045,7 @@ fn test__cast_vote_active_no_params() {
     let expected_weight = 100;
 
     // Mock the get_past_votes call
-    start_mock_call(Zero::zero(), selector!("get_past_votes"), expected_weight);
+    start_mock_call(VOTES_TOKEN, selector!("get_past_votes"), expected_weight);
 
     let weight = state._cast_vote(id, OTHER, 0, reason, params);
     assert_eq!(weight, expected_weight);
@@ -1871,6 +2056,8 @@ fn test__cast_vote_active_no_params() {
 #[test]
 fn test__cast_vote_active_with_params() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_active_proposal(ref state, false);
     let mut spy = spy_events();
     let contract_address = test_address();
@@ -1880,7 +2067,7 @@ fn test__cast_vote_active_with_params() {
     let expected_weight = 100;
 
     // Mock the get_past_votes call
-    start_mock_call(Zero::zero(), selector!("get_past_votes"), expected_weight);
+    start_mock_call(VOTES_TOKEN, selector!("get_past_votes"), expected_weight);
 
     let weight = state._cast_vote(id, OTHER, 0, reason, params);
     assert_eq!(weight, expected_weight);
@@ -1895,6 +2082,8 @@ fn test__cast_vote_active_with_params() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test__cast_vote_defeated() {
     let mut mock_state = CONTRACT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_defeated_proposal(ref mock_state, false);
     let params = array![].span();
 
@@ -1905,6 +2094,8 @@ fn test__cast_vote_defeated() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test__cast_vote_succeeded() {
     let mut mock_state = CONTRACT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_succeeded_proposal(ref mock_state, false);
     let params = array![].span();
 
@@ -1915,6 +2106,8 @@ fn test__cast_vote_succeeded() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test__cast_vote_queued() {
     let mut mock_state = CONTRACT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_queued_proposal(ref mock_state, false);
     let params = array![].span();
 
@@ -1925,6 +2118,8 @@ fn test__cast_vote_queued() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test__cast_vote_canceled() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_canceled_proposal(ref state, false);
     let params = array![].span();
 
@@ -1935,6 +2130,8 @@ fn test__cast_vote_canceled() {
 #[should_panic(expected: 'Unexpected proposal state')]
 fn test__cast_vote_executed() {
     let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
     let (id, _) = setup_executed_proposal(ref state, false);
     let params = array![].span();
 
@@ -1942,171 +2139,10 @@ fn test__cast_vote_executed() {
 }
 
 //
-// Event helpers
+// Helpers
 //
 
-#[generate_trait]
-pub(crate) impl GovernorSpyHelpersImpl of GovernorSpyHelpers {
-    fn assert_event_proposal_created(
-        ref self: EventSpy,
-        contract: ContractAddress,
-        proposal_id: felt252,
-        proposer: ContractAddress,
-        calls: Span<Call>,
-        signatures: Span<Span<felt252>>,
-        vote_start: u64,
-        vote_end: u64,
-        description: @ByteArray,
-    ) {
-        let expected = GovernorComponent::Event::ProposalCreated(
-            GovernorComponent::ProposalCreated {
-                proposal_id,
-                proposer,
-                calls,
-                signatures,
-                vote_start,
-                vote_end,
-                description: description.clone(),
-            },
-        );
-        self.assert_emitted_single(contract, expected);
-    }
-
-    fn assert_only_event_proposal_created(
-        ref self: EventSpy,
-        contract: ContractAddress,
-        proposal_id: felt252,
-        proposer: ContractAddress,
-        calls: Span<Call>,
-        signatures: Span<Span<felt252>>,
-        vote_start: u64,
-        vote_end: u64,
-        description: @ByteArray,
-    ) {
-        self
-            .assert_event_proposal_created(
-                contract,
-                proposal_id,
-                proposer,
-                calls,
-                signatures,
-                vote_start,
-                vote_end,
-                description,
-            );
-        self.assert_no_events_left_from(contract);
-    }
-
-    fn assert_event_vote_cast(
-        ref self: EventSpy,
-        contract: ContractAddress,
-        voter: ContractAddress,
-        proposal_id: felt252,
-        support: u8,
-        weight: u256,
-        reason: @ByteArray,
-    ) {
-        let expected = GovernorComponent::Event::VoteCast(
-            GovernorComponent::VoteCast {
-                voter, proposal_id, support, weight, reason: reason.clone(),
-            },
-        );
-        self.assert_emitted_single(contract, expected);
-    }
-
-    fn assert_only_event_vote_cast(
-        ref self: EventSpy,
-        contract: ContractAddress,
-        voter: ContractAddress,
-        proposal_id: felt252,
-        support: u8,
-        weight: u256,
-        reason: @ByteArray,
-    ) {
-        self.assert_event_vote_cast(contract, voter, proposal_id, support, weight, reason);
-        self.assert_no_events_left_from(contract);
-    }
-
-    fn assert_event_vote_cast_with_params(
-        ref self: EventSpy,
-        contract: ContractAddress,
-        voter: ContractAddress,
-        proposal_id: felt252,
-        support: u8,
-        weight: u256,
-        reason: @ByteArray,
-        params: Span<felt252>,
-    ) {
-        let expected = GovernorComponent::Event::VoteCastWithParams(
-            GovernorComponent::VoteCastWithParams {
-                voter, proposal_id, support, weight, reason: reason.clone(), params,
-            },
-        );
-        self.assert_emitted_single(contract, expected);
-    }
-
-    fn assert_only_event_vote_cast_with_params(
-        ref self: EventSpy,
-        contract: ContractAddress,
-        voter: ContractAddress,
-        proposal_id: felt252,
-        support: u8,
-        weight: u256,
-        reason: @ByteArray,
-        params: Span<felt252>,
-    ) {
-        self
-            .assert_event_vote_cast_with_params(
-                contract, voter, proposal_id, support, weight, reason, params,
-            );
-        self.assert_no_events_left_from(contract);
-    }
-
-    fn assert_event_proposal_queued(
-        ref self: EventSpy, contract: ContractAddress, proposal_id: felt252, eta_seconds: u64,
-    ) {
-        let expected = GovernorComponent::Event::ProposalQueued(
-            GovernorComponent::ProposalQueued { proposal_id, eta_seconds },
-        );
-        self.assert_emitted_single(contract, expected);
-    }
-
-    fn assert_only_event_proposal_queued(
-        ref self: EventSpy, contract: ContractAddress, proposal_id: felt252, eta_seconds: u64,
-    ) {
-        self.assert_event_proposal_queued(contract, proposal_id, eta_seconds);
-        self.assert_no_events_left_from(contract);
-    }
-
-    fn assert_event_proposal_executed(
-        ref self: EventSpy, contract: ContractAddress, proposal_id: felt252,
-    ) {
-        let expected = GovernorComponent::Event::ProposalExecuted(
-            GovernorComponent::ProposalExecuted { proposal_id },
-        );
-        self.assert_emitted_single(contract, expected);
-    }
-
-    fn assert_only_event_proposal_executed(
-        ref self: EventSpy, contract: ContractAddress, proposal_id: felt252,
-    ) {
-        self.assert_event_proposal_executed(contract, proposal_id);
-        self.assert_no_events_left_from(contract);
-    }
-
-    fn assert_event_proposal_canceled(
-        ref self: EventSpy, contract: ContractAddress, proposal_id: felt252,
-    ) {
-        let expected = GovernorComponent::Event::ProposalCanceled(
-            GovernorComponent::ProposalCanceled { proposal_id },
-        );
-        self.assert_emitted_single(contract, expected);
-    }
-
-    fn assert_only_event_proposal_canceled(
-        ref self: EventSpy, contract: ContractAddress, proposal_id: felt252,
-    ) {
-        self.assert_event_proposal_canceled(contract, proposal_id);
-        self.assert_no_events_left_from(contract);
-    }
+fn initialize_votes_component(votes_token: ContractAddress) {
+    let mut mock_state = CONTRACT_STATE();
+    mock_state.governor_votes.initializer(votes_token);
 }

@@ -8,6 +8,10 @@
 #[starknet::component]
 pub mod ERC721Component {
     use core::num::traits::Zero;
+    use openzeppelin_interfaces::erc721 as interface;
+    use openzeppelin_interfaces::erc721::{
+        IERC721ReceiverDispatcher, IERC721ReceiverDispatcherTrait,
+    };
     use openzeppelin_interfaces::introspection::{ISRC5Dispatcher, ISRC5DispatcherTrait};
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_introspection::src5::SRC5Component::{
@@ -18,8 +22,6 @@ pub mod ERC721Component {
         StoragePointerWriteAccess,
     };
     use starknet::{ContractAddress, get_caller_address};
-    use crate::erc721::interface;
-    use crate::erc721::interface::{IERC721ReceiverDispatcher, IERC721ReceiverDispatcherTrait};
 
     #[storage]
     pub struct Storage {

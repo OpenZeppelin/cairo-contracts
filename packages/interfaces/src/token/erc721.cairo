@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v2.0.0 (token/src/erc721/interface.cairo)
+// OpenZeppelin Contracts for Cairo v2.0.0
+// (interfaces/src/token/erc721.cairo)
 
 use starknet::ContractAddress;
 
@@ -8,6 +9,9 @@ pub const IERC721_METADATA_ID: felt252 =
     0xabbcd595a567dce909050a1038e055daccb3c42af06f0add544fa90ee91f25;
 pub const IERC721_RECEIVER_ID: felt252 =
     0x3a0dff5f70d80458ad14ae37bb182a728e3c8cdda0402a5daa86620bdf910bc;
+pub const IERC721ENUMERABLE_ID: felt252 =
+    0x16bc0f502eeaf65ce0b3acb5eea656e2f26979ce6750e8502a82f377e538c87;
+
 
 #[starknet::interface]
 pub trait IERC721<TState> {
@@ -157,4 +161,19 @@ pub trait ERC721ReceiverMixin<TState> {
 
     // ISRC5
     fn supports_interface(self: @TState, interface_id: felt252) -> bool;
+}
+
+#[starknet::interface]
+pub trait IERC721Enumerable<TState> {
+    fn total_supply(self: @TState) -> u256;
+    fn token_by_index(self: @TState, index: u256) -> u256;
+    fn token_of_owner_by_index(self: @TState, owner: ContractAddress, index: u256) -> u256;
+}
+
+#[starknet::interface]
+pub trait ERC721EnumerableABI<TState> {
+    fn total_supply(self: @TState) -> u256;
+    fn token_by_index(self: @TState, index: u256) -> u256;
+    fn token_of_owner_by_index(self: @TState, owner: ContractAddress, index: u256) -> u256;
+    fn all_tokens_of_owner(self: @TState, owner: ContractAddress) -> Span<u256>;
 }

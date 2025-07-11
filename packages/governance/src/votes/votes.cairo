@@ -26,11 +26,12 @@
 pub mod VotesComponent {
     use core::num::traits::Zero;
     use openzeppelin_account::utils::assert_valid_signature;
+    use openzeppelin_interfaces::erc20::IERC20;
+    use openzeppelin_interfaces::erc721::IERC721;
+    use openzeppelin_interfaces::votes::IVotes;
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_token::erc20::ERC20Component;
-    use openzeppelin_token::erc20::interface::IERC20;
     use openzeppelin_token::erc721::ERC721Component;
-    use openzeppelin_token::erc721::interface::IERC721;
     use openzeppelin_utils::contract_clock::ERC6372Clock;
     use openzeppelin_utils::cryptography::snip12::{OffchainMessageHash, SNIP12Metadata};
     use openzeppelin_utils::nonces::NoncesComponent;
@@ -39,7 +40,6 @@ pub mod VotesComponent {
     use starknet::ContractAddress;
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePathEntry};
     use crate::votes::delegation::Delegation;
-    use crate::votes::interface::IVotes;
 
     #[storage]
     pub struct Storage {

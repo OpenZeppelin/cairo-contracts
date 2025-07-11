@@ -1,4 +1,7 @@
 use core::num::traits::Bounded;
+use openzeppelin_interfaces::governor::{
+    IGOVERNOR_ID, IGovernor, IGovernorDispatcher, IGovernorDispatcherTrait, ProposalState,
+};
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin_test_common::mocks::governor::GovernorMock;
 use openzeppelin_test_common::mocks::governor::GovernorMock::SNIP12MetadataImpl;
@@ -20,9 +23,6 @@ use starknet::account::Call;
 use starknet::storage::{StorageMapWriteAccess, StoragePathEntry, StoragePointerWriteAccess};
 use crate::governor::GovernorComponent::{InternalExtendedImpl, InternalImpl};
 use crate::governor::extensions::GovernorVotesComponent::InternalTrait;
-use crate::governor::interface::{
-    IGOVERNOR_ID, IGovernor, IGovernorDispatcher, IGovernorDispatcherTrait, ProposalState,
-};
 use crate::governor::vote::{Vote, VoteWithReasonAndParams};
 use crate::governor::{DefaultConfig, ProposalCore};
 use crate::tests::governor::block_number::common::{

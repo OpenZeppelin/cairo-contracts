@@ -31,7 +31,7 @@ This is how a contract with multiple components looks when using the macro.
 #[with_components(Account, SRC5, SRC9, Upgradeable)]
 #[starknet::contract(account)]
 mod OutsideExecutionAccountUpgradeable {
-    use openzeppelin_upgrades::interface::IUpgradeable;
+    use openzeppelin_interfaces::upgrades::IUpgradeable;
     use starknet::{ClassHash, ContractAddress};
 
     // External

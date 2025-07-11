@@ -4,8 +4,11 @@ use openzeppelin_access::accesscontrol::AccessControlComponent::{
     AccessControlImpl, InternalImpl as AccessControlInternalImpl,
 };
 use openzeppelin_access::accesscontrol::DEFAULT_ADMIN_ROLE;
-use openzeppelin_access::accesscontrol::interface::{IACCESSCONTROL_ID, IAccessControl};
-use openzeppelin_introspection::interface::ISRC5_ID;
+use openzeppelin_interfaces::accesscontrol::{IACCESSCONTROL_ID, IAccessControl};
+use openzeppelin_interfaces::introspection::ISRC5_ID;
+use openzeppelin_interfaces::timelock::{
+    OperationState, TimelockABIDispatcher, TimelockABIDispatcherTrait,
+};
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin_test_common::mocks::timelock::{
     IMockContractDispatcher, IMockContractDispatcherTrait, ITimelockAttackerDispatcher,
@@ -27,10 +30,7 @@ use crate::timelock::TimelockControllerComponent::{
     CallCancelled, CallExecuted, CallSalt, CallScheduled, InternalImpl as TimelockInternalImpl,
     MinDelayChanged, TimelockImpl,
 };
-use crate::timelock::interface::{TimelockABIDispatcher, TimelockABIDispatcherTrait};
-use crate::timelock::{
-    CANCELLER_ROLE, EXECUTOR_ROLE, OperationState, PROPOSER_ROLE, TimelockControllerComponent,
-};
+use crate::timelock::{CANCELLER_ROLE, EXECUTOR_ROLE, PROPOSER_ROLE, TimelockControllerComponent};
 
 type ComponentState =
     TimelockControllerComponent::ComponentState<TimelockControllerMock::ContractState>;

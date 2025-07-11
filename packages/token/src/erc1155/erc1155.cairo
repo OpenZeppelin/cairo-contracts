@@ -8,8 +8,12 @@
 #[starknet::component]
 pub mod ERC1155Component {
     use core::num::traits::Zero;
-    use openzeppelin_account::interface::ISRC6_ID;
-    use openzeppelin_introspection::interface::{ISRC5Dispatcher, ISRC5DispatcherTrait};
+    use openzeppelin_interfaces::accounts::ISRC6_ID;
+    use openzeppelin_interfaces::erc1155 as interface;
+    use openzeppelin_interfaces::erc1155::{
+        IERC1155ReceiverDispatcher, IERC1155ReceiverDispatcherTrait,
+    };
+    use openzeppelin_interfaces::introspection::{ISRC5Dispatcher, ISRC5DispatcherTrait};
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_introspection::src5::SRC5Component::{
         InternalTrait as SRC5InternalTrait, SRC5Impl,
@@ -19,8 +23,6 @@ pub mod ERC1155Component {
         StoragePointerWriteAccess,
     };
     use starknet::{ContractAddress, get_caller_address};
-    use crate::erc1155::interface;
-    use crate::erc1155::interface::{IERC1155ReceiverDispatcher, IERC1155ReceiverDispatcherTrait};
 
     #[storage]
     pub struct Storage {

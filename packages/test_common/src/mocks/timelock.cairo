@@ -65,9 +65,7 @@ pub trait ITimelockAttacker<TState> {
 
 #[starknet::contract]
 pub mod TimelockAttackerMock {
-    use openzeppelin_governance::timelock::interface::{
-        ITimelockDispatcher, ITimelockDispatcherTrait,
-    };
+    use openzeppelin_interfaces::timelock::{ITimelockDispatcher, ITimelockDispatcherTrait};
     use starknet::account::Call;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
     use super::ITimelockAttacker;

@@ -8,9 +8,9 @@
 /// or `assert_not_paused` will be affected by this mechanism.
 #[starknet::component]
 pub mod PausableComponent {
+    use openzeppelin_interfaces::pausable::IPausable;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
     use starknet::{ContractAddress, get_caller_address};
-    use crate::interface::IPausable;
 
     #[storage]
     pub struct Storage {

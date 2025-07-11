@@ -91,7 +91,7 @@ pub mod StepsVestingMock {
 #[starknet::contract]
 #[with_components(ERC20)]
 pub mod ERC20OptionalTransferPanicMock {
-    use openzeppelin_token::erc20::interface::IERC20;
+    use openzeppelin_interfaces::erc20::IERC20;
     use openzeppelin_token::erc20::{DefaultConfig, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};

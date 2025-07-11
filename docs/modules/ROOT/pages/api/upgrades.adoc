@@ -14,7 +14,7 @@ This crate provides interfaces and utilities related to upgradeability.
 :Upgraded: xref:UpgradeableComponent-Upgraded[Upgraded]
 
 ```cairo
-use openzeppelin_upgrades::interface::IUpgradeable;
+use openzeppelin_interfaces::upgrades::IUpgradeable;
 ```
 
 Interface of an upgradeable contract.

@@ -9,6 +9,7 @@
 /// GovernorTimelockExecutionComponent.
 #[starknet::component]
 pub mod GovernorCoreExecutionComponent {
+    use openzeppelin_interfaces::governor::ProposalState;
     use openzeppelin_introspection::src5::SRC5Component;
     use starknet::account::Call;
     use starknet::{ContractAddress, SyscallResultTrait};
@@ -16,7 +17,6 @@ pub mod GovernorCoreExecutionComponent {
     use crate::governor::GovernorComponent::{
         ComponentState as GovernorComponentState, InternalExtendedTrait,
     };
-    use crate::governor::interface::ProposalState;
 
     #[storage]
     pub struct Storage {}

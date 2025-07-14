@@ -62,8 +62,6 @@ This will output a `udc.json` file that you can use to declare the UDC on your a
 ```bash
 starkli declare udc.json --rpc <rpc-url>
 ```
-
-
 ====
 
 == Madara Appchains

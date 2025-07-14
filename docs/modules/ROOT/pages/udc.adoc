@@ -56,7 +56,7 @@ fn deploy() -> ContractAddress {
        0x5c478ee27f2112411f86f207605b2e2c58cdb647bac0df27f660ef2252359c6
     >();
     let salt = 1234567879;
-    let not_from_zero = true;:8
+    let not_from_zero = true;
     let calldata = array![];
 
     // The UDC returns the deployed contract address

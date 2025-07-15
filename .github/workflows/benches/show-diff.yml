@@ -1,0 +1,72 @@
+name: Benchmark Diff on PR
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    branches:
+      - main
+      - 'release-v*'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  comment-benchmark-diff:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Extract scarb version
+        run: |
+          SCARB_VERSION=$(grep 'scarb-version = ' Scarb.toml | sed 's/scarb-version = "\(.*\)"/\1/')
+          echo "SCARB_VERSION=$SCARB_VERSION" >> "$GITHUB_ENV"
+
+      - name: Setup scarb
+        uses: software-mansion/setup-scarb@v1
+        id: setup_scarb
+        with:
+          scarb-version: ${{ env.SCARB_VERSION }}
+
+      - name: Build mocks
+        run: scarb --release build
+
+      - name: Run benchmark and capture diff
+        id: benchmark_diff
+        run: |
+          python3 scripts/benchmark_diff.py scripts/benchmark.py benches/contract_sizes.json --dir target/release --markdown > diff_output.txt
+
+      - name: Prepare benchmark comment
+        run: |
+          {
+            echo "<!-- comment-id:benchmark-diff -->"
+            echo "### 🧪 Cairo Contract Size Benchmark Diff"
+            echo
+            echo '```diff'
+            cat diff_output.txt
+            echo '```'
+            echo
+            echo "_This comment was generated automatically from benchmark diffs._"
+          } > comment.md
+
+      - name: Find comment to update
+        uses: peter-evans/find-comment@v3
+        id: get_comment
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: benchmark-diff
+
+      - name: Echo a string
+        run: echo "secret: ${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Post benchmark diff comment
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-id: ${{ steps.get_comment.outputs.comment-id }}
+          edit-mode: replace
+          body-file: comment.md

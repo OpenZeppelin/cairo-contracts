@@ -1,0 +1,61 @@
+name: Update contract sizes benchmark
+
+on:
+  pull_request:
+    types:
+      - closed   # Trigger when a PR is closed (merged or just closed)
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  run-on-merge:
+    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - uses: Swatinem/rust-cache@v2
+
+      - name: Extract scarb version
+        run: |
+          SCARB_VERSION=$(grep 'scarb-version = ' Scarb.toml | sed 's/scarb-version = "\(.*\)"/\1/')
+          echo "SCARB_VERSION=$SCARB_VERSION" >> "$GITHUB_ENV"
+
+      - name: Setup scarb
+        uses: software-mansion/setup-scarb@v1
+        id: setup_scarb
+        with:
+          scarb-version: ${{ env.SCARB_VERSION }}
+
+      - name: Build mocks
+        run: scarb --release build
+
+      - name: Update benchmark
+        run: |
+          python3 ./scripts/benchmark.py --json --dir target/release > benches/contract_sizes.json
+
+      - name: Check if file changed
+        id: check_diff
+        run: |
+          if git diff --quiet origin/main -- benches/contract_sizes.json; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+          fi
+
+      # Only create a PR if the file changed
+      - name: Create Pull Request with benchmark update
+        if: steps.check_diff.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: Update contract sizes benchmark
+          title: Update contract sizes benchmark
+          body: |
+            This PR updates the contract size benchmarks after a recent merge to `main`.
+          branch: update/contract-sizes-${{ github.run_id }}
+          base: main
+          token: ${{ secrets.GITHUB_TOKEN }}

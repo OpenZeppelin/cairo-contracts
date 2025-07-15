@@ -15,7 +15,7 @@ For details on the motivation and the decision making process, see the {udc-prop
 
 == UDC contract address
 
-This version of the UDC is not deployed yet. Check the current deployed version {previous-udc-api}[here].
+The UDC is deployed at address `0x02ceed65a4bd731034c01113685c831b01c15d7d432f71afb1cf1634b53a2125` on Starknet sepolia and mainnet.
 
 == Interface
 

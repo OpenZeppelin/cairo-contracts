@@ -1,7 +1,6 @@
 import subprocess
 import json
 import sys
-from pathlib import Path
 
 # ANSI color codes
 RESET   = "\033[0m"

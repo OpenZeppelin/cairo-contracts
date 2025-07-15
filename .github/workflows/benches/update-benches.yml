@@ -42,9 +42,9 @@ jobs:
         id: check_diff
         run: |
           if git diff --quiet origin/main -- benches/contract_sizes.json; then
-            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "changed=false" >> "$GITHUB_OUTPUT"
           else
-            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "changed=true" >> "$GITHUB_OUTPUT"
           fi
 
       # Only create a PR if the file changed

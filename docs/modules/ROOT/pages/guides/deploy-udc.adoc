@@ -41,6 +41,29 @@ The latest version of the UDC available in the `openzeppelin_presets` package wa
 
 IMPORTANT: If you are using a different compiler version, you need to make sure the class hash is the same as the one above in order to keep the same address across all networks.
 
+:starkli: https://book.starkli.rs/declaring-classes[starkli]
+
+[TIP]
+====
+To avoid potential issues by using a different compiler version, you can directly import the contract class deployed on Starknet mainnet and declare it on your appchain. At
+the time of writing, this is not easily achievable with the `sncast` tool, but you can leverage `{starkli}` to do it.
+
+Quick reference:
+
+```bash
+starkli class-by-hash --parse \
+    0x01b2df6d8861670d4a8ca4670433b2418d78169c2947f46dc614e69f333745c8 \
+    --network mainnet \
+    > udc.json
+```
+
+This will output a `udc.json` file that you can use to declare the UDC on your appchain.
+
+```bash
+starkli declare udc.json --rpc <rpc-url>
+```
+====
+
 == Madara Appchains
 
 :madara: https://github.com/madara-alliance/madara/blob/main/README.md[Madara]

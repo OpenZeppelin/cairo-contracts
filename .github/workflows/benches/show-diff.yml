@@ -7,6 +7,9 @@ on:
     branches:
       - main
       - 'release-v*'
+  push:
+    branches:
+      - feat/benchmark-contract-size
 
 permissions:
   contents: read

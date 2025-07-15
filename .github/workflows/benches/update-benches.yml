@@ -32,7 +32,7 @@ jobs:
           scarb-version: ${{ env.SCARB_VERSION }}
 
       - name: Build mocks
-        run: scarb --release build
+        run: scarb --release build -p openzeppelin_test_common
 
       - name: Update benchmark
         run: |

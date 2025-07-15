@@ -1,15 +1,11 @@
 name: Benchmark Diff on PR
 
 on:
-  workflow_dispatch:
   pull_request:
     types: [opened, synchronize]
     branches:
       - main
       - 'release-v*'
-  push:
-    branches:
-      - feat/benchmark-contract-size
 
 permissions:
   contents: read

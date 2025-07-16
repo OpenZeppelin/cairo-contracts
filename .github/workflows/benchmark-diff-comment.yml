@@ -13,6 +13,8 @@ permissions:
 
 jobs:
   comment-benchmark-diff:
+    # Only run on non-forked PRs
+    if: github.event.pull_request.head.repo.fork == false
     runs-on: ubuntu-latest
 
     steps:

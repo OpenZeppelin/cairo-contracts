@@ -10,8 +10,11 @@ permissions:
   pull-requests: write
 
 jobs:
-  run-on-merge:
-    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
+  create-pr-if-changed:
+    if: |
+        github.event.pull_request.head.repo.fork == false &&
+        github.event.pull_request.merged == true &&
+        github.event.pull_request.base.ref == 'main'
     runs-on: ubuntu-latest
 
     steps:

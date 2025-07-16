@@ -637,3 +637,25 @@ fn test_CLOCK_MODE() {
     let state = COMPONENT_STATE();
     assert_eq!(state.CLOCK_MODE(), "mode=timestamp&from=starknet::SN_MAIN");
 }
+
+#[test]
+fn test_delegate_changed_event_indexed_keys() {
+    let delegator = DELEGATOR;
+    let from_delegate = ZERO;
+    let to_delegate = RECIPIENT;
+
+    let delegate_event = VotesComponent::DelegateChanged { delegator, from_delegate, to_delegate };
+    let expected_keys = array![delegator.into(), from_delegate.into(), to_delegate.into()];
+    assert_indexed_keys(@delegate_event, @expected_keys);
+}
+
+#[test]
+fn test_delegate_votes_changed_event_indexed_keys() {
+    let delegate = DELEGATOR;
+    let previous_votes = 0;
+    let new_votes = SUPPLY;
+
+    let votes_event = VotesComponent::DelegateVotesChanged { delegate, previous_votes, new_votes };
+    let expected_keys = array![delegate.into()];
+    assert_indexed_keys(@votes_event, @expected_keys);
+}

@@ -1,5 +1,6 @@
 use openzeppelin_test_common::mocks::security::PausableMock;
-use openzeppelin_testing::constants::CALLER;
+use openzeppelin_testing::constants::{CALLER, OWNER};
+use openzeppelin_testing::events::assert_indexed_keys;
 use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use snforge_std::{start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
@@ -149,4 +150,22 @@ impl PausableSpyHelpersImpl of PausableSpyHelpers {
         self.assert_event_unpaused(contract, account);
         self.assert_no_events_left_from(contract);
     }
+}
+
+#[test]
+fn test_paused_event_indexed_keys() {
+    let account = OWNER;
+
+    let paused_event = PausableComponent::Paused { account };
+    let expected_keys = array![account.into()];
+    assert_indexed_keys(@paused_event, @expected_keys);
+}
+
+#[test]
+fn test_unpaused_event_indexed_keys() {
+    let account = OWNER;
+
+    let unpaused_event = PausableComponent::Unpaused { account };
+    let expected_keys = array![account.into()];
+    assert_indexed_keys(@unpaused_event, @expected_keys);
 }

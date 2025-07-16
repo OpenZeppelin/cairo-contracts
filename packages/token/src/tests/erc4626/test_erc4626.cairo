@@ -7,14 +7,17 @@ use openzeppelin_test_common::mocks::erc4626::{
     ERC4626LimitsMock, ERC4626Mock, ERC4626MockWithHooks,
 };
 use openzeppelin_testing as utils;
-use openzeppelin_testing::constants::{ALICE, BOB, NAME, OTHER, RECIPIENT, SPENDER, SYMBOL, ZERO};
+use openzeppelin_testing::constants::{
+    ALICE, BOB, NAME, OTHER, OWNER, RECIPIENT, SPENDER, SYMBOL, VALUE, ZERO,
+};
+use openzeppelin_testing::events::assert_indexed_keys;
 use openzeppelin_testing::{AsAddressTrait, EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{CheatSpan, cheat_caller_address};
 use starknet::ContractAddress;
 use crate::erc20::ERC20Component::InternalImpl as ERC20InternalImpl;
 use crate::erc20::extensions::erc4626::ERC4626Component::{
-    Deposit, ERC4626Impl, ERC4626MetadataImpl, InternalImpl, Withdraw,
+    ERC4626Impl, ERC4626MetadataImpl, InternalImpl,
 };
 use crate::erc20::extensions::erc4626::interface::{ERC4626ABIDispatcher, ERC4626ABIDispatcherTrait};
 use crate::erc20::extensions::erc4626::{DefaultConfig, ERC4626Component};
@@ -1723,7 +1726,7 @@ pub impl ERC4626SpyHelpersImpl of ERC4626SpyHelpers {
         assets: u256,
         shares: u256,
     ) {
-        let expected = ERC4626Component::Event::Deposit(Deposit { sender, owner, assets, shares });
+        let expected = ERC4626Component::Deposit { sender, owner, assets, shares };
         self.assert_emitted_single(contract, expected);
     }
 
@@ -1748,9 +1751,7 @@ pub impl ERC4626SpyHelpersImpl of ERC4626SpyHelpers {
         assets: u256,
         shares: u256,
     ) {
-        let expected = ERC4626Component::Event::Withdraw(
-            Withdraw { sender, receiver, owner, assets, shares },
-        );
+        let expected = ERC4626Component::Withdraw { sender, receiver, owner, assets, shares };
         self.assert_emitted_single(contract, expected);
     }
 

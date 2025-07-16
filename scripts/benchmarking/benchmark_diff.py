@@ -35,7 +35,7 @@ def try_get_name(filename):
     return filename
 
 
-def get_size_warning(metric, value):
+def get_size_warning(metric, value, color=True):
     if value is None:
         return ""
     if metric == "felts":
@@ -45,9 +45,9 @@ def get_size_warning(metric, value):
     else:
         return ""
     if value >= limit:
-        return f"{RED}❌ OVER LIMIT{RESET}"
+        return f"{RED if color else ''}{'❌ OVER LIMIT'}{RESET if color else ''}"
     elif value >= CLOSE_TO_LIMIT * limit:
-        return f"{YELLOW}⚠️ NEAR LIMIT{RESET}"
+        return f"{YELLOW if color else ''}{'⚠️  NEAR LIMIT'}{RESET if color else ''}"
     return ""
 
 
@@ -115,27 +115,51 @@ def print_diff_markdown(old, new):
 
 def markdown_subtable(old, new, metric):
     all_files = sorted(set(old.keys()) | set(new.keys()))
-    print("| Contract | Old | New | Δ | Note |")
-    print("|----------|-----|-----|----|------|")
+    rows = []
 
+    # Header
+    rows.append(["Contract", "Old", "New", "Δ", "Note"])
+
+    # Data rows
     for file in all_files:
         name = try_get_name(file)
         old_val = old.get(file, {}).get(metric)
         new_val = new.get(file, {}).get(metric)
 
         if old_val is None and new_val is not None:
-            warning = get_size_warning(metric, new_val)
-            print(f"| `{name}` | — | {new_val} | +{new_val} | ✅ NEW ({warning}) |")
+            delta = f"+{new_val}"
+            note = f"✅ NEW"
+            warning = get_size_warning(metric, new_val, color=False)
+            if warning:
+                note += f" ({warning})"
+            rows.append([f"`{name}`", "—", str(new_val), delta, note])
         elif old_val is not None and new_val is None:
-            print(f"| `{name}` | {old_val} | — | -{old_val} | ❌ REMOVED |")
+            delta = f"-{old_val}"
+            rows.append([f"`{name}`", str(old_val), "—", delta, "❌ REMOVED"])
         elif old_val == new_val:
-            print(f"| `{name}` | {old_val} | {new_val} | 0 | ⚪ No change |")
+            rows.append([f"`{name}`", str(old_val), str(new_val), "0", "⚪ No change"])
         else:
             diff = new_val - old_val
             arrow = "🟢" if diff > 0 else "🔴"
             sign = "+" if diff > 0 else "−"
-            warning = get_size_warning(metric, new_val)
-            print(f"| `{name}` | {old_val} | {new_val} | {arrow} {sign}{abs(diff)} | {warning} |")
+            delta = f"{arrow} {sign}{abs(diff)}"
+            note = get_size_warning(metric, new_val)
+            rows.append([f"`{name}`", str(old_val), str(new_val), delta, note or ""])
+
+    # Calculate column widths
+    col_widths = [max(len(cell) for cell in col) for col in zip(*rows)]
+
+    # Format table
+    def format_row(row):
+        return "| " + " | ".join(cell.ljust(w) for cell, w in zip(row, col_widths)) + " |"
+
+    # Print header and separator
+    print(format_row(rows[0]))
+    print("|" + "|".join("-" * (w + 2) for w in col_widths) + "|")
+
+    # Print data rows
+    for row in rows[1:]:
+        print(format_row(row))
 
 
 if __name__ == "__main__":

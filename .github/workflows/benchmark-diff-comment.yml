@@ -36,7 +36,11 @@ jobs:
       - name: Run benchmark and capture diff
         id: benchmark_diff
         run: |
-          python3 scripts/benchmark_diff.py scripts/benchmark.py benches/contract_sizes.json --dir target/release --markdown > diff_output.txt
+          python3 scripts/benchmarking/benchmark_diff.py \
+            scripts/benchmarking/benchmark.py \
+            benches/contract_sizes.json \
+            --dir target/release \
+            --markdown > diff_output.txt
 
       - name: Prepare benchmark comment
         run: |

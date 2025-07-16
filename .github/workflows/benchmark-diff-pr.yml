@@ -36,7 +36,7 @@ jobs:
 
       - name: Update benchmark
         run: |
-          python3 ./scripts/benchmark.py --json --dir target/release > benches/contract_sizes.json
+          python3 ./scripts/benchmarking/benchmark.py --json --dir target/release > benches/contract_sizes.json
 
       - name: Check if file changed
         id: check_diff

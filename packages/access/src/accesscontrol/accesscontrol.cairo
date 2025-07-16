@@ -52,11 +52,8 @@ pub mod AccessControlComponent {
     /// or the deployer address if `_grant_role` is called from the constructor.
     #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct RoleGranted {
-        #[key]
         pub role: felt252,
-        #[key]
         pub account: ContractAddress,
-        #[key]
         pub sender: ContractAddress,
     }
 
@@ -66,11 +63,8 @@ pub mod AccessControlComponent {
     /// or the deployer address if `_grant_role_with_delay` is called from the constructor.
     #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct RoleGrantedWithDelay {
-        #[key]
         pub role: felt252,
-        #[key]
         pub account: ContractAddress,
-        #[key]
         pub sender: ContractAddress,
         pub delay: u64,
     }
@@ -82,11 +76,8 @@ pub mod AccessControlComponent {
     ///   - If using `renounce_role`, it is the role bearer (i.e. `account`).
     #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct RoleRevoked {
-        #[key]
         pub role: felt252,
-        #[key]
         pub account: ContractAddress,
-        #[key]
         pub sender: ContractAddress,
     }
 
@@ -96,11 +87,8 @@ pub mod AccessControlComponent {
     /// `RoleAdminChanged` not being emitted signaling this.
     #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub struct RoleAdminChanged {
-        #[key]
         pub role: felt252,
-        #[key]
         pub previous_admin_role: felt252,
-        #[key]
         pub new_admin_role: felt252,
     }
 

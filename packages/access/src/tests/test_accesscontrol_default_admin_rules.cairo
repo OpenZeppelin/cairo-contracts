@@ -5,7 +5,7 @@ use openzeppelin_testing::constants::{
     ADMIN, AUTHORIZED, OTHER, OTHER_ADMIN, OTHER_ROLE, ROLE, TIMESTAMP, ZERO,
 };
 use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
-use snforge_std::{start_cheat_block_timestamp_global, start_cheat_caller_address, test_address};
+use snforge_std::{Event, start_cheat_block_timestamp_global, start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
 use crate::accesscontrol::extensions::AccessControlDefaultAdminRulesComponent::{
     DefaultAdminDelayChangeCanceled, DefaultAdminDelayChangeScheduled, DefaultAdminTransferCanceled,
@@ -1161,6 +1161,8 @@ fn test_default_admin_role_is_its_own_admin() {
 // Helpers
 //
 
+use openzeppelin_utils::serde::SerializedAppend;
+
 #[generate_trait]
 impl AccessControlDefaultAdminRulesSpyHelpersImpl of AccessControlDefaultAdminRulesSpyHelpers {
     fn assert_only_event_default_admin_transfer_scheduled(
@@ -1169,10 +1171,16 @@ impl AccessControlDefaultAdminRulesSpyHelpersImpl of AccessControlDefaultAdminRu
         new_admin: ContractAddress,
         accept_schedule: u64,
     ) {
-        let expected =
-            AccessControlDefaultAdminRulesComponent::Event::DefaultAdminTransferScheduled(
-            DefaultAdminTransferScheduled { new_admin, accept_schedule },
-        );
+        let mut keys = array![];
+        keys.append_serde(selector!("DefaultAdminTransferScheduled"));
+        keys.append_serde(new_admin);
+        let mut data = array![];
+        data.append_serde(accept_schedule);
+        let expected = Event { keys, data };
+        // let expected =
+        //     AccessControlDefaultAdminRulesComponent::Event::DefaultAdminTransferScheduled(
+        //     DefaultAdminTransferScheduled { new_admin, accept_schedule },
+        // );
         self.assert_only_event(contract, expected);
     }
 

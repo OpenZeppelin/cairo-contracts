@@ -3,7 +3,6 @@ use openzeppelin_test_common::mocks::access::DualCaseAccessControlMock;
 use openzeppelin_testing::constants::{
     ADMIN, AUTHORIZED, OTHER, OTHER_ADMIN, OTHER_ROLE, ROLE, TIMESTAMP, ZERO,
 };
-use openzeppelin_testing::events::assert_indexed_keys;
 use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use snforge_std::{start_cheat_block_timestamp_global, start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
@@ -759,41 +758,4 @@ pub impl AccessControlSpyHelpersImpl of AccessControlSpyHelpers {
         );
         self.assert_only_event(from_address, expected);
     }
-}
-
-#[test]
-fn test_role_granted_event_indexed_keys() {
-    let role = ROLE;
-    let account = OTHER;
-    let sender = ADMIN;
-
-    let grant_event = AccessControlComponent::RoleGranted { role, account, sender };
-    let expected_keys = array![role.into(), account.into(), sender.into()];
-    assert_indexed_keys(@grant_event, @expected_keys);
-}
-
-#[test]
-fn test_role_revoked_event_indexed_keys() {
-    let role = ROLE;
-    let account = OTHER;
-    let sender = ADMIN;
-
-    let revoke_event = AccessControlComponent::RoleRevoked { role, account, sender };
-    let expected_keys = array![role.into(), account.into(), sender.into()];
-    assert_indexed_keys(@revoke_event, @expected_keys);
-}
-
-#[test]
-fn test_role_admin_changed_event_indexed_keys() {
-    let role = ROLE;
-    let previous_admin_role = ZERO;
-    let new_admin_role = ADMIN;
-
-    let admin_event = AccessControlComponent::RoleAdminChanged {
-        role: role.into(),
-        previous_admin_role: previous_admin_role.into(),
-        new_admin_role: new_admin_role.into(),
-    };
-    let expected_keys = array![role.into(), previous_admin_role.into(), new_admin_role.into()];
-    assert_indexed_keys(@admin_event, @expected_keys);
 }

@@ -10,7 +10,6 @@ use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{
     ALICE, BOB, NAME, OTHER, OWNER, RECIPIENT, SPENDER, SYMBOL, VALUE, ZERO,
 };
-use openzeppelin_testing::events::assert_indexed_keys;
 use openzeppelin_testing::{AsAddressTrait, EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{CheatSpan, cheat_caller_address};

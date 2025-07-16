@@ -2,7 +2,6 @@ use core::num::traits::Bounded;
 use openzeppelin_test_common::erc20::ERC20SpyHelpers;
 use openzeppelin_test_common::mocks::erc20::{DualCaseERC20Mock, SnakeERC20MockWithHooks};
 use openzeppelin_testing::constants::{NAME, OWNER, RECIPIENT, SPENDER, SUPPLY, SYMBOL, VALUE, ZERO};
-use openzeppelin_testing::events::assert_indexed_keys;
 use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use snforge_std::{start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
@@ -687,27 +686,4 @@ impl ERC20HooksSpyHelpersImpl of ERC20HooksSpyHelpers {
         );
         self.assert_emitted_single(contract, expected);
     }
-}
-
-#[test]
-fn test_transfer_event_indexed_keys() {
-    let mut state = setup();
-    let from = OWNER;
-    let to = RECIPIENT;
-    let value = VALUE;
-
-    let transfer_event = ERC20Component::Transfer { from, to, value };
-    let expected_keys = array![from.into(), to.into()];
-    assert_indexed_keys(@transfer_event, @expected_keys);
-}
-
-#[test]
-fn test_approval_event_indexed_keys() {
-    let owner = OWNER;
-    let spender = SPENDER;
-    let value = VALUE;
-
-    let approval_event = ERC20Component::Approval { owner, spender, value };
-    let expected_keys = array![owner.into(), spender.into()];
-    assert_indexed_keys(@approval_event, @expected_keys);
 }

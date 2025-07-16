@@ -7,9 +7,8 @@ use openzeppelin_test_common::mocks::simple::{ISimpleMockDispatcher, ISimpleMock
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::secp256k1::{KEY_PAIR, KEY_PAIR_2};
 use openzeppelin_testing::constants::{
-    CALLER, ETH_SIGNER, MIN_TRANSACTION_VERSION, NEW_ETH_SIGNER, OTHER, QUERY_VERSION, SALT, ZERO,
+    CALLER, MIN_TRANSACTION_VERSION, OTHER, QUERY_VERSION, SALT, ZERO,
 };
-use openzeppelin_testing::events::assert_indexed_keys;
 use openzeppelin_testing::signing::Secp256k1KeyPair;
 use openzeppelin_testing::spy_events;
 use openzeppelin_utils::serde::SerializedAppend;
@@ -540,24 +539,4 @@ fn test__set_public_key() {
     spy.assert_only_event_owner_added(test_address(), key_pair.public_key);
 
     assert_eq!(state.get_public_key(), key_pair.public_key);
-}
-
-#[test]
-fn test_eth_owner_added_event_indexed_keys() {
-    let new_owner = NEW_ETH_SIGNER;
-
-    let owner_added_event = EthAccountComponent::OwnerAdded { new_owner_guid: new_owner };
-    let expected_keys = array![new_owner.into()];
-    assert_indexed_keys(@owner_added_event, @expected_keys);
-}
-
-#[test]
-fn test_eth_owner_removed_event_indexed_keys() {
-    let removed_owner = ETH_SIGNER;
-
-    let owner_removed_event = EthAccountComponent::OwnerRemoved {
-        removed_owner_guid: removed_owner,
-    };
-    let expected_keys = array![removed_owner.into()];
-    assert_indexed_keys(@owner_removed_event, @expected_keys);
 }

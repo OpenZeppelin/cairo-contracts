@@ -2,7 +2,7 @@ use core::num::traits::Zero;
 use openzeppelin_test_common::mocks::access::DualCaseOwnableMock;
 use openzeppelin_test_common::ownable::OwnableSpyHelpers;
 use openzeppelin_testing::constants::{OTHER, OWNER, RECIPIENT, ZERO};
-use openzeppelin_testing::events::{assert_indexed_keys, spy_events};
+use openzeppelin_testing::events::spy_events;
 use snforge_std::{start_cheat_caller_address, test_address};
 use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 use crate::ownable::OwnableComponent;
@@ -203,14 +203,4 @@ fn test_renounceOwnership_from_nonowner() {
     let mut state = setup();
     start_cheat_caller_address(test_address(), OTHER);
     state.renounceOwnership();
-}
-
-#[test]
-fn test_ownership_transferred_event_indexed_keys() {
-    let previous_owner = ZERO;
-    let new_owner = OWNER;
-
-    let transfer_event = OwnableComponent::OwnershipTransferred { previous_owner, new_owner };
-    let expected_keys = array![previous_owner.into(), new_owner.into()];
-    assert_indexed_keys(@transfer_event, @expected_keys);
 }

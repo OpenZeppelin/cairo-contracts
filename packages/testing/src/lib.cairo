@@ -13,4 +13,4 @@ pub use deployment::{
     declare_and_deploy, declare_and_deploy_at, declare_class, deploy, deploy_another_at, deploy_at,
 };
 
-pub use events::{EventSpyExt, EventSpyQueue, assert_indexed_keys, spy_events};
+pub use events::{EventSpyExt, EventSpyQueue, spy_events};

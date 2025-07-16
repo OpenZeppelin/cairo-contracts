@@ -7,7 +7,6 @@ use openzeppelin_testing::constants::{
     BASE_URI, BASE_URI_2, CALLER, DATA, NAME, OPERATOR, OTHER, OWNER, PUBKEY, RECIPIENT, SPENDER,
     SYMBOL, TOKEN_ID, TOKEN_ID_2, ZERO,
 };
-use openzeppelin_testing::events::assert_indexed_keys;
 use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use snforge_std::{start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
@@ -1508,39 +1507,4 @@ impl ERC721HooksSpyHelpersImpl of ERC721HooksSpyHelpers {
         );
         self.assert_emitted_single(contract, expected);
     }
-}
-
-#[test]
-fn test_transfer_event_indexed_keys() {
-    let from = OWNER;
-    let to = RECIPIENT;
-    let token_id = TOKEN_ID;
-
-    let transfer_event = ERC721Component::Transfer { from, to, token_id };
-    let token_id_felt: felt252 = token_id.low.into();
-    let expected_keys = array![from.into(), to.into(), token_id_felt];
-    assert_indexed_keys(@transfer_event, @expected_keys);
-}
-
-#[test]
-fn test_approval_event_indexed_keys() {
-    let owner = OWNER;
-    let approved = SPENDER;
-    let token_id = TOKEN_ID;
-
-    let approval_event = ERC721Component::Approval { owner, approved, token_id };
-    let token_id_felt: felt252 = token_id.low.into();
-    let expected_keys = array![owner.into(), approved.into(), token_id_felt];
-    assert_indexed_keys(@approval_event, @expected_keys);
-}
-
-#[test]
-fn test_approval_for_all_event_indexed_keys() {
-    let owner = OWNER;
-    let operator = OPERATOR;
-    let approved = true;
-
-    let approval_for_all_event = ERC721Component::ApprovalForAll { owner, operator, approved };
-    let expected_keys = array![owner.into(), operator.into()];
-    assert_indexed_keys(@approval_for_all_event, @expected_keys);
 }

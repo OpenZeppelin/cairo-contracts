@@ -48,9 +48,7 @@ jobs:
             echo "<!-- comment-id:benchmark-diff -->"
             echo "### 🧪 Cairo Contract Size Benchmark Diff"
             echo
-            echo '```diff'
             cat diff_output.txt
-            echo '```'
             echo
             echo "_This comment was generated automatically from benchmark diffs._"
           } > comment.md

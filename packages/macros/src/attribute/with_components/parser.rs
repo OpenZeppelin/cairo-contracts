@@ -9,7 +9,7 @@ use crate::{
 };
 use cairo_lang_defs::patcher::{PatchBuilder, RewriteNode};
 use cairo_lang_macro::{Diagnostic, Diagnostics};
-use cairo_lang_syntax::node::helpers::{BodyItems, QueryAttrs};
+use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::{
     ast::{self, MaybeModuleBody},
     db::SyntaxGroup,
@@ -119,7 +119,7 @@ fn validate_contract_module(
             .collect::<Vec<&ComponentInfo>>();
 
         if !components_with_initializer.is_empty() {
-            let constructor = body.items_vec(db).into_iter().find(|item| {
+            let constructor = body.items(db).elements(db).find(|item| {
             matches!(item, ast::ModuleItem::FreeFunction(function_ast) if function_ast.has_attr(db, CONSTRUCTOR_ATTRIBUTE))
         });
             let constructor_code = if let Some(constructor) = constructor {

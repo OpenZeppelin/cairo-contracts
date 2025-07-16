@@ -21,6 +21,7 @@ use crate::accesscontrol::interface::{
     IACCESSCONTROL_ID, IAccessControl, IAccessControlCamel, IAccessControlWithDelay, RoleStatus,
 };
 use crate::tests::test_accesscontrol::AccessControlSpyHelpers;
+use openzeppelin_utils::serde::SerializedAppend;
 
 //
 // Setup
@@ -1161,8 +1162,6 @@ fn test_default_admin_role_is_its_own_admin() {
 // Helpers
 //
 
-use openzeppelin_utils::serde::SerializedAppend;
-
 #[generate_trait]
 impl AccessControlDefaultAdminRulesSpyHelpersImpl of AccessControlDefaultAdminRulesSpyHelpers {
     fn assert_only_event_default_admin_transfer_scheduled(
@@ -1174,42 +1173,45 @@ impl AccessControlDefaultAdminRulesSpyHelpersImpl of AccessControlDefaultAdminRu
         let mut keys = array![];
         keys.append_serde(selector!("DefaultAdminTransferScheduled"));
         keys.append_serde(new_admin);
+
         let mut data = array![];
         data.append_serde(accept_schedule);
+
         let expected = Event { keys, data };
-        // let expected =
-        //     AccessControlDefaultAdminRulesComponent::Event::DefaultAdminTransferScheduled(
-        //     DefaultAdminTransferScheduled { new_admin, accept_schedule },
-        // );
         self.assert_only_event(contract, expected);
     }
 
     fn assert_only_event_default_admin_transfer_canceled(
         ref self: EventSpy, contract: ContractAddress,
     ) {
-        let expected = AccessControlDefaultAdminRulesComponent::Event::DefaultAdminTransferCanceled(
-            DefaultAdminTransferCanceled {},
-        );
+        let mut keys = array![];
+        keys.append_serde(selector!("DefaultAdminTransferCanceled"));
+
+        let expected = Event { keys, data: array![] };
         self.assert_only_event(contract, expected);
     }
 
     fn assert_only_event_default_admin_delay_change_scheduled(
         ref self: EventSpy, contract: ContractAddress, new_delay: u64, effect_schedule: u64,
     ) {
-        let expected =
-            AccessControlDefaultAdminRulesComponent::Event::DefaultAdminDelayChangeScheduled(
-            DefaultAdminDelayChangeScheduled { new_delay, effect_schedule },
-        );
+        let mut keys = array![];
+        keys.append_serde(selector!("DefaultAdminDelayChangeScheduled"));
+
+        let mut data = array![];
+        data.append_serde(new_delay);
+        data.append_serde(effect_schedule);
+
+        let expected = Event { keys, data };
         self.assert_only_event(contract, expected);
     }
 
     fn assert_only_event_default_admin_delay_change_canceled(
         ref self: EventSpy, contract: ContractAddress,
     ) {
-        let expected =
-            AccessControlDefaultAdminRulesComponent::Event::DefaultAdminDelayChangeCanceled(
-            DefaultAdminDelayChangeCanceled {},
-        );
+        let mut keys = array![];
+        keys.append_serde(selector!("DefaultAdminDelayChangeCanceled"));
+
+        let expected = Event { keys, data: array![] };
         self.assert_only_event(contract, expected);
     }
 }

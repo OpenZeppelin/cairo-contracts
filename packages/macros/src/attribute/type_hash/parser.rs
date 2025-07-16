@@ -52,7 +52,7 @@ impl<'a> TypeHashParser<'a> {
             .members_info
             .iter()
             .map(|member| {
-                let attributes = member.attributes.elements(db);
+                let attributes = member.attributes.elements(db).collect::<Vec<_>>();
                 let args = match get_name_and_type_from_attributes(db, &attributes) {
                     Ok(args) => args,
                     Err(e) => {

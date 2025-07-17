@@ -1,4 +1,10 @@
-use openzeppelin_introspection::interface::ISRC5;
+use openzeppelin_interfaces::accesscontrol::{
+    IACCESSCONTROL_ID, IAccessControl, IAccessControlCamel, IAccessControlWithDelay, RoleStatus,
+};
+use openzeppelin_interfaces::accesscontrol_default_admin_rules::{
+    IACCESSCONTROL_DEFAULT_ADMIN_RULES_ID, IAccessControlDefaultAdminRules,
+};
+use openzeppelin_interfaces::introspection::ISRC5;
 use openzeppelin_test_common::mocks::access::DualCaseAccessControlDefaultAdminRulesMock;
 use openzeppelin_test_common::mocks::access::DualCaseAccessControlDefaultAdminRulesMock::INITIAL_DELAY;
 use openzeppelin_testing::constants::{
@@ -11,14 +17,8 @@ use crate::accesscontrol::extensions::AccessControlDefaultAdminRulesComponent::{
     DefaultAdminDelayChangeCanceled, DefaultAdminDelayChangeScheduled, DefaultAdminTransferCanceled,
     DefaultAdminTransferScheduled, InternalTrait,
 };
-use crate::accesscontrol::extensions::interface::{
-    IACCESSCONTROL_DEFAULT_ADMIN_RULES_ID, IAccessControlDefaultAdminRules,
-};
 use crate::accesscontrol::extensions::{
     AccessControlDefaultAdminRulesComponent, DEFAULT_ADMIN_ROLE, DefaultConfig,
-};
-use crate::accesscontrol::interface::{
-    IACCESSCONTROL_ID, IAccessControl, IAccessControlCamel, IAccessControlWithDelay, RoleStatus,
 };
 use crate::tests::test_accesscontrol::AccessControlSpyHelpers;
 

@@ -1,5 +1,8 @@
 use core::num::traits::Zero;
-use openzeppelin_introspection::interface::{ISRC5, ISRC5_ID};
+use openzeppelin_interfaces::accounts::{
+    AccountABIDispatcher, AccountABIDispatcherTrait, ISRC6, ISRC6_ID,
+};
+use openzeppelin_interfaces::introspection::{ISRC5, ISRC5_ID};
 use openzeppelin_test_common::account::{
     AccountSpyHelpers, SIGNED_TX_DATA, SignedTransactionData, get_accept_ownership_signature,
 };
@@ -19,7 +22,6 @@ use snforge_std::{
 use starknet::account::Call;
 use crate::AccountComponent;
 use crate::AccountComponent::{InternalTrait, PublicKeyCamelImpl, PublicKeyImpl, SRC6CamelOnlyImpl};
-use crate::interface::{AccountABIDispatcher, AccountABIDispatcherTrait, ISRC6, ISRC6_ID};
 
 //
 // Setup

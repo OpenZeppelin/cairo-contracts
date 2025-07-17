@@ -25,7 +25,7 @@ TIP: For an overview of ERC20, read our {erc20-guide}.
 
 [.hljs-theme-dark]
 ```cairo
-use openzeppelin_token::erc20::interface::IERC20;
+use openzeppelin_interfaces::erc20::IERC20;
 ```
 
 Interface of the IERC20 standard as defined in {eip20}.
@@ -123,7 +123,7 @@ Emitted when the allowance of a `spender` for an `owner` is set.
 
 [.hljs-theme-dark]
 ```cairo
-use openzeppelin_token::erc20::interface::IERC20Metadata;
+use openzeppelin_interfaces::erc20::IERC20Metadata;
 ```
 
 Interface for the optional metadata functions in {eip20}.
@@ -522,7 +522,7 @@ See <<IERC20-Approval,IERC20::Approval>>.
 
 [.hljs-theme-dark]
 ```cairo
-use openzeppelin_token::erc20::interface::IERC20Permit;
+use openzeppelin_interfaces::erc20::IERC20Permit;
 ```
 
 Interface of the ERC20Permit standard to support gasless token approvals as defined in {eip-2612}.

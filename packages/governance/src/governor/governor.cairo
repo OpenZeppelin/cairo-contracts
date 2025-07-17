@@ -11,6 +11,7 @@ pub mod GovernorComponent {
     use core::pedersen::PedersenTrait;
     use core::traits::PartialEq;
     use openzeppelin_account::utils::assert_valid_signature;
+    use openzeppelin_interfaces::governor::{IGOVERNOR_ID, IGovernor, ProposalState};
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_introspection::src5::SRC5Component::InternalImpl as SRC5InternalImpl;
     use openzeppelin_utils::bytearray::ByteArrayExtTrait;
@@ -19,7 +20,6 @@ pub mod GovernorComponent {
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
     use starknet::{ContractAddress, SyscallResultTrait};
     use crate::governor::ProposalCore;
-    use crate::governor::interface::{IGOVERNOR_ID, IGovernor, ProposalState};
     use crate::governor::vote::{Vote, VoteWithReasonAndParams};
     use crate::utils::call_impls::{HashCallImpl, HashCallsImpl};
 
@@ -965,11 +965,8 @@ pub mod GovernorComponent {
             description_hash: felt252,
         ) {
             let valid_states = array![
-                ProposalState::Pending,
-                ProposalState::Active,
-                ProposalState::Defeated,
-                ProposalState::Succeeded,
-                ProposalState::Queued,
+                ProposalState::Pending, ProposalState::Active, ProposalState::Defeated,
+                ProposalState::Succeeded, ProposalState::Queued,
             ];
             self.validate_state(proposal_id, valid_states.span());
 

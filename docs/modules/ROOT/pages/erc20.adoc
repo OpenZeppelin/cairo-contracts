@@ -200,7 +200,7 @@ TIP: Note that we are not using the MixinImpl or the DefaultConfig in this case,
 ----
 #[starknet::contract]
 mod MyToken {
-    use openzeppelin_token::erc20::interface;
+    use openzeppelin_interfaces::erc20 as interface;
     use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
 

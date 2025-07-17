@@ -17,6 +17,7 @@
 #[starknet::component]
 pub mod ERC721EnumerableComponent {
     use core::num::traits::Zero;
+    use openzeppelin_interfaces::erc721 as interface;
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use starknet::ContractAddress;
@@ -26,7 +27,6 @@ pub mod ERC721EnumerableComponent {
     };
     use crate::erc721::ERC721Component;
     use crate::erc721::ERC721Component::{ERC721Impl, InternalImpl as ERC721InternalImpl};
-    use crate::erc721::extensions::erc721_enumerable::interface;
 
     #[storage]
     pub struct Storage {

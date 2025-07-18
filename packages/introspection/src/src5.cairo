@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v2.0.0 (introspection/src/src5.cairo)
+// OpenZeppelin Contracts for Cairo v3.0.0-alpha.0 (introspection/src/src5.cairo)
 
 /// # SRC5 Component
 ///

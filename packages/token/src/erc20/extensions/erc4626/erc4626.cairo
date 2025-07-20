@@ -41,7 +41,7 @@ pub mod ERC4626Component {
     use crate::erc20::ERC20Component;
     use crate::erc20::ERC20Component::InternalImpl as ERC20InternalImpl;
     use crate::erc20::extensions::erc4626::interface::IERC4626;
-    use crate::erc20::interface::{IERC20, IERC20Dispatcher, IERC20DispatcherTrait, IERC20Metadata};
+    use crate::erc20::interface::{IERC20, IERC20Metadata};
 
     // The default values are only used when the DefaultConfig
     // is in scope in the implementing contract.
@@ -241,6 +241,22 @@ pub mod ERC4626Component {
         fn after_deposit(ref self: ComponentState<TContractState>, assets: u256, shares: u256) {}
     }
 
+    pub trait AssetsManagementTrait<TContractState, +HasComponent<TContractState>> {
+        fn transfer_assets_in(
+            ref self: ComponentState<TContractState>,
+            from: ContractAddress,
+            assets: u256,
+            error: felt252,
+        );
+        fn transfer_assets_out(
+            ref self: ComponentState<TContractState>,
+            to: ContractAddress,
+            assets: u256,
+            error: felt252,
+        );
+        fn get_total_assets(self: @ComponentState<TContractState>) -> u256;
+    }
+
     //
     // External
     //
@@ -254,6 +270,7 @@ pub mod ERC4626Component {
         impl Hooks: ERC4626HooksTrait<TContractState>,
         impl Immutable: ImmutableConfig,
         impl ERC20: ERC20Component::HasComponent<TContractState>,
+        impl Assets: AssetsManagementTrait<TContractState>,
         +ERC20Component::ERC20HooksTrait<TContractState>,
         +Drop<TContractState>,
     > of IERC4626<ComponentState<TContractState>> {
@@ -265,9 +282,7 @@ pub mod ERC4626Component {
 
         /// Returns the total amount of the underlying asset that is “managed” by Vault.
         fn total_assets(self: @ComponentState<TContractState>) -> u256 {
-            let this = starknet::get_contract_address();
-            let asset_dispatcher = IERC20Dispatcher { contract_address: self.ERC4626_asset.read() };
-            asset_dispatcher.balance_of(this)
+            Assets::get_total_assets(self)
         }
 
         /// Returns the amount of shares that the Vault would exchange for the amount of assets
@@ -457,15 +472,15 @@ pub mod ERC4626Component {
         /// the custom limit itself or ``owner``'s total asset balance, whichever value is less.
         fn max_redeem(self: @ComponentState<TContractState>, owner: ContractAddress) -> u256 {
             let erc20_component = get_dep_component!(self, ERC20);
-            let owner_assets = erc20_component.balance_of(owner);
+            let owner_shares = erc20_component.balance_of(owner);
 
             match Limit::redeem_limit(self, owner) {
-                Option::Some(limit) => { if owner_assets < limit {
-                    owner_assets
+                Option::Some(limit) => { if owner_shares < limit {
+                    owner_shares
                 } else {
                     limit
                 } },
-                Option::None => { owner_assets },
+                Option::None => { owner_shares },
             }
         }
 
@@ -545,6 +560,7 @@ pub mod ERC4626Component {
         impl Hooks: ERC4626HooksTrait<TContractState>,
         impl Immutable: ImmutableConfig,
         impl ERC20: ERC20Component::HasComponent<TContractState>,
+        impl Assets: AssetsManagementTrait<TContractState>,
         +FeeConfigTrait<TContractState>,
         +LimitConfigTrait<TContractState>,
         +ERC20Component::ERC20HooksTrait<TContractState>,
@@ -585,11 +601,7 @@ pub mod ERC4626Component {
             Hooks::before_deposit(ref self, assets, shares);
 
             // Transfer assets first
-            let this = starknet::get_contract_address();
-            let asset_dispatcher = IERC20Dispatcher { contract_address: self.ERC4626_asset.read() };
-            assert(
-                asset_dispatcher.transfer_from(caller, this, assets), Errors::TOKEN_TRANSFER_FAILED,
-            );
+            Assets::transfer_assets_in(ref self, caller, assets, Errors::TOKEN_TRANSFER_FAILED);
 
             // Mint shares after transferring assets
             let mut erc20_component = get_dep_component_mut!(ref self, ERC20);
@@ -631,8 +643,7 @@ pub mod ERC4626Component {
             erc20_component.burn(owner, shares);
 
             // Transfer assets after burn
-            let asset_dispatcher = IERC20Dispatcher { contract_address: self.ERC4626_asset.read() };
-            assert(asset_dispatcher.transfer(receiver, assets), Errors::TOKEN_TRANSFER_FAILED);
+            Assets::transfer_assets_out(ref self, receiver, assets, Errors::TOKEN_TRANSFER_FAILED);
 
             self.emit(Withdraw { sender: caller, receiver, owner, assets, shares });
 
@@ -646,11 +657,11 @@ pub mod ERC4626Component {
             self: @ComponentState<TContractState>, assets: u256, rounding: Rounding,
         ) -> u256 {
             let erc20_component = get_dep_component!(self, ERC20);
-            let total_supply = erc20_component.total_supply();
+            let total_shares = erc20_component.total_supply();
 
             math::u256_mul_div(
                 assets,
-                total_supply + 10_u256.pow(Immutable::DECIMALS_OFFSET.into()),
+                total_shares + 10_u256.pow(Immutable::DECIMALS_OFFSET.into()),
                 self.total_assets() + 1,
                 rounding,
             )
@@ -662,21 +673,25 @@ pub mod ERC4626Component {
             self: @ComponentState<TContractState>, shares: u256, rounding: Rounding,
         ) -> u256 {
             let erc20_component = get_dep_component!(self, ERC20);
-            let total_supply = erc20_component.total_supply();
+            let total_shares = erc20_component.total_supply();
 
             math::u256_mul_div(
                 shares,
                 self.total_assets() + 1,
-                total_supply + 10_u256.pow(Immutable::DECIMALS_OFFSET.into()),
+                total_shares + 10_u256.pow(Immutable::DECIMALS_OFFSET.into()),
                 rounding,
             )
         }
     }
 }
+use starknet::ContractAddress;
+use starknet::storage::StoragePointerReadAccess;
 
 //
 // Default (empty) traits
 //
+
+use crate::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 
 pub impl ERC4626HooksEmptyImpl<
     TContractState, +ERC4626Component::HasComponent<TContractState>,
@@ -689,6 +704,37 @@ pub impl ERC4626DefaultNoFees<
 pub impl ERC4626DefaultLimits<
     TContractState, +ERC4626Component::HasComponent<TContractState>,
 > of ERC4626Component::LimitConfigTrait<TContractState> {}
+
+pub impl ERC4626SelfAssetsManagement<
+    TContractState, +ERC4626Component::HasComponent<TContractState>,
+> of ERC4626Component::AssetsManagementTrait<TContractState> {
+    fn transfer_assets_in(
+        ref self: ERC4626Component::ComponentState<TContractState>,
+        from: ContractAddress,
+        assets: u256,
+        error: felt252,
+    ) {
+        let this = starknet::get_contract_address();
+        let asset_dispatcher = IERC20Dispatcher { contract_address: self.ERC4626_asset.read() };
+        assert(asset_dispatcher.transfer_from(from, this, assets), error);
+    }
+
+    fn transfer_assets_out(
+        ref self: ERC4626Component::ComponentState<TContractState>,
+        to: ContractAddress,
+        assets: u256,
+        error: felt252,
+    ) {
+        let asset_dispatcher = IERC20Dispatcher { contract_address: self.ERC4626_asset.read() };
+        assert(asset_dispatcher.transfer(to, assets), error);
+    }
+
+    fn get_total_assets(self: @ERC4626Component::ComponentState<TContractState>) -> u256 {
+        let this = starknet::get_contract_address();
+        let asset_dispatcher = IERC20Dispatcher { contract_address: self.ERC4626_asset.read() };
+        asset_dispatcher.balance_of(this)
+    }
+}
 
 /// Implementation of the default `ERC4626Component::ImmutableConfig`.
 ///

@@ -12,5 +12,7 @@
 
 - [events::EventSpyExt](./openzeppelin_testing-events-EventSpyExt.md)
 
+- [EventSpyQueueDebug](./openzeppelin_testing-events-EventSpyQueueDebug.md)
+
 - [SerializedSigning](./openzeppelin_testing-signing-SerializedSigning.md)
 

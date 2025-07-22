@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v2.0.0-alpha.1 (presets/src/erc721.cairo)
+// OpenZeppelin Contracts for Cairo v3.0.0-alpha.0 (presets/src/erc721.cairo)
 
 /// # ERC721 Preset
 ///

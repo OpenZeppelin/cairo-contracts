@@ -2,7 +2,5 @@
 
 Fully qualified path: `openzeppelin_testing::constants::ALICE`
 
-```rust
-pub const ALICE: ContractAddress = 'ALICE'.as_address();
-```
+<pre><code class="language-rust">pub const ALICE: ContractAddress = &apos;ALICE&apos;.as_address();</code></pre>
 

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v2.0.0-alpha.1 (utils/src/structs/checkpoint.cairo)
+// OpenZeppelin Contracts for Cairo v3.0.0-alpha.0 (utils/src/structs/checkpoint.cairo)
 
 use core::num::traits::Sqrt;
 use starknet::storage::{
@@ -17,7 +17,7 @@ pub struct Trace {
 }
 
 /// Generic checkpoint representation.
-#[derive(Copy, Drop, Serde)]
+#[derive(Copy, Drop, Serde, PartialEq, Debug)]
 pub struct Checkpoint {
     pub key: u64,
     pub value: u256,

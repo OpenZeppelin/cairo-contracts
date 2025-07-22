@@ -2,6 +2,7 @@
 
 [![Lint and test](https://github.com/OpenZeppelin/cairo-contracts/actions/workflows/test.yml/badge.svg)](https://github.com/OpenZeppelin/cairo-contracts/actions/workflows/test.yml)
 [![License](https://img.shields.io/github/license/OpenZeppelin/cairo-contracts)](https://github.com/OpenZeppelin/cairo-contracts/blob/main/LICENSE)
+[![Docs](https://img.shields.io/badge/docs-%F0%9F%93%84-yellow)](https://docs.openzeppelin.com/contracts-cairo/1.0.0/)
 
 **A library for secure smart contract development** written in Cairo for [Starknet](https://starkware.co/product/starknet/), a decentralized ZK Rollup.
 
@@ -36,14 +37,14 @@ Edit `scarb.toml` and add:
 
 ```toml
 [dependencies]
-openzeppelin = "2.0.0-alpha.1"
+openzeppelin = "3.0.0-alpha.0"
 ```
 
 The previous example would import the entire library. We can also add each package as a separate dependency to improve the building time by not including modules that won't be used:
 
 ```toml
 [dependencies]
-openzeppelin_token = "2.0.0-alpha.1"
+openzeppelin_token = "3.0.0-alpha.0"
 ```
 
 Build the project to download it:

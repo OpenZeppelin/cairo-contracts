@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v2.0.0-alpha.1 (governance/src/votes/delegation.cairo)
+// OpenZeppelin Contracts for Cairo v3.0.0-alpha.0 (governance/src/votes/delegation.cairo)
 
 use core::hash::{HashStateExTrait, HashStateTrait};
 use core::poseidon::PoseidonTrait;

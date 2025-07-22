@@ -5,7 +5,7 @@
 :udc-proposal: link:https://community.starknet.io/t/universal-deployer-contract-proposal/1864[Universal Deployer Contract proposal]
 :deploy_contract: xref:/api/udc.adoc#UniversalDeployer-deploy_contract[deploy_contract]
 :contract-deployed: xref:/api/udc.adoc#IUniversalDeployer-ContractDeployed[ContractDeployed]
-:previous-udc-api: https://docs.starknet.io/architecture-and-concepts/accounts/universal-deployer/
+:previous-udc-api: https://docs.starknet.io/architecture-and-concepts/accounts/#using-the-universal-deployer-contract
 
 The Universal Deployer Contract (UDC) is a singleton smart contract that wraps the {deploy-syscall} to expose it to any contract that doesn't implement it, such as account contracts. You can think of it as a standardized generic factory for Starknet contracts.
 
@@ -15,7 +15,7 @@ For details on the motivation and the decision making process, see the {udc-prop
 
 == UDC contract address
 
-This version of the UDC is not deployed yet. Check the current deployed version {previous-udc-api}[here].
+The UDC is deployed at address `0x02ceed65a4bd731034c01113685c831b01c15d7d432f71afb1cf1634b53a2125` on Starknet sepolia and mainnet.
 
 == Interface
 
@@ -26,7 +26,7 @@ pub trait IUniversalDeployer {
     fn deploy_contract(
         class_hash: ClassHash,
         salt: felt252,
-        from_zero: bool,
+        not_from_zero: bool,
         calldata: Span<felt252>
     ) -> ContractAddress;
 }
@@ -69,7 +69,7 @@ fn deploy() -> ContractAddress {
 The Universal Deployer Contract offers two types of addresses to deploy: origin-dependent and origin-independent.
 As the names suggest, the origin-dependent type includes the deployer's address in the address calculation,
 whereas, the origin-independent type does not.
-The `from_zero` boolean parameter ultimately determines the type of deployment.
+The `not_from_zero` boolean parameter ultimately determines the type of deployment.
 
 [IMPORTANT]
 ====
@@ -83,7 +83,7 @@ By making deployments dependent upon the origin address, users can reserve a who
 
 Only the owner of the origin address can deploy to those addresses.
 
-Achieving this type of deployment necessitates that the origin sets `from_zero` to `false` in the {deploy_contract} call.
+Achieving this type of deployment necessitates that the origin sets `not_from_zero` to `true` in the {deploy_contract} call.
 Under the hood, the function passes a modified salt to the `deploy_syscall`, which is the hash of the origin's address with the given salt.
 
 To deploy a unique contract address pass:
@@ -98,7 +98,7 @@ let deployed_addr = udc.deploy_contract(class_hash, salt, true, calldata.span())
 Origin-independent contract deployments create contract addresses independent of the deployer and the UDC instance.
 Instead, only the class hash, salt, and constructor arguments determine the address.
 This type of deployment enables redeployments of accounts and known systems across multiple networks.
-To deploy a reproducible deployment, set `from_zero` to `true`.
+To deploy a reproducible deployment, set `not_from_zero` to `false`.
 
 [source,cairo]
 ----

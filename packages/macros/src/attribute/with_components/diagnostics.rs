@@ -7,14 +7,11 @@ pub mod errors {
 
     /// Error when the component is invalid.
     pub fn INVALID_COMPONENT(short_name: &str) -> String {
-        format!("{} is not in the list of allowed components.\n", short_name)
+        format!("{short_name} is not in the list of allowed components.\n")
     }
     /// Error when the module has no `#[starknet::contract]` attribute.
     pub fn NO_CONTRACT_ATTRIBUTE(contract_attribute: &str) -> String {
-        format!(
-            "Contract module must have the `#[{}]` attribute.\n",
-            contract_attribute
-        )
+        format!("Contract module must have the `#[{contract_attribute}]` attribute.\n")
     }
 }
 

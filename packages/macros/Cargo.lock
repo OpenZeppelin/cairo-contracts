@@ -1056,7 +1056,7 @@ checksum = "b410bbe7e14ab526a0e86877eb47c6996a2bd7746f027ba551028c925390e4e9"
 
 [[package]]
 name = "openzeppelin_macros"
-version = "2.0.0-alpha.1"
+version = "3.0.0-alpha.0"
 dependencies = [
  "cairo-lang-defs",
  "cairo-lang-formatter",

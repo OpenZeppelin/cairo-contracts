@@ -2,9 +2,7 @@
 
 Fully qualified path: `openzeppelin_testing::signing::StarkSerializedSigning`
 
-```rust
-pub impl StarkSerializedSigning of SerializedSigning<StarkKeyPair, felt252>
-```
+<pre><code class="language-rust">pub impl StarkSerializedSigning of SerializedSigning&lt;StarkKeyPair, felt252&gt;</code></pre>
 
 ## Impl functions
 
@@ -12,8 +10,6 @@ pub impl StarkSerializedSigning of SerializedSigning<StarkKeyPair, felt252>
 
 Fully qualified path: `openzeppelin_testing::signing::StarkSerializedSigning::serialized_sign`
 
-```rust
-fn serialized_sign(self: StarkKeyPair, msg: felt252) -> Array<felt252>
-```
+<pre><code class="language-rust">fn serialized_sign(self: StarkKeyPair, msg: felt252) -&gt; Array&lt;felt252&gt;</code></pre>
 
 

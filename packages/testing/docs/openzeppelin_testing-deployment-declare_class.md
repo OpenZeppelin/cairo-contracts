@@ -4,7 +4,5 @@ Declares a contract with a `snforge_std::declare` call and unwraps the result. T
 
 Fully qualified path: `openzeppelin_testing::deployment::declare_class`
 
-```rust
-pub fn declare_class(contract_name: ByteArray) -> ContractClass
-```
+<pre><code class="language-rust">pub fn declare_class(contract_name: ByteArray) -&gt; ContractClass</code></pre>
 

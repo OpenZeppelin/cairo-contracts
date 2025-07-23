@@ -1,13 +1,11 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v2.0.0-alpha.1 (presets/src/meta_tx_v0.cairo)
 
-use core::gas::GasBuiltin;
-use starknet::ContractAddress;
-
 #[starknet::contract]
 pub mod MetaTransactionV0 {
     use crate::interfaces::MetaTransactionV0ABI;
-    use super::{ContractAddress, meta_tx_v0_syscall};
+    use starknet::ContractAddress;
+    use starknet::syscalls::meta_tx_v0_syscall;
 
     #[storage]
     struct Storage {}
@@ -37,12 +35,3 @@ pub mod MetaTransactionV0 {
         }
     }
 }
-
-// Temporary local declaration of the syscall until it gets exposed as a public
-// function in corelib
-extern fn meta_tx_v0_syscall(
-    address: ContractAddress,
-    entry_point_selector: felt252,
-    calldata: Span<felt252>,
-    signature: Span<felt252>,
-) -> starknet::SyscallResult<Span<felt252>> implicits(GasBuiltin, System) nopanic;

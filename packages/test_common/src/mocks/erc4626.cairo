@@ -1,10 +1,12 @@
+// Common imports used throughout the file
+use openzeppelin_token::erc20::{DefaultConfig, DefaultConfig as ERC20DefaultConfig, ERC20HooksEmptyImpl};
+
 #[starknet::contract]
 #[with_components(ERC20, ERC4626)]
 pub mod ERC4626Mock {
     use openzeppelin_token::erc20::extensions::erc4626::{
         DefaultConfig, ERC4626DefaultLimits, ERC4626DefaultNoFees, ERC4626HooksEmptyImpl,
     };
-    use openzeppelin_token::erc20::{DefaultConfig as ERC20DefaultConfig, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
 
     // ERC4626
@@ -44,7 +46,6 @@ pub mod ERC4626OffsetMock {
     use openzeppelin_token::erc20::extensions::erc4626::{
         ERC4626DefaultLimits, ERC4626DefaultNoFees, ERC4626HooksEmptyImpl,
     };
-    use openzeppelin_token::erc20::{DefaultConfig, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
 
     // ERC4626
@@ -89,7 +90,6 @@ pub mod ERC4626LimitsMock {
     use openzeppelin_token::erc20::extensions::erc4626::{
         ERC4626DefaultNoFees, ERC4626HooksEmptyImpl,
     };
-    use openzeppelin_token::erc20::{DefaultConfig, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
 
     // ERC4626
@@ -167,11 +167,10 @@ pub mod ERC4626FeesMock {
     use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component::FeeConfigTrait;
     use openzeppelin_token::erc20::extensions::erc4626::{DefaultConfig, ERC4626DefaultLimits};
     use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-    use openzeppelin_token::erc20::{DefaultConfig as ERC20DefaultConfig, ERC20HooksEmptyImpl};
-    use openzeppelin_utils::math;
-    use openzeppelin_utils::math::Rounding;
     use starknet::ContractAddress;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use openzeppelin_utils::math;
+    use openzeppelin_utils::math::Rounding;
 
     // ERC4626
     #[abi(embed_v0)]
@@ -332,7 +331,6 @@ pub mod ERC4626MockWithHooks {
     use openzeppelin_token::erc20::extensions::erc4626::{
         DefaultConfig, ERC4626DefaultLimits, ERC4626DefaultNoFees,
     };
-    use openzeppelin_token::erc20::{DefaultConfig as ERC20DefaultConfig, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
 
     // ERC4626

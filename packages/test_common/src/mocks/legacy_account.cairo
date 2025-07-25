@@ -52,7 +52,7 @@ pub mod LegacyAccountMock {
             let tx_version = starknet::get_tx_info().unbox().version;
             assert(tx_version == 0, 'Account: invalid tx version');
             // Validate transaction
-            // self.validate_transaction();
+            self.validate_transaction();
             // Execute calls
             for call in calls.span() {
                 self.execute_single_call(call);

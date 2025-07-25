@@ -60,4 +60,6 @@ build-external-contracts = [
     "openzeppelin_test_common::mocks::erc1155::SnakeERC1155Mock",
     "openzeppelin_test_common::mocks::src5::SRC5Mock",
     "openzeppelin_test_common::mocks::non_implementing::NonImplementingMock",
+    "openzeppelin_test_common::mocks::counter::CounterMock",
+    "openzeppelin_test_common::mocks::legacy_account::LegacyAccountMock",
 ]

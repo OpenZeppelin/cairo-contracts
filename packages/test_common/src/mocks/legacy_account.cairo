@@ -11,12 +11,12 @@ pub trait ILegacyAccount<TState> {
 #[starknet::contract(account)]
 pub mod LegacyAccountMock {
     use core::num::traits::Zero;
-    use starknet::account::Call;
     use openzeppelin_account::utils::is_valid_stark_signature;
+    use starknet::account::Call;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
     use starknet::{ContractAddress, SyscallResultTrait};
-    use crate::mocks::observer::{ObserverComponent, CallInfo};
     use crate::mocks::observer::ObserverComponent::InternalTrait as ObserverInternalTrait;
+    use crate::mocks::observer::{CallInfo, ObserverComponent};
 
     component!(path: ObserverComponent, storage: observer, event: ObserverEvent);
 
@@ -67,7 +67,9 @@ pub mod LegacyAccountMock {
             self.validate_transaction()
         }
 
-        fn is_valid_signature(self: @ContractState, hash: felt252, signature: Array<felt252>) -> felt252 {
+        fn is_valid_signature(
+            self: @ContractState, hash: felt252, signature: Array<felt252>,
+        ) -> felt252 {
             if self._is_valid_signature(hash, signature.span()) {
                 starknet::VALIDATED
             } else {
@@ -91,7 +93,9 @@ pub mod LegacyAccountMock {
             starknet::syscalls::call_contract_syscall(to, selector, calldata).unwrap_syscall();
         }
 
-        fn _is_valid_signature(self: @ContractState, hash: felt252, signature: Span<felt252>) -> bool {
+        fn _is_valid_signature(
+            self: @ContractState, hash: felt252, signature: Span<felt252>,
+        ) -> bool {
             let public_key = self.public_key.read();
             is_valid_stark_signature(hash, public_key, signature)
         }

@@ -15,10 +15,11 @@ pub trait IObserver<TState> {
 
 #[starknet::component]
 pub mod ObserverComponent {
-    use starknet::{ClassHash, SyscallResultTrait};
     use starknet::storage::{
-        Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess, StoragePointerWriteAccess
+        Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
+        StoragePointerWriteAccess,
     };
+    use starknet::{ClassHash, SyscallResultTrait};
     use super::CallInfo;
 
     #[storage]
@@ -34,7 +35,9 @@ pub mod ObserverComponent {
     }
 
     #[embeddable_as(ObserverImpl)]
-    pub impl Observer<TContractState, +HasComponent<TContractState>> of super::IObserver<ComponentState<TContractState>> {
+    pub impl Observer<
+        TContractState, +HasComponent<TContractState>,
+    > of super::IObserver<ComponentState<TContractState>> {
         fn get_all_calls(self: @ComponentState<TContractState>) -> Array<CallInfo> {
             let len = self.calls_len.read();
             let mut calls = array![];
@@ -46,7 +49,9 @@ pub mod ObserverComponent {
     }
 
     #[generate_trait]
-    pub impl InternalImpl<TContractState, +HasComponent<TContractState>> of InternalTrait<TContractState> {
+    pub impl InternalImpl<
+        TContractState, +HasComponent<TContractState>,
+    > of InternalTrait<TContractState> {
         fn store_call_info(ref self: ComponentState<TContractState>) {
             let call_info = self.prepare_call_info();
             let current_len = self.calls_len.read();

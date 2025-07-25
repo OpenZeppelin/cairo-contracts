@@ -9,8 +9,8 @@ pub trait ICounter<TState> {
 #[starknet::contract]
 pub mod CounterMock {
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
-    use crate::mocks::observer::{ObserverComponent, CallInfo};
     use crate::mocks::observer::ObserverComponent::InternalTrait;
+    use crate::mocks::observer::{CallInfo, ObserverComponent};
 
     component!(path: ObserverComponent, storage: observer, event: ObserverEvent);
 

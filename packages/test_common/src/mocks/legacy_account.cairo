@@ -1,5 +1,4 @@
 use starknet::account::Call;
-use crate::mocks::observer::CallInfo;
 
 #[starknet::interface]
 pub trait ILegacyAccount<TState> {
@@ -14,9 +13,9 @@ pub mod LegacyAccountMock {
     use openzeppelin_account::utils::is_valid_stark_signature;
     use starknet::account::Call;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
-    use starknet::{ContractAddress, SyscallResultTrait};
+    use starknet::SyscallResultTrait;
     use crate::mocks::observer::ObserverComponent::InternalTrait as ObserverInternalTrait;
-    use crate::mocks::observer::{CallInfo, ObserverComponent};
+    use crate::mocks::observer::ObserverComponent;
 
     component!(path: ObserverComponent, storage: observer, event: ObserverEvent);
 

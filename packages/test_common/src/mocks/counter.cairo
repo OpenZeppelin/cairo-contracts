@@ -1,5 +1,3 @@
-use crate::mocks::observer::CallInfo;
-
 #[starknet::interface]
 pub trait ICounter<TState> {
     fn get_current_value(self: @TState) -> u64;
@@ -10,7 +8,7 @@ pub trait ICounter<TState> {
 pub mod CounterMock {
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
     use crate::mocks::observer::ObserverComponent::InternalTrait;
-    use crate::mocks::observer::{CallInfo, ObserverComponent};
+    use crate::mocks::observer::ObserverComponent;
 
     component!(path: ObserverComponent, storage: observer, event: ObserverEvent);
 

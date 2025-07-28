@@ -111,6 +111,7 @@ version = "3.0.0-alpha.0"
 dependencies = [
  "openzeppelin_test_common",
  "openzeppelin_testing",
+ "openzeppelin_utils",
  "snforge_std",
 ]
 

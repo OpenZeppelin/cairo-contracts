@@ -10,7 +10,8 @@ use openzeppelin_testing::constants::{
     ZERO,
 };
 use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
-use snforge_std::{start_cheat_caller_address, test_address};
+use openzeppelin_utils::serde::SerializedAppend;
+use snforge_std::{Event, start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
 use starknet::storage::StoragePointerReadAccess;
 use crate::erc1155;
@@ -1392,9 +1393,16 @@ impl ERC1155HooksSpyHelpersImpl of ERC1155HooksSpyHelpers {
         token_ids: Span<u256>,
         values: Span<u256>,
     ) {
-        let expected = SnakeERC1155MockWithHooks::Event::BeforeUpdate(
-            SnakeERC1155MockWithHooks::BeforeUpdate { from, to, token_ids, values },
-        );
+        let mut keys = array![];
+        keys.append_serde(selector!("BeforeUpdate"));
+
+        let mut data = array![];
+        data.append_serde(from);
+        data.append_serde(to);
+        data.append_serde(token_ids);
+        data.append_serde(values);
+
+        let expected = Event { keys, data };
         self.assert_emitted_single(contract, expected);
     }
 
@@ -1406,9 +1414,16 @@ impl ERC1155HooksSpyHelpersImpl of ERC1155HooksSpyHelpers {
         token_ids: Span<u256>,
         values: Span<u256>,
     ) {
-        let expected = SnakeERC1155MockWithHooks::Event::AfterUpdate(
-            SnakeERC1155MockWithHooks::AfterUpdate { from, to, token_ids, values },
-        );
+        let mut keys = array![];
+        keys.append_serde(selector!("AfterUpdate"));
+
+        let mut data = array![];
+        data.append_serde(from);
+        data.append_serde(to);
+        data.append_serde(token_ids);
+        data.append_serde(values);
+
+        let expected = Event { keys, data };
         self.assert_emitted_single(contract, expected);
     }
 }

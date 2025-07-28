@@ -8,7 +8,8 @@ use openzeppelin_testing::constants::{
     SYMBOL, TOKEN_ID, TOKEN_ID_2, ZERO,
 };
 use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
-use snforge_std::{start_cheat_caller_address, test_address};
+use openzeppelin_utils::serde::SerializedAppend;
+use snforge_std::{Event, start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
 use starknet::storage::StorageMapReadAccess;
 use crate::erc721;
@@ -1489,9 +1490,15 @@ impl ERC721HooksSpyHelpersImpl of ERC721HooksSpyHelpers {
         token_id: u256,
         auth: ContractAddress,
     ) {
-        let expected = SnakeERC721MockWithHooks::Event::BeforeUpdate(
-            SnakeERC721MockWithHooks::BeforeUpdate { to, token_id, auth },
-        );
+        let mut keys = array![];
+        keys.append_serde(selector!("BeforeUpdate"));
+
+        let mut data = array![];
+        data.append_serde(to);
+        data.append_serde(token_id);
+        data.append_serde(auth);
+
+        let expected = Event { keys, data };
         self.assert_emitted_single(contract, expected);
     }
 
@@ -1502,9 +1509,15 @@ impl ERC721HooksSpyHelpersImpl of ERC721HooksSpyHelpers {
         token_id: u256,
         auth: ContractAddress,
     ) {
-        let expected = SnakeERC721MockWithHooks::Event::AfterUpdate(
-            SnakeERC721MockWithHooks::AfterUpdate { to, token_id, auth },
-        );
+        let mut keys = array![];
+        keys.append_serde(selector!("AfterUpdate"));
+
+        let mut data = array![];
+        data.append_serde(to);
+        data.append_serde(token_id);
+        data.append_serde(auth);
+
+        let expected = Event { keys, data };
         self.assert_emitted_single(contract, expected);
     }
 }

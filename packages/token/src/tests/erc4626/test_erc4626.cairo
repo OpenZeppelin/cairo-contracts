@@ -3,18 +3,16 @@ use openzeppelin_test_common::erc20::ERC20SpyHelpers;
 use openzeppelin_test_common::mocks::erc20::{
     IERC20ReentrantDispatcher, IERC20ReentrantDispatcherTrait, Type,
 };
-use openzeppelin_test_common::mocks::erc4626::{
-    ERC4626LimitsMock, ERC4626Mock, ERC4626MockWithHooks,
-};
+use openzeppelin_test_common::mocks::erc4626::{ERC4626LimitsMock, ERC4626Mock};
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{ALICE, BOB, NAME, OTHER, RECIPIENT, SPENDER, SYMBOL, ZERO};
 use openzeppelin_testing::{AsAddressTrait, EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use openzeppelin_utils::serde::SerializedAppend;
-use snforge_std::{CheatSpan, cheat_caller_address};
+use snforge_std::{CheatSpan, Event, cheat_caller_address};
 use starknet::ContractAddress;
 use crate::erc20::ERC20Component::InternalImpl as ERC20InternalImpl;
 use crate::erc20::extensions::erc4626::ERC4626Component::{
-    Deposit, ERC4626Impl, ERC4626MetadataImpl, InternalImpl, Withdraw,
+    ERC4626Impl, ERC4626MetadataImpl, InternalImpl,
 };
 use crate::erc20::extensions::erc4626::interface::{ERC4626ABIDispatcher, ERC4626ABIDispatcherTrait};
 use crate::erc20::extensions::erc4626::{DefaultConfig, ERC4626Component};
@@ -1723,7 +1721,16 @@ pub impl ERC4626SpyHelpersImpl of ERC4626SpyHelpers {
         assets: u256,
         shares: u256,
     ) {
-        let expected = ERC4626Component::Event::Deposit(Deposit { sender, owner, assets, shares });
+        let mut keys = array![];
+        keys.append_serde(selector!("Deposit"));
+        keys.append_serde(sender);
+        keys.append_serde(owner);
+
+        let mut data = array![];
+        data.append_serde(assets);
+        data.append_serde(shares);
+
+        let expected = Event { keys, data };
         self.assert_emitted_single(contract, expected);
     }
 
@@ -1748,9 +1755,17 @@ pub impl ERC4626SpyHelpersImpl of ERC4626SpyHelpers {
         assets: u256,
         shares: u256,
     ) {
-        let expected = ERC4626Component::Event::Withdraw(
-            Withdraw { sender, receiver, owner, assets, shares },
-        );
+        let mut keys = array![];
+        keys.append_serde(selector!("Withdraw"));
+        keys.append_serde(sender);
+        keys.append_serde(receiver);
+        keys.append_serde(owner);
+
+        let mut data = array![];
+        data.append_serde(assets);
+        data.append_serde(shares);
+
+        let expected = Event { keys, data };
         self.assert_emitted_single(contract, expected);
     }
 
@@ -1773,36 +1788,56 @@ impl ERC4626HooksSpyHelpersImpl of ERC4626HooksSpyHelpers {
     fn assert_event_before_deposit(
         ref self: EventSpy, contract: ContractAddress, assets: u256, shares: u256,
     ) {
-        let expected = ERC4626MockWithHooks::Event::BeforeDeposit(
-            ERC4626MockWithHooks::BeforeDeposit { assets, shares },
-        );
+        let mut keys = array![];
+        keys.append_serde(selector!("BeforeDeposit"));
+
+        let mut data = array![];
+        data.append_serde(assets);
+        data.append_serde(shares);
+
+        let expected = Event { keys, data };
         self.assert_emitted_single(contract, expected);
     }
 
     fn assert_event_after_deposit(
         ref self: EventSpy, contract: ContractAddress, assets: u256, shares: u256,
     ) {
-        let expected = ERC4626MockWithHooks::Event::AfterDeposit(
-            ERC4626MockWithHooks::AfterDeposit { assets, shares },
-        );
+        let mut keys = array![];
+        keys.append_serde(selector!("AfterDeposit"));
+
+        let mut data = array![];
+        data.append_serde(assets);
+        data.append_serde(shares);
+
+        let expected = Event { keys, data };
         self.assert_emitted_single(contract, expected);
     }
 
     fn assert_event_before_withdraw(
         ref self: EventSpy, contract: ContractAddress, assets: u256, shares: u256,
     ) {
-        let expected = ERC4626MockWithHooks::Event::BeforeWithdraw(
-            ERC4626MockWithHooks::BeforeWithdraw { assets, shares },
-        );
+        let mut keys = array![];
+        keys.append_serde(selector!("BeforeWithdraw"));
+
+        let mut data = array![];
+        data.append_serde(assets);
+        data.append_serde(shares);
+
+        let expected = Event { keys, data };
         self.assert_emitted_single(contract, expected);
     }
 
     fn assert_event_after_withdraw(
         ref self: EventSpy, contract: ContractAddress, assets: u256, shares: u256,
     ) {
-        let expected = ERC4626MockWithHooks::Event::AfterWithdraw(
-            ERC4626MockWithHooks::AfterWithdraw { assets, shares },
-        );
+        let mut keys = array![];
+        keys.append_serde(selector!("AfterWithdraw"));
+
+        let mut data = array![];
+        data.append_serde(assets);
+        data.append_serde(shares);
+
+        let expected = Event { keys, data };
         self.assert_emitted_single(contract, expected);
     }
 }

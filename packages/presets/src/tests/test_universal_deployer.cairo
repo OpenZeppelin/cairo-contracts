@@ -7,10 +7,8 @@ use openzeppelin_utils::interfaces::{
     UniversalDeployerABIDispatcher, UniversalDeployerABIDispatcherTrait,
 };
 use openzeppelin_utils::serde::SerializedAppend;
-use snforge_std::start_cheat_caller_address;
+use snforge_std::{Event, start_cheat_caller_address};
 use starknet::{ClassHash, ContractAddress};
-use crate::universal_deployer::UniversalDeployer;
-use crate::universal_deployer::UniversalDeployer::ContractDeployed;
 
 fn ERC20_CLASS_HASH() -> ClassHash {
     utils::declare_class("DualCaseERC20Mock").class_hash
@@ -157,9 +155,18 @@ impl UniversalDeployerHelpersImpl of UniversalDeployerSpyHelpers {
         calldata: Span<felt252>,
         salt: felt252,
     ) {
-        let expected = UniversalDeployer::Event::ContractDeployed(
-            ContractDeployed { address, deployer, not_from_zero, class_hash, calldata, salt },
-        );
+        let mut keys = array![];
+        keys.append_serde(selector!("ContractDeployed"));
+
+        let mut data = array![];
+        data.append_serde(address);
+        data.append_serde(deployer);
+        data.append_serde(not_from_zero);
+        data.append_serde(class_hash);
+        data.append_serde(calldata);
+        data.append_serde(salt);
+
+        let expected = Event { keys, data };
         self.assert_only_event(contract, expected);
     }
 }

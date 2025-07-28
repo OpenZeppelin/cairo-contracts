@@ -1,6 +1,6 @@
 use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy};
-use openzeppelin_token::erc721::ERC721Component;
-use openzeppelin_token::erc721::ERC721Component::{Approval, ApprovalForAll, Transfer};
+use openzeppelin_utils::serde::SerializedAppend;
+use snforge_std::Event;
 use starknet::ContractAddress;
 
 #[generate_trait]
@@ -12,9 +12,15 @@ pub impl ERC721SpyHelpersImpl of ERC721SpyHelpers {
         operator: ContractAddress,
         approved: bool,
     ) {
-        let expected = ERC721Component::Event::ApprovalForAll(
-            ApprovalForAll { owner, operator, approved },
-        );
+        let mut keys = array![];
+        keys.append_serde(selector!("ApprovalForAll"));
+        keys.append_serde(owner);
+        keys.append_serde(operator);
+
+        let mut data = array![];
+        data.append_serde(approved);
+
+        let expected = Event { keys, data };
         self.assert_emitted_single(contract, expected);
     }
 
@@ -36,7 +42,13 @@ pub impl ERC721SpyHelpersImpl of ERC721SpyHelpers {
         approved: ContractAddress,
         token_id: u256,
     ) {
-        let expected = ERC721Component::Event::Approval(Approval { owner, approved, token_id });
+        let mut keys = array![];
+        keys.append_serde(selector!("Approval"));
+        keys.append_serde(owner);
+        keys.append_serde(approved);
+        keys.append_serde(token_id);
+
+        let expected = Event { keys, data: array![] };
         self.assert_emitted_single(contract, expected);
     }
 
@@ -58,7 +70,13 @@ pub impl ERC721SpyHelpersImpl of ERC721SpyHelpers {
         to: ContractAddress,
         token_id: u256,
     ) {
-        let expected = ERC721Component::Event::Transfer(Transfer { from, to, token_id });
+        let mut keys = array![];
+        keys.append_serde(selector!("Transfer"));
+        keys.append_serde(from);
+        keys.append_serde(to);
+        keys.append_serde(token_id);
+
+        let expected = Event { keys, data: array![] };
         self.assert_emitted_single(contract, expected);
     }
 

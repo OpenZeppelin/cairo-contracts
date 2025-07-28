@@ -43,7 +43,7 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_testing"
-version = "4.2.0"
+version = "4.3.0"
 dependencies = [
  "snforge_std",
 ]
@@ -83,15 +83,15 @@ checksum = "sha256:cfd7c73a6f9984880249babfa8664b69c5f7209c737b1081156a284061ccd
 
 [[package]]
 name = "snforge_scarb_plugin"
-version = "0.44.0"
+version = "0.46.0"
 source = "registry+https://scarbs.xyz/"
-checksum = "sha256:ec8c7637b33392a53153c1e5b87a4617ddcb1981951b233ea043cad5136697e2"
+checksum = "sha256:6ffa10fe0ff525678138afd584fc2012e7b248f9c8e7b44aeae033cef3ee7826"
 
 [[package]]
 name = "snforge_std"
-version = "0.44.0"
+version = "0.46.0"
 source = "registry+https://scarbs.xyz/"
-checksum = "sha256:d4affedfb90715b1ac417b915c0a63377ae6dd69432040e5d933130d65114702"
+checksum = "sha256:a4d4b4d3e8506a3907d1eabacb058c390aa13a70132f475cba5e3dcd7a60d0bb"
 dependencies = [
  "snforge_scarb_plugin",
 ]

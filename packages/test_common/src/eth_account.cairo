@@ -7,6 +7,8 @@ use openzeppelin_account::utils::signature::Secp256Signature;
 use openzeppelin_testing::constants::TRANSACTION_HASH;
 use openzeppelin_testing::signing::{Secp256k1KeyPair, Secp256k1SerializedSigning};
 use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy};
+use openzeppelin_utils::serde::SerializedAppend;
+use snforge_std::Event;
 use snforge_std::signature::secp256k1_curve::Secp256k1CurveSignerImpl;
 use starknet::secp256_trait::Secp256PointTrait;
 use starknet::{ContractAddress, SyscallResultTrait};
@@ -50,9 +52,11 @@ pub impl EthAccountSpyHelpersImpl of EthAccountSpyHelpers {
         ref self: EventSpy, contract: ContractAddress, public_key: EthPublicKey,
     ) {
         let removed_owner_guid = get_guid_from_public_key(public_key);
-        let expected = EthAccountComponent::Event::OwnerRemoved(
-            OwnerRemoved { removed_owner_guid },
-        );
+        let mut keys = array![];
+        keys.append_serde(selector!("OwnerRemoved"));
+        keys.append_serde(removed_owner_guid);
+
+        let expected = Event { keys, data: array![] };
         self.assert_emitted_single(contract, expected);
     }
 
@@ -60,7 +64,11 @@ pub impl EthAccountSpyHelpersImpl of EthAccountSpyHelpers {
         ref self: EventSpy, contract: ContractAddress, public_key: EthPublicKey,
     ) {
         let new_owner_guid = get_guid_from_public_key(public_key);
-        let expected = EthAccountComponent::Event::OwnerAdded(OwnerAdded { new_owner_guid });
+        let mut keys = array![];
+        keys.append_serde(selector!("OwnerAdded"));
+        keys.append_serde(new_owner_guid);
+
+        let expected = Event { keys, data: array![] };
         self.assert_emitted_single(contract, expected);
     }
 

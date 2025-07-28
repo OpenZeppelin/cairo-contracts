@@ -1442,6 +1442,22 @@ fn test_signers_info_unpack_zero_value_v2() {
     assert_eq!(unpacked_info.signers_count, 0);
 }
 
+#[cfg(feature: 'fuzzing')]
+#[test]
+#[fuzzer]
+fn test_pack_signers_info_with_v1_unpack_with_v2(quorum: u32, signers_count: u32) {
+    if signers_count == Bounded::MAX {
+        // Cannot properly unpack if packed with V1 and `signers_count` is max u32 value
+        return;
+    }
+    let info = SignersInfo { quorum, signers_count };
+    let packed_value = LegacySignersInfoStorePackingV1::pack(info);
+    let unpacked_info = SignersInfoStorePackingV2::unpack(packed_value);
+
+    assert_eq!(unpacked_info.quorum, quorum);
+    assert_eq!(unpacked_info.signers_count, signers_count);
+}
+
 //
 // Helpers
 //

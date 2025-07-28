@@ -12,14 +12,13 @@ use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use openzeppelin_utils::bytearray::ByteArrayExtTrait;
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{
-    start_cheat_block_timestamp_global, start_cheat_caller_address, start_mock_call, store,
+    Event, start_cheat_block_timestamp_global, start_cheat_caller_address, start_mock_call, store,
 };
 use starknet::ContractAddress;
 use starknet::account::Call;
 use starknet::storage::{StorageMapWriteAccess, StoragePathEntry, StoragePointerWriteAccess};
 use crate::governor::DefaultConfig;
 use crate::governor::GovernorComponent::{InternalExtendedImpl, InternalImpl};
-use crate::governor::extensions::GovernorTimelockExecutionComponent;
 use crate::governor::extensions::GovernorTimelockExecutionComponent::GovernorExecution;
 use crate::governor::extensions::GovernorVotesComponent::InternalTrait;
 use crate::governor::extensions::interface::{ITimelockedDispatcher, ITimelockedDispatcherTrait};
@@ -829,9 +828,14 @@ pub(crate) impl GovernorTimelockExecutionSpyHelpersImpl of GovernorTimelockExecu
         old_timelock: ContractAddress,
         new_timelock: ContractAddress,
     ) {
-        let expected = GovernorTimelockExecutionComponent::Event::TimelockUpdated(
-            GovernorTimelockExecutionComponent::TimelockUpdated { old_timelock, new_timelock },
-        );
+        let mut keys = array![];
+        keys.append_serde(selector!("TimelockUpdated"));
+
+        let mut data = array![];
+        data.append_serde(old_timelock);
+        data.append_serde(new_timelock);
+
+        let expected = Event { keys, data };
         self.assert_emitted_single(contract, expected);
     }
 

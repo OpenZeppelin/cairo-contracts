@@ -42,7 +42,7 @@ impl<'a> WithComponentsParser<'a> {
 
     /// Parses the module and returns the patched code.
     pub fn parse(&mut self, db: &dyn SyntaxGroup) -> (String, Diagnostics) {
-        let base_node = self.base_node.clone();
+        let base_node = self.base_node;
         let mut builder = PatchBuilder::new_ex(db, &base_node);
 
         let typed = ast::SyntaxFile::from_syntax_node(db, base_node);
@@ -98,7 +98,7 @@ fn validate_contract_module(
     let mut warnings = vec![];
 
     if let RewriteNode::Copied(copied) = node {
-        let item = ast::ItemModule::from_syntax_node(db, copied.clone());
+        let item = ast::ItemModule::from_syntax_node(db, *copied);
 
         // 1. Check that the module has a body (error)
         let MaybeModuleBody::Some(body) = item.body(db) else {
@@ -125,7 +125,7 @@ fn validate_contract_module(
             let constructor_code = if let Some(constructor) = constructor {
                 // Get the constructor code (maybe we can do this without the builder)
                 let constructor_ast = constructor.as_syntax_node();
-                let typed = ast::ModuleItem::from_syntax_node(db, constructor_ast.clone());
+                let typed = ast::ModuleItem::from_syntax_node(db, constructor_ast);
                 let constructor_rnode = RewriteNode::from_ast(&typed);
                 let mut builder = PatchBuilder::new_ex(db, &constructor_ast);
                 builder.add_modified(constructor_rnode);
@@ -155,7 +155,7 @@ fn validate_contract_module(
         for component in components_info.iter().filter(|c| c.has_immutable_config) {
             // Get the body code (maybe we can do this without the builder)
             let body_ast = body.as_syntax_node();
-            let typed = ast::ModuleBody::from_syntax_node(db, body_ast.clone());
+            let typed = ast::ModuleBody::from_syntax_node(db, body_ast);
             let body_rnode = RewriteNode::from_ast(&typed);
 
             let mut builder = PatchBuilder::new_ex(db, &body_ast);
@@ -282,7 +282,7 @@ fn process_module_items(
 
     for item_rnode in items_mnode.children.as_mut().unwrap() {
         if let RewriteNode::Copied(copied) = item_rnode {
-            let item = ast::ModuleItem::from_syntax_node(db, copied.clone());
+            let item = ast::ModuleItem::from_syntax_node(db, *copied);
 
             match item {
                 ast::ModuleItem::Struct(item_struct)

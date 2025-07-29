@@ -1,10 +1,10 @@
 use core::hash::{HashStateExTrait, HashStateTrait};
 use core::poseidon::PoseidonTrait;
-use openzeppelin_account::AccountComponent;
-use openzeppelin_account::AccountComponent::{OwnerAdded, OwnerRemoved};
 use openzeppelin_testing::constants::TRANSACTION_HASH;
 use openzeppelin_testing::signing::StarkKeyPair;
 use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy};
+use openzeppelin_utils::serde::SerializedAppend;
+use snforge_std::Event;
 use snforge_std::signature::stark_curve::StarkCurveSignerImpl;
 use starknet::ContractAddress;
 
@@ -39,14 +39,22 @@ pub impl AccountSpyHelpersImpl of AccountSpyHelpers {
     fn assert_event_owner_removed(
         ref self: EventSpy, contract: ContractAddress, removed_owner_guid: felt252,
     ) {
-        let expected = AccountComponent::Event::OwnerRemoved(OwnerRemoved { removed_owner_guid });
+        let mut keys = array![];
+        keys.append_serde(selector!("OwnerRemoved"));
+        keys.append_serde(removed_owner_guid);
+
+        let expected = Event { keys, data: array![] };
         self.assert_emitted_single(contract, expected);
     }
 
     fn assert_event_owner_added(
         ref self: EventSpy, contract: ContractAddress, new_owner_guid: felt252,
     ) {
-        let expected = AccountComponent::Event::OwnerAdded(OwnerAdded { new_owner_guid });
+        let mut keys = array![];
+        keys.append_serde(selector!("OwnerAdded"));
+        keys.append_serde(new_owner_guid);
+
+        let expected = Event { keys, data: array![] };
         self.assert_emitted_single(contract, expected);
     }
 

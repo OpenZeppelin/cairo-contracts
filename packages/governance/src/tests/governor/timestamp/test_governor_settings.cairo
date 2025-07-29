@@ -1,12 +1,12 @@
 use openzeppelin_test_common::mocks::governor::GovernorTimelockedMock::SNIP12MetadataImpl;
 use openzeppelin_testing::constants::OTHER;
 use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
-use snforge_std::{start_cheat_caller_address, test_address};
+use openzeppelin_utils::serde::SerializedAppend;
+use snforge_std::{Event, start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
 use starknet::storage::StoragePointerWriteAccess;
 use crate::governor::DefaultConfig;
 use crate::governor::GovernorComponent::InternalImpl;
-use crate::governor::extensions::GovernorSettingsComponent;
 use crate::governor::extensions::GovernorSettingsComponent::{
     GovernorSettings, GovernorSettingsAdminImpl, InternalImpl as GovernorSettingsInternalImpl,
 };
@@ -395,9 +395,14 @@ pub(crate) impl GovernorSettingsSpyHelpersImpl of GovernorSettingsSpyHelpers {
     fn assert_event_voting_delay_updated(
         ref self: EventSpy, contract: ContractAddress, old_voting_delay: u64, new_voting_delay: u64,
     ) {
-        let expected = GovernorSettingsComponent::Event::VotingDelayUpdated(
-            GovernorSettingsComponent::VotingDelayUpdated { old_voting_delay, new_voting_delay },
-        );
+        let mut keys = array![];
+        keys.append_serde(selector!("VotingDelayUpdated"));
+
+        let mut data = array![];
+        data.append_serde(old_voting_delay);
+        data.append_serde(new_voting_delay);
+
+        let expected = Event { keys, data };
         self.assert_emitted_single(contract, expected);
     }
 
@@ -414,9 +419,14 @@ pub(crate) impl GovernorSettingsSpyHelpersImpl of GovernorSettingsSpyHelpers {
         old_voting_period: u64,
         new_voting_period: u64,
     ) {
-        let expected = GovernorSettingsComponent::Event::VotingPeriodUpdated(
-            GovernorSettingsComponent::VotingPeriodUpdated { old_voting_period, new_voting_period },
-        );
+        let mut keys = array![];
+        keys.append_serde(selector!("VotingPeriodUpdated"));
+
+        let mut data = array![];
+        data.append_serde(old_voting_period);
+        data.append_serde(new_voting_period);
+
+        let expected = Event { keys, data };
         self.assert_emitted_single(contract, expected);
     }
 
@@ -436,11 +446,14 @@ pub(crate) impl GovernorSettingsSpyHelpersImpl of GovernorSettingsSpyHelpers {
         old_proposal_threshold: u256,
         new_proposal_threshold: u256,
     ) {
-        let expected = GovernorSettingsComponent::Event::ProposalThresholdUpdated(
-            GovernorSettingsComponent::ProposalThresholdUpdated {
-                old_proposal_threshold, new_proposal_threshold,
-            },
-        );
+        let mut keys = array![];
+        keys.append_serde(selector!("ProposalThresholdUpdated"));
+
+        let mut data = array![];
+        data.append_serde(old_proposal_threshold);
+        data.append_serde(new_proposal_threshold);
+
+        let expected = Event { keys, data };
         self.assert_emitted_single(contract, expected);
     }
 

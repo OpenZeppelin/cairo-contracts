@@ -1,10 +1,11 @@
 use openzeppelin_test_common::mocks::security::PausableMock;
 use openzeppelin_testing::constants::CALLER;
 use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
-use snforge_std::{start_cheat_caller_address, test_address};
+use openzeppelin_utils::serde::SerializedAppend;
+use snforge_std::{Event, start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
 use crate::PausableComponent;
-use crate::PausableComponent::{InternalImpl, PausableImpl, Paused, Unpaused};
+use crate::PausableComponent::{InternalImpl, PausableImpl};
 
 type ComponentState = PausableComponent::ComponentState<PausableMock::ContractState>;
 
@@ -125,7 +126,13 @@ impl PausableSpyHelpersImpl of PausableSpyHelpers {
     fn assert_event_paused(
         ref self: EventSpy, contract: ContractAddress, account: ContractAddress,
     ) {
-        let expected = PausableComponent::Event::Paused(Paused { account });
+        let mut keys = array![];
+        keys.append_serde(selector!("Paused"));
+
+        let mut data = array![];
+        data.append_serde(account);
+
+        let expected = Event { keys, data };
         self.assert_emitted_single(contract, expected);
     }
 
@@ -139,7 +146,13 @@ impl PausableSpyHelpersImpl of PausableSpyHelpers {
     fn assert_event_unpaused(
         ref self: EventSpy, contract: ContractAddress, account: ContractAddress,
     ) {
-        let expected = PausableComponent::Event::Unpaused(Unpaused { account });
+        let mut keys = array![];
+        keys.append_serde(selector!("Unpaused"));
+
+        let mut data = array![];
+        data.append_serde(account);
+
+        let expected = Event { keys, data };
         self.assert_emitted_single(contract, expected);
     }
 

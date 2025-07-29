@@ -17,15 +17,14 @@ use openzeppelin_testing::{AsAddressTrait, EventSpyExt, EventSpyQueue as EventSp
 use openzeppelin_utils::contract_clock::ERC6372TimestampClock;
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{
-    CheatSpan, cheat_caller_address, start_cheat_block_timestamp_global, start_cheat_caller_address,
-    test_address,
+    CheatSpan, Event, cheat_caller_address, start_cheat_block_timestamp_global,
+    start_cheat_caller_address, test_address,
 };
 use starknet::ContractAddress;
 use starknet::account::Call;
 use starknet::storage::{StorageMapReadAccess, StorageMapWriteAccess, StoragePointerWriteAccess};
 use crate::timelock::TimelockControllerComponent::{
-    CallCancelled, CallExecuted, CallSalt, CallScheduled, InternalImpl as TimelockInternalImpl,
-    MinDelayChanged, TimelockImpl,
+    InternalImpl as TimelockInternalImpl, TimelockImpl,
 };
 use crate::timelock::interface::{TimelockABIDispatcher, TimelockABIDispatcherTrait};
 use crate::timelock::{
@@ -1654,9 +1653,17 @@ pub(crate) impl TimelockSpyHelpersImpl of TimelockSpyHelpers {
         predecessor: felt252,
         delay: u64,
     ) {
-        let expected = TimelockControllerComponent::Event::CallScheduled(
-            CallScheduled { id, index, call, predecessor, delay },
-        );
+        let mut keys = array![];
+        keys.append_serde(selector!("CallScheduled"));
+        keys.append_serde(id);
+        keys.append_serde(index);
+
+        let mut data = array![];
+        data.append_serde(call);
+        data.append_serde(predecessor);
+        data.append_serde(delay);
+
+        let expected = Event { keys, data };
         self.assert_emitted_single(contract, expected);
     }
 
@@ -1710,7 +1717,14 @@ pub(crate) impl TimelockSpyHelpersImpl of TimelockSpyHelpers {
     fn assert_event_call_salt(
         ref self: EventSpy, contract: ContractAddress, id: felt252, salt: felt252,
     ) {
-        let expected = TimelockControllerComponent::Event::CallSalt(CallSalt { id, salt });
+        let mut keys = array![];
+        keys.append_serde(selector!("CallSalt"));
+        keys.append_serde(id);
+
+        let mut data = array![];
+        data.append_serde(salt);
+
+        let expected = Event { keys, data };
         self.assert_emitted_single(contract, expected);
     }
 
@@ -1726,7 +1740,11 @@ pub(crate) impl TimelockSpyHelpersImpl of TimelockSpyHelpers {
     //
 
     fn assert_event_call_cancelled(ref self: EventSpy, contract: ContractAddress, id: felt252) {
-        let expected = TimelockControllerComponent::Event::CallCancelled(CallCancelled { id });
+        let mut keys = array![];
+        keys.append_serde(selector!("CallCancelled"));
+        keys.append_serde(id);
+
+        let expected = Event { keys, data: array![] };
         self.assert_emitted_single(contract, expected);
     }
 
@@ -1744,9 +1762,15 @@ pub(crate) impl TimelockSpyHelpersImpl of TimelockSpyHelpers {
     fn assert_event_call_executed(
         ref self: EventSpy, contract: ContractAddress, id: felt252, index: felt252, call: Call,
     ) {
-        let expected = TimelockControllerComponent::Event::CallExecuted(
-            CallExecuted { id, index, call },
-        );
+        let mut keys = array![];
+        keys.append_serde(selector!("CallExecuted"));
+        keys.append_serde(id);
+        keys.append_serde(index);
+
+        let mut data = array![];
+        data.append_serde(call);
+
+        let expected = Event { keys, data };
         self.assert_emitted_single(contract, expected);
     }
 
@@ -1781,9 +1805,14 @@ pub(crate) impl TimelockSpyHelpersImpl of TimelockSpyHelpers {
     fn assert_event_delay_changed(
         ref self: EventSpy, contract: ContractAddress, old_duration: u64, new_duration: u64,
     ) {
-        let expected = TimelockControllerComponent::Event::MinDelayChanged(
-            MinDelayChanged { old_duration, new_duration },
-        );
+        let mut keys = array![];
+        keys.append_serde(selector!("MinDelayChanged"));
+
+        let mut data = array![];
+        data.append_serde(old_duration);
+        data.append_serde(new_duration);
+
+        let expected = Event { keys, data };
         self.assert_emitted_single(contract, expected);
     }
 

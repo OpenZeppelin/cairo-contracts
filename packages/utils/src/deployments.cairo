@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v2.0.0 (utils/src/deployments.cairo)
+// OpenZeppelin Contracts for Cairo v3.0.0-alpha.0 (utils/src/deployments.cairo)
 
 use core::hash::{HashStateExTrait, HashStateTrait};
 use core::num::traits::Zero;

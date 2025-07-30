@@ -478,7 +478,7 @@ Emitted when a {pending_default_admin_delay} is reset if its schedule didn't pas
 
 [.contract]
 [[OwnableComponent]]
-=== `++OwnableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0/packages/access/src/ownable/ownable.cairo[{github-icon},role=heading-link]
+=== `++OwnableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/access/src/ownable/ownable.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin_access::ownable::OwnableComponent;
@@ -718,7 +718,7 @@ Emitted when the ownership is transferred.
 
 [.contract]
 [[AccessControlComponent]]
-=== `++AccessControlComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0/packages/access/src/accesscontrol/accesscontrol.cairo[{github-icon},role=heading-link]
+=== `++AccessControlComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/access/src/accesscontrol/accesscontrol.cairo[{github-icon},role=heading-link]
 
 :assert_only_role: xref:#AccessControlComponent-assert_only_role
 :grant_role: xref:#AccessControlComponent-grant_role[grant_role]
@@ -1097,7 +1097,7 @@ See xref:IAccessControl-RoleRevoked[IAccessControl::RoleRevoked].
 
 [.contract]
 [[AccessControlDefaultAdminRulesComponent]]
-=== `++AccessControlDefaultAdminRulesComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0/packages/access/src/accesscontrol/extensions/accesscontrol_default_admin_rules.cairo[{github-icon},role=heading-link]
+=== `++AccessControlDefaultAdminRulesComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/access/src/accesscontrol/extensions/accesscontrol_default_admin_rules.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin_access::accesscontrol::extensions::AccessControlDefaultAdminRulesComponent;

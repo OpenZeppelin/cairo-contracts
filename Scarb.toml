@@ -25,10 +25,10 @@ keywords.workspace = true
 edition.workspace = true
 
 [workspace.package]
-version = "2.0.0"
+version = "3.0.0-alpha.0"
 edition = "2024_07"
-cairo-version = "2.12.0-rc.1"
-scarb-version = "2.12.0-rc.1"
+cairo-version = "2.12.0-rc.3"
+scarb-version = "2.12.0-rc.3"
 authors = ["OpenZeppelin Community <maintainers@openzeppelin.org>"]
 description = "OpenZeppelin Contracts written in Cairo for Starknet, a decentralized ZK Rollup"
 documentation = "https://docs.openzeppelin.com/contracts-cairo"
@@ -43,8 +43,8 @@ keywords = [
 ]
 
 [workspace.dependencies]
-assert_macros = "2.12.0-rc.1"
-starknet = "2.12.0-rc.1"
+assert_macros = "2.12.0-rc.3"
+starknet = "2.12.0-rc.3"
 snforge_std = "0.46.0"
 
 [dependencies]

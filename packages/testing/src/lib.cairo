@@ -5,8 +5,8 @@ pub mod events;
 pub mod signing;
 
 pub use common::{
-    IntoBase16StringTrait, assert_entrypoint_not_found_error, panic_data_to_byte_array,
-    to_base_16_string,
+    FuzzableBool, FuzzableContractAddress, IntoBase16StringTrait, assert_entrypoint_not_found_error,
+    panic_data_to_byte_array, to_base_16_string,
 };
 pub use constants::AsAddressTrait;
 pub use deployment::{

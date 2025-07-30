@@ -48,7 +48,8 @@ pub trait IERC20<TState> {
 
 === ABI traits
 
-They describe a contract's complete interface. This is useful to interface with a preset contract offered by this library, such as the ERC20 preset that includes functions from different traits such as `IERC20` and `IERC20Camel`.
+They describe a contract's complete interface. This is useful to interface with a preset contract offered by this library, such as
+the ERC20 preset that includes functions from different standards such as `IERC20` and `IERC20Camel`.
 
 NOTE: The library offers an ABI trait for most components, providing all external function signatures
 even when most of the time all of them don't need to be implemented at the same time. This can be helpful when interacting with a contract implementing the component, instead of defining a new dispatcher.

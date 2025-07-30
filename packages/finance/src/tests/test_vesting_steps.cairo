@@ -1,6 +1,6 @@
 use openzeppelin_access::ownable::interface::{IOwnableDispatcher, IOwnableDispatcherTrait};
 use openzeppelin_test_common::mocks::vesting::StepsVestingMock;
-use openzeppelin_test_common::vesting::VestingSpyHelpers;
+use openzeppelin_test_common::vesting::VestingSpyHelpersTrait;
 use openzeppelin_testing::constants::{OTHER, OWNER};
 use openzeppelin_testing::spy_events;
 use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};

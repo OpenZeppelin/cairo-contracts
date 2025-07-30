@@ -1,9 +1,8 @@
+use crate::with_components::{components::AllowedComponents, parser::WithComponentsParser};
 use cairo_lang_formatter::format_string;
 use cairo_lang_macro::{attribute_macro, Diagnostic, ProcMacroResult, TokenStream};
 use cairo_lang_parser::utils::SimpleParserDatabase;
 use regex::Regex;
-
-use super::{components::AllowedComponents, parser::WithComponentsParser};
 
 /// Inserts multiple component dependencies into a modules codebase.
 #[attribute_macro]

@@ -53,9 +53,9 @@ use crate::{generate_event_spy_helpers::parser, utils::camel_to_snake};
 /// }
 /// ```
 #[inline_macro]
-pub fn generate_event_spy_helpers(args_stream: TokenStream) -> ProcMacroResult {
+pub fn generate_event_spy_helpers(token_stream: TokenStream) -> ProcMacroResult {
     // Parse the arguments
-    let impl_block = match parser::parse_dsl(&args_stream.to_string()) {
+    let impl_block = match parser::parse_dsl(&token_stream.to_string()) {
         Ok((_, impl_block)) => impl_block,
         Err(e) => {
             let error = Diagnostic::error(e.to_string());
@@ -84,7 +84,7 @@ pub fn generate_event_spy_helpers(args_stream: TokenStream) -> ProcMacroResult {
 /// # Returns
 ///
 /// A `ProcTokenStream` containing the generated code for event spy helper functions
-pub fn generate_code(impl_block: &parser::ImplBlock) -> ProcTokenStream {
+fn generate_code(impl_block: &parser::ImplBlock) -> ProcTokenStream {
     let impl_name = format_ident!("{}", impl_block.name);
     let trait_name = format_ident!("{}Trait", impl_block.name);
 

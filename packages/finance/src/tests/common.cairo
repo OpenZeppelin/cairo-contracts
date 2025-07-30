@@ -1,9 +1,9 @@
+use openzeppelin_interfaces::erc20::IERC20Dispatcher;
+use openzeppelin_interfaces::vesting::IVestingDispatcher;
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants;
-use openzeppelin_token::erc20::interface::IERC20Dispatcher;
 use openzeppelin_utils::serde::SerializedAppend;
 use starknet::{ContractAddress, SyscallResultTrait};
-use crate::vesting::interface::IVestingDispatcher;
 
 #[derive(Copy, Drop)]
 pub(crate) enum VestingStrategy {

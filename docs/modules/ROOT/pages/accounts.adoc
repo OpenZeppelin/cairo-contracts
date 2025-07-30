@@ -203,7 +203,7 @@ Here’s an example of a basic contract:
 #[starknet::contract(account)]
 mod MyEthAccount {
     use openzeppelin_account::EthAccountComponent;
-    use openzeppelin_account::interface::EthPublicKey;
+    use openzeppelin_interfaces::accounts::EthPublicKey;
     use openzeppelin_introspection::src5::SRC5Component;
     use starknet::ClassHash;
 
@@ -387,7 +387,7 @@ First, let's take the example account we created before and deploy it:
 #[starknet::contract(account)]
 mod MyEthAccount {
     use openzeppelin_account::EthAccountComponent;
-    use openzeppelin_account::interface::EthPublicKey;
+    use openzeppelin_interfaces::accounts::EthPublicKey;
     use openzeppelin_introspection::src5::SRC5Component;
 
     component!(path: EthAccountComponent, storage: eth_account, event: EthAccountEvent);

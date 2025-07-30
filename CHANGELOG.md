@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `ERC6372Clock` interface to `openzeppelin_utils::contract_clock` (#1417)
 - AccessControlDefaultAdminRules interface and component (#1432)
+- `openzeppelin_interfaces` package (#1463)
+
+### Changed (Breaking)
+
+- Moved interfaces, ABIs and dispatchers into `openzeppelin_interfaces` (#1463)
+  - Some structs and types that were defined inside interface files were also moved
 
 ### Changed
 

@@ -24,6 +24,8 @@ pub mod ERC2981Component {
     use openzeppelin_access::accesscontrol::AccessControlComponent::InternalTrait as AccessControlInternalTrait;
     use openzeppelin_access::ownable::OwnableComponent;
     use openzeppelin_access::ownable::OwnableComponent::InternalTrait as OwnableInternalTrait;
+    use openzeppelin_interfaces::erc2981 as interface;
+    use openzeppelin_interfaces::erc2981::IERC2981_ID;
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_introspection::src5::SRC5Component::{
         InternalTrait as SRC5InternalTrait, SRC5Impl,
@@ -33,8 +35,6 @@ pub mod ERC2981Component {
         Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
         StoragePointerWriteAccess,
     };
-    use crate::common::erc2981::interface;
-    use crate::common::erc2981::interface::IERC2981_ID;
 
     /// Role for the admin responsible for managing royalty settings.
     pub const ROYALTY_ADMIN_ROLE: felt252 = selector!("ROYALTY_ADMIN_ROLE");

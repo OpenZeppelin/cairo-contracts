@@ -8,7 +8,10 @@ include::../utils/_common.adoc[]
 
 This module provides extensions and utilities that are common to multiple token standards.
 
-== ERC2981
+== Interfaces
+
+NOTE: Starting from version `3.x.x`, the interfaces are no longer part of the `openzeppelin_token` package. The references
+documented here are contained in the `openzeppelin_interfaces` package version `v{current_openzeppelin_interfaces_version}`.
 
 [.contract]
 [[IERC2981]]
@@ -16,7 +19,7 @@ This module provides extensions and utilities that are common to multiple token 
 
 [.hljs-theme-dark]
 ```cairo
-use openzeppelin_token::common::erc2981::interface::IERC2981;
+use openzeppelin_interfaces::erc2981::IERC2981;
 ```
 
 [.contract-index]
@@ -50,7 +53,7 @@ unit of exchange.
 
 [.hljs-theme-dark]
 ```cairo
-use openzeppelin_token::common::erc2981::interface::IERC2981Info;
+use openzeppelin_interfaces::erc2981::IERC2981Info;
 ```
 
 Interface providing external read functions for discovering the state of ERC2981 component.
@@ -95,7 +98,7 @@ The returned tuple contains:
 
 [.hljs-theme-dark]
 ```cairo
-use openzeppelin_token::common::erc2981::interface::IERC2981Admin;
+use openzeppelin_interfaces::erc2981::IERC2981Admin;
 ```
 
 Interface providing external admin functions for managing the settings of ERC2981 component.
@@ -135,6 +138,8 @@ Sets the royalty information for a specific token id that takes precedence over 
 ==== `[.contract-item-name]#++reset_token_royalty++#++(token_id: u256)++` [.item-kind]#external#
 
 Resets royalty information for the token id back to unset.
+
+== ERC2981
 
 [.contract]
 [[ERC2981Component]]

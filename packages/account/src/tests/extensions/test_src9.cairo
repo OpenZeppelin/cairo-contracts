@@ -1,4 +1,7 @@
-use openzeppelin_introspection::interface::{ISRC5, ISRC5_ID};
+use openzeppelin_interfaces::introspection::{ISRC5, ISRC5_ID};
+use openzeppelin_interfaces::src9::{
+    ISRC9_V2Dispatcher, ISRC9_V2DispatcherTrait, ISRC9_V2_ID, OutsideExecution,
+};
 use openzeppelin_test_common::mocks::src9::SRC9AccountMock;
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{FELT_VALUE, OTHER, OWNER, RECIPIENT};
@@ -14,9 +17,6 @@ use starknet::account::Call;
 use starknet::storage::StorageMapWriteAccess;
 use crate::extensions::SRC9Component;
 use crate::extensions::SRC9Component::{InternalImpl, OutsideExecutionV2Impl, SNIP12MetadataImpl};
-use crate::extensions::src9::interface::{
-    ISRC9_V2Dispatcher, ISRC9_V2DispatcherTrait, ISRC9_V2_ID, OutsideExecution,
-};
 use crate::extensions::src9::snip12_utils::OutsideExecutionStructHash;
 
 //

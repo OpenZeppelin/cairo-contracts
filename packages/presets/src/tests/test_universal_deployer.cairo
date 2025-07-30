@@ -1,11 +1,11 @@
+use openzeppelin_interfaces::deployments::{
+    UniversalDeployerABIDispatcher, UniversalDeployerABIDispatcherTrait,
+};
+use openzeppelin_interfaces::erc20::{IERC20Dispatcher, IERC20DispatcherTrait};
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{CALLER, NAME, RECIPIENT, SALT, SUPPLY, SYMBOL};
 use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
-use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use openzeppelin_utils::deployments::{DeployerInfo, calculate_contract_address_from_udc};
-use openzeppelin_utils::interfaces::{
-    UniversalDeployerABIDispatcher, UniversalDeployerABIDispatcherTrait,
-};
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::start_cheat_caller_address;
 use starknet::{ClassHash, ContractAddress};

@@ -7,7 +7,7 @@
 #[starknet::contract]
 pub mod UniversalDeployer {
     use core::pedersen::pedersen;
-    use openzeppelin_utils::interfaces::UniversalDeployerABI;
+    use openzeppelin_interfaces::deployments::UniversalDeployerABI;
     use starknet::{ClassHash, ContractAddress, SyscallResultTrait, get_caller_address};
 
     #[storage]

@@ -1,4 +1,7 @@
-use openzeppelin_introspection::interface::{ISRC5, ISRC5_ID};
+use openzeppelin_interfaces::accounts::{
+    EthAccountABIDispatcher, EthAccountABIDispatcherTrait, ISRC6, ISRC6_ID,
+};
+use openzeppelin_interfaces::introspection::{ISRC5, ISRC5_ID};
 use openzeppelin_test_common::eth_account::{
     EthAccountSpyHelpers, SIGNED_TX_DATA, SignedTransactionData, get_accept_ownership_signature,
 };
@@ -21,7 +24,6 @@ use crate::EthAccountComponent;
 use crate::EthAccountComponent::{
     InternalTrait, PublicKeyCamelImpl, PublicKeyImpl, SRC6CamelOnlyImpl,
 };
-use crate::interface::{EthAccountABIDispatcher, EthAccountABIDispatcherTrait, ISRC6, ISRC6_ID};
 use crate::utils::secp256_point::{DebugSecp256Point, Secp256PointPartialEq};
 use crate::utils::signature::Secp256Signature;
 

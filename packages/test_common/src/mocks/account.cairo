@@ -50,7 +50,7 @@ pub mod SnakeAccountMock {
 #[starknet::contract(account)]
 #[with_components(EthAccount, SRC5)]
 pub mod DualCaseEthAccountMock {
-    use openzeppelin_account::interface::EthPublicKey;
+    use openzeppelin_interfaces::accounts::EthPublicKey;
 
 
     #[abi(embed_v0)]
@@ -77,7 +77,7 @@ pub mod DualCaseEthAccountMock {
 #[starknet::contract(account)]
 #[with_components(EthAccount, SRC5)]
 pub mod SnakeEthAccountMock {
-    use openzeppelin_account::interface::EthPublicKey;
+    use openzeppelin_interfaces::accounts::EthPublicKey;
 
     #[abi(embed_v0)]
     impl SRC6Impl = EthAccountComponent::SRC6Impl<ContractState>;

@@ -1,4 +1,5 @@
 use core::num::traits::Zero;
+use openzeppelin_interfaces::ownable::{IOwnable, IOwnableCamelOnly};
 use openzeppelin_test_common::mocks::access::DualCaseOwnableMock;
 use openzeppelin_test_common::ownable::OwnableSpyHelpers;
 use openzeppelin_testing::constants::{OTHER, OWNER, RECIPIENT, ZERO};
@@ -7,7 +8,6 @@ use snforge_std::{start_cheat_caller_address, test_address};
 use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 use crate::ownable::OwnableComponent;
 use crate::ownable::OwnableComponent::InternalTrait;
-use crate::ownable::interface::{IOwnable, IOwnableCamelOnly};
 
 //
 // Setup

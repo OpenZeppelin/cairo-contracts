@@ -1,7 +1,7 @@
 #[starknet::contract]
 #[with_components(ERC20, Votes, Nonces)]
 pub mod LegacyERC20VotesMock {
-    use openzeppelin_governance::votes::interface::IVotes;
+    use openzeppelin_interfaces::votes::IVotes;
     use openzeppelin_token::erc20::DefaultConfig;
     use openzeppelin_utils::contract_clock::ERC6372TimestampClock;
     use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;

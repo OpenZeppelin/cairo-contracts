@@ -23,6 +23,11 @@
 #[starknet::component]
 pub mod GovernorTimelockExecutionComponent {
     use core::num::traits::Zero;
+    use openzeppelin_interfaces::governance::extensions::ITimelocked;
+    use openzeppelin_interfaces::governor::ProposalState;
+    use openzeppelin_interfaces::timelock::{
+        ITimelockDispatcher, ITimelockDispatcherTrait, OperationState,
+    };
     use openzeppelin_introspection::src5::SRC5Component;
     use starknet::ContractAddress;
     use starknet::account::Call;
@@ -34,9 +39,6 @@ pub mod GovernorTimelockExecutionComponent {
     use crate::governor::GovernorComponent::{
         ComponentState as GovernorComponentState, InternalExtendedTrait,
     };
-    use crate::governor::extensions::interface::ITimelocked;
-    use crate::governor::interface::ProposalState;
-    use crate::timelock::interface::{ITimelockDispatcher, ITimelockDispatcherTrait, OperationState};
 
     type ProposalId = felt252;
     type TimelockProposalId = felt252;

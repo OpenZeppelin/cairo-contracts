@@ -8,7 +8,6 @@
 :eip-2612: https://eips.ethereum.org/EIPS/eip-2612[EIP-2612]
 :eip4626: https://eips.ethereum.org/EIPS/eip-4626[EIP-4626]
 
-
 = ERC20
 
 include::../utils/_common.adoc[]
@@ -17,7 +16,10 @@ This module provides interfaces, presets, and utilities related to ERC20 contrac
 
 TIP: For an overview of ERC20, read our {erc20-guide}.
 
-== Core
+== Interfaces
+
+NOTE: Starting from version `3.x.x`, the interfaces are no longer part of the `openzeppelin_token` package. The references
+documented here are contained in the `openzeppelin_interfaces` package version `v{current_openzeppelin_interfaces_version}`.
 
 [.contract]
 [[IERC20]]
@@ -164,6 +166,386 @@ This is the default value returned by this function.
 To create a custom decimals implementation, see {custom-decimals}.
 
 NOTE: This information is only used for _display_ purposes: it in no way affects any of the arithmetic of the contract.
+
+[.contract]
+[[IERC20Permit]]
+=== `++IERC20Permit++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/token/src/erc20/interface.cairo#L19[{github-icon},role=heading-link]
+
+[.hljs-theme-dark]
+```cairo
+use openzeppelin_interfaces::erc20::IERC20Permit;
+```
+
+Interface of the ERC20Permit standard to support gasless token approvals as defined in {eip-2612}.
+
+[.contract-index]
+.Functions
+--
+* xref:#IERC20Permit-permit[`++permit(owner, spender, amount, deadline, signature)++`]
+* xref:#IERC20Permit-nonces[`++nonces(owner)++`]
+* xref:#IERC20Permit-DOMAIN_SEPARATOR[`++DOMAIN_SEPARATOR()++`]
+--
+
+[#IERC20Permit-Functions]
+==== Functions
+
+[.contract-item]
+[[IERC20Permit-permit]]
+==== `[.contract-item-name]#++permit++#++(owner: ContractAddress, spender: ContractAddress, amount: u256, deadline: u64, signature: Span<felt252>)++` [.item-kind]#external#
+
+Sets `amount` as the allowance of `spender` over ``owner``'s tokens after validating the signature.
+
+[.contract-item]
+[[IERC20Permit-nonces]]
+==== `[.contract-item-name]#++nonces++#++(owner: ContractAddress) → felt252++` [.item-kind]#external#
+
+Returns the current nonce of `owner`. A nonce value must be included 
+whenever a signature for `permit` call is generated.
+
+[.contract-item]
+[[IERC20Permit-DOMAIN_SEPARATOR]]
+==== `[.contract-item-name]#++DOMAIN_SEPARATOR++#++() → felt252++` [.item-kind]#external#
+
+Returns the domain separator used in generating a message hash for `permit` signature.
+The domain hashing logic follows the {snip-12} standard.
+
+[.contract]
+[[IERC4626]]
+=== `++IERC4626++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/token/src/erc20/extensions/erc4626/interface.cairo[{github-icon},role=heading-link]
+
+[.hljs-theme-dark]
+```cairo
+use openzeppelin_interfaces::erc4626::IERC4626;
+```
+
+Interface of the IERC4626 standard as defined in {eip4626}.
+
+[.contract-index]
+.Functions
+--
+* xref:#IERC4626-asset[`++asset()++`]
+* xref:#IERC4626-total_assets[`++total_assets()++`]
+* xref:#IERC4626-convert_to_shares[`++convert_to_shares(assets)++`]
+* xref:#IERC4626-convert_to_assets[`++convert_to_assets(shares)++`]
+* xref:#IERC4626-max_deposit[`++max_deposit(receiver)++`]
+* xref:#IERC4626-preview_deposit[`++preview_deposit(assets)++`]
+* xref:#IERC4626-deposit[`++deposit(assets, receiver)++`]
+* xref:#IERC4626-max_mint[`++max_mint(receiver)++`]
+* xref:#IERC4626-preview_mint[`++preview_mint(shares)++`]
+* xref:#IERC4626-mint[`++mint(shares, receiver)++`]
+* xref:#IERC4626-max_withdraw[`++max_withdraw(owner)++`]
+* xref:#IERC4626-preview_withdraw[`++preview_withdraw(assets)++`]
+* xref:#IERC4626-withdraw[`++withdraw(assets, receiver, owner)++`]
+* xref:#IERC4626-max_redeem[`++max_redeem(owner)++`]
+* xref:#IERC4626-preview_redeem[`++preview_redeem(shares)++`]
+* xref:#IERC4626-redeem[`++redeem(shares, receiver, owner)++`]
+--
+
+[.contract-index]
+.Events
+--
+* xref:#IERC4626-Deposit[`++Deposit(sender, owner, assets, shares)++`]
+* xref:#IERC4626-Withdraw[`++Withdraw(sender, receiver, owner, assets, shares)++`]
+--
+
+[#IERC4626-Functions]
+==== Functions
+
+[.contract-item]
+[[IERC4626-asset]]
+==== `[.contract-item-name]#++asset++#++() → ContractAddress++` [.item-kind]#external#
+
+Returns the address of the underlying token used for the Vault for accounting, depositing,
+and withdrawing.
+
+Requirements:
+
+- MUST be an ERC20 token contract.
+- MUST NOT panic.
+
+[.contract-item]
+[[IERC4626-total_assets]]
+==== `[.contract-item-name]#++total_assets++#++() → u256++` [.item-kind]#external#
+
+Returns the total amount of the underlying asset that is “managed” by Vault.
+
+Requirements:
+
+- SHOULD include any compounding that occurs from yield.
+- MUST be inclusive of any fees that are charged against assets in the Vault.
+- MUST NOT panic.
+
+[.contract-item]
+[[IERC4626-convert_to_shares]]
+==== `[.contract-item-name]#++convert_to_shares++#++(assets: u256) → u256++` [.item-kind]#external#
+
+Returns the amount of shares that the Vault would exchange for the amount of `assets`
+provided irrespective of slippage or fees.
+
+Requirements:
+
+- MUST NOT be inclusive of any fees that are charged against assets in the Vault.
+- MUST NOT show any variations depending on the caller.
+- MUST NOT reflect slippage or other on-chain conditions, when performing the actual exchange.
+- MUST NOT panic unless due to integer overflow caused by an unreasonably large input.
+- MUST round down towards 0.
+
+NOTE: This calculation MAY NOT reflect the "per-user" price-per-share, and instead should
+reflect the "average-user's" price-per-share, meaning what the average user should expect to
+see when exchanging to and from.
+
+[.contract-item]
+[[IERC4626-convert_to_assets]]
+==== `[.contract-item-name]#++convert_to_assets++#++(shares: u256) → u256++` [.item-kind]#external#
+
+Returns the amount of assets that the Vault would exchange for the amount of `shares`
+provided irrespective of slippage or fees.
+
+Requirements:
+
+- MUST NOT be inclusive of any fees that are charged against assets in the Vault.
+- MUST NOT show any variations depending on the caller.
+- MUST NOT reflect slippage or other on-chain conditions, when performing the actual exchange.
+- MUST NOT panic unless due to integer overflow caused by an unreasonably large input.
+- MUST round down towards 0.
+
+NOTE: This calculation MAY NOT reflect the “per-user” price-per-share, and instead
+should reflect the “average-user’s” price-per-share, meaning what the average user
+should expect to see when exchanging to and from.
+
+[.contract-item]
+[[IERC4626-max_deposit]]
+==== `[.contract-item-name]#++max_deposit++#++(receiver: ContractAddress) → u256++` [.item-kind]#external#
+
+Returns the maximum amount of the underlying asset that can be deposited into the Vault for
+`receiver`, through a deposit call.
+
+Requirements:
+
+- MUST return a limited value if receiver is subject to some deposit limit.
+- MUST return 2 ** 256 - 1 if there is no limit on the maximum amount of assets that may be
+  deposited.
+- MUST NOT panic.
+
+[.contract-item]
+[[IERC4626-preview_deposit]]
+==== `[.contract-item-name]#++preview_deposit++#++(assets: u256) → u256++` [.item-kind]#external#
+
+Allows an on-chain or off-chain user to simulate the effects of their deposit at the current
+block, given current on-chain conditions.
+
+Requirements:
+
+- MUST return as close to and no more than the exact amount of Vault shares that would be
+  minted in a deposit call in the same transaction i.e. <<IERC4626-deposit,IERC4626::deposit>> should return the same or more
+  shares as `preview_deposit` if called in the same transaction.
+- MUST NOT account for deposit limits like those returned from <<IERC4626-max_deposit,IERC4626::max_deposit>> and should always
+  act as though the deposit would be accepted, regardless if the user has enough tokens
+  approved, etc.
+- MUST be inclusive of deposit fees. Integrators should be aware of the existence of deposit
+  fees.
+- MUST NOT panic.
+
+NOTE: Any unfavorable discrepancy between <<IERC4626-convert_to_shares,IERC4626::convert_to_shares>> and `preview_deposit`
+SHOULD be considered slippage in share price or some other type of condition, meaning the
+depositor will lose assets by depositing.
+
+[.contract-item]
+[[IERC4626-deposit]]
+==== `[.contract-item-name]#++deposit++#++(assets: u256, receiver: ContractAddress) → u256++` [.item-kind]#external#
+
+Mints Vault shares to `receiver` by depositing exactly amount of `assets`.
+
+Requirements:
+
+- MUST emit the <<IERC4626-Deposit,IERC4626::Deposit>> event.
+- MAY support an additional flow in which the underlying tokens are owned by the Vault
+  contract before the deposit execution, and are accounted for during deposit.
+- MUST panic if all of assets cannot be deposited (due to deposit limit being reached,
+  slippage, the user not approving enough underlying tokens to the Vault contract, etc).
+
+NOTE: Most implementations will require pre-approval of the Vault with the Vault’s
+underlying asset token.
+
+[.contract-item]
+[[IERC4626-max_mint]]
+==== `[.contract-item-name]#++max_mint++#++(receiver: ContractAddress) → u256++` [.item-kind]#external#
+
+Returns the maximum amount of the Vault shares that can be minted for the receiver, through
+a mint call.
+
+Requirements:
+
+- MUST return a limited value if receiver is subject to some mint limit.
+- MUST return 2 ** 256 - 1 if there is no limit on the maximum amount of shares that may be
+  minted.
+- MUST NOT panic.
+
+[.contract-item]
+[[IERC4626-preview_mint]]
+==== `[.contract-item-name]#++preview_mint++#++(shares: u256) → u256++` [.item-kind]#external#
+
+Allows an on-chain or off-chain user to simulate the effects of their mint at the current
+block, given current on-chain conditions.
+
+Requirements:
+
+- MUST return as close to and no fewer than the exact amount of assets that would be deposited
+  in a `mint` call in the same transaction. I.e. <<IERC4626-mint,IERC4626::mint>> should return the same or fewer assets
+  as `preview_mint` if called in the same transaction.
+- MUST NOT account for mint limits like those returned from <<IERC4626-max_mint,IERC4626::max_mint>> and should always act
+  as though the mint would be accepted, regardless if the user has enough tokens approved,
+  etc.
+- MUST be inclusive of deposit fees. Integrators should be aware of the existence of deposit
+  fees.
+- MUST NOT panic.
+
+NOTE: Any unfavorable discrepancy between <<IERC4626-convert_to_assets,IERC4626::convert_to_assets>> and
+`preview_mint` SHOULD be considered slippage in share price or some other type of condition,
+meaning the depositor will lose assets by minting.
+
+[.contract-item]
+[[IERC4626-mint]]
+==== `[.contract-item-name]#++mint++#++(shares: u256, receiver: ContractAddress) → u256++` [.item-kind]#external#
+
+Mints exactly shares Vault shares to receiver by depositing amount of underlying tokens.
+
+Requirements:
+
+- MUST emit the <<IERC4626-Deposit,IERC4626::Deposit>> event.
+- MAY support an additional flow in which the underlying tokens are owned by the Vault
+  contract before the mint execution, and are accounted for during mint.
+- MUST panic if all of shares cannot be minted (due to deposit limit being reached, slippage,
+  the user not approving enough underlying tokens to the Vault contract, etc).
+
+NOTE: Most implementations will require pre-approval of the Vault with the Vault’s
+underlying asset token.
+
+[.contract-item]
+[[IERC4626-max_withdraw]]
+==== `[.contract-item-name]#++max_withdraw++#++(owner: ContractAddress) → u256++` [.item-kind]#external#
+
+Returns the maximum amount of the underlying asset that can be withdrawn from the owner
+balance in the Vault, through a withdraw call.
+
+Requirements:
+
+- MUST return a limited value if owner is subject to some withdrawal limit or timelock.
+- MUST NOT panic.
+
+[.contract-item]
+[[IERC4626-preview_withdraw]]
+==== `[.contract-item-name]#++preview_withdraw++#++(assets: u256) → u256++` [.item-kind]#external#
+
+Allows an on-chain or off-chain user to simulate the effects of their withdrawal at the
+current block, given current on-chain conditions.
+
+Requirements:
+
+- MUST return as close to and no fewer than the exact amount of Vault shares that would be
+  burned in a withdraw call in the same transaction i.e. <<IERC4626-withdraw,IERC4626::withdraw>> should return the same or
+  fewer shares as `preview_withdraw` if called in the same transaction.
+- MUST NOT account for withdrawal limits like those returned from <<IERC4626-max_withdraw,IERC4626::max_withdraw>> and should
+  always act as though the withdrawal would be accepted, regardless if the user has enough
+  shares, etc.
+- MUST be inclusive of withdrawal fees. Integrators should be aware of the existence of
+  withdrawal fees.
+- MUST NOT panic.
+
+NOTE: Any unfavorable discrepancy between <<IERC4626-convert_to_shares,IERC4626::convert_to_shares>> and `preview_withdraw`
+SHOULD be considered slippage in share price or some other type of condition, meaning the
+depositor will lose assets by depositing.
+
+[.contract-item]
+[[IERC4626-withdraw]]
+==== `[.contract-item-name]#++withdraw++#++(assets: u256, receiver: ContractAddress, owner: ContractAddress) → u256++` [.item-kind]#external#
+
+Burns shares from owner and sends exactly assets of underlying tokens to receiver.
+
+Requirements:
+
+- MUST emit the <<IERC4626-Withdraw,IERC4626::Withdraw>> event.
+- MAY support an additional flow in which the underlying tokens are owned by the Vault
+  contract before the withdraw execution, and are accounted for during withdraw.
+- MUST revert if all of assets cannot be withdrawn (due to withdrawal limit being reached,
+  slippage, the owner not having enough shares, etc).
+
+NOTE: Some implementations will require pre-requesting to the Vault before a withdrawal
+may be performed.
+Those methods should be performed separately.
+
+[.contract-item]
+[[IERC4626-max_redeem]]
+==== `[.contract-item-name]#++max_redeem++#++(owner: ContractAddress) → u256++` [.item-kind]#external#
+
+Returns the maximum amount of Vault shares that can be redeemed from the owner balance in
+the Vault, through a redeem call.
+
+Requirements:
+
+- MUST return a limited value if owner is subject to some withdrawal limit or timelock.
+- MUST return `ERC20::balance_of(owner)` if `owner` is not subject to any withdrawal limit or
+  timelock.
+- MUST NOT panic.
+
+[.contract-item]
+[[IERC4626-preview_redeem]]
+==== `[.contract-item-name]#++preview_redeem++#++(shares: u256) → u256++` [.item-kind]#external#
+
+Allows an on-chain or off-chain user to simulate the effects of their redeemption at the
+current block, given current on-chain conditions.
+
+Requirements:
+
+- MUST return as close to and no more than the exact amount of assets that would be withdrawn
+  in a redeem call in the same transaction i.e. <<IERC4626-redeem,IERC4626::redeem>> should return the same or more assets
+  as preview_redeem if called in the same transaction.
+- MUST NOT account for redemption limits like those returned from <<IERC4626-max_redeem,IERC4626::max_redeem>> and should always
+  act as though the redemption would be accepted, regardless if the user has enough shares,
+  etc.
+- MUST be inclusive of withdrawal fees. Integrators should be aware of the existence of
+  withdrawal fees.
+- MUST NOT panic.
+
+NOTE: Any unfavorable discrepancy between <<IERC4626-convert_to_assets,IERC4626::convert_to_assets>> and `preview_redeem` SHOULD be
+considered slippage in share price or some other type of condition, meaning the depositor
+will lose assets by redeeming.
+
+[.contract-item]
+[[IERC4626-redeem]]
+==== `[.contract-item-name]#++redeem++#++(shares: u256, receiver: ContractAddress, owner: ContractAddress) → u256++` [.item-kind]#external#
+
+Burns exactly shares from owner and sends assets of underlying tokens to receiver.
+
+Requirements:
+
+- MUST emit the <<IERC4626-Withdraw,IERC4626::Withdraw>> event.
+- MAY support an additional flow in which the underlying tokens are owned by the Vault
+  contract before the redeem execution, and are accounted for during redeem.
+- MUST revert if all of shares cannot be redeemed (due to withdrawal limit being reached,
+  slippage, the owner not having enough shares, etc).
+
+NOTE: Some implementations will require pre-requesting to the Vault before a withdrawal may be performed.
+Those methods should be performed separately.
+
+[#IERC4626-Events]
+==== Events
+
+[.contract-item]
+[[IERC4626-Deposit]]
+==== `[.contract-item-name]#++Deposit++#++(sender: ContractAddress, owner: ContractAddress, assets: u256, shares: u256)++` [.item-kind]#event#
+
+Emitted when `sender` exchanges `assets` for `shares` and transfers those
+`shares` to `owner`.
+
+[.contract-item]
+[[IERC4626-Withdraw]]
+==== `[.contract-item-name]#++Withdraw++#++(sender: ContractAddress, receiver: ContractAddress, owner: ContractAddress, assets: u256, shares: u256)++` [.item-kind]#event#
+
+Emitted when `sender` exchanges `shares`, owned by `owner`, for `assets` and transfers
+those `assets` to `receiver`.
+
+== Core
 
 [.contract]
 [[ERC20Component]]
@@ -515,384 +897,6 @@ See <<IERC20-Transfer,IERC20::Transfer>>.
 See <<IERC20-Approval,IERC20::Approval>>.
 
 == Extensions
-
-[.contract]
-[[IERC20Permit]]
-=== `++IERC20Permit++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/token/src/erc20/interface.cairo#L19[{github-icon},role=heading-link]
-
-[.hljs-theme-dark]
-```cairo
-use openzeppelin_interfaces::erc20::IERC20Permit;
-```
-
-Interface of the ERC20Permit standard to support gasless token approvals as defined in {eip-2612}.
-
-[.contract-index]
-.Functions
---
-* xref:#IERC20Permit-permit[`++permit(owner, spender, amount, deadline, signature)++`]
-* xref:#IERC20Permit-nonces[`++nonces(owner)++`]
-* xref:#IERC20Permit-DOMAIN_SEPARATOR[`++DOMAIN_SEPARATOR()++`]
---
-
-[#IERC20Permit-Functions]
-==== Functions
-
-[.contract-item]
-[[IERC20Permit-permit]]
-==== `[.contract-item-name]#++permit++#++(owner: ContractAddress, spender: ContractAddress, amount: u256, deadline: u64, signature: Span<felt252>)++` [.item-kind]#external#
-
-Sets `amount` as the allowance of `spender` over ``owner``'s tokens after validating the signature.
-
-[.contract-item]
-[[IERC20Permit-nonces]]
-==== `[.contract-item-name]#++nonces++#++(owner: ContractAddress) → felt252++` [.item-kind]#external#
-
-Returns the current nonce of `owner`. A nonce value must be included 
-whenever a signature for `permit` call is generated.
-
-[.contract-item]
-[[IERC20Permit-DOMAIN_SEPARATOR]]
-==== `[.contract-item-name]#++DOMAIN_SEPARATOR++#++() → felt252++` [.item-kind]#external#
-
-Returns the domain separator used in generating a message hash for `permit` signature.
-The domain hashing logic follows the {snip-12} standard.
-
-[.contract]
-[[IERC4626]]
-=== `++IERC4626++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/token/src/erc20/extensions/erc4626/interface.cairo[{github-icon},role=heading-link]
-
-[.hljs-theme-dark]
-```cairo
-use openzeppelin_token::erc20::extensions::erc4626::interface::IERC4626;
-```
-
-Interface of the IERC4626 standard as defined in {eip4626}.
-
-[.contract-index]
-.Functions
---
-* xref:#IERC4626-asset[`++asset()++`]
-* xref:#IERC4626-total_assets[`++total_assets()++`]
-* xref:#IERC4626-convert_to_shares[`++convert_to_shares(assets)++`]
-* xref:#IERC4626-convert_to_assets[`++convert_to_assets(shares)++`]
-* xref:#IERC4626-max_deposit[`++max_deposit(receiver)++`]
-* xref:#IERC4626-preview_deposit[`++preview_deposit(assets)++`]
-* xref:#IERC4626-deposit[`++deposit(assets, receiver)++`]
-* xref:#IERC4626-max_mint[`++max_mint(receiver)++`]
-* xref:#IERC4626-preview_mint[`++preview_mint(shares)++`]
-* xref:#IERC4626-mint[`++mint(shares, receiver)++`]
-* xref:#IERC4626-max_withdraw[`++max_withdraw(owner)++`]
-* xref:#IERC4626-preview_withdraw[`++preview_withdraw(assets)++`]
-* xref:#IERC4626-withdraw[`++withdraw(assets, receiver, owner)++`]
-* xref:#IERC4626-max_redeem[`++max_redeem(owner)++`]
-* xref:#IERC4626-preview_redeem[`++preview_redeem(shares)++`]
-* xref:#IERC4626-redeem[`++redeem(shares, receiver, owner)++`]
---
-
-[.contract-index]
-.Events
---
-* xref:#IERC4626-Deposit[`++Deposit(sender, owner, assets, shares)++`]
-* xref:#IERC4626-Withdraw[`++Withdraw(sender, receiver, owner, assets, shares)++`]
---
-
-[#IERC4626-Functions]
-==== Functions
-
-[.contract-item]
-[[IERC4626-asset]]
-==== `[.contract-item-name]#++asset++#++() → ContractAddress++` [.item-kind]#external#
-
-Returns the address of the underlying token used for the Vault for accounting, depositing,
-and withdrawing.
-
-Requirements:
-
-- MUST be an ERC20 token contract.
-- MUST NOT panic.
-
-[.contract-item]
-[[IERC4626-total_assets]]
-==== `[.contract-item-name]#++total_assets++#++() → u256++` [.item-kind]#external#
-
-Returns the total amount of the underlying asset that is “managed” by Vault.
-
-Requirements:
-
-- SHOULD include any compounding that occurs from yield.
-- MUST be inclusive of any fees that are charged against assets in the Vault.
-- MUST NOT panic.
-
-[.contract-item]
-[[IERC4626-convert_to_shares]]
-==== `[.contract-item-name]#++convert_to_shares++#++(assets: u256) → u256++` [.item-kind]#external#
-
-Returns the amount of shares that the Vault would exchange for the amount of `assets`
-provided irrespective of slippage or fees.
-
-Requirements:
-
-- MUST NOT be inclusive of any fees that are charged against assets in the Vault.
-- MUST NOT show any variations depending on the caller.
-- MUST NOT reflect slippage or other on-chain conditions, when performing the actual exchange.
-- MUST NOT panic unless due to integer overflow caused by an unreasonably large input.
-- MUST round down towards 0.
-
-NOTE: This calculation MAY NOT reflect the "per-user" price-per-share, and instead should
-reflect the "average-user's" price-per-share, meaning what the average user should expect to
-see when exchanging to and from.
-
-[.contract-item]
-[[IERC4626-convert_to_assets]]
-==== `[.contract-item-name]#++convert_to_assets++#++(shares: u256) → u256++` [.item-kind]#external#
-
-Returns the amount of assets that the Vault would exchange for the amount of `shares`
-provided irrespective of slippage or fees.
-
-Requirements:
-
-- MUST NOT be inclusive of any fees that are charged against assets in the Vault.
-- MUST NOT show any variations depending on the caller.
-- MUST NOT reflect slippage or other on-chain conditions, when performing the actual exchange.
-- MUST NOT panic unless due to integer overflow caused by an unreasonably large input.
-- MUST round down towards 0.
-
-NOTE: This calculation MAY NOT reflect the “per-user” price-per-share, and instead
-should reflect the “average-user’s” price-per-share, meaning what the average user
-should expect to see when exchanging to and from.
-
-[.contract-item]
-[[IERC4626-max_deposit]]
-==== `[.contract-item-name]#++max_deposit++#++(receiver: ContractAddress) → u256++` [.item-kind]#external#
-
-Returns the maximum amount of the underlying asset that can be deposited into the Vault for
-`receiver`, through a deposit call.
-
-Requirements:
-
-- MUST return a limited value if receiver is subject to some deposit limit.
-- MUST return 2 ** 256 - 1 if there is no limit on the maximum amount of assets that may be
-  deposited.
-- MUST NOT panic.
-
-[.contract-item]
-[[IERC4626-preview_deposit]]
-==== `[.contract-item-name]#++preview_deposit++#++(assets: u256) → u256++` [.item-kind]#external#
-
-Allows an on-chain or off-chain user to simulate the effects of their deposit at the current
-block, given current on-chain conditions.
-
-Requirements:
-
-- MUST return as close to and no more than the exact amount of Vault shares that would be
-  minted in a deposit call in the same transaction i.e. <<IERC4626-deposit,IERC4626::deposit>> should return the same or more
-  shares as `preview_deposit` if called in the same transaction.
-- MUST NOT account for deposit limits like those returned from <<IERC4626-max_deposit,IERC4626::max_deposit>> and should always
-  act as though the deposit would be accepted, regardless if the user has enough tokens
-  approved, etc.
-- MUST be inclusive of deposit fees. Integrators should be aware of the existence of deposit
-  fees.
-- MUST NOT panic.
-
-NOTE: Any unfavorable discrepancy between <<IERC4626-convert_to_shares,IERC4626::convert_to_shares>> and `preview_deposit`
-SHOULD be considered slippage in share price or some other type of condition, meaning the
-depositor will lose assets by depositing.
-
-[.contract-item]
-[[IERC4626-deposit]]
-==== `[.contract-item-name]#++deposit++#++(assets: u256, receiver: ContractAddress) → u256++` [.item-kind]#external#
-
-Mints Vault shares to `receiver` by depositing exactly amount of `assets`.
-
-Requirements:
-
-- MUST emit the <<IERC4626-Deposit,IERC4626::Deposit>> event.
-- MAY support an additional flow in which the underlying tokens are owned by the Vault
-  contract before the deposit execution, and are accounted for during deposit.
-- MUST panic if all of assets cannot be deposited (due to deposit limit being reached,
-  slippage, the user not approving enough underlying tokens to the Vault contract, etc).
-
-NOTE: Most implementations will require pre-approval of the Vault with the Vault’s
-underlying asset token.
-
-[.contract-item]
-[[IERC4626-max_mint]]
-==== `[.contract-item-name]#++max_mint++#++(receiver: ContractAddress) → u256++` [.item-kind]#external#
-
-Returns the maximum amount of the Vault shares that can be minted for the receiver, through
-a mint call.
-
-Requirements:
-
-- MUST return a limited value if receiver is subject to some mint limit.
-- MUST return 2 ** 256 - 1 if there is no limit on the maximum amount of shares that may be
-  minted.
-- MUST NOT panic.
-
-[.contract-item]
-[[IERC4626-preview_mint]]
-==== `[.contract-item-name]#++preview_mint++#++(shares: u256) → u256++` [.item-kind]#external#
-
-Allows an on-chain or off-chain user to simulate the effects of their mint at the current
-block, given current on-chain conditions.
-
-Requirements:
-
-- MUST return as close to and no fewer than the exact amount of assets that would be deposited
-  in a `mint` call in the same transaction. I.e. <<IERC4626-mint,IERC4626::mint>> should return the same or fewer assets
-  as `preview_mint` if called in the same transaction.
-- MUST NOT account for mint limits like those returned from <<IERC4626-max_mint,IERC4626::max_mint>> and should always act
-  as though the mint would be accepted, regardless if the user has enough tokens approved,
-  etc.
-- MUST be inclusive of deposit fees. Integrators should be aware of the existence of deposit
-  fees.
-- MUST NOT panic.
-
-NOTE: Any unfavorable discrepancy between <<IERC4626-convert_to_assets,IERC4626::convert_to_assets>> and
-`preview_mint` SHOULD be considered slippage in share price or some other type of condition,
-meaning the depositor will lose assets by minting.
-
-[.contract-item]
-[[IERC4626-mint]]
-==== `[.contract-item-name]#++mint++#++(shares: u256, receiver: ContractAddress) → u256++` [.item-kind]#external#
-
-Mints exactly shares Vault shares to receiver by depositing amount of underlying tokens.
-
-Requirements:
-
-- MUST emit the <<IERC4626-Deposit,IERC4626::Deposit>> event.
-- MAY support an additional flow in which the underlying tokens are owned by the Vault
-  contract before the mint execution, and are accounted for during mint.
-- MUST panic if all of shares cannot be minted (due to deposit limit being reached, slippage,
-  the user not approving enough underlying tokens to the Vault contract, etc).
-
-NOTE: Most implementations will require pre-approval of the Vault with the Vault’s
-underlying asset token.
-
-[.contract-item]
-[[IERC4626-max_withdraw]]
-==== `[.contract-item-name]#++max_withdraw++#++(owner: ContractAddress) → u256++` [.item-kind]#external#
-
-Returns the maximum amount of the underlying asset that can be withdrawn from the owner
-balance in the Vault, through a withdraw call.
-
-Requirements:
-
-- MUST return a limited value if owner is subject to some withdrawal limit or timelock.
-- MUST NOT panic.
-
-[.contract-item]
-[[IERC4626-preview_withdraw]]
-==== `[.contract-item-name]#++preview_withdraw++#++(assets: u256) → u256++` [.item-kind]#external#
-
-Allows an on-chain or off-chain user to simulate the effects of their withdrawal at the
-current block, given current on-chain conditions.
-
-Requirements:
-
-- MUST return as close to and no fewer than the exact amount of Vault shares that would be
-  burned in a withdraw call in the same transaction i.e. <<IERC4626-withdraw,IERC4626::withdraw>> should return the same or
-  fewer shares as `preview_withdraw` if called in the same transaction.
-- MUST NOT account for withdrawal limits like those returned from <<IERC4626-max_withdraw,IERC4626::max_withdraw>> and should
-  always act as though the withdrawal would be accepted, regardless if the user has enough
-  shares, etc.
-- MUST be inclusive of withdrawal fees. Integrators should be aware of the existence of
-  withdrawal fees.
-- MUST NOT panic.
-
-NOTE: Any unfavorable discrepancy between <<IERC4626-convert_to_shares,IERC4626::convert_to_shares>> and `preview_withdraw`
-SHOULD be considered slippage in share price or some other type of condition, meaning the
-depositor will lose assets by depositing.
-
-[.contract-item]
-[[IERC4626-withdraw]]
-==== `[.contract-item-name]#++withdraw++#++(assets: u256, receiver: ContractAddress, owner: ContractAddress) → u256++` [.item-kind]#external#
-
-Burns shares from owner and sends exactly assets of underlying tokens to receiver.
-
-Requirements:
-
-- MUST emit the <<IERC4626-Withdraw,IERC4626::Withdraw>> event.
-- MAY support an additional flow in which the underlying tokens are owned by the Vault
-  contract before the withdraw execution, and are accounted for during withdraw.
-- MUST revert if all of assets cannot be withdrawn (due to withdrawal limit being reached,
-  slippage, the owner not having enough shares, etc).
-
-NOTE: Some implementations will require pre-requesting to the Vault before a withdrawal
-may be performed.
-Those methods should be performed separately.
-
-[.contract-item]
-[[IERC4626-max_redeem]]
-==== `[.contract-item-name]#++max_redeem++#++(owner: ContractAddress) → u256++` [.item-kind]#external#
-
-Returns the maximum amount of Vault shares that can be redeemed from the owner balance in
-the Vault, through a redeem call.
-
-Requirements:
-
-- MUST return a limited value if owner is subject to some withdrawal limit or timelock.
-- MUST return `ERC20::balance_of(owner)` if `owner` is not subject to any withdrawal limit or
-  timelock.
-- MUST NOT panic.
-
-[.contract-item]
-[[IERC4626-preview_redeem]]
-==== `[.contract-item-name]#++preview_redeem++#++(shares: u256) → u256++` [.item-kind]#external#
-
-Allows an on-chain or off-chain user to simulate the effects of their redeemption at the
-current block, given current on-chain conditions.
-
-Requirements:
-
-- MUST return as close to and no more than the exact amount of assets that would be withdrawn
-  in a redeem call in the same transaction i.e. <<IERC4626-redeem,IERC4626::redeem>> should return the same or more assets
-  as preview_redeem if called in the same transaction.
-- MUST NOT account for redemption limits like those returned from <<IERC4626-max_redeem,IERC4626::max_redeem>> and should always
-  act as though the redemption would be accepted, regardless if the user has enough shares,
-  etc.
-- MUST be inclusive of withdrawal fees. Integrators should be aware of the existence of
-  withdrawal fees.
-- MUST NOT panic.
-
-NOTE: Any unfavorable discrepancy between <<IERC4626-convert_to_assets,IERC4626::convert_to_assets>> and `preview_redeem` SHOULD be
-considered slippage in share price or some other type of condition, meaning the depositor
-will lose assets by redeeming.
-
-[.contract-item]
-[[IERC4626-redeem]]
-==== `[.contract-item-name]#++redeem++#++(shares: u256, receiver: ContractAddress, owner: ContractAddress) → u256++` [.item-kind]#external#
-
-Burns exactly shares from owner and sends assets of underlying tokens to receiver.
-
-Requirements:
-
-- MUST emit the <<IERC4626-Withdraw,IERC4626::Withdraw>> event.
-- MAY support an additional flow in which the underlying tokens are owned by the Vault
-  contract before the redeem execution, and are accounted for during redeem.
-- MUST revert if all of shares cannot be redeemed (due to withdrawal limit being reached,
-  slippage, the owner not having enough shares, etc).
-
-NOTE: Some implementations will require pre-requesting to the Vault before a withdrawal may be performed.
-Those methods should be performed separately.
-
-[#IERC4626-Events]
-==== Events
-
-[.contract-item]
-[[IERC4626-Deposit]]
-==== `[.contract-item-name]#++Deposit++#++(sender: ContractAddress, owner: ContractAddress, assets: u256, shares: u256)++` [.item-kind]#event#
-
-Emitted when `sender` exchanges `assets` for `shares` and transfers those
-`shares` to `owner`.
-
-[.contract-item]
-[[IERC4626-Withdraw]]
-==== `[.contract-item-name]#++Withdraw++#++(sender: ContractAddress, receiver: ContractAddress, owner: ContractAddress, assets: u256, shares: u256)++` [.item-kind]#event#
-
-Emitted when `sender` exchanges `shares`, owned by `owner`, for `assets` and transfers
-those `assets` to `receiver`.
 
 [.contract]
 [[ERC4626Component]]

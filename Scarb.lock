@@ -75,7 +75,7 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_interfaces"
-version = "1.0.0"
+version = "3.0.0"
 dependencies = [
  "snforge_std",
 ]

@@ -1,4 +1,4 @@
-use openzeppelin_interfaces::erc721::IERC721ENUMERABLE_ID;
+use openzeppelin_interfaces::erc721::IERC721_ENUMERABLE_ID;
 use openzeppelin_interfaces::introspection::ISRC5_ID;
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin_test_common::mocks::erc721::ERC721EnumerableMock;
@@ -57,7 +57,7 @@ fn test_initializer() {
 
     state.initializer();
 
-    let supports_ierc721_enum = mock_state.supports_interface(IERC721ENUMERABLE_ID);
+    let supports_ierc721_enum = mock_state.supports_interface(IERC721_ENUMERABLE_ID);
     assert!(supports_ierc721_enum);
 
     let supports_isrc5 = mock_state.supports_interface(ISRC5_ID);

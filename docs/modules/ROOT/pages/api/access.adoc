@@ -25,7 +25,7 @@ documented here are contained in the `openzeppelin_interfaces` package version `
 
 [.contract]
 [[IAccessControl]]
-=== `++IAccessControl++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0/packages/access/src/accesscontrol/interface.cairo[{github-icon},role=heading-link]
+=== `++IAccessControl++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/interfaces/src/access/accesscontrol.cairo[{github-icon},role=heading-link]
 
 :grant_role: xref:#IAccessControl-grant_role[grant_role]
 :revoke_role: xref:#IAccessControl-revoke_role[revoke_role]
@@ -34,7 +34,7 @@ documented here are contained in the `openzeppelin_interfaces` package version `
 :RoleAdminChanged: xref:#IAccessControl-RoleAdminChanged[RoleAdminChanged]
 
 ```cairo
-use openzeppelin_access::accesscontrol::interface::IAccessControl;
+use openzeppelin_interfaces::accesscontrol::IAccessControl;
 ```
 
 External interface of AccessControl.
@@ -164,7 +164,7 @@ Emitted when `account` is revoked `role`.
 :RoleGrantedWithDelay: xref:#IAccessControlWithDelay-RoleGrantedWithDelay[RoleGrantedWithDelay]
 
 ```cairo
-use openzeppelin_access::accesscontrol::interface::IAccessControlWithDelay;
+use openzeppelin_interfaces::accesscontrol::IAccessControlWithDelay;
 ```
 
 External interface for the extended `AccessControlWithDelay` functionality.
@@ -231,7 +231,7 @@ or the deployer address if {_grant_role_with_delay} is called from the construct
 :grant_role: xref:#IAccessControl-grant_role[grant_role]
 
 ```cairo
-use openzeppelin_access::accesscontrol::extensions::interface::IAccessControlDefaultAdminRules;
+use openzeppelin_interfaces::accesscontrol_default_admin_rules::IAccessControlDefaultAdminRules;
 ```
 
 External interface of AccessControlDefaultAdminRules declared to support {src5} detection.

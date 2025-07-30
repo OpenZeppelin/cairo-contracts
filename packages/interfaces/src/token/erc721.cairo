@@ -9,7 +9,7 @@ pub const IERC721_METADATA_ID: felt252 =
     0xabbcd595a567dce909050a1038e055daccb3c42af06f0add544fa90ee91f25;
 pub const IERC721_RECEIVER_ID: felt252 =
     0x3a0dff5f70d80458ad14ae37bb182a728e3c8cdda0402a5daa86620bdf910bc;
-pub const IERC721ENUMERABLE_ID: felt252 =
+pub const IERC721_ENUMERABLE_ID: felt252 =
     0x16bc0f502eeaf65ce0b3acb5eea656e2f26979ce6750e8502a82f377e538c87;
 
 

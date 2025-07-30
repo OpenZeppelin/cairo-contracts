@@ -8,16 +8,19 @@
 
 This crate provides components to implement account contracts that can be used for interacting with the network.
 
-== Core
+== Interfaces
 
 include::../utils/_common.adoc[]
+
+NOTE: Starting from version `3.x.x`, the interfaces are no longer part of the `openzeppelin_account` package. The references
+documented here are contained in the `openzeppelin_interfaces` package version `v{current_openzeppelin_interfaces_version}`.
 
 [.contract]
 [[ISRC6]]
 === `++ISRC6++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/account/src/interface.cairo[{github-icon},role=heading-link]
 
 ```cairo
-use openzeppelin_account::interface::ISRC6;
+use openzeppelin_interfaces::accounts::ISRC6;
 ```
 
 Interface of the SRC6 Standard Account as defined in the {snip6}.
@@ -62,6 +65,58 @@ Returns the short string `'VALID'` if valid, otherwise it reverts.
 Validates whether a signature is valid or not for the given message hash.
 
 Returns the short string `'VALID'` if valid, otherwise it reverts.
+
+[.contract]
+[[ISRC9_V2]]
+=== `++ISRC9_V2++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/account/src/extensions/src9/interface.cairo[{github-icon},role=heading-link]
+
+```cairo
+use openzeppelin_interfaces::src9::ISRC9_V2;
+```
+
+Interface of the SRC9 Standard as defined in the {snip9}.
+
+[.contract-index]
+.{inner-src5}
+--
+0x1d1144bb2138366ff28d8e9ab57456b1d332ac42196230c3a602003c89872
+--
+
+[.contract-index]
+.Functions
+--
+* xref:#ISRC9_V2-execute_from_outside_v2[`++execute_from_outside_v2(outside_execution, signature)++`]
+* xref:#ISRC9_V2-is_valid_outside_execution_nonce[`++is_valid_outside_execution_nonce(nonce)++`]
+--
+
+[#ISRC9_V2-Functions]
+==== Functions
+
+[.contract-item]
+[[ISRC9_V2-execute_from_outside_v2]]
+==== `[.contract-item-name]#++execute_from_outside_v2++#++(outside_execution: OutsideExecution, signature: Span<felt252>,) → Array<Span<felt252>>++` [.item-kind]#external#
+
+Allows anyone to submit a transaction on behalf of the account as long as they have the relevant signatures.
+
+This method allows reentrancy. A call to `\\__execute__` or `execute_from_outside_v2` can trigger
+another nested transaction to `execute_from_outside_v2` thus the implementation MUST verify
+that the provided `signature` matches the hash of `outside_execution` and that `nonce` was
+not already used.
+
+The implementation should expect version to be set to 2 in the domain separator.
+
+Arguments:
+
+- `outside_execution` - The parameters of the transaction to execute.
+- `signature` - A valid signature on the {snip12} message encoding of `outside_execution`.
+
+[.contract-item]
+[[ISRC9_V2-is_valid_outside_execution_nonce]]
+==== `[.contract-item-name]#++is_valid_outside_execution_nonce++#++(nonce: felt252) → bool++` [.item-kind]#external#
+
+Get the status of a given nonce. `true` if the nonce is available to use.
+
+== Core
 
 [.contract]
 [[AccountComponent]]
@@ -567,56 +622,6 @@ Emitted when a `public_key` is added.
 Emitted when a `public_key` is removed.
 
 == Extensions
-
-[.contract]
-[[ISRC9_V2]]
-=== `++ISRC9_V2++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/account/src/extensions/src9/interface.cairo[{github-icon},role=heading-link]
-
-```cairo
-use openzeppelin_account::extensions::src9::ISRC9_V2;
-```
-
-Interface of the SRC9 Standard as defined in the {snip9}.
-
-[.contract-index]
-.{inner-src5}
---
-0x1d1144bb2138366ff28d8e9ab57456b1d332ac42196230c3a602003c89872
---
-
-[.contract-index]
-.Functions
---
-* xref:#ISRC9_V2-execute_from_outside_v2[`++execute_from_outside_v2(outside_execution, signature)++`]
-* xref:#ISRC9_V2-is_valid_outside_execution_nonce[`++is_valid_outside_execution_nonce(nonce)++`]
---
-
-[#ISRC9_V2-Functions]
-==== Functions
-
-[.contract-item]
-[[ISRC9_V2-execute_from_outside_v2]]
-==== `[.contract-item-name]#++execute_from_outside_v2++#++(outside_execution: OutsideExecution, signature: Span<felt252>,) → Array<Span<felt252>>++` [.item-kind]#external#
-
-Allows anyone to submit a transaction on behalf of the account as long as they have the relevant signatures.
-
-This method allows reentrancy. A call to `\\__execute__` or `execute_from_outside_v2` can trigger
-another nested transaction to `execute_from_outside_v2` thus the implementation MUST verify
-that the provided `signature` matches the hash of `outside_execution` and that `nonce` was
-not already used.
-
-The implementation should expect version to be set to 2 in the domain separator.
-
-Arguments:
-
-- `outside_execution` - The parameters of the transaction to execute.
-- `signature` - A valid signature on the {snip12} message encoding of `outside_execution`.
-
-[.contract-item]
-[[ISRC9_V2-is_valid_outside_execution_nonce]]
-==== `[.contract-item-name]#++is_valid_outside_execution_nonce++#++(nonce: felt252) → bool++` [.item-kind]#external#
-
-Get the status of a given nonce. `true` if the nonce is available to use.
 
 [.contract]
 [[SRC9Component]]

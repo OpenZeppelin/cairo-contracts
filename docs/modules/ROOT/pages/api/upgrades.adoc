@@ -5,7 +5,12 @@
 
 This crate provides interfaces and utilities related to upgradeability.
 
-== Core
+== Interfaces
+
+include::../utils/_common.adoc[]
+
+NOTE: Starting from version `3.x.x`, the interfaces are no longer part of the `openzeppelin_upgrades` package. The references
+documented here are contained in the `openzeppelin_interfaces` package version `v{current_openzeppelin_interfaces_version}`.
 
 [.contract]
 [[IUpgradeable]]
@@ -43,7 +48,7 @@ NOTE: This function is usually protected by an xref:access.adoc[Access Control] 
 :Upgraded: xref:UpgradeableComponent-Upgraded[Upgraded]
 
 ```cairo
-use openzeppelin::upgrades::interface::IUpgradeAndCall;
+use openzeppelin_interfaces::upgrades::IUpgradeAndCall;
 ```
 
 Interface for an upgradeable contract that couples an upgrade with a function call in the upgraded context.
@@ -64,6 +69,8 @@ Interface for an upgradeable contract that couples an upgrade with a function ca
 Upgrades the contract code by updating its {class_hash} and calls `selector` with the upgraded context.
 
 NOTE: This function is usually protected by an xref:access.adoc[Access Control] mechanism.
+
+== Core
 
 [.contract]
 [[UpgradeableComponent]]

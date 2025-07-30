@@ -99,7 +99,7 @@ pub mod ERC721EnumerableComponent {
         /// interface id.
         fn initializer(ref self: ComponentState<TContractState>) {
             let mut src5_component = get_dep_component_mut!(ref self, SRC5);
-            src5_component.register_interface(interface::IERC721ENUMERABLE_ID);
+            src5_component.register_interface(interface::IERC721_ENUMERABLE_ID);
         }
 
         /// Updates the ownership and token-tracking data structures.

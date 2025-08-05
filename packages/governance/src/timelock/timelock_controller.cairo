@@ -22,6 +22,7 @@ pub mod TimelockControllerComponent {
         AccessControlCamelImpl, AccessControlImpl, InternalTrait as AccessControlInternalTrait,
     };
     use openzeppelin_access::accesscontrol::{AccessControlComponent, DEFAULT_ADMIN_ROLE};
+    use openzeppelin_interfaces::timelock::{ITimelock, OperationState, TimelockABI};
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
     use starknet::account::Call;
@@ -30,7 +31,6 @@ pub mod TimelockControllerComponent {
         StoragePointerWriteAccess,
     };
     use starknet::{ContractAddress, SyscallResultTrait};
-    use crate::timelock::interface::{ITimelock, OperationState, TimelockABI};
     use crate::utils::call_impls::{CallPartialEq, HashCallImpl, HashCallsImpl};
 
     // Constants

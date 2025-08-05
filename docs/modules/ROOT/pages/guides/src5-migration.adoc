@@ -84,7 +84,7 @@ The contract should implement an `InternalImpl` and add a function to register t
 ----
 #[starknet::contract]
 mod MigratingContract {
-    use openzeppelin_token::erc721::interface::{IERC721_ID, IERC721_METADATA_ID};
+    use openzeppelin_interfaces::erc721::{IERC721_ID, IERC721_METADATA_ID};
 
     (...)
 

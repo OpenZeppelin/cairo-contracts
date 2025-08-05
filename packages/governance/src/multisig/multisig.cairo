@@ -19,6 +19,7 @@ pub mod MultisigComponent {
     use core::num::traits::Zero;
     use core::panic_with_const_felt252;
     use core::pedersen::PedersenTrait;
+    use openzeppelin_interfaces::multisig::{IMultisig, TransactionID, TransactionState};
     use starknet::account::Call;
     use starknet::storage::{
         Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
@@ -26,7 +27,6 @@ pub mod MultisigComponent {
     };
     use starknet::syscalls::call_contract_syscall;
     use starknet::{ContractAddress, SyscallResultTrait};
-    use crate::multisig::interface::{IMultisig, TransactionID, TransactionState};
     use crate::multisig::storage_utils::{
         SignersInfo, SignersInfoStorePackingV2, TxInfo, TxInfoStorePacking,
     };

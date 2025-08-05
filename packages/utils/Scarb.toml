@@ -25,6 +25,7 @@ scarb.workspace = true
 
 [dependencies]
 starknet.workspace = true
+openzeppelin_interfaces = { path = "../interfaces" }
 
 [dev-dependencies]
 assert_macros.workspace = true

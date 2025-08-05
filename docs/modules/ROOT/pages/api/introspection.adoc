@@ -15,7 +15,7 @@ documented here are contained in the `openzeppelin_interfaces` package version `
 
 [.contract]
 [[ISRC5]]
-=== `++ISRC5++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/introspection/src/interface.cairo#L7[{github-icon},role=heading-link]
+=== `++ISRC5++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/interfaces/src/introspection.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin_interfaces::introspection::ISRC5;

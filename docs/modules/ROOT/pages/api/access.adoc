@@ -158,7 +158,7 @@ Emitted when `account` is revoked `role`.
 
 [.contract]
 [[IAccessControlWithDelay]]
-=== `++IAccessControlWithDelay++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0/packages/access/src/accesscontrol/interface.cairo[{github-icon},role=heading-link]
+=== `++IAccessControlWithDelay++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/interfaces/src/access/accesscontrol.cairo[{github-icon},role=heading-link]
 
 :grant_role_with_delay: xref:#IAccessControlWithDelay-grant_role_with_delay[grant_role_with_delay]
 :RoleGrantedWithDelay: xref:#IAccessControlWithDelay-RoleGrantedWithDelay[RoleGrantedWithDelay]
@@ -226,7 +226,7 @@ or the deployer address if {_grant_role_with_delay} is called from the construct
 
 [.contract]
 [[IAccessControlDefaultAdminRules]]
-=== `++IAccessControlDefaultAdminRules++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0/packages/access/src/accesscontrol/extensions/interface.cairo[{github-icon},role=heading-link]
+=== `++IAccessControlDefaultAdminRules++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/interfaces/src/access/accesscontrol_default_admin_rules.cairo[{github-icon},role=heading-link]
 
 :grant_role: xref:#IAccessControl-grant_role[grant_role]
 

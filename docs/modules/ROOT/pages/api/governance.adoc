@@ -27,7 +27,7 @@ documented here are contained in the `openzeppelin_interfaces` package version `
 
 [.contract]
 [[IGovernor]]
-=== `++IGovernor++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/governance/src/governor/interface.cairo[{github-icon},role=heading-link]
+=== `++IGovernor++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/interfaces/src/governance/governor.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -378,7 +378,7 @@ Emitted when a vote is cast with params.
 
 [.contract]
 [[IMultisig]]
-=== `++IMultisig++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/governance/src/multisig/interface.cairo[{github-icon},role=heading-link]
+=== `++IMultisig++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/interfaces/src/governance/multisig.cairo[{github-icon},role=heading-link]
 
 :IMultisig-CallSalt: xref:IMultisig-CallSalt[CallSalt]
 :IMultisig-SignerAdded: xref:IMultisig-SignerAdded[SignerAdded]
@@ -700,7 +700,7 @@ Emitted when a new transaction is submitted with non-zero salt.
 
 [.contract]
 [[ITimelock]]
-=== `++ITimelock++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/governance/src/timelock/interface.cairo[{github-icon},role=heading-link]
+=== `++ITimelock++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/interfaces/src/governance/timelock.cairo[{github-icon},role=heading-link]
 
 :ITimelock-CallScheduled: xref:ITimelock-CallScheduled[CallScheduled]
 :ITimelock-CallExecuted: xref:ITimelock-CallExecuted[CallExecuted]
@@ -939,7 +939,7 @@ Emitted when the minimum delay for future operations is modified.
 
 [.contract]
 [[IVotes]]
-=== `++IVotes++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/governance/src/votes/interface.cairo[{github-icon},role=heading-link]
+=== `++IVotes++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/interfaces/src/governance/votes.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo

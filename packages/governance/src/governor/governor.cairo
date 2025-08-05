@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v2.0.0 (governance/src/governor/governor.cairo)
+// OpenZeppelin Contracts for Cairo v3.0.0-alpha.0 (governance/src/governor/governor.cairo)
 
 /// # Governor Component
 ///
@@ -965,11 +965,8 @@ pub mod GovernorComponent {
             description_hash: felt252,
         ) {
             let valid_states = array![
-                ProposalState::Pending,
-                ProposalState::Active,
-                ProposalState::Defeated,
-                ProposalState::Succeeded,
-                ProposalState::Queued,
+                ProposalState::Pending, ProposalState::Active, ProposalState::Defeated,
+                ProposalState::Succeeded, ProposalState::Queued,
             ];
             self.validate_state(proposal_id, valid_states.span());
 

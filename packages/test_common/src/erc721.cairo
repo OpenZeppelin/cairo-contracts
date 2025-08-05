@@ -1,6 +1,4 @@
-use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy};
-use openzeppelin_utils::serde::SerializedAppend;
-use snforge_std::Event;
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, ExpectedEvent};
 use starknet::ContractAddress;
 
 #[generate_trait]
@@ -12,15 +10,11 @@ pub impl ERC721SpyHelpersImpl of ERC721SpyHelpers {
         operator: ContractAddress,
         approved: bool,
     ) {
-        let mut keys = array![];
-        keys.append_serde(selector!("ApprovalForAll"));
-        keys.append_serde(owner);
-        keys.append_serde(operator);
-
-        let mut data = array![];
-        data.append_serde(approved);
-
-        let expected = Event { keys, data };
+        let expected = ExpectedEvent::new()
+            .key(selector!("ApprovalForAll"))
+            .key(owner)
+            .key(operator)
+            .data(approved);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -42,13 +36,11 @@ pub impl ERC721SpyHelpersImpl of ERC721SpyHelpers {
         approved: ContractAddress,
         token_id: u256,
     ) {
-        let mut keys = array![];
-        keys.append_serde(selector!("Approval"));
-        keys.append_serde(owner);
-        keys.append_serde(approved);
-        keys.append_serde(token_id);
-
-        let expected = Event { keys, data: array![] };
+        let expected = ExpectedEvent::new()
+            .key(selector!("Approval"))
+            .key(owner)
+            .key(approved)
+            .key(token_id);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -70,13 +62,11 @@ pub impl ERC721SpyHelpersImpl of ERC721SpyHelpers {
         to: ContractAddress,
         token_id: u256,
     ) {
-        let mut keys = array![];
-        keys.append_serde(selector!("Transfer"));
-        keys.append_serde(from);
-        keys.append_serde(to);
-        keys.append_serde(token_id);
-
-        let expected = Event { keys, data: array![] };
+        let expected = ExpectedEvent::new()
+            .key(selector!("Transfer"))
+            .key(from)
+            .key(to)
+            .key(token_id);
         self.assert_emitted_single(contract, expected);
     }
 

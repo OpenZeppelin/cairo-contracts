@@ -1,8 +1,4 @@
-use openzeppelin_access::ownable::OwnableComponent;
-use openzeppelin_access::ownable::OwnableComponent::OwnershipTransferred;
-use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy};
-use openzeppelin_utils::serde::SerializedAppend;
-use snforge_std::Event;
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, ExpectedEvent};
 use starknet::ContractAddress;
 
 #[generate_trait]
@@ -23,12 +19,10 @@ pub impl OwnableSpyHelpersImpl of OwnableSpyHelpers {
         previous_owner: ContractAddress,
         new_owner: ContractAddress,
     ) {
-        let mut keys = array![];
-        keys.append_serde(selector!("OwnershipTransferred"));
-        keys.append_serde(previous_owner);
-        keys.append_serde(new_owner);
-
-        let expected = Event { keys, data: array![] };
+        let expected = ExpectedEvent::new()
+            .key(selector!("OwnershipTransferred"))
+            .key(previous_owner)
+            .key(new_owner);
         self.assert_emitted_single(contract, expected);
     }
 }

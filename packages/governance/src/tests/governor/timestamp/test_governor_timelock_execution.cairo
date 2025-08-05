@@ -8,11 +8,11 @@ use openzeppelin_test_common::mocks::timelock::{
 };
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{OTHER, TIMELOCK, VOTES_TOKEN};
-use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, ExpectedEvent, spy_events};
 use openzeppelin_utils::bytearray::ByteArrayExtTrait;
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{
-    Event, start_cheat_block_timestamp_global, start_cheat_caller_address, start_mock_call, store,
+    start_cheat_block_timestamp_global, start_cheat_caller_address, start_mock_call, store,
 };
 use starknet::ContractAddress;
 use starknet::account::Call;
@@ -828,14 +828,10 @@ pub(crate) impl GovernorTimelockExecutionSpyHelpersImpl of GovernorTimelockExecu
         old_timelock: ContractAddress,
         new_timelock: ContractAddress,
     ) {
-        let mut keys = array![];
-        keys.append_serde(selector!("TimelockUpdated"));
-
-        let mut data = array![];
-        data.append_serde(old_timelock);
-        data.append_serde(new_timelock);
-
-        let expected = Event { keys, data };
+        let expected = ExpectedEvent::new()
+            .key(selector!("TimelockUpdated"))
+            .data(old_timelock)
+            .data(new_timelock);
         self.assert_emitted_single(contract, expected);
     }
 

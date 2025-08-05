@@ -3,11 +3,8 @@ use openzeppelin_test_common::mocks::access::DualCaseAccessControlMock;
 use openzeppelin_testing::constants::{
     ADMIN, AUTHORIZED, OTHER, OTHER_ADMIN, OTHER_ROLE, ROLE, TIMESTAMP, ZERO,
 };
-use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
-use openzeppelin_utils::serde::SerializedAppend;
-use snforge_std::{
-    Event, start_cheat_block_timestamp_global, start_cheat_caller_address, test_address,
-};
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, ExpectedEvent, spy_events};
+use snforge_std::{start_cheat_block_timestamp_global, start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
 use crate::accesscontrol::AccessControlComponent::InternalImpl;
 use crate::accesscontrol::interface::{
@@ -701,15 +698,12 @@ pub impl AccessControlSpyHelpersImpl of AccessControlSpyHelpers {
         account: ContractAddress,
         sender: ContractAddress,
     ) {
-        let mut keys = array![];
-        keys.append_serde(selector!("RoleRevoked"));
+        let expected = ExpectedEvent::new()
+            .key(selector!("RoleRevoked"))
+            .data(role)
+            .data(account)
+            .data(sender);
 
-        let mut data = array![];
-        data.append_serde(role);
-        data.append_serde(account);
-        data.append_serde(sender);
-
-        let expected = Event { keys, data };
         self.assert_emitted_single(contract, expected);
     }
 
@@ -720,15 +714,12 @@ pub impl AccessControlSpyHelpersImpl of AccessControlSpyHelpers {
         account: ContractAddress,
         sender: ContractAddress,
     ) {
-        let mut keys = array![];
-        keys.append_serde(selector!("RoleRevoked"));
+        let expected = ExpectedEvent::new()
+            .key(selector!("RoleRevoked"))
+            .data(role)
+            .data(account)
+            .data(sender);
 
-        let mut data = array![];
-        data.append_serde(role);
-        data.append_serde(account);
-        data.append_serde(sender);
-
-        let expected = Event { keys, data };
         self.assert_only_event(contract, expected);
     }
 
@@ -739,15 +730,12 @@ pub impl AccessControlSpyHelpersImpl of AccessControlSpyHelpers {
         account: ContractAddress,
         sender: ContractAddress,
     ) {
-        let mut keys = array![];
-        keys.append_serde(selector!("RoleGranted"));
+        let expected = ExpectedEvent::new()
+            .key(selector!("RoleGranted"))
+            .data(role)
+            .data(account)
+            .data(sender);
 
-        let mut data = array![];
-        data.append_serde(role);
-        data.append_serde(account);
-        data.append_serde(sender);
-
-        let expected = Event { keys, data };
         self.assert_only_event(contract, expected);
     }
 
@@ -759,16 +747,13 @@ pub impl AccessControlSpyHelpersImpl of AccessControlSpyHelpers {
         sender: ContractAddress,
         delay: u64,
     ) {
-        let mut keys = array![];
-        keys.append_serde(selector!("RoleGrantedWithDelay"));
+        let expected = ExpectedEvent::new()
+            .key(selector!("RoleGrantedWithDelay"))
+            .data(role)
+            .data(account)
+            .data(sender)
+            .data(delay);
 
-        let mut data = array![];
-        data.append_serde(role);
-        data.append_serde(account);
-        data.append_serde(sender);
-        data.append_serde(delay);
-
-        let expected = Event { keys, data };
         self.assert_only_event(contract, expected);
     }
 
@@ -779,15 +764,12 @@ pub impl AccessControlSpyHelpersImpl of AccessControlSpyHelpers {
         previous_admin_role: felt252,
         new_admin_role: felt252,
     ) {
-        let mut keys = array![];
-        keys.append_serde(selector!("RoleAdminChanged"));
+        let expected = ExpectedEvent::new()
+            .key(selector!("RoleAdminChanged"))
+            .data(role)
+            .data(previous_admin_role)
+            .data(new_admin_role);
 
-        let mut data = array![];
-        data.append_serde(role);
-        data.append_serde(previous_admin_role);
-        data.append_serde(new_admin_role);
-
-        let expected = Event { keys, data };
         self.assert_only_event(from_address, expected);
     }
 }

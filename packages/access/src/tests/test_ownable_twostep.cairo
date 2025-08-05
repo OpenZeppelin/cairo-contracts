@@ -8,7 +8,7 @@ use snforge_std::{Event, start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
 use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 use crate::ownable::OwnableComponent;
-use crate::ownable::OwnableComponent::{InternalTrait, OwnershipTransferStarted};
+use crate::ownable::OwnableComponent::InternalTrait;
 use crate::ownable::interface::{IOwnableTwoStep, IOwnableTwoStepCamelOnly};
 
 //

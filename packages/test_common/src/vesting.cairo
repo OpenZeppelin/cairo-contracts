@@ -1,6 +1,4 @@
-use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy};
-use openzeppelin_utils::serde::SerializedAppend;
-use snforge_std::Event;
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, ExpectedEvent};
 use starknet::ContractAddress;
 
 #[generate_trait]
@@ -8,14 +6,10 @@ pub impl VestingSpyHelpersImpl of VestingSpyHelpersTrait {
     fn assert_only_event_amount_released(
         ref self: EventSpy, contract: ContractAddress, token: ContractAddress, amount: u256,
     ) {
-        let mut keys = array![];
-        keys.append_serde(selector!("AmountReleased"));
-        keys.append_serde(token);
-
-        let mut data = array![];
-        data.append_serde(amount);
-
-        let expected = Event { keys, data };
+        let expected = ExpectedEvent::new()
+            .key(selector!("AmountReleased"))
+            .key(token)
+            .data(amount);
         self.assert_only_event(contract, expected);
     }
 }

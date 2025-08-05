@@ -1,13 +1,13 @@
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{CALLER, NAME, RECIPIENT, SALT, SUPPLY, SYMBOL};
-use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, ExpectedEvent, spy_events};
 use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use openzeppelin_utils::deployments::{DeployerInfo, calculate_contract_address_from_udc};
 use openzeppelin_utils::interfaces::{
     UniversalDeployerABIDispatcher, UniversalDeployerABIDispatcherTrait,
 };
 use openzeppelin_utils::serde::SerializedAppend;
-use snforge_std::{Event, start_cheat_caller_address};
+use snforge_std::start_cheat_caller_address;
 use starknet::{ClassHash, ContractAddress};
 
 fn ERC20_CLASS_HASH() -> ClassHash {
@@ -155,18 +155,15 @@ impl UniversalDeployerHelpersImpl of UniversalDeployerSpyHelpers {
         calldata: Span<felt252>,
         salt: felt252,
     ) {
-        let mut keys = array![];
-        keys.append_serde(selector!("ContractDeployed"));
+        let expected = ExpectedEvent::new()
+            .key(selector!("ContractDeployed"))
+            .data(address)
+            .data(deployer)
+            .data(not_from_zero)
+            .data(class_hash)
+            .data(calldata)
+            .data(salt);
 
-        let mut data = array![];
-        data.append_serde(address);
-        data.append_serde(deployer);
-        data.append_serde(not_from_zero);
-        data.append_serde(class_hash);
-        data.append_serde(calldata);
-        data.append_serde(salt);
-
-        let expected = Event { keys, data };
         self.assert_only_event(contract, expected);
     }
 }

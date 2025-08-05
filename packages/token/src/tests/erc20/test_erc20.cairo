@@ -2,9 +2,8 @@ use core::num::traits::Bounded;
 use openzeppelin_test_common::erc20::ERC20SpyHelpers;
 use openzeppelin_test_common::mocks::erc20::{DualCaseERC20Mock, SnakeERC20MockWithHooks};
 use openzeppelin_testing::constants::{NAME, OWNER, RECIPIENT, SPENDER, SUPPLY, SYMBOL, VALUE, ZERO};
-use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
-use openzeppelin_utils::serde::SerializedAppend;
-use snforge_std::{Event, start_cheat_caller_address, test_address};
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, ExpectedEvent, spy_events};
+use snforge_std::{start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
 use crate::erc20::ERC20Component;
 use crate::erc20::ERC20Component::{ERC20CamelOnlyImpl, ERC20Impl, ERC20MetadataImpl, InternalImpl};
@@ -669,15 +668,11 @@ impl ERC20HooksSpyHelpersImpl of ERC20HooksSpyHelpers {
         recipient: ContractAddress,
         amount: u256,
     ) {
-        let mut keys = array![];
-        keys.append_serde(selector!("BeforeUpdate"));
-
-        let mut data = array![];
-        data.append_serde(from);
-        data.append_serde(recipient);
-        data.append_serde(amount);
-
-        let expected = Event { keys, data };
+        let expected = ExpectedEvent::new()
+            .key(selector!("BeforeUpdate"))
+            .data(from)
+            .data(recipient)
+            .data(amount);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -688,15 +683,11 @@ impl ERC20HooksSpyHelpersImpl of ERC20HooksSpyHelpers {
         recipient: ContractAddress,
         amount: u256,
     ) {
-        let mut keys = array![];
-        keys.append_serde(selector!("AfterUpdate"));
-
-        let mut data = array![];
-        data.append_serde(from);
-        data.append_serde(recipient);
-        data.append_serde(amount);
-
-        let expected = Event { keys, data };
+        let expected = ExpectedEvent::new()
+            .key(selector!("AfterUpdate"))
+            .data(from)
+            .data(recipient)
+            .data(amount);
         self.assert_emitted_single(contract, expected);
     }
 }

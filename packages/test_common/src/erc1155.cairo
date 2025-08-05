@@ -1,8 +1,6 @@
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{PUBKEY, TOKEN_ID, TOKEN_ID_2, TOKEN_VALUE, TOKEN_VALUE_2};
-use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy};
-use openzeppelin_utils::serde::SerializedAppend;
-use snforge_std::Event;
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, ExpectedEvent};
 use starknet::ContractAddress;
 
 pub fn setup_receiver() -> ContractAddress {
@@ -44,15 +42,11 @@ pub impl ERC1155SpyHelpersImpl of ERC1155SpyHelpers {
         operator: ContractAddress,
         approved: bool,
     ) {
-        let mut keys = array![];
-        keys.append_serde(selector!("ApprovalForAll"));
-        keys.append_serde(owner);
-        keys.append_serde(operator);
-
-        let mut data = array![];
-        data.append_serde(approved);
-
-        let expected = Event { keys, data };
+        let expected = ExpectedEvent::new()
+            .key(selector!("ApprovalForAll"))
+            .key(owner)
+            .key(operator)
+            .data(approved);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -76,17 +70,13 @@ pub impl ERC1155SpyHelpersImpl of ERC1155SpyHelpers {
         token_id: u256,
         value: u256,
     ) {
-        let mut keys = array![];
-        keys.append_serde(selector!("TransferSingle"));
-        keys.append_serde(operator);
-        keys.append_serde(from);
-        keys.append_serde(to);
-
-        let mut data = array![];
-        data.append_serde(token_id);
-        data.append_serde(value);
-
-        let expected = Event { keys, data };
+        let expected = ExpectedEvent::new()
+            .key(selector!("TransferSingle"))
+            .key(operator)
+            .key(from)
+            .key(to)
+            .data(token_id)
+            .data(value);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -112,17 +102,13 @@ pub impl ERC1155SpyHelpersImpl of ERC1155SpyHelpers {
         token_ids: Span<u256>,
         values: Span<u256>,
     ) {
-        let mut keys = array![];
-        keys.append_serde(selector!("TransferBatch"));
-        keys.append_serde(operator);
-        keys.append_serde(from);
-        keys.append_serde(to);
-
-        let mut data = array![];
-        data.append_serde(token_ids);
-        data.append_serde(values);
-
-        let expected = Event { keys, data };
+        let expected = ExpectedEvent::new()
+            .key(selector!("TransferBatch"))
+            .key(operator)
+            .key(from)
+            .key(to)
+            .data(token_ids)
+            .data(values);
         self.assert_emitted_single(contract, expected);
     }
 

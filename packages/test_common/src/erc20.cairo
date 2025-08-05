@@ -1,9 +1,8 @@
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{NAME, SYMBOL};
-use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy};
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, ExpectedEvent};
 use openzeppelin_token::erc20::interface::IERC20Dispatcher;
 use openzeppelin_utils::serde::SerializedAppend;
-use snforge_std::Event;
 use starknet::ContractAddress;
 
 pub fn deploy_erc20(recipient: ContractAddress, initial_supply: u256) -> IERC20Dispatcher {
@@ -26,15 +25,12 @@ pub impl ERC20SpyHelpersImpl of ERC20SpyHelpers {
         spender: ContractAddress,
         value: u256,
     ) {
-        let mut keys = array![];
-        keys.append_serde(selector!("Approval"));
-        keys.append_serde(owner);
-        keys.append_serde(spender);
+        let expected = ExpectedEvent::new()
+            .key(selector!("Approval"))
+            .key(owner)
+            .key(spender)
+            .data(value);
 
-        let mut data = array![];
-        data.append_serde(value);
-
-        let expected = Event { keys, data };
         self.assert_emitted_single(contract, expected);
     }
 
@@ -56,15 +52,12 @@ pub impl ERC20SpyHelpersImpl of ERC20SpyHelpers {
         to: ContractAddress,
         value: u256,
     ) {
-        let mut keys = array![];
-        keys.append_serde(selector!("Transfer"));
-        keys.append_serde(from);
-        keys.append_serde(to);
+        let expected = ExpectedEvent::new()
+            .key(selector!("Transfer"))
+            .key(from)
+            .key(to)
+            .data(value);
 
-        let mut data = array![];
-        data.append_serde(value);
-
-        let expected = Event { keys, data };
         self.assert_emitted_single(contract, expected);
     }
 

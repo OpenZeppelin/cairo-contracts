@@ -62,7 +62,7 @@ pub mod ERC2981Component {
     }
 
     /// Constants expected to be defined at the contract level used to configure the component
-    /// behaviour.
+    /// behavior.
     ///
     /// - `FEE_DENOMINATOR`: The denominator with which to interpret the fee set in
     ///   `_set_token_royalty` and `_set_default_royalty` as a fraction of the sale price.

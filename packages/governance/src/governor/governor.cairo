@@ -124,7 +124,7 @@ pub mod GovernorComponent {
     }
 
     /// Constants expected to be defined at the contract level used to configure the component
-    /// behaviour.
+    /// behavior.
     ///
     /// - `DEFAULT_PARAMS`: Default additional encoded parameters used by cast_vote
     /// methods that don't include them.

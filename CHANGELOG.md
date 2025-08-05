@@ -7,6 +7,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Added
+
+- `AssetsManagementTrait` defining how assets are managed in `ERC4626Component` (#1454)
+
+### Changed (Breaking)
+
+- `ERC4626Component` now supports alternative asset management strategies (e.g., external vault) via the added `AssetsManagementTrait` (#1454)
+
 ## 3.0.0-alpha.0 (2025-07-18)
 
 ### Added

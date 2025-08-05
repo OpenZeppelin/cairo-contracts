@@ -94,22 +94,20 @@ pub mod ERC4626ExternalVaultMock {
             ref self: ERC4626Component::ComponentState<ContractState>,
             from: ContractAddress,
             assets: u256,
-            error: felt252,
         ) {
             let asset_storage = self.get_contract().external_storage.read();
             let asset_dispatcher = IERC20Dispatcher { contract_address: self.ERC4626_asset.read() };
-            assert(asset_dispatcher.transfer_from(from, asset_storage, assets), error);
+            assert(asset_dispatcher.transfer_from(from, asset_storage, assets), ERC4626Component::Errors::TOKEN_TRANSFER_FAILED);
         }
 
         fn transfer_assets_out(
             ref self: ERC4626Component::ComponentState<ContractState>,
             to: ContractAddress,
             assets: u256,
-            error: felt252,
         ) {
             let asset_storage = self.get_contract().external_storage.read();
             let asset_dispatcher = IERC20Dispatcher { contract_address: self.ERC4626_asset.read() };
-            assert(asset_dispatcher.transfer_from(asset_storage, to, assets), error);
+            assert(asset_dispatcher.transfer_from(asset_storage, to, assets), ERC4626Component::Errors::TOKEN_TRANSFER_FAILED);
         }
 
         fn get_total_assets(self: @ERC4626Component::ComponentState<ContractState>) -> u256 {

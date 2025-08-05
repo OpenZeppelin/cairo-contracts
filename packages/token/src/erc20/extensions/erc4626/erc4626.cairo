@@ -246,13 +246,11 @@ pub mod ERC4626Component {
             ref self: ComponentState<TContractState>,
             from: ContractAddress,
             assets: u256,
-            error: felt252,
         );
         fn transfer_assets_out(
             ref self: ComponentState<TContractState>,
             to: ContractAddress,
             assets: u256,
-            error: felt252,
         );
         fn get_total_assets(self: @ComponentState<TContractState>) -> u256;
     }
@@ -643,7 +641,7 @@ pub mod ERC4626Component {
             erc20_component.burn(owner, shares);
 
             // Transfer assets after burn
-            Assets::transfer_assets_out(ref self, receiver, assets, Errors::TOKEN_TRANSFER_FAILED);
+            Assets::transfer_assets_out(ref self, receiver, assets);
 
             self.emit(Withdraw { sender: caller, receiver, owner, assets, shares });
 
@@ -711,22 +709,20 @@ pub impl ERC4626SelfAssetsManagement<
     fn transfer_assets_in(
         ref self: ERC4626Component::ComponentState<TContractState>,
         from: ContractAddress,
-        assets: u256,
-        error: felt252,
+        assets: u256
     ) {
         let this = starknet::get_contract_address();
         let asset_dispatcher = IERC20Dispatcher { contract_address: self.ERC4626_asset.read() };
-        assert(asset_dispatcher.transfer_from(from, this, assets), error);
+        assert(asset_dispatcher.transfer_from(from, this, assets), ERC4626Component::Errors::TOKEN_TRANSFER_FAILED);
     }
 
     fn transfer_assets_out(
         ref self: ERC4626Component::ComponentState<TContractState>,
         to: ContractAddress,
         assets: u256,
-        error: felt252,
     ) {
         let asset_dispatcher = IERC20Dispatcher { contract_address: self.ERC4626_asset.read() };
-        assert(asset_dispatcher.transfer(to, assets), error);
+        assert(asset_dispatcher.transfer(to, assets), ERC4626Component::Errors::TOKEN_TRANSFER_FAILED);
     }
 
     fn get_total_assets(self: @ERC4626Component::ComponentState<TContractState>) -> u256 {

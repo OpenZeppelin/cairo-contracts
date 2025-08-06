@@ -37,4 +37,4 @@ openzeppelin_utils = { path = "../utils" }
 [[target.starknet-contract]]
 allowed-libfuncs-list.name = "experimental"
 sierra = true
-casm = false
+casm = true # Required for benchmarking

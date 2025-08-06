@@ -10,13 +10,10 @@ use openzeppelin_test_common::mocks::access::DualCaseAccessControlDefaultAdminRu
 use openzeppelin_testing::constants::{
     ADMIN, AUTHORIZED, OTHER, OTHER_ADMIN, OTHER_ROLE, ROLE, TIMESTAMP, ZERO,
 };
-use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, ExpectedEvent, spy_events};
 use snforge_std::{start_cheat_block_timestamp_global, start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
-use crate::accesscontrol::extensions::AccessControlDefaultAdminRulesComponent::{
-    DefaultAdminDelayChangeCanceled, DefaultAdminDelayChangeScheduled, DefaultAdminTransferCanceled,
-    DefaultAdminTransferScheduled, InternalTrait,
-};
+use crate::accesscontrol::extensions::AccessControlDefaultAdminRulesComponent::InternalTrait;
 use crate::accesscontrol::extensions::{
     AccessControlDefaultAdminRulesComponent, DEFAULT_ADMIN_ROLE, DefaultConfig,
 };
@@ -1169,39 +1166,38 @@ impl AccessControlDefaultAdminRulesSpyHelpersImpl of AccessControlDefaultAdminRu
         new_admin: ContractAddress,
         accept_schedule: u64,
     ) {
-        let expected =
-            AccessControlDefaultAdminRulesComponent::Event::DefaultAdminTransferScheduled(
-            DefaultAdminTransferScheduled { new_admin, accept_schedule },
-        );
+        let expected = ExpectedEvent::new()
+            .key(selector!("DefaultAdminTransferScheduled"))
+            .key(new_admin)
+            .data(accept_schedule);
+
         self.assert_only_event(contract, expected);
     }
 
     fn assert_only_event_default_admin_transfer_canceled(
         ref self: EventSpy, contract: ContractAddress,
     ) {
-        let expected = AccessControlDefaultAdminRulesComponent::Event::DefaultAdminTransferCanceled(
-            DefaultAdminTransferCanceled {},
-        );
+        let expected = ExpectedEvent::new().key(selector!("DefaultAdminTransferCanceled"));
+
         self.assert_only_event(contract, expected);
     }
 
     fn assert_only_event_default_admin_delay_change_scheduled(
         ref self: EventSpy, contract: ContractAddress, new_delay: u64, effect_schedule: u64,
     ) {
-        let expected =
-            AccessControlDefaultAdminRulesComponent::Event::DefaultAdminDelayChangeScheduled(
-            DefaultAdminDelayChangeScheduled { new_delay, effect_schedule },
-        );
+        let expected = ExpectedEvent::new()
+            .key(selector!("DefaultAdminDelayChangeScheduled"))
+            .data(new_delay)
+            .data(effect_schedule);
+
         self.assert_only_event(contract, expected);
     }
 
     fn assert_only_event_default_admin_delay_change_canceled(
         ref self: EventSpy, contract: ContractAddress,
     ) {
-        let expected =
-            AccessControlDefaultAdminRulesComponent::Event::DefaultAdminDelayChangeCanceled(
-            DefaultAdminDelayChangeCanceled {},
-        );
+        let expected = ExpectedEvent::new().key(selector!("DefaultAdminDelayChangeCanceled"));
+
         self.assert_only_event(contract, expected);
     }
 }

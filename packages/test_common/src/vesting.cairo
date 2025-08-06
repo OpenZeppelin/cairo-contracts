@@ -1,14 +1,15 @@
-use openzeppelin_finance::vesting::VestingComponent;
-use openzeppelin_finance::vesting::VestingComponent::AmountReleased;
-use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy};
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, ExpectedEvent};
 use starknet::ContractAddress;
 
 #[generate_trait]
-pub impl VestingSpyHelpersImpl of VestingSpyHelpers {
+pub impl VestingSpyHelpersImpl of VestingSpyHelpersTrait {
     fn assert_only_event_amount_released(
         ref self: EventSpy, contract: ContractAddress, token: ContractAddress, amount: u256,
     ) {
-        let expected = VestingComponent::Event::AmountReleased(AmountReleased { token, amount });
+        let expected = ExpectedEvent::new()
+            .key(selector!("AmountReleased"))
+            .key(token)
+            .data(amount);
         self.assert_only_event(contract, expected);
     }
 }

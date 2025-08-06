@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The `ExpectedEvent` trait and impl (#1472)
 
+### Changed
+
+- Bump snforge to v0.48.0 (#1472)
+
 ## 4.4.0 (2025-07-31)
 
 ### Changed

@@ -1,4 +1,4 @@
-use openzeppelin_account::extensions::src9::interface::OutsideExecution;
+use openzeppelin_interfaces::src9::OutsideExecution;
 use starknet::ClassHash;
 use starknet::account::Call;
 

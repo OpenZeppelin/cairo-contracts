@@ -4,3 +4,6 @@
 // Links
 :mixin-impls: xref:components.adoc#mixins[Embeddable Mixin Implementations]
 :immutable-config: xref:components.adoc#immutable_config[Immutable Component Config]
+
+// Variables
+:current_openzeppelin_interfaces_version: 2.1.0

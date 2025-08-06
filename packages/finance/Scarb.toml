@@ -25,6 +25,7 @@ scarb.workspace = true
 [dependencies]
 starknet.workspace = true
 openzeppelin_access = { path = "../access" }
+openzeppelin_interfaces = { path = "../interfaces" }
 openzeppelin_token = { path = "../token" }
 
 [dev-dependencies]

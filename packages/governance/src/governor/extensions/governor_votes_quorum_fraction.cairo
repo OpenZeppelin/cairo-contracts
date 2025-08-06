@@ -9,6 +9,10 @@
 #[starknet::component]
 pub mod GovernorVotesQuorumFractionComponent {
     use core::num::traits::Zero;
+    use openzeppelin_interfaces::governance::extensions::IQuorumFraction;
+    use openzeppelin_interfaces::votes::{
+        IVotesDispatcher, IVotesDispatcherTrait, IVotesSafeDispatcher, IVotesSafeDispatcherTrait,
+    };
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_utils::contract_clock::ERC6372TimestampClock;
     use openzeppelin_utils::structs::checkpoint::{Trace, TraceTrait};
@@ -16,10 +20,6 @@ pub mod GovernorVotesQuorumFractionComponent {
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
     use crate::governor::GovernorComponent;
     use crate::governor::GovernorComponent::ComponentState as GovernorComponentState;
-    use crate::governor::extensions::interface::IQuorumFraction;
-    use crate::votes::interface::{
-        IVotesDispatcher, IVotesDispatcherTrait, IVotesSafeDispatcher, IVotesSafeDispatcherTrait,
-    };
 
     #[storage]
     pub struct Storage {
@@ -86,20 +86,14 @@ pub mod GovernorVotesQuorumFractionComponent {
         #[feature("safe_dispatcher")]
         fn clock(self: @GovernorComponentState<TContractState>) -> u64 {
             let votes_dispatcher = IVotesSafeDispatcher { contract_address: get_votes_token(self) };
-            match votes_dispatcher.clock() {
-                Result::Ok(clock) => clock,
-                Result::Err(_) => ERC6372TimestampClock::clock(),
-            }
+            votes_dispatcher.clock().unwrap_or(ERC6372TimestampClock::clock())
         }
 
         /// See `GovernorComponent::GovernorVotesTrait::CLOCK_MODE`.
         #[feature("safe_dispatcher")]
         fn CLOCK_MODE(self: @GovernorComponentState<TContractState>) -> ByteArray {
             let votes_dispatcher = IVotesSafeDispatcher { contract_address: get_votes_token(self) };
-            match votes_dispatcher.CLOCK_MODE() {
-                Result::Ok(clock_mode) => clock_mode,
-                Result::Err(_) => ERC6372TimestampClock::CLOCK_MODE(),
-            }
+            votes_dispatcher.CLOCK_MODE().unwrap_or(ERC6372TimestampClock::CLOCK_MODE())
         }
 
         /// See `GovernorComponent::GovernorVotesTrait::get_votes`.

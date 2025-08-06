@@ -1,4 +1,7 @@
-use openzeppelin_introspection::interface::ISRC5;
+use openzeppelin_interfaces::accesscontrol::{
+    IACCESSCONTROL_ID, IAccessControl, IAccessControlCamel, IAccessControlWithDelay, RoleStatus,
+};
+use openzeppelin_interfaces::introspection::ISRC5;
 use openzeppelin_test_common::mocks::access::DualCaseAccessControlMock;
 use openzeppelin_testing::constants::{
     ADMIN, AUTHORIZED, OTHER, OTHER_ADMIN, OTHER_ROLE, ROLE, TIMESTAMP, ZERO,
@@ -7,9 +10,6 @@ use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, ExpectedEvent
 use snforge_std::{start_cheat_block_timestamp_global, start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
 use crate::accesscontrol::AccessControlComponent::InternalImpl;
-use crate::accesscontrol::interface::{
-    IACCESSCONTROL_ID, IAccessControl, IAccessControlCamel, IAccessControlWithDelay, RoleStatus,
-};
 use crate::accesscontrol::{AccessControlComponent, DEFAULT_ADMIN_ROLE};
 
 //

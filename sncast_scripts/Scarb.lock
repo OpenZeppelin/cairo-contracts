@@ -5,6 +5,7 @@ version = 1
 name = "openzeppelin_access"
 version = "3.0.0-alpha.0"
 dependencies = [
+ "openzeppelin_interfaces",
  "openzeppelin_introspection",
 ]
 
@@ -12,6 +13,7 @@ dependencies = [
 name = "openzeppelin_account"
 version = "3.0.0-alpha.0"
 dependencies = [
+ "openzeppelin_interfaces",
  "openzeppelin_introspection",
  "openzeppelin_utils",
 ]
@@ -21,12 +23,20 @@ name = "openzeppelin_finance"
 version = "3.0.0-alpha.0"
 dependencies = [
  "openzeppelin_access",
+ "openzeppelin_interfaces",
  "openzeppelin_token",
 ]
 
 [[package]]
+name = "openzeppelin_interfaces"
+version = "1.0.0"
+
+[[package]]
 name = "openzeppelin_introspection"
-version = "3.0.0-alpha.0"
+version = "v3.0.0-alpha.0"
+dependencies = [
+ "openzeppelin_interfaces",
+]
 
 [[package]]
 name = "openzeppelin_presets"
@@ -35,6 +45,7 @@ dependencies = [
  "openzeppelin_access",
  "openzeppelin_account",
  "openzeppelin_finance",
+ "openzeppelin_interfaces",
  "openzeppelin_introspection",
  "openzeppelin_token",
  "openzeppelin_upgrades",
@@ -54,6 +65,7 @@ version = "3.0.0-alpha.0"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_account",
+ "openzeppelin_interfaces",
  "openzeppelin_introspection",
  "openzeppelin_utils",
 ]
@@ -64,7 +76,10 @@ version = "3.0.0-alpha.0"
 
 [[package]]
 name = "openzeppelin_utils"
-version = "3.0.0-alpha.0"
+version = "2.0.0"
+dependencies = [
+ "openzeppelin_interfaces",
+]
 
 [[package]]
 name = "sncast_scripts"

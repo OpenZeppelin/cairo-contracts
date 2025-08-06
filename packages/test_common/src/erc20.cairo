@@ -1,7 +1,7 @@
+use openzeppelin_interfaces::erc20::IERC20Dispatcher;
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{NAME, SYMBOL};
 use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, ExpectedEvent};
-use openzeppelin_token::erc20::interface::IERC20Dispatcher;
 use openzeppelin_utils::serde::SerializedAppend;
 use starknet::ContractAddress;
 

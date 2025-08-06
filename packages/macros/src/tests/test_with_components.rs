@@ -49,7 +49,7 @@ fn test_with_eth_account() {
         "
         #[starknet::contract(account)]
         pub mod MyContract {
-            use openzeppelin_account::interface::EthPublicKey;
+            use openzeppelin_interfaces::accounts::EthPublicKey;
 
             #[storage]
             pub struct Storage {}

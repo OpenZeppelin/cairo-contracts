@@ -1,4 +1,5 @@
 use core::num::traits::{Bounded, Zero};
+use openzeppelin_interfaces::erc20::{IERC20Dispatcher, IERC20DispatcherTrait};
 use openzeppelin_test_common::erc20::ERC20SpyHelpers;
 use openzeppelin_test_common::ownable::OwnableSpyHelpers;
 use openzeppelin_test_common::upgrades::UpgradeableSpyHelpers;
@@ -8,7 +9,6 @@ use openzeppelin_testing::constants::{
     CLASS_HASH_ZERO, DECIMALS, NAME, OTHER, OWNER, RECIPIENT, SPENDER, SUPPLY, SYMBOL, VALUE, ZERO,
 };
 use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
-use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::start_cheat_caller_address;
 use starknet::ClassHash;

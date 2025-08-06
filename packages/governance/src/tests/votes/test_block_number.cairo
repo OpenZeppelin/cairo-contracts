@@ -1,14 +1,14 @@
+use openzeppelin_interfaces::erc20::IERC20;
+use openzeppelin_interfaces::erc721::IERC721;
 use openzeppelin_test_common::mocks::votes::ERC721BlockNumberVotesMock::SNIP12MetadataImpl;
 use openzeppelin_test_common::mocks::votes::{ERC20BlockNumberVotesMock, ERC721BlockNumberVotesMock};
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{DELEGATEE, DELEGATOR, OTHER, RECIPIENT, SUPPLY, ZERO};
 use openzeppelin_testing::{AsAddressTrait, EventSpyExt, spy_events};
 use openzeppelin_token::erc20::ERC20Component::InternalTrait;
-use openzeppelin_token::erc20::interface::IERC20;
 use openzeppelin_token::erc721::ERC721Component::{
     ERC721CamelOnlyImpl, ERC721Impl, ERC721MetadataImpl, InternalImpl as ERC721InternalImpl,
 };
-use openzeppelin_token::erc721::interface::IERC721;
 use openzeppelin_utils::contract_clock::ERC6372BlockNumberClock;
 use openzeppelin_utils::cryptography::snip12::OffchainMessageHash;
 use openzeppelin_utils::structs::checkpoint::TraceTrait;

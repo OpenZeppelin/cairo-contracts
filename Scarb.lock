@@ -9,6 +9,7 @@ dependencies = [
  "openzeppelin_account",
  "openzeppelin_finance",
  "openzeppelin_governance",
+ "openzeppelin_interfaces",
  "openzeppelin_introspection",
  "openzeppelin_merkle_tree",
  "openzeppelin_presets",
@@ -25,6 +26,7 @@ dependencies = [
 name = "openzeppelin_access"
 version = "3.0.0-alpha.0"
 dependencies = [
+ "openzeppelin_interfaces",
  "openzeppelin_introspection",
  "openzeppelin_test_common",
  "openzeppelin_testing",
@@ -36,6 +38,7 @@ dependencies = [
 name = "openzeppelin_account"
 version = "3.0.0-alpha.0"
 dependencies = [
+ "openzeppelin_interfaces",
  "openzeppelin_introspection",
  "openzeppelin_test_common",
  "openzeppelin_testing",
@@ -48,6 +51,7 @@ name = "openzeppelin_finance"
 version = "3.0.0-alpha.0"
 dependencies = [
  "openzeppelin_access",
+ "openzeppelin_interfaces",
  "openzeppelin_test_common",
  "openzeppelin_testing",
  "openzeppelin_token",
@@ -61,6 +65,7 @@ version = "3.0.0-alpha.0"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_account",
+ "openzeppelin_interfaces",
  "openzeppelin_introspection",
  "openzeppelin_test_common",
  "openzeppelin_testing",
@@ -70,9 +75,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "openzeppelin_interfaces"
+version = "2.1.0"
+dependencies = [
+ "snforge_std",
+]
+
+[[package]]
 name = "openzeppelin_introspection"
 version = "3.0.0-alpha.0"
 dependencies = [
+ "openzeppelin_interfaces",
  "openzeppelin_test_common",
  "snforge_std",
 ]
@@ -96,6 +109,7 @@ dependencies = [
  "openzeppelin_access",
  "openzeppelin_account",
  "openzeppelin_finance",
+ "openzeppelin_interfaces",
  "openzeppelin_introspection",
  "openzeppelin_test_common",
  "openzeppelin_testing",
@@ -109,6 +123,7 @@ dependencies = [
 name = "openzeppelin_security"
 version = "3.0.0-alpha.0"
 dependencies = [
+ "openzeppelin_interfaces",
  "openzeppelin_test_common",
  "openzeppelin_testing",
  "openzeppelin_utils",
@@ -123,6 +138,7 @@ dependencies = [
  "openzeppelin_account",
  "openzeppelin_finance",
  "openzeppelin_governance",
+ "openzeppelin_interfaces",
  "openzeppelin_introspection",
  "openzeppelin_macros",
  "openzeppelin_security",
@@ -146,6 +162,7 @@ version = "3.0.0-alpha.0"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_account",
+ "openzeppelin_interfaces",
  "openzeppelin_introspection",
  "openzeppelin_test_common",
  "openzeppelin_testing",
@@ -166,6 +183,7 @@ dependencies = [
 name = "openzeppelin_utils"
 version = "3.0.0-alpha.0"
 dependencies = [
+ "openzeppelin_interfaces",
  "openzeppelin_test_common",
  "openzeppelin_testing",
  "snforge_std",

@@ -166,6 +166,7 @@ pub mod ERC4626Component {
         }
     }
 
+
     /// Sets limits to the target exchange type and is expected to be defined at the contract
     /// level.
     ///
@@ -210,6 +211,17 @@ pub mod ERC4626Component {
         }
     }
 
+    /// Returns the total amount of the underlying asset that is “managed” by Vault.
+    pub trait ERC4626TotalAssetsTrait<TContractState, +HasComponent<TContractState>> {
+        fn total_assets(
+            self: @ComponentState<TContractState>,
+        ) -> u256 {
+            let this = starknet::get_contract_address();
+            let asset_dispatcher = IERC20Dispatcher { contract_address: self.ERC4626_asset.read() };
+            asset_dispatcher.balance_of(this)
+        }
+    }
+
     /// Allows contracts to hook logic into deposit and withdraw transactions.
     /// This is where contracts can transfer fees.
     ///
@@ -243,6 +255,7 @@ pub mod ERC4626Component {
         fn after_deposit(ref self: ComponentState<TContractState>, assets: u256, shares: u256) {}
     }
 
+
     //
     // External
     //
@@ -254,6 +267,7 @@ pub mod ERC4626Component {
         impl Fee: FeeConfigTrait<TContractState>,
         impl Limit: LimitConfigTrait<TContractState>,
         impl Hooks: ERC4626HooksTrait<TContractState>,
+        impl TotalAssets: ERC4626TotalAssetsTrait<TContractState>,
         impl Immutable: ImmutableConfig,
         impl ERC20: ERC20Component::HasComponent<TContractState>,
         +ERC20Component::ERC20HooksTrait<TContractState>,
@@ -265,13 +279,6 @@ pub mod ERC4626Component {
             self.ERC4626_asset.read()
         }
 
-        /// Returns the total amount of the underlying asset that is “managed” by Vault.
-        fn total_assets(self: @ComponentState<TContractState>) -> u256 {
-            let this = starknet::get_contract_address();
-            let asset_dispatcher = IERC20Dispatcher { contract_address: self.ERC4626_asset.read() };
-            asset_dispatcher.balance_of(this)
-        }
-
         /// Returns the amount of shares that the Vault would exchange for the amount of assets
         /// provided irrespective of slippage or fees.
         ///
@@ -279,6 +286,10 @@ pub mod ERC4626Component {
         /// from an unreasonably large input.
         fn convert_to_shares(self: @ComponentState<TContractState>, assets: u256) -> u256 {
             self._convert_to_shares(assets, Rounding::Floor)
+        }
+
+        fn total_assets(self: @ComponentState<TContractState>) -> u256 {
+            TotalAssets::total_assets(self)
         }
 
         /// Returns the amount of assets that the Vault would exchange for the amount of shares
@@ -544,6 +555,7 @@ pub mod ERC4626Component {
         +FeeConfigTrait<TContractState>,
         +LimitConfigTrait<TContractState>,
         +ERC20Component::ERC20HooksTrait<TContractState>,
+        +ERC4626TotalAssetsTrait<TContractState>,
         +Drop<TContractState>,
     > of InternalTrait<TContractState> {
         /// Validates the `ImmutableConfig` constants and sets the `asset_address` to the vault.
@@ -647,7 +659,7 @@ pub mod ERC4626Component {
             math::u256_mul_div(
                 assets,
                 total_supply + 10_u256.pow(Immutable::DECIMALS_OFFSET.into()),
-                self.total_assets() + 1,
+                ERC4626TotalAssetsTrait::total_assets(self) + 1,
                 rounding,
             )
         }
@@ -662,7 +674,7 @@ pub mod ERC4626Component {
 
             math::u256_mul_div(
                 shares,
-                self.total_assets() + 1,
+                ERC4626TotalAssetsTrait::total_assets(self) + 1,
                 total_supply + 10_u256.pow(Immutable::DECIMALS_OFFSET.into()),
                 rounding,
             )
@@ -678,6 +690,7 @@ pub impl ERC4626HooksEmptyImpl<
     TContractState, +ERC4626Component::HasComponent<TContractState>,
 > of ERC4626Component::ERC4626HooksTrait<TContractState> {}
 
+
 pub impl ERC4626DefaultNoFees<
     TContractState, +ERC4626Component::HasComponent<TContractState>,
 > of ERC4626Component::FeeConfigTrait<TContractState> {}
@@ -685,6 +698,10 @@ pub impl ERC4626DefaultNoFees<
 pub impl ERC4626DefaultLimits<
     TContractState, +ERC4626Component::HasComponent<TContractState>,
 > of ERC4626Component::LimitConfigTrait<TContractState> {}
+
+pub impl ERC4626DefaultTotalAssets<
+    TContractState, +ERC4626Component::HasComponent<TContractState>,
+> of ERC4626Component::ERC4626TotalAssetsTrait<TContractState> {}
 
 /// Implementation of the default `ERC4626Component::ImmutableConfig`.
 ///

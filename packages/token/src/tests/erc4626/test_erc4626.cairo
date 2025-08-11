@@ -5,7 +5,8 @@ use openzeppelin_test_common::mocks::erc20::{
     IERC20ReentrantDispatcher, IERC20ReentrantDispatcherTrait, Type,
 };
 use openzeppelin_test_common::mocks::erc4626::{
-    ERC4626LimitsMock, ERC4626Mock, ERC4626MockWithHooks,
+    ERC4626LimitsMock, ERC4626Mock, ERC4626MockWithHooks, IMoveAssetsDispatcher,
+    IMoveAssetsDispatcherTrait,
 };
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{ALICE, BOB, NAME, OTHER, RECIPIENT, SPENDER, SYMBOL, ZERO};
@@ -178,6 +179,20 @@ fn deploy_vault_with_hooks(asset_address: ContractAddress) -> ERC4626ABIDispatch
     vault_calldata.append_serde(HOLDER);
 
     let contract_address = utils::declare_and_deploy("ERC4626MockWithHooks", vault_calldata);
+    ERC4626ABIDispatcher { contract_address }
+}
+
+fn deploy_vault_total_assets(asset_address: ContractAddress) -> ERC4626ABIDispatcher {
+    let no_shares = 0_u256;
+
+    let mut vault_calldata: Array<felt252> = array![];
+    vault_calldata.append_serde(VAULT_NAME());
+    vault_calldata.append_serde(VAULT_SYMBOL());
+    vault_calldata.append_serde(asset_address);
+    vault_calldata.append_serde(no_shares);
+    vault_calldata.append_serde(HOLDER);
+
+    let contract_address = utils::declare_and_deploy("ERC4626TotalAssetsMock", vault_calldata);
     ERC4626ABIDispatcher { contract_address }
 }
 
@@ -1693,6 +1708,90 @@ fn test_hooks_called_when_redeem() {
     // Check hooks called
     spy.assert_event_before_withdraw(vault.contract_address, assets, shares);
     spy.assert_event_after_withdraw(vault.contract_address, assets, shares);
+}
+
+//
+// Custom Total Assets Tests
+//
+
+fn setup_vault_total_assets() -> (IERC20ReentrantDispatcher, ERC4626ABIDispatcher) {
+    let mut asset = deploy_asset();
+    let mut vault = deploy_vault_total_assets(asset.contract_address);
+
+    // Mint assets to HOLDER and approve vault
+    asset.unsafe_mint(HOLDER, Bounded::MAX / 2); // 50% of max
+    cheat_caller_address(asset.contract_address, HOLDER, CheatSpan::TargetCalls(1));
+    asset.approve(vault.contract_address, Bounded::MAX);
+
+    (asset, vault)
+}
+
+#[test]
+fn test_total_assets_default() {
+    let (asset, vault) = setup_vault_total_assets();
+
+    // Initially, total_assets should equal vault's asset balance (0)
+    let total_assets = vault.total_assets();
+    assert_eq!(total_assets, 0);
+
+    // Add some assets to the vault directly
+    asset.unsafe_mint(vault.contract_address, parse_token(10));
+
+    // total_assets should now include the vault balance
+    let total_assets_after = vault.total_assets();
+    assert_eq!(total_assets_after, parse_token(10));
+}
+
+#[test]
+fn test_total_assets_with_external_assets() {
+    let (asset, vault) = setup_vault_total_assets();
+
+    // Add assets to vault
+    asset.unsafe_mint(vault.contract_address, parse_token(5));
+    let initial_total = vault.total_assets();
+    assert_eq!(initial_total, parse_token(5));
+
+    // Use move_assets to simulate external assets
+    // This should transfer assets out but add to external_total_assets
+    let move_amount = parse_token(3);
+
+    IMoveAssetsDispatcher { contract_address: vault.contract_address }.move_assets(move_amount);
+
+    // After moving assets, total_assets should still include them via custom implementation
+    let total_after_move = vault.total_assets();
+    assert_eq!(total_after_move, parse_token(5)); // 2 in vault + 3 external = 5
+}
+
+#[test]
+fn test_deposit_withdraw_with_custom_total_assets() {
+    let (_, vault) = setup_vault_total_assets();
+    let deposit_amount = parse_token(1);
+
+    // Initial deposit
+    cheat_caller_address(vault.contract_address, HOLDER, CheatSpan::TargetCalls(1));
+    let shares = vault.deposit(deposit_amount, RECIPIENT);
+
+    // Check that shares were minted correctly
+    let recipient_shares = vault.balance_of(RECIPIENT);
+    assert_eq!(recipient_shares, shares);
+
+    // Move some assets externally
+    let move_amount = parse_token(1) / 2; // Move 0.5 tokens
+
+    IMoveAssetsDispatcher { contract_address: vault.contract_address }.move_assets(move_amount);
+
+    // Verify total_assets is still calculated correctly
+    let expected_total = vault.total_assets();
+    assert_eq!(expected_total, deposit_amount); // Should still be 1 token total
+
+    // Test withdrawal with custom total_assets
+    cheat_caller_address(vault.contract_address, RECIPIENT, CheatSpan::TargetCalls(1));
+    let withdraw_amount = deposit_amount / 2; // Withdraw half
+    let shares_burned = vault.withdraw(withdraw_amount, RECIPIENT, RECIPIENT);
+
+    // Verify shares were burned correctly
+    let recipient_shares_after = vault.balance_of(RECIPIENT);
+    assert_eq!(recipient_shares_after, shares - shares_burned);
 }
 
 //

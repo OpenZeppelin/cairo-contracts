@@ -719,7 +719,9 @@ pub impl DefaultConfig of ERC4626Component::ImmutableConfig {
 mod Test {
     use openzeppelin_test_common::mocks::erc4626::ERC4626Mock;
     use super::ERC4626Component::InternalImpl;
-    use super::{ERC4626Component, ERC4626DefaultLimits, ERC4626DefaultNoFees};
+    use super::{
+        ERC4626Component, ERC4626DefaultLimits, ERC4626DefaultNoFees, ERC4626DefaultTotalAssets,
+    };
 
     type ComponentState = ERC4626Component::ComponentState<ERC4626Mock::ContractState>;
 

@@ -2,7 +2,8 @@
 #[with_components(ERC20, ERC4626)]
 pub mod ERC4626Mock {
     use openzeppelin_token::erc20::extensions::erc4626::{
-        DefaultConfig, ERC4626DefaultLimits, ERC4626DefaultNoFees, ERC4626HooksEmptyImpl,
+        DefaultConfig, ERC4626DefaultLimits, ERC4626DefaultNoFees, ERC4626DefaultTotalAssets,
+        ERC4626HooksEmptyImpl,
     };
     use openzeppelin_token::erc20::{DefaultConfig as ERC20DefaultConfig, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
@@ -38,11 +39,83 @@ pub mod ERC4626Mock {
     }
 }
 
+
+#[starknet::interface]
+pub trait IMoveAssets<TContractState> {
+    fn move_assets(ref self: TContractState, amount: u256) -> u256;
+}
+
+#[starknet::contract]
+#[with_components(ERC20, ERC4626)]
+pub mod ERC4626TotalAssetsMock {
+    use openzeppelin_interfaces::erc20::{IERC20Dispatcher, IERC20DispatcherTrait};
+    use openzeppelin_token::erc20::extensions::erc4626::{
+        DefaultConfig, ERC4626DefaultLimits, ERC4626DefaultNoFees, ERC4626HooksEmptyImpl,
+    };
+    use openzeppelin_token::erc20::{DefaultConfig as ERC20DefaultConfig, ERC20HooksEmptyImpl};
+    use starknet::ContractAddress;
+    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use super::IMoveAssets;
+
+    // ERC4626
+    #[abi(embed_v0)]
+    impl ERC4626ComponentImpl = ERC4626Component::ERC4626Impl<ContractState>;
+    // ERC4626MetadataImpl is a custom impl of IERC20Metadata
+    #[abi(embed_v0)]
+    impl ERC4626MetadataImpl = ERC4626Component::ERC4626MetadataImpl<ContractState>;
+
+    // ERC20
+    #[abi(embed_v0)]
+    impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC20CamelOnlyImpl = ERC20Component::ERC20CamelOnlyImpl<ContractState>;
+
+    #[storage]
+    pub struct Storage {
+        pub external_total_assets: u256,
+    }
+
+    pub impl ERC4626TotalAssetsImpl of ERC4626Component::ERC4626TotalAssetsTrait<ContractState> {
+        fn total_assets(self: @ERC4626Component::ComponentState<ContractState>) -> u256 {
+            let contract_state = self.get_contract();
+            let this = starknet::get_contract_address();
+            let asset_dispatcher = IERC20Dispatcher { contract_address: self.ERC4626_asset.read() };
+            asset_dispatcher.balance_of(this) + contract_state.external_total_assets.read()
+        }
+    }
+
+    #[constructor]
+    fn constructor(
+        ref self: ContractState,
+        name: ByteArray,
+        symbol: ByteArray,
+        underlying_asset: ContractAddress,
+        initial_supply: u256,
+        recipient: ContractAddress,
+    ) {
+        self.erc20.initializer(name, symbol);
+        self.erc20.mint(recipient, initial_supply);
+        self.erc4626.initializer(underlying_asset);
+    }
+
+    #[abi(embed_v0)]
+    pub impl IMoveAssetsImpl of IMoveAssets<ContractState> {
+        fn move_assets(ref self: ContractState, amount: u256) -> u256 {
+            let asset = self.erc4626.asset();
+            let asset_dispatcher = IERC20Dispatcher { contract_address: asset };
+            asset_dispatcher.transfer(1223.try_into().unwrap(), amount);
+            self.external_total_assets.write(self.external_total_assets.read() + amount);
+            amount
+        }
+    }
+}
+
 #[starknet::contract]
 #[with_components(ERC20, ERC4626)]
 pub mod ERC4626OffsetMock {
     use openzeppelin_token::erc20::extensions::erc4626::{
-        ERC4626DefaultLimits, ERC4626DefaultNoFees, ERC4626HooksEmptyImpl,
+        ERC4626DefaultLimits, ERC4626DefaultNoFees, ERC4626DefaultTotalAssets,
+        ERC4626HooksEmptyImpl,
     };
     use openzeppelin_token::erc20::{DefaultConfig, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
@@ -87,7 +160,7 @@ pub mod ERC4626OffsetMock {
 #[with_components(ERC20, ERC4626)]
 pub mod ERC4626LimitsMock {
     use openzeppelin_token::erc20::extensions::erc4626::{
-        ERC4626DefaultNoFees, ERC4626HooksEmptyImpl,
+        ERC4626DefaultNoFees, ERC4626DefaultTotalAssets, ERC4626HooksEmptyImpl,
     };
     use openzeppelin_token::erc20::{DefaultConfig, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
@@ -166,7 +239,9 @@ pub mod ERC4626LimitsMock {
 pub mod ERC4626FeesMock {
     use openzeppelin_interfaces::erc20::{IERC20Dispatcher, IERC20DispatcherTrait};
     use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component::FeeConfigTrait;
-    use openzeppelin_token::erc20::extensions::erc4626::{DefaultConfig, ERC4626DefaultLimits};
+    use openzeppelin_token::erc20::extensions::erc4626::{
+        DefaultConfig, ERC4626DefaultLimits, ERC4626DefaultTotalAssets,
+    };
     use openzeppelin_token::erc20::{DefaultConfig as ERC20DefaultConfig, ERC20HooksEmptyImpl};
     use openzeppelin_utils::math;
     use openzeppelin_utils::math::Rounding;
@@ -330,7 +405,7 @@ pub mod ERC4626FeesMock {
 #[with_components(ERC20, ERC4626)]
 pub mod ERC4626MockWithHooks {
     use openzeppelin_token::erc20::extensions::erc4626::{
-        DefaultConfig, ERC4626DefaultLimits, ERC4626DefaultNoFees,
+        DefaultConfig, ERC4626DefaultLimits, ERC4626DefaultNoFees, ERC4626DefaultTotalAssets,
     };
     use openzeppelin_token::erc20::{DefaultConfig as ERC20DefaultConfig, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;

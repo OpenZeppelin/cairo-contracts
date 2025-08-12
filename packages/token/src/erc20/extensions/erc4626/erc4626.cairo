@@ -743,7 +743,7 @@ use starknet::storage::StoragePointerReadAccess;
 // Default (empty) traits
 //
 
-use crate::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+use openzeppelin_interfaces::erc20::{IERC20Dispatcher, IERC20DispatcherTrait};
 
 pub impl ERC4626HooksEmptyImpl<
     TContractState, +ERC4626Component::HasComponent<TContractState>,

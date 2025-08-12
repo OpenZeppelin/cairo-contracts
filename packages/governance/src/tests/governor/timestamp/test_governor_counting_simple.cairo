@@ -1,4 +1,5 @@
 use core::num::traits::Bounded;
+use openzeppelin_interfaces::governor::IGovernor;
 use openzeppelin_test_common::mocks::governor::GovernorMock::SNIP12MetadataImpl;
 use openzeppelin_testing::constants::OTHER;
 use starknet::storage::{
@@ -8,7 +9,6 @@ use starknet::storage::{
 use crate::governor::DefaultConfig;
 use crate::governor::GovernorComponent::InternalImpl;
 use crate::governor::extensions::GovernorCountingSimpleComponent::{GovernorCounting, VoteType};
-use crate::governor::interface::IGovernor;
 use crate::tests::governor::timestamp::common::{COMPONENT_STATE, CONTRACT_STATE};
 
 //

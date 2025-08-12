@@ -1,17 +1,17 @@
 use core::hash::{HashStateExTrait, HashStateTrait};
 use core::pedersen::PedersenTrait;
+use openzeppelin_interfaces::erc20::IERC20Dispatcher;
+use openzeppelin_interfaces::governor::{IGovernor, ProposalState};
 use openzeppelin_test_common::mocks::governor::GovernorMock::SNIP12MetadataImpl;
 use openzeppelin_test_common::mocks::governor::{GovernorMock, GovernorTimelockedMock};
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{ADMIN, OTHER, VOTES_TOKEN};
-use openzeppelin_token::erc20::interface::IERC20Dispatcher;
 use openzeppelin_utils::bytearray::ByteArrayExtTrait;
 use snforge_std::{start_cheat_block_number_global, start_mock_call};
 use starknet::ContractAddress;
 use starknet::account::Call;
 use starknet::storage::{StorageMapWriteAccess, StoragePathEntry, StoragePointerWriteAccess};
 use crate::governor::GovernorComponent::{InternalExtendedImpl, InternalImpl};
-use crate::governor::interface::{IGovernor, ProposalState};
 use crate::governor::{DefaultConfig, GovernorComponent, ProposalCore};
 use crate::utils::call_impls::{HashCallImpl, HashCallsImpl};
 

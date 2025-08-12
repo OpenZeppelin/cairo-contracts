@@ -9,9 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+- `openzeppelin_interfaces` package (#1463)
+
 ### Changed
 
-- Bump scarb to v2.12.0 (#1493)
+- Bump scarb to 2.12.0 (#1463)
+
+### Changed (Breaking)
+
+- Moved interfaces, ABIs and dispatchers into `openzeppelin_interfaces` (#1463)
+  - Some structs and types that were defined inside interface files were also moved
 
 ## 3.0.0-alpha.0 (2025-07-18)
 

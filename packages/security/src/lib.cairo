@@ -1,5 +1,4 @@
 pub mod initializable;
-pub mod interface;
 pub mod pausable;
 pub mod reentrancyguard;
 

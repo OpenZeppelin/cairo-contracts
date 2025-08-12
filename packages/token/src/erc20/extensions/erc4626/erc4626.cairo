@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v2.0.0
+// OpenZeppelin Contracts for Cairo v3.0.0-alpha.0
 // (token/src/erc20/extensions/erc4626/erc4626.cairo)
 
 /// # ERC4626 Component
@@ -34,14 +34,16 @@
 #[starknet::component]
 pub mod ERC4626Component {
     use core::num::traits::{Bounded, Pow, Zero};
+    use openzeppelin_interfaces::erc20::{
+        IERC20, IERC20Dispatcher, IERC20DispatcherTrait, IERC20Metadata,
+    };
+    use openzeppelin_interfaces::erc4626::IERC4626;
     use openzeppelin_utils::math;
     use openzeppelin_utils::math::Rounding;
     use starknet::ContractAddress;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
     use crate::erc20::ERC20Component;
     use crate::erc20::ERC20Component::InternalImpl as ERC20InternalImpl;
-    use crate::erc20::extensions::erc4626::interface::IERC4626;
-    use crate::erc20::interface::{IERC20, IERC20Dispatcher, IERC20DispatcherTrait, IERC20Metadata};
 
     // The default values are only used when the DefaultConfig
     // is in scope in the implementing contract.
@@ -340,10 +342,7 @@ pub mod ERC4626Component {
         /// This can be changed in the implementing contract by defining custom logic in
         /// `LimitConfigTrait::deposit_limit`.
         fn max_deposit(self: @ComponentState<TContractState>, receiver: ContractAddress) -> u256 {
-            match Limit::deposit_limit(self, receiver) {
-                Option::Some(limit) => limit,
-                Option::None => Bounded::MAX,
-            }
+            Limit::deposit_limit(self, receiver).unwrap_or(Bounded::MAX)
         }
 
         /// Allows an on-chain or off-chain user to simulate the effects of their deposit at the
@@ -387,10 +386,7 @@ pub mod ERC4626Component {
         /// This can be changed in the implementing contract by defining custom logic in
         /// `LimitConfigTrait::mint_limit`.
         fn max_mint(self: @ComponentState<TContractState>, receiver: ContractAddress) -> u256 {
-            match Limit::mint_limit(self, receiver) {
-                Option::Some(limit) => limit,
-                Option::None => Bounded::MAX,
-            }
+            Limit::mint_limit(self, receiver).unwrap_or(Bounded::MAX)
         }
 
         /// Allows an on-chain or off-chain user to simulate the effects of their mint at the

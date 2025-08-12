@@ -1,0 +1,268 @@
+= UDC Appchain Deployment
+
+:udc-class-hash: 0x01b2df6d8861670d4a8ca4670433b2418d78169c2947f46dc614e69f333745c8
+:udc-address: 0x2ceed65a4bd731034c01113685c831b01c15d7d432f71afb1cf1634b53a2125
+
+While the Universal Deployer Contract (UDC) is deployed on Starknet public networks, appchains may need to deploy
+their own instance of the UDC for their own use. This guide will walk you through this process while keeping the 
+same final address on all networks.
+
+== Prerequisites
+
+:declare-transaction: https://docs.starknet.io/resources/transactions-reference/#declare_transaction[declare transaction]
+:sncast: https://foundry-rs.github.io/starknet-foundry/starknet/declare.html[sncast]
+:starknet-foundry: https://foundry-rs.github.io/starknet-foundry/index.html[starknet-foundry]
+:scarb: https://docs.swmansion.com/scarb/docs.html[Scarb]
+
+This guide assumes you have:
+
+- Familiarity with {scarb} and Starknet development environment.
+- A functional account available on the network you're deploying to.
+- Familiarity with the process of declaring contracts through the {declare-transaction}.
+
+NOTE: For declaring contracts on Starknet, you can use the {sncast} tool from the {starknet-foundry} project.
+
+== Note on the UDC final address
+
+It is important that the Universal Deployer Contract (UDC) in Starknet maintains the same address across all
+networks because essential developer tools like *starkli* and *sncast* rely on this address by default when deploying contracts.
+These tools are widely used in the Starknet ecosystem to streamline and standardize contract deployment workflows.
+
+If the UDC address is consistent, developers can write deployment scripts, CI/CD pipelines, and integrations that work seamlessly
+across testnets, mainnet, and appchains without needing to update configuration files or handle special cases for each
+environment.
+
+In the following sections, we'll walk you through the process of deploying the UDC on appchains while keeping the same address,
+under one important assumption: *the declared UDC class hash MUST be the same across all networks*.
+Different compiler versions may produce different class hashes for the same contract, so you need to make
+sure you are using the same compiler version to build the UDC class (and the release profile).
+
+The latest version of the UDC available in the `openzeppelin_presets` package was compiled with *Cairo v2.11.4* (release profile) and the resulting class hash is `{udc-class-hash}`.
+
+IMPORTANT: If you are using a different compiler version, you need to make sure the class hash is the same as the one above in order to keep the same address across all networks.
+
+:starkli: https://book.starkli.rs/declaring-classes[starkli]
+
+[TIP]
+====
+To avoid potential issues by using a different compiler version, you can directly import the contract class deployed on Starknet mainnet and declare it on your appchain. At
+the time of writing, this is not easily achievable with the `sncast` tool, but you can leverage `{starkli}` to do it.
+
+Quick reference:
+
+```bash
+starkli class-by-hash --parse \
+    0x01b2df6d8861670d4a8ca4670433b2418d78169c2947f46dc614e69f333745c8 \
+    --network mainnet \
+    > udc.json
+```
+
+This will output a `udc.json` file that you can use to declare the UDC on your appchain.
+
+```bash
+starkli declare udc.json --rpc <rpc-url>
+```
+====
+
+== Madara Appchains
+
+:madara: https://github.com/madara-alliance/madara/blob/main/README.md[Madara]
+:madara-bootstrapper: https://github.com/madara-alliance/madara/tree/main/bootstrapper#readme[Madara Bootstrapper]
+
+{madara} is a popular Starknet node implementation that has a friendly and robust interface for building appchains. If
+you are using it for this purpose, you are probably familiar with the {madara-bootstrapper}, which already declares and
+deploys a few contracts for you when you create a new appchain, including accounts and the UDC.
+
+However, since the UDC was migrated to a new version in June 2025, it's possible that the appchain was created before
+this change, meaning the UDC on the appchain is an older version. If that's the case, you can follow the steps below to
+deploy the new UDC.
+
+=== 1. Declare and deploy the Bootstrapper
+
+In the Starknet ecosystem, contracts need to be declared before they can be deployed, and deployments can only happen
+either via the `deploy_syscall`, or using a `deploy_account` transaction. The latter would require adding account
+functionality to the UDC, which is not optimal, so we'll use the `deploy_syscall`, which requires having an account
+with this functionality enabled.
+
+NOTE: Madara declares an account with this functionality enabled as part of the bootstrapping process. You may be able to
+use that implementation directly to skip this step.
+
+==== Bootstrapper Contract
+
+The bootstrapper contract is a simple contract that declares the UDC and allows for its deployment via the `deploy_syscall`.
+You can find a reference implementation below:
+
+NOTE: This reference implementation targets Cairo v2.11.4. If you are using a different version of Cairo, you may need to update the code to match your compiler version.
+
+```cairo
+#[starknet::contract(account)]
+mod UniversalDeployerBootstrapper {
+    use core::num::traits::Zero;
+    use openzeppelin_account::AccountComponent;
+    use openzeppelin_introspection::src5::SRC5Component;
+    use openzeppelin_utils::deployments::calculate_contract_address_from_deploy_syscall;
+    use starknet::{ClassHash, ContractAddress, SyscallResultTrait};
+
+    component!(path: AccountComponent, storage: account, event: AccountEvent);
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
+
+    //
+    // Account features (deployable, declarer, and invoker)
+    //
+
+    #[abi(embed_v0)]
+    pub(crate) impl DeployableImpl =
+        AccountComponent::DeployableImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl DeclarerImpl = AccountComponent::DeclarerImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl SRC6Impl = AccountComponent::SRC6Impl<ContractState>;
+    impl AccountInternalImpl = AccountComponent::InternalImpl<ContractState>;
+
+    #[storage]
+    struct Storage {
+        #[substorage(v0)]
+        pub account: AccountComponent::Storage,
+        #[substorage(v0)]
+        pub src5: SRC5Component::Storage,
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    pub(crate) enum Event {
+        #[flat]
+        AccountEvent: AccountComponent::Event,
+        #[flat]
+        SRC5Event: SRC5Component::Event,
+    }
+
+    #[constructor]
+    pub fn constructor(ref self: ContractState, public_key: felt252) {
+        self.account.initializer(public_key);
+    }
+
+    #[abi(per_item)]
+    #[generate_trait]
+    impl ExternalImpl of ExternalTrait {
+        #[external(v0)]
+        fn deploy_udc(ref self: ContractState, udc_class_hash: ClassHash) {
+            self.account.assert_only_self();
+            starknet::syscalls::deploy_syscall(udc_class_hash, 0, array![].span(), true)
+                .unwrap_syscall();
+        }
+
+        #[external(v0)]
+        fn get_udc_address(ref self: ContractState, udc_class_hash: ClassHash) -> ContractAddress {
+            calculate_contract_address_from_deploy_syscall(
+                0, udc_class_hash, array![].span(), Zero::zero(),
+            )
+        }
+    }
+}
+```
+
+==== Deploying the Bootstrapper
+
+This guide assumes you have a functional account available on the network you're deploying to, and familiarity
+with the process of declaring contracts through the `declare` transaction. To recap, the reason we are deploying
+this bootstrapper account contract is to be able to deploy the UDC via the `deploy_syscall`.
+
+TIP: sncast v0.45.0 was used in the examples below.
+
+As a quick example, if your account is configured for *sncast*, you can declare the bootstrapper contract with the following command:
+
+```bash
+sncast -p <profile-name> declare \
+    --contract-name UniversalDeployerBootstrapper
+```
+
+The bootstrapper implements the `IDeployable` trait, meaning it can be counterfactually deployed. Check out the
+xref:guides/deployment.adoc[Counterfactual Deployments] guide. Continuing with the *sncast* examples, you can create and deploy the bootstrapper with the following commands:
+
+===== Create the account
+
+```bash
+sncast account create --name bootstrapper \
+    --network <network-name> \
+    --class-hash <declared-class-hash> \
+    --type oz
+```
+
+===== Deploy it to the network
+
+NOTE: You need to prefund the account with enough funds before you can deploy it.
+
+```bash
+sncast account deploy \
+    --network <network-name> \
+    --name bootstrapper
+```
+
+=== 2. Declare and deploy the UDC
+
+Once the bootstrapper is deployed, you can declare and deploy the UDC through it.
+
+==== Declaring the UDC
+
+The UDC source code is available in the `openzeppelin_presets` package. You can copy it to your project and declare it with the following command:
+
+```bash
+sncast -p <profile-name> declare \
+    --contract-name UniversalDeployer
+```
+
+NOTE: If you followed the xref:#note_on_the_udc_final_address[Note on the UDC final address] section, your declared class hash should be
+`{udc-class-hash}`.
+
+==== Previewing the UDC address
+
+You can preview the UDC address with the following command:
+
+```bash
+sncast call \
+  --network <network-name> \
+  --contract-address <bootstrapper-address> \
+  --function "get_udc_address" \
+  --arguments '<udc-class-hash>'
+```
+
+If the UDC class hash is the same as the one in the xref:#note_on_the_udc_final_address[Note on the UDC final address] section,
+the output should be `{udc-address}`.
+
+==== Deploying the UDC
+
+Now everything is set up to deploy the UDC. You can use the following command to deploy it:
+
+IMPORTANT: Note that the bootstrapper contract MUST call itself to successfully deploy the UDC, since the `deploy_udc` function is protected.
+
+```bash
+sncast \
+  --account bootstrapper \
+  invoke \
+  --network <network-name> \
+  --contract-address <bootstrapper-address> \
+  --function "deploy_udc" \
+  --arguments '<udc-class-hash>'
+```
+
+== Other Appchain providers
+
+If you are using an appchain provider different from Madara, you can follow the same steps to deploy the UDC
+as long as you have access to an account that can declare contracts.
+
+Summarizing, the steps to follow are:
+
+1. Declare the Bootstrapper
+2. Counterfactually deploy the Bootstrapper
+3. Declare the UDC
+4. Preview the UDC address
+5. Deploy the UDC from the Bootstrapper
+
+== Conclusion
+
+By following this guide, you have successfully deployed the Universal Deployer Contract on your appchain while ensuring consistency with
+Starknet’s public networks. Maintaining the same UDC address and class hash across all environments is crucial for seamless contract deployment
+and tooling compatibility, allowing developers to leverage tools like *sncast* and *starkli* without additional configuration. This process not only
+improves the reliability of your deployment workflows but also ensures that your appchain remains compatible with the broader Starknet ecosystem.
+With the UDC correctly deployed, you are now ready to take full advantage of streamlined contract
+deployments and robust developer tooling on your appchain.

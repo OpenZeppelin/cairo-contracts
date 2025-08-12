@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v2.0.0 (finance/src/vesting/vesting.cairo)
+// OpenZeppelin Contracts for Cairo v3.0.0-alpha.0 (finance/src/vesting/vesting.cairo)
 
 use starknet::ContractAddress;
 
@@ -31,13 +31,13 @@ use starknet::ContractAddress;
 pub mod VestingComponent {
     use openzeppelin_access::ownable::OwnableComponent;
     use openzeppelin_access::ownable::OwnableComponent::OwnableImpl;
-    use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
+    use openzeppelin_interfaces::erc20::{IERC20Dispatcher, IERC20DispatcherTrait};
+    use openzeppelin_interfaces::vesting as interface;
     use starknet::ContractAddress;
     use starknet::storage::{
         Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
         StoragePointerWriteAccess,
     };
-    use crate::vesting::interface;
 
     #[storage]
     pub struct Storage {

@@ -23,6 +23,7 @@ openzeppelin_access = { path = "../access" }
 openzeppelin_account = { path = "../account" }
 openzeppelin_finance = { path = "../finance" }
 openzeppelin_governance = { path = "../governance" }
+openzeppelin_interfaces = { path = "../interfaces" }
 openzeppelin_introspection = { path = "../introspection" }
 openzeppelin_macros = { path = "../macros" }
 openzeppelin_security = { path = "../security" }

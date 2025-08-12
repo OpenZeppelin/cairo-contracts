@@ -1,4 +1,7 @@
-use openzeppelin_introspection::interface::ISRC5;
+use openzeppelin_interfaces::accesscontrol::{
+    IACCESSCONTROL_ID, IAccessControl, IAccessControlCamel, IAccessControlWithDelay, RoleStatus,
+};
+use openzeppelin_interfaces::introspection::ISRC5;
 use openzeppelin_test_common::mocks::access::DualCaseAccessControlMock;
 use openzeppelin_testing::constants::{
     ADMIN, AUTHORIZED, OTHER, OTHER_ADMIN, OTHER_ROLE, ROLE, TIMESTAMP, ZERO,
@@ -8,9 +11,6 @@ use snforge_std::{start_cheat_block_timestamp_global, start_cheat_caller_address
 use starknet::ContractAddress;
 use crate::accesscontrol::AccessControlComponent::{
     InternalImpl, RoleAdminChanged, RoleGranted, RoleGrantedWithDelay, RoleRevoked,
-};
-use crate::accesscontrol::interface::{
-    IACCESSCONTROL_ID, IAccessControl, IAccessControlCamel, IAccessControlWithDelay, RoleStatus,
 };
 use crate::accesscontrol::{AccessControlComponent, DEFAULT_ADMIN_ROLE};
 
@@ -692,7 +692,20 @@ fn test_default_admin_role_is_its_own_admin() {
 //
 
 #[generate_trait]
-impl AccessControlSpyHelpersImpl of AccessControlSpyHelpers {
+pub impl AccessControlSpyHelpersImpl of AccessControlSpyHelpers {
+    fn assert_event_role_revoked(
+        ref self: EventSpy,
+        contract: ContractAddress,
+        role: felt252,
+        account: ContractAddress,
+        sender: ContractAddress,
+    ) {
+        let expected = AccessControlComponent::Event::RoleRevoked(
+            RoleRevoked { role, account, sender },
+        );
+        self.assert_emitted_single(contract, expected);
+    }
+
     fn assert_only_event_role_revoked(
         ref self: EventSpy,
         contract: ContractAddress,

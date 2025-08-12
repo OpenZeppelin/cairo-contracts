@@ -12,15 +12,18 @@ This module provides interfaces, presets, and utilities related to ERC721 contra
 
 TIP: For an overview of ERC721, read our xref:erc721.adoc[ERC721 guide].
 
-== Core
+== Interfaces
+
+NOTE: Starting from version `3.x.x`, the interfaces are no longer part of the `openzeppelin_token` package. The references
+documented here are contained in the `openzeppelin_interfaces` package version `v{current_openzeppelin_interfaces_version}`.
 
 [.contract]
 [[IERC721]]
-=== `++IERC721++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0/packages/token/src/erc721/interface.cairo#L13-L31[{github-icon},role=heading-link]
+=== `++IERC721++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/interfaces/src/token/erc721.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
-use openzeppelin_token::erc721::interface::IERC721;
+use openzeppelin_interfaces::erc721::IERC721;
 ```
 
 Interface of the IERC721 standard as defined in {eip721}.
@@ -136,11 +139,11 @@ Emitted when `token_id` token is transferred from `from` to `to`.
 
 [.contract]
 [[IERC721Metadata]]
-=== `++IERC721Metadata++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0/packages/token/src/erc721/interface.cairo#L54-L59[{github-icon},role=heading-link]
+=== `++IERC721Metadata++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/interfaces/src/token/erc721.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
-use openzeppelin_token::erc721::interface::IERC721Metadata;
+use openzeppelin_interfaces::erc721::IERC721Metadata;
 ```
 
 Interface for the optional metadata functions in {eip721}.
@@ -181,8 +184,83 @@ Returns the Uniform Resource Identifier (URI) for the `token_id` token.
 If the URI is not set for `token_id`, the return value will be an empty `ByteArray`.
 
 [.contract]
+[[IERC721Receiver]]
+=== `++IERC721Receiver++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/interfaces/src/token/erc721.cairo[{github-icon},role=heading-link]
+
+[.hljs-theme-dark]
+```cairo
+use openzeppelin_interfaces::erc721::IERC721Receiver;
+```
+
+Interface for contracts that support receiving `safe_transfer_from` transfers.
+
+[.contract-index]
+.{inner-src5}
+--
+0x3a0dff5f70d80458ad14ae37bb182a728e3c8cdda0402a5daa86620bdf910bc
+--
+
+[.contract-index]
+.Functions
+--
+* xref:#IERC721Receiver-on_erc721_received[`++on_erc721_received(operator, from, token_id, data)++`]
+--
+
+==== Functions
+
+[.contract-item]
+[[IERC721Receiver-on_erc721_received]]
+==== `[.contract-item-name]#++on_erc721_received++#++(operator: ContractAddress, from: ContractAddress, token_id: u256, data: Span<felt252>) -> felt252++` [.item-kind]#external#
+
+Whenever an IERC721 `token_id` token is transferred to this non-account contract via <<IERC721-safe_transfer_from,IERC721::safe_transfer_from>> by `operator` from `from`, this function is called.
+
+[.contract]
+[[IERC721Enumerable]]
+=== `++IERC721Enumerable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/interfaces/src/token/erc721.cairo[{github-icon},role=heading-link]
+
+Interface for the optional enumerable functions in {eip721}.
+
+[.contract-index]
+.{inner-src5}
+--
+0x16bc0f502eeaf65ce0b3acb5eea656e2f26979ce6750e8502a82f377e538c87
+--
+
+[.contract-index]
+.Functions
+--
+* xref:#IERC721Enumerable-total_supply[`++total_supply()++`]
+* xref:#IERC721Enumerable-token_by_index[`++token_by_index(index)++`]
+* xref:#IERC721Enumerable-token_of_owner_by_index[`++token_of_owner_by_index(owner, index)++`]
+--
+
+==== Functions
+
+[.contract-item]
+[[IERC721Enumerable-total_supply]]
+==== `[.contract-item-name]#++total_supply++#++() -> u256++` [.item-kind]#external#
+
+Returns the total amount of tokens stored by the contract.
+
+[.contract-item]
+[[IERC721Enumerable-token_by_index]]
+==== `[.contract-item-name]#++token_by_index++#++(index: u256) -> u256++` [.item-kind]#external#
+
+Returns a token id at a given `index` of all the tokens stored by the contract.
+Use along with xref:#IERC721Enumerable-total_supply[IERC721Enumerable::total_supply] to enumerate all tokens.
+
+[.contract-item]
+[[IERC721Enumerable-token_of_owner_by_index]]
+==== `[.contract-item-name]#++token_of_owner_by_index++#++(owner: ContractAddress, index: u256) -> u256++` [.item-kind]#external#
+
+Returns the token id owned by `owner` at a given `index` of its token list.
+Use along with xref:#IERC721-balance_of[IERC721::balance_of] to enumerate all of ``owner``'s tokens.
+
+== Core
+
+[.contract]
 [[ERC721Component]]
-=== `++ERC721Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0/packages/token/src/erc721/erc721.cairo#L7[{github-icon},role=heading-link]
+=== `++ERC721Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/token/src/erc721/erc721.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -710,42 +788,9 @@ See <<IERC721-ApprovalForAll,IERC721::ApprovalForAll>>.
 
 See <<IERC721-Transfer,IERC721::Transfer>>.
 
-== Receiver
-
-[.contract]
-[[IERC721Receiver]]
-=== `++IERC721Receiver++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0/packages/token/src/erc721/interface.cairo#L70-L79[{github-icon},role=heading-link]
-
-[.hljs-theme-dark]
-```cairo
-use openzeppelin_token::erc721::interface::IERC721Receiver;
-```
-
-Interface for contracts that support receiving `safe_transfer_from` transfers.
-
-[.contract-index]
-.{inner-src5}
---
-0x3a0dff5f70d80458ad14ae37bb182a728e3c8cdda0402a5daa86620bdf910bc
---
-
-[.contract-index]
-.Functions
---
-* xref:#IERC721Receiver-on_erc721_received[`++on_erc721_received(operator, from, token_id, data)++`]
---
-
-==== Functions
-
-[.contract-item]
-[[IERC721Receiver-on_erc721_received]]
-==== `[.contract-item-name]#++on_erc721_received++#++(operator: ContractAddress, from: ContractAddress, token_id: u256, data: Span<felt252>) -> felt252++` [.item-kind]#external#
-
-Whenever an IERC721 `token_id` token is transferred to this non-account contract via <<IERC721-safe_transfer_from,IERC721::safe_transfer_from>> by `operator` from `from`, this function is called.
-
 [.contract]
 [[ERC721ReceiverComponent]]
-=== `++ERC721ReceiverComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0/packages/token/src/erc721/erc721_receiver.cairo[{github-icon},role=heading-link]
+=== `++ERC721ReceiverComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/token/src/erc721/erc721_receiver.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -810,50 +855,8 @@ Registers the `IERC721Receiver` interface ID as supported through introspection.
 == Extensions
 
 [.contract]
-[[IERC721Enumerable]]
-=== `++IERC721Enumerable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0/packages/token/src/erc721/extensions/erc721_enumerable/interface.cairo[{github-icon},role=heading-link]
-
-Interface for the optional enumerable functions in {eip721}.
-
-[.contract-index]
-.{inner-src5}
---
-0x16bc0f502eeaf65ce0b3acb5eea656e2f26979ce6750e8502a82f377e538c87
---
-
-[.contract-index]
-.Functions
---
-* xref:#IERC721Enumerable-total_supply[`++total_supply()++`]
-* xref:#IERC721Enumerable-token_by_index[`++token_by_index(index)++`]
-* xref:#IERC721Enumerable-token_of_owner_by_index[`++token_of_owner_by_index(owner, index)++`]
---
-
-==== Functions
-
-[.contract-item]
-[[IERC721Enumerable-total_supply]]
-==== `[.contract-item-name]#++total_supply++#++() -> u256++` [.item-kind]#external#
-
-Returns the total amount of tokens stored by the contract.
-
-[.contract-item]
-[[IERC721Enumerable-token_by_index]]
-==== `[.contract-item-name]#++token_by_index++#++(index: u256) -> u256++` [.item-kind]#external#
-
-Returns a token id at a given `index` of all the tokens stored by the contract.
-Use along with xref:#IERC721Enumerable-total_supply[IERC721Enumerable::total_supply] to enumerate all tokens.
-
-[.contract-item]
-[[IERC721Enumerable-token_of_owner_by_index]]
-==== `[.contract-item-name]#++token_of_owner_by_index++#++(owner: ContractAddress, index: u256) -> u256++` [.item-kind]#external#
-
-Returns the token id owned by `owner` at a given `index` of its token list.
-Use along with xref:#IERC721-balance_of[IERC721::balance_of] to enumerate all of ``owner``'s tokens.
-
-[.contract]
 [[ERC721EnumerableComponent]]
-=== `++ERC721EnumerableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0/packages/token/src/erc721/extensions/erc721_enumerable.cairo[{github-icon},role=heading-link]
+=== `++ERC721EnumerableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/token/src/erc721/extensions/erc721_enumerable.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin_token::erc721::extensions::ERC721EnumerableComponent;
@@ -1009,7 +1012,7 @@ This has 0(1) time complexity but alters the indexed order by swapping `token_id
 
 [.contract]
 [[ERC721Upgradeable]]
-=== `++ERC721Upgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0/packages/presets/src/erc721.cairo[{github-icon},role=heading-link]
+=== `++ERC721Upgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/presets/src/erc721.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin_presets::ERC721Upgradeable;

@@ -7,6 +7,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Added
+
+- `openzeppelin_interfaces` package (#1463)
+
+### Changed
+
+- Bump scarb to 2.12.0 (#1463)
+
+### Changed (Breaking)
+
+- Moved interfaces, ABIs and dispatchers into `openzeppelin_interfaces` (#1463)
+  - Some structs and types that were defined inside interface files were also moved
+
+## 3.0.0-alpha.0 (2025-07-18)
+
+### Added
+
+- `ERC6372Clock` interface to `openzeppelin_utils::contract_clock` (#1417)
+- AccessControlDefaultAdminRules interface and component (#1432)
+
+### Changed
+
+- `GovernorComponent` and its extensions support voting tokens that follow the `ERC6372` clock standard (#1417)
+
+### Changed (Breaking)
+
+- `VotesComponent` now supports customizable clock mechanisms via `ERC6372Clock`, enabling alternative clock sources (#1417)
+
 ## 2.0.0 (2025-06-18)
 
 ### Added

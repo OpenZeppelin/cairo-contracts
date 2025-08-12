@@ -36,20 +36,38 @@ fn test_get_latest() {
 }
 
 #[test]
-fn test_get_at_key() {
+fn test_upper_lookup() {
     let mut mock_trace = CONTRACT_STATE();
 
     mock_trace.push_checkpoint(100, 1000);
     mock_trace.push_checkpoint(200, 2000);
     mock_trace.push_checkpoint(300, 3000);
 
-    let value_at_150 = mock_trace.get_at_key(150);
+    let value_at_150 = mock_trace.upper_lookup(150);
     assert_eq!(value_at_150, 1000);
 
-    let value_at_250 = mock_trace.get_at_key(250);
+    let value_at_250 = mock_trace.upper_lookup(250);
     assert_eq!(value_at_250, 2000);
 
-    let value_at_350 = mock_trace.get_at_key(350);
+    let value_at_350 = mock_trace.upper_lookup(350);
+    assert_eq!(value_at_350, 3000);
+}
+
+#[test]
+fn test_upper_lookup_recent() {
+    let mut mock_trace = CONTRACT_STATE();
+
+    mock_trace.push_checkpoint(100, 1000);
+    mock_trace.push_checkpoint(200, 2000);
+    mock_trace.push_checkpoint(300, 3000);
+
+    let value_at_150 = mock_trace.upper_lookup_recent(150);
+    assert_eq!(value_at_150, 1000);
+
+    let value_at_250 = mock_trace.upper_lookup_recent(250);
+    assert_eq!(value_at_250, 2000);
+
+    let value_at_350 = mock_trace.upper_lookup_recent(350);
     assert_eq!(value_at_350, 3000);
 }
 

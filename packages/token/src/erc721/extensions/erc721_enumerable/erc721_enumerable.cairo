@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v2.0.0
+// OpenZeppelin Contracts for Cairo v3.0.0-alpha.0
 // (token/src/erc721/extensions/erc721_enumerable/erc721_enumerable.cairo)
 
 /// # ERC721Enumerable Component
@@ -17,6 +17,7 @@
 #[starknet::component]
 pub mod ERC721EnumerableComponent {
     use core::num::traits::Zero;
+    use openzeppelin_interfaces::erc721 as interface;
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use starknet::ContractAddress;
@@ -26,7 +27,6 @@ pub mod ERC721EnumerableComponent {
     };
     use crate::erc721::ERC721Component;
     use crate::erc721::ERC721Component::{ERC721Impl, InternalImpl as ERC721InternalImpl};
-    use crate::erc721::extensions::erc721_enumerable::interface;
 
     #[storage]
     pub struct Storage {
@@ -99,7 +99,7 @@ pub mod ERC721EnumerableComponent {
         /// interface id.
         fn initializer(ref self: ComponentState<TContractState>) {
             let mut src5_component = get_dep_component_mut!(ref self, SRC5);
-            src5_component.register_interface(interface::IERC721ENUMERABLE_ID);
+            src5_component.register_interface(interface::IERC721_ENUMERABLE_ID);
         }
 
         /// Updates the ownership and token-tracking data structures.

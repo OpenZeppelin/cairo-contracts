@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v2.0.0
+// OpenZeppelin Contracts for Cairo v3.0.0-alpha.0
 // (governance/src/governor/extensions/governor_votes.cairo)
 
 /// # GovernorVotes Component
@@ -9,13 +9,16 @@
 #[starknet::component]
 pub mod GovernorVotesComponent {
     use core::num::traits::Zero;
+    use openzeppelin_interfaces::governance::extensions::IVotesToken;
+    use openzeppelin_interfaces::votes::{
+        IVotesDispatcher, IVotesDispatcherTrait, IVotesSafeDispatcher, IVotesSafeDispatcherTrait,
+    };
     use openzeppelin_introspection::src5::SRC5Component;
+    use openzeppelin_utils::contract_clock::ERC6372TimestampClock;
     use starknet::ContractAddress;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
     use crate::governor::GovernorComponent;
     use crate::governor::GovernorComponent::ComponentState as GovernorComponentState;
-    use crate::governor::extensions::interface::IVotesToken;
-    use crate::votes::interface::{IVotesDispatcher, IVotesDispatcherTrait};
 
     #[storage]
     pub struct Storage {
@@ -38,15 +41,17 @@ pub mod GovernorVotesComponent {
         +Drop<TContractState>,
     > of GovernorComponent::GovernorVotesTrait<TContractState> {
         /// See `GovernorComponent::GovernorVotesTrait::clock`.
+        #[feature("safe_dispatcher")]
         fn clock(self: @GovernorComponentState<TContractState>) -> u64 {
-            // VotesComponent uses the block timestamp for tracking checkpoints.
-            // That must be updated in order to allow for more flexible clock modes.
-            starknet::get_block_timestamp()
+            let votes_dispatcher = IVotesSafeDispatcher { contract_address: get_votes_token(self) };
+            votes_dispatcher.clock().unwrap_or(ERC6372TimestampClock::clock())
         }
 
         /// See `GovernorComponent::GovernorVotesTrait::CLOCK_MODE`.
-        fn clock_mode(self: @GovernorComponentState<TContractState>) -> ByteArray {
-            "mode=timestamp&from=starknet::SN_MAIN"
+        #[feature("safe_dispatcher")]
+        fn CLOCK_MODE(self: @GovernorComponentState<TContractState>) -> ByteArray {
+            let votes_dispatcher = IVotesSafeDispatcher { contract_address: get_votes_token(self) };
+            votes_dispatcher.CLOCK_MODE().unwrap_or(ERC6372TimestampClock::CLOCK_MODE())
         }
 
         /// See `GovernorComponent::GovernorVotesTrait::get_votes`.
@@ -56,14 +61,21 @@ pub mod GovernorVotesComponent {
             timepoint: u64,
             params: Span<felt252>,
         ) -> u256 {
-            let contract = self.get_contract();
-            let this_component = GovernorVotes::get_component(contract);
-
-            let token = this_component.Governor_token.read();
-            let votes_dispatcher = IVotesDispatcher { contract_address: token };
-
+            let votes_dispatcher = IVotesDispatcher { contract_address: get_votes_token(self) };
             votes_dispatcher.get_past_votes(account, timepoint)
         }
+    }
+
+    fn get_votes_token<
+        TContractState,
+        +GovernorComponent::HasComponent<TContractState>,
+        impl GovernorVotes: HasComponent<TContractState>,
+    >(
+        self: @GovernorComponentState<TContractState>,
+    ) -> ContractAddress {
+        let contract = self.get_contract();
+        let this_component = GovernorVotes::get_component(contract);
+        this_component.Governor_token.read()
     }
 
     //

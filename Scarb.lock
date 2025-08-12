@@ -3,12 +3,13 @@ version = 1
 
 [[package]]
 name = "openzeppelin"
-version = "2.0.0"
+version = "3.0.0-alpha.0"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_account",
  "openzeppelin_finance",
  "openzeppelin_governance",
+ "openzeppelin_interfaces",
  "openzeppelin_introspection",
  "openzeppelin_merkle_tree",
  "openzeppelin_presets",
@@ -23,8 +24,9 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_access"
-version = "2.0.0"
+version = "3.0.0-alpha.0"
 dependencies = [
+ "openzeppelin_interfaces",
  "openzeppelin_introspection",
  "openzeppelin_test_common",
  "openzeppelin_testing",
@@ -33,8 +35,9 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_account"
-version = "2.0.0"
+version = "3.0.0-alpha.0"
 dependencies = [
+ "openzeppelin_interfaces",
  "openzeppelin_introspection",
  "openzeppelin_test_common",
  "openzeppelin_testing",
@@ -44,9 +47,10 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_finance"
-version = "2.0.0"
+version = "3.0.0-alpha.0"
 dependencies = [
  "openzeppelin_access",
+ "openzeppelin_interfaces",
  "openzeppelin_test_common",
  "openzeppelin_testing",
  "openzeppelin_token",
@@ -56,10 +60,11 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_governance"
-version = "2.0.0"
+version = "3.0.0-alpha.0"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_account",
+ "openzeppelin_interfaces",
  "openzeppelin_introspection",
  "openzeppelin_test_common",
  "openzeppelin_testing",
@@ -69,20 +74,28 @@ dependencies = [
 ]
 
 [[package]]
-name = "openzeppelin_introspection"
-version = "2.0.0"
+name = "openzeppelin_interfaces"
+version = "2.1.0"
 dependencies = [
+ "snforge_std",
+]
+
+[[package]]
+name = "openzeppelin_introspection"
+version = "3.0.0-alpha.0"
+dependencies = [
+ "openzeppelin_interfaces",
  "openzeppelin_test_common",
  "snforge_std",
 ]
 
 [[package]]
 name = "openzeppelin_macros"
-version = "2.0.0"
+version = "3.0.0-alpha.0"
 
 [[package]]
 name = "openzeppelin_merkle_tree"
-version = "2.0.0"
+version = "3.0.0-alpha.0"
 dependencies = [
  "openzeppelin_testing",
  "snforge_std",
@@ -90,11 +103,12 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_presets"
-version = "2.0.0"
+version = "3.0.0-alpha.0"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_account",
  "openzeppelin_finance",
+ "openzeppelin_interfaces",
  "openzeppelin_introspection",
  "openzeppelin_test_common",
  "openzeppelin_testing",
@@ -106,8 +120,9 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_security"
-version = "2.0.0"
+version = "3.0.0-alpha.0"
 dependencies = [
+ "openzeppelin_interfaces",
  "openzeppelin_test_common",
  "openzeppelin_testing",
  "snforge_std",
@@ -115,12 +130,13 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_test_common"
-version = "2.0.0"
+version = "3.0.0-alpha.0"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_account",
  "openzeppelin_finance",
  "openzeppelin_governance",
+ "openzeppelin_interfaces",
  "openzeppelin_introspection",
  "openzeppelin_macros",
  "openzeppelin_security",
@@ -133,17 +149,18 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_testing"
-version = "4.2.0"
+version = "4.4.0"
 dependencies = [
  "snforge_std",
 ]
 
 [[package]]
 name = "openzeppelin_token"
-version = "2.0.0"
+version = "3.0.0-alpha.0"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_account",
+ "openzeppelin_interfaces",
  "openzeppelin_introspection",
  "openzeppelin_test_common",
  "openzeppelin_testing",
@@ -153,7 +170,7 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_upgrades"
-version = "2.0.0"
+version = "3.0.0-alpha.0"
 dependencies = [
  "openzeppelin_test_common",
  "openzeppelin_testing",
@@ -162,8 +179,9 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_utils"
-version = "2.0.0"
+version = "3.0.0-alpha.0"
 dependencies = [
+ "openzeppelin_interfaces",
  "openzeppelin_test_common",
  "openzeppelin_testing",
  "snforge_std",
@@ -171,15 +189,15 @@ dependencies = [
 
 [[package]]
 name = "snforge_scarb_plugin"
-version = "0.45.0"
+version = "0.47.0"
 source = "registry+https://scarbs.xyz/"
-checksum = "sha256:568482e8c40e7018d9ea729d6df3d5ec22b665cfff1e89181d8ad31bacca11cc"
+checksum = "sha256:3525e4502541043571678531fced28f753746cb59a8aa79811811218abef6c05"
 
 [[package]]
 name = "snforge_std"
-version = "0.45.0"
+version = "0.47.0"
 source = "registry+https://scarbs.xyz/"
-checksum = "sha256:c08b359c266e45c4e71b71baa3c4af8dae7fc5416fc8168f0983e5c9a2ac0abe"
+checksum = "sha256:b8647adcd0f5c9631f88b5a523b2653a82f2349dde2af7213c75f1006fa3f71b"
 dependencies = [
  "snforge_scarb_plugin",
 ]

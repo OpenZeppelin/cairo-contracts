@@ -12,15 +12,18 @@ This module provides interfaces, presets, and utilities related to ERC1155 contr
 
 TIP: For an overview of ERC1155, read our xref:erc1155.adoc[ERC1155 guide].
 
-== Core
+== Interfaces
+
+NOTE: Starting from version `3.x.x`, the interfaces are no longer part of the `openzeppelin_token` package. The references
+documented here are contained in the `openzeppelin_interfaces` package version `v{current_openzeppelin_interfaces_version}`.
 
 [.contract]
 [[IERC1155]]
-=== `++IERC1155++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0/packages/token/src/erc1155/interface.cairo[{github-icon},role=heading-link]
+=== `++IERC1155++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/interfaces/src/token/erc1155.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
-use openzeppelin_token::erc1155::interface::IERC1155;
+use openzeppelin_interfaces::erc1155::IERC1155;
 ```
 Interface of the IERC1155 standard as defined in {eip1155}.
 
@@ -126,11 +129,11 @@ Emitted when the token URI is updated to `value` for the `id` token.
 
 [.contract]
 [[IERC1155MetadataURI]]
-=== `++IERC1155MetadataURI++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0/packages/token/src/erc1155/interface.cairo[{github-icon},role=heading-link]
+=== `++IERC1155MetadataURI++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/interfaces/src/token/erc1155.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
-use openzeppelin_token::erc1155::interface::IERC1155MetadataURI;
+use openzeppelin_interfaces::erc1155::IERC1155MetadataURI;
 ```
 Interface for the optional metadata function in {eip1155-metadata}[EIP1155].
 
@@ -155,8 +158,50 @@ Interface for the optional metadata function in {eip1155-metadata}[EIP1155].
 Returns the Uniform Resource Identifier (URI) for the `token_id` token.
 
 [.contract]
+[[IERC1155Receiver]]
+=== `++IERC1155Receiver++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/interfaces/src/token/erc1155.cairo[{github-icon},role=heading-link]
+
+[.hljs-theme-dark]
+```cairo
+use openzeppelin_interfaces::erc1155::IERC1155Receiver;
+```
+
+Interface for contracts that support receiving token transfers from `ERC1155` contracts.
+
+[.contract-index]
+.{inner-src5}
+--
+0x15e8665b5af20040c3af1670509df02eb916375cdf7d8cbaf7bd553a257515e
+--
+
+[.contract-index]
+.Functions
+--
+* xref:#IERC1155Receiver-on_erc1155_received[`++on_erc1155_received(operator, from, token_id, value, data)++`]
+* xref:#IERC1155Receiver-on_erc1155_batch_received[`++on_erc1155_batch_received(operator, from, token_ids, values, data)++`]
+--
+
+==== Functions
+
+[.contract-item]
+[[IERC1155Receiver-on_erc1155_received]]
+==== `[.contract-item-name]#++on_erc1155_received++#++(operator: ContractAddress, from: ContractAddress, token_id: u256, value: u256, data Span<felt252>) -> felt252++` [.item-kind]#external#
+
+This function is called whenever an ERC1155 `token_id` token is transferred to this `IERC1155Receiver` implementer
+via <<IERC1155-safe_transfer_from,IERC1155::safe_transfer_from>> by `operator` from `from`.
+
+[.contract-item]
+[[IERC1155Receiver-on_erc1155_batch_received]]
+==== `[.contract-item-name]#++on_erc1155_batch_received++#++(operator: ContractAddress, from: ContractAddress, token_ids: Span<u256>, values: Span<u256>, data Span<felt252>) -> felt252++` [.item-kind]#external#
+
+This function is called whenever multiple ERC1155 `token_ids` tokens are transferred to this `IERC1155Receiver` implementer
+via <<IERC1155-safe_batch_transfer_from,IERC1155::safe_batch_transfer_from>> by `operator` from `from`.
+
+== Core
+
+[.contract]
 [[ERC1155Component]]
-=== `++ERC1155Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0/packages/token/src/erc1155/erc1155.cairo[{github-icon},role=heading-link]
+=== `++ERC1155Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/token/src/erc1155/erc1155.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -555,51 +600,9 @@ See <<IERC1155-ApprovalForAll,IERC1155::ApprovalForAll>>.
 
 See <<IERC1155-URI,IERC1155::URI>>.
 
-== Receiver
-
-[.contract]
-[[IERC1155Receiver]]
-=== `++IERC1155Receiver++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0/packages/token/src/erc1155/interface.cairo[{github-icon},role=heading-link]
-
-[.hljs-theme-dark]
-```cairo
-use openzeppelin_token::erc1155::interface::IERC1155Receiver;
-```
-
-Interface for contracts that support receiving token transfers from `ERC1155` contracts.
-
-[.contract-index]
-.{inner-src5}
---
-0x15e8665b5af20040c3af1670509df02eb916375cdf7d8cbaf7bd553a257515e
---
-
-[.contract-index]
-.Functions
---
-* xref:#IERC1155Receiver-on_erc1155_received[`++on_erc1155_received(operator, from, token_id, value, data)++`]
-* xref:#IERC1155Receiver-on_erc1155_batch_received[`++on_erc1155_batch_received(operator, from, token_ids, values, data)++`]
---
-
-==== Functions
-
-[.contract-item]
-[[IERC1155Receiver-on_erc1155_received]]
-==== `[.contract-item-name]#++on_erc1155_received++#++(operator: ContractAddress, from: ContractAddress, token_id: u256, value: u256, data Span<felt252>) -> felt252++` [.item-kind]#external#
-
-This function is called whenever an ERC1155 `token_id` token is transferred to this `IERC1155Receiver` implementer
-via <<IERC1155-safe_transfer_from,IERC1155::safe_transfer_from>> by `operator` from `from`.
-
-[.contract-item]
-[[IERC1155Receiver-on_erc1155_batch_received]]
-==== `[.contract-item-name]#++on_erc1155_batch_received++#++(operator: ContractAddress, from: ContractAddress, token_ids: Span<u256>, values: Span<u256>, data Span<felt252>) -> felt252++` [.item-kind]#external#
-
-This function is called whenever multiple ERC1155 `token_ids` tokens are transferred to this `IERC1155Receiver` implementer
-via <<IERC1155-safe_batch_transfer_from,IERC1155::safe_batch_transfer_from>> by `operator` from `from`.
-
 [.contract]
 [[ERC1155ReceiverComponent]]
-=== `++ERC1155ReceiverComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0/packages/token/src/erc1155/erc1155_receiver.cairo[{github-icon},role=heading-link]
+=== `++ERC1155ReceiverComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/token/src/erc1155/erc1155_receiver.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -676,7 +679,7 @@ Registers the `IERC1155Receiver` interface ID as supported through introspection
 
 [.contract]
 [[ERC1155Upgradeable]]
-=== `++ERC1155Upgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0/packages/presets/src/erc1155.cairo[{github-icon},role=heading-link]
+=== `++ERC1155Upgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/presets/src/erc1155.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin_presets::ERC1155;

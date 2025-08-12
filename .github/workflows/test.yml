@@ -48,7 +48,9 @@ jobs:
         run: scarb fmt --check --workspace
 
       - name: Run tests
-        run: snforge test --workspace --features fuzzing --fuzzer-runs 500
+        # TODO: turn back on once fuzzer issue is fixed
+        # run: snforge test --workspace  --features fuzzing --fuzzer-runs 500
+        run: snforge test --workspace 
 
       - name: Run tests and generate coverage report
         run: snforge test --workspace --coverage

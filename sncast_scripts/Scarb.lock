@@ -76,14 +76,7 @@ version = "3.0.0-alpha.0"
 
 [[package]]
 name = "openzeppelin_utils"
-<<<<<<< HEAD
-version = "2.0.0"
-dependencies = [
- "openzeppelin_interfaces",
-]
-=======
 version = "3.0.0-alpha.0"
->>>>>>> 997cc3af838540579d3beb386e1a81120a79ed66
 
 [[package]]
 name = "sncast_scripts"

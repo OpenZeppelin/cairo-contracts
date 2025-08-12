@@ -736,14 +736,14 @@ pub mod ERC4626Component {
         }
     }
 }
-use starknet::ContractAddress;
-use starknet::storage::StoragePointerReadAccess;
 
 //
 // Default (empty) traits
 //
 
 use openzeppelin_interfaces::erc20::{IERC20Dispatcher, IERC20DispatcherTrait};
+use starknet::ContractAddress;
+use starknet::storage::StoragePointerReadAccess;
 
 pub impl ERC4626HooksEmptyImpl<
     TContractState, +ERC4626Component::HasComponent<TContractState>,

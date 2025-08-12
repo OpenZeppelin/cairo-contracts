@@ -34,14 +34,16 @@
 #[starknet::component]
 pub mod ERC4626Component {
     use core::num::traits::{Bounded, Pow, Zero};
+    use openzeppelin_interfaces::erc20::{
+        IERC20, IERC20Dispatcher, IERC20DispatcherTrait, IERC20Metadata,
+    };
+    use openzeppelin_interfaces::erc4626::IERC4626;
     use openzeppelin_utils::math;
     use openzeppelin_utils::math::Rounding;
     use starknet::ContractAddress;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
     use crate::erc20::ERC20Component;
     use crate::erc20::ERC20Component::InternalImpl as ERC20InternalImpl;
-    use crate::erc20::extensions::erc4626::interface::IERC4626;
-    use crate::erc20::interface::{IERC20, IERC20Metadata};
 
     // The default values are only used when the DefaultConfig
     // is in scope in the implementing contract.

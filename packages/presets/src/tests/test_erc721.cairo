@@ -1,5 +1,9 @@
 use core::num::traits::Zero;
-use openzeppelin_introspection::interface::ISRC5_ID;
+use openzeppelin_interfaces::erc721::{
+    IERC721CamelOnlySafeDispatcher, IERC721CamelOnlySafeDispatcherTrait, IERC721Dispatcher,
+    IERC721DispatcherTrait, IERC721_ID, IERC721_METADATA_ID,
+};
+use openzeppelin_interfaces::introspection::ISRC5_ID;
 use openzeppelin_test_common::erc721::ERC721SpyHelpers;
 use openzeppelin_test_common::ownable::OwnableSpyHelpers;
 use openzeppelin_test_common::upgrades::UpgradeableSpyHelpers;
@@ -11,10 +15,6 @@ use openzeppelin_testing::constants::{
 };
 use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use openzeppelin_token::erc721::ERC721Component::ERC721Impl;
-use openzeppelin_token::erc721::interface::{
-    IERC721CamelOnlySafeDispatcher, IERC721CamelOnlySafeDispatcherTrait, IERC721Dispatcher,
-    IERC721DispatcherTrait, IERC721_ID, IERC721_METADATA_ID,
-};
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::start_cheat_caller_address;
 use starknet::{ClassHash, ContractAddress};

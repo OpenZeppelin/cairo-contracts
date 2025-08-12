@@ -12,10 +12,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `AssetsManagementTrait` defining how assets are managed in `ERC4626Component` (#1454)
+- `openzeppelin_interfaces` package (#1463)
+
+### Changed
+
+- Bump scarb to 2.12.0 (#1463)
 
 ### Changed (Breaking)
 
 - `ERC4626Component` now supports alternative asset management strategies (e.g., external vault) via the added `AssetsManagementTrait` (#1454)
+- Moved interfaces, ABIs and dispatchers into `openzeppelin_interfaces` (#1463)
+  - Some structs and types that were defined inside interface files were also moved
 
 ## 3.0.0-alpha.0 (2025-07-18)
 

@@ -1,5 +1,5 @@
+use openzeppelin_interfaces::introspection::{ISRC5, ISRC5_ID};
 use openzeppelin_test_common::mocks::src5::SRC5Mock;
-use crate::interface::{ISRC5, ISRC5_ID};
 use crate::src5::SRC5Component;
 use crate::src5::SRC5Component::InternalTrait;
 

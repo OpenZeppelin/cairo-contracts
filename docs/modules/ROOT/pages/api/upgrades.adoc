@@ -5,16 +5,21 @@
 
 This crate provides interfaces and utilities related to upgradeability.
 
-== Core
+== Interfaces
+
+include::../utils/_common.adoc[]
+
+NOTE: Starting from version `3.x.x`, the interfaces are no longer part of the `openzeppelin_upgrades` package. The references
+documented here are contained in the `openzeppelin_interfaces` package version `v{current_openzeppelin_interfaces_version}`.
 
 [.contract]
 [[IUpgradeable]]
-=== `++IUpgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/upgrades/src/interface.cairo[{github-icon},role=heading-link]
+=== `++IUpgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/interfaces/src/upgrades.cairo[{github-icon},role=heading-link]
 
 :Upgraded: xref:UpgradeableComponent-Upgraded[Upgraded]
 
 ```cairo
-use openzeppelin_upgrades::interface::IUpgradeable;
+use openzeppelin_interfaces::upgrades::IUpgradeable;
 ```
 
 Interface of an upgradeable contract.
@@ -38,12 +43,12 @@ NOTE: This function is usually protected by an xref:access.adoc[Access Control] 
 
 [.contract]
 [[IUpgradeAndCall]]
-=== `++IUpgradeAndCall++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/upgrades/src/interface.cairo[{github-icon},role=heading-link]
+=== `++IUpgradeAndCall++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/interfaces/src/upgrades.cairo[{github-icon},role=heading-link]
 
 :Upgraded: xref:UpgradeableComponent-Upgraded[Upgraded]
 
 ```cairo
-use openzeppelin::upgrades::interface::IUpgradeAndCall;
+use openzeppelin_interfaces::upgrades::IUpgradeAndCall;
 ```
 
 Interface for an upgradeable contract that couples an upgrade with a function call in the upgraded context.
@@ -64,6 +69,8 @@ Interface for an upgradeable contract that couples an upgrade with a function ca
 Upgrades the contract code by updating its {class_hash} and calls `selector` with the upgraded context.
 
 NOTE: This function is usually protected by an xref:access.adoc[Access Control] mechanism.
+
+== Core
 
 [.contract]
 [[UpgradeableComponent]]

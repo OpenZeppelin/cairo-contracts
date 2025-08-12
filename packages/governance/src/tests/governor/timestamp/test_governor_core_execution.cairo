@@ -1,3 +1,4 @@
+use openzeppelin_interfaces::governor::{IGovernor, ProposalState};
 use openzeppelin_test_common::mocks::governor::GovernorMock::SNIP12MetadataImpl;
 use openzeppelin_testing::constants::{OTHER, VOTES_TOKEN};
 use snforge_std::start_cheat_block_timestamp_global;
@@ -7,7 +8,6 @@ use crate::governor::DefaultConfig;
 use crate::governor::GovernorComponent::InternalImpl;
 use crate::governor::extensions::GovernorCoreExecutionComponent::GovernorExecution;
 use crate::governor::extensions::GovernorVotesComponent::InternalTrait;
-use crate::governor::interface::{IGovernor, ProposalState};
 use crate::tests::governor::timestamp::common::{
     COMPONENT_STATE, CONTRACT_STATE, deploy_votes_token, get_calls, get_proposal_info,
     setup_active_proposal, setup_canceled_proposal, setup_defeated_proposal,

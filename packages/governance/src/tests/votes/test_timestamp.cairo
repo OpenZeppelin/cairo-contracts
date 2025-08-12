@@ -1,3 +1,5 @@
+use openzeppelin_interfaces::erc20::IERC20;
+use openzeppelin_interfaces::erc721::IERC721;
 use openzeppelin_test_common::mocks::votes::ERC721TimestampVotesMock::SNIP12MetadataImpl;
 use openzeppelin_test_common::mocks::votes::{ERC20TimestampVotesMock, ERC721TimestampVotesMock};
 use openzeppelin_testing as utils;
@@ -6,11 +8,9 @@ use openzeppelin_testing::constants::{
 };
 use openzeppelin_testing::{AsAddressTrait, EventSpyExt, spy_events};
 use openzeppelin_token::erc20::ERC20Component::InternalTrait;
-use openzeppelin_token::erc20::interface::IERC20;
 use openzeppelin_token::erc721::ERC721Component::{
     ERC721CamelOnlyImpl, ERC721Impl, ERC721MetadataImpl, InternalImpl as ERC721InternalImpl,
 };
-use openzeppelin_token::erc721::interface::IERC721;
 use openzeppelin_utils::contract_clock::ERC6372TimestampClock;
 use openzeppelin_utils::cryptography::snip12::OffchainMessageHash;
 use openzeppelin_utils::structs::checkpoint::TraceTrait;

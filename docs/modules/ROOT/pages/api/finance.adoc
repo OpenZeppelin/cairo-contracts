@@ -8,15 +8,20 @@
 
 This crate includes primitives for financial systems.
 
-== Vesting
+== Interfaces
+
+include::../utils/_common.adoc[]
+
+NOTE: Starting from version `3.x.x`, the interfaces are no longer part of the `openzeppelin_finance` package. The references
+documented here are contained in the `openzeppelin_interfaces` package version `v{current_openzeppelin_interfaces_version}`.
 
 [.contract]
 [[IVesting]]
-=== `++IVesting++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/finance/src/vesting/interface.cairo[{github-icon},role=heading-link]
+=== `++IVesting++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/interfaces/src/finance/vesting.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
-use openzeppelin_finance::vesting::interface::IVesting;
+use openzeppelin_interfaces::vesting::IVesting;
 ```
 
 Common interface for contracts implementing the vesting functionality.
@@ -101,6 +106,8 @@ May emit an {AmountReleased} event.
 ==== `[.contract-item-name]#++AmountReleased++#++(token: ContractAddress, amount: u256)++` [.item-kind]#event#
 
 Emitted when vested tokens are released to the beneficiary.
+
+== Vesting
 
 [.contract]
 [[VestingComponent]]

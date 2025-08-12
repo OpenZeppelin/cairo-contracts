@@ -1038,7 +1038,7 @@ Hooks are functions which implementations can extend the functionality of the co
 Every contract using ERC4626Component is expected to provide an implementation of the ERC4626HooksTrait.
 For basic token contracts, an empty implementation with no logic must be provided.
 
-TIP: You can use `openzeppelin_token::erc20::extensions::erc4626::ERC4626HooksEmptyImpl` which is already available as part of the library for this purpose.
+TIP: You can use `openzeppelin_token::erc20::extensions::erc4626::ERC4626EmptyHooks` which is already available as part of the library for this purpose.
 
 ==== FeeConfigTrait
 

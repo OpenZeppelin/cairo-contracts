@@ -138,7 +138,7 @@ pub mod ERC4626Component {
     ///
     /// NOTE: To transfer fees, this trait needs to be coordinated with
     /// `ERC4626Component::ERC4626Hooks`.
-    /// 
+    ///
     /// See the ERC4626FeesMock example:
     /// https://github.com/OpenZeppelin/cairo-contracts/tree/main/packages/test_common/src/mocks/erc4626.cairo
     pub trait FeeConfigTrait<TContractState, +HasComponent<TContractState>> {
@@ -244,8 +244,9 @@ pub mod ERC4626Component {
         fn after_deposit(ref self: ComponentState<TContractState>, assets: u256, shares: u256) {}
     }
 
-    /// Defines how the ERC4626 vault manages its underlying assets. This trait provides the core asset 
-    /// management functionality for the vault, abstracting the actual storage and transfer mechanisms. 
+    /// Defines how the ERC4626 vault manages its underlying assets. This trait provides the core
+    /// asset management functionality for the vault, abstracting the actual storage and transfer
+    /// mechanisms.
     /// It enables two primary implementation patterns:
     ///
     /// 1. **Self-managed assets**: The vault contract holds assets directly on its own address.
@@ -294,9 +295,7 @@ pub mod ERC4626Component {
         /// - Must transfer exactly `assets` amount of the underlying token.
         /// - Should revert if the transfer fails or insufficient allowance/balance.
         fn transfer_assets_in(
-            ref self: ComponentState<TContractState>,
-            from: ContractAddress,
-            assets: u256,
+            ref self: ComponentState<TContractState>, from: ContractAddress, assets: u256,
         );
 
         /// Transfers assets from the vault's management to an external address.
@@ -312,9 +311,7 @@ pub mod ERC4626Component {
         /// - Must transfer exactly `assets` amount of the underlying token.
         /// - Should revert if insufficient assets are available or transfer fails.
         fn transfer_assets_out(
-            ref self: ComponentState<TContractState>,
-            to: ContractAddress,
-            assets: u256,
+            ref self: ComponentState<TContractState>, to: ContractAddress, assets: u256,
         );
     }
 
@@ -772,11 +769,14 @@ pub impl ERC4626SelfAssetsManagement<
     fn transfer_assets_in(
         ref self: ERC4626Component::ComponentState<TContractState>,
         from: ContractAddress,
-        assets: u256
+        assets: u256,
     ) {
         let this = starknet::get_contract_address();
         let asset_dispatcher = IERC20Dispatcher { contract_address: self.ERC4626_asset.read() };
-        assert(asset_dispatcher.transfer_from(from, this, assets), ERC4626Component::Errors::TOKEN_TRANSFER_FAILED);
+        assert(
+            asset_dispatcher.transfer_from(from, this, assets),
+            ERC4626Component::Errors::TOKEN_TRANSFER_FAILED,
+        );
     }
 
     fn transfer_assets_out(
@@ -785,7 +785,9 @@ pub impl ERC4626SelfAssetsManagement<
         assets: u256,
     ) {
         let asset_dispatcher = IERC20Dispatcher { contract_address: self.ERC4626_asset.read() };
-        assert(asset_dispatcher.transfer(to, assets), ERC4626Component::Errors::TOKEN_TRANSFER_FAILED);
+        assert(
+            asset_dispatcher.transfer(to, assets), ERC4626Component::Errors::TOKEN_TRANSFER_FAILED,
+        );
     }
 }
 

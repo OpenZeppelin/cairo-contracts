@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Bump scarb to v2.12.0 (#)
+- Bump scarb to v2.12.0 (#1493)
 
 ## 3.0.0-alpha.0 (2025-07-18)
 

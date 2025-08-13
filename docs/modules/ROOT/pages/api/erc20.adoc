@@ -910,14 +910,6 @@ use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component;
 Extension of ERC20 that implements the <<IERC4626,IERC4626>> interface which allows the minting and burning of "shares" in exchange for an underlying "asset."
 The component leverages traits to configure fees, limits, and decimals.
 
-CAUTION: Note on hooks. Special care must be taken when calling external contracts from them. In
-that case, consider implementing reentrancy protections. For example, in the
-`withdraw` flow, the `withdraw_limit` is checked *before* the `before_withdraw` hook
-is invoked. If this hook performs a reentrant call that invokes `withdraw` again, the
-subsequent check on `withdraw_limit` will be done before the first withdrawal’s core logic
-(e.g., burning shares and transferring assets) is executed. This could
-lead to bypassing withdrawal constraints or draining funds.
-
 [.contract-index]
 .{immutable-config}
 --

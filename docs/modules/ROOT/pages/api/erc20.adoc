@@ -1196,9 +1196,13 @@ CAUTION: Implementations must ensure that `get_total_assets` returns the actual 
 of assets that can be withdrawn by users. Inaccurate reporting can lead to incorrect
 share valuations and potential economic attacks.
 
-See the examples:
-- Self-managed vault: `ERC4626SelfAssetsManagement` at the end of the file.
-- External vault: `ERC4626ExternalAssetsManagement` in `ERC4626ExternalVaultMock`.
+:ERC4626SelfAssetsManagement: https://github.com/OpenZeppelin/cairo-contracts/tree/main/packages/token/src/erc20/extensions/erc4626/erc4626.cairo#L760[ERC4626SelfAssetsManagement]
+:ERC4626ExternalAssetsManagement: https://github.com/OpenZeppelin/cairo-contracts/tree/main/packages/test_common/src/mocks/erc4626.cairo#L92[ERC4626ExternalAssetsManagement]
+
+See implementation examples:
+
+- Self-managed vault: {ERC4626SelfAssetsManagement}.
+- External vault: {ERC4626ExternalAssetsManagement}.
 
 [.contract-item]
 [[ERC4626Component-get_total_assets]]

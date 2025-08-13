@@ -1,5 +1,4 @@
 use cairo_lang_macro::{quote, TokenStream};
-use indoc::indoc;
 use insta::assert_snapshot;
 
 use super::common::format_proc_macro_result;
@@ -97,11 +96,9 @@ fn test_impl_without_pub() {
 
 #[test]
 fn test_empty_impl() {
-    let input = quote!(
-        {
-            impl MockContractSpyHelpers {}
-        }
-    );
+    let input = quote!({
+        impl MockContractSpyHelpers {}
+    });
     assert_snapshot!(get_string_result(input));
 }
 

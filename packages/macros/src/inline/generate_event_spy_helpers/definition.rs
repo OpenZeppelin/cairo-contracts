@@ -1,6 +1,7 @@
 use cairo_lang_formatter::format_string;
 use cairo_lang_macro::{inline_macro, Diagnostic, ProcMacroResult, TokenStream};
 use cairo_lang_parser::utils::SimpleParserDatabase;
+use cairo_lang_syntax::node::with_db::SyntaxNodeWithDb;
 use proc_macro2::TokenStream as ProcTokenStream;
 use quote::{format_ident, quote};
 
@@ -54,7 +55,7 @@ use crate::{generate_event_spy_helpers::parser, utils::camel_to_snake};
 /// ```
 #[inline_macro]
 pub fn generate_event_spy_helpers(token_stream: TokenStream) -> ProcMacroResult {
-    // Parse the arguments
+    // 1. Parse the arguments
     let impl_block = match parser::parse_dsl(&token_stream.to_string()) {
         Ok((_, impl_block)) => impl_block,
         Err(e) => {
@@ -64,15 +65,15 @@ pub fn generate_event_spy_helpers(token_stream: TokenStream) -> ProcMacroResult 
         }
     };
 
-    // Generate the helper functions
+    // 2. Generate the helper functions
     let expanded = generate_code(&impl_block).to_string();
 
-    // Format the code
+    // 3. Return the result
     let db = SimpleParserDatabase::default();
-    let formatted_code = format_string(&db, expanded);
+    let syntax_node = db.parse_virtual(expanded).unwrap();
+    let content_node = SyntaxNodeWithDb::new(&syntax_node, &db);
 
-    // Return the result
-    ProcMacroResult::new(TokenStream::new(formatted_code))
+    ProcMacroResult::new(cairo_lang_macro::quote! {#content_node})
 }
 
 /// Generates the code for event spy helper functions based on the provided implementation block.

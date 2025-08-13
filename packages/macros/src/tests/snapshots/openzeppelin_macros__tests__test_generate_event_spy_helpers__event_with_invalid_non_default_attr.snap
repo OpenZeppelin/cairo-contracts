@@ -10,7 +10,7 @@ None
 Diagnostics:
 
 ====
-Error: Parsing Error: Error { input: "#[non_default]\n        event InvalidEvent(\n            field: u64\n        );\n    }\n}\n", code: Char }====
+Error: Parsing Error: Error { input: "#[non_default]event InvalidEvent(field:u64);}}", code: Char }====
 
 AuxData:
 

@@ -1,0 +1,30 @@
+---
+source: src/tests/test_generate_event_spy_helpers.rs
+expression: get_string_result(input)
+snapshot_kind: text
+---
+TokenStream:
+
+#[generate_trait]
+pub impl ContrMockContractSpyHelpersactSpy of ContrMockContractSpyHelpersactSpyTrait {
+    fn assert_event_keyed_event(
+        ref self: EventSpy, contract: ContractAddress, user: ContractAddress, value: u64,
+    ) {
+        let mut keys = array![];
+        keys.append_serde(selector!("KeyedEvent"));
+        keys.append_serde(user);
+        let mut data = array![];
+        data.append_serde(value);
+        let expected = Event { keys, data };
+        self.assert_only_event(contract, expected);
+    }
+}
+
+
+Diagnostics:
+
+None
+
+AuxData:
+
+None

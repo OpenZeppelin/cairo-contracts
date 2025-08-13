@@ -1,0 +1,17 @@
+---
+source: src/tests/test_generate_event_spy_helpers.rs
+expression: get_string_result(input)
+snapshot_kind: text
+---
+TokenStream:
+
+None
+
+Diagnostics:
+
+====
+Error: Parsing Error: Error { input: "#[non_default]event InvalidEvent(field:u64);}}", code: Char }====
+
+AuxData:
+
+None

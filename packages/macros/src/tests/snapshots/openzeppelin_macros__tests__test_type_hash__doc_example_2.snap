@@ -6,7 +6,7 @@ snapshot_kind: text
 TokenStream:
 
 pub struct MyStruct {
-    #[snip12(name: "Simple Felt")] // Optional custom name
+    #[snip12(name: "Simple Felt")]
     pub simple_felt: felt252,
     #[snip12(name: "Class Hash")]
     pub class_hash: ClassHash,

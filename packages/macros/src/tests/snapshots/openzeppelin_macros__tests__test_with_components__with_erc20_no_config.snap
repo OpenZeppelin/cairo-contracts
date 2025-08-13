@@ -9,13 +9,11 @@ TokenStream:
 pub mod MyToken {
     use openzeppelin_token::erc20::ERC20HooksEmptyImpl;
     use starknet::ContractAddress;
-
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
         pub erc20: ERC20Component::Storage,
     }
-
     #[constructor]
     fn constructor(ref self: ContractState) {
         self.erc20.initializer("MyToken", "MTK");

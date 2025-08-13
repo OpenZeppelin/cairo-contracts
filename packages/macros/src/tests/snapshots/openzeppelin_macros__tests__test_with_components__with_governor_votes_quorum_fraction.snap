@@ -8,15 +8,12 @@ TokenStream:
 #[starknet::contract]
 pub mod MyContract {
     use starknet::ContractAddress;
-
-    pub const QUORUM_NUMERATOR: u256 = 600; // 60%
-
+    pub const QUORUM_NUMERATOR: u256 = 600;
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
         pub governor_votes_quorum_fraction: GovernorVotesQuorumFractionComponent::Storage,
     }
-
     #[constructor]
     fn constructor(ref self: ContractState, votes_token: ContractAddress) {
         self.governor_votes_quorum_fraction.initializer(votes_token, QUORUM_NUMERATOR);

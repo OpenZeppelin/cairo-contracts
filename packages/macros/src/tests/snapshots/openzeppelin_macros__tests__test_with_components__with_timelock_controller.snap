@@ -8,13 +8,11 @@ TokenStream:
 #[starknet::contract]
 pub mod MyContract {
     use starknet::ContractAddress;
-
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
         pub timelock_controller: TimelockControllerComponent::Storage,
     }
-
     #[constructor]
     fn constructor(
         ref self: ContractState,

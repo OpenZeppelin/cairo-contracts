@@ -8,13 +8,11 @@ TokenStream:
 #[starknet::contract]
 pub mod Owned {
     use starknet::ContractAddress;
-
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
         pub ownable: OwnableComponent::Storage,
     }
-
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
@@ -22,8 +20,6 @@ pub mod Owned {
         OwnableEvent: OwnableComponent::Event,
         Transfer: Transfer,
     }
-
-    /// Emitted when tokens are moved from address `from` to address `to`.
     #[derive(Drop, starknet::Event)]
     pub struct Transfer {
         #[key]
@@ -32,7 +28,6 @@ pub mod Owned {
         pub to: ContractAddress,
         pub value: u256,
     }
-
     #[constructor]
     fn constructor(ref self: ContractState, owner: ContractAddress) {
         self.ownable.initializer(owner);

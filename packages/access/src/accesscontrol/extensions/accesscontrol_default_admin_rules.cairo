@@ -115,7 +115,7 @@ pub mod AccessControlDefaultAdminRulesComponent {
     }
 
     /// Constants expected to be defined at the contract level used to configure the component
-    /// behaviour.
+    /// behavior.
     ///
     /// - `DEFAULT_ADMIN_DELAY_INCREASE_WAIT`: Returns the maximum number of seconds to wait for a
     /// delay increase.

@@ -910,14 +910,6 @@ use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component;
 Extension of ERC20 that implements the <<IERC4626,IERC4626>> interface which allows the minting and burning of "shares" in exchange for an underlying "asset."
 The component leverages traits to configure fees, limits, and decimals.
 
-CAUTION: Note on hooks. Special care must be taken when calling external contracts from them. In
-that case, consider implementing reentrancy protections. For example, in the
-`withdraw` flow, the `withdraw_limit` is checked *before* the `before_withdraw` hook
-is invoked. If this hook performs a reentrant call that invokes `withdraw` again, the
-subsequent check on `withdraw_limit` will be done before the first withdrawal’s core logic
-(e.g., burning shares and transferring assets) is executed. This could
-lead to bypassing withdrawal constraints or draining funds.
-
 [.contract-index]
 .{immutable-config}
 --
@@ -952,6 +944,12 @@ lead to bypassing withdrawal constraints or draining funds.
 * xref:#ERC4626Component-after_withdraw[`++after_withdraw(self, assets, shares)++`]
 * xref:#ERC4626Component-before_deposit[`++before_deposit(self, assets, shares)++`]
 * xref:#ERC4626Component-after_deposit[`++after_deposit(self, assets, shares)++`]
+
+[.sub-index#ERC4626Component-AssetsManagementTrait]
+.AssetsManagementTrait
+* xref:#ERC4626Component-get_total_assets[`++get_total_assets(self)++`]
+* xref:#ERC4626Component-transfer_assets_in[`++transfer_assets_in(self, from, assets)++`]
+* xref:#ERC4626Component-transfer_assets_out[`++transfer_assets_out(self, to, assets)++`]
 --
 
 [.contract-index#ERC4626Component-Embeddable-Impls]
@@ -1053,6 +1051,7 @@ All operations use their corresponding preview method as the value of assets or 
 Therefore, adjusting an operation's assets in FeeConfigTrait consequently adjusts the assets (or assets to be converted into shares) in both the preview operation and the actual operation.
 
 NOTE: To transfer fees, this trait needs to be coordinated with `ERC4626Component::ERC4626Hooks`.
+
 See the {mock-ex}.
 
 [.contract-item]
@@ -1133,6 +1132,15 @@ This is where contracts can transfer fees.
 NOTE: ERC4626 preview methods must be inclusive of any entry or exit fees.
 The `AdjustFeesTrait` will adjust these values accordingly; therefore,
 fees must be set in the `AdjustFeesTrait` if the using contract enforces entry or exit fees.
+
+CAUTION: Special care must be taken when calling external contracts in these hooks. In
+that case, consider implementing reentrancy protections. For example, in the
+`withdraw` flow, the `withdraw_limit` is checked *before* the `before_withdraw` hook
+is invoked. If this hook performs a reentrant call that invokes `withdraw` again, the
+subsequent check on `withdraw_limit` will be done before the first withdrawal’s core logic
+(e.g., burning shares and transferring assets) is executed. This could
+lead to bypassing withdrawal constraints or draining funds.
+
 See the {mock-ex}.
 
 [.contract-item]
@@ -1166,6 +1174,86 @@ Executes logic before transferring assets and minting shares.
 Hooks into xref:#ERC4626Component-_deposit[_deposit].
 
 Executes logic after transferring assets and minting shares.
+
+==== AssetsManagementTrait
+
+Defines how the ERC4626 vault manages its underlying assets. This trait provides the core asset 
+management functionality for the vault, abstracting the actual storage and transfer mechanisms. 
+It enables two primary implementation patterns:
+
+1. **Self-managed assets**: The vault contract holds assets directly on its own address.
+   This is the default behavior provided by `ERC4626SelfAssetsManagement` implementation.
+
+2. **External vault**: Assets are managed by an external contract, allowing
+   for more complex asset management strategies. The exact implementation is expected to be
+   defined by the contract implementing the ERC4626 component.
+
+The trait methods are called during deposit, withdrawal, and total assets calculations,
+ensuring that the vault's share pricing remains accurate regardless of the underlying
+asset management strategy.
+
+CAUTION: Implementations must ensure that `get_total_assets` returns the actual amount
+of assets that can be withdrawn by users. Inaccurate reporting can lead to incorrect
+share valuations and potential economic attacks.
+
+:ERC4626SelfAssetsManagement: https://github.com/OpenZeppelin/cairo-contracts/tree/main/packages/token/src/erc20/extensions/erc4626/erc4626.cairo#L760[ERC4626SelfAssetsManagement]
+:ERC4626ExternalAssetsManagement: https://github.com/OpenZeppelin/cairo-contracts/tree/main/packages/test_common/src/mocks/erc4626.cairo#L92[ERC4626ExternalAssetsManagement]
+
+See implementation examples:
+
+- Self-managed vault: {ERC4626SelfAssetsManagement}.
+- External vault: {ERC4626ExternalAssetsManagement}.
+
+[.contract-item]
+[[ERC4626Component-get_total_assets]]
+==== `[.contract-item-name]#++get_total_assets++#++(self: @ContractState) → u256++` [.item-kind]#hook#
+
+Returns the total amount of underlying assets under the vault's management.
+Used for share price calculations and determining the vault's total value.
+
+This method should return the actual amount of assets that the vault controls
+and that can be used to satisfy withdrawal requests. For self-managed vaults,
+this is typically the vault contract's token balance. For external vaults,
+this should include any assets deposited in external protocols, minus any
+that are locked or unredeemable.
+
+The accuracy of this method is critical for proper vault operation:
+- Overreporting can lead to share dilution and user losses.
+- Underreporting can lead to share inflation and potential economic attacks.
+
+[.contract-item]
+[[ERC4626Component-transfer_assets_in]]
+==== `[.contract-item-name]#++transfer_assets_in++#++(ref self: ContractState, from: ContractAddress, assets: u256)++` [.item-kind]#hook#
+
+Transfers assets from an external address into the vault's management.
+Called during `deposit` and `mint` operations.
+
+This method should handle the actual transfer of underlying assets from the `from`
+address into the vault's control. For self-managed vaults, this typically means
+transferring tokens to the vault contract's address. For external vaults, this
+might involve transferring into an external contract.
+
+Requirements:
+
+- MUST transfer exactly `assets` amount of the underlying token.
+- SHOULD revert if the transfer fails or insufficient allowance/balance.
+
+[.contract-item]
+[[ERC4626Component-transfer_assets_out]]
+==== `[.contract-item-name]#++transfer_assets_out++#++(ref self: ContractState, to: ContractAddress, assets: u256)++` [.item-kind]#hook#
+
+Transfers assets from the vault's management to an external address.
+Called during withdraw and redeem operations.
+
+This method should handle the actual transfer of underlying assets from the vault's
+control to the `to` address. For self-managed vaults, this typically means
+transferring tokens from the vault contract's address. For external vaults, this
+might involve withdrawing from an external contract first.
+
+Requirements:
+
+- MUST transfer exactly `assets` amount of the underlying token.
+- SHOULD revert if insufficient assets are available or transfer fails.
 
 ==== Embeddable functions
 

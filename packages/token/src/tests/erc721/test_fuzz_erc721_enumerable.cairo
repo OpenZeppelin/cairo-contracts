@@ -236,7 +236,7 @@ fn assert_all_tokens_of_owner(owner: ContractAddress, expected_tokens: Span<u256
 }
 
 // Removes by swapping the token to remove with the last token to replicate
-// ERC721Enumerable behaviour. Assumes that `tokens_list` contains no duplicates.
+// ERC721Enumerable behavior. Assumes that `tokens_list` contains no duplicates.
 fn remove_token_from_list(tokens_list: Span<u256>, token_to_remove: u256) -> Span<u256> {
     let last_index = tokens_list.len() - 1;
     let mut index = 0;

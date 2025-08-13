@@ -952,7 +952,6 @@ lead to bypassing withdrawal constraints or draining funds.
 * xref:#ERC4626Component-after_withdraw[`++after_withdraw(self, assets, shares)++`]
 * xref:#ERC4626Component-before_deposit[`++before_deposit(self, assets, shares)++`]
 * xref:#ERC4626Component-after_deposit[`++after_deposit(self, assets, shares)++`]
---
 
 [.sub-index#ERC4626Component-AssetsManagementTrait]
 .AssetsManagementTrait

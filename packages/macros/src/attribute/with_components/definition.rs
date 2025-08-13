@@ -1,7 +1,8 @@
 use crate::with_components::{components::AllowedComponents, parser::WithComponentsParser};
 use cairo_lang_formatter::format_string;
-use cairo_lang_macro::{attribute_macro, Diagnostic, ProcMacroResult, TokenStream};
+use cairo_lang_macro::{attribute_macro, quote, Diagnostic, ProcMacroResult, TokenStream};
 use cairo_lang_parser::utils::SimpleParserDatabase;
+use cairo_lang_syntax::node::with_db::SyntaxNodeWithDb;
 use regex::Regex;
 
 /// Inserts multiple component dependencies into a modules codebase.
@@ -40,7 +41,9 @@ pub fn with_components(attribute_stream: TokenStream, item_stream: TokenStream) 
         content
     };
 
-    ProcMacroResult::new(TokenStream::new(formatted_content)).with_diagnostics(diagnostics)
+    let syntax_node = db.parse_virtual(formatted_content).unwrap();
+    let formatted_content_node = SyntaxNodeWithDb::new(&syntax_node, &db);
+    ProcMacroResult::new(quote! {#formatted_content_node}).with_diagnostics(diagnostics)
 }
 
 /// Parses the arguments from the attribute stream.

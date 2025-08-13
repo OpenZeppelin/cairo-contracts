@@ -8,13 +8,11 @@ TokenStream:
 #[starknet::contract]
 pub mod MyContract {
     use openzeppelin_token::erc721::ERC721HooksEmptyImpl;
-
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
         pub erc721: ERC721Component::Storage,
     }
-
     #[constructor]
     fn constructor(ref self: ContractState) {
         self.erc721.initializer("MyToken", "MTK", "");

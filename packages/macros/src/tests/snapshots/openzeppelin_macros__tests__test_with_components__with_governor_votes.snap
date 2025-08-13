@@ -8,13 +8,11 @@ TokenStream:
 #[starknet::contract]
 pub mod MyContract {
     use starknet::ContractAddress;
-
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
         pub governor_votes: GovernorVotesComponent::Storage,
     }
-
     #[constructor]
     fn constructor(ref self: ContractState, votes_token: ContractAddress) {
         self.governor_votes.initializer(votes_token);

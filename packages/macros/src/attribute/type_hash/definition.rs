@@ -1,8 +1,9 @@
 use cairo_lang_formatter::format_string;
-use cairo_lang_macro::{attribute_macro, Diagnostic, Diagnostics, ProcMacroResult, TokenStream};
+use cairo_lang_macro::{attribute_macro, quote, Diagnostic, ProcMacroResult, TokenStream};
 use cairo_lang_parser::utils::SimpleParserDatabase;
 use cairo_lang_plugins::plugins::utils::PluginTypeInfo;
 use cairo_lang_starknet_classes::keccak::starknet_keccak;
+use cairo_lang_syntax::node::with_db::SyntaxNodeWithDb;
 use cairo_lang_syntax::node::{ast, TypedSyntaxNode};
 use cairo_lang_syntax::node::{db::SyntaxGroup, SyntaxNode};
 use convert_case::{Case, Casing};
@@ -38,7 +39,8 @@ pub fn type_hash(attr_stream: TokenStream, item_stream: TokenStream) -> ProcMacr
 
     // 2. Parse the item stream
     let db = SimpleParserDatabase::default();
-    let content = match db.parse_virtual(item_stream.to_string()) {
+    let formatted_item_stream = format_string(&db, item_stream.to_string());
+    let content = match db.parse_virtual(formatted_item_stream) {
         Ok(node) => handle_node(&db, node, &config),
         Err(err) => {
             let error = Diagnostic::error(err.format(&db));
@@ -46,15 +48,20 @@ pub fn type_hash(attr_stream: TokenStream, item_stream: TokenStream) -> ProcMacr
         }
     };
 
-    // 3. Format the expanded content
-    let (formatted_content, diagnostics) = match content {
-        Ok(content) => (format_string(&db, content), Diagnostics::new(vec![])),
-        Err(err) => (String::new(), err.into()),
+    let generated = match content {
+        Ok(generated) => generated,
+        Err(err) => {
+            return ProcMacroResult::new(TokenStream::empty()).with_diagnostics(err.into());
+        }
     };
 
-    // 4. Return the result
-    let result = TokenStream::new(item_stream.to_string() + &formatted_content);
-    ProcMacroResult::new(result).with_diagnostics(diagnostics)
+    // 3. Return the result
+    let syntax_node = db.parse_virtual(generated).unwrap();
+    let content_node = SyntaxNodeWithDb::new(&syntax_node, &db);
+
+    let mut result = item_stream;
+    result.extend(quote! {#content_node});
+    ProcMacroResult::new(result)
 }
 
 /// This attribute macro is used to specify an override for the SNIP-12 type.
@@ -115,7 +122,7 @@ fn parse_args(s: &str) -> Result<TypeHashArgs, Diagnostic> {
     let allowed_args_re = allowed_args.join("|");
 
     let re = Regex::new(&format!(
-        r#"^\(({allowed_args_re}): ([\w"' ])+(?:, ({allowed_args_re}): ([\w"' ])+)*\)$"#
+        r#"^\(({allowed_args_re}):\s?([\w"' ])+(?:,\s?({allowed_args_re}):\s?([\w"' ])+)*\)$"#
     ))
     .unwrap();
 

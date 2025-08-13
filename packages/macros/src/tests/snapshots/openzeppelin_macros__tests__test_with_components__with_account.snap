@@ -12,7 +12,6 @@ pub mod MyContract {
         #[substorage(v0)]
         pub account: AccountComponent::Storage,
     }
-
     #[constructor]
     fn constructor(ref self: ContractState, public_key: felt252) {
         self.account.initializer(public_key);

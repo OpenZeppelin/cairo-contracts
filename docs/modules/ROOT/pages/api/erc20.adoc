@@ -1235,8 +1235,8 @@ might involve transferring into an external contract.
 
 Requirements:
 
-- Must transfer exactly `assets` amount of the underlying token.
-- Should revert if the transfer fails or insufficient allowance/balance.
+- MUST transfer exactly `assets` amount of the underlying token.
+- SHOULD revert if the transfer fails or insufficient allowance/balance.
 
 [.contract-item]
 [[ERC4626Component-transfer_assets_out]]
@@ -1252,8 +1252,8 @@ might involve withdrawing from an external contract first.
 
 Requirements:
 
-- Must transfer exactly `assets` amount of the underlying token.
-- Should revert if insufficient assets are available or transfer fails.
+- MUST transfer exactly `assets` amount of the underlying token.
+- SHOULD revert if insufficient assets are available or transfer fails.
 
 ==== Embeddable functions
 

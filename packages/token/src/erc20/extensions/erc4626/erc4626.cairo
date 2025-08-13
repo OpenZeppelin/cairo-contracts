@@ -292,8 +292,8 @@ pub mod ERC4626Component {
         ///
         /// Requirements:
         ///
-        /// - Must transfer exactly `assets` amount of the underlying token.
-        /// - Should revert if the transfer fails or insufficient allowance/balance.
+        /// - MUST transfer exactly `assets` amount of the underlying token.
+        /// - SHOULD revert if the transfer fails or insufficient allowance/balance.
         fn transfer_assets_in(
             ref self: ComponentState<TContractState>, from: ContractAddress, assets: u256,
         );
@@ -308,8 +308,8 @@ pub mod ERC4626Component {
         ///
         /// Requirements:
         ///
-        /// - Must transfer exactly `assets` amount of the underlying token.
-        /// - Should revert if insufficient assets are available or transfer fails.
+        /// - MUST transfer exactly `assets` amount of the underlying token.
+        /// - SHOULD revert if insufficient assets are available or transfer fails.
         fn transfer_assets_out(
             ref self: ComponentState<TContractState>, to: ContractAddress, assets: u256,
         );

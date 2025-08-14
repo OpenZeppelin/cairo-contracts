@@ -44,7 +44,7 @@ pub mod ERC4626Mock {
 pub mod ERC4626ExternalVaultMock {
     use openzeppelin_interfaces::erc20::{IERC20Dispatcher, IERC20DispatcherTrait};
     use openzeppelin_token::erc20::extensions::erc4626::{
-        ERC4626DefaultLimits, ERC4626DefaultNoFees, ERC4626HooksEmptyImpl,
+        ERC4626DefaultNoLimits, ERC4626DefaultNoFees, ERC4626EmptyHooks,
     };
     use openzeppelin_token::erc20::{DefaultConfig as ERC20DefaultConfig, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
@@ -317,31 +317,25 @@ pub mod ERC4626AssetsFeesMock {
             shares: u256,
             fee: Option<Fee>,
         ) {
-            if let Option::Some(fee) = fee {
-                match fee {
-                    Fee::Shares => panic!(
-                        "ERC4626AssetsFeesMock expects fee in after_deposit to be of Assets type",
-                    ),
-                    Fee::Assets(fee) => {
-                        // Validate fee value
-                        let mut contract_state = self.get_contract_mut();
-                        let entry_basis_points = contract_state.entry_fee_basis_point_value.read();
-                        let calculated_fee = fee_on_total(assets, entry_basis_points);
-                        assert!(fee == calculated_fee, "ERC4626AssetsFeesMock: incorrect fee");
+            let fee = fee.unwrap_or_else(|| panic!("ERC4626AssetsFeesMock expects fee in after_deposit to not be None"));
+            let fee = match fee {
+                Fee::Shares => panic!("ERC4626AssetsFeesMock expects fee in after_deposit to be of Assets type"),
+                Fee::Assets(fee) => fee,
+            };
+            // Validate fee value
+            let mut contract_state = self.get_contract_mut();
+            let entry_basis_points = contract_state.entry_fee_basis_point_value.read();
+            let calculated_fee = fee_on_total(assets, entry_basis_points);
+            assert!(fee == calculated_fee, "ERC4626AssetsFeesMock: incorrect fee");
 
-                        // Transfer assets fee to fee recipient
-                        if fee > 0 {
-                            let fee_recipient = contract_state.entry_fee_recipient.read();
-                            assert!(
-                                fee_recipient != starknet::get_contract_address(),
-                                "ERC4626AssetsFeesMock: cannot be fee recipient",
-                            );
-                            contract_state.transfer_fees(fee_recipient, fee);
-                        }
-                    },
-                };
-            } else {
-                panic!("ERC4626AssetsFeesMock expects fee in after_deposit to not be None");
+            // Transfer assets fee to fee recipient
+            if fee > 0 {
+                let fee_recipient = contract_state.entry_fee_recipient.read();
+                assert!(
+                    fee_recipient != starknet::get_contract_address(),
+                    "ERC4626AssetsFeesMock: cannot be fee recipient",
+                );
+                contract_state.transfer_fees(fee_recipient, fee);
             }
         }
 
@@ -354,31 +348,25 @@ pub mod ERC4626AssetsFeesMock {
             shares: u256,
             fee: Option<Fee>,
         ) {
-            if let Option::Some(fee) = fee {
-                match fee {
-                    Fee::Shares => panic!(
-                        "ERC4626AssetsFeesMock expects fee in before_withdraw to be of Assets type",
-                    ),
-                    Fee::Assets(fee) => {
-                        // Validate fee value
-                        let mut contract_state = self.get_contract_mut();
-                        let exit_basis_points = contract_state.exit_fee_basis_point_value.read();
-                        let calculated_fee = fee_on_raw(assets, exit_basis_points);
-                        assert!(fee == calculated_fee, "ERC4626AssetsFeesMock: incorrect fee");
+            let fee = fee.unwrap_or_else(|| panic!("ERC4626AssetsFeesMock expects fee in before_withdraw to not be None"));
+            let fee = match fee {
+                Fee::Shares => panic!("ERC4626AssetsFeesMock expects fee in before_withdraw to be of Assets type"),
+                Fee::Assets(fee) => fee,
+            };
+            // Validate fee value
+            let mut contract_state = self.get_contract_mut();
+            let exit_basis_points = contract_state.exit_fee_basis_point_value.read();
+            let calculated_fee = fee_on_raw(assets, exit_basis_points);
+            assert!(fee == calculated_fee, "ERC4626AssetsFeesMock: incorrect fee");
 
-                        // Transfer assets fee to fee recipient
-                        if fee > 0 {
-                            let fee_recipient = contract_state.exit_fee_recipient.read();
-                            assert!(
-                                fee_recipient != starknet::get_contract_address(),
-                                "ERC4626AssetsFeesMock: cannot be fee recipient",
-                            );
-                            contract_state.transfer_fees(fee_recipient, fee);
-                        }
-                    },
-                };
-            } else {
-                panic!("ERC4626AssetsFeesMock expects fee in before_withdraw to not be None");
+            // Transfer assets fee to fee recipient
+            if fee > 0 {
+                let fee_recipient = contract_state.exit_fee_recipient.read();
+                assert!(
+                    fee_recipient != starknet::get_contract_address(),
+                    "ERC4626AssetsFeesMock: cannot be fee recipient",
+                );
+                contract_state.transfer_fees(fee_recipient, fee);
             }
         }
     }
@@ -435,7 +423,7 @@ pub mod ERC4626AssetsFeesMock {
 pub mod ERC4626SharesFeesMock {
     use openzeppelin_interfaces::erc20::{IERC20Dispatcher, IERC20DispatcherTrait};
     use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component::{Fee, FeeConfigTrait};
-    use openzeppelin_token::erc20::extensions::erc4626::{DefaultConfig, ERC4626DefaultNoLimits};
+    use openzeppelin_token::erc20::extensions::erc4626::{DefaultConfig, ERC4626DefaultNoLimits, ERC4626SelfAssetsManagement};
     use openzeppelin_token::erc20::{DefaultConfig as ERC20DefaultConfig, ERC20HooksEmptyImpl};
     use openzeppelin_utils::math;
     use openzeppelin_utils::math::Rounding;
@@ -599,11 +587,7 @@ pub mod ERC4626SharesFeesMock {
 pub mod ERC4626MockWithHooks {
     use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component::Fee;
     use openzeppelin_token::erc20::extensions::erc4626::{
-<<<<<<< HEAD
-        DefaultConfig, ERC4626DefaultNoFees, ERC4626DefaultNoLimits,
-=======
-        DefaultConfig, ERC4626DefaultLimits, ERC4626DefaultNoFees, ERC4626SelfAssetsManagement,
->>>>>>> upstream/main
+        DefaultConfig, ERC4626DefaultNoLimits, ERC4626DefaultNoFees, ERC4626SelfAssetsManagement,
     };
     use openzeppelin_token::erc20::{DefaultConfig as ERC20DefaultConfig, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;

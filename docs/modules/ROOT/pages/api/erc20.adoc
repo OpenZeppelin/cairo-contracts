@@ -926,10 +926,10 @@ The component leverages traits to configure fees, limits, and decimals.
 --
 [.sub-index#ERC4626Component-FeeConfigTrait]
 .FeeConfigTrait
-* xref:#ERC4626Component-adjust_deposit[`++adjust_deposit(self, assets)++`]
-* xref:#ERC4626Component-adjust_mint[`++adjust_mint(self, assets)++`]
-* xref:#ERC4626Component-adjust_withdraw[`++adjust_withdraw(self, assets)++`]
-* xref:#ERC4626Component-adjust_redeem[`++adjust_redeem(self, assets)++`]
+* xref:#ERC4626Component-calculate_deposit_fee[`++calculate_deposit_fee(self, assets, shares)++`]
+* xref:#ERC4626Component-calculate_mint_fee[`++calculate_mint_fee(self, assets, shares)++`]
+* xref:#ERC4626Component-calculate_withdraw_fee[`++calculate_withdraw_fee(self, assets, shares)++`]
+* xref:#ERC4626Component-calculate_redeem_fee[`++calculate_redeem_fee(self, assets, shares)++`]
 
 [.sub-index#ERC4626Component-LimitConfigTrait]
 .LimitConfigTrait
@@ -1055,32 +1055,32 @@ NOTE: To transfer fees, this trait needs to be coordinated with `ERC4626Componen
 See the {mock-ex}.
 
 [.contract-item]
-[[ERC4626Component-adjust_deposit]]
-==== `[.contract-item-name]#++adjust_deposit++#++(ref self: ContractState, assets: u256, shares: u256)++` [.item-kind]#hook#
+[[ERC4626Component-calculate_deposit_fee]]
+==== `[.contract-item-name]#++calculate_deposit_fee++#++(self: @ContractState, assets: u256, shares: u256) → Option<Fee>++` [.item-kind]#hook#
 
-Adjusts deposits within <<ERC4626Component-preview_deposit,preview_deposit>> to account for entry fees.
-Entry fees should be transferred in the <<ERC4626Component-after_deposit,after_deposit>> hook.
-
-[.contract-item]
-[[ERC4626Component-adjust_mint]]
-==== `[.contract-item-name]#++adjust_mint++#++(ref self: ContractState, assets: u256, shares: u256)++` [.item-kind]#hook#
-
-Adjusts deposits within <<ERC4626Component-preview_mint,preview_mint>> to account for entry fees.
-Entry fees should be transferred in the <<ERC4626Component-after_deposit,after_deposit>> hook.
+Calculates the entry fee for a deposit during <<ERC4626Component-preview_deposit,preview_deposit>>. The returned `Fee` is 
+advisory only. It must be handled (e.g., transferred) manually in the <<ERC4626Component-after_deposit,after_deposit>> hook.
 
 [.contract-item]
-[[ERC4626Component-adjust_withdraw]]
-==== `[.contract-item-name]#++adjust_withdraw++#++(ref self: ContractState, assets: u256, shares: u256)++` [.item-kind]#hook#
+[[ERC4626Component-calculate_mint_fee]]
+==== `[.contract-item-name]#++calculate_mint_fee++#++(self: @ContractState, assets: u256, shares: u256) → Option<Fee>++` [.item-kind]#hook#
 
-Adjusts withdraws within <<ERC4626Component-preview_withdraw,preview_withdraw>> to account for exit fees.
-Exit fees should be transferred in the <<ERC4626Component-before_withdraw,before_withdraw>> hook.
+Calculates the entry fee for a mint during <<ERC4626Component-preview_mint,preview_mint>>. The returned `Fee` is 
+advisory only. It must be handled (e.g., transferred) manually in the <<ERC4626Component-after_deposit,after_deposit>> hook.
 
 [.contract-item]
-[[ERC4626Component-adjust_redeem]]
-==== `[.contract-item-name]#++adjust_redeem++#++(ref self: ContractState, assets: u256, shares: u256)++` [.item-kind]#hook#
+[[ERC4626Component-calculate_withdraw_fee]]
+==== `[.contract-item-name]#++calculate_withdraw_fee++#++(self: @ContractState, assets: u256, shares: u256) → Option<Fee>++` [.item-kind]#hook#
 
-Adjusts withdraws within <<ERC4626Component-preview_redeem,preview_redeem>> to account for exit fees.
-Exit fees should be transferred in the <<ERC4626Component-before_withdraw,before_withdraw>> hook.
+Calculates the entry fee for a withdraw during <<ERC4626Component-preview_withdraw,preview_withdraw>>. The returned `Fee` is 
+advisory only. It must be handled (e.g., transferred) manually in the <<ERC4626Component-before_withdraw,before_withdraw>> hook.
+
+[.contract-item]
+[[ERC4626Component-calculate_redeem_fee]]
+==== `[.contract-item-name]#++calculate_redeem_fee++#++(self: @ContractState, assets: u256, shares: u256) → Option<Fee>++` [.item-kind]#hook#
+
+Calculates the entry fee for a redeem during <<ERC4626Component-preview_redeem,preview_redeem>>. The returned `Fee` is 
+advisory only. It must be handled (e.g., transferred) manually in the <<ERC4626Component-before_withdraw,before_withdraw>> hook.
 
 ==== LimitConfigTrait
 
@@ -1094,7 +1094,7 @@ and MUST NOT panic.
 
 [.contract-item]
 [[ERC4626Component-deposit_limit]]
-==== `[.contract-item-name]#++deposit_limit++#++(ref self: ContractState, receiver: ContractAddress) -> Option<u256>++` [.item-kind]#hook#
+==== `[.contract-item-name]#++deposit_limit++#++(ref self: ContractState, receiver: ContractAddress) → Option<u256>++` [.item-kind]#hook#
 
 The max deposit allowed.
 
@@ -1102,7 +1102,7 @@ Defaults (`Option::None`) to 2 ** 256 - 1.
 
 [.contract-item]
 [[ERC4626Component-mint_limit]]
-==== `[.contract-item-name]#++mint_limit++#++(ref self: ContractState, receiver: ContractAddress) -> Option<u256>++` [.item-kind]#hook#
+==== `[.contract-item-name]#++mint_limit++#++(ref self: ContractState, receiver: ContractAddress) → Option<u256>++` [.item-kind]#hook#
 
 The max mint allowed.
 
@@ -1110,7 +1110,7 @@ Defaults (`Option::None`) to 2 ** 256 - 1.
 
 [.contract-item]
 [[ERC4626Component-withdraw_limit]]
-==== `[.contract-item-name]#++withdraw_limit++#++(ref self: ContractState, owner: ContractAddress) -> Option<u256>++` [.item-kind]#hook#
+==== `[.contract-item-name]#++withdraw_limit++#++(ref self: ContractState, owner: ContractAddress) → Option<u256>++` [.item-kind]#hook#
 
 The max withdraw allowed.
 
@@ -1118,7 +1118,7 @@ Defaults (`Option::None`) to the full asset balance of `owner` converted from sh
 
 [.contract-item]
 [[ERC4626Component-redeem_limit]]
-==== `[.contract-item-name]#++redeem_limit++#++(ref self: ContractState, owner: ContractAddress) -> Option<u256>++` [.item-kind]#hook#
+==== `[.contract-item-name]#++redeem_limit++#++(ref self: ContractState, owner: ContractAddress) → Option<u256>++` [.item-kind]#hook#
 
 The max redeem allowed.
 
@@ -1305,7 +1305,7 @@ current block, given current on-chain conditions.
 
 The default deposit preview value is the full amount of shares.
 This can be changed to account for fees, for example, in the implementing contract by
-defining custom logic in <<ERC4626Component-adjust_deposit,LimitConfigTrait::adjust_deposit>>.
+defining custom logic in <<ERC4626Component-calculate_deposit_fee,FeeConfigTrait::calculate_deposit_fee>>.
 
 NOTE: This method must be inclusive of entry fees to be compliant with the {eip4626} spec.
 

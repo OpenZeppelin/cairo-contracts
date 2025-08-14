@@ -249,6 +249,26 @@ pub mod ERC4626Component {
     /// See the example:
     /// https://github.com/OpenZeppelin/cairo-contracts/tree/main/packages/test_common/src/mocks/erc4626.cairo
     pub trait ERC4626HooksTrait<TContractState, +HasComponent<TContractState>> {
+        /// Hooks into `InternalImpl::_deposit`.
+        /// Executes logic before transferring assets and minting shares.
+        fn before_deposit(
+            ref self: ComponentState<TContractState>,
+            caller: ContractAddress,
+            receiver: ContractAddress,
+            assets: u256,
+            shares: u256,
+            fee: Option<Fee>,
+        ) {}
+        /// Hooks into `InternalImpl::_deposit`.
+        /// Executes logic after transferring assets and minting shares.
+        fn after_deposit(
+            ref self: ComponentState<TContractState>,
+            caller: ContractAddress,
+            receiver: ContractAddress,
+            assets: u256,
+            shares: u256,
+            fee: Option<Fee>,
+        ) {}
         /// Hooks into `InternalImpl::_withdraw`.
         /// Executes logic before burning shares and transferring assets.
         fn before_withdraw(
@@ -267,26 +287,6 @@ pub mod ERC4626Component {
             caller: ContractAddress,
             receiver: ContractAddress,
             owner: ContractAddress,
-            assets: u256,
-            shares: u256,
-            fee: Option<Fee>,
-        ) {}
-        /// Hooks into `InternalImpl::_deposit`.
-        /// Executes logic before transferring assets and minting shares.
-        fn before_deposit(
-            ref self: ComponentState<TContractState>,
-            caller: ContractAddress,
-            receiver: ContractAddress,
-            assets: u256,
-            shares: u256,
-            fee: Option<Fee>,
-        ) {}
-        /// Hooks into `InternalImpl::_deposit`.
-        /// Executes logic after transferring assets and minting shares.
-        fn after_deposit(
-            ref self: ComponentState<TContractState>,
-            caller: ContractAddress,
-            receiver: ContractAddress,
             assets: u256,
             shares: u256,
             fee: Option<Fee>,

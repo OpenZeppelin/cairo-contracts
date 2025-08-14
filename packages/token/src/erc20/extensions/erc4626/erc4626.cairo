@@ -131,7 +131,8 @@ pub mod ERC4626Component {
         Shares: u256,
     }
 
-    /// The logic for calculating entry and exit fees is expected to be defined at the contract level.
+    /// The logic for calculating entry and exit fees is expected to be defined at the contract
+    /// level.
     /// Defaults to no entry or exit fees.
     ///
     /// NOTE: The FeeConfigTrait hooks directly into the preview methods of the ERC4626 component.
@@ -140,48 +141,51 @@ pub mod ERC4626Component {
     /// spec).
     /// All operations use their corresponding preview method as the value of assets or shares being
     /// moved to or from the user.
-    /// The fees calculated in FeeConfigTrait are used to adjust the final asset and share amounts used 
-    /// in both the preview and the actual operations.
+    /// The fees calculated in FeeConfigTrait are used to adjust the final asset and share amounts
+    /// used in both the preview and the actual operations.
     ///
     /// NOTE: To transfer fees, this trait needs to be coordinated with
     /// `ERC4626Component::ERC4626Hooks`.
     /// See the ERC4626AssetsFeesMock and ERC4626SharesFeesMock examples:
     /// https://github.com/OpenZeppelin/cairo-contracts/tree/main/packages/test_common/src/mocks/erc4626.cairo
     pub trait FeeConfigTrait<TContractState, +HasComponent<TContractState>> {
-        /// Calculates the entry fee for a deposit during `preview_deposit`. The returned fee affects 
-        /// the final asset and share amounts. Fees are not transferred automatically and must be handled 
-        /// in the `after_deposit` hook: asset fees should be transferred from the vault's management to 
-        /// the fee recipient, while share fees should be minted to the fee recipient.
+        /// Calculates the entry fee for a deposit during `preview_deposit`. The returned fee
+        /// affects the final asset and share amounts. Fees are not transferred automatically and
+        /// must be handled in the `after_deposit` hook: asset fees should be transferred from the
+        /// vault's management to the fee recipient, while share fees should be minted to the fee
+        /// recipient.
         fn calculate_deposit_fee(
             self: @ComponentState<TContractState>, assets: u256, shares: u256,
         ) -> Option<Fee> {
             Option::None
         }
 
-        /// Calculates the entry fee for a mint during `preview_mint`. The returned fee affects 
-        /// the final asset and share amounts. Fees are not transferred automatically and must be handled 
-        /// in the `after_deposit` hook: asset fees should be transferred from the vault's management to 
-        /// the fee recipient, while share fees should be minted to the fee recipient.
+        /// Calculates the entry fee for a mint during `preview_mint`. The returned fee affects
+        /// the final asset and share amounts. Fees are not transferred automatically and must be
+        /// handled in the `after_deposit` hook: asset fees should be transferred from the vault's
+        /// management to the fee recipient, while share fees should be minted to the fee recipient.
         fn calculate_mint_fee(
             self: @ComponentState<TContractState>, assets: u256, shares: u256,
         ) -> Option<Fee> {
             Option::None
         }
 
-        /// Calculates the exit fee for a withdraw during `preview_withdraw`. The returned fee affects 
-        /// the final asset and share amounts. Fees are not transferred automatically and must be handled 
-        /// in the `before_withdraw` hook: asset fees should be transferred from the vault's management to 
-        /// the fee recipient, while share fees should be transferred from the owner to the fee recipient.
+        /// Calculates the exit fee for a withdraw during `preview_withdraw`. The returned fee
+        /// affects the final asset and share amounts. Fees are not transferred automatically and
+        /// must be handled in the `before_withdraw` hook: asset fees should be transferred from the
+        /// vault's management to the fee recipient, while share fees should be transferred from the
+        /// owner to the fee recipient.
         fn calculate_withdraw_fee(
             self: @ComponentState<TContractState>, assets: u256, shares: u256,
         ) -> Option<Fee> {
             Option::None
         }
 
-        /// Calculates the exit fee for a redeem during `preview_redeem`. The returned fee affects 
-        /// the final asset and share amounts. Fees are not transferred automatically and must be handled 
-        /// in the `before_withdraw` hook: asset fees should be transferred from the vault's management to 
-        /// the fee recipient, while share fees should be transferred from the owner to the fee recipient.
+        /// Calculates the exit fee for a redeem during `preview_redeem`. The returned fee affects
+        /// the final asset and share amounts. Fees are not transferred automatically and must be
+        /// handled in the `before_withdraw` hook: asset fees should be transferred from the vault's
+        /// management to the fee recipient, while share fees should be transferred from the owner
+        /// to the fee recipient.
         fn calculate_redeem_fee(
             self: @ComponentState<TContractState>, assets: u256, shares: u256,
         ) -> Option<Fee> {
@@ -237,7 +241,7 @@ pub mod ERC4626Component {
     /// This is where contracts can transfer fees.
     ///
     /// NOTE: ERC4626 preview methods must be inclusive of any entry or exit fees.
-    /// Fees are calculated using `FeeConfigTrait` methods and automatically adjust the final 
+    /// Fees are calculated using `FeeConfigTrait` methods and automatically adjust the final
     /// asset and share amounts. Fee transfers are handled in `ERC4626HooksTrait` methods.
     ///
     /// CAUTION: Special care must be taken when calling external contracts in these hooks. In
@@ -253,7 +257,7 @@ pub mod ERC4626Component {
     pub trait ERC4626HooksTrait<TContractState, +HasComponent<TContractState>> {
         /// Hooks into `InternalImpl::_deposit`.
         /// Executes logic before transferring assets and minting shares.
-        /// The fee is calculated via `FeeConfigTrait`. Assets and shares 
+        /// The fee is calculated via `FeeConfigTrait`. Assets and shares
         /// represent the actual amounts the user will spend and receive, respectively.
         /// Asset fees are included in assets; share fees are excluded from shares.
         fn before_deposit(
@@ -266,7 +270,7 @@ pub mod ERC4626Component {
         ) {}
         /// Hooks into `InternalImpl::_deposit`.
         /// Executes logic after transferring assets and minting shares.
-        /// The fee is calculated via `FeeConfigTrait`. Assets and shares 
+        /// The fee is calculated via `FeeConfigTrait`. Assets and shares
         /// represent the actual amounts the user will spend and receive, respectively.
         /// Asset fees are included in assets; share fees are excluded from shares.
         fn after_deposit(
@@ -279,7 +283,7 @@ pub mod ERC4626Component {
         ) {}
         /// Hooks into `InternalImpl::_withdraw`.
         /// Executes logic before burning shares and transferring assets.
-        /// The fee is calculated via `FeeConfigTrait`. Assets and shares 
+        /// The fee is calculated via `FeeConfigTrait`. Assets and shares
         /// represent the actual amounts the user will receive and spend, respectively.
         /// Asset fees are excluded from assets; share fees are included in shares.
         fn before_withdraw(
@@ -293,7 +297,7 @@ pub mod ERC4626Component {
         ) {}
         /// Hooks into `InternalImpl::_withdraw`.
         /// Executes logic after burning shares and transferring assets.
-        /// The fee is calculated via `FeeConfigTrait`. Assets and shares 
+        /// The fee is calculated via `FeeConfigTrait`. Assets and shares
         /// represent the actual amounts the user will receive and spend, respectively.
         /// Asset fees are excluded from assets; share fees are included in shares.
         fn after_withdraw(
@@ -698,8 +702,9 @@ pub mod ERC4626Component {
             self.ERC4626_asset.write(asset_address);
         }
 
-        /// Internal preview function for deposit operations. Returns the actual assets the user will spend 
-        /// and shares the user will receive. Asset fees are included in assets, share fees are excluded from shares.
+        /// Internal preview function for deposit operations. Returns the actual assets the user
+        /// will spend and shares the user will receive. Asset fees are included in assets, share
+        /// fees are excluded from shares.
         fn _preview_deposit(self: @ComponentState<TContractState>, assets: u256) -> Preview {
             let value_in_shares = self._convert_to_shares(assets, Rounding::Floor);
             let fee = FeeConfig::calculate_deposit_fee(self, assets, value_in_shares);
@@ -714,8 +719,9 @@ pub mod ERC4626Component {
             Preview { assets, shares, fee }
         }
 
-        /// Internal preview function for mint operations. Returns the actual assets the user will spend 
-        /// and shares the user will receive. Asset fees are included in assets, share fees are excluded from shares.
+        /// Internal preview function for mint operations. Returns the actual assets the user will
+        /// spend and shares the user will receive. Asset fees are included in assets, share fees
+        /// are excluded from shares.
         fn _preview_mint(self: @ComponentState<TContractState>, shares: u256) -> Preview {
             let value_in_assets = self._convert_to_assets(shares, Rounding::Ceil);
             let fee = FeeConfig::calculate_mint_fee(self, value_in_assets, shares);
@@ -730,8 +736,9 @@ pub mod ERC4626Component {
             Preview { assets, shares, fee }
         }
 
-        /// Internal preview function for withdraw operations. Returns the actual assets the user will receive 
-        /// and shares the user will spend. Asset fees are excluded from assets, share fees are included in shares.
+        /// Internal preview function for withdraw operations. Returns the actual assets the user
+        /// will receive and shares the user will spend. Asset fees are excluded from assets, share
+        /// fees are included in shares.
         fn _preview_withdraw(self: @ComponentState<TContractState>, assets: u256) -> Preview {
             let value_in_shares = self._convert_to_shares(assets, Rounding::Ceil);
             let fee = FeeConfig::calculate_withdraw_fee(self, assets, value_in_shares);
@@ -746,8 +753,9 @@ pub mod ERC4626Component {
             Preview { assets, shares, fee }
         }
 
-        /// Internal preview function for redeem operations. Returns the actual assets the user will receive 
-        /// and shares the user will spend. Asset fees are excluded from assets, share fees are included in shares.
+        /// Internal preview function for redeem operations. Returns the actual assets the user will
+        /// receive and shares the user will spend. Asset fees are excluded from assets, share fees
+        /// are included in shares.
         fn _preview_redeem(self: @ComponentState<TContractState>, shares: u256) -> Preview {
             let value_in_assets = self._convert_to_assets(shares, Rounding::Floor);
             let redeem_fee = FeeConfig::calculate_redeem_fee(self, value_in_assets, shares);

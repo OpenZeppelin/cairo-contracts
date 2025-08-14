@@ -84,7 +84,7 @@ pub mod ERC20Component {
     }
 
     /// Constants expected to be defined at the contract level used to configure the component
-    /// behaviour.
+    /// behavior.
     ///
     /// - `DECIMALS`: Returns the number of decimals the token uses.
     pub trait ImmutableConfig {

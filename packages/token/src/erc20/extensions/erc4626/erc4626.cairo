@@ -124,7 +124,8 @@ pub mod ERC4626Component {
         }
     }
 
-    #[derive(Copy, Drop)]
+    /// A fee amount represented either in underlying assets or in shares.
+    #[derive(Copy, Drop, PartialEq, Serde, Debug)]
     pub enum Fee {
         Assets: u256,
         Shares: u256,
@@ -148,32 +149,36 @@ pub mod ERC4626Component {
     /// See the ERC4626AssetsFeesMock and ERC4626SharesFeesMock examples:
     /// https://github.com/OpenZeppelin/cairo-contracts/tree/main/packages/test_common/src/mocks/erc4626.cairo
     pub trait FeeConfigTrait<TContractState, +HasComponent<TContractState>> {
-        /// Adjusts deposits within `preview_deposit` to account for entry fees.
-        /// Entry fees should be transferred in the `after_deposit` hook.
+        /// Calculates the entry fee for a deposit during `preview_deposit`. The returned `Fee` is
+        /// advisory only. It must be handled (e.g., transferred) manually in the `after_deposit`
+        /// hook.
         fn calculate_deposit_fee(
             self: @ComponentState<TContractState>, assets: u256, shares: u256,
         ) -> Option<Fee> {
             Option::None
         }
 
-        /// Adjusts mints within `preview_mint` to account for entry fees.
-        /// Entry fees should be transferred in the `after_deposit` hook.
+        /// Calculates the entry fee for a mint during `preview_mint`. The returned `Fee` is
+        /// advisory only. It must be handled (e.g., transferred) manually in the `after_deposit`
+        /// hook.
         fn calculate_mint_fee(
             self: @ComponentState<TContractState>, assets: u256, shares: u256,
         ) -> Option<Fee> {
             Option::None
         }
 
-        /// Adjusts withdraws within `preview_withdraw` to account for exit fees.
-        /// Exit fees should be transferred in the `before_withdraw` hook.
+        /// Calculates the entry fee for a withdraw during `preview_withdraw`. The returned `Fee` is
+        /// advisory only. It must be handled (e.g., transferred) manually in the `before_withdraw`
+        /// hook.
         fn calculate_withdraw_fee(
             self: @ComponentState<TContractState>, assets: u256, shares: u256,
         ) -> Option<Fee> {
             Option::None
         }
 
-        /// Adjusts redeems within `preview_redeem` to account for exit fees.
-        /// Exit fees should be transferred in the `before_withdraw` hook.
+        /// Calculates the entry fee for a redeem during `preview_redeem`. The returned `Fee` is
+        /// advisory only. It must be handled (e.g., transferred) manually in the `before_withdraw`
+        /// hook.
         fn calculate_redeem_fee(
             self: @ComponentState<TContractState>, assets: u256, shares: u256,
         ) -> Option<Fee> {

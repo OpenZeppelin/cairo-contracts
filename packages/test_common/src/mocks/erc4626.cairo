@@ -426,7 +426,6 @@ pub mod ERC4626AssetsFeesMock {
 #[starknet::contract]
 #[with_components(ERC20, ERC4626)]
 pub mod ERC4626SharesFeesMock {
-    use openzeppelin_interfaces::erc20::{IERC20Dispatcher, IERC20DispatcherTrait};
     use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component::{Fee, FeeConfigTrait};
     use openzeppelin_token::erc20::extensions::erc4626::{
         DefaultConfig, ERC4626DefaultNoLimits, ERC4626SelfAssetsManagement,

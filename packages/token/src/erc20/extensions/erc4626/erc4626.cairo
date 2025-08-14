@@ -131,7 +131,7 @@ pub mod ERC4626Component {
         Shares: u256,
     }
 
-    /// Adjustments for fees expected to be defined at the contract level.
+    /// The logic for calculating entry and exit fees is expected to be defined at the contract level.
     /// Defaults to no entry or exit fees.
     ///
     /// NOTE: The FeeConfigTrait hooks directly into the preview methods of the ERC4626 component.
@@ -139,10 +139,9 @@ pub mod ERC4626Component {
     /// if the actual (previewed) operation occurred in the same transaction (according to EIP-4626
     /// spec).
     /// All operations use their corresponding preview method as the value of assets or shares being
-    /// moved.
-    /// Therefore, adjusting an operation's assets in FeeConfigTrait consequently adjusts the assets
-    /// (or assets to be converted into shares) in both the preview operation and the actual
-    /// operation.
+    /// moved to or from the user.
+    /// The fees calculated in FeeConfigTrait are used to adjust the final asset and share amounts used 
+    /// in both the preview and the actual operations.
     ///
     /// NOTE: To transfer fees, this trait needs to be coordinated with
     /// `ERC4626Component::ERC4626Hooks`.
@@ -238,9 +237,8 @@ pub mod ERC4626Component {
     /// This is where contracts can transfer fees.
     ///
     /// NOTE: ERC4626 preview methods must be inclusive of any entry or exit fees.
-    /// The `AdjustFeesTrait` will adjust these values accordingly; therefore,
-    /// fees must be set in the `AdjustFeesTrait` if the using contract enforces
-    /// entry or exit fees.
+    /// Fees are calculated using `FeeConfigTrait` methods and automatically adjust the final 
+    /// asset and share amounts. Fee transfers are handled in `ERC4626HooksTrait` methods.
     ///
     /// CAUTION: Special care must be taken when calling external contracts in these hooks. In
     /// that case, consider implementing reentrancy protections. For example, in the
@@ -255,6 +253,9 @@ pub mod ERC4626Component {
     pub trait ERC4626HooksTrait<TContractState, +HasComponent<TContractState>> {
         /// Hooks into `InternalImpl::_deposit`.
         /// Executes logic before transferring assets and minting shares.
+        /// The fee is calculated via `FeeConfigTrait`. Assets and shares 
+        /// represent the actual amounts the user will spend and receive, respectively.
+        /// Asset fees are included in assets; share fees are excluded from shares.
         fn before_deposit(
             ref self: ComponentState<TContractState>,
             caller: ContractAddress,
@@ -265,6 +266,9 @@ pub mod ERC4626Component {
         ) {}
         /// Hooks into `InternalImpl::_deposit`.
         /// Executes logic after transferring assets and minting shares.
+        /// The fee is calculated via `FeeConfigTrait`. Assets and shares 
+        /// represent the actual amounts the user will spend and receive, respectively.
+        /// Asset fees are included in assets; share fees are excluded from shares.
         fn after_deposit(
             ref self: ComponentState<TContractState>,
             caller: ContractAddress,
@@ -275,6 +279,9 @@ pub mod ERC4626Component {
         ) {}
         /// Hooks into `InternalImpl::_withdraw`.
         /// Executes logic before burning shares and transferring assets.
+        /// The fee is calculated via `FeeConfigTrait`. Assets and shares 
+        /// represent the actual amounts the user will receive and spend, respectively.
+        /// Asset fees are excluded from assets; share fees are included in shares.
         fn before_withdraw(
             ref self: ComponentState<TContractState>,
             caller: ContractAddress,
@@ -286,6 +293,9 @@ pub mod ERC4626Component {
         ) {}
         /// Hooks into `InternalImpl::_withdraw`.
         /// Executes logic after burning shares and transferring assets.
+        /// The fee is calculated via `FeeConfigTrait`. Assets and shares 
+        /// represent the actual amounts the user will receive and spend, respectively.
+        /// Asset fees are excluded from assets; share fees are included in shares.
         fn after_withdraw(
             ref self: ComponentState<TContractState>,
             caller: ContractAddress,

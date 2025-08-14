@@ -1058,29 +1058,37 @@ See the {mock-ex}.
 [[ERC4626Component-calculate_deposit_fee]]
 ==== `[.contract-item-name]#++calculate_deposit_fee++#++(self: @ContractState, assets: u256, shares: u256) → Option<Fee>++` [.item-kind]#hook#
 
-Calculates the entry fee for a deposit during <<ERC4626Component-preview_deposit,preview_deposit>>. The returned `Fee` is 
-advisory only. It must be handled (e.g., transferred) manually in the <<ERC4626Component-after_deposit,after_deposit>> hook.
+Calculates the entry fee for a deposit during <<ERC4626Component-preview_deposit,preview_deposit>>. The returned fee affects 
+the final asset and share amounts. Fees are not transferred automatically and must be handled 
+in the <<ERC4626Component-after_deposit,after_deposit>> hook: asset fees should be transferred from the vault's management to 
+the fee recipient, while share fees should be minted to the fee recipient.
 
 [.contract-item]
 [[ERC4626Component-calculate_mint_fee]]
 ==== `[.contract-item-name]#++calculate_mint_fee++#++(self: @ContractState, assets: u256, shares: u256) → Option<Fee>++` [.item-kind]#hook#
 
-Calculates the entry fee for a mint during <<ERC4626Component-preview_mint,preview_mint>>. The returned `Fee` is 
-advisory only. It must be handled (e.g., transferred) manually in the <<ERC4626Component-after_deposit,after_deposit>> hook.
+Calculates the entry fee for a mint during <<ERC4626Component-preview_mint,preview_mint>>. The returned fee affects 
+the final asset and share amounts. Fees are not transferred automatically and must be handled 
+in the <<ERC4626Component-after_deposit,after_deposit>> hook: asset fees should be transferred from the vault's management to 
+the fee recipient, while share fees should be minted to the fee recipient.
 
 [.contract-item]
 [[ERC4626Component-calculate_withdraw_fee]]
 ==== `[.contract-item-name]#++calculate_withdraw_fee++#++(self: @ContractState, assets: u256, shares: u256) → Option<Fee>++` [.item-kind]#hook#
 
-Calculates the entry fee for a withdraw during <<ERC4626Component-preview_withdraw,preview_withdraw>>. The returned `Fee` is 
-advisory only. It must be handled (e.g., transferred) manually in the <<ERC4626Component-before_withdraw,before_withdraw>> hook.
+Calculates the exit fee for a withdraw during <<ERC4626Component-preview_withdraw,preview_withdraw>>. The returned fee affects 
+the final asset and share amounts. Fees are not transferred automatically and must be handled 
+in the <<ERC4626Component-before_withdraw,before_withdraw>> hook: asset fees should be transferred from the vault's management to 
+the fee recipient, while share fees should be transferred from the owner to the fee recipient.
 
 [.contract-item]
 [[ERC4626Component-calculate_redeem_fee]]
 ==== `[.contract-item-name]#++calculate_redeem_fee++#++(self: @ContractState, assets: u256, shares: u256) → Option<Fee>++` [.item-kind]#hook#
 
-Calculates the entry fee for a redeem during <<ERC4626Component-preview_redeem,preview_redeem>>. The returned `Fee` is 
-advisory only. It must be handled (e.g., transferred) manually in the <<ERC4626Component-before_withdraw,before_withdraw>> hook.
+Calculates the exit fee for a redeem during <<ERC4626Component-preview_redeem,preview_redeem>>. The returned fee affects 
+the final asset and share amounts. Fees are not transferred automatically and must be handled 
+in the <<ERC4626Component-before_withdraw,before_withdraw>> hook: asset fees should be transferred from the vault's management to 
+the fee recipient, while share fees should be transferred from the owner to the fee recipient.
 
 ==== LimitConfigTrait
 

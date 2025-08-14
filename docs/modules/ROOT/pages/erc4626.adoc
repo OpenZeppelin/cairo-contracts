@@ -196,8 +196,17 @@ stem:[\delta = 6], stem:[a_0 = 1], stem:[a_1 = 10^5]
 [[fees]]
 === Custom behavior: Adding fees to the vault
 
-In ERC4626 vaults, fees can be captured during the deposit/mint and/or during the withdraw/redeem steps.
-In both cases, it is essential to remain compliant with the ERC4626 requirements in regard to the preview functions.
+:fee_config_trait: xref:/api/erc20.adoc#ERC4626Component-FeeConfigTrait[FeeConfigTrait]
+:no_fees_impl: https://github.com/OpenZeppelin/cairo-contracts/tree/main/packages/token/src/erc20/extensions/erc4626/erc4626.cairo#L874[ERC4626DefaultNoFees]
+:erc4626_mocks: https://github.com/OpenZeppelin/cairo-contracts/tree/main/packages/test_common/src/mocks/erc4626.cairo[ERC4626 mocks]
+
+In ERC4626 vaults, fees can be captured during deposit/mint and/or withdraw/redeem operations. It is essential to remain 
+compliant with the ERC4626 requirements regarding the preview functions. Fees are calculated through the {fee_config_trait} 
+implementation. By default, the ERC4626 component charges no fees. If this is the desired behavior, you can use the default 
+{no_fees_impl} implementation.
+
+NOTE: Starting from v3.0.0, fees can be charged in either assets or shares. Prior versions only supported fees taken in assets. 
+See the updated {fee_config_trait} and implementation examples in {erc4626_mocks}.
 
 For example, if calling `deposit(100, receiver)`, the caller should deposit exactly 100 underlying tokens, including fees, and the receiver should receive a number of shares that matches the value returned by `preview_deposit(100)`.
 Similarly, `preview_mint` should account for the fees that the user will have to pay on top of share's cost.

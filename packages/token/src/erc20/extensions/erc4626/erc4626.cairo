@@ -655,7 +655,7 @@ pub mod ERC4626Component {
     // Internal
     //
 
-    /// TODO: - add doc
+    /// Internal helper struct containing assets, shares, and fees calculated in preview functions.
     #[derive(Drop, Copy)]
     pub struct Preview {
         assets: u256,
@@ -688,7 +688,8 @@ pub mod ERC4626Component {
             self.ERC4626_asset.write(asset_address);
         }
 
-        /// TODO: - add doc
+        /// Internal preview function for deposit operations. Returns the actual assets the user will spend 
+        /// and shares the user will receive. Asset fees are included in assets, share fees are excluded from shares.
         fn _preview_deposit(self: @ComponentState<TContractState>, assets: u256) -> Preview {
             let value_in_shares = self._convert_to_shares(assets, Rounding::Floor);
             let fee = FeeConfig::calculate_deposit_fee(self, assets, value_in_shares);
@@ -703,7 +704,8 @@ pub mod ERC4626Component {
             Preview { assets, shares, fee }
         }
 
-        /// TODO: - add doc
+        /// Internal preview function for mint operations. Returns the actual assets the user will spend 
+        /// and shares the user will receive. Asset fees are included in assets, share fees are excluded from shares.
         fn _preview_mint(self: @ComponentState<TContractState>, shares: u256) -> Preview {
             let value_in_assets = self._convert_to_assets(shares, Rounding::Ceil);
             let fee = FeeConfig::calculate_mint_fee(self, value_in_assets, shares);
@@ -718,7 +720,8 @@ pub mod ERC4626Component {
             Preview { assets, shares, fee }
         }
 
-        /// TODO: - add doc
+        /// Internal preview function for withdraw operations. Returns the actual assets the user will receive 
+        /// and shares the user will spend. Asset fees are excluded from assets, share fees are included in shares.
         fn _preview_withdraw(self: @ComponentState<TContractState>, assets: u256) -> Preview {
             let value_in_shares = self._convert_to_shares(assets, Rounding::Ceil);
             let fee = FeeConfig::calculate_withdraw_fee(self, assets, value_in_shares);
@@ -733,7 +736,8 @@ pub mod ERC4626Component {
             Preview { assets, shares, fee }
         }
 
-        /// TODO: - add doc
+        /// Internal preview function for redeem operations. Returns the actual assets the user will receive 
+        /// and shares the user will spend. Asset fees are excluded from assets, share fees are included in shares.
         fn _preview_redeem(self: @ComponentState<TContractState>, shares: u256) -> Preview {
             let value_in_assets = self._convert_to_assets(shares, Rounding::Floor);
             let redeem_fee = FeeConfig::calculate_redeem_fee(self, value_in_assets, shares);

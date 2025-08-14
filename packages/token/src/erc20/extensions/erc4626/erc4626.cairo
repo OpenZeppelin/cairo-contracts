@@ -505,8 +505,9 @@ pub mod ERC4626Component {
         /// shares).
         /// This can be changed in the implementing contract by defining custom logic in
         /// `LimitConfigTrait::withdraw_limit`.
-        /// Do note that with customized limits, the maximum withdraw amount will be the lesser of: 
-        /// the custom limit (in assets), or the ``owner``'s asset balance converted from their share holdings.
+        /// Do note that with customized limits, the maximum withdraw amount will be the lesser of:
+        /// the custom limit (in assets), or the ``owner``'s asset balance converted from their
+        /// share holdings.
         fn max_withdraw(self: @ComponentState<TContractState>, owner: ContractAddress) -> u256 {
             let erc20_component = get_dep_component!(self, ERC20);
             let owner_shares = erc20_component.balance_of(owner);

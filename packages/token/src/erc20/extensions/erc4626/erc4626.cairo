@@ -425,7 +425,7 @@ pub mod ERC4626Component {
         ///
         /// The default deposit preview value is the full amount of shares.
         /// This can be changed to account for fees, for example, in the implementing contract by
-        /// defining custom logic in `FeeConfigTrait::deduct_deposit_fee`.
+        /// defining custom logic in `FeeConfigTrait::calculate_deposit_fee`.
         ///
         /// NOTE: `preview_deposit` must be inclusive of entry fees to be compliant with the
         /// EIP-4626 spec.
@@ -469,7 +469,7 @@ pub mod ERC4626Component {
         ///
         /// The default mint preview value is the full amount of assets.
         /// This can be changed to account for fees, for example, in the implementing contract by
-        /// defining custom logic in `FeeConfigTrait::add_mint_fee`.
+        /// defining custom logic in `FeeConfigTrait::calculate_mint_fee`.
         ///
         /// NOTE: `preview_mint` must be inclusive of entry fees to be compliant with the EIP-4626
         /// spec.
@@ -505,8 +505,8 @@ pub mod ERC4626Component {
         /// shares).
         /// This can be changed in the implementing contract by defining custom logic in
         /// `LimitConfigTrait::withdraw_limit`.
-        /// Do note that with customized limits, the maximum withdraw amount will either be
-        /// the custom limit itself or ``owner``'s total asset balance, whichever value is less.
+        /// Do note that with customized limits, the maximum withdraw amount will be the lesser of: 
+        /// the custom limit (in assets), or the ``owner``'s asset balance converted from their share holdings.
         fn max_withdraw(self: @ComponentState<TContractState>, owner: ContractAddress) -> u256 {
             let erc20_component = get_dep_component!(self, ERC20);
             let owner_shares = erc20_component.balance_of(owner);
@@ -529,7 +529,7 @@ pub mod ERC4626Component {
         ///
         /// The default withdraw preview value is the full amount of shares.
         /// This can be changed to account for fees, for example, in the implementing contract by
-        /// defining custom logic in `FeeConfigTrait::add_withdraw_fee`.
+        /// defining custom logic in `FeeConfigTrait::calculate_withdraw_fee`.
         ///
         /// NOTE: `preview_withdraw` must be inclusive of exit fees to be compliant with the
         /// EIP-4626 spec.
@@ -563,11 +563,11 @@ pub mod ERC4626Component {
         /// Returns the maximum amount of Vault shares that can be redeemed from the owner balance
         /// in the Vault, through a `redeem` call.
         ///
-        /// The default max redeem value is the full balance of assets for `owner`.
+        /// The default max redeem value is the full balance of shares for `owner`.
         /// This can be changed in the implementing contract by defining custom logic in
         /// `LimitConfigTrait::redeem_limit`.
         /// Do note that with customized limits, the maximum redeem amount will either be
-        /// the custom limit itself or ``owner``'s total asset balance, whichever value is less.
+        /// the custom limit itself or ``owner``'s total shares balance, whichever value is less.
         fn max_redeem(self: @ComponentState<TContractState>, owner: ContractAddress) -> u256 {
             let erc20_component = get_dep_component!(self, ERC20);
             let owner_shares = erc20_component.balance_of(owner);
@@ -587,7 +587,7 @@ pub mod ERC4626Component {
         ///
         /// The default redeem preview value is the full amount of assets.
         /// This can be changed to account for fees, for example, in the implementing contract by
-        /// defining custom logic in `FeeConfigTrait::deduct_redeem_fee`.
+        /// defining custom logic in `FeeConfigTrait::calculate_redeem_fee`.
         ///
         /// NOTE: `preview_redeem` must be inclusive of exit fees to be compliant with the EIP-4626
         /// spec.

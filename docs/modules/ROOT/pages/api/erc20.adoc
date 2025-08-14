@@ -1342,7 +1342,7 @@ current block, given current on-chain conditions.
 
 The default mint preview value is the full amount of assets.
 This can be changed to account for fees, for example, in the implementing contract by
-defining custom logic in <<ERC4626Component-adjust_mint,LimitConfigTrait::adjust_mint>>.
+defining custom logic in <<ERC4626Component-calculate_mint_fee,FeeConfigTrait::calculate_mint_fee>>.
 
 NOTE: This method must be inclusive of entry fees to be compliant with the {eip4626} spec.
 
@@ -1380,7 +1380,7 @@ Allows an on-chain or off-chain user to simulate the effects of their withdrawal
 current block, given current on-chain conditions.
 
 The default withdraw preview value is the full amount of shares.
-This can be changed to account for fees, for example, in the implementing contract by defining custom logic in <<ERC4626Component-adjust_withdraw,LimitConfigTrait::adjust_withdraw>>.
+This can be changed to account for fees, for example, in the implementing contract by defining custom logic in <<ERC4626Component-calculate_withdraw_fee,FeeConfigTrait::calculate_withdraw_fee>>.
 
 NOTE: This method must be inclusive of exit fees to be compliant with the {eip4626} spec.
 
@@ -1417,7 +1417,7 @@ Allows an on-chain or off-chain user to simulate the effects of their redeemptio
 current block, given current on-chain conditions.
 
 The default redeem preview value is the full amount of assets.
-This can be changed to account for fees, for example, in the implementing contract by defining custom logic in <<ERC4626Component-adjust_redeem,LimitConfigTrait::adjust_redeem>>.
+This can be changed to account for fees, for example, in the implementing contract by defining custom logic in <<ERC4626Component-calculate_redeem_fee,FeeConfigTrait::calculate_redeem_fee>>.
 
 NOTE: This method must be inclusive of exit fees to be compliant with the {eip4626} spec.
 

@@ -1259,7 +1259,7 @@ fn test_with_erc4626() {
         pub mod ERC4626Mock {
             use openzeppelin_token::erc20::extensions::erc4626::{
                 DefaultConfig, ERC4626DefaultNoLimits, ERC4626DefaultNoFees,
-                ERC4626EmptyHooks,
+                ERC4626EmptyHooks, ERC4626SelfAssetsManagement,
             };
             use openzeppelin_token::erc20::ERC20HooksEmptyImpl;
             use starknet::ContractAddress;

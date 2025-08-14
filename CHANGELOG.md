@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed (Breaking)
 
 - `ERC4626Component` now supports alternative asset management strategies (e.g., external vault) via the added `AssetsManagementTrait` (#1454)
+- `ERC4626Component` now supports charging fees in shares as well as in assets via the refactored `FeeConfigTrait` (#1452)
+- Additional input parameters were added to the `ERC4626HooksTrait` functions (#1452)
 - Moved interfaces, ABIs and dispatchers into `openzeppelin_interfaces` (#1463)
   - Some structs and types that were defined inside interface files were also moved
 

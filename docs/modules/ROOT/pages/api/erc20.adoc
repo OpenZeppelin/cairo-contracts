@@ -940,10 +940,10 @@ The component leverages traits to configure fees, limits, and decimals.
 
 [.sub-index#ERC4626Component-ERC4626HooksTrait]
 .ERC4626HooksTrait
-* xref:#ERC4626Component-before_withdraw[`++before_withdraw(self, assets, shares)++`]
-* xref:#ERC4626Component-after_withdraw[`++after_withdraw(self, assets, shares)++`]
-* xref:#ERC4626Component-before_deposit[`++before_deposit(self, assets, shares)++`]
-* xref:#ERC4626Component-after_deposit[`++after_deposit(self, assets, shares)++`]
+* xref:#ERC4626Component-before_deposit[`++before_deposit(self, caller, receiver, assets, shares, fee)++`]
+* xref:#ERC4626Component-after_deposit[`++after_deposit(self, caller, receiver, assets, shares, fee)++`]
+* xref:#ERC4626Component-before_withdraw[`++before_withdraw(self, caller, receiver, owner, assets, shares, fee)++`]
+* xref:#ERC4626Component-after_withdraw[`++after_withdraw(self, caller, receiver, owner, assets, shares, fee)++`]
 
 [.sub-index#ERC4626Component-AssetsManagementTrait]
 .AssetsManagementTrait
@@ -1144,24 +1144,8 @@ lead to bypassing withdrawal constraints or draining funds.
 See the {mock-ex}.
 
 [.contract-item]
-[[ERC4626Component-before_withdraw]]
-==== `[.contract-item-name]#++before_withdraw++#++(ref self: ContractState, assets: u256, shares: u256)++` [.item-kind]#hook#
-
-Hooks into xref:#ERC4626Component-_withdraw[_withdraw].
-
-Executes logic before burning shares and transferring assets.
-
-[.contract-item]
-[[ERC4626Component-after_withdraw]]
-==== `[.contract-item-name]#++after_withdraw++#++(ref self: ContractState, assets: u256, shares: u256)++` [.item-kind]#hook#
-
-Hooks into xref:#ERC4626Component-_withdraw[_withdraw].
-
-Executes logic after burning shares and transferring assets.
-
-[.contract-item]
 [[ERC4626Component-before_deposit]]
-==== `[.contract-item-name]#++before_deposit++#++(ref self: ContractState, assets: u256, shares: u256)++` [.item-kind]#hook#
+==== `[.contract-item-name]#++before_deposit++#++(ref self: ContractState, caller: ContractAddress, receiver: ContractAddress, assets: u256, shares: u256, fee: Option<Fee>)++` [.item-kind]#hook#
 
 Hooks into xref:#ERC4626Component-_deposit[_deposit].
 
@@ -1169,11 +1153,27 @@ Executes logic before transferring assets and minting shares.
 
 [.contract-item]
 [[ERC4626Component-after_deposit]]
-==== `[.contract-item-name]#++after_deposit++#++(ref self: ContractState, assets: u256, shares: u256)++` [.item-kind]#hook#
+==== `[.contract-item-name]#++after_deposit++#++(ref self: ContractState, caller: ContractAddress, receiver: ContractAddress, assets: u256, shares: u256, fee: Option<Fee>)++` [.item-kind]#hook#
 
 Hooks into xref:#ERC4626Component-_deposit[_deposit].
 
 Executes logic after transferring assets and minting shares.
+
+[.contract-item]
+[[ERC4626Component-before_withdraw]]
+==== `[.contract-item-name]#++before_withdraw++#++(ref self: ContractState, caller: ContractAddress, receiver: ContractAddress, owner: ContractAddress, assets: u256, shares: u256, fee: Option<Fee>)++` [.item-kind]#hook#
+
+Hooks into xref:#ERC4626Component-_withdraw[_withdraw].
+
+Executes logic before burning shares and transferring assets.
+
+[.contract-item]
+[[ERC4626Component-after_withdraw]]
+==== `[.contract-item-name]#++after_withdraw++#++(ref self: ContractState, caller: ContractAddress, receiver: ContractAddress, owner: ContractAddress, assets: u256, shares: u256, fee: Option<Fee>)++` [.item-kind]#hook#
+
+Hooks into xref:#ERC4626Component-_withdraw[_withdraw].
+
+Executes logic after burning shares and transferring assets.
 
 ==== AssetsManagementTrait
 

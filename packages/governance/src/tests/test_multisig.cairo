@@ -6,9 +6,8 @@ use openzeppelin_test_common::mocks::multisig::{
 };
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{ALICE, BLOCK_NUMBER, BOB, CHARLIE, OTHER, SALT, ZERO};
-use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
-use openzeppelin_utils::serde::SerializedAppend;
-use snforge_std::{Event, start_cheat_block_number_global, start_cheat_caller_address, test_address};
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, ExpectedEvent, spy_events};
+use snforge_std::{start_cheat_block_number_global, start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
 use starknet::account::Call;
 use starknet::storage_access::StorePacking;
@@ -1552,11 +1551,7 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
     fn assert_event_signer_added(
         ref self: EventSpy, contract: ContractAddress, signer: ContractAddress,
     ) {
-        let mut keys = array![];
-        keys.append_serde(selector!("SignerAdded"));
-        keys.append_serde(signer);
-
-        let expected = Event { keys, data: array![] };
+        let expected = ExpectedEvent::new().key(selector!("SignerAdded")).key(signer);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -1574,11 +1569,7 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
     fn assert_event_signer_removed(
         ref self: EventSpy, contract: ContractAddress, signer: ContractAddress,
     ) {
-        let mut keys = array![];
-        keys.append_serde(selector!("SignerRemoved"));
-        keys.append_serde(signer);
-
-        let expected = Event { keys, data: array![] };
+        let expected = ExpectedEvent::new().key(selector!("SignerRemoved")).key(signer);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -1596,14 +1587,10 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
     fn assert_event_quorum_updated(
         ref self: EventSpy, contract: ContractAddress, old_quorum: u32, new_quorum: u32,
     ) {
-        let mut keys = array![];
-        keys.append_serde(selector!("QuorumUpdated"));
-
-        let mut data = array![];
-        data.append_serde(old_quorum);
-        data.append_serde(new_quorum);
-
-        let expected = Event { keys, data };
+        let expected = ExpectedEvent::new()
+            .key(selector!("QuorumUpdated"))
+            .data(old_quorum)
+            .data(new_quorum);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -1621,12 +1608,10 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
     fn assert_event_tx_submitted(
         ref self: EventSpy, contract: ContractAddress, id: TransactionID, signer: ContractAddress,
     ) {
-        let mut keys = array![];
-        keys.append_serde(selector!("TransactionSubmitted"));
-        keys.append_serde(id);
-        keys.append_serde(signer);
-
-        let expected = Event { keys, data: array![] };
+        let expected = ExpectedEvent::new()
+            .key(selector!("TransactionSubmitted"))
+            .key(id)
+            .key(signer);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -1644,12 +1629,10 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
     fn assert_event_tx_confirmed(
         ref self: EventSpy, contract: ContractAddress, id: TransactionID, signer: ContractAddress,
     ) {
-        let mut keys = array![];
-        keys.append_serde(selector!("TransactionConfirmed"));
-        keys.append_serde(id);
-        keys.append_serde(signer);
-
-        let expected = Event { keys, data: array![] };
+        let expected = ExpectedEvent::new()
+            .key(selector!("TransactionConfirmed"))
+            .key(id)
+            .key(signer);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -1667,12 +1650,10 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
     fn assert_event_confirmation_revoked(
         ref self: EventSpy, contract: ContractAddress, id: TransactionID, signer: ContractAddress,
     ) {
-        let mut keys = array![];
-        keys.append_serde(selector!("ConfirmationRevoked"));
-        keys.append_serde(id);
-        keys.append_serde(signer);
-
-        let expected = Event { keys, data: array![] };
+        let expected = ExpectedEvent::new()
+            .key(selector!("ConfirmationRevoked"))
+            .key(id)
+            .key(signer);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -1688,11 +1669,7 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
     //
 
     fn assert_event_tx_executed(ref self: EventSpy, contract: ContractAddress, id: TransactionID) {
-        let mut keys = array![];
-        keys.append_serde(selector!("TransactionExecuted"));
-        keys.append_serde(id);
-
-        let expected = Event { keys, data: array![] };
+        let expected = ExpectedEvent::new().key(selector!("TransactionExecuted")).key(id);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -1710,14 +1687,7 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
     fn assert_event_call_salt(
         ref self: EventSpy, contract: ContractAddress, id: TransactionID, salt: felt252,
     ) {
-        let mut keys = array![];
-        keys.append_serde(selector!("CallSalt"));
-        keys.append_serde(id);
-
-        let mut data = array![];
-        data.append_serde(salt);
-
-        let expected = Event { keys, data };
+        let expected = ExpectedEvent::new().key(selector!("CallSalt")).key(id).data(salt);
         self.assert_emitted_single(contract, expected);
     }
 }

@@ -84,7 +84,7 @@ mod tests {
     use core::num::traits::Bounded;
     use openzeppelin_testing::constants::ALICE;
     use openzeppelin_testing::{FuzzableBool, FuzzableContractAddress};
-    use super::{ProposalCore, ProposalCoreStorePacking as StorePacking};
+    use super::{ContractAddress, ProposalCore, ProposalCoreStorePacking as StorePacking};
 
     #[test]
     fn test_pack_and_unpack() {

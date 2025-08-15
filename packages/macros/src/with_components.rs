@@ -26,6 +26,7 @@ const ALLOWED_COMPONENTS: [&str; 22] = [
     "Pausable",
     "ReentrancyGuard",
     "ERC20",
+    "ERC4626",
     "ERC721",
     "ERC721Enumerable",
     "ERC721Receiver",
@@ -73,7 +74,7 @@ pub fn with_components(attribute_stream: TokenStream, item_stream: TokenStream) 
         }
     };
 
-    // 4. Add warnings for each component
+    // 3. Add warnings for each component
     for component_info in components_info.iter() {
         let component_warnings = add_per_component_warnings(&content, component_info);
         diagnostics.extend(component_warnings);
@@ -302,6 +303,60 @@ fn add_per_component_warnings(code: &str, component_info: &ComponentInfo) -> Vec
                     You can use the ERC20HooksEmptyImpl implementation by importing it:
 
                     `use openzeppelin_token::erc20::ERC20HooksEmptyImpl;`
+                "});
+                warnings.push(warning);
+            }
+        }
+        "ERC4626" => {
+            // 1. Check that the ERC4626HooksTrait is implemented
+            let hooks_trait_used = code.contains("ERC4626HooksTrait");
+            let hooks_empty_impl_used = code.contains("ERC4626EmptyHooks");
+            if !hooks_trait_used && !hooks_empty_impl_used {
+                let warning = Diagnostic::warn(indoc! {"
+                    The ERC4626 component requires an implementation of the ERC4626HooksTrait in scope. It looks like this implementation is missing.
+
+                    You can use the ERC4626EmptyHooks implementation by importing it:
+
+                    `use openzeppelin_token::erc20::extensions::erc4626::ERC4626EmptyHooks;`
+                "});
+                warnings.push(warning);
+            }
+            // 2. Check that the FeeConfigTrait is implemented
+            let fee_config_trait_used = code.contains("FeeConfigTrait");
+            let fee_config_empty_impl_used = code.contains("ERC4626DefaultNoFees");
+            if !fee_config_trait_used && !fee_config_empty_impl_used {
+                let warning = Diagnostic::warn(indoc! {"
+                    The ERC4626 component requires an implementation of the FeeConfigTrait in scope. It looks like this implementation is missing.
+
+                    You can use the ERC4626DefaultNoFees implementation by importing it:
+
+                    `use openzeppelin_token::erc20::extensions::erc4626::ERC4626DefaultNoFees;`
+                "});
+                warnings.push(warning);
+            }
+            // 3. Check that the LimitConfigTrait is implemented
+            let limit_config_trait_used = code.contains("LimitConfigTrait");
+            let limit_config_empty_impl_used = code.contains("ERC4626DefaultNoLimits");
+            if !limit_config_trait_used && !limit_config_empty_impl_used {
+                let warning = Diagnostic::warn(indoc! {"
+                    The ERC4626 component requires an implementation of the LimitConfigTrait in scope. It looks like this implementation is missing.
+
+                    You can use the ERC4626DefaultNoLimits implementation by importing it:
+
+                    `use openzeppelin_token::erc20::extensions::erc4626::ERC4626DefaultNoLimits;`
+                "});
+                warnings.push(warning);
+            }
+            // 4. Check that the AssetsManagementTrait is implemented
+            let assets_management_trait_used = code.contains("AssetsManagementTrait");
+            let self_assets_management_impl_used = code.contains("ERC4626SelfAssetsManagement");
+            if !assets_management_trait_used && !self_assets_management_impl_used {
+                let warning = Diagnostic::warn(indoc! {"
+                    The ERC4626 component requires an implementation of the AssetsManagementTrait in scope. It looks like this implementation is missing.
+
+                    You can use the ERC4626SelfAssetsManagement implementation by importing it:
+
+                    `use openzeppelin_token::erc20::extensions::erc4626::ERC4626SelfAssetsManagement;`
                 "});
                 warnings.push(warning);
             }

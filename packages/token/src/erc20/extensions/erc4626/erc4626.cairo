@@ -34,9 +34,7 @@
 #[starknet::component]
 pub mod ERC4626Component {
     use core::num::traits::{Bounded, Pow, Zero};
-    use openzeppelin_interfaces::erc20::{
-        IERC20, IERC20Dispatcher, IERC20DispatcherTrait, IERC20Metadata,
-    };
+    use openzeppelin_interfaces::erc20::{IERC20, IERC20Metadata};
     use openzeppelin_interfaces::erc4626::IERC4626;
     use openzeppelin_utils::math;
     use openzeppelin_utils::math::Rounding;

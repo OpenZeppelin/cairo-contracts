@@ -1,16 +1,16 @@
 use openzeppelin_test_common::mocks::governor::GovernorQuorumFractionMock;
 use openzeppelin_test_common::mocks::governor::GovernorQuorumFractionMock::SNIP12MetadataImpl;
 use openzeppelin_testing::constants::{OTHER, VOTES_TOKEN, ZERO};
-use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, ExpectedEvent, spy_events};
 use snforge_std::{start_cheat_block_number_global, start_mock_call, test_address};
 use starknet::ContractAddress;
 use crate::governor::GovernorComponent::InternalImpl;
-use crate::governor::extensions::GovernorVotesQuorumFractionComponent;
 use crate::governor::extensions::GovernorVotesQuorumFractionComponent::{
     GovernorQuorum, GovernorVotes, InternalTrait, QuorumFractionImpl,
 };
 use crate::governor::{DefaultConfig, GovernorComponent};
 use crate::tests::governor::block_number::common::deploy_votes_token;
+
 
 pub type ComponentState =
     GovernorComponent::ComponentState<GovernorQuorumFractionMock::ContractState>;
@@ -240,11 +240,10 @@ pub(crate) impl GovernorSettingsSpyHelpersImpl of GovernorSettingsSpyHelpers {
         old_quorum_numerator: u256,
         new_quorum_numerator: u256,
     ) {
-        let expected = GovernorVotesQuorumFractionComponent::Event::QuorumNumeratorUpdated(
-            GovernorVotesQuorumFractionComponent::QuorumNumeratorUpdated {
-                old_quorum_numerator, new_quorum_numerator,
-            },
-        );
+        let expected = ExpectedEvent::new()
+            .key(selector!("QuorumNumeratorUpdated"))
+            .data(old_quorum_numerator)
+            .data(new_quorum_numerator);
         self.assert_emitted_single(contract, expected);
     }
 

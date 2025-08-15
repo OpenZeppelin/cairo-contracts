@@ -1,7 +1,5 @@
-use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy};
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, ExpectedEvent};
 use starknet::ContractAddress;
-use crate::votes::VotesComponent;
-use crate::votes::VotesComponent::{DelegateChanged, DelegateVotesChanged};
 
 #[generate_trait]
 pub(crate) impl VotesSpyHelpersImpl of VotesSpyHelpers {
@@ -12,9 +10,11 @@ pub(crate) impl VotesSpyHelpersImpl of VotesSpyHelpers {
         from_delegate: ContractAddress,
         to_delegate: ContractAddress,
     ) {
-        let expected = VotesComponent::Event::DelegateChanged(
-            DelegateChanged { delegator, from_delegate, to_delegate },
-        );
+        let expected = ExpectedEvent::new()
+            .key(selector!("DelegateChanged"))
+            .key(delegator)
+            .key(from_delegate)
+            .key(to_delegate);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -25,9 +25,11 @@ pub(crate) impl VotesSpyHelpersImpl of VotesSpyHelpers {
         previous_votes: u256,
         new_votes: u256,
     ) {
-        let expected = VotesComponent::Event::DelegateVotesChanged(
-            DelegateVotesChanged { delegate, previous_votes, new_votes },
-        );
+        let expected = ExpectedEvent::new()
+            .key(selector!("DelegateVotesChanged"))
+            .key(delegate)
+            .data(previous_votes)
+            .data(new_votes);
         self.assert_emitted_single(contract, expected);
     }
 

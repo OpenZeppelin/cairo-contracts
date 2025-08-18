@@ -2,6 +2,8 @@ import subprocess
 import json
 import sys
 
+from benchmark import BYTECODE_KEY, CONTRACT_CLASS_KEY, try_get_name
+
 # ANSI color codes
 RESET   = "\033[0m"
 BOLD    = "\033[1m"
@@ -21,18 +23,6 @@ CLOSE_TO_LIMIT = 0.8
 def load_json(path):
     with open(path, "r") as f:
         return json.load(f)
-
-
-def try_get_name(filename):
-    for i, c in enumerate(filename):
-        if c.isupper():
-            start = i
-            end = filename.find('.', start)
-            if end == -1:
-                return filename[start:]
-            else:
-                return filename[start:end]
-    return filename
 
 
 def get_size_warning(metric, value, color=True):
@@ -64,10 +54,10 @@ def get_current_benchmark(benchmark_script, target_dir=None):
 
 def print_diff(old, new):
     print(f"\n{BOLD}{CYAN}--- BYTECODE SIZE (felts) ---{RESET}")
-    compare_subdicts(old.get("bytecode", {}), new.get("bytecode", {}), "felts")
+    compare_subdicts(old.get(BYTECODE_KEY, {}), new.get(BYTECODE_KEY, {}), "felts")
 
     print(f"\n{BOLD}{CYAN}--- SIERRA CONTRACT CLASS SIZE (bytes) ---{RESET}")
-    compare_subdicts(old.get("contract_class", {}), new.get("contract_class", {}), "bytes")
+    compare_subdicts(old.get(CONTRACT_CLASS_KEY, {}), new.get(CONTRACT_CLASS_KEY, {}), "bytes")
 
 
 def color_name(name):
@@ -107,10 +97,10 @@ def compare_subdicts(old, new, metric):
 
 def print_diff_markdown(old, new):
     print("#### 🧪 BYTECODE SIZE (felts)\n")
-    markdown_subtable(old.get("bytecode", {}), new.get("bytecode", {}), "felts")
+    markdown_subtable(old.get(BYTECODE_KEY, {}), new.get(BYTECODE_KEY, {}), "felts")
 
     print("\n#### 🧪 SIERRA CONTRACT CLASS SIZE (bytes)\n")
-    markdown_subtable(old.get("contract_class", {}), new.get("contract_class", {}), "bytes")
+    markdown_subtable(old.get(CONTRACT_CLASS_KEY, {}), new.get(CONTRACT_CLASS_KEY, {}), "bytes")
 
 
 def markdown_subtable(old, new, metric):

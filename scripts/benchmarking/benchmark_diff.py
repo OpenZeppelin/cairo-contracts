@@ -137,6 +137,10 @@ def markdown_subtable(old, new, metric, show_unchanged=False):
             note = get_size_warning(metric, new_val)
             rows.append([f"`{name}`", str(old_val), str(new_val), delta, note or ""])
 
+    if len(rows) == 1:
+        print(f"No changes in {metric}.")
+        return
+
     # Calculate column widths
     col_widths = [max(len(cell) for cell in col) for col in zip(*rows)]
 

@@ -7,16 +7,14 @@ TokenStream:
 
 #[starknet::contract]
 pub mod MyContract {
-    pub const VOTING_DELAY: u64 = 86400; // 1 day
-    pub const VOTING_PERIOD: u64 = 604800; // 1 week
+    pub const VOTING_DELAY: u64 = 86400;
+    pub const VOTING_PERIOD: u64 = 604800;
     pub const PROPOSAL_THRESHOLD: u256 = 10;
-
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
         pub governor_settings: GovernorSettingsComponent::Storage,
     }
-
     #[constructor]
     fn constructor(ref self: ContractState) {
         self.governor_settings.initializer(VOTING_DELAY, VOTING_PERIOD, PROPOSAL_THRESHOLD);

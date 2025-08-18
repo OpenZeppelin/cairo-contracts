@@ -12,7 +12,6 @@ pub mod MyContract {
         #[substorage(v0)]
         pub pausable: PausableComponent::Storage,
     }
-
     #[generate_trait]
     #[abi(per_item)]
     impl ExternalImpl of ExternalTrait {
@@ -20,7 +19,6 @@ pub mod MyContract {
         fn pause(ref self: ContractState) {
             self.pausable.pause();
         }
-
         #[external(v0)]
         fn unpause(ref self: ContractState) {
             self.pausable.unpause();

@@ -1,6 +1,4 @@
-use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy};
-use openzeppelin_token::erc721::ERC721Component;
-use openzeppelin_token::erc721::ERC721Component::{Approval, ApprovalForAll, Transfer};
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, ExpectedEvent};
 use starknet::ContractAddress;
 
 #[generate_trait]
@@ -12,9 +10,11 @@ pub impl ERC721SpyHelpersImpl of ERC721SpyHelpers {
         operator: ContractAddress,
         approved: bool,
     ) {
-        let expected = ERC721Component::Event::ApprovalForAll(
-            ApprovalForAll { owner, operator, approved },
-        );
+        let expected = ExpectedEvent::new()
+            .key(selector!("ApprovalForAll"))
+            .key(owner)
+            .key(operator)
+            .data(approved);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -36,7 +36,11 @@ pub impl ERC721SpyHelpersImpl of ERC721SpyHelpers {
         approved: ContractAddress,
         token_id: u256,
     ) {
-        let expected = ERC721Component::Event::Approval(Approval { owner, approved, token_id });
+        let expected = ExpectedEvent::new()
+            .key(selector!("Approval"))
+            .key(owner)
+            .key(approved)
+            .key(token_id);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -58,7 +62,11 @@ pub impl ERC721SpyHelpersImpl of ERC721SpyHelpers {
         to: ContractAddress,
         token_id: u256,
     ) {
-        let expected = ERC721Component::Event::Transfer(Transfer { from, to, token_id });
+        let expected = ExpectedEvent::new()
+            .key(selector!("Transfer"))
+            .key(from)
+            .key(to)
+            .key(token_id);
         self.assert_emitted_single(contract, expected);
     }
 

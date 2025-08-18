@@ -147,9 +147,9 @@ fn handle_node(
     args: &TypeHashArgs,
 ) -> Result<String, Diagnostic> {
     let typed = ast::SyntaxFile::from_syntax_node(db, node);
-    let items = typed.items(db).elements(db);
+    let mut items = typed.items(db).elements(db);
 
-    let Some(item_ast) = items.first() else {
+    let Some(item_ast) = items.next() else {
         let error = Diagnostic::error(errors::EMPTY_TYPE_FOUND);
         return Err(error);
     };
@@ -158,7 +158,7 @@ fn handle_node(
     match item_ast {
         ast::ModuleItem::Struct(_) | ast::ModuleItem::Enum(_) => {
             // It is safe to unwrap here because we know the item is a struct
-            let plugin_type_info = PluginTypeInfo::new(db, item_ast).unwrap();
+            let plugin_type_info = PluginTypeInfo::new(db, &item_ast).unwrap();
             generate_code(db, &plugin_type_info, args)
         }
         _ => {

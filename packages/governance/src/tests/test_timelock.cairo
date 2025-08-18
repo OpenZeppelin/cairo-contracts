@@ -16,7 +16,9 @@ use openzeppelin_test_common::mocks::timelock::{
 };
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{ADMIN, FELT_VALUE as VALUE, OTHER, SALT, ZERO};
-use openzeppelin_testing::{AsAddressTrait, EventSpyExt, EventSpyQueue as EventSpy, spy_events};
+use openzeppelin_testing::{
+    AsAddressTrait, EventSpyExt, EventSpyQueue as EventSpy, ExpectedEvent, spy_events,
+};
 use openzeppelin_utils::contract_clock::ERC6372TimestampClock;
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{
@@ -27,8 +29,7 @@ use starknet::ContractAddress;
 use starknet::account::Call;
 use starknet::storage::{StorageMapReadAccess, StorageMapWriteAccess, StoragePointerWriteAccess};
 use crate::timelock::TimelockControllerComponent::{
-    CallCancelled, CallExecuted, CallSalt, CallScheduled, InternalImpl as TimelockInternalImpl,
-    MinDelayChanged, TimelockImpl,
+    InternalImpl as TimelockInternalImpl, TimelockImpl,
 };
 use crate::timelock::{CANCELLER_ROLE, EXECUTOR_ROLE, PROPOSER_ROLE, TimelockControllerComponent};
 
@@ -1654,9 +1655,13 @@ pub(crate) impl TimelockSpyHelpersImpl of TimelockSpyHelpers {
         predecessor: felt252,
         delay: u64,
     ) {
-        let expected = TimelockControllerComponent::Event::CallScheduled(
-            CallScheduled { id, index, call, predecessor, delay },
-        );
+        let expected = ExpectedEvent::new()
+            .key(selector!("CallScheduled"))
+            .key(id)
+            .key(index)
+            .data(call)
+            .data(predecessor)
+            .data(delay);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -1710,7 +1715,7 @@ pub(crate) impl TimelockSpyHelpersImpl of TimelockSpyHelpers {
     fn assert_event_call_salt(
         ref self: EventSpy, contract: ContractAddress, id: felt252, salt: felt252,
     ) {
-        let expected = TimelockControllerComponent::Event::CallSalt(CallSalt { id, salt });
+        let expected = ExpectedEvent::new().key(selector!("CallSalt")).key(id).data(salt);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -1726,7 +1731,7 @@ pub(crate) impl TimelockSpyHelpersImpl of TimelockSpyHelpers {
     //
 
     fn assert_event_call_cancelled(ref self: EventSpy, contract: ContractAddress, id: felt252) {
-        let expected = TimelockControllerComponent::Event::CallCancelled(CallCancelled { id });
+        let expected = ExpectedEvent::new().key(selector!("CallCancelled")).key(id);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -1744,9 +1749,11 @@ pub(crate) impl TimelockSpyHelpersImpl of TimelockSpyHelpers {
     fn assert_event_call_executed(
         ref self: EventSpy, contract: ContractAddress, id: felt252, index: felt252, call: Call,
     ) {
-        let expected = TimelockControllerComponent::Event::CallExecuted(
-            CallExecuted { id, index, call },
-        );
+        let expected = ExpectedEvent::new()
+            .key(selector!("CallExecuted"))
+            .key(id)
+            .key(index)
+            .data(call);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -1781,9 +1788,10 @@ pub(crate) impl TimelockSpyHelpersImpl of TimelockSpyHelpers {
     fn assert_event_delay_changed(
         ref self: EventSpy, contract: ContractAddress, old_duration: u64, new_duration: u64,
     ) {
-        let expected = TimelockControllerComponent::Event::MinDelayChanged(
-            MinDelayChanged { old_duration, new_duration },
-        );
+        let expected = ExpectedEvent::new()
+            .key(selector!("MinDelayChanged"))
+            .data(old_duration)
+            .data(new_duration);
         self.assert_emitted_single(contract, expected);
     }
 

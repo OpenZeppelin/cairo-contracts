@@ -30,6 +30,7 @@ dependencies = [
  "openzeppelin_introspection",
  "openzeppelin_test_common",
  "openzeppelin_testing",
+ "openzeppelin_utils",
  "snforge_std",
 ]
 
@@ -125,6 +126,7 @@ dependencies = [
  "openzeppelin_interfaces",
  "openzeppelin_test_common",
  "openzeppelin_testing",
+ "openzeppelin_utils",
  "snforge_std",
 ]
 

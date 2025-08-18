@@ -8,7 +8,7 @@ use openzeppelin_testing::constants::{
     BASE_URI, BASE_URI_2, CALLER, DATA, NAME, OPERATOR, OTHER, OWNER, PUBKEY, RECIPIENT, SPENDER,
     SYMBOL, TOKEN_ID, TOKEN_ID_2, ZERO,
 };
-use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, ExpectedEvent, spy_events};
 use snforge_std::{start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
 use starknet::storage::StorageMapReadAccess;
@@ -1488,9 +1488,11 @@ impl ERC721HooksSpyHelpersImpl of ERC721HooksSpyHelpers {
         token_id: u256,
         auth: ContractAddress,
     ) {
-        let expected = SnakeERC721MockWithHooks::Event::BeforeUpdate(
-            SnakeERC721MockWithHooks::BeforeUpdate { to, token_id, auth },
-        );
+        let expected = ExpectedEvent::new()
+            .key(selector!("BeforeUpdate"))
+            .data(to)
+            .data(token_id)
+            .data(auth);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -1501,9 +1503,11 @@ impl ERC721HooksSpyHelpersImpl of ERC721HooksSpyHelpers {
         token_id: u256,
         auth: ContractAddress,
     ) {
-        let expected = SnakeERC721MockWithHooks::Event::AfterUpdate(
-            SnakeERC721MockWithHooks::AfterUpdate { to, token_id, auth },
-        );
+        let expected = ExpectedEvent::new()
+            .key(selector!("AfterUpdate"))
+            .data(to)
+            .data(token_id)
+            .data(auth);
         self.assert_emitted_single(contract, expected);
     }
 }

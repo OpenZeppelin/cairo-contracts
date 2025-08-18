@@ -1,7 +1,6 @@
-use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy};
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, ExpectedEvent};
 use starknet::ContractAddress;
 use starknet::account::Call;
-use crate::governor::GovernorComponent;
 
 //
 // Event helpers
@@ -20,17 +19,15 @@ pub(crate) impl GovernorSpyHelpersImpl of GovernorSpyHelpers {
         vote_end: u64,
         description: @ByteArray,
     ) {
-        let expected = GovernorComponent::Event::ProposalCreated(
-            GovernorComponent::ProposalCreated {
-                proposal_id,
-                proposer,
-                calls,
-                signatures,
-                vote_start,
-                vote_end,
-                description: description.clone(),
-            },
-        );
+        let expected = ExpectedEvent::new()
+            .key(selector!("ProposalCreated"))
+            .key(proposal_id)
+            .key(proposer)
+            .data(calls)
+            .data(signatures)
+            .data(vote_start)
+            .data(vote_end)
+            .data(description.clone());
         self.assert_emitted_single(contract, expected);
     }
 
@@ -68,11 +65,13 @@ pub(crate) impl GovernorSpyHelpersImpl of GovernorSpyHelpers {
         weight: u256,
         reason: @ByteArray,
     ) {
-        let expected = GovernorComponent::Event::VoteCast(
-            GovernorComponent::VoteCast {
-                voter, proposal_id, support, weight, reason: reason.clone(),
-            },
-        );
+        let expected = ExpectedEvent::new()
+            .key(selector!("VoteCast"))
+            .key(voter)
+            .data(proposal_id)
+            .data(support)
+            .data(weight)
+            .data(reason.clone());
         self.assert_emitted_single(contract, expected);
     }
 
@@ -99,11 +98,14 @@ pub(crate) impl GovernorSpyHelpersImpl of GovernorSpyHelpers {
         reason: @ByteArray,
         params: Span<felt252>,
     ) {
-        let expected = GovernorComponent::Event::VoteCastWithParams(
-            GovernorComponent::VoteCastWithParams {
-                voter, proposal_id, support, weight, reason: reason.clone(), params,
-            },
-        );
+        let expected = ExpectedEvent::new()
+            .key(selector!("VoteCastWithParams"))
+            .key(voter)
+            .data(proposal_id)
+            .data(support)
+            .data(weight)
+            .data(reason.clone())
+            .data(params);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -127,9 +129,10 @@ pub(crate) impl GovernorSpyHelpersImpl of GovernorSpyHelpers {
     fn assert_event_proposal_queued(
         ref self: EventSpy, contract: ContractAddress, proposal_id: felt252, eta_seconds: u64,
     ) {
-        let expected = GovernorComponent::Event::ProposalQueued(
-            GovernorComponent::ProposalQueued { proposal_id, eta_seconds },
-        );
+        let expected = ExpectedEvent::new()
+            .key(selector!("ProposalQueued"))
+            .key(proposal_id)
+            .data(eta_seconds);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -143,9 +146,7 @@ pub(crate) impl GovernorSpyHelpersImpl of GovernorSpyHelpers {
     fn assert_event_proposal_executed(
         ref self: EventSpy, contract: ContractAddress, proposal_id: felt252,
     ) {
-        let expected = GovernorComponent::Event::ProposalExecuted(
-            GovernorComponent::ProposalExecuted { proposal_id },
-        );
+        let expected = ExpectedEvent::new().key(selector!("ProposalExecuted")).key(proposal_id);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -159,9 +160,7 @@ pub(crate) impl GovernorSpyHelpersImpl of GovernorSpyHelpers {
     fn assert_event_proposal_canceled(
         ref self: EventSpy, contract: ContractAddress, proposal_id: felt252,
     ) {
-        let expected = GovernorComponent::Event::ProposalCanceled(
-            GovernorComponent::ProposalCanceled { proposal_id },
-        );
+        let expected = ExpectedEvent::new().key(selector!("ProposalCanceled")).key(proposal_id);
         self.assert_emitted_single(contract, expected);
     }
 

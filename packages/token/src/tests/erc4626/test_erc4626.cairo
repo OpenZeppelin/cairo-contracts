@@ -4,18 +4,18 @@ use openzeppelin_test_common::erc20::ERC20SpyHelpers;
 use openzeppelin_test_common::mocks::erc20::{
     IERC20ReentrantDispatcher, IERC20ReentrantDispatcherTrait, Type,
 };
-use openzeppelin_test_common::mocks::erc4626::{
-    ERC4626LimitsMock, ERC4626Mock, ERC4626MockWithHooks,
-};
+use openzeppelin_test_common::mocks::erc4626::{ERC4626LimitsMock, ERC4626Mock};
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{ALICE, BOB, NAME, OTHER, RECIPIENT, SPENDER, SYMBOL, ZERO};
-use openzeppelin_testing::{AsAddressTrait, EventSpyExt, EventSpyQueue as EventSpy, spy_events};
+use openzeppelin_testing::{
+    AsAddressTrait, EventSpyExt, EventSpyQueue as EventSpy, ExpectedEvent, spy_events,
+};
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{CheatSpan, cheat_caller_address};
 use starknet::ContractAddress;
 use crate::erc20::ERC20Component::InternalImpl as ERC20InternalImpl;
 use crate::erc20::extensions::erc4626::ERC4626Component::{
-    Deposit, ERC4626Impl, ERC4626MetadataImpl, InternalImpl, Withdraw,
+    ERC4626Impl, ERC4626MetadataImpl, InternalImpl,
 };
 use crate::erc20::extensions::erc4626::{DefaultConfig, ERC4626Component};
 
@@ -2092,7 +2092,12 @@ pub impl ERC4626SpyHelpersImpl of ERC4626SpyHelpers {
         assets: u256,
         shares: u256,
     ) {
-        let expected = ERC4626Component::Event::Deposit(Deposit { sender, owner, assets, shares });
+        let expected = ExpectedEvent::new()
+            .key(selector!("Deposit"))
+            .key(sender)
+            .key(owner)
+            .data(assets)
+            .data(shares);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -2117,9 +2122,13 @@ pub impl ERC4626SpyHelpersImpl of ERC4626SpyHelpers {
         assets: u256,
         shares: u256,
     ) {
-        let expected = ERC4626Component::Event::Withdraw(
-            Withdraw { sender, receiver, owner, assets, shares },
-        );
+        let expected = ExpectedEvent::new()
+            .key(selector!("Withdraw"))
+            .key(sender)
+            .key(receiver)
+            .key(owner)
+            .data(assets)
+            .data(shares);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -2147,9 +2156,12 @@ impl ERC4626HooksSpyHelpersImpl of ERC4626HooksSpyHelpers {
         assets: u256,
         shares: u256,
     ) {
-        let expected = ERC4626MockWithHooks::Event::BeforeDeposit(
-            ERC4626MockWithHooks::BeforeDeposit { caller, receiver, assets, shares },
-        );
+        let expected = ExpectedEvent::new()
+            .key(selector!("BeforeDeposit"))
+            .data(caller)
+            .data(receiver)
+            .data(assets)
+            .data(shares);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -2161,9 +2173,12 @@ impl ERC4626HooksSpyHelpersImpl of ERC4626HooksSpyHelpers {
         assets: u256,
         shares: u256,
     ) {
-        let expected = ERC4626MockWithHooks::Event::AfterDeposit(
-            ERC4626MockWithHooks::AfterDeposit { caller, receiver, assets, shares },
-        );
+        let expected = ExpectedEvent::new()
+            .key(selector!("AfterDeposit"))
+            .data(caller)
+            .data(receiver)
+            .data(assets)
+            .data(shares);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -2176,9 +2191,13 @@ impl ERC4626HooksSpyHelpersImpl of ERC4626HooksSpyHelpers {
         assets: u256,
         shares: u256,
     ) {
-        let expected = ERC4626MockWithHooks::Event::BeforeWithdraw(
-            ERC4626MockWithHooks::BeforeWithdraw { caller, receiver, owner, assets, shares },
-        );
+        let expected = ExpectedEvent::new()
+            .key(selector!("BeforeWithdraw"))
+            .data(caller)
+            .data(receiver)
+            .data(owner)
+            .data(assets)
+            .data(shares);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -2191,9 +2210,13 @@ impl ERC4626HooksSpyHelpersImpl of ERC4626HooksSpyHelpers {
         assets: u256,
         shares: u256,
     ) {
-        let expected = ERC4626MockWithHooks::Event::AfterWithdraw(
-            ERC4626MockWithHooks::AfterWithdraw { caller, receiver, owner, assets, shares },
-        );
+        let expected = ExpectedEvent::new()
+            .key(selector!("AfterWithdraw"))
+            .data(caller)
+            .data(receiver)
+            .data(owner)
+            .data(assets)
+            .data(shares);
         self.assert_emitted_single(contract, expected);
     }
 }

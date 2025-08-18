@@ -1,0 +1,83 @@
+name: Benchmark Diff on PR
+
+on:
+  pull_request:
+    # Trigger only on PRs targeting main or release branches
+    # Note: This event does NOT get secrets when PRs come from forks
+    types: [opened, synchronize]
+    branches:
+      - main
+      - 'release-v*'
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  comment-benchmark-diff:
+    # Extra guard: only run on PRs from branches within this repo (not forks)
+    if: github.event.pull_request.head.repo.fork == false
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Check out the PR branch so we can build and benchmark it
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      # 2. Extract the required Scarb version from Scarb.toml and save to env
+      - name: Extract scarb version
+        run: |
+          SCARB_VERSION=$(grep 'scarb-version = ' Scarb.toml | sed 's/scarb-version = "\(.*\)"/\1/')
+          echo "SCARB_VERSION=$SCARB_VERSION" >> "$GITHUB_ENV"
+
+      # 3. Install the correct Scarb version for this project
+      - name: Setup scarb
+        uses: software-mansion/setup-scarb@v1
+        id: setup_scarb
+        with:
+          scarb-version: ${{ env.SCARB_VERSION }}
+
+      # 4. Build mocks (needed dependencies for benchmarking)
+      - name: Build mocks
+        run: scarb --release build -p openzeppelin_test_common
+
+      # 5. Run the benchmark script and capture the diff in Markdown format
+      - name: Run benchmark and capture diff
+        id: benchmark_diff
+        run: |
+          python3 scripts/benchmarking/benchmark_diff.py \
+            scripts/benchmarking/benchmark.py \
+            benches/contract_sizes.json \
+            --dir target/release \
+            --markdown > diff_output.txt
+
+      # 6. Prepare the comment body that will be posted on the PR
+      - name: Prepare benchmark comment
+        run: |
+          {
+            echo "<!-- comment-id:benchmark-diff -->"
+            echo "### 🧪 Cairo Contract Size Benchmark Diff"
+            echo
+            cat diff_output.txt
+            echo
+            echo "_This comment was generated automatically from benchmark diffs._"
+          } > comment.md
+
+      # 7. Look for an existing benchmark comment on the PR (from this bot)
+      - name: Find comment to update
+        uses: peter-evans/find-comment@v3
+        id: get_comment
+        with:
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-author: 'github-actions[bot]'
+          body-includes: benchmark-diff
+
+      # 8. Create or update the PR comment with the new benchmark diff
+      - name: Post benchmark diff comment
+        uses: peter-evans/create-or-update-comment@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          issue-number: ${{ github.event.pull_request.number }}
+          comment-id: ${{ steps.get_comment.outputs.comment-id }}
+          edit-mode: replace
+          body-file: comment.md

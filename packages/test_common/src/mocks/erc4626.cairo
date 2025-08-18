@@ -2,7 +2,7 @@
 #[with_components(ERC20, ERC4626)]
 pub mod ERC4626Mock {
     use openzeppelin_token::erc20::extensions::erc4626::{
-        DefaultConfig, ERC4626DefaultLimits, ERC4626DefaultNoFees, ERC4626HooksEmptyImpl,
+        DefaultConfig, ERC4626DefaultNoFees, ERC4626DefaultNoLimits, ERC4626EmptyHooks,
         ERC4626SelfAssetsManagement,
     };
     use openzeppelin_token::erc20::{DefaultConfig as ERC20DefaultConfig, ERC20HooksEmptyImpl};
@@ -44,7 +44,7 @@ pub mod ERC4626Mock {
 pub mod ERC4626ExternalVaultMock {
     use openzeppelin_interfaces::erc20::{IERC20Dispatcher, IERC20DispatcherTrait};
     use openzeppelin_token::erc20::extensions::erc4626::{
-        ERC4626DefaultLimits, ERC4626DefaultNoFees, ERC4626HooksEmptyImpl,
+        ERC4626DefaultNoFees, ERC4626DefaultNoLimits, ERC4626EmptyHooks,
     };
     use openzeppelin_token::erc20::{DefaultConfig as ERC20DefaultConfig, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
@@ -128,7 +128,7 @@ pub mod ERC4626ExternalVaultMock {
 #[with_components(ERC20, ERC4626)]
 pub mod ERC4626OffsetMock {
     use openzeppelin_token::erc20::extensions::erc4626::{
-        ERC4626DefaultLimits, ERC4626DefaultNoFees, ERC4626HooksEmptyImpl,
+        ERC4626DefaultNoFees, ERC4626DefaultNoLimits, ERC4626EmptyHooks,
         ERC4626SelfAssetsManagement,
     };
     use openzeppelin_token::erc20::{DefaultConfig, ERC20HooksEmptyImpl};
@@ -174,7 +174,7 @@ pub mod ERC4626OffsetMock {
 #[with_components(ERC20, ERC4626)]
 pub mod ERC4626LimitsMock {
     use openzeppelin_token::erc20::extensions::erc4626::{
-        ERC4626DefaultNoFees, ERC4626HooksEmptyImpl, ERC4626SelfAssetsManagement,
+        ERC4626DefaultNoFees, ERC4626EmptyHooks, ERC4626SelfAssetsManagement,
     };
     use openzeppelin_token::erc20::{DefaultConfig, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
@@ -250,17 +250,16 @@ pub mod ERC4626LimitsMock {
 /// DO NOT USE IN PRODUCTION
 #[starknet::contract]
 #[with_components(ERC20, ERC4626)]
-pub mod ERC4626FeesMock {
+pub mod ERC4626AssetsFeesMock {
     use openzeppelin_interfaces::erc20::{IERC20Dispatcher, IERC20DispatcherTrait};
-    use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component::FeeConfigTrait;
+    use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component::{Fee, FeeConfigTrait};
     use openzeppelin_token::erc20::extensions::erc4626::{
-        DefaultConfig, ERC4626DefaultLimits, ERC4626SelfAssetsManagement,
+        DefaultConfig, ERC4626DefaultNoLimits, ERC4626SelfAssetsManagement,
     };
     use openzeppelin_token::erc20::{DefaultConfig as ERC20DefaultConfig, ERC20HooksEmptyImpl};
-    use openzeppelin_utils::math;
-    use openzeppelin_utils::math::Rounding;
     use starknet::ContractAddress;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use super::{fee_on_raw, fee_on_total};
 
     // ERC4626
     #[abi(embed_v0)]
@@ -281,68 +280,6 @@ pub mod ERC4626FeesMock {
         pub entry_fee_recipient: ContractAddress,
         pub exit_fee_basis_point_value: u256,
         pub exit_fee_recipient: ContractAddress,
-    }
-
-    const _BASIS_POINT_SCALE: u256 = 10_000;
-
-    /// Hooks
-    impl ERC4626HooksImpl of ERC4626Component::ERC4626HooksTrait<ContractState> {
-        fn after_deposit(
-            ref self: ERC4626Component::ComponentState<ContractState>, assets: u256, shares: u256,
-        ) {
-            let mut contract_state = self.get_contract_mut();
-            let entry_basis_points = contract_state.entry_fee_basis_point_value.read();
-            let fee = contract_state.fee_on_total(assets, entry_basis_points);
-            let recipient = contract_state.entry_fee_recipient.read();
-
-            if (fee > 0 && recipient != starknet::get_contract_address()) {
-                contract_state.transfer_fees(recipient, fee);
-            }
-        }
-
-        fn before_withdraw(
-            ref self: ERC4626Component::ComponentState<ContractState>, assets: u256, shares: u256,
-        ) {
-            let mut contract_state = self.get_contract_mut();
-            let exit_basis_points = contract_state.exit_fee_basis_point_value.read();
-            let fee = contract_state.fee_on_raw(assets, exit_basis_points);
-            let recipient = contract_state.exit_fee_recipient.read();
-
-            if (fee > 0 && recipient != starknet::get_contract_address()) {
-                contract_state.transfer_fees(recipient, fee);
-            }
-        }
-    }
-
-    /// Adjust fees
-    impl AdjustFeesImpl of FeeConfigTrait<ContractState> {
-        fn adjust_deposit(
-            self: @ERC4626Component::ComponentState<ContractState>, assets: u256,
-        ) -> u256 {
-            let contract_state = self.get_contract();
-            contract_state.remove_fee_from_deposit(assets)
-        }
-
-        fn adjust_mint(
-            self: @ERC4626Component::ComponentState<ContractState>, assets: u256,
-        ) -> u256 {
-            let contract_state = self.get_contract();
-            contract_state.add_fee_to_mint(assets)
-        }
-
-        fn adjust_withdraw(
-            self: @ERC4626Component::ComponentState<ContractState>, assets: u256,
-        ) -> u256 {
-            let contract_state = self.get_contract();
-            contract_state.add_fee_to_withdraw(assets)
-        }
-
-        fn adjust_redeem(
-            self: @ERC4626Component::ComponentState<ContractState>, assets: u256,
-        ) -> u256 {
-            let contract_state = self.get_contract();
-            contract_state.remove_fee_from_redeem(assets)
-        }
     }
 
     #[constructor]
@@ -368,49 +305,283 @@ pub mod ERC4626FeesMock {
         self.exit_fee_recipient.write(exit_treasury);
     }
 
-    #[generate_trait]
-    pub impl InternalImpl of InternalTrait {
-        fn transfer_fees(ref self: ContractState, recipient: ContractAddress, fee: u256) {
-            let asset_address = self.asset();
-            let asset_dispatcher = IERC20Dispatcher { contract_address: asset_address };
-            assert(asset_dispatcher.transfer(recipient, fee), 'Fee transfer failed');
+    /// Hooks
+    impl ERC4626HooksImpl of ERC4626Component::ERC4626HooksTrait<ContractState> {
+        fn after_deposit(
+            ref self: ERC4626Component::ComponentState<ContractState>,
+            caller: ContractAddress,
+            receiver: ContractAddress,
+            assets: u256,
+            shares: u256,
+            fee: Option<Fee>,
+        ) {
+            let fee = fee
+                .unwrap_or_else(
+                    || panic!("ERC4626AssetsFeesMock expects fee in after_deposit to not be None"),
+                );
+            let fee = match fee {
+                Fee::Assets(fee) => fee,
+                Fee::Shares(_) => panic!(
+                    "ERC4626AssetsFeesMock expects fee in after_deposit to be of Assets type",
+                ),
+            };
+            // Validate fee value
+            let contract_state = self.get_contract();
+            let entry_basis_points = contract_state.entry_fee_basis_point_value.read();
+            let calculated_fee = fee_on_total(assets, entry_basis_points);
+            assert!(fee == calculated_fee, "ERC4626AssetsFeesMock: incorrect fee");
+
+            // Transfer assets fee to fee recipient
+            if fee > 0 {
+                let fee_recipient = contract_state.entry_fee_recipient.read();
+                assert!(
+                    fee_recipient != starknet::get_contract_address(),
+                    "ERC4626AssetsFeesMock: cannot be fee recipient",
+                );
+                let asset_address = contract_state.asset();
+                let asset_dispatcher = IERC20Dispatcher { contract_address: asset_address };
+                assert(asset_dispatcher.transfer(fee_recipient, fee), 'Fee transfer failed');
+            }
         }
 
-        fn remove_fee_from_deposit(self: @ContractState, assets: u256) -> u256 {
-            let fee = self.fee_on_total(assets, self.entry_fee_basis_point_value.read());
-            assets - fee
+        fn before_withdraw(
+            ref self: ERC4626Component::ComponentState<ContractState>,
+            caller: ContractAddress,
+            receiver: ContractAddress,
+            owner: ContractAddress,
+            assets: u256,
+            shares: u256,
+            fee: Option<Fee>,
+        ) {
+            let fee = fee
+                .unwrap_or_else(
+                    || panic!(
+                        "ERC4626AssetsFeesMock expects fee in before_withdraw to not be None",
+                    ),
+                );
+            let fee = match fee {
+                Fee::Assets(fee) => fee,
+                Fee::Shares(_) => panic!(
+                    "ERC4626AssetsFeesMock expects fee in before_withdraw to be of Assets type",
+                ),
+            };
+            // Validate fee value
+            let contract_state = self.get_contract();
+            let exit_basis_points = contract_state.exit_fee_basis_point_value.read();
+            let calculated_fee = fee_on_raw(assets, exit_basis_points);
+            assert!(fee == calculated_fee, "ERC4626AssetsFeesMock: incorrect fee");
+
+            // Transfer assets fee to fee recipient
+            if fee > 0 {
+                let fee_recipient = contract_state.exit_fee_recipient.read();
+                assert!(
+                    fee_recipient != starknet::get_contract_address(),
+                    "ERC4626AssetsFeesMock: cannot be fee recipient",
+                );
+                let asset_address = contract_state.asset();
+                let asset_dispatcher = IERC20Dispatcher { contract_address: asset_address };
+                assert(asset_dispatcher.transfer(fee_recipient, fee), 'Fee transfer failed');
+            }
+        }
+    }
+
+    /// Calculate fees
+    impl FeeConfigImpl of FeeConfigTrait<ContractState> {
+        fn calculate_deposit_fee(
+            self: @ERC4626Component::ComponentState<ContractState>, assets: u256, shares: u256,
+        ) -> Option<Fee> {
+            let contract_state = self.get_contract();
+            let fee = fee_on_total(assets, contract_state.entry_fee_basis_point_value.read());
+            Option::Some(Fee::Assets(fee))
         }
 
-        fn add_fee_to_mint(self: @ContractState, assets: u256) -> u256 {
-            assets + self.fee_on_raw(assets, self.entry_fee_basis_point_value.read())
+        fn calculate_mint_fee(
+            self: @ERC4626Component::ComponentState<ContractState>, assets: u256, shares: u256,
+        ) -> Option<Fee> {
+            let contract_state = self.get_contract();
+            let fee = fee_on_raw(assets, contract_state.entry_fee_basis_point_value.read());
+            Option::Some(Fee::Assets(fee))
         }
 
-        fn add_fee_to_withdraw(self: @ContractState, assets: u256) -> u256 {
-            let fee = self.fee_on_raw(assets, self.exit_fee_basis_point_value.read());
-            assets + fee
+        fn calculate_withdraw_fee(
+            self: @ERC4626Component::ComponentState<ContractState>, assets: u256, shares: u256,
+        ) -> Option<Fee> {
+            let contract_state = self.get_contract();
+            let fee = fee_on_raw(assets, contract_state.exit_fee_basis_point_value.read());
+            Option::Some(Fee::Assets(fee))
         }
 
-        fn remove_fee_from_redeem(self: @ContractState, assets: u256) -> u256 {
-            assets - self.fee_on_total(assets, self.exit_fee_basis_point_value.read())
+        fn calculate_redeem_fee(
+            self: @ERC4626Component::ComponentState<ContractState>, assets: u256, shares: u256,
+        ) -> Option<Fee> {
+            let contract_state = self.get_contract();
+            let fee = fee_on_total(assets, contract_state.exit_fee_basis_point_value.read());
+            Option::Some(Fee::Assets(fee))
+        }
+    }
+}
+
+/// This mock contract charges fees in terms of shares, not assets.
+/// DO NOT USE IN PRODUCTION
+#[starknet::contract]
+#[with_components(ERC20, ERC4626)]
+pub mod ERC4626SharesFeesMock {
+    use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component::{Fee, FeeConfigTrait};
+    use openzeppelin_token::erc20::extensions::erc4626::{
+        DefaultConfig, ERC4626DefaultNoLimits, ERC4626SelfAssetsManagement,
+    };
+    use openzeppelin_token::erc20::{DefaultConfig as ERC20DefaultConfig, ERC20HooksEmptyImpl};
+    use starknet::ContractAddress;
+    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use super::{fee_on_raw, fee_on_total};
+
+    // ERC4626
+    #[abi(embed_v0)]
+    impl ERC4626ComponentImpl = ERC4626Component::ERC4626Impl<ContractState>;
+    // ERC4626MetadataImpl is a custom impl of IERC20Metadata
+    #[abi(embed_v0)]
+    impl ERC4626MetadataImpl = ERC4626Component::ERC4626MetadataImpl<ContractState>;
+
+    // ERC20
+    #[abi(embed_v0)]
+    impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC20CamelOnlyImpl = ERC20Component::ERC20CamelOnlyImpl<ContractState>;
+
+    #[storage]
+    pub struct Storage {
+        pub entry_fee_basis_point_value: u256,
+        pub entry_fee_recipient: ContractAddress,
+        pub exit_fee_basis_point_value: u256,
+        pub exit_fee_recipient: ContractAddress,
+    }
+
+    #[constructor]
+    fn constructor(
+        ref self: ContractState,
+        name: ByteArray,
+        symbol: ByteArray,
+        underlying_asset: ContractAddress,
+        initial_supply: u256,
+        recipient: ContractAddress,
+        entry_fee: u256,
+        entry_treasury: ContractAddress,
+        exit_fee: u256,
+        exit_treasury: ContractAddress,
+    ) {
+        self.erc20.initializer(name, symbol);
+        self.erc20.mint(recipient, initial_supply);
+        self.erc4626.initializer(underlying_asset);
+
+        self.entry_fee_basis_point_value.write(entry_fee);
+        self.entry_fee_recipient.write(entry_treasury);
+        self.exit_fee_basis_point_value.write(exit_fee);
+        self.exit_fee_recipient.write(exit_treasury);
+    }
+
+    /// Hooks
+    impl ERC4626HooksImpl of ERC4626Component::ERC4626HooksTrait<ContractState> {
+        fn after_deposit(
+            ref self: ERC4626Component::ComponentState<ContractState>,
+            caller: ContractAddress,
+            receiver: ContractAddress,
+            assets: u256,
+            shares: u256,
+            fee: Option<Fee>,
+        ) {
+            let fee = fee
+                .unwrap_or_else(
+                    || panic!("ERC4626FeesSharesMock expects fee in after_deposit to not be None"),
+                );
+            let fee = match fee {
+                Fee::Shares(fee) => fee,
+                Fee::Assets(_) => panic!(
+                    "ERC4626FeesSharesMock expects fee in after_deposit to be of Shares type",
+                ),
+            };
+            // Validate fee value
+            let mut contract_state = self.get_contract_mut();
+            let entry_basis_points = contract_state.entry_fee_basis_point_value.read();
+            let calculated_fee = fee_on_raw(shares, entry_basis_points);
+            assert!(fee == calculated_fee, "ERC4626FeesSharesMock: incorrect fee");
+
+            // Mint shares fee to fee recipient
+            if fee > 0 {
+                let fee_recipient = contract_state.entry_fee_recipient.read();
+                contract_state.erc20.mint(fee_recipient, fee);
+            }
         }
 
-        ///
-        /// Fee operations
-        ///
+        fn before_withdraw(
+            ref self: ERC4626Component::ComponentState<ContractState>,
+            caller: ContractAddress,
+            receiver: ContractAddress,
+            owner: ContractAddress,
+            assets: u256,
+            shares: u256,
+            fee: Option<Fee>,
+        ) {
+            let fee = fee
+                .unwrap_or_else(
+                    || panic!(
+                        "ERC4626FeesSharesMock expects fee in before_withdraw to not be None",
+                    ),
+                );
+            let fee = match fee {
+                Fee::Shares(fee) => fee,
+                Fee::Assets(_) => panic!(
+                    "ERC4626FeesSharesMock expects fee in before_withdraw to be of Shares type",
+                ),
+            };
+            // Validate fee value
+            let mut contract_state = self.get_contract_mut();
+            let exit_basis_points = contract_state.exit_fee_basis_point_value.read();
+            let calculated_fee = fee_on_raw(assets, exit_basis_points);
+            assert!(fee == calculated_fee, "ERC4626FeesSharesMock: incorrect fee");
 
-        /// Calculates the fees that should be added to an amount `assets` that does not already
-        /// include fees.
-        /// Used in IERC4626::mint and IERC4626::withdraw operations.
-        fn fee_on_raw(self: @ContractState, assets: u256, fee_basis_points: u256) -> u256 {
-            math::u256_mul_div(assets, fee_basis_points, _BASIS_POINT_SCALE, Rounding::Ceil)
+            // Transfer shares fee to fee recipient
+            if fee > 0 {
+                let fee_recipient = contract_state.exit_fee_recipient.read();
+                if caller != owner {
+                    contract_state.erc20._spend_allowance(owner, caller, fee);
+                }
+                contract_state.erc20._transfer(owner, fee_recipient, fee);
+            }
+        }
+    }
+
+    /// Calculate fees
+    impl FeeConfigImpl of FeeConfigTrait<ContractState> {
+        fn calculate_deposit_fee(
+            self: @ERC4626Component::ComponentState<ContractState>, assets: u256, shares: u256,
+        ) -> Option<Fee> {
+            let contract_state = self.get_contract();
+            let fee = fee_on_total(shares, contract_state.entry_fee_basis_point_value.read());
+            Option::Some(Fee::Shares(fee))
         }
 
-        /// Calculates the fee part of an amount `assets` that already includes fees.
-        /// Used in IERC4626::deposit and IERC4626::redeem operations.
-        fn fee_on_total(self: @ContractState, assets: u256, fee_basis_points: u256) -> u256 {
-            math::u256_mul_div(
-                assets, fee_basis_points, fee_basis_points + _BASIS_POINT_SCALE, Rounding::Ceil,
-            )
+        fn calculate_mint_fee(
+            self: @ERC4626Component::ComponentState<ContractState>, assets: u256, shares: u256,
+        ) -> Option<Fee> {
+            let contract_state = self.get_contract();
+            let fee = fee_on_raw(shares, contract_state.entry_fee_basis_point_value.read());
+            Option::Some(Fee::Shares(fee))
+        }
+
+        fn calculate_withdraw_fee(
+            self: @ERC4626Component::ComponentState<ContractState>, assets: u256, shares: u256,
+        ) -> Option<Fee> {
+            let contract_state = self.get_contract();
+            let fee = fee_on_raw(shares, contract_state.exit_fee_basis_point_value.read());
+            Option::Some(Fee::Shares(fee))
+        }
+
+        fn calculate_redeem_fee(
+            self: @ERC4626Component::ComponentState<ContractState>, assets: u256, shares: u256,
+        ) -> Option<Fee> {
+            let contract_state = self.get_contract();
+            let fee = fee_on_total(shares, contract_state.exit_fee_basis_point_value.read());
+            Option::Some(Fee::Shares(fee))
         }
     }
 }
@@ -418,8 +589,9 @@ pub mod ERC4626FeesMock {
 #[starknet::contract]
 #[with_components(ERC20, ERC4626)]
 pub mod ERC4626MockWithHooks {
+    use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component::Fee;
     use openzeppelin_token::erc20::extensions::erc4626::{
-        DefaultConfig, ERC4626DefaultLimits, ERC4626DefaultNoFees, ERC4626SelfAssetsManagement,
+        DefaultConfig, ERC4626DefaultNoFees, ERC4626DefaultNoLimits, ERC4626SelfAssetsManagement,
     };
     use openzeppelin_token::erc20::{DefaultConfig as ERC20DefaultConfig, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
@@ -437,9 +609,6 @@ pub mod ERC4626MockWithHooks {
     #[abi(embed_v0)]
     impl ERC20CamelOnlyImpl = ERC20Component::ERC20CamelOnlyImpl<ContractState>;
 
-    #[storage]
-    pub struct Storage {}
-
     #[event]
     #[derive(Drop, starknet::Event)]
     pub enum Event {
@@ -452,6 +621,8 @@ pub mod ERC4626MockWithHooks {
     /// Event used to test that `before_deposit` hook is called.
     #[derive(Drop, PartialEq, starknet::Event)]
     pub struct BeforeDeposit {
+        pub caller: ContractAddress,
+        pub receiver: ContractAddress,
         pub assets: u256,
         pub shares: u256,
     }
@@ -459,6 +630,8 @@ pub mod ERC4626MockWithHooks {
     /// Event used to test that `after_deposit` hook is called.
     #[derive(Drop, PartialEq, starknet::Event)]
     pub struct AfterDeposit {
+        pub caller: ContractAddress,
+        pub receiver: ContractAddress,
         pub assets: u256,
         pub shares: u256,
     }
@@ -466,6 +639,9 @@ pub mod ERC4626MockWithHooks {
     /// Event used to test that `before_withdraw` hook is called.
     #[derive(Drop, PartialEq, starknet::Event)]
     pub struct BeforeWithdraw {
+        pub caller: ContractAddress,
+        pub receiver: ContractAddress,
+        pub owner: ContractAddress,
         pub assets: u256,
         pub shares: u256,
     }
@@ -473,9 +649,15 @@ pub mod ERC4626MockWithHooks {
     /// Event used to test that `after_withdraw` hook is called.
     #[derive(Drop, PartialEq, starknet::Event)]
     pub struct AfterWithdraw {
+        pub caller: ContractAddress,
+        pub receiver: ContractAddress,
+        pub owner: ContractAddress,
         pub assets: u256,
         pub shares: u256,
     }
+
+    #[storage]
+    pub struct Storage {}
 
     #[constructor]
     fn constructor(
@@ -494,31 +676,77 @@ pub mod ERC4626MockWithHooks {
     /// Hooks
     impl ERC4626HooksImpl of ERC4626Component::ERC4626HooksTrait<ContractState> {
         fn before_deposit(
-            ref self: ERC4626Component::ComponentState<ContractState>, assets: u256, shares: u256,
+            ref self: ERC4626Component::ComponentState<ContractState>,
+            caller: ContractAddress,
+            receiver: ContractAddress,
+            assets: u256,
+            shares: u256,
+            fee: Option<Fee>,
         ) {
             let mut contract_state = self.get_contract_mut();
-            contract_state.emit(BeforeDeposit { assets, shares });
+            contract_state.emit(BeforeDeposit { caller, receiver, assets, shares });
         }
 
         fn after_deposit(
-            ref self: ERC4626Component::ComponentState<ContractState>, assets: u256, shares: u256,
+            ref self: ERC4626Component::ComponentState<ContractState>,
+            caller: ContractAddress,
+            receiver: ContractAddress,
+            assets: u256,
+            shares: u256,
+            fee: Option<Fee>,
         ) {
             let mut contract_state = self.get_contract_mut();
-            contract_state.emit(AfterDeposit { assets, shares });
+            contract_state.emit(AfterDeposit { caller, receiver, assets, shares });
         }
 
         fn before_withdraw(
-            ref self: ERC4626Component::ComponentState<ContractState>, assets: u256, shares: u256,
+            ref self: ERC4626Component::ComponentState<ContractState>,
+            caller: ContractAddress,
+            receiver: ContractAddress,
+            owner: ContractAddress,
+            assets: u256,
+            shares: u256,
+            fee: Option<Fee>,
         ) {
             let mut contract_state = self.get_contract_mut();
-            contract_state.emit(BeforeWithdraw { assets, shares });
+            contract_state.emit(BeforeWithdraw { caller, receiver, owner, assets, shares });
         }
 
         fn after_withdraw(
-            ref self: ERC4626Component::ComponentState<ContractState>, assets: u256, shares: u256,
+            ref self: ERC4626Component::ComponentState<ContractState>,
+            caller: ContractAddress,
+            receiver: ContractAddress,
+            owner: ContractAddress,
+            assets: u256,
+            shares: u256,
+            fee: Option<Fee>,
         ) {
             let mut contract_state = self.get_contract_mut();
-            contract_state.emit(AfterWithdraw { assets, shares });
+            contract_state.emit(AfterWithdraw { caller, receiver, owner, assets, shares });
         }
     }
+}
+
+//
+// Fee operations
+//
+
+use openzeppelin_utils::math;
+use openzeppelin_utils::math::Rounding;
+
+const _BASIS_POINT_SCALE: u256 = 10_000;
+
+/// Calculates the fees that should be added to an amount `assets` that does not already
+/// include fees.
+/// Used in IERC4626::mint and IERC4626::withdraw operations.
+fn fee_on_raw(assets: u256, fee_basis_points: u256) -> u256 {
+    math::u256_mul_div(assets, fee_basis_points, _BASIS_POINT_SCALE, Rounding::Ceil)
+}
+
+/// Calculates the fee part of an amount `assets` that already includes fees.
+/// Used in IERC4626::deposit and IERC4626::redeem operations.
+fn fee_on_total(assets: u256, fee_basis_points: u256) -> u256 {
+    math::u256_mul_div(
+        assets, fee_basis_points, fee_basis_points + _BASIS_POINT_SCALE, Rounding::Ceil,
+    )
 }

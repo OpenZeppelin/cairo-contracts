@@ -42,7 +42,7 @@ impl<'a> WithComponentsParser<'a> {
 
     /// Parses the module and returns the patched code.
     pub fn parse(&mut self, db: &dyn SyntaxGroup) -> (String, Diagnostics) {
-        let base_node = self.base_node.clone();
+        let base_node = self.base_node;
         let mut builder = PatchBuilder::new_ex(db, &base_node);
 
         let typed = ast::SyntaxFile::from_syntax_node(db, base_node);
@@ -98,7 +98,7 @@ fn validate_contract_module(
     let mut warnings = vec![];
 
     if let RewriteNode::Copied(copied) = node {
-        let item = ast::ItemModule::from_syntax_node(db, copied.clone());
+        let item = ast::ItemModule::from_syntax_node(db, *copied);
 
         // 1. Check that the module has a body (error)
         let MaybeModuleBody::Some(body) = item.body(db) else {
@@ -125,7 +125,7 @@ fn validate_contract_module(
             let constructor_code = if let Some(constructor) = constructor {
                 // Get the constructor code (maybe we can do this without the builder)
                 let constructor_ast = constructor.as_syntax_node();
-                let typed = ast::ModuleItem::from_syntax_node(db, constructor_ast.clone());
+                let typed = ast::ModuleItem::from_syntax_node(db, constructor_ast);
                 let constructor_rnode = RewriteNode::from_ast(&typed);
                 let mut builder = PatchBuilder::new_ex(db, &constructor_ast);
                 builder.add_modified(constructor_rnode);
@@ -155,7 +155,7 @@ fn validate_contract_module(
         for component in components_info.iter().filter(|c| c.has_immutable_config) {
             // Get the body code (maybe we can do this without the builder)
             let body_ast = body.as_syntax_node();
-            let typed = ast::ModuleBody::from_syntax_node(db, body_ast.clone());
+            let typed = ast::ModuleBody::from_syntax_node(db, body_ast);
             let body_rnode = RewriteNode::from_ast(&typed);
 
             let mut builder = PatchBuilder::new_ex(db, &body_ast);
@@ -231,6 +231,36 @@ fn add_per_component_warnings(code: &str, component_info: &ComponentInfo) -> Vec
                 warnings.push(warning);
             }
         }
+        AllowedComponents::ERC4626 => {
+            // 1. Check that the ERC4626HooksTrait is implemented
+            let hooks_trait_used = code.contains("ERC4626HooksTrait");
+            let hooks_empty_impl_used = code.contains("ERC4626EmptyHooks");
+            if !hooks_trait_used && !hooks_empty_impl_used {
+                let warning = Diagnostic::warn(warnings::ERC4626_HOOKS_IMPL_MISSING);
+                warnings.push(warning);
+            }
+            // 2. Check that the FeeConfigTrait is implemented
+            let fee_config_trait_used = code.contains("FeeConfigTrait");
+            let fee_config_empty_impl_used = code.contains("ERC4626DefaultNoFees");
+            if !fee_config_trait_used && !fee_config_empty_impl_used {
+                let warning = Diagnostic::warn(warnings::ERC4626_FEE_CONFIG_IMPL_MISSING);
+                warnings.push(warning);
+            }
+            // 3. Check that the LimitConfigTrait is implemented
+            let limit_config_trait_used = code.contains("LimitConfigTrait");
+            let limit_config_empty_impl_used = code.contains("ERC4626DefaultNoLimits");
+            if !limit_config_trait_used && !limit_config_empty_impl_used {
+                let warning = Diagnostic::warn(warnings::ERC4626_LIMIT_CONFIG_IMPL_MISSING);
+                warnings.push(warning);
+            }
+            // 4. Check that the AssetsManagementTrait is implemented
+            let assets_management_trait_used = code.contains("AssetsManagementTrait");
+            let self_assets_management_impl_used = code.contains("ERC4626SelfAssetsManagement");
+            if !assets_management_trait_used && !self_assets_management_impl_used {
+                let warning = Diagnostic::warn(warnings::ERC4626_ASSETS_MANAGEMENT_IMPL_MISSING);
+                warnings.push(warning);
+            }
+        }
         AllowedComponents::ERC721 => {
             // Check that the ERC721HooksTrait is implemented
             let hooks_trait_used = code.contains("ERC721HooksTrait");
@@ -282,7 +312,7 @@ fn process_module_items(
 
     for item_rnode in items_mnode.children.as_mut().unwrap() {
         if let RewriteNode::Copied(copied) = item_rnode {
-            let item = ast::ModuleItem::from_syntax_node(db, copied.clone());
+            let item = ast::ModuleItem::from_syntax_node(db, *copied);
 
             match item {
                 ast::ModuleItem::Struct(item_struct)

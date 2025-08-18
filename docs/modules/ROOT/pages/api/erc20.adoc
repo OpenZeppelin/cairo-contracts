@@ -23,7 +23,7 @@ documented here are contained in the `openzeppelin_interfaces` package version `
 
 [.contract]
 [[IERC20]]
-=== `++IERC20++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/interfaces/src/token/erc20.cairo[{github-icon},role=heading-link]
+=== `++IERC20++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.1/packages/interfaces/src/token/erc20.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -121,7 +121,7 @@ Emitted when the allowance of a `spender` for an `owner` is set.
 
 [.contract]
 [[IERC20Metadata]]
-=== `++IERC20Metadata++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/interfaces/src/token/erc20.cairo[{github-icon},role=heading-link]
+=== `++IERC20Metadata++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.1/packages/interfaces/src/token/erc20.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -169,7 +169,7 @@ NOTE: This information is only used for _display_ purposes: it in no way affects
 
 [.contract]
 [[IERC20Permit]]
-=== `++IERC20Permit++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/interfaces/src/token/erc20.cairo[{github-icon},role=heading-link]
+=== `++IERC20Permit++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.1/packages/interfaces/src/token/erc20.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -211,7 +211,7 @@ The domain hashing logic follows the {snip-12} standard.
 
 [.contract]
 [[IERC4626]]
-=== `++IERC4626++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/interfaces/src/token/erc4626.cairo[{github-icon},role=heading-link]
+=== `++IERC4626++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.1/packages/interfaces/src/token/erc4626.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -549,7 +549,7 @@ those `assets` to `receiver`.
 
 [.contract]
 [[ERC20Component]]
-=== `++ERC20Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/token/src/erc20/erc20.cairo[{github-icon},role=heading-link]
+=== `++ERC20Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.1/packages/token/src/erc20/erc20.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -900,7 +900,7 @@ See <<IERC20-Approval,IERC20::Approval>>.
 
 [.contract]
 [[ERC4626Component]]
-=== `++ERC4626Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/token/src/erc20/extensions/erc4626/interface.cairo#L19[{github-icon},role=heading-link]
+=== `++ERC4626Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.1/packages/token/src/erc20/extensions/erc4626/interface.cairo#L19[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -926,10 +926,10 @@ The component leverages traits to configure fees, limits, and decimals.
 --
 [.sub-index#ERC4626Component-FeeConfigTrait]
 .FeeConfigTrait
-* xref:#ERC4626Component-adjust_deposit[`++adjust_deposit(self, assets)++`]
-* xref:#ERC4626Component-adjust_mint[`++adjust_mint(self, assets)++`]
-* xref:#ERC4626Component-adjust_withdraw[`++adjust_withdraw(self, assets)++`]
-* xref:#ERC4626Component-adjust_redeem[`++adjust_redeem(self, assets)++`]
+* xref:#ERC4626Component-calculate_deposit_fee[`++calculate_deposit_fee(self, assets, shares)++`]
+* xref:#ERC4626Component-calculate_mint_fee[`++calculate_mint_fee(self, assets, shares)++`]
+* xref:#ERC4626Component-calculate_withdraw_fee[`++calculate_withdraw_fee(self, assets, shares)++`]
+* xref:#ERC4626Component-calculate_redeem_fee[`++calculate_redeem_fee(self, assets, shares)++`]
 
 [.sub-index#ERC4626Component-LimitConfigTrait]
 .LimitConfigTrait
@@ -940,10 +940,10 @@ The component leverages traits to configure fees, limits, and decimals.
 
 [.sub-index#ERC4626Component-ERC4626HooksTrait]
 .ERC4626HooksTrait
-* xref:#ERC4626Component-before_withdraw[`++before_withdraw(self, assets, shares)++`]
-* xref:#ERC4626Component-after_withdraw[`++after_withdraw(self, assets, shares)++`]
-* xref:#ERC4626Component-before_deposit[`++before_deposit(self, assets, shares)++`]
-* xref:#ERC4626Component-after_deposit[`++after_deposit(self, assets, shares)++`]
+* xref:#ERC4626Component-before_deposit[`++before_deposit(self, caller, receiver, assets, shares, fee)++`]
+* xref:#ERC4626Component-after_deposit[`++after_deposit(self, caller, receiver, assets, shares, fee)++`]
+* xref:#ERC4626Component-before_withdraw[`++before_withdraw(self, caller, receiver, owner, assets, shares, fee)++`]
+* xref:#ERC4626Component-after_withdraw[`++after_withdraw(self, caller, receiver, owner, assets, shares, fee)++`]
 
 [.sub-index#ERC4626Component-AssetsManagementTrait]
 .AssetsManagementTrait
@@ -1036,51 +1036,66 @@ Hooks are functions which implementations can extend the functionality of the co
 Every contract using ERC4626Component is expected to provide an implementation of the ERC4626HooksTrait.
 For basic token contracts, an empty implementation with no logic must be provided.
 
-TIP: You can use `openzeppelin_token::erc20::extensions::erc4626::ERC4626HooksEmptyImpl` which is already available as part of the library for this purpose.
+TIP: You can use `openzeppelin_token::erc20::extensions::erc4626::ERC4626EmptyHooks` which is already available as part of the library for this purpose.
 
 ==== FeeConfigTrait
 
-:mock-ex: https://github.com/OpenZeppelin/cairo-contracts/tree/main/packages/test_common/src/mocks/erc4626.cairo[ERC4626FeesMock example]
+:asset-fees-mock: https://github.com/OpenZeppelin/cairo-contracts/tree/main/packages/test_common/src/mocks/erc4626.cairo#L253[ERC4626AssetsFeesMock]
+:share-fees-mock: https://github.com/OpenZeppelin/cairo-contracts/tree/main/packages/test_common/src/mocks/erc4626.cairo#L426[ERC4626SharesFeesMock]
 
-Adjustments for fees expected to be defined at the contract level.
+The logic for calculating entry and exit fees is expected to be defined at the contract level.
 Defaults to no entry or exit fees.
 
 NOTE: The FeeConfigTrait hooks directly into the preview methods of the ERC4626 component.
-The preview methods must return as close to the exact amount of shares or assets as possible if the actual (previewed) operation occurred in the same transaction (according to {eip4626} spec).
-All operations use their corresponding preview method as the value of assets or shares being moved.
-Therefore, adjusting an operation's assets in FeeConfigTrait consequently adjusts the assets (or assets to be converted into shares) in both the preview operation and the actual operation.
+The preview methods must return as close to the exact amount of shares or assets as possible
+if the actual (previewed) operation occurred in the same transaction (according to {eip4626} spec).
+All operations use their corresponding preview method as the value of assets or shares being
+moved to or from the user.
+The fees calculated in FeeConfigTrait are used to adjust the final asset and share amounts used 
+in both the preview and the actual operations.
 
 NOTE: To transfer fees, this trait needs to be coordinated with `ERC4626Component::ERC4626Hooks`.
 
-See the {mock-ex}.
+See implementation examples:
+
+- Contract charging fees in assets: {asset-fees-mock}
+- Contract charging fees in shares: {share-fees-mock}
 
 [.contract-item]
-[[ERC4626Component-adjust_deposit]]
-==== `[.contract-item-name]#++adjust_deposit++#++(ref self: ContractState, assets: u256, shares: u256)++` [.item-kind]#hook#
+[[ERC4626Component-calculate_deposit_fee]]
+==== `[.contract-item-name]#++calculate_deposit_fee++#++(self: @ContractState, assets: u256, shares: u256) → Option<Fee>++` [.item-kind]#hook#
 
-Adjusts deposits within <<ERC4626Component-preview_deposit,preview_deposit>> to account for entry fees.
-Entry fees should be transferred in the <<ERC4626Component-after_deposit,after_deposit>> hook.
-
-[.contract-item]
-[[ERC4626Component-adjust_mint]]
-==== `[.contract-item-name]#++adjust_mint++#++(ref self: ContractState, assets: u256, shares: u256)++` [.item-kind]#hook#
-
-Adjusts deposits within <<ERC4626Component-preview_mint,preview_mint>> to account for entry fees.
-Entry fees should be transferred in the <<ERC4626Component-after_deposit,after_deposit>> hook.
+Calculates the entry fee for a deposit during <<ERC4626Component-preview_deposit,preview_deposit>>. The returned fee affects 
+the final asset and share amounts. Fees are not transferred automatically and must be handled 
+in the <<ERC4626Component-after_deposit,after_deposit>> hook: asset fees should be transferred from the vault's management to 
+the fee recipient, while share fees should be minted to the fee recipient.
 
 [.contract-item]
-[[ERC4626Component-adjust_withdraw]]
-==== `[.contract-item-name]#++adjust_withdraw++#++(ref self: ContractState, assets: u256, shares: u256)++` [.item-kind]#hook#
+[[ERC4626Component-calculate_mint_fee]]
+==== `[.contract-item-name]#++calculate_mint_fee++#++(self: @ContractState, assets: u256, shares: u256) → Option<Fee>++` [.item-kind]#hook#
 
-Adjusts withdraws within <<ERC4626Component-preview_withdraw,preview_withdraw>> to account for exit fees.
-Exit fees should be transferred in the <<ERC4626Component-before_withdraw,before_withdraw>> hook.
+Calculates the entry fee for a mint during <<ERC4626Component-preview_mint,preview_mint>>. The returned fee affects 
+the final asset and share amounts. Fees are not transferred automatically and must be handled 
+in the <<ERC4626Component-after_deposit,after_deposit>> hook: asset fees should be transferred from the vault's management to 
+the fee recipient, while share fees should be minted to the fee recipient.
 
 [.contract-item]
-[[ERC4626Component-adjust_redeem]]
-==== `[.contract-item-name]#++adjust_redeem++#++(ref self: ContractState, assets: u256, shares: u256)++` [.item-kind]#hook#
+[[ERC4626Component-calculate_withdraw_fee]]
+==== `[.contract-item-name]#++calculate_withdraw_fee++#++(self: @ContractState, assets: u256, shares: u256) → Option<Fee>++` [.item-kind]#hook#
 
-Adjusts withdraws within <<ERC4626Component-preview_redeem,preview_redeem>> to account for exit fees.
-Exit fees should be transferred in the <<ERC4626Component-before_withdraw,before_withdraw>> hook.
+Calculates the exit fee for a withdraw during <<ERC4626Component-preview_withdraw,preview_withdraw>>. The returned fee affects 
+the final asset and share amounts. Fees are not transferred automatically and must be handled 
+in the <<ERC4626Component-before_withdraw,before_withdraw>> hook: asset fees should be transferred from the vault's management to 
+the fee recipient, while share fees should be transferred from the owner to the fee recipient.
+
+[.contract-item]
+[[ERC4626Component-calculate_redeem_fee]]
+==== `[.contract-item-name]#++calculate_redeem_fee++#++(self: @ContractState, assets: u256, shares: u256) → Option<Fee>++` [.item-kind]#hook#
+
+Calculates the exit fee for a redeem during <<ERC4626Component-preview_redeem,preview_redeem>>. The returned fee affects 
+the final asset and share amounts. Fees are not transferred automatically and must be handled 
+in the <<ERC4626Component-before_withdraw,before_withdraw>> hook: asset fees should be transferred from the vault's management to 
+the fee recipient, while share fees should be transferred from the owner to the fee recipient.
 
 ==== LimitConfigTrait
 
@@ -1094,7 +1109,7 @@ and MUST NOT panic.
 
 [.contract-item]
 [[ERC4626Component-deposit_limit]]
-==== `[.contract-item-name]#++deposit_limit++#++(ref self: ContractState, receiver: ContractAddress) -> Option<u256>++` [.item-kind]#hook#
+==== `[.contract-item-name]#++deposit_limit++#++(ref self: ContractState, receiver: ContractAddress) → Option<u256>++` [.item-kind]#hook#
 
 The max deposit allowed.
 
@@ -1102,7 +1117,7 @@ Defaults (`Option::None`) to 2 ** 256 - 1.
 
 [.contract-item]
 [[ERC4626Component-mint_limit]]
-==== `[.contract-item-name]#++mint_limit++#++(ref self: ContractState, receiver: ContractAddress) -> Option<u256>++` [.item-kind]#hook#
+==== `[.contract-item-name]#++mint_limit++#++(ref self: ContractState, receiver: ContractAddress) → Option<u256>++` [.item-kind]#hook#
 
 The max mint allowed.
 
@@ -1110,7 +1125,7 @@ Defaults (`Option::None`) to 2 ** 256 - 1.
 
 [.contract-item]
 [[ERC4626Component-withdraw_limit]]
-==== `[.contract-item-name]#++withdraw_limit++#++(ref self: ContractState, owner: ContractAddress) -> Option<u256>++` [.item-kind]#hook#
+==== `[.contract-item-name]#++withdraw_limit++#++(ref self: ContractState, owner: ContractAddress) → Option<u256>++` [.item-kind]#hook#
 
 The max withdraw allowed.
 
@@ -1118,7 +1133,7 @@ Defaults (`Option::None`) to the full asset balance of `owner` converted from sh
 
 [.contract-item]
 [[ERC4626Component-redeem_limit]]
-==== `[.contract-item-name]#++redeem_limit++#++(ref self: ContractState, owner: ContractAddress) -> Option<u256>++` [.item-kind]#hook#
+==== `[.contract-item-name]#++redeem_limit++#++(ref self: ContractState, owner: ContractAddress) → Option<u256>++` [.item-kind]#hook#
 
 The max redeem allowed.
 
@@ -1130,8 +1145,8 @@ Allows contracts to hook logic into deposit and withdraw transactions.
 This is where contracts can transfer fees.
 
 NOTE: ERC4626 preview methods must be inclusive of any entry or exit fees.
-The `AdjustFeesTrait` will adjust these values accordingly; therefore,
-fees must be set in the `AdjustFeesTrait` if the using contract enforces entry or exit fees.
+Fees are calculated using <<ERC4626Component-FeeConfigTrait,FeeConfigTrait>> methods and automatically adjust the final 
+asset and share amounts. Fee transfers are handled in `ERC4626HooksTrait` methods.
 
 CAUTION: Special care must be taken when calling external contracts in these hooks. In
 that case, consider implementing reentrancy protections. For example, in the
@@ -1141,39 +1156,51 @@ subsequent check on `withdraw_limit` will be done before the first withdrawal’
 (e.g., burning shares and transferring assets) is executed. This could
 lead to bypassing withdrawal constraints or draining funds.
 
-See the {mock-ex}.
-
-[.contract-item]
-[[ERC4626Component-before_withdraw]]
-==== `[.contract-item-name]#++before_withdraw++#++(ref self: ContractState, assets: u256, shares: u256)++` [.item-kind]#hook#
-
-Hooks into xref:#ERC4626Component-_withdraw[_withdraw].
-
-Executes logic before burning shares and transferring assets.
-
-[.contract-item]
-[[ERC4626Component-after_withdraw]]
-==== `[.contract-item-name]#++after_withdraw++#++(ref self: ContractState, assets: u256, shares: u256)++` [.item-kind]#hook#
-
-Hooks into xref:#ERC4626Component-_withdraw[_withdraw].
-
-Executes logic after burning shares and transferring assets.
+See the {asset-fees-mock} and {share-fees-mock} examples.
 
 [.contract-item]
 [[ERC4626Component-before_deposit]]
-==== `[.contract-item-name]#++before_deposit++#++(ref self: ContractState, assets: u256, shares: u256)++` [.item-kind]#hook#
+==== `[.contract-item-name]#++before_deposit++#++(ref self: ContractState, caller: ContractAddress, receiver: ContractAddress, assets: u256, shares: u256, fee: Option<Fee>)++` [.item-kind]#hook#
 
 Hooks into xref:#ERC4626Component-_deposit[_deposit].
 
 Executes logic before transferring assets and minting shares.
+The fee is calculated via <<ERC4626Component-FeeConfigTrait,FeeConfigTrait>>. Assets and shares 
+represent the actual amounts the user will spend and receive, respectively.
+Asset fees are included in assets; share fees are excluded from shares.
 
 [.contract-item]
 [[ERC4626Component-after_deposit]]
-==== `[.contract-item-name]#++after_deposit++#++(ref self: ContractState, assets: u256, shares: u256)++` [.item-kind]#hook#
+==== `[.contract-item-name]#++after_deposit++#++(ref self: ContractState, caller: ContractAddress, receiver: ContractAddress, assets: u256, shares: u256, fee: Option<Fee>)++` [.item-kind]#hook#
 
 Hooks into xref:#ERC4626Component-_deposit[_deposit].
 
 Executes logic after transferring assets and minting shares.
+The fee is calculated via <<ERC4626Component-FeeConfigTrait,FeeConfigTrait>>. Assets and shares 
+represent the actual amounts the user will spend and receive, respectively.
+Asset fees are included in assets; share fees are excluded from shares.
+
+[.contract-item]
+[[ERC4626Component-before_withdraw]]
+==== `[.contract-item-name]#++before_withdraw++#++(ref self: ContractState, caller: ContractAddress, receiver: ContractAddress, owner: ContractAddress, assets: u256, shares: u256, fee: Option<Fee>)++` [.item-kind]#hook#
+
+Hooks into xref:#ERC4626Component-_withdraw[_withdraw].
+
+Executes logic before burning shares and transferring assets.
+The fee is calculated via <<ERC4626Component-FeeConfigTrait,FeeConfigTrait>>. Assets and shares 
+represent the actual amounts the user will receive and spend, respectively.
+Asset fees are excluded from assets; share fees are included in shares.
+
+[.contract-item]
+[[ERC4626Component-after_withdraw]]
+==== `[.contract-item-name]#++after_withdraw++#++(ref self: ContractState, caller: ContractAddress, receiver: ContractAddress, owner: ContractAddress, assets: u256, shares: u256, fee: Option<Fee>)++` [.item-kind]#hook#
+
+Hooks into xref:#ERC4626Component-_withdraw[_withdraw].
+
+Executes logic after burning shares and transferring assets.
+The fee is calculated via <<ERC4626Component-FeeConfigTrait,FeeConfigTrait>>. Assets and shares 
+represent the actual amounts the user will receive and spend, respectively.
+Asset fees are excluded from assets; share fees are included in shares.
 
 ==== AssetsManagementTrait
 
@@ -1305,7 +1332,7 @@ current block, given current on-chain conditions.
 
 The default deposit preview value is the full amount of shares.
 This can be changed to account for fees, for example, in the implementing contract by
-defining custom logic in <<ERC4626Component-adjust_deposit,LimitConfigTrait::adjust_deposit>>.
+defining custom logic in <<ERC4626Component-calculate_deposit_fee,FeeConfigTrait::calculate_deposit_fee>>.
 
 NOTE: This method must be inclusive of entry fees to be compliant with the {eip4626} spec.
 
@@ -1342,7 +1369,7 @@ current block, given current on-chain conditions.
 
 The default mint preview value is the full amount of assets.
 This can be changed to account for fees, for example, in the implementing contract by
-defining custom logic in <<ERC4626Component-adjust_mint,LimitConfigTrait::adjust_mint>>.
+defining custom logic in <<ERC4626Component-calculate_mint_fee,FeeConfigTrait::calculate_mint_fee>>.
 
 NOTE: This method must be inclusive of entry fees to be compliant with the {eip4626} spec.
 
@@ -1380,7 +1407,7 @@ Allows an on-chain or off-chain user to simulate the effects of their withdrawal
 current block, given current on-chain conditions.
 
 The default withdraw preview value is the full amount of shares.
-This can be changed to account for fees, for example, in the implementing contract by defining custom logic in <<ERC4626Component-adjust_withdraw,LimitConfigTrait::adjust_withdraw>>.
+This can be changed to account for fees, for example, in the implementing contract by defining custom logic in <<ERC4626Component-calculate_withdraw_fee,FeeConfigTrait::calculate_withdraw_fee>>.
 
 NOTE: This method must be inclusive of exit fees to be compliant with the {eip4626} spec.
 
@@ -1417,7 +1444,7 @@ Allows an on-chain or off-chain user to simulate the effects of their redeemptio
 current block, given current on-chain conditions.
 
 The default redeem preview value is the full amount of assets.
-This can be changed to account for fees, for example, in the implementing contract by defining custom logic in <<ERC4626Component-adjust_redeem,LimitConfigTrait::adjust_redeem>>.
+This can be changed to account for fees, for example, in the implementing contract by defining custom logic in <<ERC4626Component-calculate_redeem_fee,FeeConfigTrait::calculate_redeem_fee>>.
 
 NOTE: This method must be inclusive of exit fees to be compliant with the {eip4626} spec.
 
@@ -1518,7 +1545,7 @@ Internal conversion function (from shares to assets) with support for `rounding`
 
 [.contract]
 [[ERC20Upgradeable]]
-=== `++ERC20Upgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.0/packages/presets/src/erc20.cairo[{github-icon},role=heading-link]
+=== `++ERC20Upgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.1/packages/presets/src/erc20.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin_presets::ERC20Upgradeable;

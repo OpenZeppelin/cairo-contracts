@@ -13,10 +13,10 @@
       "felts": 10502
     },
     "openzeppelin_test_common_InitializableMock.compiled_contract_class.json": {
-      "felts": 145
+      "felts": 291
     },
     "openzeppelin_test_common_SimpleMock.compiled_contract_class.json": {
-      "felts": 459
+      "felts": 541
     },
     "openzeppelin_test_common_DualCaseEthAccountMock.compiled_contract_class.json": {
       "felts": 4867
@@ -88,7 +88,7 @@
       "felts": 5919
     },
     "openzeppelin_test_common_PausableMock.compiled_contract_class.json": {
-      "felts": 145
+      "felts": 643
     },
     "openzeppelin_test_common_DualCaseERC721ReceiverMock.compiled_contract_class.json": {
       "felts": 1209
@@ -213,7 +213,7 @@
       "bytes": 91233
     },
     "openzeppelin_test_common_InitializableMock.contract_class.json": {
-      "bytes": 6746
+      "bytes": 9238
     },
     "openzeppelin_test_common_SnakeERC721MockWithHooks.contract_class.json": {
       "bytes": 241047
@@ -261,7 +261,7 @@
       "bytes": 293564
     },
     "openzeppelin_test_common_SimpleMock.contract_class.json": {
-      "bytes": 11907
+      "bytes": 14879
     },
     "openzeppelin_test_common_ERC721TimestampVotesMock.contract_class.json": {
       "bytes": 432493
@@ -345,7 +345,7 @@
       "bytes": 87974
     },
     "openzeppelin_test_common_PausableMock.contract_class.json": {
-      "bytes": 7304
+      "bytes": 17655
     },
     "openzeppelin_test_common_ERC4626SharesFeesMock.contract_class.json": {
       "bytes": 369762

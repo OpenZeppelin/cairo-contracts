@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v2.0.0 (access/src/accesscontrol/accesscontrol.cairo)
+// OpenZeppelin Contracts for Cairo v3.0.0-alpha.1 (access/src/accesscontrol/accesscontrol.cairo)
 
 /// # AccessControl Component
 ///
@@ -19,6 +19,8 @@
 #[starknet::component]
 pub mod AccessControlComponent {
     use core::panic_with_const_felt252;
+    use openzeppelin_interfaces::accesscontrol as interface;
+    use openzeppelin_interfaces::accesscontrol::RoleStatus;
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_introspection::src5::SRC5Component::{
         InternalImpl as SRC5InternalImpl, SRC5Impl,
@@ -26,8 +28,6 @@ pub mod AccessControlComponent {
     use starknet::ContractAddress;
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
     use crate::accesscontrol::account_role_info::AccountRoleInfo;
-    use crate::accesscontrol::interface;
-    use crate::accesscontrol::interface::RoleStatus;
 
     pub const DEFAULT_ADMIN_ROLE: felt252 = 0;
 

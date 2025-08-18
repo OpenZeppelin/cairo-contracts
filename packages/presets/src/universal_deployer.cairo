@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v2.0.0 (presets/src/universal_deployer.cairo)
+// OpenZeppelin Contracts for Cairo v3.0.0-alpha.1 (presets/src/universal_deployer.cairo)
 
 /// # UniversalDeployerContract Preset
 ///
@@ -7,7 +7,7 @@
 #[starknet::contract]
 pub mod UniversalDeployer {
     use core::pedersen::pedersen;
-    use openzeppelin_utils::interfaces::UniversalDeployerABI;
+    use openzeppelin_interfaces::deployments::UniversalDeployerABI;
     use starknet::{ClassHash, ContractAddress, SyscallResultTrait, get_caller_address};
 
     #[storage]

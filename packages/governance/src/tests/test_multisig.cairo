@@ -1,5 +1,6 @@
 use core::integer::u128_safe_divmod;
 use core::num::traits::{Bounded, Zero};
+use openzeppelin_interfaces::multisig::{TransactionID, TransactionState};
 use openzeppelin_test_common::mocks::multisig::{
     IMultisigTargetMockDispatcher, IMultisigTargetMockDispatcherTrait, MultisigWalletMock,
 };
@@ -10,12 +11,12 @@ use snforge_std::{start_cheat_block_number_global, start_cheat_caller_address, t
 use starknet::ContractAddress;
 use starknet::account::Call;
 use starknet::storage_access::StorePacking;
+use crate::multisig::MultisigComponent;
 use crate::multisig::MultisigComponent::{
     CallSalt, ConfirmationRevoked, Event, InternalImpl, MultisigImpl, QuorumUpdated, SignerAdded,
     SignerRemoved, TransactionConfirmed, TransactionExecuted, TransactionSubmitted,
 };
 use crate::multisig::storage_utils::{SignersInfo, SignersInfoStorePackingV2};
-use crate::multisig::{MultisigComponent, TransactionID, TransactionState};
 
 //
 // Setup
@@ -146,8 +147,7 @@ fn test_submit_tx_batch() {
     let contract_address = test_address();
 
     let calls = array![
-        build_call(MockCall::AddNumber(42)),
-        build_call(MockCall::AddNumber(18)),
+        build_call(MockCall::AddNumber(42)), build_call(MockCall::AddNumber(18)),
         build_call(MockCall::AddNumber(40)),
     ]
         .span();
@@ -173,8 +173,7 @@ fn test_submit_tx_batch_with_salt() {
     let contract_address = test_address();
 
     let calls = array![
-        build_call(MockCall::AddNumber(42)),
-        build_call(MockCall::AddNumber(18)),
+        build_call(MockCall::AddNumber(42)), build_call(MockCall::AddNumber(18)),
         build_call(MockCall::AddNumber(40)),
     ]
         .span();
@@ -201,8 +200,7 @@ fn test_submit_same_tx_batch_different_salt() {
     let contract_address = test_address();
 
     let calls = array![
-        build_call(MockCall::AddNumber(42)),
-        build_call(MockCall::AddNumber(18)),
+        build_call(MockCall::AddNumber(42)), build_call(MockCall::AddNumber(18)),
         build_call(MockCall::AddNumber(40)),
     ]
         .span();
@@ -246,8 +244,7 @@ fn test_cannot_submit_tx_batch_unauthorized() {
     let mut state = setup_component(quorum, signers);
 
     let calls = array![
-        build_call(MockCall::AddNumber(42)),
-        build_call(MockCall::AddNumber(18)),
+        build_call(MockCall::AddNumber(42)), build_call(MockCall::AddNumber(18)),
         build_call(MockCall::AddNumber(40)),
     ]
         .span();
@@ -276,8 +273,7 @@ fn test_cannot_submit_tx_batch_twice() {
     let mut state = setup_component(quorum, signers);
 
     let calls = array![
-        build_call(MockCall::AddNumber(42)),
-        build_call(MockCall::AddNumber(18)),
+        build_call(MockCall::AddNumber(42)), build_call(MockCall::AddNumber(18)),
         build_call(MockCall::AddNumber(40)),
     ]
         .span();
@@ -375,8 +371,7 @@ fn test_confirm_tx_batch() {
     let contract_address = test_address();
 
     let calls = array![
-        build_call(MockCall::AddNumber(42)),
-        build_call(MockCall::AddNumber(18)),
+        build_call(MockCall::AddNumber(42)), build_call(MockCall::AddNumber(18)),
         build_call(MockCall::AddNumber(40)),
     ]
         .span();
@@ -636,8 +631,7 @@ fn test_execute_tx_batch() {
     let mut spy = spy_events();
     let mock = deploy_mock();
     let calls = array![
-        build_call(MockCall::AddNumber(42)),
-        build_call(MockCall::AddNumber(18)),
+        build_call(MockCall::AddNumber(42)), build_call(MockCall::AddNumber(18)),
         build_call(MockCall::AddNumber(40)),
     ]
         .span();
@@ -713,8 +707,7 @@ fn test_cannot_execute_batch_unauthorized() {
     let mut state = setup_component(quorum, signers);
     let contract_address = test_address();
     let calls = array![
-        build_call(MockCall::AddNumber(42)),
-        build_call(MockCall::AddNumber(18)),
+        build_call(MockCall::AddNumber(42)), build_call(MockCall::AddNumber(18)),
         build_call(MockCall::AddNumber(40)),
     ]
         .span();
@@ -856,8 +849,7 @@ fn test_tx_batch_hash_depends_on_salt() {
     let (quorum, signers) = DEFAULT_DATA();
     let mut state = setup_component(quorum, signers);
     let calls = array![
-        build_call(MockCall::AddNumber(42)),
-        build_call(MockCall::AddNumber(18)),
+        build_call(MockCall::AddNumber(42)), build_call(MockCall::AddNumber(18)),
         build_call(MockCall::AddNumber(40)),
     ]
         .span();
@@ -1449,6 +1441,22 @@ fn test_signers_info_unpack_zero_value_v2() {
 
     assert_eq!(unpacked_info.quorum, 0);
     assert_eq!(unpacked_info.signers_count, 0);
+}
+
+#[cfg(feature: 'fuzzing')]
+#[test]
+#[fuzzer]
+fn test_pack_signers_info_with_v1_unpack_with_v2(quorum: u32, signers_count: u32) {
+    if signers_count == Bounded::MAX {
+        // Cannot properly unpack if packed with V1 and `signers_count` is max u32 value
+        return;
+    }
+    let info = SignersInfo { quorum, signers_count };
+    let packed_value = LegacySignersInfoStorePackingV1::pack(info);
+    let unpacked_info = SignersInfoStorePackingV2::unpack(packed_value);
+
+    assert_eq!(unpacked_info.quorum, quorum);
+    assert_eq!(unpacked_info.signers_count, signers_count);
 }
 
 //

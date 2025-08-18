@@ -9,9 +9,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## 3.0.0-alpha.1 (2025-08-18)
+
 ### Added
 
+- `AssetsManagementTrait` defining how assets are managed in `ERC4626Component` (#1454)
+- `openzeppelin_interfaces` package (#1463)
+
+### Changed
+
+- Bump scarb to 2.12.0 (#1463)
+
+### Changed (Breaking)
+
+- `ERC4626Component` now supports alternative asset management strategies (e.g., external vault) via the added `AssetsManagementTrait` (#1454)
+- `ERC4626Component` now supports charging fees in shares as well as in assets via the refactored `FeeConfigTrait` (#1452)
+- Additional input parameters were added to the `ERC4626HooksTrait` functions (#1452)
+- Moved interfaces, ABIs and dispatchers into `openzeppelin_interfaces` (#1463)
+  - Some structs and types that were defined inside interface files were also moved
+
+## 3.0.0-alpha.0 (2025-07-18)
+
+### Added
+
+- `ERC6372Clock` interface to `openzeppelin_utils::contract_clock` (#1417)
 - AccessControlDefaultAdminRules interface and component (#1432)
+
+### Changed
+
+- `GovernorComponent` and its extensions support voting tokens that follow the `ERC6372` clock standard (#1417)
+
+### Changed (Breaking)
+
+- `VotesComponent` now supports customizable clock mechanisms via `ERC6372Clock`, enabling alternative clock sources (#1417)
 
 ## 2.0.0 (2025-06-18)
 

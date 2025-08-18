@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v2.0.0
+// OpenZeppelin Contracts for Cairo v3.0.0-alpha.1
 // (access/src/accesscontrol/extensions/accesscontrol_default_admin_rules.cairo)
 
 /// # AccessControlDefaultAdminRules Component
@@ -24,6 +24,11 @@
 pub mod AccessControlDefaultAdminRulesComponent {
     use core::num::traits::Zero;
     use core::panic_with_const_felt252;
+    use openzeppelin_interfaces::accesscontrol::RoleStatus;
+    use openzeppelin_interfaces::{
+        accesscontrol as interface,
+        accesscontrol_default_admin_rules as default_admin_rules_interface,
+    };
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_introspection::src5::SRC5Component::{
         InternalImpl as SRC5InternalImpl, SRC5Impl,
@@ -37,10 +42,7 @@ pub mod AccessControlDefaultAdminRulesComponent {
         RoleAdminChanged, RoleGranted, RoleGrantedWithDelay, RoleRevoked,
     };
     use crate::accesscontrol::account_role_info::AccountRoleInfo;
-    use crate::accesscontrol::extensions::interface as default_admin_rules_interface;
     use crate::accesscontrol::extensions::pending_delay::PendingDelay;
-    use crate::accesscontrol::interface;
-    use crate::accesscontrol::interface::RoleStatus;
 
     pub const DEFAULT_ADMIN_ROLE: felt252 = 0;
 
@@ -113,7 +115,7 @@ pub mod AccessControlDefaultAdminRulesComponent {
     }
 
     /// Constants expected to be defined at the contract level used to configure the component
-    /// behaviour.
+    /// behavior.
     ///
     /// - `DEFAULT_ADMIN_DELAY_INCREASE_WAIT`: Returns the maximum number of seconds to wait for a
     /// delay increase.

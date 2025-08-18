@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v2.0.0
+// OpenZeppelin Contracts for Cairo v3.0.0-alpha.1
 // (governance/src/governor/extensions/governor_settings.cairo)
 
 /// # GovernorSettings Component
@@ -7,13 +7,13 @@
 /// Extension of GovernorComponent for settings that are updatable through governance.
 #[starknet::component]
 pub mod GovernorSettingsComponent {
+    use openzeppelin_interfaces::governance::extensions::IGovernorSettingsAdmin;
     use openzeppelin_introspection::src5::SRC5Component;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
     use crate::governor::GovernorComponent;
     use crate::governor::GovernorComponent::{
         ComponentState as GovernorComponentState, InternalExtendedTrait,
     };
-    use crate::governor::extensions::interface::IGovernorSettingsAdmin;
 
     #[storage]
     pub struct Storage {

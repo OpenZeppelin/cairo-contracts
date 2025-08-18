@@ -4,14 +4,19 @@
 
 Reference of the Universal Deployer Contract (UDC) interface and preset.
 
-== Core
+== Interfaces
+
+include::../utils/_common.adoc[]
+
+NOTE: Starting from version `3.x.x`, the interfaces are no longer part of the `openzeppelin_utils` package. The references
+documented here are contained in the `openzeppelin_interfaces` package version `v{current_openzeppelin_interfaces_version}`.
 
 [.contract]
 [[IUniversalDeployer]]
-=== `++IUniversalDeployer++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0/packages/utils/src/deployments/interface.cairo[{github-icon},role=heading-link]
+=== `++IUniversalDeployer++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.1/packages/interfaces/src/utils/deployments.cairo[{github-icon},role=heading-link]
 
 ```cairo
-use openzeppelin_utils::interfaces::IUniversalDeployer;
+use openzeppelin_interfaces::deployments::IUniversalDeployer;
 ```
 
 [.contract-index]
@@ -51,7 +56,7 @@ Emitted when `deployer` deploys a contract through the Universal Deployer Contra
 
 [.contract]
 [[UniversalDeployer]]
-=== `++UniversalDeployer++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0/packages/presets/src/universal_deployer.cairo[{github-icon},role=heading-link]
+=== `++UniversalDeployer++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.1/packages/presets/src/universal_deployer.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin_presets::UniversalDeployer;

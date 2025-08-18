@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v2.0.0 (presets/src/erc1155.cairo)
+// OpenZeppelin Contracts for Cairo v3.0.0-alpha.1 (presets/src/erc1155.cairo)
 
 /// # ERC1155Upgradeable Preset
 ///
@@ -11,10 +11,10 @@
 #[starknet::contract]
 pub mod ERC1155Upgradeable {
     use openzeppelin_access::ownable::OwnableComponent;
+    use openzeppelin_interfaces::upgrades::IUpgradeable;
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_token::erc1155::{ERC1155Component, ERC1155HooksEmptyImpl};
     use openzeppelin_upgrades::UpgradeableComponent;
-    use openzeppelin_upgrades::interface::IUpgradeable;
     use starknet::{ClassHash, ContractAddress};
 
     component!(path: OwnableComponent, storage: ownable, event: OwnableEvent);

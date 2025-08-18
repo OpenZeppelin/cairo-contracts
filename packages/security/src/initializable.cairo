@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v2.0.0 (security/src/initializable.cairo)
+// OpenZeppelin Contracts for Cairo v3.0.0-alpha.1 (security/src/initializable.cairo)
 
 /// # Initializable Component
 ///
@@ -8,8 +8,8 @@
 /// initial state in scenarios where a constructor cannot be used.
 #[starknet::component]
 pub mod InitializableComponent {
+    use openzeppelin_interfaces::initializable::IInitializable;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
-    use crate::interface::IInitializable;
 
     #[storage]
     pub struct Storage {

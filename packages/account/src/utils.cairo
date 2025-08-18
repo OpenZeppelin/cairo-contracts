@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v2.0.0 (account/src/utils.cairo)
+// OpenZeppelin Contracts for Cairo v3.0.0-alpha.1 (account/src/utils.cairo)
 
 pub mod secp256_point;
 pub mod signature;
-use openzeppelin_account::interface::{ISRC6Dispatcher, ISRC6DispatcherTrait};
+use openzeppelin_interfaces::accounts::{ISRC6Dispatcher, ISRC6DispatcherTrait};
 
 pub use signature::{is_valid_eth_signature, is_valid_p256_signature, is_valid_stark_signature};
 use starknet::account::Call;

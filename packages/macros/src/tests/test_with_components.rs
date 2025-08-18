@@ -49,7 +49,7 @@ fn test_with_eth_account() {
         "
         #[starknet::contract(account)]
         pub mod MyContract {
-            use openzeppelin_account::interface::EthPublicKey;
+            use openzeppelin_interfaces::accounts::EthPublicKey;
 
             #[storage]
             pub struct Storage {}
@@ -1258,8 +1258,8 @@ fn test_with_erc4626() {
         #[starknet::contract]
         pub mod ERC4626Mock {
             use openzeppelin_token::erc20::extensions::erc4626::{
-                DefaultConfig, ERC4626DefaultLimits, ERC4626DefaultNoFees,
-                ERC4626HooksEmptyImpl,
+                DefaultConfig, ERC4626DefaultNoLimits, ERC4626DefaultNoFees,
+                ERC4626EmptyHooks, ERC4626SelfAssetsManagement,
             };
             use openzeppelin_token::erc20::ERC20HooksEmptyImpl;
             use starknet::ContractAddress;

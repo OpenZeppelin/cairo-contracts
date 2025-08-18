@@ -1,0 +1,75 @@
+name: Update contract sizes benchmark
+
+on:
+  pull_request:
+    types:
+      - closed   # Trigger when a PR is closed (merged OR just closed without merge)
+
+permissions:
+  contents: write       # Needed to push changes / create PRs
+  pull-requests: write  # Needed to open a new PR
+
+jobs:
+  create-pr-if-changed:
+    # Run only if:
+    # - PR is NOT from a fork
+    # - PR was merged (not just closed)
+    # - Base branch of the PR is main
+    if: |
+        github.event.pull_request.head.repo.fork == false &&
+        github.event.pull_request.merged == true &&
+        github.event.pull_request.base.ref == 'main'
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Check out the repository at the merge commit
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Use Rust cache (speeds up builds in repeated runs)
+      - uses: Swatinem/rust-cache@v2
+
+      # 3. Extract the required Scarb version from Scarb.toml and save to env
+      - name: Extract scarb version
+        run: |
+          SCARB_VERSION=$(grep 'scarb-version = ' Scarb.toml | sed 's/scarb-version = "\(.*\)"/\1/')
+          echo "SCARB_VERSION=$SCARB_VERSION" >> "$GITHUB_ENV"
+
+      # 4. Install the right Scarb version
+      - name: Setup scarb
+        uses: software-mansion/setup-scarb@v1
+        id: setup_scarb
+        with:
+          scarb-version: ${{ env.SCARB_VERSION }}
+
+      # 5. Build mocks (needed for contract size benchmarking)
+      - name: Build mocks
+        run: scarb --release build -p openzeppelin_test_common
+
+      # 6. Run the benchmark script to regenerate benches/contract_sizes.json
+      - name: Update benchmark
+        run: |
+          python3 ./scripts/benchmarking/benchmark.py --json --dir target/release > benches/contract_sizes.json
+
+      # 7. Check whether benches/contract_sizes.json differs from main
+      - name: Check if file changed
+        id: check_diff
+        run: |
+          if git diff --quiet origin/main -- benches/contract_sizes.json; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      # 8. If benchmark file changed, open a PR with the updated file
+      - name: Create Pull Request with benchmark update
+        if: steps.check_diff.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          commit-message: Update contract sizes benchmark
+          title: Update contract sizes benchmark
+          body: |
+            This PR updates the contract size benchmarks after a recent merge to `main`.
+          branch: update/contract-sizes-${{ github.run_id }}
+          base: main
+          token: ${{ secrets.GITHUB_TOKEN }}

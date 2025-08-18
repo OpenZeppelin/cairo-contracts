@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- Bump snforge to v0.48.1 (#)
+- Bump snforge to v0.48.1 (#1498)
 
 ## 4.5.0 (2025-08-12)
 

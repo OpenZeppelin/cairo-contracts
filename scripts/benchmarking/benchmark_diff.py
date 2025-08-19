@@ -103,7 +103,7 @@ def print_diff_markdown(old, new):
     markdown_subtable(old.get(CONTRACT_CLASS_KEY, {}), new.get(CONTRACT_CLASS_KEY, {}), "bytes")
 
 
-def markdown_subtable(old, new, metric):
+def markdown_subtable(old, new, metric, show_unchanged=False):
     all_files = sorted(set(old.keys()) | set(new.keys()))
     rows = []
 
@@ -127,7 +127,8 @@ def markdown_subtable(old, new, metric):
             delta = f"-{old_val}"
             rows.append([f"`{name}`", str(old_val), "—", delta, "❌ REMOVED"])
         elif old_val == new_val:
-            rows.append([f"`{name}`", str(old_val), str(new_val), "0", "⚪ No change"])
+            if show_unchanged:
+                rows.append([f"`{name}`", str(old_val), str(new_val), "0", "⚪ No change"])
         else:
             diff = new_val - old_val
             arrow = "🟢" if diff > 0 else "🔴"
@@ -135,6 +136,10 @@ def markdown_subtable(old, new, metric):
             delta = f"{arrow} {sign}{abs(diff)}"
             note = get_size_warning(metric, new_val)
             rows.append([f"`{name}`", str(old_val), str(new_val), delta, note or ""])
+
+    if len(rows) == 1:
+        print(f"No changes in {metric}.")
+        return
 
     # Calculate column widths
     col_widths = [max(len(cell) for cell in col) for col in zip(*rows)]

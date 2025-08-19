@@ -24,7 +24,7 @@ jobs:
     steps:
       # 1. Check out the repository at the merge commit
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       # 2. Use Rust cache (speeds up builds in repeated runs)
       - uses: Swatinem/rust-cache@v2

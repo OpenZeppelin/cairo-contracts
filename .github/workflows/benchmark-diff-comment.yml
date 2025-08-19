@@ -22,7 +22,7 @@ jobs:
     steps:
       # 1. Check out the PR branch so we can build and benchmark it
       - name: Checkout repo
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       # 2. Extract the required Scarb version from Scarb.toml and save to env
       - name: Extract scarb version

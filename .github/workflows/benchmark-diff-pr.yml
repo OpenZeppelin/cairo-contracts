@@ -64,7 +64,7 @@ jobs:
       # 8. If benchmark file changed, open a PR with the updated file
       - name: Create Pull Request with benchmark update
         if: steps.check_diff.outputs.changed == 'true'
-        uses: peter-evans/create-pull-request@v6
+        uses: peter-evans/create-pull-request@v7
         with:
           commit-message: Update contract sizes benchmark
           title: Update contract sizes benchmark

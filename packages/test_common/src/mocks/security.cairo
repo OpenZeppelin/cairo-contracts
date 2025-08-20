@@ -7,6 +7,11 @@ pub mod InitializableMock {
     impl InitializableImpl =
         InitializableComponent::InitializableImpl<ContractState>;
 
+    #[constructor]
+    fn constructor(ref self: ContractState) {
+        self.initializable.initialize();
+    }
+
     #[storage]
     pub struct Storage {}
 }
@@ -16,6 +21,20 @@ pub mod InitializableMock {
 pub mod PausableMock {
     #[abi(embed_v0)]
     impl PausableImpl = PausableComponent::PausableImpl<ContractState>;
+
+    #[abi(per_item)]
+    #[generate_trait]
+    impl ExternalImpl of ExternalTrait {
+        #[external(v0)]
+        fn pause(ref self: ContractState) {
+            self.pausable.pause();
+        }
+
+        #[external(v0)]
+        fn unpause(ref self: ContractState) {
+            self.pausable.unpause();
+        }
+    }
 
     #[storage]
     pub struct Storage {}

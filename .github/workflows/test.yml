@@ -14,7 +14,7 @@ jobs:
     name: Lint and test Cairo
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Extract scarb version
         run: |
@@ -48,9 +48,7 @@ jobs:
         run: scarb fmt --check --workspace
 
       - name: Run tests
-        # TODO: turn back on once fuzzer issue is fixed
-        # run: snforge test --workspace  --features fuzzing --fuzzer-runs 500
-        run: snforge test --workspace 
+        run: snforge test --workspace --features fuzzing --fuzzer-runs 500
 
       - name: Run tests and generate coverage report
         run: snforge test --workspace --coverage

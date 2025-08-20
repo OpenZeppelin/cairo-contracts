@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v3.0.0-alpha.0 (governance/src/governor/governor.cairo)
+// OpenZeppelin Contracts for Cairo v3.0.0-alpha.1 (governance/src/governor/governor.cairo)
 
 /// # Governor Component
 ///
@@ -124,7 +124,7 @@ pub mod GovernorComponent {
     }
 
     /// Constants expected to be defined at the contract level used to configure the component
-    /// behaviour.
+    /// behavior.
     ///
     /// - `DEFAULT_PARAMS`: Default additional encoded parameters used by cast_vote
     /// methods that don't include them.

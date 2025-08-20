@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v3.0.0-alpha.0 (token/src/common/erc2981/erc2981.cairo)
+// OpenZeppelin Contracts for Cairo v3.0.0-alpha.1 (token/src/common/erc2981/erc2981.cairo)
 
 /// # ERC2981 Component
 ///
@@ -62,7 +62,7 @@ pub mod ERC2981Component {
     }
 
     /// Constants expected to be defined at the contract level used to configure the component
-    /// behaviour.
+    /// behavior.
     ///
     /// - `FEE_DENOMINATOR`: The denominator with which to interpret the fee set in
     ///   `_set_token_royalty` and `_set_default_royalty` as a fraction of the sale price.

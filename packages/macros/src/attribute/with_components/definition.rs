@@ -4,7 +4,7 @@ use cairo_lang_parser::utils::SimpleParserDatabase;
 use cairo_lang_syntax::node::with_db::SyntaxNodeWithDb;
 use regex::Regex;
 
-use super::{components::AllowedComponents, parser::WithComponentsParser};
+use crate::with_components::{components::AllowedComponents, parser::WithComponentsParser};
 
 /// Inserts multiple component dependencies into a modules codebase.
 #[attribute_macro]

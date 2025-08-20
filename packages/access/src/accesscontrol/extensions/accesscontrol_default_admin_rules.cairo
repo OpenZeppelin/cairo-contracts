@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v3.0.0-alpha.0
+// OpenZeppelin Contracts for Cairo v3.0.0-alpha.1
 // (access/src/accesscontrol/extensions/accesscontrol_default_admin_rules.cairo)
 
 /// # AccessControlDefaultAdminRules Component
@@ -115,7 +115,7 @@ pub mod AccessControlDefaultAdminRulesComponent {
     }
 
     /// Constants expected to be defined at the contract level used to configure the component
-    /// behaviour.
+    /// behavior.
     ///
     /// - `DEFAULT_ADMIN_DELAY_INCREASE_WAIT`: Returns the maximum number of seconds to wait for a
     /// delay increase.

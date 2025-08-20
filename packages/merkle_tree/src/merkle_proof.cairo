@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v3.0.0-alpha.0 (merkle_tree/src/merkle_proof.cairo)
+// OpenZeppelin Contracts for Cairo v3.0.0-alpha.1 (merkle_tree/src/merkle_proof.cairo)
 
 /// These functions deal with verification of Merkle Tree proofs.
 ///
@@ -88,10 +88,7 @@ pub fn process_multi_proof<impl Hasher: CommutativeHasher>(
     let proof_flags_len = proof_flags.len();
 
     // Check proof validity.
-    if (leaves_len + proof.len() != proof_flags_len + 1) {
-        #[allow(panic)]
-        panic!("MerkleProof: invalid multi proof");
-    }
+    assert!(leaves_len + proof.len() == proof_flags_len + 1, "MerkleProof: invalid multi proof");
 
     // The x_pos values are "pointers" to the next value to consume in each array.
     // By incrementing the value, we simulate a queue's pop operation.

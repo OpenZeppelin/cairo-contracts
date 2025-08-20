@@ -1,0 +1,366 @@
+{
+  "bytecode": {
+    "openzeppelin_test_common_GovernorQuorumFractionMock.compiled_contract_class.json": {
+      "felts": 23009
+    },
+    "openzeppelin_test_common_ERC20BlockNumberVotesMock.compiled_contract_class.json": {
+      "felts": 12958
+    },
+    "openzeppelin_test_common_DualCaseERC1155ReceiverMock.compiled_contract_class.json": {
+      "felts": 2119
+    },
+    "openzeppelin_test_common_TimelockControllerMock.compiled_contract_class.json": {
+      "felts": 10502
+    },
+    "openzeppelin_test_common_InitializableMock.compiled_contract_class.json": {
+      "felts": 291
+    },
+    "openzeppelin_test_common_SimpleMock.compiled_contract_class.json": {
+      "felts": 541
+    },
+    "openzeppelin_test_common_DualCaseEthAccountMock.compiled_contract_class.json": {
+      "felts": 4867
+    },
+    "openzeppelin_test_common_DualCaseAccountMock.compiled_contract_class.json": {
+      "felts": 2867
+    },
+    "openzeppelin_test_common_MultisigWalletMock.compiled_contract_class.json": {
+      "felts": 10458
+    },
+    "openzeppelin_test_common_SnakeERC20MockWithHooks.compiled_contract_class.json": {
+      "felts": 5842
+    },
+    "openzeppelin_test_common_ERC721EnumerableMock.compiled_contract_class.json": {
+      "felts": 10510
+    },
+    "openzeppelin_test_common_ERC4626ExternalVaultMock.compiled_contract_class.json": {
+      "felts": 13546
+    },
+    "openzeppelin_test_common_DualCaseAccessControlMock.compiled_contract_class.json": {
+      "felts": 4532
+    },
+    "openzeppelin_test_common_ERC20ReentrantMock.compiled_contract_class.json": {
+      "felts": 8450
+    },
+    "openzeppelin_test_common_DualCaseERC20PermitMock.compiled_contract_class.json": {
+      "felts": 7834
+    },
+    "openzeppelin_test_common_ERC2981AccessControlMock.compiled_contract_class.json": {
+      "felts": 6002
+    },
+    "openzeppelin_test_common_DualCaseERC20Mock.compiled_contract_class.json": {
+      "felts": 6203
+    },
+    "openzeppelin_test_common_ERC4626AssetsFeesMock.compiled_contract_class.json": {
+      "felts": 17492
+    },
+    "openzeppelin_test_common_ERC4626SharesFeesMock.compiled_contract_class.json": {
+      "felts": 17131
+    },
+    "openzeppelin_test_common_StepsVestingMock.compiled_contract_class.json": {
+      "felts": 5408
+    },
+    "openzeppelin_test_common_MockTrace.compiled_contract_class.json": {
+      "felts": 4444
+    },
+    "openzeppelin_test_common_SRC9AccountMock.compiled_contract_class.json": {
+      "felts": 5577
+    },
+    "openzeppelin_test_common_DualCaseTwoStepOwnableMock.compiled_contract_class.json": {
+      "felts": 2361
+    },
+    "openzeppelin_test_common_SnakeAccountMock.compiled_contract_class.json": {
+      "felts": 3198
+    },
+    "openzeppelin_test_common_NoncesMock.compiled_contract_class.json": {
+      "felts": 215
+    },
+    "openzeppelin_test_common_SnakeERC20Mock.compiled_contract_class.json": {
+      "felts": 5550
+    },
+    "openzeppelin_test_common_ERC20TimestampVotesMock.compiled_contract_class.json": {
+      "felts": 12958
+    },
+    "openzeppelin_test_common_TimelockAttackerMock.compiled_contract_class.json": {
+      "felts": 777
+    },
+    "openzeppelin_test_common_ERC20OptionalTransferPanicMock.compiled_contract_class.json": {
+      "felts": 5919
+    },
+    "openzeppelin_test_common_PausableMock.compiled_contract_class.json": {
+      "felts": 643
+    },
+    "openzeppelin_test_common_DualCaseERC721ReceiverMock.compiled_contract_class.json": {
+      "felts": 1209
+    },
+    "openzeppelin_test_common_GovernorMock.compiled_contract_class.json": {
+      "felts": 18513
+    },
+    "openzeppelin_test_common_UpgradesV2.compiled_contract_class.json": {
+      "felts": 1221
+    },
+    "openzeppelin_test_common_GovernorTimelockedMock.compiled_contract_class.json": {
+      "felts": 23507
+    },
+    "openzeppelin_test_common_DualCaseERC721Mock.compiled_contract_class.json": {
+      "felts": 12768
+    },
+    "openzeppelin_test_common_NonImplementingMock.compiled_contract_class.json": {
+      "felts": 96
+    },
+    "openzeppelin_test_common_SnakeERC1155MockWithHooks.compiled_contract_class.json": {
+      "felts": 7911
+    },
+    "openzeppelin_test_common_ERC2981Mock.compiled_contract_class.json": {
+      "felts": 2080
+    },
+    "openzeppelin_test_common_ERC4626MockWithHooks.compiled_contract_class.json": {
+      "felts": 12934
+    },
+    "openzeppelin_test_common_ERC721BlockNumberVotesMock.compiled_contract_class.json": {
+      "felts": 18786
+    },
+    "openzeppelin_test_common_SnakeERC721Mock.compiled_contract_class.json": {
+      "felts": 10685
+    },
+    "openzeppelin_test_common_ERC721TimestampVotesMock.compiled_contract_class.json": {
+      "felts": 18786
+    },
+    "openzeppelin_test_common_SnakeEthAccountMock.compiled_contract_class.json": {
+      "felts": 5221
+    },
+    "openzeppelin_test_common_ERC4626LimitsMock.compiled_contract_class.json": {
+      "felts": 13552
+    },
+    "openzeppelin_test_common_UpgradesV1.compiled_contract_class.json": {
+      "felts": 1074
+    },
+    "openzeppelin_test_common_DualCaseAccessControlDefaultAdminRulesMock.compiled_contract_class.json": {
+      "felts": 8341
+    },
+    "openzeppelin_test_common_SnakeERC721MockWithHooks.compiled_contract_class.json": {
+      "felts": 10850
+    },
+    "openzeppelin_test_common_ERC2981OwnableMock.compiled_contract_class.json": {
+      "felts": 4604
+    },
+    "openzeppelin_test_common_SRC5Mock.compiled_contract_class.json": {
+      "felts": 235
+    },
+    "openzeppelin_test_common_MockContract.compiled_contract_class.json": {
+      "felts": 323
+    },
+    "openzeppelin_test_common_ReentrancyMock.compiled_contract_class.json": {
+      "felts": 1473
+    },
+    "openzeppelin_test_common_LinearVestingMock.compiled_contract_class.json": {
+      "felts": 5198
+    },
+    "openzeppelin_test_common_SnakeERC1155Mock.compiled_contract_class.json": {
+      "felts": 7667
+    },
+    "openzeppelin_test_common_DualCaseERC1155Mock.compiled_contract_class.json": {
+      "felts": 9455
+    },
+    "openzeppelin_test_common_MultisigTargetMock.compiled_contract_class.json": {
+      "felts": 349
+    },
+    "openzeppelin_test_common_ERC4626Mock.compiled_contract_class.json": {
+      "felts": 12960
+    },
+    "openzeppelin_test_common_ERC4626OffsetMock.compiled_contract_class.json": {
+      "felts": 13464
+    },
+    "openzeppelin_test_common_Attacker.compiled_contract_class.json": {
+      "felts": 138
+    },
+    "openzeppelin_test_common_DualCaseOwnableMock.compiled_contract_class.json": {
+      "felts": 1358
+    },
+    "openzeppelin_test_common_LegacyERC20VotesMock.compiled_contract_class.json": {
+      "felts": 9272
+    }
+  },
+  "contract_class": {
+    "openzeppelin_test_common_GovernorMock.contract_class.json": {
+      "bytes": 457408
+    },
+    "openzeppelin_test_common_DualCaseERC721Mock.contract_class.json": {
+      "bytes": 274742
+    },
+    "openzeppelin_test_common_DualCaseERC20Mock.contract_class.json": {
+      "bytes": 128806
+    },
+    "openzeppelin_test_common_UpgradesV2.contract_class.json": {
+      "bytes": 28303
+    },
+    "openzeppelin_test_common_ReentrancyMock.contract_class.json": {
+      "bytes": 32174
+    },
+    "openzeppelin_test_common_SnakeERC20MockWithHooks.contract_class.json": {
+      "bytes": 142850
+    },
+    "openzeppelin_test_common_SRC5Mock.contract_class.json": {
+      "bytes": 8385
+    },
+    "openzeppelin_test_common_ERC20BlockNumberVotesMock.contract_class.json": {
+      "bytes": 291969
+    },
+    "openzeppelin_test_common_DualCaseTwoStepOwnableMock.contract_class.json": {
+      "bytes": 47987
+    },
+    "openzeppelin_test_common_DualCaseEthAccountMock.contract_class.json": {
+      "bytes": 91233
+    },
+    "openzeppelin_test_common_InitializableMock.contract_class.json": {
+      "bytes": 9238
+    },
+    "openzeppelin_test_common_SnakeERC721MockWithHooks.contract_class.json": {
+      "bytes": 241047
+    },
+    "openzeppelin_test_common_DualCaseAccountMock.contract_class.json": {
+      "bytes": 66378
+    },
+    "openzeppelin_test_common_ERC4626MockWithHooks.contract_class.json": {
+      "bytes": 277901
+    },
+    "openzeppelin_test_common_ERC721EnumerableMock.contract_class.json": {
+      "bytes": 226427
+    },
+    "openzeppelin_test_common_TimelockAttackerMock.contract_class.json": {
+      "bytes": 22711
+    },
+    "openzeppelin_test_common_ERC4626AssetsFeesMock.contract_class.json": {
+      "bytes": 379741
+    },
+    "openzeppelin_test_common_DualCaseOwnableMock.contract_class.json": {
+      "bytes": 30723
+    },
+    "openzeppelin_test_common_DualCaseERC20PermitMock.contract_class.json": {
+      "bytes": 177200
+    },
+    "openzeppelin_test_common_MockContract.contract_class.json": {
+      "bytes": 8400
+    },
+    "openzeppelin_test_common_DualCaseAccessControlMock.contract_class.json": {
+      "bytes": 96706
+    },
+    "openzeppelin_test_common_MultisigWalletMock.contract_class.json": {
+      "bytes": 228078
+    },
+    "openzeppelin_test_common_ERC721BlockNumberVotesMock.contract_class.json": {
+      "bytes": 432502
+    },
+    "openzeppelin_test_common_DualCaseERC1155ReceiverMock.contract_class.json": {
+      "bytes": 38147
+    },
+    "openzeppelin_test_common_ERC20ReentrantMock.contract_class.json": {
+      "bytes": 189745
+    },
+    "openzeppelin_test_common_ERC4626ExternalVaultMock.contract_class.json": {
+      "bytes": 293564
+    },
+    "openzeppelin_test_common_SimpleMock.contract_class.json": {
+      "bytes": 14879
+    },
+    "openzeppelin_test_common_ERC721TimestampVotesMock.contract_class.json": {
+      "bytes": 432493
+    },
+    "openzeppelin_test_common_StepsVestingMock.contract_class.json": {
+      "bytes": 107175
+    },
+    "openzeppelin_test_common_SnakeAccountMock.contract_class.json": {
+      "bytes": 74308
+    },
+    "openzeppelin_test_common_LegacyERC20VotesMock.contract_class.json": {
+      "bytes": 210979
+    },
+    "openzeppelin_test_common_ERC20OptionalTransferPanicMock.contract_class.json": {
+      "bytes": 124793
+    },
+    "openzeppelin_test_common_SnakeERC1155MockWithHooks.contract_class.json": {
+      "bytes": 190917
+    },
+    "openzeppelin_test_common_LinearVestingMock.contract_class.json": {
+      "bytes": 103157
+    },
+    "openzeppelin_test_common_ERC4626OffsetMock.contract_class.json": {
+      "bytes": 293332
+    },
+    "openzeppelin_test_common_DualCaseERC1155Mock.contract_class.json": {
+      "bytes": 217375
+    },
+    "openzeppelin_test_common_NoncesMock.contract_class.json": {
+      "bytes": 7019
+    },
+    "openzeppelin_test_common_GovernorQuorumFractionMock.contract_class.json": {
+      "bytes": 556705
+    },
+    "openzeppelin_test_common_SnakeEthAccountMock.contract_class.json": {
+      "bytes": 100099
+    },
+    "openzeppelin_test_common_Attacker.contract_class.json": {
+      "bytes": 6085
+    },
+    "openzeppelin_test_common_SnakeERC20Mock.contract_class.json": {
+      "bytes": 116477
+    },
+    "openzeppelin_test_common_ERC2981AccessControlMock.contract_class.json": {
+      "bytes": 123006
+    },
+    "openzeppelin_test_common_NonImplementingMock.contract_class.json": {
+      "bytes": 4165
+    },
+    "openzeppelin_test_common_SnakeERC721Mock.contract_class.json": {
+      "bytes": 232720
+    },
+    "openzeppelin_test_common_ERC2981Mock.contract_class.json": {
+      "bytes": 40853
+    },
+    "openzeppelin_test_common_SRC9AccountMock.contract_class.json": {
+      "bytes": 129558
+    },
+    "openzeppelin_test_common_GovernorTimelockedMock.contract_class.json": {
+      "bytes": 579123
+    },
+    "openzeppelin_test_common_MultisigTargetMock.contract_class.json": {
+      "bytes": 9120
+    },
+    "openzeppelin_test_common_ERC4626Mock.contract_class.json": {
+      "bytes": 281128
+    },
+    "openzeppelin_test_common_TimelockControllerMock.contract_class.json": {
+      "bytes": 250722
+    },
+    "openzeppelin_test_common_SnakeERC1155Mock.contract_class.json": {
+      "bytes": 181167
+    },
+    "openzeppelin_test_common_ERC4626LimitsMock.contract_class.json": {
+      "bytes": 295692
+    },
+    "openzeppelin_test_common_ERC20TimestampVotesMock.contract_class.json": {
+      "bytes": 291932
+    },
+    "openzeppelin_test_common_MockTrace.contract_class.json": {
+      "bytes": 87974
+    },
+    "openzeppelin_test_common_PausableMock.contract_class.json": {
+      "bytes": 17655
+    },
+    "openzeppelin_test_common_ERC4626SharesFeesMock.contract_class.json": {
+      "bytes": 369762
+    },
+    "openzeppelin_test_common_UpgradesV1.contract_class.json": {
+      "bytes": 25813
+    },
+    "openzeppelin_test_common_DualCaseAccessControlDefaultAdminRulesMock.contract_class.json": {
+      "bytes": 171622
+    },
+    "openzeppelin_test_common_ERC2981OwnableMock.contract_class.json": {
+      "bytes": 93132
+    },
+    "openzeppelin_test_common_DualCaseERC721ReceiverMock.contract_class.json": {
+      "bytes": 24342
+    }
+  }
+}

@@ -1,0 +1,18 @@
+---
+source: src/tests/test_with_components.rs
+assertion_line: 1717
+expression: result
+---
+TokenStream:
+
+None
+
+Diagnostics:
+
+====
+Error: Components [ERC20, Ownable] are specified multiple times. Each component must only be listed once.
+====
+
+AuxData:
+
+None

@@ -1645,6 +1645,78 @@ fn test_with_governor_integration() {
     assert_snapshot!(result);
 }
 
+#[test]
+fn test_with_component_used_twice() {
+    let attribute = "(Ownable, Ownable)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            use starknet::ContractAddress;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState, owner: ContractAddress) {
+                self.ownable.initializer(owner);
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_component_used_three_times() {
+    let attribute = "(ERC20, ERC20, ERC20)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            use openzeppelin_token::erc20::{ERC20HooksEmptyImpl, DefaultConfig};
+            use starknet::ContractAddress;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState, owner: ContractAddress) {
+                self.erc20.initializer(\"MyToken\", \"MTK\");
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_multiple_duplicate_components() {
+    let attribute = "(Ownable, ERC20, Ownable, ERC20, SRC5)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod MyContract {
+            use openzeppelin_token::erc20::ERC20HooksEmptyImpl;
+            use starknet::ContractAddress;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState, owner: ContractAddress) {
+                self.ownable.initializer(owner);
+                self.erc20.initializer(\"MyToken\", \"MTK\");
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
 //
 // Helpers
 //

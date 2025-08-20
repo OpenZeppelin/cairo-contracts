@@ -97,22 +97,38 @@ fn validate_contract_module(
 ) -> (Vec<Diagnostic>, Vec<Diagnostic>) {
     let mut warnings = vec![];
 
+    // 1. Check for duplicate components (error)
+    let mut component_counts = std::collections::HashMap::new();
+    for component_info in components_info.iter() {
+        let component_name = component_info.short_name();
+        *component_counts.entry(component_name).or_insert(0) += 1;
+    }
+    let duplicates: Vec<&str> = component_counts
+        .iter()
+        .filter(|(_, &count)| count > 1)
+        .map(|(&name, _)| name)
+        .collect();
+    if !duplicates.is_empty() {
+        let error = Diagnostic::error(errors::DUPLICATE_COMPONENTS(&duplicates));
+        return (vec![error], vec![]);
+    }
+
     if let RewriteNode::Copied(copied) = node {
         let item = ast::ItemModule::from_syntax_node(db, *copied);
 
-        // 1. Check that the module has a body (error)
+        // 2. Check that the module has a body (error)
         let MaybeModuleBody::Some(body) = item.body(db) else {
             let error = Diagnostic::error(errors::NO_BODY);
             return (vec![error], vec![]);
         };
 
-        // 2. Check that the module has the `#[starknet::contract]` attribute (error)
+        // 3. Check that the module has the `#[starknet::contract]` attribute (error)
         if !item.has_attr(db, CONTRACT_ATTRIBUTE) {
             let error = Diagnostic::error(errors::NO_CONTRACT_ATTRIBUTE(CONTRACT_ATTRIBUTE));
             return (vec![error], vec![]);
         }
 
-        // 3. Check that the module has the corresponding initializers (warning)
+        // 4. Check that the module has the corresponding initializers (warning)
         let components_with_initializer = components_info
             .iter()
             .filter(|c| c.has_initializer)
@@ -151,7 +167,7 @@ fn validate_contract_module(
             }
         }
 
-        // 4. Check that the contract has the corresponding immutable configs
+        // 5. Check that the contract has the corresponding immutable configs (warning)
         for component in components_info.iter().filter(|c| c.has_immutable_config) {
             // Get the body code (maybe we can do this without the builder)
             let body_ast = body.as_syntax_node();

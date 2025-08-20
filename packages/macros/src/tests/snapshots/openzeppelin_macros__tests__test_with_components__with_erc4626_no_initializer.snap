@@ -46,7 +46,6 @@ pub mod ERC4626Mock {
     ) {
         self.erc20.initializer(name, symbol);
         self.erc20.mint(recipient, initial_supply);
-        self.erc4626.initializer(underlying_asset);
     }
     use openzeppelin_token::erc20::ERC20Component;
     use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component;
@@ -70,7 +69,14 @@ pub mod ERC4626Mock {
 
 Diagnostics:
 
-None
+====
+Warning: It looks like the initializers for the following components are missing:
+
+ERC4626
+
+This may lead to unexpected behavior.
+We recommend adding the corresponding initializer calls to the constructor.
+====
 
 AuxData:
 

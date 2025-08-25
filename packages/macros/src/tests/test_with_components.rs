@@ -352,6 +352,81 @@ fn test_with_access_control() {
 }
 
 #[test]
+fn test_with_access_control_default_admin_rules() {
+    let attribute = "(AccessControlDefaultAdminRules)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod Contract {
+            use starknet::ContractAddress;
+            use openzeppelin_access::accesscontrol::extensions::DefaultConfig;
+
+            const INITIAL_DELAY: u64 = 3600; // 1 hour
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState, default_admin: ContractAddress) {
+                self.access_control_DAR.initializer(INITIAL_DELAY, default_admin);
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_access_control_default_admin_rules_no_initializer() {
+    let attribute = "(AccessControlDefaultAdminRules)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod Contract {
+            use starknet::ContractAddress;
+            use openzeppelin_access::accesscontrol::extensions::DefaultConfig;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState, default_admin: ContractAddress) {
+                
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_access_control_default_admin_rules_no_config() {
+    let attribute = "(AccessControlDefaultAdminRules)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod Contract {
+            use starknet::ContractAddress;
+
+            const INITIAL_DELAY: u64 = 3600; // 1 hour
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState, default_admin: ContractAddress) {
+                self.access_control_DAR.initializer(INITIAL_DELAY, default_admin);
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
 fn test_with_access_control_no_initializer() {
     let attribute = "(AccessControl)";
     let item = indoc!(

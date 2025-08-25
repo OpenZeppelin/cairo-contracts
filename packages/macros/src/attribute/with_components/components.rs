@@ -43,7 +43,9 @@ impl AllowedComponents {
             "EthAccount" => Ok(AllowedComponents::EthAccount),
             "SRC9" => Ok(AllowedComponents::SRC9),
             "AccessControl" => Ok(AllowedComponents::AccessControl),
-            "AccessControlDefaultAdminRules" => Ok(AllowedComponents::AccessControlDefaultAdminRules),
+            "AccessControlDefaultAdminRules" => {
+                Ok(AllowedComponents::AccessControlDefaultAdminRules)
+            }
             "Ownable" => Ok(AllowedComponents::Ownable),
             "Vesting" => Ok(AllowedComponents::Vesting),
             "SRC5" => Ok(AllowedComponents::SRC5),

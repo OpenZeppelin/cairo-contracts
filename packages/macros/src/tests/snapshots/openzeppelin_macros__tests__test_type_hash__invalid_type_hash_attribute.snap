@@ -5,7 +5,10 @@ snapshot_kind: text
 ---
 TokenStream:
 
-None
+pub struct MyType {
+    pub member: felt252,
+}
+
 
 Diagnostics:
 

@@ -9,12 +9,12 @@ use crate::{
 };
 use cairo_lang_defs::patcher::{PatchBuilder, RewriteNode};
 use cairo_lang_macro::{Diagnostic, Diagnostics};
-use cairo_lang_syntax::node::helpers::QueryAttrs;
 use cairo_lang_syntax::node::{
     ast::{self, MaybeModuleBody},
     db::SyntaxGroup,
     SyntaxNode, Terminal, TypedSyntaxNode,
 };
+use cairo_lang_syntax::node::{helpers::QueryAttrs, kind::SyntaxKind};
 use indoc::indoc;
 use regex::Regex;
 
@@ -47,9 +47,19 @@ impl<'a> WithComponentsParser<'a> {
 
         let typed = ast::SyntaxFile::from_syntax_node(db, base_node);
         let mut base_rnode = RewriteNode::from_ast(&typed);
-        let module_rnode = base_rnode
-            .modify_child(db, ast::SyntaxFile::INDEX_ITEMS)
-            .modify_child(db, 0);
+        let module_rnode = base_rnode.modify_child(db, ast::SyntaxFile::INDEX_ITEMS);
+
+        // If the module has a header doc, skip it
+        let module_rnode = if let RewriteNode::Copied(copied) = module_rnode {
+            let children = copied.get_children(db);
+            if !children.is_empty() && children[0].kind(db) == SyntaxKind::ItemHeaderDoc {
+                module_rnode.modify_child(db, 1)
+            } else {
+                module_rnode.modify_child(db, 0)
+            }
+        } else {
+            module_rnode.modify_child(db, 0)
+        };
 
         // Validate the contract module
         let (errors, mut warnings) =

@@ -1,3 +1,4 @@
 mod test_erc2981_accesscontrol;
+mod test_erc2981_accesscontrol_default_admin_rules;
 mod test_erc2981_internal;
 mod test_erc2981_ownable;

@@ -8,13 +8,11 @@ TokenStream:
 #[starknet::contract]
 pub mod MyContract {
     use openzeppelin_token::erc1155::ERC1155HooksEmptyImpl;
-
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
         pub erc1155: ERC1155Component::Storage,
     }
-
     #[constructor]
     fn constructor(ref self: ContractState) {
         self.erc1155.initializer("");

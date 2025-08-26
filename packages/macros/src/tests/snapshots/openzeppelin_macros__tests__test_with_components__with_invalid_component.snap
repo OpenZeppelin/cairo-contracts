@@ -5,7 +5,12 @@ snapshot_kind: text
 ---
 TokenStream:
 
-None
+#[starknet::contract]
+pub mod MyContract {
+    #[storage]
+    pub struct Storage {}
+}
+
 
 Diagnostics:
 

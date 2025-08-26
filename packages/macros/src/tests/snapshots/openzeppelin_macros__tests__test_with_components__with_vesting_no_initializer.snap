@@ -9,7 +9,6 @@ TokenStream:
 pub mod VestingWallet {
     use openzeppelin_finance::vesting::LinearVestingSchedule;
     use starknet::ContractAddress;
-
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
@@ -17,7 +16,6 @@ pub mod VestingWallet {
         #[substorage(v0)]
         pub ownable: OwnableComponent::Storage,
     }
-
     #[constructor]
     fn constructor(
         ref self: ContractState,

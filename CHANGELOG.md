@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- MetaTransactionV0 preset, interface, and dispatchers (#1431)
+- MetaTransactionV0 preset, interface, and dispatchers (#1512)
 
 ## 3.0.0-alpha.1 (2025-08-18)
 

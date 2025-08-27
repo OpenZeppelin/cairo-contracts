@@ -1,8 +1,6 @@
 # Secp256r1KeyPair
 
-Fully qualified path: `openzeppelin_testing::signing::Secp256r1KeyPair`
+Fully qualified path: [openzeppelin_testing](./openzeppelin_testing.md)::[signing](./openzeppelin_testing-signing.md)::[Secp256r1KeyPair](./openzeppelin_testing-signing-Secp256r1KeyPair.md)
 
-```rust
-pub type Secp256r1KeyPair = KeyPair<u256, Secp256r1Point>;
-```
+<pre><code class="language-cairo">pub type Secp256r1KeyPair = KeyPair&lt;u256, Secp256r1Point&gt;;</code></pre>
 

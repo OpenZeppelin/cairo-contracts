@@ -3,6 +3,7 @@ members = [
     "packages/access",
     "packages/account",
     "packages/finance",
+    "packages/interfaces",
     "packages/governance",
     "packages/introspection",
     "packages/macros",
@@ -24,10 +25,10 @@ keywords.workspace = true
 edition.workspace = true
 
 [workspace.package]
-version = "2.0.0-alpha.1"
+version = "3.0.0-alpha.1"
 edition = "2024_07"
-cairo-version = "2.11.4"
-scarb-version = "2.11.4"
+cairo-version = "2.12.0"
+scarb-version = "2.12.0"
 authors = ["OpenZeppelin Community <maintainers@openzeppelin.org>"]
 description = "OpenZeppelin Contracts written in Cairo for Starknet, a decentralized ZK Rollup"
 documentation = "https://docs.openzeppelin.com/contracts-cairo"
@@ -42,15 +43,16 @@ keywords = [
 ]
 
 [workspace.dependencies]
-assert_macros = "2.11.4"
-starknet = "2.11.4"
-snforge_std = "0.41.0"
+assert_macros = "2.12.0"
+starknet = "2.12.0"
+snforge_std = "0.48.1"
 
 [dependencies]
 starknet.workspace = true
 openzeppelin_access = { path = "packages/access" }
 openzeppelin_account = { path = "packages/account" }
 openzeppelin_finance = { path = "packages/finance" }
+openzeppelin_interfaces = { path = "packages/interfaces" }
 openzeppelin_governance = { path = "packages/governance" }
 openzeppelin_introspection = { path = "packages/introspection" }
 openzeppelin_merkle_tree = { path = "packages/merkle_tree" }

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v2.0.0-alpha.1 (security/src/reentrancyguard.cairo)
+// OpenZeppelin Contracts for Cairo v3.0.0-alpha.1 (security/src/reentrancyguard.cairo)
 
 /// # ReentrancyGuard Component
 ///
@@ -8,6 +8,7 @@
 #[starknet::component]
 pub mod ReentrancyGuardComponent {
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+
     #[storage]
     pub struct Storage {
         pub ReentrancyGuard_entered: bool,

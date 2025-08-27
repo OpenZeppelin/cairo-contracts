@@ -2,7 +2,7 @@ use core::num::traits::Bounded;
 use openzeppelin_test_common::erc20::ERC20SpyHelpers;
 use openzeppelin_test_common::mocks::erc20::{DualCaseERC20Mock, SnakeERC20MockWithHooks};
 use openzeppelin_testing::constants::{NAME, OWNER, RECIPIENT, SPENDER, SUPPLY, SYMBOL, VALUE, ZERO};
-use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, ExpectedEvent, spy_events};
 use snforge_std::{start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
 use crate::erc20::ERC20Component;
@@ -668,9 +668,11 @@ impl ERC20HooksSpyHelpersImpl of ERC20HooksSpyHelpers {
         recipient: ContractAddress,
         amount: u256,
     ) {
-        let expected = SnakeERC20MockWithHooks::Event::BeforeUpdate(
-            SnakeERC20MockWithHooks::BeforeUpdate { from, recipient, amount },
-        );
+        let expected = ExpectedEvent::new()
+            .key(selector!("BeforeUpdate"))
+            .data(from)
+            .data(recipient)
+            .data(amount);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -681,9 +683,11 @@ impl ERC20HooksSpyHelpersImpl of ERC20HooksSpyHelpers {
         recipient: ContractAddress,
         amount: u256,
     ) {
-        let expected = SnakeERC20MockWithHooks::Event::AfterUpdate(
-            SnakeERC20MockWithHooks::AfterUpdate { from, recipient, amount },
-        );
+        let expected = ExpectedEvent::new()
+            .key(selector!("AfterUpdate"))
+            .data(from)
+            .data(recipient)
+            .data(amount);
         self.assert_emitted_single(contract, expected);
     }
 }

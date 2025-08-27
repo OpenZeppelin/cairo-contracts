@@ -4,8 +4,11 @@ use openzeppelin_access::accesscontrol::AccessControlComponent::{
     AccessControlImpl, InternalImpl as AccessControlInternalImpl,
 };
 use openzeppelin_access::accesscontrol::DEFAULT_ADMIN_ROLE;
-use openzeppelin_access::accesscontrol::interface::{IACCESSCONTROL_ID, IAccessControl};
-use openzeppelin_introspection::interface::ISRC5_ID;
+use openzeppelin_interfaces::accesscontrol::{IACCESSCONTROL_ID, IAccessControl};
+use openzeppelin_interfaces::introspection::ISRC5_ID;
+use openzeppelin_interfaces::timelock::{
+    OperationState, TimelockABIDispatcher, TimelockABIDispatcherTrait,
+};
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin_test_common::mocks::timelock::{
     IMockContractDispatcher, IMockContractDispatcherTrait, ITimelockAttackerDispatcher,
@@ -13,7 +16,10 @@ use openzeppelin_test_common::mocks::timelock::{
 };
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{ADMIN, FELT_VALUE as VALUE, OTHER, SALT, ZERO};
-use openzeppelin_testing::{AsAddressTrait, EventSpyExt, EventSpyQueue as EventSpy, spy_events};
+use openzeppelin_testing::{
+    AsAddressTrait, EventSpyExt, EventSpyQueue as EventSpy, ExpectedEvent, spy_events,
+};
+use openzeppelin_utils::contract_clock::ERC6372TimestampClock;
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{
     CheatSpan, cheat_caller_address, start_cheat_block_timestamp_global, start_cheat_caller_address,
@@ -23,13 +29,9 @@ use starknet::ContractAddress;
 use starknet::account::Call;
 use starknet::storage::{StorageMapReadAccess, StorageMapWriteAccess, StoragePointerWriteAccess};
 use crate::timelock::TimelockControllerComponent::{
-    CallCancelled, CallExecuted, CallSalt, CallScheduled, InternalImpl as TimelockInternalImpl,
-    MinDelayChanged, TimelockImpl,
+    InternalImpl as TimelockInternalImpl, TimelockImpl,
 };
-use crate::timelock::interface::{TimelockABIDispatcher, TimelockABIDispatcherTrait};
-use crate::timelock::{
-    CANCELLER_ROLE, EXECUTOR_ROLE, OperationState, PROPOSER_ROLE, TimelockControllerComponent,
-};
+use crate::timelock::{CANCELLER_ROLE, EXECUTOR_ROLE, PROPOSER_ROLE, TimelockControllerComponent};
 
 type ComponentState =
     TimelockControllerComponent::ComponentState<TimelockControllerMock::ContractState>;
@@ -573,7 +575,7 @@ fn test_execute_failing_tx() {
 }
 
 #[test]
-#[should_panic(expected: ('ENTRYPOINT_NOT_FOUND', 'ENTRYPOINT_FAILED'))]
+#[should_panic(expected: 'ENTRYPOINT_NOT_FOUND')]
 fn test_execute_bad_selector() {
     let (mut timelock, mut target) = setup_dispatchers();
     let predecessor = NO_PREDECESSOR;
@@ -1635,47 +1637,6 @@ fn test__execute_with_bad_selector() {
 }
 
 //
-// Helpers
-//
-
-fn assert_operation_state(timelock: TimelockABIDispatcher, exp_state: OperationState, id: felt252) {
-    let operation_state = timelock.get_operation_state(id);
-    assert_eq!(operation_state, exp_state);
-
-    let is_operation = timelock.is_operation(id);
-    let is_pending = timelock.is_operation_pending(id);
-    let is_ready = timelock.is_operation_ready(id);
-    let is_done = timelock.is_operation_done(id);
-
-    match exp_state {
-        OperationState::Unset => {
-            assert!(!is_operation);
-            assert!(!is_pending);
-            assert!(!is_ready);
-            assert!(!is_done);
-        },
-        OperationState::Waiting => {
-            assert!(is_operation);
-            assert!(is_pending);
-            assert!(!is_ready);
-            assert!(!is_done);
-        },
-        OperationState::Ready => {
-            assert!(is_operation);
-            assert!(is_pending);
-            assert!(is_ready);
-            assert!(!is_done);
-        },
-        OperationState::Done => {
-            assert!(is_operation);
-            assert!(!is_pending);
-            assert!(!is_ready);
-            assert!(is_done);
-        },
-    };
-}
-
-//
 // Event helpers
 //
 
@@ -1694,9 +1655,13 @@ pub(crate) impl TimelockSpyHelpersImpl of TimelockSpyHelpers {
         predecessor: felt252,
         delay: u64,
     ) {
-        let expected = TimelockControllerComponent::Event::CallScheduled(
-            CallScheduled { id, index, call, predecessor, delay },
-        );
+        let expected = ExpectedEvent::new()
+            .key(selector!("CallScheduled"))
+            .key(id)
+            .key(index)
+            .data(call)
+            .data(predecessor)
+            .data(delay);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -1750,7 +1715,7 @@ pub(crate) impl TimelockSpyHelpersImpl of TimelockSpyHelpers {
     fn assert_event_call_salt(
         ref self: EventSpy, contract: ContractAddress, id: felt252, salt: felt252,
     ) {
-        let expected = TimelockControllerComponent::Event::CallSalt(CallSalt { id, salt });
+        let expected = ExpectedEvent::new().key(selector!("CallSalt")).key(id).data(salt);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -1766,7 +1731,7 @@ pub(crate) impl TimelockSpyHelpersImpl of TimelockSpyHelpers {
     //
 
     fn assert_event_call_cancelled(ref self: EventSpy, contract: ContractAddress, id: felt252) {
-        let expected = TimelockControllerComponent::Event::CallCancelled(CallCancelled { id });
+        let expected = ExpectedEvent::new().key(selector!("CallCancelled")).key(id);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -1784,9 +1749,11 @@ pub(crate) impl TimelockSpyHelpersImpl of TimelockSpyHelpers {
     fn assert_event_call_executed(
         ref self: EventSpy, contract: ContractAddress, id: felt252, index: felt252, call: Call,
     ) {
-        let expected = TimelockControllerComponent::Event::CallExecuted(
-            CallExecuted { id, index, call },
-        );
+        let expected = ExpectedEvent::new()
+            .key(selector!("CallExecuted"))
+            .key(id)
+            .key(index)
+            .data(call);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -1821,9 +1788,10 @@ pub(crate) impl TimelockSpyHelpersImpl of TimelockSpyHelpers {
     fn assert_event_delay_changed(
         ref self: EventSpy, contract: ContractAddress, old_duration: u64, new_duration: u64,
     ) {
-        let expected = TimelockControllerComponent::Event::MinDelayChanged(
-            MinDelayChanged { old_duration, new_duration },
-        );
+        let expected = ExpectedEvent::new()
+            .key(selector!("MinDelayChanged"))
+            .data(old_duration)
+            .data(new_duration);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -1833,4 +1801,47 @@ pub(crate) impl TimelockSpyHelpersImpl of TimelockSpyHelpers {
         self.assert_event_delay_changed(contract, old_duration, new_duration);
         self.assert_no_events_left_from(contract);
     }
+}
+
+//
+// Assertions
+//
+
+pub(crate) fn assert_operation_state(
+    timelock: TimelockABIDispatcher, exp_state: OperationState, id: felt252,
+) {
+    let operation_state = timelock.get_operation_state(id);
+    assert_eq!(operation_state, exp_state);
+
+    let is_operation = timelock.is_operation(id);
+    let is_pending = timelock.is_operation_pending(id);
+    let is_ready = timelock.is_operation_ready(id);
+    let is_done = timelock.is_operation_done(id);
+
+    match exp_state {
+        OperationState::Unset => {
+            assert!(!is_operation);
+            assert!(!is_pending);
+            assert!(!is_ready);
+            assert!(!is_done);
+        },
+        OperationState::Waiting => {
+            assert!(is_operation);
+            assert!(is_pending);
+            assert!(!is_ready);
+            assert!(!is_done);
+        },
+        OperationState::Ready => {
+            assert!(is_operation);
+            assert!(is_pending);
+            assert!(is_ready);
+            assert!(!is_done);
+        },
+        OperationState::Done => {
+            assert!(is_operation);
+            assert!(!is_pending);
+            assert!(!is_ready);
+            assert!(is_done);
+        },
+    };
 }

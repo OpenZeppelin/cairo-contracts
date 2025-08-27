@@ -22,10 +22,7 @@ pub mod SimpleMock {
         }
 
         fn set_balance(ref self: ContractState, value: felt252, panic: bool) {
-            if panic {
-                #[allow(panic)]
-                panic!("Some error");
-            }
+            assert!(!panic, "Some error");
             self.balance.write(value);
         }
 

@@ -6,14 +6,19 @@
 
 This crate handles https://en.wikipedia.org/wiki/Type_introspection[type introspection] of contracts. In other words, it examines which functions can be called on a given contract. This is referred to as the contract's interface.
 
-== Core
+== Interfaces
+
+include::../utils/_common.adoc[]
+
+NOTE: Starting from version `3.x.x`, the interfaces are no longer part of the `openzeppelin_introspection` package. The references
+documented here are contained in the `openzeppelin_interfaces` package version `v{current_openzeppelin_interfaces_version}`.
 
 [.contract]
 [[ISRC5]]
-=== `++ISRC5++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.1/packages/introspection/src/interface.cairo#L7[{github-icon},role=heading-link]
+=== `++ISRC5++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.1/packages/interfaces/src/introspection.cairo[{github-icon},role=heading-link]
 
 ```cairo
-use openzeppelin_introspection::interface::ISRC5;
+use openzeppelin_interfaces::introspection::ISRC5;
 ```
 
 Interface of the SRC5 Introspection Standard as defined in {snip5}.
@@ -42,9 +47,11 @@ Checks whether the contract implements the given interface.
 TIP: Check xref:introspection#computing_the_interface_id[Computing the Interface ID] for more information
 on how to compute this ID.
 
+== Core
+
 [.contract]
 [[SRC5Component]]
-=== `++SRC5Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v2.0.0-alpha.1/packages/introspection/src/src5.cairo[{github-icon},role=heading-link]
+=== `++SRC5Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.1/packages/introspection/src/src5.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin_introspection::src5::SRC5Component;

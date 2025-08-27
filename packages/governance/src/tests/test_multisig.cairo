@@ -1,21 +1,19 @@
 use core::integer::u128_safe_divmod;
 use core::num::traits::{Bounded, Zero};
+use openzeppelin_interfaces::multisig::{TransactionID, TransactionState};
 use openzeppelin_test_common::mocks::multisig::{
     IMultisigTargetMockDispatcher, IMultisigTargetMockDispatcherTrait, MultisigWalletMock,
 };
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{ALICE, BLOCK_NUMBER, BOB, CHARLIE, OTHER, SALT, ZERO};
-use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, ExpectedEvent, spy_events};
 use snforge_std::{start_cheat_block_number_global, start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
 use starknet::account::Call;
 use starknet::storage_access::StorePacking;
-use crate::multisig::MultisigComponent::{
-    CallSalt, ConfirmationRevoked, Event, InternalImpl, MultisigImpl, QuorumUpdated, SignerAdded,
-    SignerRemoved, TransactionConfirmed, TransactionExecuted, TransactionSubmitted,
-};
+use crate::multisig::MultisigComponent;
+use crate::multisig::MultisigComponent::{InternalImpl, MultisigImpl};
 use crate::multisig::storage_utils::{SignersInfo, SignersInfoStorePackingV2};
-use crate::multisig::{MultisigComponent, TransactionID, TransactionState};
 
 //
 // Setup
@@ -146,8 +144,7 @@ fn test_submit_tx_batch() {
     let contract_address = test_address();
 
     let calls = array![
-        build_call(MockCall::AddNumber(42)),
-        build_call(MockCall::AddNumber(18)),
+        build_call(MockCall::AddNumber(42)), build_call(MockCall::AddNumber(18)),
         build_call(MockCall::AddNumber(40)),
     ]
         .span();
@@ -173,8 +170,7 @@ fn test_submit_tx_batch_with_salt() {
     let contract_address = test_address();
 
     let calls = array![
-        build_call(MockCall::AddNumber(42)),
-        build_call(MockCall::AddNumber(18)),
+        build_call(MockCall::AddNumber(42)), build_call(MockCall::AddNumber(18)),
         build_call(MockCall::AddNumber(40)),
     ]
         .span();
@@ -201,8 +197,7 @@ fn test_submit_same_tx_batch_different_salt() {
     let contract_address = test_address();
 
     let calls = array![
-        build_call(MockCall::AddNumber(42)),
-        build_call(MockCall::AddNumber(18)),
+        build_call(MockCall::AddNumber(42)), build_call(MockCall::AddNumber(18)),
         build_call(MockCall::AddNumber(40)),
     ]
         .span();
@@ -246,8 +241,7 @@ fn test_cannot_submit_tx_batch_unauthorized() {
     let mut state = setup_component(quorum, signers);
 
     let calls = array![
-        build_call(MockCall::AddNumber(42)),
-        build_call(MockCall::AddNumber(18)),
+        build_call(MockCall::AddNumber(42)), build_call(MockCall::AddNumber(18)),
         build_call(MockCall::AddNumber(40)),
     ]
         .span();
@@ -276,8 +270,7 @@ fn test_cannot_submit_tx_batch_twice() {
     let mut state = setup_component(quorum, signers);
 
     let calls = array![
-        build_call(MockCall::AddNumber(42)),
-        build_call(MockCall::AddNumber(18)),
+        build_call(MockCall::AddNumber(42)), build_call(MockCall::AddNumber(18)),
         build_call(MockCall::AddNumber(40)),
     ]
         .span();
@@ -375,8 +368,7 @@ fn test_confirm_tx_batch() {
     let contract_address = test_address();
 
     let calls = array![
-        build_call(MockCall::AddNumber(42)),
-        build_call(MockCall::AddNumber(18)),
+        build_call(MockCall::AddNumber(42)), build_call(MockCall::AddNumber(18)),
         build_call(MockCall::AddNumber(40)),
     ]
         .span();
@@ -636,8 +628,7 @@ fn test_execute_tx_batch() {
     let mut spy = spy_events();
     let mock = deploy_mock();
     let calls = array![
-        build_call(MockCall::AddNumber(42)),
-        build_call(MockCall::AddNumber(18)),
+        build_call(MockCall::AddNumber(42)), build_call(MockCall::AddNumber(18)),
         build_call(MockCall::AddNumber(40)),
     ]
         .span();
@@ -713,8 +704,7 @@ fn test_cannot_execute_batch_unauthorized() {
     let mut state = setup_component(quorum, signers);
     let contract_address = test_address();
     let calls = array![
-        build_call(MockCall::AddNumber(42)),
-        build_call(MockCall::AddNumber(18)),
+        build_call(MockCall::AddNumber(42)), build_call(MockCall::AddNumber(18)),
         build_call(MockCall::AddNumber(40)),
     ]
         .span();
@@ -856,8 +846,7 @@ fn test_tx_batch_hash_depends_on_salt() {
     let (quorum, signers) = DEFAULT_DATA();
     let mut state = setup_component(quorum, signers);
     let calls = array![
-        build_call(MockCall::AddNumber(42)),
-        build_call(MockCall::AddNumber(18)),
+        build_call(MockCall::AddNumber(42)), build_call(MockCall::AddNumber(18)),
         build_call(MockCall::AddNumber(40)),
     ]
         .span();
@@ -1451,6 +1440,22 @@ fn test_signers_info_unpack_zero_value_v2() {
     assert_eq!(unpacked_info.signers_count, 0);
 }
 
+#[cfg(feature: 'fuzzing')]
+#[test]
+#[fuzzer]
+fn test_pack_signers_info_with_v1_unpack_with_v2(quorum: u32, signers_count: u32) {
+    if signers_count == Bounded::MAX {
+        // Cannot properly unpack if packed with V1 and `signers_count` is max u32 value
+        return;
+    }
+    let info = SignersInfo { quorum, signers_count };
+    let packed_value = LegacySignersInfoStorePackingV1::pack(info);
+    let unpacked_info = SignersInfoStorePackingV2::unpack(packed_value);
+
+    assert_eq!(unpacked_info.quorum, quorum);
+    assert_eq!(unpacked_info.signers_count, signers_count);
+}
+
 //
 // Helpers
 //
@@ -1546,7 +1551,7 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
     fn assert_event_signer_added(
         ref self: EventSpy, contract: ContractAddress, signer: ContractAddress,
     ) {
-        let expected = Event::SignerAdded(SignerAdded { signer });
+        let expected = ExpectedEvent::new().key(selector!("SignerAdded")).key(signer);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -1564,7 +1569,7 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
     fn assert_event_signer_removed(
         ref self: EventSpy, contract: ContractAddress, signer: ContractAddress,
     ) {
-        let expected = Event::SignerRemoved(SignerRemoved { signer });
+        let expected = ExpectedEvent::new().key(selector!("SignerRemoved")).key(signer);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -1582,7 +1587,10 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
     fn assert_event_quorum_updated(
         ref self: EventSpy, contract: ContractAddress, old_quorum: u32, new_quorum: u32,
     ) {
-        let expected = Event::QuorumUpdated(QuorumUpdated { old_quorum, new_quorum });
+        let expected = ExpectedEvent::new()
+            .key(selector!("QuorumUpdated"))
+            .data(old_quorum)
+            .data(new_quorum);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -1600,7 +1608,10 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
     fn assert_event_tx_submitted(
         ref self: EventSpy, contract: ContractAddress, id: TransactionID, signer: ContractAddress,
     ) {
-        let expected = Event::TransactionSubmitted(TransactionSubmitted { id, signer });
+        let expected = ExpectedEvent::new()
+            .key(selector!("TransactionSubmitted"))
+            .key(id)
+            .key(signer);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -1618,7 +1629,10 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
     fn assert_event_tx_confirmed(
         ref self: EventSpy, contract: ContractAddress, id: TransactionID, signer: ContractAddress,
     ) {
-        let expected = Event::TransactionConfirmed(TransactionConfirmed { id, signer });
+        let expected = ExpectedEvent::new()
+            .key(selector!("TransactionConfirmed"))
+            .key(id)
+            .key(signer);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -1636,7 +1650,10 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
     fn assert_event_confirmation_revoked(
         ref self: EventSpy, contract: ContractAddress, id: TransactionID, signer: ContractAddress,
     ) {
-        let expected = Event::ConfirmationRevoked(ConfirmationRevoked { id, signer });
+        let expected = ExpectedEvent::new()
+            .key(selector!("ConfirmationRevoked"))
+            .key(id)
+            .key(signer);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -1652,7 +1669,7 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
     //
 
     fn assert_event_tx_executed(ref self: EventSpy, contract: ContractAddress, id: TransactionID) {
-        let expected = Event::TransactionExecuted(TransactionExecuted { id });
+        let expected = ExpectedEvent::new().key(selector!("TransactionExecuted")).key(id);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -1670,7 +1687,7 @@ impl MultisigSpyHelpersImpl of MultisigSpyHelpers {
     fn assert_event_call_salt(
         ref self: EventSpy, contract: ContractAddress, id: TransactionID, salt: felt252,
     ) {
-        let expected = Event::CallSalt(CallSalt { id, salt });
+        let expected = ExpectedEvent::new().key(selector!("CallSalt")).key(id).data(salt);
         self.assert_emitted_single(contract, expected);
     }
 }

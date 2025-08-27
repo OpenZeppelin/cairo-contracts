@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v2.0.0-alpha.1 (governance/src/governor/proposal_core.cairo)
+// OpenZeppelin Contracts for Cairo v3.0.0-alpha.1 (governance/src/governor/proposal_core.cairo)
 
 use core::traits::DivRem;
 use starknet::ContractAddress;
@@ -83,7 +83,8 @@ impl ProposalCoreStorePacking of StorePacking<ProposalCore, (felt252, felt252)> 
 mod tests {
     use core::num::traits::Bounded;
     use openzeppelin_testing::constants::ALICE;
-    use super::{ProposalCore, ProposalCoreStorePacking};
+    use openzeppelin_testing::{FuzzableBool, FuzzableContractAddress};
+    use super::{ContractAddress, ProposalCore, ProposalCoreStorePacking as StorePacking};
 
     #[test]
     fn test_pack_and_unpack() {
@@ -95,8 +96,8 @@ mod tests {
             canceled: true,
             eta_seconds: 300,
         };
-        let packed = ProposalCoreStorePacking::pack(proposal);
-        let unpacked = ProposalCoreStorePacking::unpack(packed);
+        let packed = StorePacking::pack(proposal);
+        let unpacked = StorePacking::unpack(packed);
         assert_eq!(proposal, unpacked);
     }
 
@@ -110,8 +111,28 @@ mod tests {
             canceled: true,
             eta_seconds: Bounded::MAX,
         };
-        let packed = ProposalCoreStorePacking::pack(proposal);
-        let unpacked = ProposalCoreStorePacking::unpack(packed);
+        let packed = StorePacking::pack(proposal);
+        let unpacked = StorePacking::unpack(packed);
         assert_eq!(proposal, unpacked);
+    }
+
+    #[cfg(feature: 'fuzzing')]
+    #[test]
+    #[fuzzer]
+    fn test_pack_unpack_proposal_core(
+        proposer: ContractAddress,
+        vote_start: u64,
+        vote_duration: u64,
+        executed: bool,
+        canceled: bool,
+        eta_seconds: u64,
+    ) {
+        let initial_proposal_core = ProposalCore {
+            proposer, vote_start, vote_duration, executed, canceled, eta_seconds,
+        };
+        let packed_value = StorePacking::pack(initial_proposal_core);
+        let unpacked_proposal_core = StorePacking::unpack(packed_value);
+
+        assert_eq!(unpacked_proposal_core, initial_proposal_core);
     }
 }

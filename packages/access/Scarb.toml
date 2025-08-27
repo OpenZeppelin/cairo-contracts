@@ -24,6 +24,7 @@ scarb.workspace = true
 
 [dependencies]
 starknet.workspace = true
+openzeppelin_interfaces = { path = "../interfaces" }
 openzeppelin_introspection = { path = "../introspection" }
 
 [dev-dependencies]
@@ -31,6 +32,7 @@ assert_macros.workspace = true
 snforge_std.workspace = true
 openzeppelin_testing = { path = "../testing" }
 openzeppelin_test_common = { path = "../test_common" }
+openzeppelin_utils = { path = "../utils" }
 
 [lib]
 

@@ -10,7 +10,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@v5
 
     - name: Extract current versions
       run: |
@@ -46,17 +46,17 @@ jobs:
     - name: Setup class_hash
       uses: ericnordelo/setup-class-hash@c14dd33506c3eb8e1acfe2ade9f82585f5acf28c
       with:
-        version: "0.1.0"
+        version: "0.2.0"
 
     - name: Build presets artifacts
-      run: scarb build -p openzeppelin_presets
+      run: scarb --release build -p openzeppelin_presets
 
     - name: Update presets page
       run: |
-        class_hash get --no-compile --json | python3 scripts/get_hashes_page.py "$CAIRO_VERSION" \
+        class_hash get --no-compile --release --json | python3 scripts/get_hashes_page.py "$CAIRO_VERSION" \
           > ./docs/modules/ROOT/pages/utils/_class_hashes.adoc
 
     - name: Auto-commit changes
-      uses: stefanzweifel/git-auto-commit-action@b863ae1933cb653a53c021fe36dbb774e1fb9403 #v5.2.0
+      uses: stefanzweifel/git-auto-commit-action@778341af668090896ca464160c2def5d1d1a3eb0 #v6.0.1
       with:
         commit_message: Bump version to ${{ env.NEW_VERSION }} and update presets page

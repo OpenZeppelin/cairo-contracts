@@ -1,8 +1,6 @@
 # NEW_PUBKEY
 
-Fully qualified path: `openzeppelin_testing::constants::NEW_PUBKEY`
+Fully qualified path: [openzeppelin_testing](./openzeppelin_testing.md)::[constants](./openzeppelin_testing-constants.md)::[NEW_PUBKEY](./openzeppelin_testing-constants-NEW_PUBKEY.md)
 
-```rust
-pub const NEW_PUBKEY: felt252 = 0x26da8d11938b76025862be14fdb8b28438827f73e75e86f7bfa38b196951fa7;
-```
+<pre><code class="language-cairo">pub const NEW_PUBKEY: felt252 = 1098377157898629946571614844583422311425675589668982787103879603004212846503;</code></pre>
 

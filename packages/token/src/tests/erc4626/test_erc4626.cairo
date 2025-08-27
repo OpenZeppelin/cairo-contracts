@@ -1,4 +1,5 @@
 use core::num::traits::{Bounded, Pow};
+use openzeppelin_interfaces::erc4626::{ERC4626ABIDispatcher, ERC4626ABIDispatcherTrait};
 use openzeppelin_test_common::erc20::ERC20SpyHelpers;
 use openzeppelin_test_common::mocks::erc20::{
     IERC20ReentrantDispatcher, IERC20ReentrantDispatcherTrait, Type,
@@ -6,15 +7,16 @@ use openzeppelin_test_common::mocks::erc20::{
 use openzeppelin_test_common::mocks::erc4626::{ERC4626LimitsMock, ERC4626Mock};
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{ALICE, BOB, NAME, OTHER, RECIPIENT, SPENDER, SYMBOL, ZERO};
-use openzeppelin_testing::{AsAddressTrait, EventSpyExt, EventSpyQueue as EventSpy, spy_events};
+use openzeppelin_testing::{
+    AsAddressTrait, EventSpyExt, EventSpyQueue as EventSpy, ExpectedEvent, spy_events,
+};
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{CheatSpan, cheat_caller_address};
 use starknet::ContractAddress;
 use crate::erc20::ERC20Component::InternalImpl as ERC20InternalImpl;
 use crate::erc20::extensions::erc4626::ERC4626Component::{
-    Deposit, ERC4626Impl, ERC4626MetadataImpl, InternalImpl, Withdraw,
+    ERC4626Impl, ERC4626MetadataImpl, InternalImpl,
 };
-use crate::erc20::extensions::erc4626::interface::{ERC4626ABIDispatcher, ERC4626ABIDispatcherTrait};
 use crate::erc20::extensions::erc4626::{DefaultConfig, ERC4626Component};
 
 //
@@ -24,6 +26,7 @@ use crate::erc20::extensions::erc4626::{DefaultConfig, ERC4626Component};
 const ASSET: ContractAddress = 'ASSET'.as_address();
 const HOLDER: ContractAddress = 'HOLDER'.as_address();
 const TREASURY: ContractAddress = 'TREASURY'.as_address();
+const EXTERNAL_STORAGE: ContractAddress = 'EXTERNAL_STORAGE'.as_address();
 
 fn VAULT_NAME() -> ByteArray {
     "VAULT"
@@ -36,6 +39,8 @@ fn VAULT_SYMBOL() -> ByteArray {
 const DEFAULT_DECIMALS: u8 = 18;
 const NO_OFFSET_DECIMALS: u8 = 0;
 const OFFSET_DECIMALS: u8 = 1;
+const DEFAULT_FEE: u256 = 500;
+const BASIS_POINT_SCALE: u256 = 10_000;
 
 fn parse_token(token: u256) -> u256 {
     token * 10_u256.pow(DEFAULT_DECIMALS.into())
@@ -100,16 +105,31 @@ fn deploy_vault_offset(asset_address: ContractAddress) -> ERC4626ABIDispatcher {
     deploy_vault_offset_minted_shares(asset_address, 0, HOLDER)
 }
 
-fn deploy_vault_fees(asset_address: ContractAddress) -> ERC4626ABIDispatcher {
-    let no_shares = 0_u256;
-    deploy_vault_fees_with_shares(asset_address, no_shares, HOLDER)
+#[derive(Copy, Drop)]
+enum FeeKind {
+    Assets,
+    Shares,
 }
 
-fn deploy_vault_fees_with_shares(
-    asset_address: ContractAddress, shares: u256, recipient: ContractAddress,
-) -> ERC4626ABIDispatcher {
-    let fee_basis_points = 500_u256; // 5%
+#[derive(Copy, Drop)]
+struct Fees {
+    kind: FeeKind,
+    entry: u256,
+    exit: u256,
+}
 
+fn deploy_mock_for_fee_type(fee_kind: FeeKind, calldata: Array<felt252>) -> ERC4626ABIDispatcher {
+    let mock_name = match fee_kind {
+        FeeKind::Assets => "ERC4626AssetsFeesMock",
+        FeeKind::Shares => "ERC4626SharesFeesMock",
+    };
+    let contract_address = utils::declare_and_deploy(mock_name, calldata);
+    ERC4626ABIDispatcher { contract_address }
+}
+
+fn deploy_vault_fees(
+    asset_address: ContractAddress, shares: u256, recipient: ContractAddress, fees: Fees,
+) -> ERC4626ABIDispatcher {
     let mut vault_calldata: Array<felt252> = array![];
     vault_calldata.append_serde(VAULT_NAME());
     vault_calldata.append_serde(VAULT_SYMBOL());
@@ -118,37 +138,21 @@ fn deploy_vault_fees_with_shares(
     vault_calldata.append_serde(recipient);
 
     // Enter fees
-    vault_calldata.append_serde(fee_basis_points);
-    vault_calldata.append_serde(TREASURY);
-    // No exit fees
-    vault_calldata.append_serde(0_u256);
-    vault_calldata.append_serde(ZERO);
-
-    let contract_address = utils::declare_and_deploy("ERC4626FeesMock", vault_calldata);
-    ERC4626ABIDispatcher { contract_address }
-}
-
-fn deploy_vault_exit_fees_with_shares(
-    asset_address: ContractAddress, shares: u256, recipient: ContractAddress,
-) -> ERC4626ABIDispatcher {
-    let fee_basis_points = 500_u256; // 5%
-
-    let mut vault_calldata: Array<felt252> = array![];
-    vault_calldata.append_serde(VAULT_NAME());
-    vault_calldata.append_serde(VAULT_SYMBOL());
-    vault_calldata.append_serde(asset_address);
-    vault_calldata.append_serde(shares);
-    vault_calldata.append_serde(recipient);
-
-    // No enter fees
-    vault_calldata.append_serde(0_u256);
-    vault_calldata.append_serde(ZERO);
+    vault_calldata.append_serde(fees.entry);
+    vault_calldata.append_serde(if fees.entry == 0 {
+        ZERO
+    } else {
+        TREASURY
+    });
     // Exit fees
-    vault_calldata.append_serde(fee_basis_points);
-    vault_calldata.append_serde(TREASURY);
+    vault_calldata.append_serde(fees.exit);
+    vault_calldata.append_serde(if fees.exit == 0 {
+        ZERO
+    } else {
+        TREASURY
+    });
 
-    let contract_address = utils::declare_and_deploy("ERC4626FeesMock", vault_calldata);
-    ERC4626ABIDispatcher { contract_address }
+    deploy_mock_for_fee_type(fees.kind, vault_calldata)
 }
 
 fn deploy_vault_limits(asset_address: ContractAddress) -> ERC4626ABIDispatcher {
@@ -162,6 +166,37 @@ fn deploy_vault_limits(asset_address: ContractAddress) -> ERC4626ABIDispatcher {
     vault_calldata.append_serde(HOLDER);
 
     let contract_address = utils::declare_and_deploy("ERC4626LimitsMock", vault_calldata);
+    ERC4626ABIDispatcher { contract_address }
+}
+
+fn deploy_vault_with_hooks(asset_address: ContractAddress) -> ERC4626ABIDispatcher {
+    let no_shares = 0_u256;
+
+    let mut vault_calldata: Array<felt252> = array![];
+    vault_calldata.append_serde(VAULT_NAME());
+    vault_calldata.append_serde(VAULT_SYMBOL());
+    vault_calldata.append_serde(asset_address);
+    vault_calldata.append_serde(no_shares);
+    vault_calldata.append_serde(HOLDER);
+
+    let contract_address = utils::declare_and_deploy("ERC4626MockWithHooks", vault_calldata);
+    ERC4626ABIDispatcher { contract_address }
+}
+
+fn deploy_vault_with_external_storage(
+    asset_address: ContractAddress, external_storage: ContractAddress,
+) -> ERC4626ABIDispatcher {
+    let no_shares = 0_u256;
+
+    let mut vault_calldata: Array<felt252> = array![];
+    vault_calldata.append_serde(VAULT_NAME());
+    vault_calldata.append_serde(VAULT_SYMBOL());
+    vault_calldata.append_serde(asset_address);
+    vault_calldata.append_serde(external_storage);
+    vault_calldata.append_serde(no_shares);
+    vault_calldata.append_serde(HOLDER);
+
+    let contract_address = utils::declare_and_deploy("ERC4626ExternalVaultMock", vault_calldata);
     ERC4626ABIDispatcher { contract_address }
 }
 
@@ -1220,12 +1255,13 @@ fn test_max_limit_redeem_assets_lt_limit() {
 }
 
 //
-// Fees
+// Fee tests helpers
 //
 
-fn setup_input_fees() -> (IERC20ReentrantDispatcher, ERC4626ABIDispatcher) {
-    let mut asset = deploy_asset();
-    let mut vault = deploy_vault_fees(asset.contract_address);
+fn setup_input_fees(kind: FeeKind) -> (IERC20ReentrantDispatcher, ERC4626ABIDispatcher) {
+    let asset = deploy_asset();
+    let fees = Fees { kind, entry: DEFAULT_FEE, exit: 0 };
+    let vault = deploy_vault_fees(asset.contract_address, 0, HOLDER, fees);
 
     let half_max: u256 = Bounded::MAX / 2;
     asset.unsafe_mint(HOLDER, half_max);
@@ -1236,12 +1272,13 @@ fn setup_input_fees() -> (IERC20ReentrantDispatcher, ERC4626ABIDispatcher) {
     (asset, vault)
 }
 
-fn setup_output_fees() -> (IERC20ReentrantDispatcher, ERC4626ABIDispatcher) {
-    let mut asset = deploy_asset();
+fn setup_output_fees(kind: FeeKind) -> (IERC20ReentrantDispatcher, ERC4626ABIDispatcher) {
+    let asset = deploy_asset();
+    let fees = Fees { kind, entry: 0, exit: DEFAULT_FEE };
     let half_max: u256 = Bounded::MAX / 2;
 
     // Mint shares to HOLDER
-    let mut vault = deploy_vault_exit_fees_with_shares(asset.contract_address, half_max, HOLDER);
+    let vault = deploy_vault_fees(asset.contract_address, half_max, HOLDER, fees);
 
     // Mint assets to vault
     asset.unsafe_mint(vault.contract_address, half_max);
@@ -1249,97 +1286,102 @@ fn setup_output_fees() -> (IERC20ReentrantDispatcher, ERC4626ABIDispatcher) {
     (asset, vault)
 }
 
+//
+// Fees in assets
+//
+
 #[test]
-fn test_input_fees_deposit() {
-    let (asset, vault) = setup_input_fees();
+fn test_input_assets_fees_deposit() {
+    let (asset, vault) = setup_input_fees(FeeKind::Assets);
 
-    let FEE_BASIS_POINTS: u256 = 500; // 5%
-    let VALUE_WITHOUT_FEES: u256 = 10_000;
-    let FEES = (VALUE_WITHOUT_FEES * FEE_BASIS_POINTS) / 10_000;
-    let VALUE_WITH_FEES = VALUE_WITHOUT_FEES + FEES;
+    let ASSETS_WITH_FEES = parse_token(1_000);
+    let FEES = fee_on_total(ASSETS_WITH_FEES);
+    let ASSETS_WITHOUT_FEES = ASSETS_WITH_FEES - FEES;
+    let EXPECTED_SHARES = ASSETS_WITHOUT_FEES;
 
-    let actual_value = vault.preview_deposit(VALUE_WITH_FEES);
-    assert_eq!(actual_value, VALUE_WITHOUT_FEES);
+    let actual_shares = vault.preview_deposit(ASSETS_WITH_FEES);
+    assert_eq!(actual_shares, EXPECTED_SHARES);
 
     let holder_asset_bal = asset.balance_of(HOLDER);
     let vault_asset_bal = asset.balance_of(vault.contract_address);
 
     let mut spy = spy_events();
     cheat_caller_address(vault.contract_address, HOLDER, CheatSpan::TargetCalls(1));
-    vault.deposit(VALUE_WITH_FEES, RECIPIENT);
+    vault.deposit(ASSETS_WITH_FEES, RECIPIENT);
 
     // Check asset balances
-    assert_expected_assets(asset, HOLDER, holder_asset_bal - VALUE_WITH_FEES);
-    assert_expected_assets(asset, vault.contract_address, vault_asset_bal + VALUE_WITHOUT_FEES);
+    assert_expected_assets(asset, HOLDER, holder_asset_bal - ASSETS_WITH_FEES);
+    assert_expected_assets(asset, vault.contract_address, vault_asset_bal + ASSETS_WITHOUT_FEES);
     assert_expected_assets(asset, TREASURY, FEES);
 
     // Check shares
-    assert_expected_shares(vault, RECIPIENT, VALUE_WITHOUT_FEES);
+    assert_expected_shares(vault, RECIPIENT, EXPECTED_SHARES);
 
     // Check events
     spy
         .assert_event_transfer(
-            asset.contract_address, HOLDER, vault.contract_address, VALUE_WITH_FEES,
+            asset.contract_address, HOLDER, vault.contract_address, ASSETS_WITH_FEES,
         );
-    spy.assert_event_transfer(vault.contract_address, ZERO, RECIPIENT, VALUE_WITHOUT_FEES);
+    spy.assert_event_transfer(vault.contract_address, ZERO, RECIPIENT, EXPECTED_SHARES);
     spy
         .assert_event_deposit(
-            vault.contract_address, HOLDER, RECIPIENT, VALUE_WITH_FEES, VALUE_WITHOUT_FEES,
+            vault.contract_address, HOLDER, RECIPIENT, ASSETS_WITH_FEES, EXPECTED_SHARES,
         );
     spy.assert_event_transfer(asset.contract_address, vault.contract_address, TREASURY, FEES);
 }
 
 #[test]
-fn test_input_fees_mint() {
-    let (asset, vault) = setup_input_fees();
+fn test_input_assets_fees_mint() {
+    let (asset, vault) = setup_input_fees(FeeKind::Assets);
 
-    let FEE_BASIS_POINTS: u256 = 500; // 5%
-    let VALUE_WITHOUT_FEES: u256 = 10_000;
-    let FEES = (VALUE_WITHOUT_FEES * FEE_BASIS_POINTS) / 10_000;
-    let VALUE_WITH_FEES = VALUE_WITHOUT_FEES + FEES;
+    let FEE_BASIS_POINTS = DEFAULT_FEE; // 5%
+    let SHARES_TO_MINT = parse_share_offset(10_000);
+    let ASSETS_WITHOUT_FEES = SHARES_TO_MINT;
+    let FEES = (ASSETS_WITHOUT_FEES * FEE_BASIS_POINTS) / 10_000;
+    let ASSETS_WITH_FEES = ASSETS_WITHOUT_FEES + FEES;
 
-    let actual_value = vault.preview_mint(VALUE_WITHOUT_FEES);
-    assert_eq!(actual_value, VALUE_WITH_FEES);
+    let actual_assets = vault.preview_mint(SHARES_TO_MINT);
+    assert_eq!(actual_assets, ASSETS_WITH_FEES);
 
     let holder_asset_bal = asset.balance_of(HOLDER);
     let vault_asset_bal = asset.balance_of(vault.contract_address);
 
     let mut spy = spy_events();
     cheat_caller_address(vault.contract_address, HOLDER, CheatSpan::TargetCalls(1));
-    vault.mint(VALUE_WITHOUT_FEES, RECIPIENT);
+    vault.mint(SHARES_TO_MINT, RECIPIENT);
 
     // Check asset balances
-    assert_expected_assets(asset, HOLDER, holder_asset_bal - VALUE_WITH_FEES);
-    assert_expected_assets(asset, vault.contract_address, vault_asset_bal + VALUE_WITHOUT_FEES);
+    assert_expected_assets(asset, HOLDER, holder_asset_bal - ASSETS_WITH_FEES);
+    assert_expected_assets(asset, vault.contract_address, vault_asset_bal + ASSETS_WITHOUT_FEES);
     assert_expected_assets(asset, TREASURY, FEES);
 
     // Check shares
-    assert_expected_shares(vault, RECIPIENT, VALUE_WITHOUT_FEES);
+    assert_expected_shares(vault, RECIPIENT, SHARES_TO_MINT);
 
     // Check events
     spy
         .assert_event_transfer(
-            asset.contract_address, HOLDER, vault.contract_address, VALUE_WITH_FEES,
+            asset.contract_address, HOLDER, vault.contract_address, ASSETS_WITH_FEES,
         );
-    spy.assert_event_transfer(vault.contract_address, ZERO, RECIPIENT, VALUE_WITHOUT_FEES);
+    spy.assert_event_transfer(vault.contract_address, ZERO, RECIPIENT, SHARES_TO_MINT);
     spy
         .assert_event_deposit(
-            vault.contract_address, HOLDER, RECIPIENT, VALUE_WITH_FEES, VALUE_WITHOUT_FEES,
+            vault.contract_address, HOLDER, RECIPIENT, ASSETS_WITH_FEES, SHARES_TO_MINT,
         );
     spy.assert_event_transfer(asset.contract_address, vault.contract_address, TREASURY, FEES);
 }
 
 #[test]
-fn test_output_fees_redeem() {
-    let (asset, vault) = setup_output_fees();
+fn test_output_assets_fees_redeem() {
+    let (asset, vault) = setup_output_fees(FeeKind::Assets);
 
-    let FEE_BASIS_POINTS: u256 = 500; // 5%
-    let VALUE_WITHOUT_FEES: u256 = 10_000;
-    let FEES = (VALUE_WITHOUT_FEES * FEE_BASIS_POINTS) / 10_000;
-    let VALUE_WITH_FEES = VALUE_WITHOUT_FEES + FEES;
+    let SHARES_TO_BURN = parse_share_offset(1_000);
+    let ASSETS_WITH_FEES = SHARES_TO_BURN;
+    let FEES = fee_on_total(ASSETS_WITH_FEES);
+    let ASSETS_WITHOUT_FEES = ASSETS_WITH_FEES - FEES;
 
-    let preview_redeem = vault.preview_redeem(VALUE_WITH_FEES);
-    assert_eq!(preview_redeem, VALUE_WITHOUT_FEES);
+    let preview_redeem = vault.preview_redeem(SHARES_TO_BURN);
+    assert_eq!(preview_redeem, ASSETS_WITHOUT_FEES);
 
     let vault_asset_bal = asset.balance_of(vault.contract_address);
     let recipient_asset_bal = asset.balance_of(RECIPIENT);
@@ -1348,40 +1390,39 @@ fn test_output_fees_redeem() {
 
     let mut spy = spy_events();
     cheat_caller_address(vault.contract_address, HOLDER, CheatSpan::TargetCalls(1));
-    vault.redeem(VALUE_WITH_FEES, RECIPIENT, HOLDER);
+    vault.redeem(SHARES_TO_BURN, RECIPIENT, HOLDER);
 
     // Check asset balances
-    assert_expected_assets(asset, vault.contract_address, vault_asset_bal - VALUE_WITH_FEES);
-    assert_expected_assets(asset, RECIPIENT, recipient_asset_bal + VALUE_WITHOUT_FEES);
+    assert_expected_assets(asset, vault.contract_address, vault_asset_bal - ASSETS_WITH_FEES);
+    assert_expected_assets(asset, RECIPIENT, recipient_asset_bal + ASSETS_WITHOUT_FEES);
     assert_expected_assets(asset, TREASURY, treasury_asset_bal + FEES);
 
     // Check shares
-    assert_expected_shares(vault, HOLDER, holder_shares - VALUE_WITH_FEES);
+    assert_expected_shares(vault, HOLDER, holder_shares - SHARES_TO_BURN);
 
     // Check events
     spy.assert_event_transfer(asset.contract_address, vault.contract_address, TREASURY, FEES);
-    spy.assert_event_transfer(vault.contract_address, HOLDER, ZERO, VALUE_WITH_FEES);
+    spy.assert_event_transfer(vault.contract_address, HOLDER, ZERO, SHARES_TO_BURN);
     spy
         .assert_event_transfer(
-            asset.contract_address, vault.contract_address, RECIPIENT, VALUE_WITHOUT_FEES,
+            asset.contract_address, vault.contract_address, RECIPIENT, ASSETS_WITHOUT_FEES,
         );
     spy
         .assert_only_event_withdraw(
-            vault.contract_address, HOLDER, RECIPIENT, HOLDER, VALUE_WITHOUT_FEES, VALUE_WITH_FEES,
+            vault.contract_address, HOLDER, RECIPIENT, HOLDER, ASSETS_WITHOUT_FEES, SHARES_TO_BURN,
         );
 }
 
 #[test]
-fn test_output_fees_withdraw() {
-    let (asset, vault) = setup_output_fees();
+fn test_output_assets_fees_withdraw() {
+    let (asset, vault) = setup_output_fees(FeeKind::Assets);
 
-    let FEE_BASIS_POINTS: u256 = 500; // 5%
-    let VALUE_WITHOUT_FEES: u256 = 10_000;
-    let FEES = (VALUE_WITHOUT_FEES * FEE_BASIS_POINTS) / 10_000;
-    let VALUE_WITH_FEES = VALUE_WITHOUT_FEES + FEES;
+    let ASSETS_WITHOUT_FEES = parse_token(1_000);
+    let FEES = fee_on_raw(ASSETS_WITHOUT_FEES);
+    let ASSETS_WITH_FEES = ASSETS_WITHOUT_FEES + FEES;
+    let EXPECTED_SHARES = ASSETS_WITH_FEES;
 
-    let preview_withdraw = vault.preview_withdraw(VALUE_WITHOUT_FEES);
-    assert_eq!(preview_withdraw, VALUE_WITH_FEES);
+    assert_eq!(vault.preview_withdraw(ASSETS_WITHOUT_FEES), EXPECTED_SHARES);
 
     let vault_asset_bal = asset.balance_of(vault.contract_address);
     let recipient_asset_bal = asset.balance_of(RECIPIENT);
@@ -1390,26 +1431,203 @@ fn test_output_fees_withdraw() {
 
     let mut spy = spy_events();
     cheat_caller_address(vault.contract_address, HOLDER, CheatSpan::TargetCalls(1));
-    vault.withdraw(VALUE_WITHOUT_FEES, RECIPIENT, HOLDER);
+    vault.withdraw(ASSETS_WITHOUT_FEES, RECIPIENT, HOLDER);
 
     // Check asset balances
-    assert_expected_assets(asset, vault.contract_address, vault_asset_bal - VALUE_WITH_FEES);
-    assert_expected_assets(asset, RECIPIENT, recipient_asset_bal + VALUE_WITHOUT_FEES);
+    assert_expected_assets(asset, vault.contract_address, vault_asset_bal - ASSETS_WITH_FEES);
+    assert_expected_assets(asset, RECIPIENT, recipient_asset_bal + ASSETS_WITHOUT_FEES);
     assert_expected_assets(asset, TREASURY, treasury_asset_bal + FEES);
 
     // Check shares
-    assert_expected_shares(vault, HOLDER, holder_shares - VALUE_WITH_FEES);
+    assert_expected_shares(vault, HOLDER, holder_shares - EXPECTED_SHARES);
 
     // Check events
     spy.assert_event_transfer(asset.contract_address, vault.contract_address, TREASURY, FEES);
-    spy.assert_event_transfer(vault.contract_address, HOLDER, ZERO, VALUE_WITH_FEES);
+    spy.assert_event_transfer(vault.contract_address, HOLDER, ZERO, EXPECTED_SHARES);
     spy
         .assert_event_transfer(
-            asset.contract_address, vault.contract_address, RECIPIENT, VALUE_WITHOUT_FEES,
+            asset.contract_address, vault.contract_address, RECIPIENT, ASSETS_WITHOUT_FEES,
         );
     spy
         .assert_only_event_withdraw(
-            vault.contract_address, HOLDER, RECIPIENT, HOLDER, VALUE_WITHOUT_FEES, VALUE_WITH_FEES,
+            vault.contract_address, HOLDER, RECIPIENT, HOLDER, ASSETS_WITHOUT_FEES, EXPECTED_SHARES,
+        );
+}
+
+//
+// Fees in shares
+//
+
+#[test]
+fn test_input_shares_fees_deposit() {
+    let (asset, vault) = setup_input_fees(FeeKind::Shares);
+
+    let ASSETS_TO_DEPOSIT = parse_token(1_000);
+    let SHARES_WITH_FEES = ASSETS_TO_DEPOSIT;
+    let FEES = fee_on_total(SHARES_WITH_FEES);
+    let SHARES_WITHOUT_FEES = SHARES_WITH_FEES - FEES;
+
+    assert_vault_is_balanced(vault, asset);
+    let actual_shares = vault.preview_deposit(ASSETS_TO_DEPOSIT);
+    assert_eq!(actual_shares, SHARES_WITHOUT_FEES);
+
+    let holder_asset_bal = asset.balance_of(HOLDER);
+    let vault_asset_bal = asset.balance_of(vault.contract_address);
+
+    let mut spy = spy_events();
+    cheat_caller_address(vault.contract_address, HOLDER, CheatSpan::TargetCalls(1));
+    vault.deposit(ASSETS_TO_DEPOSIT, RECIPIENT);
+
+    // Check asset balances
+    assert_expected_assets(asset, HOLDER, holder_asset_bal - ASSETS_TO_DEPOSIT);
+    assert_expected_assets(asset, vault.contract_address, vault_asset_bal + ASSETS_TO_DEPOSIT);
+    assert_expected_assets(asset, TREASURY, 0);
+
+    // Check shares
+    assert_expected_shares(vault, RECIPIENT, SHARES_WITHOUT_FEES);
+    assert_expected_shares(vault, TREASURY, FEES);
+
+    // Check events
+    spy
+        .assert_event_transfer(
+            asset.contract_address, HOLDER, vault.contract_address, ASSETS_TO_DEPOSIT,
+        );
+    spy.assert_event_transfer(vault.contract_address, ZERO, RECIPIENT, SHARES_WITHOUT_FEES);
+
+    spy
+        .assert_event_deposit(
+            vault.contract_address, HOLDER, RECIPIENT, ASSETS_TO_DEPOSIT, SHARES_WITHOUT_FEES,
+        );
+    spy.assert_event_transfer(vault.contract_address, ZERO, TREASURY, FEES);
+}
+
+#[test]
+fn test_input_shares_fees_mint() {
+    let (asset, vault) = setup_input_fees(FeeKind::Shares);
+
+    let SHARES_WITHOUT_FEES = parse_token(1_000);
+    let FEES = fee_on_raw(SHARES_WITHOUT_FEES);
+    let SHARES_WITH_FEES = SHARES_WITHOUT_FEES + FEES;
+    let EXPECTED_ASSETS = SHARES_WITH_FEES;
+
+    let actual_assets = vault.preview_mint(SHARES_WITHOUT_FEES);
+    assert_eq!(actual_assets, EXPECTED_ASSETS);
+
+    let holder_asset_bal = asset.balance_of(HOLDER);
+    let vault_asset_bal = asset.balance_of(vault.contract_address);
+
+    let mut spy = spy_events();
+    cheat_caller_address(vault.contract_address, HOLDER, CheatSpan::TargetCalls(1));
+    vault.mint(SHARES_WITHOUT_FEES, RECIPIENT);
+
+    // Check asset balances
+    assert_expected_assets(asset, HOLDER, holder_asset_bal - EXPECTED_ASSETS);
+    assert_expected_assets(asset, vault.contract_address, vault_asset_bal + EXPECTED_ASSETS);
+    assert_expected_assets(asset, TREASURY, 0);
+
+    // Check shares
+    assert_expected_shares(vault, RECIPIENT, SHARES_WITHOUT_FEES);
+    assert_expected_shares(vault, TREASURY, FEES);
+
+    // Check events
+    spy
+        .assert_event_transfer(
+            asset.contract_address, HOLDER, vault.contract_address, EXPECTED_ASSETS,
+        );
+    spy.assert_event_transfer(vault.contract_address, ZERO, RECIPIENT, SHARES_WITHOUT_FEES);
+
+    spy
+        .assert_event_deposit(
+            vault.contract_address, HOLDER, RECIPIENT, EXPECTED_ASSETS, SHARES_WITHOUT_FEES,
+        );
+    spy.assert_event_transfer(vault.contract_address, ZERO, TREASURY, FEES);
+}
+
+#[test]
+fn test_output_shares_fees_redeem() {
+    let (asset, vault) = setup_output_fees(FeeKind::Shares);
+
+    // let SHARES_WITH_FEES = parse_token(1_000);
+    let SHARES_WITH_FEES = 1_000;
+    let FEES = fee_on_total(SHARES_WITH_FEES);
+    let SHARES_WITHOUT_FEES = SHARES_WITH_FEES - FEES;
+    let EXPECTED_ASSETS = SHARES_WITHOUT_FEES;
+
+    assert_vault_is_balanced(vault, asset);
+    let actual_assets = vault.preview_redeem(SHARES_WITH_FEES);
+    assert_eq!(actual_assets, EXPECTED_ASSETS);
+
+    let vault_asset_bal = asset.balance_of(vault.contract_address);
+    let recipient_asset_bal = asset.balance_of(RECIPIENT);
+    let holder_shares = vault.balance_of(HOLDER);
+
+    let mut spy = spy_events();
+    cheat_caller_address(vault.contract_address, HOLDER, CheatSpan::TargetCalls(1));
+    vault.redeem(SHARES_WITH_FEES, RECIPIENT, HOLDER);
+
+    // Check asset balances
+    assert_expected_assets(asset, vault.contract_address, vault_asset_bal - EXPECTED_ASSETS);
+    assert_expected_assets(asset, RECIPIENT, recipient_asset_bal + EXPECTED_ASSETS);
+    assert_expected_assets(asset, TREASURY, 0);
+
+    // Check shares
+    assert_expected_shares(vault, HOLDER, holder_shares - SHARES_WITH_FEES);
+    assert_expected_shares(vault, TREASURY, FEES);
+
+    // Check events
+    spy.assert_event_transfer(vault.contract_address, HOLDER, TREASURY, FEES);
+    spy.assert_event_transfer(vault.contract_address, HOLDER, ZERO, SHARES_WITHOUT_FEES);
+    spy
+        .assert_event_transfer(
+            asset.contract_address, vault.contract_address, RECIPIENT, EXPECTED_ASSETS,
+        );
+    spy
+        .assert_only_event_withdraw(
+            vault.contract_address, HOLDER, RECIPIENT, HOLDER, EXPECTED_ASSETS, SHARES_WITH_FEES,
+        );
+}
+
+#[test]
+fn test_output_shares_fees_withdraw() {
+    let (asset, vault) = setup_output_fees(FeeKind::Shares);
+
+    let ASSETS_TO_WITHDRAW = parse_token(1_000);
+    let SHARES_WITHOUT_FEES = ASSETS_TO_WITHDRAW;
+    let FEES = fee_on_raw(SHARES_WITHOUT_FEES);
+    let SHARES_WITH_FEES = SHARES_WITHOUT_FEES + FEES;
+
+    assert_vault_is_balanced(vault, asset);
+    let actual_shares = vault.preview_withdraw(ASSETS_TO_WITHDRAW);
+    assert_eq!(actual_shares, SHARES_WITH_FEES);
+
+    let vault_asset_bal = asset.balance_of(vault.contract_address);
+    let recipient_asset_bal = asset.balance_of(RECIPIENT);
+    let holder_shares = vault.balance_of(HOLDER);
+
+    let mut spy = spy_events();
+    cheat_caller_address(vault.contract_address, HOLDER, CheatSpan::TargetCalls(1));
+    vault.withdraw(ASSETS_TO_WITHDRAW, RECIPIENT, HOLDER);
+    assert_vault_is_balanced(vault, asset);
+
+    // Check asset balances
+    assert_expected_assets(asset, vault.contract_address, vault_asset_bal - ASSETS_TO_WITHDRAW);
+    assert_expected_assets(asset, RECIPIENT, recipient_asset_bal + ASSETS_TO_WITHDRAW);
+    assert_expected_assets(asset, TREASURY, 0);
+
+    // Check shares
+    assert_expected_shares(vault, HOLDER, holder_shares - SHARES_WITH_FEES);
+    assert_expected_shares(vault, TREASURY, FEES);
+
+    // Check events
+    spy.assert_event_transfer(vault.contract_address, HOLDER, TREASURY, FEES);
+    spy.assert_event_transfer(vault.contract_address, HOLDER, ZERO, SHARES_WITHOUT_FEES);
+    spy
+        .assert_event_transfer(
+            asset.contract_address, vault.contract_address, RECIPIENT, ASSETS_TO_WITHDRAW,
+        );
+    spy
+        .assert_only_event_withdraw(
+            vault.contract_address, HOLDER, RECIPIENT, HOLDER, ASSETS_TO_WITHDRAW, SHARES_WITH_FEES,
         );
 }
 
@@ -1604,6 +1822,232 @@ fn test_multiple_txs_part_2() {
 }
 
 //
+// Vault implementing all hooks
+//
+
+fn setup_vault_with_hooks() -> (IERC20ReentrantDispatcher, ERC4626ABIDispatcher) {
+    let mut asset = deploy_asset();
+    let mut vault = deploy_vault_with_hooks(asset.contract_address);
+
+    // Mint assets to HOLDER and approve vault
+    asset.unsafe_mint(HOLDER, Bounded::MAX / 2); // 50% of max
+    cheat_caller_address(asset.contract_address, HOLDER, CheatSpan::TargetCalls(1));
+    asset.approve(vault.contract_address, Bounded::MAX);
+
+    (asset, vault)
+}
+
+#[test]
+fn test_hooks_called_when_deposit() {
+    let (_, vault) = setup_vault_with_hooks();
+    let assets = parse_token(1);
+
+    // Deposit
+    let mut spy = spy_events();
+    cheat_caller_address(vault.contract_address, HOLDER, CheatSpan::TargetCalls(1));
+    let shares = vault.deposit(assets, RECIPIENT);
+
+    // Check hooks called
+    spy.assert_event_before_deposit(vault.contract_address, HOLDER, RECIPIENT, assets, shares);
+    spy.assert_event_after_deposit(vault.contract_address, HOLDER, RECIPIENT, assets, shares);
+}
+
+#[test]
+fn test_hooks_called_when_mint() {
+    let (_, vault) = setup_vault_with_hooks();
+    let shares = parse_share_offset(1);
+
+    // Mint
+    let mut spy = spy_events();
+    cheat_caller_address(vault.contract_address, HOLDER, CheatSpan::TargetCalls(1));
+    let assets = vault.mint(shares, RECIPIENT);
+
+    // Check hooks called
+    spy.assert_event_before_deposit(vault.contract_address, HOLDER, RECIPIENT, assets, shares);
+    spy.assert_event_after_deposit(vault.contract_address, HOLDER, RECIPIENT, assets, shares);
+}
+
+#[test]
+fn test_hooks_called_when_withdraw() {
+    let (_, vault) = setup_vault_with_hooks();
+    let assets = 0;
+
+    // Withdraw
+    let mut spy = spy_events();
+    cheat_caller_address(vault.contract_address, HOLDER, CheatSpan::TargetCalls(1));
+    let shares = vault.withdraw(assets, RECIPIENT, HOLDER);
+
+    // Check hooks called
+    spy
+        .assert_event_before_withdraw(
+            vault.contract_address, HOLDER, RECIPIENT, HOLDER, assets, shares,
+        );
+    spy
+        .assert_event_after_withdraw(
+            vault.contract_address, HOLDER, RECIPIENT, HOLDER, assets, shares,
+        );
+}
+
+#[test]
+fn test_hooks_called_when_redeem() {
+    let (_, vault) = setup_vault_with_hooks();
+    let shares = 0;
+
+    // Redeem
+    let mut spy = spy_events();
+    cheat_caller_address(vault.contract_address, HOLDER, CheatSpan::TargetCalls(1));
+    let assets = vault.redeem(shares, RECIPIENT, HOLDER);
+
+    // Check hooks called
+    spy
+        .assert_event_before_withdraw(
+            vault.contract_address, HOLDER, RECIPIENT, HOLDER, assets, shares,
+        );
+    spy
+        .assert_event_after_withdraw(
+            vault.contract_address, HOLDER, RECIPIENT, HOLDER, assets, shares,
+        );
+}
+
+//
+// Vault holding assets in another contract
+//
+
+fn setup_vault_with_external_storage() -> (IERC20ReentrantDispatcher, ERC4626ABIDispatcher) {
+    let asset = deploy_asset();
+    let vault = deploy_vault_with_external_storage(asset.contract_address, EXTERNAL_STORAGE);
+
+    // Connect vault to external storage
+    cheat_caller_address(asset.contract_address, EXTERNAL_STORAGE, CheatSpan::TargetCalls(1));
+    asset.approve(vault.contract_address, Bounded::MAX);
+
+    // Mint assets to HOLDER and approve vault
+    asset.unsafe_mint(HOLDER, Bounded::MAX / 2); // 50% of max
+    cheat_caller_address(asset.contract_address, HOLDER, CheatSpan::TargetCalls(1));
+    asset.approve(vault.contract_address, Bounded::MAX);
+
+    (asset, vault)
+}
+
+#[test]
+fn test_external_storage_deposit() {
+    let (asset, vault) = setup_vault_with_external_storage();
+    let amount = parse_token(1);
+
+    // Check max deposit
+    let max_deposit = vault.max_deposit(HOLDER);
+    assert_eq!(max_deposit, Bounded::MAX);
+
+    // Check preview == expected shares
+    let preview_deposit = vault.preview_deposit(amount);
+    let exp_shares = parse_share_offset(1);
+    assert_eq!(preview_deposit, exp_shares);
+
+    let holder_balance_before = asset.balance_of(HOLDER);
+    let mut spy = spy_events();
+
+    // Deposit
+    cheat_caller_address(vault.contract_address, HOLDER, CheatSpan::TargetCalls(1));
+    let shares = vault.deposit(amount, RECIPIENT);
+
+    // Check balances
+    let holder_balance_after = asset.balance_of(HOLDER);
+    assert_eq!(holder_balance_after, holder_balance_before - amount);
+
+    let recipient_shares = vault.balance_of(RECIPIENT);
+    assert_eq!(recipient_shares, exp_shares);
+
+    // Check events
+    spy.assert_event_transfer(asset.contract_address, HOLDER, EXTERNAL_STORAGE, amount);
+    spy.assert_event_transfer(vault.contract_address, ZERO, RECIPIENT, shares);
+    spy.assert_only_event_deposit(vault.contract_address, HOLDER, RECIPIENT, amount, shares);
+}
+
+#[test]
+fn test_external_storage_mint() {
+    let (asset, vault) = setup_vault_with_external_storage();
+
+    // Check max mint
+    let max_mint = vault.max_mint(HOLDER);
+    assert_eq!(max_mint, Bounded::MAX);
+
+    // Check preview mint
+    let preview_mint = vault.preview_mint(parse_share_offset(1));
+    let exp_assets = parse_token(1);
+    assert_eq!(preview_mint, exp_assets);
+
+    let mut spy = spy_events();
+    let holder_balance_before = asset.balance_of(HOLDER);
+
+    // Mint
+    cheat_caller_address(vault.contract_address, HOLDER, CheatSpan::TargetCalls(1));
+    vault.mint(parse_share_offset(1), RECIPIENT);
+
+    // Check balances
+    let holder_balance_after = asset.balance_of(HOLDER);
+    assert_eq!(holder_balance_after, holder_balance_before - parse_token(1));
+
+    let recipient_shares = vault.balance_of(RECIPIENT);
+    assert_eq!(recipient_shares, parse_share_offset(1));
+
+    // Check events
+    spy.assert_event_transfer(asset.contract_address, HOLDER, EXTERNAL_STORAGE, parse_token(1));
+    spy.assert_event_transfer(vault.contract_address, ZERO, RECIPIENT, parse_share_offset(1));
+    spy
+        .assert_only_event_deposit(
+            vault.contract_address, HOLDER, RECIPIENT, parse_token(1), parse_share_offset(1),
+        );
+}
+
+#[test]
+fn test_external_storage_withdraw() {
+    let (asset, vault) = setup_vault_with_external_storage();
+
+    // Check max withdraw
+    let max_withdraw = vault.max_withdraw(HOLDER);
+    assert_eq!(max_withdraw, 0);
+
+    // Check preview withdraw
+    let preview_withdraw = vault.preview_withdraw(0);
+    assert_eq!(preview_withdraw, 0);
+
+    let mut spy = spy_events();
+
+    // Withdraw
+    cheat_caller_address(vault.contract_address, HOLDER, CheatSpan::TargetCalls(1));
+    vault.withdraw(0, RECIPIENT, HOLDER);
+
+    // Check events
+    spy.assert_event_transfer(vault.contract_address, HOLDER, ZERO, 0);
+    spy.assert_event_transfer(asset.contract_address, EXTERNAL_STORAGE, RECIPIENT, 0);
+    spy.assert_only_event_withdraw(vault.contract_address, HOLDER, RECIPIENT, HOLDER, 0, 0);
+}
+
+#[test]
+fn test_external_storage_redeem() {
+    let (asset, vault) = setup_vault_with_external_storage();
+
+    // Check max redeem
+    let max_redeem = vault.max_redeem(HOLDER);
+    assert_eq!(max_redeem, 0);
+
+    // Check preview redeem
+    let preview_redeem = vault.preview_redeem(0);
+    assert_eq!(preview_redeem, 0);
+
+    let mut spy = spy_events();
+
+    // Redeem
+    cheat_caller_address(vault.contract_address, HOLDER, CheatSpan::TargetCalls(1));
+    vault.redeem(0, RECIPIENT, HOLDER);
+
+    // Check events
+    spy.assert_event_transfer(vault.contract_address, HOLDER, ZERO, 0);
+    spy.assert_event_transfer(asset.contract_address, EXTERNAL_STORAGE, RECIPIENT, 0);
+    spy.assert_only_event_withdraw(vault.contract_address, HOLDER, RECIPIENT, HOLDER, 0, 0);
+}
+
+//
 // Assertions/Helpers
 //
 
@@ -1621,6 +2065,23 @@ fn assert_expected_assets(
     assert_eq!(actual_assets, expected_assets);
 }
 
+fn assert_vault_is_balanced(vault: ERC4626ABIDispatcher, asset: IERC20ReentrantDispatcher) {
+    let total_assets = vault.total_assets();
+    let total_shares = IERC20ReentrantDispatcher { contract_address: vault.contract_address }
+        .total_supply();
+    assert_eq!(total_assets, total_shares);
+}
+use openzeppelin_utils::math;
+use openzeppelin_utils::math::Rounding;
+
+fn fee_on_raw(value: u256) -> u256 {
+    math::u256_mul_div(value, DEFAULT_FEE, BASIS_POINT_SCALE, Rounding::Ceil)
+}
+
+fn fee_on_total(value: u256) -> u256 {
+    math::u256_mul_div(value, DEFAULT_FEE, DEFAULT_FEE + BASIS_POINT_SCALE, Rounding::Ceil)
+}
+
 #[generate_trait]
 pub impl ERC4626SpyHelpersImpl of ERC4626SpyHelpers {
     fn assert_event_deposit(
@@ -1631,7 +2092,12 @@ pub impl ERC4626SpyHelpersImpl of ERC4626SpyHelpers {
         assets: u256,
         shares: u256,
     ) {
-        let expected = ERC4626Component::Event::Deposit(Deposit { sender, owner, assets, shares });
+        let expected = ExpectedEvent::new()
+            .key(selector!("Deposit"))
+            .key(sender)
+            .key(owner)
+            .data(assets)
+            .data(shares);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -1656,9 +2122,13 @@ pub impl ERC4626SpyHelpersImpl of ERC4626SpyHelpers {
         assets: u256,
         shares: u256,
     ) {
-        let expected = ERC4626Component::Event::Withdraw(
-            Withdraw { sender, receiver, owner, assets, shares },
-        );
+        let expected = ExpectedEvent::new()
+            .key(selector!("Withdraw"))
+            .key(sender)
+            .key(receiver)
+            .key(owner)
+            .data(assets)
+            .data(shares);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -1673,5 +2143,80 @@ pub impl ERC4626SpyHelpersImpl of ERC4626SpyHelpers {
     ) {
         self.assert_event_withdraw(contract, sender, receiver, owner, assets, shares);
         self.assert_no_events_left_from(contract);
+    }
+}
+
+#[generate_trait]
+impl ERC4626HooksSpyHelpersImpl of ERC4626HooksSpyHelpers {
+    fn assert_event_before_deposit(
+        ref self: EventSpy,
+        contract: ContractAddress,
+        caller: ContractAddress,
+        receiver: ContractAddress,
+        assets: u256,
+        shares: u256,
+    ) {
+        let expected = ExpectedEvent::new()
+            .key(selector!("BeforeDeposit"))
+            .data(caller)
+            .data(receiver)
+            .data(assets)
+            .data(shares);
+        self.assert_emitted_single(contract, expected);
+    }
+
+    fn assert_event_after_deposit(
+        ref self: EventSpy,
+        contract: ContractAddress,
+        caller: ContractAddress,
+        receiver: ContractAddress,
+        assets: u256,
+        shares: u256,
+    ) {
+        let expected = ExpectedEvent::new()
+            .key(selector!("AfterDeposit"))
+            .data(caller)
+            .data(receiver)
+            .data(assets)
+            .data(shares);
+        self.assert_emitted_single(contract, expected);
+    }
+
+    fn assert_event_before_withdraw(
+        ref self: EventSpy,
+        contract: ContractAddress,
+        caller: ContractAddress,
+        receiver: ContractAddress,
+        owner: ContractAddress,
+        assets: u256,
+        shares: u256,
+    ) {
+        let expected = ExpectedEvent::new()
+            .key(selector!("BeforeWithdraw"))
+            .data(caller)
+            .data(receiver)
+            .data(owner)
+            .data(assets)
+            .data(shares);
+        self.assert_emitted_single(contract, expected);
+    }
+
+    fn assert_event_after_withdraw(
+        ref self: EventSpy,
+        contract: ContractAddress,
+        caller: ContractAddress,
+        receiver: ContractAddress,
+        owner: ContractAddress,
+        assets: u256,
+        shares: u256,
+    ) {
+        let expected = ExpectedEvent::new()
+            .key(selector!("AfterWithdraw"))
+            .data(caller)
+            .data(receiver)
+            .data(owner)
+            .data(assets)
+            .data(shares);
+        self.assert_emitted_single(contract, expected);
     }
 }

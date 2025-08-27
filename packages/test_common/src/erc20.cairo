@@ -1,9 +1,7 @@
+use openzeppelin_interfaces::erc20::IERC20Dispatcher;
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{NAME, SYMBOL};
-use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy};
-use openzeppelin_token::erc20::ERC20Component;
-use openzeppelin_token::erc20::ERC20Component::{Approval, Transfer};
-use openzeppelin_token::erc20::interface::IERC20Dispatcher;
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, ExpectedEvent};
 use openzeppelin_utils::serde::SerializedAppend;
 use starknet::ContractAddress;
 
@@ -27,7 +25,12 @@ pub impl ERC20SpyHelpersImpl of ERC20SpyHelpers {
         spender: ContractAddress,
         value: u256,
     ) {
-        let expected = ERC20Component::Event::Approval(Approval { owner, spender, value });
+        let expected = ExpectedEvent::new()
+            .key(selector!("Approval"))
+            .key(owner)
+            .key(spender)
+            .data(value);
+
         self.assert_emitted_single(contract, expected);
     }
 
@@ -49,7 +52,12 @@ pub impl ERC20SpyHelpersImpl of ERC20SpyHelpers {
         to: ContractAddress,
         value: u256,
     ) {
-        let expected = ERC20Component::Event::Transfer(Transfer { from, to, value });
+        let expected = ExpectedEvent::new()
+            .key(selector!("Transfer"))
+            .key(from)
+            .key(to)
+            .data(value);
+
         self.assert_emitted_single(contract, expected);
     }
 

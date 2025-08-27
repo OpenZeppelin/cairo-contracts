@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v2.0.0-alpha.1 (token/src/erc721/erc721.cairo)
+// OpenZeppelin Contracts for Cairo v3.0.0-alpha.1 (token/src/erc721/erc721.cairo)
 
 /// # ERC721 Component
 ///
@@ -8,7 +8,11 @@
 #[starknet::component]
 pub mod ERC721Component {
     use core::num::traits::Zero;
-    use openzeppelin_introspection::interface::{ISRC5Dispatcher, ISRC5DispatcherTrait};
+    use openzeppelin_interfaces::erc721 as interface;
+    use openzeppelin_interfaces::erc721::{
+        IERC721ReceiverDispatcher, IERC721ReceiverDispatcherTrait,
+    };
+    use openzeppelin_interfaces::introspection::{ISRC5Dispatcher, ISRC5DispatcherTrait};
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_introspection::src5::SRC5Component::{
         InternalTrait as SRC5InternalTrait, SRC5Impl,
@@ -18,8 +22,6 @@ pub mod ERC721Component {
         StoragePointerWriteAccess,
     };
     use starknet::{ContractAddress, get_caller_address};
-    use crate::erc721::interface;
-    use crate::erc721::interface::{IERC721ReceiverDispatcher, IERC721ReceiverDispatcherTrait};
 
     #[storage]
     pub struct Storage {
@@ -845,7 +847,7 @@ pub mod ERC721Component {
                     get_caller_address(), from, token_id, data,
                 ) == interface::IERC721_RECEIVER_ID
         } else {
-            src5_dispatcher.supports_interface(openzeppelin_account::interface::ISRC6_ID)
+            src5_dispatcher.supports_interface(openzeppelin_interfaces::accounts::ISRC6_ID)
         }
     }
 }

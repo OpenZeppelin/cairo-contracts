@@ -1,16 +1,14 @@
-use openzeppelin_testing as utils;
-use openzeppelin_testing::constants::{CALLER, NAME, RECIPIENT, SALT, SUPPLY, SYMBOL};
-use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
-use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-use openzeppelin_utils::deployments::{DeployerInfo, calculate_contract_address_from_udc};
-use openzeppelin_utils::interfaces::{
+use openzeppelin_interfaces::deployments::{
     UniversalDeployerABIDispatcher, UniversalDeployerABIDispatcherTrait,
 };
+use openzeppelin_interfaces::erc20::{IERC20Dispatcher, IERC20DispatcherTrait};
+use openzeppelin_testing as utils;
+use openzeppelin_testing::constants::{CALLER, NAME, RECIPIENT, SALT, SUPPLY, SYMBOL};
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, ExpectedEvent, spy_events};
+use openzeppelin_utils::deployments::{DeployerInfo, calculate_contract_address_from_udc};
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::start_cheat_caller_address;
 use starknet::{ClassHash, ContractAddress};
-use crate::universal_deployer::UniversalDeployer;
-use crate::universal_deployer::UniversalDeployer::ContractDeployed;
 
 fn ERC20_CLASS_HASH() -> ClassHash {
     utils::declare_class("DualCaseERC20Mock").class_hash
@@ -157,9 +155,15 @@ impl UniversalDeployerHelpersImpl of UniversalDeployerSpyHelpers {
         calldata: Span<felt252>,
         salt: felt252,
     ) {
-        let expected = UniversalDeployer::Event::ContractDeployed(
-            ContractDeployed { address, deployer, not_from_zero, class_hash, calldata, salt },
-        );
+        let expected = ExpectedEvent::new()
+            .key(selector!("ContractDeployed"))
+            .data(address)
+            .data(deployer)
+            .data(not_from_zero)
+            .data(class_hash)
+            .data(calldata)
+            .data(salt);
+
         self.assert_only_event(contract, expected);
     }
 }

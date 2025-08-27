@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v2.0.0-alpha.1 (governance/src/votes/votes.cairo)
+// OpenZeppelin Contracts for Cairo v3.0.0-alpha.1 (governance/src/votes/votes.cairo)
 
 /// # Votes Component
 ///
@@ -20,17 +20,19 @@
 /// purpose, as shown in the following ERC20 example:
 ///
 /// See [the documentation]
-/// (https://docs.openzeppelin.com/contracts-cairo/2.0.0-alpha.1/governance.html#usage_2)
+/// (https://docs.openzeppelin.com/contracts-cairo/3.0.0-alpha.1/governance.html#usage_2)
 /// for examples and more details.
 #[starknet::component]
 pub mod VotesComponent {
     use core::num::traits::Zero;
-    use openzeppelin_account::interface::{ISRC6Dispatcher, ISRC6DispatcherTrait};
+    use openzeppelin_account::utils::assert_valid_signature;
+    use openzeppelin_interfaces::erc20::IERC20;
+    use openzeppelin_interfaces::erc721::IERC721;
+    use openzeppelin_interfaces::votes::IVotes;
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_token::erc20::ERC20Component;
-    use openzeppelin_token::erc20::interface::IERC20;
     use openzeppelin_token::erc721::ERC721Component;
-    use openzeppelin_token::erc721::interface::IERC721;
+    use openzeppelin_utils::contract_clock::ERC6372Clock;
     use openzeppelin_utils::cryptography::snip12::{OffchainMessageHash, SNIP12Metadata};
     use openzeppelin_utils::nonces::NoncesComponent;
     use openzeppelin_utils::nonces::NoncesComponent::InternalTrait as NoncesInternalTrait;
@@ -38,7 +40,6 @@ pub mod VotesComponent {
     use starknet::ContractAddress;
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePathEntry};
     use crate::votes::delegation::Delegation;
-    use crate::votes::interface::IVotes;
 
     #[storage]
     pub struct Storage {
@@ -105,6 +106,7 @@ pub mod VotesComponent {
         +HasComponent<TContractState>,
         impl Nonces: NoncesComponent::HasComponent<TContractState>,
         +VotingUnitsTrait<ComponentState<TContractState>>,
+        impl Clock: ERC6372Clock,
         +SNIP12Metadata,
         +Drop<TContractState>,
     > of IVotes<ComponentState<TContractState>> {
@@ -121,7 +123,7 @@ pub mod VotesComponent {
         fn get_past_votes(
             self: @ComponentState<TContractState>, account: ContractAddress, timepoint: u64,
         ) -> u256 {
-            let current_timepoint = starknet::get_block_timestamp();
+            let current_timepoint = Clock::clock();
             assert(timepoint < current_timepoint, Errors::FUTURE_LOOKUP);
             self.Votes_delegate_checkpoints.entry(account).upper_lookup_recent(timepoint)
         }
@@ -132,7 +134,7 @@ pub mod VotesComponent {
         ///
         /// - `timepoint` must be in the past.
         fn get_past_total_supply(self: @ComponentState<TContractState>, timepoint: u64) -> u256 {
-            let current_timepoint = starknet::get_block_timestamp();
+            let current_timepoint = Clock::clock();
             assert(timepoint < current_timepoint, Errors::FUTURE_LOOKUP);
             self.Votes_total_checkpoints.deref().upper_lookup_recent(timepoint)
         }
@@ -184,17 +186,32 @@ pub mod VotesComponent {
             let delegation = Delegation { verifying_contract, delegatee, nonce, expiry };
             let hash = delegation.get_message_hash(delegator);
 
-            let is_valid_signature_felt = ISRC6Dispatcher { contract_address: delegator }
-                .is_valid_signature(hash, signature.into());
-
-            // Check either 'VALID' or true for backwards compatibility.
-            let is_valid_signature = is_valid_signature_felt == starknet::VALIDATED
-                || is_valid_signature_felt == 1;
-
-            assert(is_valid_signature, Errors::INVALID_SIGNATURE);
+            assert_valid_signature(delegator, hash, signature.into(), Errors::INVALID_SIGNATURE);
 
             // Delegate votes.
             self._delegate(delegator, delegatee);
+        }
+
+        /// Returns the current timepoint determined by the contract’s operational mode, intended
+        /// for use in time-sensitive logic.
+        /// See https://eips.ethereum.org/EIPS/eip-6372#clock.
+        ///
+        /// Requirements:
+        ///
+        /// - This function MUST always be non-decreasing.
+        fn clock(self: @ComponentState<TContractState>) -> u64 {
+            Clock::clock()
+        }
+
+        /// Returns a description of the clock the contract is operating in.
+        /// See https://eips.ethereum.org/EIPS/eip-6372#clock_mode.
+        ///
+        /// Requirements:
+        ///
+        /// - The output MUST be formatted like a URL query string, decodable in standard
+        /// JavaScript.
+        fn CLOCK_MODE(self: @ComponentState<TContractState>) -> ByteArray {
+            Clock::CLOCK_MODE()
         }
     }
 
@@ -260,6 +277,7 @@ pub mod VotesComponent {
         TContractState,
         +HasComponent<TContractState>,
         +VotingUnitsTrait<ComponentState<TContractState>>,
+        impl Clock: ERC6372Clock,
         +NoncesComponent::HasComponent<TContractState>,
         +SNIP12Metadata,
         +Drop<TContractState>,
@@ -278,18 +296,18 @@ pub mod VotesComponent {
             to: ContractAddress,
             amount: u256,
         ) {
-            let block_timestamp = starknet::get_block_timestamp();
+            let current_timepoint = Clock::clock();
             if from != to && amount > 0 {
                 if from.is_non_zero() {
                     let mut trace = self.Votes_delegate_checkpoints.entry(from);
                     let (previous_votes, new_votes) = trace
-                        .push(block_timestamp, trace.into().latest() - amount);
+                        .push(current_timepoint, trace.into().latest() - amount);
                     self.emit(DelegateVotesChanged { delegate: from, previous_votes, new_votes });
                 }
                 if to.is_non_zero() {
                     let mut trace = self.Votes_delegate_checkpoints.entry(to);
                     let (previous_votes, new_votes) = trace
-                        .push(block_timestamp, trace.into().latest() + amount);
+                        .push(current_timepoint, trace.into().latest() + amount);
                     self.emit(DelegateVotesChanged { delegate: to, previous_votes, new_votes });
                 }
             }
@@ -312,14 +330,14 @@ pub mod VotesComponent {
             to: ContractAddress,
             amount: u256,
         ) {
-            let block_timestamp = starknet::get_block_timestamp();
+            let current_timepoint = Clock::clock();
             if from.is_zero() {
                 let mut trace = self.Votes_total_checkpoints.deref();
-                trace.push(block_timestamp, trace.into().latest() + amount);
+                trace.push(current_timepoint, trace.into().latest() + amount);
             }
             if to.is_zero() {
                 let mut trace = self.Votes_total_checkpoints.deref();
-                trace.push(block_timestamp, trace.into().latest() - amount);
+                trace.push(current_timepoint, trace.into().latest() - amount);
             }
             self.move_delegate_votes(self.delegates(from), self.delegates(to), amount);
         }

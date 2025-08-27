@@ -1,21 +1,19 @@
 # AsAddressImpl
 
-Fully qualified path: `openzeppelin_testing::constants::AsAddressImpl`
+Fully qualified path: [openzeppelin_testing](./openzeppelin_testing.md)::[constants](./openzeppelin_testing-constants.md)::[AsAddressImpl](./openzeppelin_testing-constants-AsAddressImpl.md)
 
-```rust
-pub impl AsAddressImpl of AsAddressTrait
-```
+<pre><code class="language-cairo">pub impl AsAddressImpl of AsAddressTrait;</code></pre>
 
 ## Impl functions
 
 ### as_address
 
-Converts a felt252 to a ContractAddress as a constant function.Requirements:`value` must be a valid contract address.
+Converts a felt252 to a ContractAddress as a constant function.
+Requirements:
+- `value` must be a valid contract address.
 
-Fully qualified path: `openzeppelin_testing::constants::AsAddressImpl::as_address`
+Fully qualified path: [openzeppelin_testing](./openzeppelin_testing.md)::[constants](./openzeppelin_testing-constants.md)::[AsAddressImpl](./openzeppelin_testing-constants-AsAddressImpl.md)::[as_address](./openzeppelin_testing-constants-AsAddressImpl.md#as_address)
 
-```rust
-const fn as_address(self: felt252) -> ContractAddress
-```
+<pre><code class="language-cairo">fn as_address(self: felt252) -&gt; ContractAddress</code></pre>
 
 

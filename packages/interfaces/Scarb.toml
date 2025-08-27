@@ -1,0 +1,33 @@
+
+[package]
+name = "openzeppelin_interfaces"
+version = "2.1.0"
+readme = "README.md"
+keywords = [
+    "openzeppelin",
+    "starknet",
+    "contracts",
+    "standards",
+    "interfaces"
+]
+edition.workspace = true
+cairo-version.workspace = true
+scarb-version.workspace = true
+authors.workspace = true
+description.workspace = true
+documentation.workspace = true
+repository.workspace = true
+license-file.workspace = true
+
+[tool]
+fmt.workspace = true
+scarb.workspace = true
+
+[dependencies]
+starknet.workspace = true
+
+[dev-dependencies]
+assert_macros.workspace = true
+snforge_std.workspace = true
+
+[lib]

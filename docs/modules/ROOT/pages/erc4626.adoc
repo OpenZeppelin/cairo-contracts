@@ -196,8 +196,17 @@ stem:[\delta = 6], stem:[a_0 = 1], stem:[a_1 = 10^5]
 [[fees]]
 === Custom behavior: Adding fees to the vault
 
-In ERC4626 vaults, fees can be captured during the deposit/mint and/or during the withdraw/redeem steps.
-In both cases, it is essential to remain compliant with the ERC4626 requirements in regard to the preview functions.
+:fee_config_trait: xref:/api/erc20.adoc#ERC4626Component-FeeConfigTrait[FeeConfigTrait]
+:no_fees_impl: https://github.com/OpenZeppelin/cairo-contracts/tree/main/packages/token/src/erc20/extensions/erc4626/erc4626.cairo#L874[ERC4626DefaultNoFees]
+:erc4626_mocks: https://github.com/OpenZeppelin/cairo-contracts/tree/main/packages/test_common/src/mocks/erc4626.cairo[ERC4626 mocks]
+
+In ERC4626 vaults, fees can be captured during deposit/mint and/or withdraw/redeem operations. It is essential to remain 
+compliant with the ERC4626 requirements regarding the preview functions. Fees are calculated through the {fee_config_trait} 
+implementation. By default, the ERC4626 component charges no fees. If this is the desired behavior, you can use the default 
+{no_fees_impl} implementation.
+
+NOTE: Starting from v3.0.0, fees can be charged in either assets or shares. Prior versions only supported fees taken in assets. 
+See the updated {fee_config_trait} and implementation examples in {erc4626_mocks}.
 
 For example, if calling `deposit(100, receiver)`, the caller should deposit exactly 100 underlying tokens, including fees, and the receiver should receive a number of shares that matches the value returned by `preview_deposit(100)`.
 Similarly, `preview_mint` should account for the fees that the user will have to pay on top of share's cost.
@@ -213,29 +222,29 @@ The `Withdraw` event should include the number of shares the user burns (includi
 The consequence of this design is that both the `Deposit` and `Withdraw` events will describe two exchange rates.
 The spread between the "Buy-in" and the "Exit" prices correspond to the fees taken by the vault.
 
-The following example describes how fees proportional to the deposited/withdrawn amount can be implemented:
+The following example describes how fees taken in assets on deposits/withdrawals and in shares on mints/redemptions
+proportional to the deposited/withdrawn amount can be implemented:
 
 ```cairo
-/// The mock contract charges fees in terms of assets, not shares.
-/// This means that the fees are calculated based on the amount of assets that are being deposited
-/// or withdrawn, and not based on the amount of shares that are being minted or redeemed.
+/// The mock contract charges fees in assets on deposits and withdrawals and in shares on mints and
+/// redemptions.
 /// This is an opinionated design decision for the purpose of testing.
 /// DO NOT USE IN PRODUCTION
 #[starknet::contract]
+#[with_components(ERC20, ERC4626)]
 pub mod ERC4626Fees {
-    use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component;
-    use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component::FeeConfigTrait;
-    use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component::InternalTrait as ERC4626InternalTrait;
-    use openzeppelin_token::erc20::extensions::erc4626::{DefaultConfig, ERC4626DefaultLimits};
-    use openzeppelin_token::erc20::interface::{IERC20Dispatcher, IERC20DispatcherTrait};
-    use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl};
+    use openzeppelin_interfaces::erc20::{IERC20Dispatcher, IERC20DispatcherTrait};
+    use openzeppelin_token::erc20::extensions::erc4626::ERC4626Component::{Fee, FeeConfigTrait};
+    use openzeppelin_token::erc20::extensions::erc4626::{
+        DefaultConfig, ERC4626DefaultNoLimits, ERC4626SelfAssetsManagement,
+    };
+    use openzeppelin_token::erc20::{DefaultConfig as ERC20DefaultConfig, ERC20HooksEmptyImpl};
     use openzeppelin_utils::math;
     use openzeppelin_utils::math::Rounding;
     use starknet::ContractAddress;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 
-    component!(path: ERC4626Component, storage: erc4626, event: ERC4626Event);
-    component!(path: ERC20Component, storage: erc20, event: ERC20Event);
+    const _BASIS_POINT_SCALE: u256 = 10_000;
 
     // ERC4626
     #[abi(embed_v0)]
@@ -250,90 +259,12 @@ pub mod ERC4626Fees {
     #[abi(embed_v0)]
     impl ERC20CamelOnlyImpl = ERC20Component::ERC20CamelOnlyImpl<ContractState>;
 
-    impl ERC4626InternalImpl = ERC4626Component::InternalImpl<ContractState>;
-    impl ERC20InternalImpl = ERC20Component::InternalImpl<ContractState>;
-
     #[storage]
     pub struct Storage {
-        #[substorage(v0)]
-        pub erc4626: ERC4626Component::Storage,
-        #[substorage(v0)]
-        pub erc20: ERC20Component::Storage,
         pub entry_fee_basis_point_value: u256,
         pub entry_fee_recipient: ContractAddress,
         pub exit_fee_basis_point_value: u256,
         pub exit_fee_recipient: ContractAddress,
-    }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        #[flat]
-        ERC4626Event: ERC4626Component::Event,
-        #[flat]
-        ERC20Event: ERC20Component::Event,
-    }
-
-    const _BASIS_POINT_SCALE: u256 = 10_000;
-
-    /// Hooks
-    impl ERC4626HooksEmptyImpl of ERC4626Component::ERC4626HooksTrait<ContractState> {
-        fn after_deposit(
-            ref self: ERC4626Component::ComponentState<ContractState>, assets: u256, shares: u256,
-        ) {
-            let mut contract_state = self.get_contract_mut();
-            let entry_basis_points = contract_state.entry_fee_basis_point_value.read();
-            let fee = contract_state.fee_on_total(assets, entry_basis_points);
-            let recipient = contract_state.entry_fee_recipient.read();
-
-            if fee > 0 && recipient != starknet::get_contract_address() {
-                contract_state.transfer_fees(recipient, fee);
-            }
-        }
-
-        fn before_withdraw(
-            ref self: ERC4626Component::ComponentState<ContractState>, assets: u256, shares: u256,
-        ) {
-            let mut contract_state = self.get_contract_mut();
-            let exit_basis_points = contract_state.exit_fee_basis_point_value.read();
-            let fee = contract_state.fee_on_raw(assets, exit_basis_points);
-            let recipient = contract_state.exit_fee_recipient.read();
-
-            if fee > 0 && recipient != starknet::get_contract_address() {
-                contract_state.transfer_fees(recipient, fee);
-            }
-        }
-    }
-
-    /// Adjust fees
-    impl AdjustFeesImpl of FeeConfigTrait<ContractState> {
-        fn adjust_deposit(
-            self: @ERC4626Component::ComponentState<ContractState>, assets: u256,
-        ) -> u256 {
-            let contract_state = self.get_contract();
-            contract_state.remove_fee_from_deposit(assets)
-        }
-
-        fn adjust_mint(
-            self: @ERC4626Component::ComponentState<ContractState>, assets: u256,
-        ) -> u256 {
-            let contract_state = self.get_contract();
-            contract_state.add_fee_to_mint(assets)
-        }
-
-        fn adjust_withdraw(
-            self: @ERC4626Component::ComponentState<ContractState>, assets: u256,
-        ) -> u256 {
-            let contract_state = self.get_contract();
-            contract_state.add_fee_to_withdraw(assets)
-        }
-
-        fn adjust_redeem(
-            self: @ERC4626Component::ComponentState<ContractState>, assets: u256,
-        ) -> u256 {
-            let contract_state = self.get_contract();
-            contract_state.remove_fee_from_redeem(assets)
-        }
     }
 
     #[constructor]
@@ -359,50 +290,117 @@ pub mod ERC4626Fees {
         self.exit_fee_recipient.write(exit_treasury);
     }
 
-    #[generate_trait]
-    pub impl InternalImpl of InternalTrait {
-        fn transfer_fees(ref self: ContractState, recipient: ContractAddress, fee: u256) {
-            let asset_address = self.asset();
-            let asset_dispatcher = IERC20Dispatcher { contract_address: asset_address };
-            assert(asset_dispatcher.transfer(recipient, fee), 'Fee transfer failed');
+    /// Hooks
+    impl ERC4626HooksImpl of ERC4626Component::ERC4626HooksTrait<ContractState> {
+        fn after_deposit(
+            ref self: ERC4626Component::ComponentState<ContractState>,
+            caller: ContractAddress,
+            receiver: ContractAddress,
+            assets: u256,
+            shares: u256,
+            fee: Option<Fee>,
+        ) {
+            if let Option::Some(fee) = fee {
+                let mut contract_state = self.get_contract_mut();
+                let fee_recipient = contract_state.entry_fee_recipient.read();
+                match fee {
+                    Fee::Assets(fee) => {
+                        let asset_address = contract_state.asset();
+                        let asset_dispatcher = IERC20Dispatcher { contract_address: asset_address };
+                        assert(
+                            asset_dispatcher.transfer(fee_recipient, fee), 'Fee transfer failed',
+                        );
+                    },
+                    Fee::Shares(fee) => contract_state.erc20.mint(fee_recipient, fee),
+                };
+            }
         }
 
-        fn remove_fee_from_deposit(self: @ContractState, assets: u256) -> u256 {
-            let fee = self.fee_on_total(assets, self.entry_fee_basis_point_value.read());
-            assets - fee
+        fn before_withdraw(
+            ref self: ERC4626Component::ComponentState<ContractState>,
+            caller: ContractAddress,
+            receiver: ContractAddress,
+            owner: ContractAddress,
+            assets: u256,
+            shares: u256,
+            fee: Option<Fee>,
+        ) {
+            if let Option::Some(fee) = fee {
+                let mut contract_state = self.get_contract_mut();
+                let fee_recipient = contract_state.exit_fee_recipient.read();
+                match fee {
+                    Fee::Assets(fee) => {
+                        let asset_address = contract_state.asset();
+                        let asset_dispatcher = IERC20Dispatcher { contract_address: asset_address };
+                        assert(
+                            asset_dispatcher.transfer(fee_recipient, fee), 'Fee transfer failed',
+                        );
+                    },
+                    Fee::Shares(fee) => {
+                        if caller != owner {
+                            contract_state.erc20._spend_allowance(owner, caller, fee);
+                        }
+                        contract_state.erc20._transfer(owner, fee_recipient, fee);
+                    },
+                };
+            }
+        }
+    }
+
+    /// Calculate fees
+    impl FeeConfigImpl of FeeConfigTrait<ContractState> {
+        fn calculate_deposit_fee(
+            self: @ERC4626Component::ComponentState<ContractState>, assets: u256, shares: u256,
+        ) -> Option<Fee> {
+            let contract_state = self.get_contract();
+            let fee = fee_on_total(assets, contract_state.entry_fee_basis_point_value.read());
+            Option::Some(Fee::Assets(fee))
         }
 
-        fn add_fee_to_mint(self: @ContractState, assets: u256) -> u256 {
-            assets + self.fee_on_raw(assets, self.entry_fee_basis_point_value.read())
+        fn calculate_mint_fee(
+            self: @ERC4626Component::ComponentState<ContractState>, assets: u256, shares: u256,
+        ) -> Option<Fee> {
+            let contract_state = self.get_contract();
+            let fee = fee_on_raw(shares, contract_state.entry_fee_basis_point_value.read());
+            Option::Some(Fee::Shares(fee))
         }
 
-        fn add_fee_to_withdraw(self: @ContractState, assets: u256) -> u256 {
-            let fee = self.fee_on_raw(assets, self.exit_fee_basis_point_value.read());
-            assets + fee
+        fn calculate_withdraw_fee(
+            self: @ERC4626Component::ComponentState<ContractState>, assets: u256, shares: u256,
+        ) -> Option<Fee> {
+            let contract_state = self.get_contract();
+            let fee = fee_on_raw(assets, contract_state.exit_fee_basis_point_value.read());
+            Option::Some(Fee::Assets(fee))
         }
 
-        fn remove_fee_from_redeem(self: @ContractState, assets: u256) -> u256 {
-            assets - self.fee_on_total(assets, self.exit_fee_basis_point_value.read())
+        fn calculate_redeem_fee(
+            self: @ERC4626Component::ComponentState<ContractState>, assets: u256, shares: u256,
+        ) -> Option<Fee> {
+            let contract_state = self.get_contract();
+            let fee = fee_on_total(shares, contract_state.exit_fee_basis_point_value.read());
+            Option::Some(Fee::Shares(fee))
         }
+    }
 
-        ///
-        /// Fee operations
-        ///
+    /// Calculates the fees that should be added to an amount `assets` that does not already
+    /// include fees.
+    /// Used in IERC4626::mint and IERC4626::withdraw operations.
+    fn fee_on_raw(
+        assets: u256,
+        fee_basis_points: u256,
+    ) -> u256 {
+        math::u256_mul_div(assets, fee_basis_points, _BASIS_POINT_SCALE, Rounding::Ceil)
+    }
 
-        /// Calculates the fees that should be added to an amount `assets` that does not already
-        /// include fees.
-        /// Used in IERC4626::mint and IERC4626::withdraw operations.
-        fn fee_on_raw(self: @ContractState, assets: u256, fee_basis_points: u256) -> u256 {
-            math::u256_mul_div(assets, fee_basis_points, _BASIS_POINT_SCALE, Rounding::Ceil)
-        }
-
-        /// Calculates the fee part of an amount `assets` that already includes fees.
-        /// Used in IERC4626::deposit and IERC4626::redeem operations.
-        fn fee_on_total(self: @ContractState, assets: u256, fee_basis_points: u256) -> u256 {
-            math::u256_mul_div(
-                assets, fee_basis_points, fee_basis_points + _BASIS_POINT_SCALE, Rounding::Ceil,
-            )
-        }
+    /// Calculates the fee part of an amount `assets` that already includes fees.
+    /// Used in IERC4626::deposit and IERC4626::redeem operations.
+    fn fee_on_total(
+        assets: u256,
+        fee_basis_points: u256,
+    ) -> u256 {
+        math::u256_mul_div(
+            assets, fee_basis_points, fee_basis_points + _BASIS_POINT_SCALE, Rounding::Ceil,
+        )
     }
 }
 ```

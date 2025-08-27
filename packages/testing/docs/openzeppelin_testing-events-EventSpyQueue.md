@@ -2,13 +2,11 @@
 
 A wrapper around the `EventSpy` structure to allow treating the events as a queue.
 
-Fully qualified path: `openzeppelin_testing::events::EventSpyQueue`
+Fully qualified path: [openzeppelin_testing](./openzeppelin_testing.md)::[events](./openzeppelin_testing-events.md)::[EventSpyQueue](./openzeppelin_testing-events-EventSpyQueue.md)
 
-```rust
-#[derive(Drop, Serde)]
+<pre><code class="language-cairo">#[derive(Drop, Serde)]
 pub struct EventSpyQueue {
-    event_offset: usize,
+    event_offset: u32,
     event_spy: EventSpy,
-}
-```
+}</code></pre>
 

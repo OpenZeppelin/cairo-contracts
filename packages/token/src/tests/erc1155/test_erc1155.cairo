@@ -1,4 +1,5 @@
 use core::num::traits::Zero;
+use openzeppelin_interfaces::erc1155 as interface;
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin_test_common::erc1155::{
     ERC1155SpyHelpers, deploy_another_account_at, get_ids_and_split_values, get_ids_and_values,
@@ -9,11 +10,10 @@ use openzeppelin_testing::constants::{
     EMPTY_DATA, OPERATOR, OTHER, OWNER, RECIPIENT, TOKEN_ID, TOKEN_ID_2, TOKEN_VALUE, TOKEN_VALUE_2,
     ZERO,
 };
-use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, ExpectedEvent, spy_events};
 use snforge_std::{start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
 use starknet::storage::StoragePointerReadAccess;
-use crate::erc1155;
 use crate::erc1155::ERC1155Component;
 use crate::erc1155::ERC1155Component::{
     ERC1155CamelImpl, ERC1155Impl, ERC1155MetadataURIImpl, InternalImpl,
@@ -77,15 +77,15 @@ fn test_initialize() {
     assert_eq!(state.ERC1155_uri.read(), "URI");
     assert!(state.balance_of(OWNER, TOKEN_ID).is_zero());
 
-    let supports_ierc1155 = mock_state.supports_interface(erc1155::interface::IERC1155_ID);
+    let supports_ierc1155 = mock_state.supports_interface(interface::IERC1155_ID);
     assert!(supports_ierc1155);
 
     let supports_ierc1155_metadata_uri = mock_state
-        .supports_interface(erc1155::interface::IERC1155_METADATA_URI_ID);
+        .supports_interface(interface::IERC1155_METADATA_URI_ID);
     assert!(supports_ierc1155_metadata_uri);
 
     let supports_isrc5 = mock_state
-        .supports_interface(openzeppelin_introspection::interface::ISRC5_ID);
+        .supports_interface(openzeppelin_interfaces::introspection::ISRC5_ID);
     assert!(supports_isrc5);
 }
 
@@ -100,15 +100,15 @@ fn test_initialize_no_metadata() {
     assert_eq!(state.ERC1155_uri.read(), empty_str);
     assert!(state.balance_of(OWNER, TOKEN_ID).is_zero());
 
-    let supports_ierc1155 = mock_state.supports_interface(erc1155::interface::IERC1155_ID);
+    let supports_ierc1155 = mock_state.supports_interface(interface::IERC1155_ID);
     assert!(supports_ierc1155);
 
     let does_not_support_ierc1155_metadata_uri = !mock_state
-        .supports_interface(erc1155::interface::IERC1155_METADATA_URI_ID);
+        .supports_interface(interface::IERC1155_METADATA_URI_ID);
     assert!(does_not_support_ierc1155_metadata_uri);
 
     let supports_isrc5 = mock_state
-        .supports_interface(openzeppelin_introspection::interface::ISRC5_ID);
+        .supports_interface(openzeppelin_interfaces::introspection::ISRC5_ID);
     assert!(supports_isrc5);
 }
 
@@ -1392,9 +1392,12 @@ impl ERC1155HooksSpyHelpersImpl of ERC1155HooksSpyHelpers {
         token_ids: Span<u256>,
         values: Span<u256>,
     ) {
-        let expected = SnakeERC1155MockWithHooks::Event::BeforeUpdate(
-            SnakeERC1155MockWithHooks::BeforeUpdate { from, to, token_ids, values },
-        );
+        let expected = ExpectedEvent::new()
+            .key(selector!("BeforeUpdate"))
+            .data(from)
+            .data(to)
+            .data(token_ids)
+            .data(values);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -1406,9 +1409,12 @@ impl ERC1155HooksSpyHelpersImpl of ERC1155HooksSpyHelpers {
         token_ids: Span<u256>,
         values: Span<u256>,
     ) {
-        let expected = SnakeERC1155MockWithHooks::Event::AfterUpdate(
-            SnakeERC1155MockWithHooks::AfterUpdate { from, to, token_ids, values },
-        );
+        let expected = ExpectedEvent::new()
+            .key(selector!("AfterUpdate"))
+            .data(from)
+            .data(to)
+            .data(token_ids)
+            .data(values);
         self.assert_emitted_single(contract, expected);
     }
 }

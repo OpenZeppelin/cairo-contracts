@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v2.0.0-alpha.1 (security/src/pausable.cairo)
+// OpenZeppelin Contracts for Cairo v3.0.0-alpha.1 (security/src/pausable.cairo)
 
 /// # Pausable Component
 ///
@@ -8,9 +8,9 @@
 /// or `assert_not_paused` will be affected by this mechanism.
 #[starknet::component]
 pub mod PausableComponent {
+    use openzeppelin_interfaces::pausable::IPausable;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
     use starknet::{ContractAddress, get_caller_address};
-    use crate::interface::IPausable;
 
     #[storage]
     pub struct Storage {

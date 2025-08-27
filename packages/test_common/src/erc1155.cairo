@@ -1,8 +1,6 @@
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{PUBKEY, TOKEN_ID, TOKEN_ID_2, TOKEN_VALUE, TOKEN_VALUE_2};
-use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy};
-use openzeppelin_token::erc1155::ERC1155Component;
-use openzeppelin_token::erc1155::ERC1155Component::{ApprovalForAll, TransferBatch, TransferSingle};
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, ExpectedEvent};
 use starknet::ContractAddress;
 
 pub fn setup_receiver() -> ContractAddress {
@@ -44,9 +42,11 @@ pub impl ERC1155SpyHelpersImpl of ERC1155SpyHelpers {
         operator: ContractAddress,
         approved: bool,
     ) {
-        let expected = ERC1155Component::Event::ApprovalForAll(
-            ApprovalForAll { owner, operator, approved },
-        );
+        let expected = ExpectedEvent::new()
+            .key(selector!("ApprovalForAll"))
+            .key(owner)
+            .key(operator)
+            .data(approved);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -70,9 +70,13 @@ pub impl ERC1155SpyHelpersImpl of ERC1155SpyHelpers {
         token_id: u256,
         value: u256,
     ) {
-        let expected = ERC1155Component::Event::TransferSingle(
-            TransferSingle { operator, from, to, id: token_id, value },
-        );
+        let expected = ExpectedEvent::new()
+            .key(selector!("TransferSingle"))
+            .key(operator)
+            .key(from)
+            .key(to)
+            .data(token_id)
+            .data(value);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -98,9 +102,13 @@ pub impl ERC1155SpyHelpersImpl of ERC1155SpyHelpers {
         token_ids: Span<u256>,
         values: Span<u256>,
     ) {
-        let expected = ERC1155Component::Event::TransferBatch(
-            TransferBatch { operator, from, to, ids: token_ids, values },
-        );
+        let expected = ExpectedEvent::new()
+            .key(selector!("TransferBatch"))
+            .key(operator)
+            .key(from)
+            .key(to)
+            .data(token_ids)
+            .data(values);
         self.assert_emitted_single(contract, expected);
     }
 

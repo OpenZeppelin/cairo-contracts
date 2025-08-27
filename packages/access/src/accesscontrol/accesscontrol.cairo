@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v2.0.0-alpha.1 (access/src/accesscontrol/accesscontrol.cairo)
+// OpenZeppelin Contracts for Cairo v3.0.0-alpha.1 (access/src/accesscontrol/accesscontrol.cairo)
 
 /// # AccessControl Component
 ///
@@ -19,6 +19,8 @@
 #[starknet::component]
 pub mod AccessControlComponent {
     use core::panic_with_const_felt252;
+    use openzeppelin_interfaces::accesscontrol as interface;
+    use openzeppelin_interfaces::accesscontrol::RoleStatus;
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_introspection::src5::SRC5Component::{
         InternalImpl as SRC5InternalImpl, SRC5Impl,
@@ -26,8 +28,6 @@ pub mod AccessControlComponent {
     use starknet::ContractAddress;
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
     use crate::accesscontrol::account_role_info::AccountRoleInfo;
-    use crate::accesscontrol::interface;
-    use crate::accesscontrol::interface::RoleStatus;
 
     pub const DEFAULT_ADMIN_ROLE: felt252 = 0;
 
@@ -281,7 +281,7 @@ pub mod AccessControlComponent {
         ) -> bool {
             match self.resolve_role_status(role, account) {
                 RoleStatus::Effective => true,
-                RoleStatus::Delayed => false,
+                RoleStatus::Delayed(_) => false,
                 RoleStatus::NotGranted => false,
             }
         }
@@ -352,7 +352,7 @@ pub mod AccessControlComponent {
         ) {
             match self.resolve_role_status(role, account) {
                 RoleStatus::Effective => (),
-                RoleStatus::Delayed |
+                RoleStatus::Delayed(_) |
                 RoleStatus::NotGranted => {
                     let caller = starknet::get_caller_address();
                     let role_info = AccountRoleInfo { is_granted: true, effective_from: 0 };
@@ -386,7 +386,7 @@ pub mod AccessControlComponent {
             assert(delay > 0, Errors::INVALID_DELAY);
             match self.resolve_role_status(role, account) {
                 RoleStatus::Effective => panic_with_const_felt252::<Errors::ALREADY_EFFECTIVE>(),
-                RoleStatus::Delayed |
+                RoleStatus::Delayed(_) |
                 RoleStatus::NotGranted => {
                     let caller = starknet::get_caller_address();
                     let effective_from = starknet::get_block_timestamp() + delay;
@@ -408,7 +408,7 @@ pub mod AccessControlComponent {
             match self.resolve_role_status(role, account) {
                 RoleStatus::NotGranted => (),
                 RoleStatus::Effective |
-                RoleStatus::Delayed => {
+                RoleStatus::Delayed(_) => {
                     let caller = starknet::get_caller_address();
                     let role_info = AccountRoleInfo { is_granted: false, effective_from: 0 };
                     self.AccessControl_role_member.write((role, account), role_info);

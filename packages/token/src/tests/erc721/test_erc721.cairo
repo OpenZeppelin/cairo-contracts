@@ -1,4 +1,5 @@
 use core::num::traits::Zero;
+use openzeppelin_interfaces::erc721 as interface;
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin_test_common::erc721::ERC721SpyHelpers;
 use openzeppelin_test_common::mocks::erc721::{DualCaseERC721Mock, SnakeERC721MockWithHooks};
@@ -7,11 +8,10 @@ use openzeppelin_testing::constants::{
     BASE_URI, BASE_URI_2, CALLER, DATA, NAME, OPERATOR, OTHER, OWNER, PUBKEY, RECIPIENT, SPENDER,
     SYMBOL, TOKEN_ID, TOKEN_ID_2, ZERO,
 };
-use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, ExpectedEvent, spy_events};
 use snforge_std::{start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
 use starknet::storage::StorageMapReadAccess;
-use crate::erc721;
 use crate::erc721::ERC721Component;
 use crate::erc721::ERC721Component::{
     ERC721CamelOnlyImpl, ERC721Impl, ERC721MetadataImpl, InternalImpl,
@@ -74,15 +74,14 @@ fn test_initializer() {
     assert_eq!(state._base_uri(), BASE_URI());
     assert!(state.balance_of(OWNER).is_zero());
 
-    let supports_ierc721 = mock_state.supports_interface(erc721::interface::IERC721_ID);
+    let supports_ierc721 = mock_state.supports_interface(interface::IERC721_ID);
     assert!(supports_ierc721);
 
-    let supports_ierc721_metadata = mock_state
-        .supports_interface(erc721::interface::IERC721_METADATA_ID);
+    let supports_ierc721_metadata = mock_state.supports_interface(interface::IERC721_METADATA_ID);
     assert!(supports_ierc721_metadata);
 
     let supports_isrc5 = mock_state
-        .supports_interface(openzeppelin_introspection::interface::ISRC5_ID);
+        .supports_interface(openzeppelin_interfaces::introspection::ISRC5_ID);
     assert!(supports_isrc5);
 }
 
@@ -99,15 +98,15 @@ fn test_initializer_no_metadata() {
     assert_eq!(state._base_uri(), empty_str.clone());
     assert!(state.balance_of(OWNER).is_zero());
 
-    let supports_ierc721 = mock_state.supports_interface(erc721::interface::IERC721_ID);
+    let supports_ierc721 = mock_state.supports_interface(interface::IERC721_ID);
     assert!(supports_ierc721);
 
     let does_not_support_ierc721_metadata = !mock_state
-        .supports_interface(erc721::interface::IERC721_METADATA_ID);
+        .supports_interface(interface::IERC721_METADATA_ID);
     assert!(does_not_support_ierc721_metadata);
 
     let supports_isrc5 = mock_state
-        .supports_interface(openzeppelin_introspection::interface::ISRC5_ID);
+        .supports_interface(openzeppelin_interfaces::introspection::ISRC5_ID);
     assert!(supports_isrc5);
 }
 
@@ -1489,9 +1488,11 @@ impl ERC721HooksSpyHelpersImpl of ERC721HooksSpyHelpers {
         token_id: u256,
         auth: ContractAddress,
     ) {
-        let expected = SnakeERC721MockWithHooks::Event::BeforeUpdate(
-            SnakeERC721MockWithHooks::BeforeUpdate { to, token_id, auth },
-        );
+        let expected = ExpectedEvent::new()
+            .key(selector!("BeforeUpdate"))
+            .data(to)
+            .data(token_id)
+            .data(auth);
         self.assert_emitted_single(contract, expected);
     }
 
@@ -1502,9 +1503,11 @@ impl ERC721HooksSpyHelpersImpl of ERC721HooksSpyHelpers {
         token_id: u256,
         auth: ContractAddress,
     ) {
-        let expected = SnakeERC721MockWithHooks::Event::AfterUpdate(
-            SnakeERC721MockWithHooks::AfterUpdate { to, token_id, auth },
-        );
+        let expected = ExpectedEvent::new()
+            .key(selector!("AfterUpdate"))
+            .data(to)
+            .data(token_id)
+            .data(auth);
         self.assert_emitted_single(contract, expected);
     }
 }

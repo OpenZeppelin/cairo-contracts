@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v2.0.0-alpha.1 (token/src/erc721/erc721_receiver.cairo)
+// OpenZeppelin Contracts for Cairo v3.0.0-alpha.1 (token/src/erc721/erc721_receiver.cairo)
 
 /// # ERC721Receiver Component
 ///
@@ -8,13 +8,15 @@
 /// safe transfers.
 #[starknet::component]
 pub mod ERC721ReceiverComponent {
+    use openzeppelin_interfaces::erc721 as interface;
+    use openzeppelin_interfaces::erc721::{
+        IERC721Receiver, IERC721ReceiverCamel, IERC721_RECEIVER_ID,
+    };
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_introspection::src5::SRC5Component::{
         InternalTrait as SRC5InternalTrait, SRC5Impl,
     };
     use starknet::ContractAddress;
-    use crate::erc721::interface;
-    use crate::erc721::interface::{IERC721Receiver, IERC721ReceiverCamel, IERC721_RECEIVER_ID};
 
     #[storage]
     pub struct Storage {}

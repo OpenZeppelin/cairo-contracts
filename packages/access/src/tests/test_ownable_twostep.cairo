@@ -1,14 +1,14 @@
 use core::num::traits::Zero;
+use openzeppelin_interfaces::ownable::{IOwnableTwoStep, IOwnableTwoStepCamelOnly};
 use openzeppelin_test_common::mocks::access::DualCaseTwoStepOwnableMock;
 use openzeppelin_test_common::ownable::OwnableSpyHelpers;
 use openzeppelin_testing::constants::{NEW_OWNER, OTHER, OWNER, ZERO};
-use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, ExpectedEvent, spy_events};
 use snforge_std::{start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
 use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 use crate::ownable::OwnableComponent;
-use crate::ownable::OwnableComponent::{InternalTrait, OwnershipTransferStarted};
-use crate::ownable::interface::{IOwnableTwoStep, IOwnableTwoStepCamelOnly};
+use crate::ownable::OwnableComponent::InternalTrait;
 
 //
 // Setup
@@ -291,9 +291,10 @@ impl TwoStepSpyHelpersImpl of TwoStepSpyHelpers {
         previous_owner: ContractAddress,
         new_owner: ContractAddress,
     ) {
-        let expected = OwnableComponent::Event::OwnershipTransferStarted(
-            OwnershipTransferStarted { previous_owner, new_owner },
-        );
+        let expected = ExpectedEvent::new()
+            .key(selector!("OwnershipTransferStarted"))
+            .key(previous_owner)
+            .key(new_owner);
         self.assert_emitted_single(from_address, expected);
     }
 }

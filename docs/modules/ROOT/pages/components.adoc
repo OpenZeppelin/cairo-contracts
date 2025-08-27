@@ -3,7 +3,7 @@
 The following documentation provides reasoning and examples on how to use Contracts for Cairo components.
 
 :shamans-post: https://community.starknet.io/t/cairo-components/101136#components-1[Starknet Shamans post]
-:cairo-book: https://book.cairo-lang.org/ch99-01-05-00-components.html[Cairo book]
+:cairo-book: https://book.cairo-lang.org/ch103-02-00-composability-and-components.html[Cairo book]
 
 Starknet components are separate modules that contain storage, events, and implementations that can be integrated into a contract.
 Components themselves cannot be declared or deployed.
@@ -561,7 +561,7 @@ mod ERC20Pausable {
     use openzeppelin_security::pausable::PausableComponent;
     use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl, DefaultConfig};
     // Import the ERC20 interfaces to create custom implementations
-    use openzeppelin_token::erc20::interface::{IERC20, IERC20CamelOnly};
+    use openzeppelin_interfaces::erc20::{IERC20, IERC20CamelOnly};
     use starknet::ContractAddress;
 
     component!(path: PausableComponent, storage: pausable, event: PausableEvent);
@@ -589,7 +589,7 @@ mod ERC20Pausable {
 The first thing to notice is that the contract imports the interfaces of the implementations that will be customized.
 These will be used in the next code example.
 
-Next, the contract includes the {erc20-component} implementations; however, `ERC20Impl` and `ERC20CamelOnlyImplt` are *not* embedded.
+Next, the contract includes the {erc20-component} implementations; however, `ERC20Impl` and `ERC20CamelOnlyImpl` are *not* embedded.
 Instead, we want to expose our custom implementation of an interface.
 The following example shows the pausable logic integrated into the ERC20 implementations:
 

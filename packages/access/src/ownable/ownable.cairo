@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v2.0.0-alpha.1 (access/src/ownable/ownable.cairo)
+// OpenZeppelin Contracts for Cairo v3.0.0-alpha.1 (access/src/ownable/ownable.cairo)
 
 /// # Ownable Component
 ///
@@ -16,10 +16,9 @@
 #[starknet::component]
 pub mod OwnableComponent {
     use core::num::traits::Zero;
+    use openzeppelin_interfaces::ownable as interface;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
     use starknet::{ContractAddress, get_caller_address};
-    use crate::ownable::interface;
-    use crate::ownable::interface::IOwnableTwoStep;
 
     #[storage]
     pub struct Storage {

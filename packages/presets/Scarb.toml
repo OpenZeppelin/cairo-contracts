@@ -26,6 +26,7 @@ starknet.workspace = true
 openzeppelin_access = { path = "../access" }
 openzeppelin_account = { path = "../account" }
 openzeppelin_finance = { path = "../finance" }
+openzeppelin_interfaces = { path = "../interfaces" }
 openzeppelin_introspection = { path = "../introspection" }
 openzeppelin_token = { path = "../token" }
 openzeppelin_upgrades = { path = "../upgrades" }

@@ -25,6 +25,7 @@ scarb.workspace = true
 [dependencies]
 starknet.workspace = true
 openzeppelin_access = { path = "../access" }
+openzeppelin_interfaces = { path = "../interfaces" }
 openzeppelin_introspection = { path = "../introspection" }
 openzeppelin_account = { path = "../account" }
 openzeppelin_token = { path= "../token" }
@@ -56,6 +57,9 @@ build-external-contracts = [
     "openzeppelin_test_common::mocks::timelock::MockContract",
     "openzeppelin_test_common::mocks::timelock::TimelockAttackerMock",
     "openzeppelin_test_common::mocks::multisig::MultisigTargetMock",
-    "openzeppelin_test_common::mocks::votes::ERC721VotesMock",
-    "openzeppelin_test_common::mocks::votes::ERC20VotesMock"
+    "openzeppelin_test_common::mocks::votes::ERC721BlockNumberVotesMock",
+    "openzeppelin_test_common::mocks::votes::ERC721TimestampVotesMock",
+    "openzeppelin_test_common::mocks::votes::ERC20BlockNumberVotesMock",
+    "openzeppelin_test_common::mocks::votes::ERC20TimestampVotesMock",
+    "openzeppelin_test_common::mocks::votes::LegacyERC20VotesMock",
 ]

@@ -13,7 +13,7 @@ pub mod Contract {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        pub access_control_DAR: AccessControlDefaultAdminRulesComponent::Storage,
+        pub access_control_dar: AccessControlDefaultAdminRulesComponent::Storage,
     }
 
     #[constructor]
@@ -22,7 +22,7 @@ pub mod Contract {
 
     component!(
         path: AccessControlDefaultAdminRulesComponent,
-        storage: access_control_DAR,
+        storage: access_control_dar,
         event: AccessControlDefaultAdminRulesEvent,
     );
 

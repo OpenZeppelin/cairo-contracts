@@ -14,18 +14,18 @@ pub mod Contract {
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
-        pub access_control_DAR: AccessControlDefaultAdminRulesComponent::Storage,
+        pub access_control_dar: AccessControlDefaultAdminRulesComponent::Storage,
     }
 
     #[constructor]
     fn constructor(ref self: ContractState, default_admin: ContractAddress) {
-        self.access_control_DAR.initializer(INITIAL_DELAY, default_admin);
+        self.access_control_dar.initializer(INITIAL_DELAY, default_admin);
     }
     use openzeppelin_access::accesscontrol::extensions::AccessControlDefaultAdminRulesComponent;
 
     component!(
         path: AccessControlDefaultAdminRulesComponent,
-        storage: access_control_DAR,
+        storage: access_control_dar,
         event: AccessControlDefaultAdminRulesEvent,
     );
 

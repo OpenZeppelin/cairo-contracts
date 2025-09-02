@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Embeddable `ERC2981AdminAccessControlDefaultAdminRulesImpl` implementation providing admin functions for a `ERC2981` token based on `AccessControlDefaultAdminRules` component (#1511)
+- Embeddable `ERC2981AdminAccessControlDefaultAdminRulesImpl` implementation providing admin functions for a `ERC2981` token based on `AccessControlDefaultAdminRules` component (#1516)
 
 ## 3.0.0-alpha.1 (2025-08-18)
 

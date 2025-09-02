@@ -118,4 +118,48 @@ pub mod warnings {
         it looks like it is missing.
         "
     };
+
+    /// Warning when the ERC4626 component is missing an implementation of the ERC4626HooksTrait.
+    pub const ERC4626_HOOKS_IMPL_MISSING: &str = indoc! {
+        "The ERC4626 component requires an implementation of the ERC4626HooksTrait in scope and
+        it looks like it is missing.
+
+        You can use the ERC4626EmptyHooks implementation by importing it:
+
+        `use openzeppelin_token::erc20::extensions::erc4626::ERC4626EmptyHooks;`
+        "
+    };
+
+    /// Warning when the ERC4626 component is missing an implementation of the FeeConfigTrait.
+    pub const ERC4626_FEE_CONFIG_IMPL_MISSING: &str = indoc! {
+        "The ERC4626 component requires an implementation of the FeeConfigTrait in scope and
+        it looks like it is missing.
+
+        You can use the ERC4626DefaultNoFees implementation by importing it:
+
+        `use openzeppelin_token::erc20::extensions::erc4626::ERC4626DefaultNoFees;`
+        "
+    };
+
+    /// Warning when the ERC4626 component is missing an implementation of the LimitConfigTrait.
+    pub const ERC4626_LIMIT_CONFIG_IMPL_MISSING: &str = indoc! {
+        "The ERC4626 component requires an implementation of the LimitConfigTrait in scope and
+        it looks like it is missing.
+
+        You can use the ERC4626DefaultNoLimits implementation by importing it:
+
+        `use openzeppelin_token::erc20::extensions::erc4626::ERC4626DefaultNoLimits;`
+        "
+    };
+
+    /// Warning when the ERC4626 component is missing an implementation of the AssetsManagementTrait.
+    pub const ERC4626_ASSETS_MANAGEMENT_IMPL_MISSING: &str = indoc! {
+        "The ERC4626 component requires an implementation of the AssetsManagementTrait in scope and
+        it looks like it is missing.
+
+        You can use the ERC4626SelfAssetsManagement implementation by importing it:
+
+        `use openzeppelin_token::erc20::extensions::erc4626::ERC4626SelfAssetsManagement;`
+        "
+    };
 }

@@ -1,6 +1,10 @@
+<<<<<<< HEAD
 use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy};
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::Event;
+=======
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, ExpectedEvent};
+>>>>>>> d3a7c0cc9e8ff51b7b87394bf196b963970eb4b2
 use starknet::ContractAddress;
 use starknet::account::Call;
 
@@ -21,6 +25,7 @@ pub(crate) impl GovernorSpyHelpersImpl of GovernorSpyHelpers {
         vote_end: u64,
         description: @ByteArray,
     ) {
+<<<<<<< HEAD
         let mut keys = array![];
         keys.append_serde(selector!("ProposalCreated"));
         keys.append_serde(proposal_id);
@@ -34,6 +39,17 @@ pub(crate) impl GovernorSpyHelpersImpl of GovernorSpyHelpers {
         data.append_serde(description.clone());
 
         let expected = Event { keys, data };
+=======
+        let expected = ExpectedEvent::new()
+            .key(selector!("ProposalCreated"))
+            .key(proposal_id)
+            .key(proposer)
+            .data(calls)
+            .data(signatures)
+            .data(vote_start)
+            .data(vote_end)
+            .data(description.clone());
+>>>>>>> d3a7c0cc9e8ff51b7b87394bf196b963970eb4b2
         self.assert_emitted_single(contract, expected);
     }
 
@@ -71,6 +87,7 @@ pub(crate) impl GovernorSpyHelpersImpl of GovernorSpyHelpers {
         weight: u256,
         reason: @ByteArray,
     ) {
+<<<<<<< HEAD
         let mut keys = array![];
         keys.append_serde(selector!("VoteCast"));
         keys.append_serde(voter);
@@ -82,6 +99,15 @@ pub(crate) impl GovernorSpyHelpersImpl of GovernorSpyHelpers {
         data.append_serde(reason.clone());
 
         let expected = Event { keys, data };
+=======
+        let expected = ExpectedEvent::new()
+            .key(selector!("VoteCast"))
+            .key(voter)
+            .data(proposal_id)
+            .data(support)
+            .data(weight)
+            .data(reason.clone());
+>>>>>>> d3a7c0cc9e8ff51b7b87394bf196b963970eb4b2
         self.assert_emitted_single(contract, expected);
     }
 
@@ -108,6 +134,7 @@ pub(crate) impl GovernorSpyHelpersImpl of GovernorSpyHelpers {
         reason: @ByteArray,
         params: Span<felt252>,
     ) {
+<<<<<<< HEAD
         let mut keys = array![];
         keys.append_serde(selector!("VoteCastWithParams"));
         keys.append_serde(voter);
@@ -120,6 +147,16 @@ pub(crate) impl GovernorSpyHelpersImpl of GovernorSpyHelpers {
         data.append_serde(params);
 
         let expected = Event { keys, data };
+=======
+        let expected = ExpectedEvent::new()
+            .key(selector!("VoteCastWithParams"))
+            .key(voter)
+            .data(proposal_id)
+            .data(support)
+            .data(weight)
+            .data(reason.clone())
+            .data(params);
+>>>>>>> d3a7c0cc9e8ff51b7b87394bf196b963970eb4b2
         self.assert_emitted_single(contract, expected);
     }
 
@@ -143,6 +180,7 @@ pub(crate) impl GovernorSpyHelpersImpl of GovernorSpyHelpers {
     fn assert_event_proposal_queued(
         ref self: EventSpy, contract: ContractAddress, proposal_id: felt252, eta_seconds: u64,
     ) {
+<<<<<<< HEAD
         let mut keys = array![];
         keys.append_serde(selector!("ProposalQueued"));
         keys.append_serde(proposal_id);
@@ -151,6 +189,12 @@ pub(crate) impl GovernorSpyHelpersImpl of GovernorSpyHelpers {
         data.append_serde(eta_seconds);
 
         let expected = Event { keys, data };
+=======
+        let expected = ExpectedEvent::new()
+            .key(selector!("ProposalQueued"))
+            .key(proposal_id)
+            .data(eta_seconds);
+>>>>>>> d3a7c0cc9e8ff51b7b87394bf196b963970eb4b2
         self.assert_emitted_single(contract, expected);
     }
 
@@ -164,11 +208,15 @@ pub(crate) impl GovernorSpyHelpersImpl of GovernorSpyHelpers {
     fn assert_event_proposal_executed(
         ref self: EventSpy, contract: ContractAddress, proposal_id: felt252,
     ) {
+<<<<<<< HEAD
         let mut keys = array![];
         keys.append_serde(selector!("ProposalExecuted"));
         keys.append_serde(proposal_id);
 
         let expected = Event { keys, data: array![] };
+=======
+        let expected = ExpectedEvent::new().key(selector!("ProposalExecuted")).key(proposal_id);
+>>>>>>> d3a7c0cc9e8ff51b7b87394bf196b963970eb4b2
         self.assert_emitted_single(contract, expected);
     }
 
@@ -182,11 +230,15 @@ pub(crate) impl GovernorSpyHelpersImpl of GovernorSpyHelpers {
     fn assert_event_proposal_canceled(
         ref self: EventSpy, contract: ContractAddress, proposal_id: felt252,
     ) {
+<<<<<<< HEAD
         let mut keys = array![];
         keys.append_serde(selector!("ProposalCanceled"));
         keys.append_serde(proposal_id);
 
         let expected = Event { keys, data: array![] };
+=======
+        let expected = ExpectedEvent::new().key(selector!("ProposalCanceled")).key(proposal_id);
+>>>>>>> d3a7c0cc9e8ff51b7b87394bf196b963970eb4b2
         self.assert_emitted_single(contract, expected);
     }
 

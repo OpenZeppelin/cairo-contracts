@@ -231,6 +231,36 @@ fn add_per_component_warnings(code: &str, component_info: &ComponentInfo) -> Vec
                 warnings.push(warning);
             }
         }
+        AllowedComponents::ERC4626 => {
+            // 1. Check that the ERC4626HooksTrait is implemented
+            let hooks_trait_used = code.contains("ERC4626HooksTrait");
+            let hooks_empty_impl_used = code.contains("ERC4626EmptyHooks");
+            if !hooks_trait_used && !hooks_empty_impl_used {
+                let warning = Diagnostic::warn(warnings::ERC4626_HOOKS_IMPL_MISSING);
+                warnings.push(warning);
+            }
+            // 2. Check that the FeeConfigTrait is implemented
+            let fee_config_trait_used = code.contains("FeeConfigTrait");
+            let fee_config_empty_impl_used = code.contains("ERC4626DefaultNoFees");
+            if !fee_config_trait_used && !fee_config_empty_impl_used {
+                let warning = Diagnostic::warn(warnings::ERC4626_FEE_CONFIG_IMPL_MISSING);
+                warnings.push(warning);
+            }
+            // 3. Check that the LimitConfigTrait is implemented
+            let limit_config_trait_used = code.contains("LimitConfigTrait");
+            let limit_config_empty_impl_used = code.contains("ERC4626DefaultNoLimits");
+            if !limit_config_trait_used && !limit_config_empty_impl_used {
+                let warning = Diagnostic::warn(warnings::ERC4626_LIMIT_CONFIG_IMPL_MISSING);
+                warnings.push(warning);
+            }
+            // 4. Check that the AssetsManagementTrait is implemented
+            let assets_management_trait_used = code.contains("AssetsManagementTrait");
+            let self_assets_management_impl_used = code.contains("ERC4626SelfAssetsManagement");
+            if !assets_management_trait_used && !self_assets_management_impl_used {
+                let warning = Diagnostic::warn(warnings::ERC4626_ASSETS_MANAGEMENT_IMPL_MISSING);
+                warnings.push(warning);
+            }
+        }
         AllowedComponents::ERC721 => {
             // Check that the ERC721HooksTrait is implemented
             let hooks_trait_used = code.contains("ERC721HooksTrait");

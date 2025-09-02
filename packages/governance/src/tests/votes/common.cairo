@@ -1,6 +1,10 @@
+<<<<<<< HEAD
 use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy};
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::Event;
+=======
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, ExpectedEvent};
+>>>>>>> d3a7c0cc9e8ff51b7b87394bf196b963970eb4b2
 use starknet::ContractAddress;
 
 #[generate_trait]
@@ -12,6 +16,7 @@ pub(crate) impl VotesSpyHelpersImpl of VotesSpyHelpers {
         from_delegate: ContractAddress,
         to_delegate: ContractAddress,
     ) {
+<<<<<<< HEAD
         let mut keys = array![];
         keys.append_serde(selector!("DelegateChanged"));
         keys.append_serde(delegator);
@@ -19,6 +24,13 @@ pub(crate) impl VotesSpyHelpersImpl of VotesSpyHelpers {
         keys.append_serde(to_delegate);
 
         let expected = Event { keys, data: array![] };
+=======
+        let expected = ExpectedEvent::new()
+            .key(selector!("DelegateChanged"))
+            .key(delegator)
+            .key(from_delegate)
+            .key(to_delegate);
+>>>>>>> d3a7c0cc9e8ff51b7b87394bf196b963970eb4b2
         self.assert_emitted_single(contract, expected);
     }
 
@@ -29,6 +41,7 @@ pub(crate) impl VotesSpyHelpersImpl of VotesSpyHelpers {
         previous_votes: u256,
         new_votes: u256,
     ) {
+<<<<<<< HEAD
         let mut keys = array![];
         keys.append_serde(selector!("DelegateVotesChanged"));
         keys.append_serde(delegate);
@@ -38,6 +51,13 @@ pub(crate) impl VotesSpyHelpersImpl of VotesSpyHelpers {
         data.append_serde(new_votes);
 
         let expected = Event { keys, data };
+=======
+        let expected = ExpectedEvent::new()
+            .key(selector!("DelegateVotesChanged"))
+            .key(delegate)
+            .data(previous_votes)
+            .data(new_votes);
+>>>>>>> d3a7c0cc9e8ff51b7b87394bf196b963970eb4b2
         self.assert_emitted_single(contract, expected);
     }
 

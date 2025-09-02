@@ -10,6 +10,7 @@ use convert_case::{Case, Casing};
 use indoc::formatdoc;
 use regex::Regex;
 
+use crate::attribute::common::text_span::merge_spans_from_initial;
 use crate::type_hash::parser::TypeHashParser;
 
 use super::diagnostics::errors;
@@ -29,11 +30,13 @@ use super::parser::parse_string_arg;
 /// ```
 #[attribute_macro]
 pub fn type_hash(attr_stream: TokenStream, item_stream: TokenStream) -> ProcMacroResult {
+    let no_op_result = ProcMacroResult::new(item_stream.clone());
+
     // 1. Parse the attribute stream
     let config = match parse_args(&attr_stream.to_string()) {
         Ok(config) => config,
         Err(err) => {
-            return ProcMacroResult::new(TokenStream::empty()).with_diagnostics(err.into());
+            return no_op_result.with_diagnostics(err.into());
         }
     };
 
@@ -44,24 +47,30 @@ pub fn type_hash(attr_stream: TokenStream, item_stream: TokenStream) -> ProcMacr
         Ok(node) => handle_node(&db, node, &config),
         Err(err) => {
             let error = Diagnostic::error(err.format(&db));
-            return ProcMacroResult::new(TokenStream::empty()).with_diagnostics(error.into());
+            return no_op_result.with_diagnostics(error.into());
         }
     };
 
     let generated = match content {
         Ok(generated) => generated,
         Err(err) => {
-            return ProcMacroResult::new(TokenStream::empty()).with_diagnostics(err.into());
+            return no_op_result.with_diagnostics(err.into());
         }
     };
 
-    // 3. Return the result
+    // 3. Merge spans from the item stream into the content
+    // TODO!: This should be refactored when scarb APIs get improved
     let syntax_node = db.parse_virtual(generated).unwrap();
     let content_node = SyntaxNodeWithDb::new(&syntax_node, &db);
 
-    let mut result = item_stream;
+    let mut result = item_stream.clone();
     result.extend(quote! {#content_node});
-    ProcMacroResult::new(result)
+
+    let syntax_node_with_spans =
+        merge_spans_from_initial(&item_stream.tokens, &result.to_string(), &db);
+    let token_stream =
+        TokenStream::new(syntax_node_with_spans).with_metadata(item_stream.metadata().clone());
+    ProcMacroResult::new(token_stream)
 }
 
 /// This attribute macro is used to specify an override for the SNIP-12 type.

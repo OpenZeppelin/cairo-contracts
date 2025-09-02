@@ -1,6 +1,5 @@
-use crate::with_components::definition::with_components_avevetedp5blk as with_components;
-use cairo_lang_macro::TokenStream;
-use indoc::indoc;
+use crate::attribute::with_components::definition::with_components_avevetedp5blk as with_components;
+use cairo_lang_macro::{quote, TokenStream};
 use insta::assert_snapshot;
 
 use super::common::format_proc_macro_result;
@@ -1492,6 +1491,28 @@ fn test_with_governor_integration() {
                 fn quorum(self: @GovernorComponent::ComponentState<ContractState>, timepoint: u64) -> u256 {
                     QUORUM
                 }
+            }
+        }
+    };
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_header_doc() {
+    let attribute = quote! { (GovernorVotes) };
+    let item = quote! {
+        // This is a header doc
+        #[starknet::contract]
+        pub mod MyContract {
+            use starknet::ContractAddress;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState, votes_token: ContractAddress) {
+                self.governor_votes.initializer(votes_token);
             }
         }
     };

@@ -126,7 +126,7 @@ impl AllowedComponents {
             AllowedComponents::AccessControlDefaultAdminRules => ComponentInfo {
                 name: "AccessControlDefaultAdminRulesComponent",
                 path: "openzeppelin_access::accesscontrol::extensions::AccessControlDefaultAdminRulesComponent",
-                storage: "access_control_DAR",
+                storage: "access_control_dar",
                 event: "AccessControlDefaultAdminRulesEvent",
                 has_initializer: true,
                 has_immutable_config: true,

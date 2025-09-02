@@ -368,7 +368,7 @@ fn test_with_access_control_default_admin_rules() {
 
             #[constructor]
             fn constructor(ref self: ContractState, default_admin: ContractAddress) {
-                self.access_control_DAR.initializer(INITIAL_DELAY, default_admin);
+                self.access_control_dar.initializer(INITIAL_DELAY, default_admin);
             }
         }
         "
@@ -417,7 +417,7 @@ fn test_with_access_control_default_admin_rules_no_config() {
 
             #[constructor]
             fn constructor(ref self: ContractState, default_admin: ContractAddress) {
-                self.access_control_DAR.initializer(INITIAL_DELAY, default_admin);
+                self.access_control_dar.initializer(INITIAL_DELAY, default_admin);
             }
         }
         "

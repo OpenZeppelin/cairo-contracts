@@ -52,7 +52,8 @@ impl<'a> WithComponentsParser<'a> {
         // If the module has a header doc, skip it
         let module_rnode = if let RewriteNode::Copied(copied) = module_rnode {
             let children = copied.get_children(db);
-            if !children.is_empty() && children[0].kind(db) == SyntaxKind::ItemHeaderDoc {
+            // children can't be empty because attribute macros must have at least one item (compiler enforces this)
+            if children[0].kind(db) == SyntaxKind::ItemHeaderDoc {
                 module_rnode.modify_child(db, 1)
             } else {
                 module_rnode.modify_child(db, 0)

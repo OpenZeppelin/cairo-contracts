@@ -9,6 +9,7 @@ fn make_ident(text: &str, span: TextSpan) -> TokenTree {
 }
 
 fn tokenize_str(s: &str, db: &SimpleParserDatabase) -> TokenStream {
+    // Unwrap is safe as long as s is a valid cairo code
     let syntax_node = db.parse_virtual(s).unwrap();
     let syntax_node_with_db = SyntaxNodeWithDb::new(&syntax_node, db);
     quote! {#syntax_node_with_db}

@@ -8,13 +8,11 @@ TokenStream:
 #[starknet::contract]
 pub mod MyContract {
     use openzeppelin_governance::governor::DefaultConfig;
-
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
         pub governor: GovernorComponent::Storage,
     }
-
     #[constructor]
     fn constructor(ref self: ContractState) {}
     use openzeppelin_governance::governor::GovernorComponent;

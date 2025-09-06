@@ -7,6 +7,7 @@ pub enum AllowedComponents {
     EthAccount,
     SRC9,
     AccessControl,
+    AccessControlDefaultAdminRules,
     Ownable,
     Vesting,
     SRC5,
@@ -42,6 +43,9 @@ impl AllowedComponents {
             "EthAccount" => Ok(AllowedComponents::EthAccount),
             "SRC9" => Ok(AllowedComponents::SRC9),
             "AccessControl" => Ok(AllowedComponents::AccessControl),
+            "AccessControlDefaultAdminRules" => {
+                Ok(AllowedComponents::AccessControlDefaultAdminRules)
+            }
             "Ownable" => Ok(AllowedComponents::Ownable),
             "Vesting" => Ok(AllowedComponents::Vesting),
             "SRC5" => Ok(AllowedComponents::SRC5),
@@ -117,6 +121,15 @@ impl AllowedComponents {
                 event: "AccessControlEvent",
                 has_initializer: true,
                 has_immutable_config: false,
+                internal_impls: vec!["InternalImpl"],
+            },
+            AllowedComponents::AccessControlDefaultAdminRules => ComponentInfo {
+                name: "AccessControlDefaultAdminRulesComponent",
+                path: "openzeppelin_access::accesscontrol::extensions::AccessControlDefaultAdminRulesComponent",
+                storage: "access_control_dar",
+                event: "AccessControlDefaultAdminRulesEvent",
+                has_initializer: true,
+                has_immutable_config: true,
                 internal_impls: vec!["InternalImpl"],
             },
             AllowedComponents::Vesting => ComponentInfo {

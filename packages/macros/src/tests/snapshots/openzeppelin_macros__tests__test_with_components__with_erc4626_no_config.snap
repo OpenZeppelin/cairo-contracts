@@ -13,20 +13,14 @@ pub mod ERC4626Mock {
     };
     use openzeppelin_token::erc20::{DefaultConfig as ERC20DefaultConfig, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
-
-    // ERC4626
     #[abi(embed_v0)]
     impl ERC4626ComponentImpl = ERC4626Component::ERC4626Impl<ContractState>;
-    // ERC4626MetadataImpl is a custom impl of IERC20Metadata
     #[abi(embed_v0)]
     impl ERC4626MetadataImpl = ERC4626Component::ERC4626MetadataImpl<ContractState>;
-
-    // ERC20
     #[abi(embed_v0)]
     impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
     #[abi(embed_v0)]
     impl ERC20CamelOnlyImpl = ERC20Component::ERC20CamelOnlyImpl<ContractState>;
-
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
@@ -34,7 +28,6 @@ pub mod ERC4626Mock {
         #[substorage(v0)]
         pub erc4626: ERC4626Component::Storage,
     }
-
     #[constructor]
     fn constructor(
         ref self: ContractState,

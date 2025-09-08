@@ -1176,17 +1176,15 @@ fn test_with_erc4626() {
                 self.erc4626.initializer(underlying_asset);
             }
         }
-        "
-    );
+    };
     let result = get_string_result(attribute, item);
     assert_snapshot!(result);
 }
 
 #[test]
 fn test_with_erc4626_no_initializer() {
-    let attribute = "(ERC20, ERC4626)";
-    let item = indoc!(
-        "
+    let attribute = quote! { (ERC20, ERC4626) };
+    let item = quote! {
         #[starknet::contract]
         pub mod ERC4626Mock {
             use openzeppelin_token::erc20::extensions::erc4626::{
@@ -1225,17 +1223,15 @@ fn test_with_erc4626_no_initializer() {
                 self.erc20.mint(recipient, initial_supply);
             }
         }
-        "
-    );
+    };
     let result = get_string_result(attribute, item);
     assert_snapshot!(result);
 }
 
 #[test]
 fn test_with_erc4626_no_config() {
-    let attribute = "(ERC20, ERC4626)";
-    let item = indoc!(
-        "
+    let attribute = quote! { (ERC20, ERC4626) };
+    let item = quote! {
         #[starknet::contract]
         pub mod ERC4626Mock {
             use openzeppelin_token::erc20::extensions::erc4626::{
@@ -1275,17 +1271,15 @@ fn test_with_erc4626_no_config() {
                 self.erc4626.initializer(underlying_asset);
             }
         }
-        "
-    );
+    };
     let result = get_string_result(attribute, item);
     assert_snapshot!(result);
 }
 
 #[test]
 fn test_with_erc4626_no_hooks() {
-    let attribute = "(ERC20, ERC4626)";
-    let item = indoc!(
-        "
+    let attribute = quote! { (ERC20, ERC4626) };
+    let item = quote! {
         #[starknet::contract]
         pub mod ERC4626Mock {
             use openzeppelin_token::erc20::extensions::erc4626::{
@@ -1325,17 +1319,15 @@ fn test_with_erc4626_no_hooks() {
                 self.erc4626.initializer(underlying_asset);
             }
         }
-        "
-    );
+    };
     let result = get_string_result(attribute, item);
     assert_snapshot!(result);
 }
 
 #[test]
 fn test_with_erc4626_no_fees_trait() {
-    let attribute = "(ERC20, ERC4626)";
-    let item = indoc!(
-        "
+    let attribute = quote! { (ERC20, ERC4626) };
+    let item = quote! {
         #[starknet::contract]
         pub mod ERC4626Mock {
             use openzeppelin_token::erc20::extensions::erc4626::{
@@ -1375,17 +1367,15 @@ fn test_with_erc4626_no_fees_trait() {
                 self.erc4626.initializer(underlying_asset);
             }
         }
-        "
-    );
+    };
     let result = get_string_result(attribute, item);
     assert_snapshot!(result);
 }
 
 #[test]
 fn test_with_erc4626_no_limits_trait() {
-    let attribute = "(ERC20, ERC4626)";
-    let item = indoc!(
-        "
+    let attribute = quote! { (ERC20, ERC4626) };
+    let item = quote! {
         #[starknet::contract]
         pub mod ERC4626Mock {
             use openzeppelin_token::erc20::extensions::erc4626::{
@@ -1425,17 +1415,15 @@ fn test_with_erc4626_no_limits_trait() {
                 self.erc4626.initializer(underlying_asset);
             }
         }
-        "
-    );
+    };
     let result = get_string_result(attribute, item);
     assert_snapshot!(result);
 }
 
 #[test]
 fn test_with_erc4626_no_assets_management_trait() {
-    let attribute = "(ERC20, ERC4626)";
-    let item = indoc!(
-        "
+    let attribute = quote! { (ERC20, ERC4626) };
+    let item = quote! {
         #[starknet::contract]
         pub mod ERC4626Mock {
             use openzeppelin_token::erc20::extensions::erc4626::{

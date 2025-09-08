@@ -24,6 +24,9 @@
     "openzeppelin_test_common_GovernorMock.compiled_contract_class.json": {
       "felts": 18513
     },
+    "openzeppelin_test_common_ERC2981AccessControlDefaultAdminRulesMock.compiled_contract_class.json": {
+      "felts": 6978
+    },
     "openzeppelin_test_common_DualCaseAccountMock.compiled_contract_class.json": {
       "felts": 2867
     },
@@ -358,6 +361,9 @@
     },
     "openzeppelin_test_common_ERC4626LimitsMock.contract_class.json": {
       "bytes": 295692
+    },
+    "openzeppelin_test_common_ERC2981AccessControlDefaultAdminRulesMock.contract_class.json": {
+      "bytes": 143515
     },
     "openzeppelin_test_common_ERC2981OwnableMock.contract_class.json": {
       "bytes": 93132

@@ -320,9 +320,8 @@ fn test_with_access_control() {
 
 #[test]
 fn test_with_access_control_default_admin_rules() {
-    let attribute = "(AccessControlDefaultAdminRules)";
-    let item = indoc!(
-        "
+    let attribute = quote! { (AccessControlDefaultAdminRules) };
+    let item = quote! {
         #[starknet::contract]
         pub mod Contract {
             use starknet::ContractAddress;
@@ -338,17 +337,15 @@ fn test_with_access_control_default_admin_rules() {
                 self.access_control_dar.initializer(INITIAL_DELAY, default_admin);
             }
         }
-        "
-    );
+    };
     let result = get_string_result(attribute, item);
     assert_snapshot!(result);
 }
 
 #[test]
 fn test_cannot_use_access_control_with_access_control_dar() {
-    let attribute = "(AccessControl, AccessControlDefaultAdminRules)";
-    let item = indoc!(
-        "
+    let attribute = quote! { (AccessControl, AccessControlDefaultAdminRules) };
+    let item = quote! {
         #[starknet::contract]
         pub mod Contract {
             use openzeppelin_access::accesscontrol::DEFAULT_ADMIN_ROLE;
@@ -365,17 +362,15 @@ fn test_cannot_use_access_control_with_access_control_dar() {
                 self.access_control._grant_role(DEFAULT_ADMIN_ROLE, default_admin);
             }
         }
-        "
-    );
+    };
     let result = get_string_result(attribute, item);
     assert_snapshot!(result);
 }
 
 #[test]
 fn test_with_access_control_default_admin_rules_no_initializer() {
-    let attribute = "(AccessControlDefaultAdminRules)";
-    let item = indoc!(
-        "
+    let attribute = quote! { (AccessControlDefaultAdminRules) };
+    let item = quote! {
         #[starknet::contract]
         pub mod Contract {
             use starknet::ContractAddress;
@@ -386,20 +381,18 @@ fn test_with_access_control_default_admin_rules_no_initializer() {
 
             #[constructor]
             fn constructor(ref self: ContractState, default_admin: ContractAddress) {
-                
+
             }
         }
-        "
-    );
+    };
     let result = get_string_result(attribute, item);
     assert_snapshot!(result);
 }
 
 #[test]
 fn test_with_access_control_default_admin_rules_no_config() {
-    let attribute = "(AccessControlDefaultAdminRules)";
-    let item = indoc!(
-        "
+    let attribute = quote! { (AccessControlDefaultAdminRules) };
+    let item = quote! {
         #[starknet::contract]
         pub mod Contract {
             use starknet::ContractAddress;
@@ -414,8 +407,7 @@ fn test_with_access_control_default_admin_rules_no_config() {
                 self.access_control_dar.initializer(INITIAL_DELAY, default_admin);
             }
         }
-        "
-    );
+    };
     let result = get_string_result(attribute, item);
     assert_snapshot!(result);
 }

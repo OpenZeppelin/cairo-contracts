@@ -9,15 +9,12 @@ TokenStream:
 pub mod Contract {
     use openzeppelin_access::accesscontrol::extensions::DefaultConfig;
     use starknet::ContractAddress;
-
-    const INITIAL_DELAY: u64 = 3600; // 1 hour
-
+    const INITIAL_DELAY: u64 = 3600;
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
         pub access_control_dar: AccessControlDefaultAdminRulesComponent::Storage,
     }
-
     #[constructor]
     fn constructor(ref self: ContractState, default_admin: ContractAddress) {
         self.access_control_dar.initializer(INITIAL_DELAY, default_admin);

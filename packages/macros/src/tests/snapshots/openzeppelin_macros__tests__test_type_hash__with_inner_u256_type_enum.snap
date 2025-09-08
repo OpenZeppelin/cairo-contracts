@@ -6,8 +6,6 @@ snapshot_kind: text
 TokenStream:
 
 pub enum MyEnum {
-    // TokenAmount type contains u256, which should be resolved
-    // and appended to the final type hash.
     Variant1: TokenAmount,
 }
 pub fn __MY_ENUM_encoded_type() {

@@ -8,13 +8,11 @@ TokenStream:
 #[starknet::contract]
 pub mod Owned {
     use starknet::ContractAddress;
-
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
         pub ownable: OwnableComponent::Storage,
     }
-
     #[constructor]
     fn constructor(ref self: ContractState, owner: ContractAddress) {
         self.ownable.initializer(owner);

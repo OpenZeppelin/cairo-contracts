@@ -12,7 +12,6 @@ pub mod MyContract {
         #[substorage(v0)]
         pub erc721_enumerable: ERC721EnumerableComponent::Storage,
     }
-
     #[constructor]
     fn constructor(ref self: ContractState) {
         self.erc721_enumerable.initializer();

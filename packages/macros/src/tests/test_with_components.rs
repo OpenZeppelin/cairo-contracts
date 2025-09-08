@@ -378,6 +378,33 @@ fn test_with_access_control_default_admin_rules() {
 }
 
 #[test]
+fn test_cannot_use_access_control_with_access_control_dar() {
+    let attribute = "(AccessControl, AccessControlDefaultAdminRules)";
+    let item = indoc!(
+        "
+        #[starknet::contract]
+        pub mod Contract {
+            use openzeppelin_access::accesscontrol::DEFAULT_ADMIN_ROLE;
+            use starknet::ContractAddress;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState, default_admin: ContractAddress) {
+                self.access_control.initializer();
+                self.access_control_dar.initializer(INITIAL_DELAY, default_admin);
+
+                self.access_control._grant_role(DEFAULT_ADMIN_ROLE, default_admin);
+            }
+        }
+        "
+    );
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
 fn test_with_access_control_default_admin_rules_no_initializer() {
     let attribute = "(AccessControlDefaultAdminRules)";
     let item = indoc!(

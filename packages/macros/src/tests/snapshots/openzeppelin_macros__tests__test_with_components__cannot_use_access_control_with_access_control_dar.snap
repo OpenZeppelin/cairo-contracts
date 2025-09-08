@@ -1,0 +1,18 @@
+---
+source: src/tests/test_with_components.rs
+expression: result
+snapshot_kind: text
+---
+TokenStream:
+
+None
+
+Diagnostics:
+
+====
+Error: Only one AccessControl component can be used. Found: [AccessControl, AccessControlDefaultAdminRules].
+====
+
+AuxData:
+
+None

@@ -112,7 +112,24 @@ fn validate_contract_module(
             return (vec![error], vec![]);
         }
 
-        // 3. Check that the module has the corresponding initializers (warning)
+        // 3. Ensure only one AccessControl component is used (error)
+        let mut accesscontrol_components = vec![];
+        for component in components_info.iter() {
+            match component.kind() {
+                | AllowedComponents::AccessControl 
+                | AllowedComponents::AccessControlDefaultAdminRules => {
+                    accesscontrol_components.push(component.short_name());
+                }
+                _ => {}
+            }
+        }
+        if accesscontrol_components.len() > 1 {
+            let components_str = accesscontrol_components.join(", ");
+            let error = Diagnostic::error(errors::MULTIPLE_ACCESS_CONTROL_COMPONENTS(&components_str));
+            return (vec![error], vec![]);
+        }
+
+        // 4. Check that the module has the corresponding initializers (warning)
         let components_with_initializer = components_info
             .iter()
             .filter(|c| c.has_initializer)
@@ -151,7 +168,7 @@ fn validate_contract_module(
             }
         }
 
-        // 4. Check that the contract has the corresponding immutable configs
+        // 5. Check that the contract has the corresponding immutable configs
         for component in components_info.iter().filter(|c| c.has_immutable_config) {
             // Get the body code (maybe we can do this without the builder)
             let body_ast = body.as_syntax_node();

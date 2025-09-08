@@ -8,13 +8,11 @@ TokenStream:
 #[starknet::contract]
 pub mod MyContract {
     use starknet::ContractAddress;
-
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
         pub governor_timelock_execution: GovernorTimelockExecutionComponent::Storage,
     }
-
     #[constructor]
     fn constructor(ref self: ContractState, timelock_controller: ContractAddress) {
         self.governor_timelock_execution.initializer(timelock_controller);

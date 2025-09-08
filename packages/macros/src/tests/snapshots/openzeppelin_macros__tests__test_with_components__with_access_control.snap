@@ -9,17 +9,14 @@ TokenStream:
 pub mod Contract {
     use openzeppelin_access::accesscontrol::DEFAULT_ADMIN_ROLE;
     use starknet::ContractAddress;
-
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
         pub access_control: AccessControlComponent::Storage,
     }
-
     #[constructor]
     fn constructor(ref self: ContractState, default_admin: ContractAddress) {
         self.access_control.initializer();
-
         self.access_control._grant_role(DEFAULT_ADMIN_ROLE, default_admin);
     }
     use openzeppelin_access::accesscontrol::AccessControlComponent;

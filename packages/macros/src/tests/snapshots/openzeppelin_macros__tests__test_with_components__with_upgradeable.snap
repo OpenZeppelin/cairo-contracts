@@ -12,7 +12,6 @@ pub mod MyContract {
         #[substorage(v0)]
         pub upgradeable: UpgradeableComponent::Storage,
     }
-
     #[abi(embed_v0)]
     impl UpgradeableImpl of IUpgradeable<ContractState> {
         fn upgrade(ref self: ContractState, new_class_hash: ClassHash) {

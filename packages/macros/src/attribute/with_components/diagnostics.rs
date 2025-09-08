@@ -13,6 +13,17 @@ pub mod errors {
     pub fn NO_CONTRACT_ATTRIBUTE(contract_attribute: &str) -> String {
         format!("Contract module must have the `#[{contract_attribute}]` attribute.\n")
     }
+    /// Error when there are duplicate components in the attribute.
+    pub fn DUPLICATE_COMPONENTS(components: &[&str]) -> String {
+        if components.len() == 1 {
+            format!("Component {} is specified multiple times. Each component must only be listed once.\n", components[0])
+        } else {
+            let mut sorted_components = components.to_vec();
+            sorted_components.sort();
+            let components_str = sorted_components.join(", ");
+            format!("Components [{}] are specified multiple times. Each component must only be listed once.\n", components_str)
+        }
+    }
 }
 
 #[allow(non_snake_case)]

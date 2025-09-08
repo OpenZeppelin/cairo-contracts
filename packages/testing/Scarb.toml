@@ -1,6 +1,6 @@
 [package]
 name = "openzeppelin_testing"
-version = "4.6.0"
+version = "4.7.0"
 readme = "README.md"
 keywords = [
     "openzeppelin",
@@ -13,7 +13,7 @@ cairo-version.workspace = true
 scarb-version.workspace = true
 authors.workspace = true
 description.workspace = true
-documentation = "https://github.com/openzeppelin/cairo-contracts/blob/openzeppelin_testing-v4.6.0/packages/testing/docs/openzeppelin_testing.md"
+documentation = "https://github.com/openzeppelin/cairo-contracts/blob/openzeppelin_testing-v4.7.0/packages/testing/docs/openzeppelin_testing.md"
 repository.workspace = true
 license-file.workspace = true
 

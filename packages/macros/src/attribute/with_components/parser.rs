@@ -116,7 +116,7 @@ fn validate_contract_module(
         let mut accesscontrol_components = vec![];
         for component in components_info.iter() {
             match component.kind() {
-                | AllowedComponents::AccessControl 
+                AllowedComponents::AccessControl
                 | AllowedComponents::AccessControlDefaultAdminRules => {
                     accesscontrol_components.push(component.short_name());
                 }
@@ -125,7 +125,8 @@ fn validate_contract_module(
         }
         if accesscontrol_components.len() > 1 {
             let components_str = accesscontrol_components.join(", ");
-            let error = Diagnostic::error(errors::MULTIPLE_ACCESS_CONTROL_COMPONENTS(&components_str));
+            let error =
+                Diagnostic::error(errors::MULTIPLE_ACCESS_CONTROL_COMPONENTS(&components_str));
             return (vec![error], vec![]);
         }
 

@@ -15,7 +15,7 @@ openzeppelin_interfaces = "{current_openzeppelin_interfaces_version}"
 ----
 
 IMPORTANT: The version of the interfaces package is independent from the version of the implementation packages.
-The current umbrella version is `v3.0.0-alpha.1`, and it depends on the `openzeppelin_interfaces` package `v{current_openzeppelin_interfaces_version}`.
+The current umbrella version is `v3.0.0-alpha.2`, and it depends on the `openzeppelin_interfaces` package `v{current_openzeppelin_interfaces_version}`.
 
 == Stable Versioning
 

@@ -1,6 +1,6 @@
 ## Access Control
 
-> **NOTE:** This document is better viewed at [https://docs.openzeppelin.com/contracts-cairo/3.0.0-alpha.1/api/access](https://docs.openzeppelin.com/contracts-cairo/3.0.0-alpha.1/api/access)
+> **NOTE:** This document is better viewed at [https://docs.openzeppelin.com/contracts-cairo/3.0.0-alpha.2/api/access](https://docs.openzeppelin.com/contracts-cairo/3.0.0-alpha.2/api/access)
 
 This crate provides ways to restrict who can access the functions of a contract or when they can do it.
 
@@ -12,9 +12,9 @@ and assigned each to multiple accounts.
 
 ### Interfaces
 
-- [`IAccessControl`](https://docs.openzeppelin.com/contracts-cairo/3.0.0-alpha.1/api/access#IAccessControl)
+- [`IAccessControl`](https://docs.openzeppelin.com/contracts-cairo/3.0.0-alpha.2/api/access#IAccessControl)
 
 ### Components
 
-- [`OwnableComponent`](https://docs.openzeppelin.com/contracts-cairo/3.0.0-alpha.1/api/access#OwnableComponent)
-- [`AccessControlComponent`](https://docs.openzeppelin.com/contracts-cairo/3.0.0-alpha.1/api/access#AccessControlComponent)
+- [`OwnableComponent`](https://docs.openzeppelin.com/contracts-cairo/3.0.0-alpha.2/api/access#OwnableComponent)
+- [`AccessControlComponent`](https://docs.openzeppelin.com/contracts-cairo/3.0.0-alpha.2/api/access#AccessControlComponent)

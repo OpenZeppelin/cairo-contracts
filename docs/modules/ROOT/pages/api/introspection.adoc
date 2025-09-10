@@ -15,7 +15,7 @@ documented here are contained in the `openzeppelin_interfaces` package version `
 
 [.contract]
 [[ISRC5]]
-=== `++ISRC5++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.1/packages/interfaces/src/introspection.cairo[{github-icon},role=heading-link]
+=== `++ISRC5++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.2/packages/interfaces/src/introspection.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin_interfaces::introspection::ISRC5;
@@ -51,7 +51,7 @@ on how to compute this ID.
 
 [.contract]
 [[SRC5Component]]
-=== `++SRC5Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.1/packages/introspection/src/src5.cairo[{github-icon},role=heading-link]
+=== `++SRC5Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.2/packages/introspection/src/src5.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin_introspection::src5::SRC5Component;

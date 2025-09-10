@@ -2,7 +2,7 @@
 
 OpenZeppelin Contracts uses semantic versioning to communicate backwards compatibility of its API and storage layout. Patch and minor updates will generally be backwards compatible, with rare exceptions as detailed below. Major updates should be assumed incompatible with previous releases. On this page, we provide details about these guarantees.
 
-Bear in mind that while releasing versions, we treat minors as majors and patches as minors, in accordance with semantic versioning. This means that `v2.1.0` could be adding features to `v3.0.0-alpha.1`, while `v3.0.0` would be considered a breaking release.
+Bear in mind that while releasing versions, we treat minors as majors and patches as minors, in accordance with semantic versioning. This means that `v2.1.0` could be adding features to `v3.0.0-alpha.2`, while `v3.0.0` would be considered a breaking release.
 
 == API
 
@@ -26,7 +26,7 @@ In the case of breaking "upgrade compatibility", an entry to the changelog will 
 
 == Storage layout
 
-Patch updates will always preserve storage layout compatibility, and after `v3.0.0-alpha.1` minors will too. This means that a live contract can be upgraded from one minor to another without corrupting the storage layout. In some cases it may be necessary to initialize new state variables when upgrading, although we expect this to be infrequent.
+Patch updates will always preserve storage layout compatibility, and after `v3.0.0-alpha.2` minors will too. This means that a live contract can be upgraded from one minor to another without corrupting the storage layout. In some cases it may be necessary to initialize new state variables when upgrading, although we expect this to be infrequent.
 
 == Cairo version
 

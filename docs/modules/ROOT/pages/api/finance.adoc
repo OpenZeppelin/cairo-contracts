@@ -17,7 +17,7 @@ documented here are contained in the `openzeppelin_interfaces` package version `
 
 [.contract]
 [[IVesting]]
-=== `++IVesting++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.1/packages/interfaces/src/finance/vesting.cairo[{github-icon},role=heading-link]
+=== `++IVesting++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.2/packages/interfaces/src/finance/vesting.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -111,7 +111,7 @@ Emitted when vested tokens are released to the beneficiary.
 
 [.contract]
 [[VestingComponent]]
-=== `++VestingComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.1/packages/finance/src/vesting/vesting.cairo[{github-icon},role=heading-link]
+=== `++VestingComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.2/packages/finance/src/vesting/vesting.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -246,7 +246,7 @@ Returns the vested amount that's calculated using the {vesting-schedule} trait i
 
 [.contract]
 [[LinearVestingSchedule]]
-=== `++LinearVestingSchedule++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.1/packages/finance/src/vesting/vesting.cairo[{github-icon},role=heading-link]
+=== `++LinearVestingSchedule++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.2/packages/finance/src/vesting/vesting.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -261,7 +261,7 @@ is directly proportional to the time passed since the start of the vesting sched
 
 [.contract]
 [[VestingWallet]]
-=== `++VestingWallet++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.1/packages/presets/src/vesting.cairo[{github-icon},role=heading-link]
+=== `++VestingWallet++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.2/packages/presets/src/vesting.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin::presets::VestingWallet;

@@ -14,7 +14,7 @@ documented here are contained in the `openzeppelin_interfaces` package version `
 
 [.contract]
 [[IUpgradeable]]
-=== `++IUpgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.1/packages/interfaces/src/upgrades.cairo[{github-icon},role=heading-link]
+=== `++IUpgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.2/packages/interfaces/src/upgrades.cairo[{github-icon},role=heading-link]
 
 :Upgraded: xref:UpgradeableComponent-Upgraded[Upgraded]
 
@@ -43,7 +43,7 @@ NOTE: This function is usually protected by an xref:access.adoc[Access Control] 
 
 [.contract]
 [[IUpgradeAndCall]]
-=== `++IUpgradeAndCall++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.1/packages/interfaces/src/upgrades.cairo[{github-icon},role=heading-link]
+=== `++IUpgradeAndCall++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.2/packages/interfaces/src/upgrades.cairo[{github-icon},role=heading-link]
 
 :Upgraded: xref:UpgradeableComponent-Upgraded[Upgraded]
 
@@ -74,7 +74,7 @@ NOTE: This function is usually protected by an xref:access.adoc[Access Control] 
 
 [.contract]
 [[UpgradeableComponent]]
-=== `++UpgradeableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.1/packages/upgrades/src/upgradeable.cairo[{github-icon},role=heading-link]
+=== `++UpgradeableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.2/packages/upgrades/src/upgradeable.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin_upgrades::upgradeable::UpgradeableComponent;

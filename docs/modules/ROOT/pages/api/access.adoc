@@ -25,7 +25,7 @@ documented here are contained in the `openzeppelin_interfaces` package version `
 
 [.contract]
 [[IAccessControl]]
-=== `++IAccessControl++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.1/packages/interfaces/src/access/accesscontrol.cairo[{github-icon},role=heading-link]
+=== `++IAccessControl++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.2/packages/interfaces/src/access/accesscontrol.cairo[{github-icon},role=heading-link]
 
 :grant_role: xref:#IAccessControl-grant_role[grant_role]
 :revoke_role: xref:#IAccessControl-revoke_role[revoke_role]
@@ -158,7 +158,7 @@ Emitted when `account` is revoked `role`.
 
 [.contract]
 [[IAccessControlWithDelay]]
-=== `++IAccessControlWithDelay++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.1/packages/interfaces/src/access/accesscontrol.cairo[{github-icon},role=heading-link]
+=== `++IAccessControlWithDelay++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.2/packages/interfaces/src/access/accesscontrol.cairo[{github-icon},role=heading-link]
 
 :grant_role_with_delay: xref:#IAccessControlWithDelay-grant_role_with_delay[grant_role_with_delay]
 :RoleGrantedWithDelay: xref:#IAccessControlWithDelay-RoleGrantedWithDelay[RoleGrantedWithDelay]
@@ -226,7 +226,7 @@ or the deployer address if {_grant_role_with_delay} is called from the construct
 
 [.contract]
 [[IAccessControlDefaultAdminRules]]
-=== `++IAccessControlDefaultAdminRules++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.1/packages/interfaces/src/access/accesscontrol_default_admin_rules.cairo[{github-icon},role=heading-link]
+=== `++IAccessControlDefaultAdminRules++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.2/packages/interfaces/src/access/accesscontrol_default_admin_rules.cairo[{github-icon},role=heading-link]
 
 :grant_role: xref:#IAccessControl-grant_role[grant_role]
 
@@ -478,7 +478,7 @@ Emitted when a {pending_default_admin_delay} is reset if its schedule didn't pas
 
 [.contract]
 [[OwnableComponent]]
-=== `++OwnableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.1/packages/access/src/ownable/ownable.cairo[{github-icon},role=heading-link]
+=== `++OwnableComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.2/packages/access/src/ownable/ownable.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin_access::ownable::OwnableComponent;
@@ -718,7 +718,7 @@ Emitted when the ownership is transferred.
 
 [.contract]
 [[AccessControlComponent]]
-=== `++AccessControlComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.1/packages/access/src/accesscontrol/accesscontrol.cairo[{github-icon},role=heading-link]
+=== `++AccessControlComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.2/packages/access/src/accesscontrol/accesscontrol.cairo[{github-icon},role=heading-link]
 
 :assert_only_role: xref:#AccessControlComponent-assert_only_role
 :grant_role: xref:#AccessControlComponent-grant_role[grant_role]
@@ -1097,7 +1097,7 @@ See xref:IAccessControl-RoleRevoked[IAccessControl::RoleRevoked].
 
 [.contract]
 [[AccessControlDefaultAdminRulesComponent]]
-=== `++AccessControlDefaultAdminRulesComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.1/packages/access/src/accesscontrol/extensions/accesscontrol_default_admin_rules.cairo[{github-icon},role=heading-link]
+=== `++AccessControlDefaultAdminRulesComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.2/packages/access/src/accesscontrol/extensions/accesscontrol_default_admin_rules.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin_access::accesscontrol::extensions::AccessControlDefaultAdminRulesComponent;

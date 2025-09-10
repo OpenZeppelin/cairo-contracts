@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v3.0.0-alpha.1 (utils/src/math.cairo)
+// OpenZeppelin Contracts for Cairo v3.0.0-alpha.2 (utils/src/math.cairo)
 
 use core::integer::u512_safe_div_rem_by_u256;
 use core::num::traits::WideMul;

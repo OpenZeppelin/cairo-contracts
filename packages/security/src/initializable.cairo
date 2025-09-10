@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v3.0.0-alpha.1 (security/src/initializable.cairo)
+// OpenZeppelin Contracts for Cairo v3.0.0-alpha.2 (security/src/initializable.cairo)
 
 /// # Initializable Component
 ///

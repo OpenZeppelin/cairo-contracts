@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v3.0.0-alpha.1 (presets/src/vesting.cairo)
+// OpenZeppelin Contracts for Cairo v3.0.0-alpha.2 (presets/src/vesting.cairo)
 
 #[starknet::contract]
 pub mod VestingWallet {

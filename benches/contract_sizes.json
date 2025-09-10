@@ -45,6 +45,9 @@
     "openzeppelin_test_common_UpgradesV2.compiled_contract_class.json": {
       "felts": 1221
     },
+    "openzeppelin_test_common_LegacyAccountMock.compiled_contract_class.json": {
+      "felts": 3056
+    },
     "openzeppelin_test_common_ERC4626OffsetMock.compiled_contract_class.json": {
       "felts": 13464
     },
@@ -138,6 +141,9 @@
     "openzeppelin_test_common_Attacker.compiled_contract_class.json": {
       "felts": 138
     },
+    "openzeppelin_test_common_CounterMock.compiled_contract_class.json": {
+      "felts": 1528
+    },
     "openzeppelin_test_common_DualCaseERC721Mock.compiled_contract_class.json": {
       "felts": 12768
     },
@@ -199,6 +205,9 @@
     },
     "openzeppelin_test_common_SnakeERC20MockWithHooks.contract_class.json": {
       "bytes": 142850
+    },
+    "openzeppelin_test_common_CounterMock.contract_class.json": {
+      "bytes": 37219
     },
     "openzeppelin_test_common_ERC721BlockNumberVotesMock.contract_class.json": {
       "bytes": 432502
@@ -343,6 +352,9 @@
     },
     "openzeppelin_test_common_SRC9AccountMock.contract_class.json": {
       "bytes": 129558
+    },
+    "openzeppelin_test_common_LegacyAccountMock.contract_class.json": {
+      "bytes": 72142
     },
     "openzeppelin_test_common_ERC4626AssetsFeesMock.contract_class.json": {
       "bytes": 379741

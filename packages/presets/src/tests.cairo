@@ -3,5 +3,7 @@ mod test_erc1155;
 mod test_erc20;
 mod test_erc721;
 mod test_eth_account;
+#[cfg(feature: "coverage_incompatible")]
+mod test_meta_tx_v0;
 mod test_universal_deployer;
 mod test_vesting;

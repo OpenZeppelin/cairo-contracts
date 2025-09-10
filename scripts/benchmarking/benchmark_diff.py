@@ -96,10 +96,10 @@ def compare_subdicts(old, new, metric):
 
 
 def print_diff_markdown(old, new):
-    print("#### 🧪 BYTECODE SIZE (felts)\n")
+    print(f"#### BYTECODE SIZE (felts) (limit: {MAX_BYTECODE_SIZE:,} felts)\n")
     markdown_subtable(old.get(BYTECODE_KEY, {}), new.get(BYTECODE_KEY, {}), "felts")
 
-    print("\n#### 🧪 SIERRA CONTRACT CLASS SIZE (bytes)\n")
+    print(f"#### SIERRA CONTRACT CLASS SIZE (bytes) (limit: {MAX_CONTRACT_CLASS_SIZE:,} bytes)\n")
     markdown_subtable(old.get(CONTRACT_CLASS_KEY, {}), new.get(CONTRACT_CLASS_KEY, {}), "bytes")
 
 

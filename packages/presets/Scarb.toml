@@ -38,6 +38,9 @@ snforge_std.workspace = true
 openzeppelin_testing = { path = "../testing" }
 openzeppelin_test_common = { path = "../test_common" }
 
+[features]
+coverage_incompatible = []
+
 [lib]
 
 [[target.starknet-contract]]
@@ -51,6 +54,8 @@ build-external-contracts = [
     "openzeppelin_test_common::mocks::account::DualCaseAccountMock",
     "openzeppelin_test_common::mocks::account::SnakeAccountMock",
     "openzeppelin_test_common::mocks::account::SnakeEthAccountMock",
+    "openzeppelin_test_common::mocks::account::LegacyAccountMock",
+    "openzeppelin_test_common::mocks::counter::CounterMock",
     "openzeppelin_test_common::mocks::simple::SimpleMock",
     "openzeppelin_test_common::mocks::erc20::DualCaseERC20Mock",
     "openzeppelin_test_common::mocks::erc20::SnakeERC20Mock",

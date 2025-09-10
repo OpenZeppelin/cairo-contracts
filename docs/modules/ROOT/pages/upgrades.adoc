@@ -1,7 +1,7 @@
 :contract_classes: https://docs.starknet.io/architecture-and-concepts/smart-contracts/contract-classes/[Contract Classes]
 :class_hash: https://docs.starknet.io/architecture-and-concepts/smart-contracts/class-hash/[class hash]
 :replace_class_syscall: https://docs.starknet.io/architecture-and-concepts/smart-contracts/system-calls-cairo1/#replace_class[replace_class]
-:upgradeable: https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.1/packages/upgrades/src/upgradeable.cairo[Upgradeable]
+:upgradeable: https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.2/packages/upgrades/src/upgradeable.cairo[Upgradeable]
 :ownable: xref:access.adoc#ownership_and_ownable[Ownable]
 :i_upgradeable: xref:api/upgrades.adoc#IUpgradeable[IUpgradeable]
 :library_calls: https://docs.starknet.io/architecture-and-concepts/smart-contracts/system-calls-cairo1/#library_call[library calls]

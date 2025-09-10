@@ -3,7 +3,7 @@ version = 1
 
 [[package]]
 name = "openzeppelin_access"
-version = "3.0.0-alpha.1"
+version = "3.0.0-alpha.2"
 dependencies = [
  "openzeppelin_interfaces",
  "openzeppelin_introspection",
@@ -11,7 +11,7 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_account"
-version = "3.0.0-alpha.1"
+version = "3.0.0-alpha.2"
 dependencies = [
  "openzeppelin_interfaces",
  "openzeppelin_introspection",
@@ -20,7 +20,7 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_finance"
-version = "3.0.0-alpha.1"
+version = "3.0.0-alpha.2"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_interfaces",
@@ -33,14 +33,14 @@ version = "1.0.0"
 
 [[package]]
 name = "openzeppelin_introspection"
-version = "v3.0.0-alpha.1"
+version = "v3.0.0-alpha.2"
 dependencies = [
  "openzeppelin_interfaces",
 ]
 
 [[package]]
 name = "openzeppelin_presets"
-version = "3.0.0-alpha.1"
+version = "3.0.0-alpha.2"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_account",
@@ -61,7 +61,7 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_token"
-version = "3.0.0-alpha.1"
+version = "3.0.0-alpha.2"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_account",
@@ -72,11 +72,11 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_upgrades"
-version = "3.0.0-alpha.1"
+version = "3.0.0-alpha.2"
 
 [[package]]
 name = "openzeppelin_utils"
-version = "3.0.0-alpha.1"
+version = "3.0.0-alpha.2"
 dependencies = [
  "openzeppelin_interfaces",
 ]

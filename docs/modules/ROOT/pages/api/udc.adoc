@@ -13,7 +13,7 @@ documented here are contained in the `openzeppelin_interfaces` package version `
 
 [.contract]
 [[IUniversalDeployer]]
-=== `++IUniversalDeployer++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.1/packages/interfaces/src/utils/deployments.cairo[{github-icon},role=heading-link]
+=== `++IUniversalDeployer++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.2/packages/interfaces/src/utils/deployments.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin_interfaces::deployments::IUniversalDeployer;
@@ -56,7 +56,7 @@ Emitted when `deployer` deploys a contract through the Universal Deployer Contra
 
 [.contract]
 [[UniversalDeployer]]
-=== `++UniversalDeployer++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.1/packages/presets/src/universal_deployer.cairo[{github-icon},role=heading-link]
+=== `++UniversalDeployer++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.2/packages/presets/src/universal_deployer.cairo[{github-icon},role=heading-link]
 
 ```cairo
 use openzeppelin_presets::UniversalDeployer;

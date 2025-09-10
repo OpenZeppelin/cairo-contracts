@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v3.0.0-alpha.1 (access/accesscontrol/account_role_info.cairo)
+// OpenZeppelin Contracts for Cairo v3.0.0-alpha.2 (access/accesscontrol/account_role_info.cairo)
 
 use starknet::storage_access::StorePacking;
 

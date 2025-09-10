@@ -7,7 +7,7 @@ To use them, you need to add the `openzeppelin_macros` crate as a dependency in 
 
 ```toml
 [dependencies]
-openzeppelin_macros = "3.0.0-alpha.1"
+openzeppelin_macros = "3.0.0-alpha.2"
 ```
 
 == Attribute macros

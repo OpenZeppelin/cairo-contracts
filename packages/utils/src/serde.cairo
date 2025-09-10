@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v3.0.0-alpha.1 (utils/src/serde.cairo)
+// OpenZeppelin Contracts for Cairo v3.0.0-alpha.2 (utils/src/serde.cairo)
 
 pub trait SerializedAppend<T> {
     fn append_serde(ref self: Array<felt252>, value: T);

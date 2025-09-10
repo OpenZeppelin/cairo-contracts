@@ -1,11 +1,11 @@
 ## Security
 
-> **NOTE:** This document is better viewed at [https://docs.openzeppelin.com/contracts-cairo/3.0.0-alpha.1/api/security](https://docs.openzeppelin.com/contracts-cairo/3.0.0-alpha.1/api/security)
+> **NOTE:** This document is better viewed at [https://docs.openzeppelin.com/contracts-cairo/3.0.0-alpha.2/api/security](https://docs.openzeppelin.com/contracts-cairo/3.0.0-alpha.2/api/security)
 
 This crate provides components to handle common security-related tasks such as pausing a contract.
 
 ### Components
 
-- [`InitializableComponent`](https://docs.openzeppelin.com/contracts-cairo/3.0.0-alpha.1/api/security#InitializableComponent)
-- [`PausableComponent`](https://docs.openzeppelin.com/contracts-cairo/3.0.0-alpha.1/api/security#PausableComponent)
-- [`ReentrancyGuardComponent`](https://docs.openzeppelin.com/contracts-cairo/3.0.0-alpha.1/api/security#ReentrancyGuardComponent)
+- [`InitializableComponent`](https://docs.openzeppelin.com/contracts-cairo/3.0.0-alpha.2/api/security#InitializableComponent)
+- [`PausableComponent`](https://docs.openzeppelin.com/contracts-cairo/3.0.0-alpha.2/api/security#PausableComponent)
+- [`ReentrancyGuardComponent`](https://docs.openzeppelin.com/contracts-cairo/3.0.0-alpha.2/api/security#ReentrancyGuardComponent)

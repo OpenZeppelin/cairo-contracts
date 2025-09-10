@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v3.0.0-alpha.1 (governance/src/votes/votes.cairo)
+// OpenZeppelin Contracts for Cairo v3.0.0-alpha.2 (governance/src/votes/votes.cairo)
 
 /// # Votes Component
 ///
@@ -20,7 +20,7 @@
 /// purpose, as shown in the following ERC20 example:
 ///
 /// See [the documentation]
-/// (https://docs.openzeppelin.com/contracts-cairo/3.0.0-alpha.1/governance.html#usage_2)
+/// (https://docs.openzeppelin.com/contracts-cairo/3.0.0-alpha.2/governance.html#usage_2)
 /// for examples and more details.
 #[starknet::component]
 pub mod VotesComponent {

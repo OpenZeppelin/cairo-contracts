@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v3.0.0-alpha.1 (account/src/utils/signature.cairo)
+// OpenZeppelin Contracts for Cairo v3.0.0-alpha.2 (account/src/utils/signature.cairo)
 
 use core::ecdsa::check_ecdsa_signature;
 use openzeppelin_interfaces::accounts::{EthPublicKey, P256PublicKey};

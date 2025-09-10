@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v3.0.0-alpha.1 (interfaces/src/governance/timelock.cairo)
+// OpenZeppelin Contracts for Cairo v3.0.0-alpha.2 (interfaces/src/governance/timelock.cairo)
 
 use starknet::ContractAddress;
 use starknet::account::Call;

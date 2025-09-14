@@ -67,8 +67,8 @@ def color_name(name):
 def compare_subdicts(old, new, metric):
     all_files = set(old.keys()) | set(new.keys())
     for file in sorted(all_files):
-        old_val = old.get(file, {}).get(metric)
-        new_val = new.get(file, {}).get(metric)
+        old_val = (old.get(file) or {}).get(metric)
+        new_val = (new.get(file) or {}).get(metric)
         file_name = color_name(try_get_name(file))
         if old_val is None and new_val is not None:
             value = f"{GREEN}{metric} = {new_val}{RESET}"
@@ -113,8 +113,8 @@ def markdown_subtable(old, new, metric, show_unchanged=False):
     # Data rows
     for file in all_files:
         name = try_get_name(file)
-        old_val = old.get(file, {}).get(metric)
-        new_val = new.get(file, {}).get(metric)
+        old_val = (old.get(file) or {}).get(metric)
+        new_val = (new.get(file) or {}).get(metric)
 
         if old_val is None and new_val is not None:
             delta = f"+{new_val}"

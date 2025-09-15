@@ -20,38 +20,19 @@ pub mod DualCaseAccessControlMock {
 }
 
 #[starknet::contract]
-#[with_components(SRC5)]
+#[with_components(SRC5, AccessControlDefaultAdminRules)]
 pub mod DualCaseAccessControlDefaultAdminRulesMock {
-    use openzeppelin_access::accesscontrol::extensions::AccessControlDefaultAdminRulesComponent::InternalImpl;
-    use openzeppelin_access::accesscontrol::extensions::{
-        AccessControlDefaultAdminRulesComponent, DefaultConfig,
-    };
+    use openzeppelin_access::accesscontrol::extensions::DefaultConfig;
     use starknet::ContractAddress;
 
     pub const INITIAL_DELAY: u64 = 3600; // 1 hour
-
-    component!(
-        path: AccessControlDefaultAdminRulesComponent,
-        storage: access_control_dar,
-        event: AccessControlDAREvent,
-    );
 
     #[abi(embed_v0)]
     impl AccessControlMixinImpl =
         AccessControlDefaultAdminRulesComponent::AccessControlMixinImpl<ContractState>;
 
     #[storage]
-    pub struct Storage {
-        #[substorage(v0)]
-        access_control_dar: AccessControlDefaultAdminRulesComponent::Storage,
-    }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        #[flat]
-        AccessControlDAREvent: AccessControlDefaultAdminRulesComponent::Event,
-    }
+    pub struct Storage {}
 
     #[constructor]
     fn constructor(ref self: ContractState, initial_default_admin: ContractAddress) {

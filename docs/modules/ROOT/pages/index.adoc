@@ -4,6 +4,8 @@
 
 = Contracts for Cairo
 
+include::utils/_common.adoc[]
+
 *A library for secure smart contract development* written in Cairo for {starknet}. This library consists of a set of xref:components.adoc[reusable components] to build custom smart contracts, as well as
 ready-to-deploy xref:presets.adoc[presets]. You can also find other xref:/api/utilities.adoc[utilities] including xref:interfaces.adoc[interfaces and dispatchers] and xref:/api/testing.adoc[test utilities]
 that facilitate testing with Starknet Foundry.
@@ -57,13 +59,9 @@ Scarb.toml src
 
 [IMPORTANT]
 ====
-The `openzeppelin` package is an umbrella package that includes all the packages in the library.
-Before version `3.x.x`, the `openzeppelin` and its sub-packages
-were versioned together meaning that the version of the `openzeppelin`
-package was the same as the version of the sub-packages.
-
-Starting from version `3.x.x`, with the introduction of the `openzeppelin_interfaces` package,
-the `openzeppelin` package is versioned independently from the sub-packages.
+The `openzeppelin` package is an umbrella (meta) package that aggregates all library subpackages. Prior to v3.x, the umbrella and its subpackages were
+versioned in lockstep—their versions always matched. Starting with v3.x, following the introduction of `openzeppelin_interfaces`, the umbrella is
+versioned independently from some of the subpackages.
 
 See the {versioning} section for more information.
 ====
@@ -79,19 +77,19 @@ openzeppelin = "3.0.0-alpha.2"
 The previous example would import the entire library. We can also add each package as a separate dependency to
 improve the building time by not including modules that won't be used:
 
-[,javascript]
+[,javascript,subs="attributes"]
 ----
 [dependencies]
 openzeppelin_access = "3.0.0-alpha.2"
 openzeppelin_token = "3.0.0-alpha.2"
-openzeppelin_interfaces = "1.0.0"
+openzeppelin_interfaces = "{current_openzeppelin_interfaces_version}"
 ----
 
 == Versioning of the sub-packages
 
 Here you can find a reference of the versioning of the sub-packages for this umbrella version:
 
-[,javascript]
+[,javascript,subs="attributes"]
 ----
 [dependencies]
 openzeppelin_access = "3.0.0-alpha.2"
@@ -99,7 +97,6 @@ openzeppelin_token = "3.0.0-alpha.2"
 openzeppelin_access = "3.0.0-alpha.2"
 openzeppelin_account = "3.0.0-alpha.2"
 openzeppelin_finance = "3.0.0-alpha.2"
-openzeppelin_interfaces = "1.0.0"
 openzeppelin_governance = "3.0.0-alpha.2"
 openzeppelin_introspection = "3.0.0-alpha.2"
 openzeppelin_merkle_tree = "3.0.0-alpha.2"
@@ -107,7 +104,9 @@ openzeppelin_presets = "3.0.0-alpha.2"
 openzeppelin_security = "3.0.0-alpha.2"
 openzeppelin_token = "3.0.0-alpha.2"
 openzeppelin_upgrades = "3.0.0-alpha.2"
-openzeppelin_utils = "3.0.0-alpha.2"
+
+openzeppelin_interfaces = "{current_openzeppelin_interfaces_version}"
+openzeppelin_utils = "{current_openzeppelin_utils_version}"
 ----
 
 == Basic usage

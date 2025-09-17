@@ -1,9 +1,22 @@
 = Utilities
 
+include::../utils/_common.adoc[]
+
 :deploy_syscall: link:https://docs.starknet.io/architecture-and-concepts/smart-contracts/system-calls-cairo1/#deploy[deploy_syscall]
 :eip6372: link:https://eips.ethereum.org/EIPS/eip-6372[EIP-6372]
 
 This crate provides miscellaneous components and libraries containing utility functions to handle common tasks.
+
+[IMPORTANT]
+====
+This API reference is for the `openzeppelin_utils` package version `v{current_openzeppelin_utils_version}`.
+
+The `openzeppelin` package is an umbrella (meta) package that aggregates all library subpackages. Prior to v3.x, the umbrella and its subpackages were
+versioned in lockstep—their versions always matched. Starting with v3.x, following the introduction of `openzeppelin_interfaces`, the umbrella is
+versioned independently from some of the subpackages.
+
+See the xref:../index.adoc#versioning_of_the_sub_packages[Versioning of the sub-packages] section for more information.
+====
 
 == Core
 

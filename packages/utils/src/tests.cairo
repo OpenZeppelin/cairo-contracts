@@ -1,4 +1,5 @@
 mod test_checkpoint;
+mod test_execution;
 #[cfg(feature: 'fuzzing')]
 mod test_fuzz_checkpoint;
 #[cfg(feature: 'fuzzing')]

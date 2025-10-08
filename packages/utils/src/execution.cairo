@@ -2,14 +2,8 @@
 // OpenZeppelin Contracts for Cairo v3.0.0-alpha.2 (utils/src/execution.cairo)
 
 use openzeppelin_interfaces::accounts::{ISRC6Dispatcher, ISRC6DispatcherTrait};
-
 use starknet::account::Call;
 use starknet::{ContractAddress, SyscallResultTrait};
-
-pub const MIN_TRANSACTION_VERSION: u256 = 1;
-pub const QUERY_OFFSET: u256 = 0x100000000000000000000000000000000;
-// QUERY_OFFSET + TRANSACTION_VERSION
-pub const QUERY_VERSION: u256 = 0x100000000000000000000000000000001;
 
 /// Executes a list of calls and returns the return values.
 pub fn execute_calls(calls: Span<Call>) -> Array<Span<felt252>> {
@@ -42,17 +36,4 @@ pub fn assert_valid_signature(
         || is_valid_signature_felt == 1;
 
     assert(is_valid_signature, invalid_signature_error);
-}
-
-/// If the transaction is a simulation (version >= `QUERY_OFFSET`), it must be
-/// greater than or equal to `QUERY_OFFSET` + `MIN_TRANSACTION_VERSION` to be considered valid.
-/// Otherwise, it must be greater than or equal to `MIN_TRANSACTION_VERSION`.
-pub fn is_tx_version_valid() -> bool {
-    let tx_info = starknet::get_tx_info().unbox();
-    let tx_version = tx_info.version.into();
-    if tx_version >= QUERY_OFFSET {
-        QUERY_OFFSET + MIN_TRANSACTION_VERSION <= tx_version
-    } else {
-        MIN_TRANSACTION_VERSION <= tx_version
-    }
 }

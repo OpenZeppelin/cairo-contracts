@@ -333,7 +333,7 @@
       "bytes": 123006
     },
     "openzeppelin_test_common_DualCaseAccessControlDefaultAdminRulesMock.contract_class.json": {
-      "bytes": 171622
+      "bytes": 171636
     },
     "openzeppelin_test_common_SnakeERC721Mock.contract_class.json": {
       "bytes": 232720
@@ -375,7 +375,7 @@
       "bytes": 295692
     },
     "openzeppelin_test_common_ERC2981AccessControlDefaultAdminRulesMock.contract_class.json": {
-      "bytes": 143515
+      "bytes": 143529
     },
     "openzeppelin_test_common_ERC2981OwnableMock.contract_class.json": {
       "bytes": 93132

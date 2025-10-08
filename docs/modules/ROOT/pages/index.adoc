@@ -4,7 +4,7 @@
 
 = Contracts for Cairo
 
-include::utils/_common.adoc[]
+include::./utils/_common.adoc[]
 
 *A library for secure smart contract development* written in Cairo for {starknet}. This library consists of a set of xref:components.adoc[reusable components] to build custom smart contracts, as well as
 ready-to-deploy xref:presets.adoc[presets]. You can also find other xref:/api/utilities.adoc[utilities] including xref:interfaces.adoc[interfaces and dispatchers] and xref:/api/testing.adoc[test utilities]
@@ -77,7 +77,7 @@ openzeppelin = "3.0.0-alpha.2"
 The previous example would import the entire library. We can also add each package as a separate dependency to
 improve the building time by not including modules that won't be used:
 
-[,javascript,subs="attributes"]
+[,javascript,subs=+attributes]
 ----
 [dependencies]
 openzeppelin_access = "3.0.0-alpha.2"
@@ -89,7 +89,7 @@ openzeppelin_interfaces = "{current_openzeppelin_interfaces_version}"
 
 Here you can find a reference of the versioning of the sub-packages for this umbrella version:
 
-[,javascript,subs="attributes"]
+[,javascript,subs=+attributes]
 ----
 [dependencies]
 openzeppelin_access = "3.0.0-alpha.2"
@@ -97,6 +97,7 @@ openzeppelin_token = "3.0.0-alpha.2"
 openzeppelin_access = "3.0.0-alpha.2"
 openzeppelin_account = "3.0.0-alpha.2"
 openzeppelin_finance = "3.0.0-alpha.2"
+openzeppelin_interfaces = "{current_openzeppelin_interfaces_version}"
 openzeppelin_governance = "3.0.0-alpha.2"
 openzeppelin_introspection = "3.0.0-alpha.2"
 openzeppelin_merkle_tree = "3.0.0-alpha.2"

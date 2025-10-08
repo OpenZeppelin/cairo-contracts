@@ -25,7 +25,6 @@
 #[starknet::component]
 pub mod VotesComponent {
     use core::num::traits::Zero;
-    use openzeppelin_account::utils::assert_valid_signature;
     use openzeppelin_interfaces::erc20::IERC20;
     use openzeppelin_interfaces::erc721::IERC721;
     use openzeppelin_interfaces::votes::IVotes;
@@ -34,6 +33,7 @@ pub mod VotesComponent {
     use openzeppelin_token::erc721::ERC721Component;
     use openzeppelin_utils::contract_clock::ERC6372Clock;
     use openzeppelin_utils::cryptography::snip12::{OffchainMessageHash, SNIP12Metadata};
+    use openzeppelin_utils::execution::assert_valid_signature;
     use openzeppelin_utils::nonces::NoncesComponent;
     use openzeppelin_utils::nonces::NoncesComponent::InternalTrait as NoncesInternalTrait;
     use openzeppelin_utils::structs::checkpoint::{Checkpoint, Trace, TraceTrait};

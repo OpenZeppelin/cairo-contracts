@@ -14,9 +14,10 @@ pub mod AccountComponent {
     use openzeppelin_introspection::src5::SRC5Component::{
         InternalTrait as SRC5InternalTrait, SRC5Impl,
     };
+    use openzeppelin_utils::execution::execute_single_call;
     use starknet::account::Call;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
-    use crate::utils::{execute_single_call, is_tx_version_valid, is_valid_stark_signature};
+    use crate::utils::{is_tx_version_valid, is_valid_stark_signature};
 
     #[storage]
     pub struct Storage {

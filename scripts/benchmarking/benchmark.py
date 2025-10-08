@@ -51,7 +51,7 @@ def get_sierra_contract_class_size(json_path):
 
 def benchmark_contracts(target_dir):
     results = {BYTECODE_KEY: {}, CONTRACT_CLASS_KEY: {}}
-    for file in os.listdir(target_dir):
+    for file in sorted(os.listdir(target_dir)):
         if file.endswith(".compiled_contract_class.json"):
             path = os.path.join(target_dir, file)
             try:

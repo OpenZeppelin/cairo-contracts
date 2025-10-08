@@ -109,13 +109,9 @@ pub mod ERC2981AccessControlMock {
 }
 
 #[starknet::contract]
-#[with_components(ERC2981, SRC5)]
+#[with_components(ERC2981, SRC5, AccessControlDefaultAdminRules)]
 pub mod ERC2981AccessControlDefaultAdminRulesMock {
-    use openzeppelin_access::accesscontrol::extensions::AccessControlDefaultAdminRulesComponent::InternalImpl;
-    use openzeppelin_access::accesscontrol::extensions::{
-        AccessControlDefaultAdminRulesComponent,
-        DefaultConfig as AccessControlDefaultAdminRulesDefaultConfig,
-    };
+    use openzeppelin_access::accesscontrol::extensions::DefaultConfig as AccessControlDefaultAdminRulesDefaultConfig;
     use openzeppelin_token::common::erc2981::DefaultConfig as ERC2981DefaultConfig;
     use openzeppelin_token::common::erc2981::ERC2981Component::ROYALTY_ADMIN_ROLE;
     use starknet::ContractAddress;
@@ -140,24 +136,8 @@ pub mod ERC2981AccessControlDefaultAdminRulesMock {
 
     pub const INITIAL_DELAY: u64 = 3600; // 1 hour
 
-    component!(
-        path: AccessControlDefaultAdminRulesComponent,
-        storage: accesscontrol_dar,
-        event: AccessControlDAREvent,
-    );
-
     #[storage]
-    pub struct Storage {
-        #[substorage(v0)]
-        accesscontrol_dar: AccessControlDefaultAdminRulesComponent::Storage,
-    }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        #[flat]
-        AccessControlDAREvent: AccessControlDefaultAdminRulesComponent::Event,
-    }
+    pub struct Storage {}
 
     #[constructor]
     fn constructor(
@@ -167,7 +147,7 @@ pub mod ERC2981AccessControlDefaultAdminRulesMock {
         default_royalty_fraction: u128,
     ) {
         self.erc2981.initializer(default_receiver, default_royalty_fraction);
-        self.accesscontrol_dar.initializer(INITIAL_DELAY, owner);
-        self.accesscontrol_dar._grant_role(ROYALTY_ADMIN_ROLE, owner);
+        self.access_control_dar.initializer(INITIAL_DELAY, owner);
+        self.access_control_dar._grant_role(ROYALTY_ADMIN_ROLE, owner);
     }
 }

@@ -42,3 +42,9 @@ fuzzing = []
 allowed-libfuncs-list.name = "experimental"
 sierra = true
 casm = false
+
+[[test]]
+name = "openzeppelin_utils_unittest"
+build-external-contracts = [
+    "openzeppelin_test_common::mocks::account::DualCaseAccountMock",
+]

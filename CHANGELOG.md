@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Changed
+
+- Decoupled openzeppelin_utils version from the umbrella package (#1531)
+- Removed openzeppelin_governance dependency on openzeppelin_account (#1531)
+- Removed openzeppelin_token dependency on openzeppelin_account (#1531)
+
+### Changed (Breaking)
+
+- Removed `execute_single_call`, `execute_calls` and `assert_valid_signature` from openzeppelin_account::utils (#1531)
+
 ## 3.0.0-alpha.2 (2025-09-10)
 
 ### Added

@@ -64,7 +64,6 @@ name = "openzeppelin_governance"
 version = "3.0.0-alpha.2"
 dependencies = [
  "openzeppelin_access",
- "openzeppelin_account",
  "openzeppelin_interfaces",
  "openzeppelin_introspection",
  "openzeppelin_test_common",
@@ -76,7 +75,7 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_interfaces"
-version = "2.1.0"
+version = "2.1.0-alpha.0"
 dependencies = [
  "snforge_std",
 ]
@@ -161,7 +160,6 @@ name = "openzeppelin_token"
 version = "3.0.0-alpha.2"
 dependencies = [
  "openzeppelin_access",
- "openzeppelin_account",
  "openzeppelin_interfaces",
  "openzeppelin_introspection",
  "openzeppelin_test_common",
@@ -181,7 +179,7 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_utils"
-version = "3.0.0-alpha.2"
+version = "3.1.0-alpha.0"
 dependencies = [
  "openzeppelin_interfaces",
  "openzeppelin_test_common",

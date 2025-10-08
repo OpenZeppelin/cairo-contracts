@@ -2,7 +2,7 @@ use openzeppelin_testing::constants::{TRANSACTION_HASH, stark};
 use openzeppelin_testing::declare_and_deploy;
 use openzeppelin_testing::signing::SerializedSigning;
 use starknet::ContractAddress;
-use crate::utils::assert_valid_signature;
+use crate::execution::assert_valid_signature;
 
 //
 // Setup

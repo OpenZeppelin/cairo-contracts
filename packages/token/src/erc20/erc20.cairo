@@ -13,13 +13,13 @@
 #[starknet::component]
 pub mod ERC20Component {
     use core::num::traits::{Bounded, Zero};
-    use openzeppelin_account::utils::assert_valid_signature;
     use openzeppelin_interfaces::erc20 as interface;
     use openzeppelin_interfaces::nonces::INonces;
     use openzeppelin_interfaces::snip12::ISNIP12Metadata;
     use openzeppelin_utils::cryptography::snip12::{
         OffchainMessageHash, SNIP12Metadata, StarknetDomain, StructHash,
     };
+    use openzeppelin_utils::execution::assert_valid_signature;
     use openzeppelin_utils::nonces::NoncesComponent;
     use openzeppelin_utils::nonces::NoncesComponent::InternalTrait as NoncesInternalTrait;
     use starknet::ContractAddress;

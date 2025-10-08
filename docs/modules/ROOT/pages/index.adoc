@@ -23,8 +23,8 @@ before proceeding, and run the following command to check that the installation 
 ----
 $ scarb --version
 
-scarb 2.12.0 (639d0a65e 2025-08-04)
-cairo: 2.12.0 (https://crates.io/crates/cairo-lang-compiler/2.12.0)
+scarb 2.12.2 (dc0dbfd50 2025-09-15)
+cairo: 2.12.2 (https://crates.io/crates/cairo-lang-compiler/2.12.2)
 sierra: 1.7.0
 ----
 
@@ -59,13 +59,9 @@ Scarb.toml src
 
 [IMPORTANT]
 ====
-The `openzeppelin` package is an umbrella package that includes all the packages in the library.
-Before version `3.x.x`, the `openzeppelin` and its sub-packages
-were versioned together meaning that the version of the `openzeppelin`
-package was the same as the version of the sub-packages.
-
-Starting from version `3.x.x`, with the introduction of the `openzeppelin_interfaces` package,
-the `openzeppelin` package is versioned independently from the sub-packages.
+The `openzeppelin` package is an umbrella (meta) package that aggregates all library subpackages. Prior to v3.x, the umbrella and its subpackages were
+versioned in lockstep—their versions always matched. Starting with v3.x, following the introduction of `openzeppelin_interfaces`, the umbrella is
+versioned independently from some of the subpackages.
 
 See the {versioning} section for more information.
 ====
@@ -109,7 +105,9 @@ openzeppelin_presets = "3.0.0-alpha.2"
 openzeppelin_security = "3.0.0-alpha.2"
 openzeppelin_token = "3.0.0-alpha.2"
 openzeppelin_upgrades = "3.0.0-alpha.2"
-openzeppelin_utils = "3.0.0-alpha.2"
+
+openzeppelin_interfaces = "{current_openzeppelin_interfaces_version}"
+openzeppelin_utils = "{current_openzeppelin_utils_version}"
 ----
 
 == Basic usage

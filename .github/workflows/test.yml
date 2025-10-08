@@ -13,6 +13,10 @@ jobs:
   lint_and_test:
     name: Lint and test Cairo
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        partition: [ 1, 2, 3 ]
     steps:
       - uses: actions/checkout@v5
 
@@ -23,16 +27,11 @@ jobs:
 
       - uses: software-mansion/setup-scarb@v1
         with:
-          scarb-version: ${{ env.SCARB_VERSION }}
-
-      - name: Extract foundry version
-        run: |
-          FOUNDRY_VERSION=$(grep 'snforge_std = ' Scarb.toml | sed 's/snforge_std = "\(.*\)"/\1/')
-          echo "FOUNDRY_VERSION=$FOUNDRY_VERSION" >> "$GITHUB_ENV"
+          scarb-version: 2.12.0
 
       - uses: foundry-rs/setup-snfoundry@v4
         with:
-          starknet-foundry-version: ${{ env.FOUNDRY_VERSION }}
+          starknet-foundry-version: nightly-2025-10-08
 
       - name: Install cairo-coverage
         run: curl -L https://raw.githubusercontent.com/software-mansion/cairo-coverage/main/scripts/install.sh | sh
@@ -48,13 +47,7 @@ jobs:
         run: scarb fmt --check --workspace
 
       - name: Run tests
-        run: snforge test --workspace --features coverage_incompatible,fuzzing --fuzzer-runs 500
+        run: snforge test --partition '${{ matrix.partition }}/3' --workspace --features coverage_incompatible,fuzzing --fuzzer-runs 500
 
       - name: Run tests and generate coverage report
         run: snforge test --workspace --coverage
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          file: ./coverage.lcov
-          token: ${{ secrets.CODECOV_TOKEN }}

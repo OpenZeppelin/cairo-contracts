@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 3.1.0-alpha.0 (2025-09-17)
 
+### Added
+
+- `execution` module including `execute_single_call`, `execute_calls` and `assert_valid_signature` (#1531)
+
 ### Changed
 
 - Decoupled version from the umbrella package (#1531)

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v3.0.0-alpha.2 (access/src/ownable/ownable.cairo)
+// OpenZeppelin Contracts for Cairo v3.0.0-alpha.3 (access/src/ownable/ownable.cairo)
 
 /// # Ownable Component
 ///

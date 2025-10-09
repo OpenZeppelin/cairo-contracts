@@ -4,15 +4,15 @@ List of standardized interfaces, ABI traits and dispatchers.
 
 ### Standardized Interfaces
 
-- `IAccessControlDefaultAdminRules`
-- `IAccessControl`
-- `IAccessControlWithDelay`
+- [`IAccessControlDefaultAdminRules`](https://docs.openzeppelin.com/contracts-cairo/alpha/api/access#IAccessControlDefaultAdminRules)
+- [`IAccessControl`](https://docs.openzeppelin.com/contracts-cairo/alpha/api/access#IAccessControl)
+- [`IAccessControlWithDelay`](https://docs.openzeppelin.com/contracts-cairo/alpha/api/access#IAccessControlWithDelay)
 - `IAccessControlCamel`
 - `IOwnable`
 - `IOwnableCamelOnly`
 - `IOwnableTwoStep`
 - `IOwnableTwoStepCamelOnly`
-- `ISRC6`
+- [`ISRC6`](https://docs.openzeppelin.com/contracts-cairo/alpha/api/account#ISRC6)
 - `ISRC6CamelOnly`
 - `IDeclarer`
 - `IDeployable`
@@ -21,16 +21,16 @@ List of standardized interfaces, ABI traits and dispatchers.
 - `IEthDeployable`
 - `IEthPublicKey`
 - `IEthPublicKeyCamel`
-- `ISRC9_V2`
-- `IVesting`
+- [`ISRC9_V2`](https://docs.openzeppelin.com/contracts-cairo/alpha/api/account#ISRC9_V2)
+- [`IVesting`](https://docs.openzeppelin.com/contracts-cairo/alpha/api/finance#IVesting)
 - `IQuorumFraction`
 - `IVotesToken`
 - `ITimelocked`
 - `IGovernorSettingsAdmin`
-- `IGovernor`
-- `IMultisig`
-- `ITimelock`
-- `IVotes`
+- [`IGovernor`](https://docs.openzeppelin.com/contracts-cairo/alpha/api/governance#IGovernor)
+- [`IMultisig`](https://docs.openzeppelin.com/contracts-cairo/alpha/api/governance#IMultisig)
+- [`ITimelock`](https://docs.openzeppelin.com/contracts-cairo/alpha/api/governance#ITimelock)
+- [`IVotes`](https://docs.openzeppelin.com/contracts-cairo/alpha/api/governance#IVotes)
 - `IInitializable`
 - `IPausable`
 - `IERC20`

@@ -7,4 +7,4 @@
 
 // Variables
 :current_openzeppelin_interfaces_version: 2.1.0-alpha.0
-:current_openzeppelin_utils_version: 3.1.0-alpha.0
+:current_openzeppelin_utils_version: 2.1.0-alpha.0

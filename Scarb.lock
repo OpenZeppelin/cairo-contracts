@@ -179,7 +179,7 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_utils"
-version = "3.1.0-alpha.0"
+version = "2.1.0-alpha.0"
 dependencies = [
  "openzeppelin_interfaces",
  "openzeppelin_test_common",

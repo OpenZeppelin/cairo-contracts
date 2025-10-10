@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## 3.0.0-alpha.3 (2025-10-9)
 
+### Added
+
+- `execute_single_call`, `execute_calls` and `assert_valid_signature` to openzeppelin_utils::execution (#1531)
+
 ### Changed
 
 - Decoupled openzeppelin_utils version from the umbrella package (#1531)

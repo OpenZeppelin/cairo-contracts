@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## 3.0.0-alpha.3 (2025-10-9)
+
 ### Changed
 
 - Decoupled openzeppelin_utils version from the umbrella package (#1531)

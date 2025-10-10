@@ -71,7 +71,7 @@ Install the library by declaring it as a dependency in the project's `Scarb.toml
 [,javascript]
 ----
 [dependencies]
-openzeppelin = "3.0.0-alpha.2"
+openzeppelin = "3.0.0-alpha.3"
 ----
 
 The previous example would import the entire library. We can also add each package as a separate dependency to
@@ -80,8 +80,8 @@ improve the building time by not including modules that won't be used:
 [,javascript,subs=+attributes]
 ----
 [dependencies]
-openzeppelin_access = "3.0.0-alpha.2"
-openzeppelin_token = "3.0.0-alpha.2"
+openzeppelin_access = "3.0.0-alpha.3"
+openzeppelin_token = "3.0.0-alpha.3"
 openzeppelin_interfaces = "{current_openzeppelin_interfaces_version}"
 ----
 
@@ -92,19 +92,19 @@ Here you can find a reference of the versioning of the sub-packages for this umb
 [,javascript,subs=+attributes]
 ----
 [dependencies]
-openzeppelin_access = "3.0.0-alpha.2"
-openzeppelin_token = "3.0.0-alpha.2"
-openzeppelin_access = "3.0.0-alpha.2"
-openzeppelin_account = "3.0.0-alpha.2"
-openzeppelin_finance = "3.0.0-alpha.2"
+openzeppelin_access = "3.0.0-alpha.3"
+openzeppelin_token = "3.0.0-alpha.3"
+openzeppelin_access = "3.0.0-alpha.3"
+openzeppelin_account = "3.0.0-alpha.3"
+openzeppelin_finance = "3.0.0-alpha.3"
 openzeppelin_interfaces = "{current_openzeppelin_interfaces_version}"
-openzeppelin_governance = "3.0.0-alpha.2"
-openzeppelin_introspection = "3.0.0-alpha.2"
-openzeppelin_merkle_tree = "3.0.0-alpha.2"
-openzeppelin_presets = "3.0.0-alpha.2"
-openzeppelin_security = "3.0.0-alpha.2"
-openzeppelin_token = "3.0.0-alpha.2"
-openzeppelin_upgrades = "3.0.0-alpha.2"
+openzeppelin_governance = "3.0.0-alpha.3"
+openzeppelin_introspection = "3.0.0-alpha.3"
+openzeppelin_merkle_tree = "3.0.0-alpha.3"
+openzeppelin_presets = "3.0.0-alpha.3"
+openzeppelin_security = "3.0.0-alpha.3"
+openzeppelin_token = "3.0.0-alpha.3"
+openzeppelin_upgrades = "3.0.0-alpha.3"
 
 openzeppelin_interfaces = "{current_openzeppelin_interfaces_version}"
 openzeppelin_utils = "{current_openzeppelin_utils_version}"

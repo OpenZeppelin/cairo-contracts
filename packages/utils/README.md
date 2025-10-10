@@ -9,7 +9,7 @@ This crate provides components and libraries containing miscellaneous utilities.
 - [`utils`](https://docs.openzeppelin.com/contracts-cairo/alpha/api/utilities#utils)
 - [`cryptography`](https://docs.openzeppelin.com/contracts-cairo/alpha/api/utilities#cryptography)
 - [`deployments`](https://docs.openzeppelin.com/contracts-cairo/alpha/api/utilities#deployments)
-- [`execution`] (https://docs.openzeppelin.com/contracts-cairo/alpha/api/utilities#execution)
+- [`execution`](https://docs.openzeppelin.com/contracts-cairo/alpha/api/utilities#execution)
 - [`math`](https://docs.openzeppelin.com/contracts-cairo/alpha/api/utilities#math)
 - [`serde`](https://docs.openzeppelin.com/contracts-cairo/alpha/api/utilities#serde)
 

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v3.0.0-alpha.2 (utils/src/cryptography/nonces.cairo)
+// OpenZeppelin Contracts for Cairo v3.0.0-alpha.3 (utils/src/cryptography/nonces.cairo)
 
 /// # Nonces Component
 ///

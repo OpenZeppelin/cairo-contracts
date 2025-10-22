@@ -7,7 +7,6 @@ use openzeppelin_testing::constants::AsAddressImpl;
 /// felt252 at the beginning, which is the BYTE_ARRAY_MAGIC.
 pub fn panic_data_to_byte_array(panic_data: Array<felt252>) -> ByteArray {
     let mut panic_data = panic_data.span();
-    println!("panic_data: {:?}", panic_data);
 
     // Remove BYTE_ARRAY_MAGIC from the panic data.
     panic_data.pop_front().expect('Empty panic data provided');

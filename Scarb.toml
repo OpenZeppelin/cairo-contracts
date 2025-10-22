@@ -67,9 +67,6 @@ snforge_std.workspace = true
 openzeppelin_test_common = { path = "packages/test_common" }
 openzeppelin_testing = { path = "packages/testing" }
 
-[workspace.features]
-coverage_incompatible = ["packages/presets/coverage_incompatible"]
-
 [lib]
 
 [[target.starknet-contract]]

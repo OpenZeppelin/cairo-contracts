@@ -83,8 +83,9 @@ impl ProposalCoreStorePacking of StorePacking<ProposalCore, (felt252, felt252)> 
 mod tests {
     use core::num::traits::Bounded;
     use openzeppelin_testing::constants::ALICE;
-    use openzeppelin_testing::{FuzzableBool, FuzzableContractAddress};
-    use super::{ContractAddress, ProposalCore, ProposalCoreStorePacking as StorePacking};
+    #[cfg(feature: 'fuzzing')]
+    use super::ContractAddress;
+    use super::{ProposalCore, ProposalCoreStorePacking as StorePacking};
 
     #[test]
     fn test_pack_and_unpack() {

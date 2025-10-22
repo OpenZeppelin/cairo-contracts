@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Changed (Breaking)
+
+- Bump snforge to v0.51.0 (#)
+
+### Removed
+
+- Removed `assert_entrypoint_not_found_error` from snforge updating the panic error message format (#)
+- Removed `FuzzableContractAddress` and `FuzzableBool` implementations as they are now provided by snforge (#)
+
 ## 5.0.0 (2025-10-01)
 
 ### Changed (Breaking)

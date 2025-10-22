@@ -72,7 +72,6 @@ fn test_partial_eq() {
 
 #[cfg(feature: 'fuzzing')]
 mod fuzz_tests {
-    use openzeppelin_testing::FuzzableBool;
     use starknet::SyscallResultTrait;
     use starknet::secp256_trait::{Secp256PointTrait, Secp256Trait};
     use starknet::secp256k1::Secp256k1Point;

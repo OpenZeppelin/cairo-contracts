@@ -89,7 +89,7 @@ mod fuzz_tests {
                 Option::Some(point) => point,
                 Option::None => { return; },
             },
-            Result::Err => { return; },
+            Result::Err(_) => { return; },
         };
 
         let (expected_x, expected_y) = point.get_coordinates().unwrap_syscall();
@@ -110,7 +110,7 @@ mod fuzz_tests {
                 Option::Some(point) => point,
                 Option::None => { return; },
             },
-            Result::Err => { return; },
+            Result::Err(_) => { return; },
         };
 
         let (expected_x, expected_y) = point.get_coordinates().unwrap_syscall();

@@ -29,9 +29,6 @@ use snforge_std::{
 use starknet::account::Call;
 use starknet::{ClassHash, ContractAddress};
 use crate::AccountUpgradeable;
-use crate::interfaces::account::{
-    AccountUpgradeableABISafeDispatcher, AccountUpgradeableABISafeDispatcherTrait,
-};
 use crate::interfaces::{AccountUpgradeableABIDispatcher, AccountUpgradeableABIDispatcherTrait};
 
 //
@@ -519,7 +516,7 @@ fn test_upgraded_event() {
 }
 
 #[test]
-#[feature("safe_dispatcher")]
+#[should_panic(expected: 'ENTRYPOINT_NOT_FOUND')]
 fn test_v2_missing_camel_selector() {
     let key_pair = KEY_PAIR();
     let (account_address, v1_dispatcher) = setup_dispatcher(key_pair);
@@ -528,10 +525,8 @@ fn test_v2_missing_camel_selector() {
     start_cheat_caller_address(account_address, account_address);
     v1_dispatcher.upgrade(v2_class_hash);
 
-    let safe_dispatcher = AccountUpgradeableABISafeDispatcher { contract_address: account_address };
-    let result = safe_dispatcher.getPublicKey();
-
-    utils::assert_entrypoint_not_found_error(result, selector!("getPublicKey"), account_address)
+    let dispatcher = AccountUpgradeableABIDispatcher { contract_address: account_address };
+    dispatcher.getPublicKey();
 }
 
 #[test]

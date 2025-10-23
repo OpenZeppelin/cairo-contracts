@@ -1,6 +1,6 @@
 use core::num::traits::Zero;
 use openzeppelin_interfaces::erc721::{
-    IERC721CamelOnlySafeDispatcher, IERC721CamelOnlySafeDispatcherTrait, IERC721Dispatcher,
+    IERC721CamelOnlyDispatcher, IERC721CamelOnlyDispatcherTrait, IERC721Dispatcher,
     IERC721DispatcherTrait, IERC721_ID, IERC721_METADATA_ID,
 };
 use openzeppelin_interfaces::introspection::ISRC5_ID;
@@ -862,7 +862,7 @@ fn test_upgraded_event() {
 }
 
 #[test]
-#[feature("safe_dispatcher")]
+#[should_panic(expected: 'ENTRYPOINT_NOT_FOUND')]
 fn test_v2_missing_camel_selector() {
     let (_, mut v1) = setup_dispatcher();
     let v2_class_hash = V2_CLASS_HASH();
@@ -870,11 +870,8 @@ fn test_v2_missing_camel_selector() {
     start_cheat_caller_address(v1.contract_address, OWNER);
     v1.upgrade(v2_class_hash);
 
-    let safe_dispatcher = IERC721CamelOnlySafeDispatcher { contract_address: v1.contract_address };
-    let mut result = safe_dispatcher.ownerOf(TOKEN_1);
-    let selector = selector!("ownerOf");
-
-    utils::assert_entrypoint_not_found_error(result, selector, v1.contract_address);
+    let dispatcher = IERC721CamelOnlyDispatcher { contract_address: v1.contract_address };
+    dispatcher.ownerOf(TOKEN_1);
 }
 
 #[test]

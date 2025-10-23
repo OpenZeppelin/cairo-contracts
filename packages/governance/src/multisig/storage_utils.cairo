@@ -85,7 +85,6 @@ pub impl SignersInfoStorePackingV2 of StorePacking<SignersInfo, u128> {
 #[cfg(test)]
 #[cfg(feature: 'fuzzing')]
 mod tests {
-    use openzeppelin_testing::FuzzableBool;
     use starknet::storage_access::StorePacking;
     use super::{SignersInfo, TxInfo};
 

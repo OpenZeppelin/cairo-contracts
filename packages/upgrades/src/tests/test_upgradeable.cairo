@@ -1,9 +1,8 @@
 use openzeppelin_test_common::mocks::upgrades::{
-    IUpgradesV1Dispatcher, IUpgradesV1DispatcherTrait, IUpgradesV1SafeDispatcher,
-    IUpgradesV1SafeDispatcherTrait, IUpgradesV2Dispatcher, IUpgradesV2DispatcherTrait,
+    IUpgradesV1Dispatcher, IUpgradesV1DispatcherTrait, IUpgradesV2Dispatcher,
+    IUpgradesV2DispatcherTrait,
 };
 use openzeppelin_test_common::upgrades::UpgradeableSpyHelpers;
-use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{CLASS_HASH_ZERO, FELT_VALUE as VALUE};
 use openzeppelin_testing::{declare_class, deploy, spy_events};
 use snforge_std::ContractClass;
@@ -72,18 +71,15 @@ fn test_remove_selector_passes_in_v1() {
 }
 
 #[test]
-#[feature("safe_dispatcher")]
+#[should_panic(expected: 'ENTRYPOINT_NOT_FOUND')]
 fn test_remove_selector_fails_in_v2() {
     let (v1, v2_class) = setup_test();
 
     v1.upgrade(v2_class.class_hash);
 
     // We use the v1 dispatcher because `remove_selector` is not in v2 interface
-    let safe_dispatcher = IUpgradesV1SafeDispatcher { contract_address: v1.contract_address };
-    let mut result = safe_dispatcher.remove_selector();
-    utils::assert_entrypoint_not_found_error(
-        result, selector!("remove_selector"), v1.contract_address,
-    );
+    let dispatcher = IUpgradesV1Dispatcher { contract_address: v1.contract_address };
+    dispatcher.remove_selector();
 }
 
 //

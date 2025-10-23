@@ -7,7 +7,7 @@
       "felts": 1528
     },
     "openzeppelin_test_common_DualCaseAccessControlDefaultAdminRulesMock.compiled_contract_class.json": {
-      "felts": 8341
+      "felts": 8248
     },
     "openzeppelin_test_common_DualCaseAccessControlMock.compiled_contract_class.json": {
       "felts": 4532
@@ -49,7 +49,7 @@
       "felts": 5919
     },
     "openzeppelin_test_common_ERC20ReentrantMock.compiled_contract_class.json": {
-      "felts": 8450
+      "felts": 8318
     },
     "openzeppelin_test_common_ERC20TimestampVotesMock.compiled_contract_class.json": {
       "felts": 12958
@@ -103,7 +103,7 @@
       "felts": 23009
     },
     "openzeppelin_test_common_GovernorTimelockedMock.compiled_contract_class.json": {
-      "felts": 23507
+      "felts": 23260
     },
     "openzeppelin_test_common_InitializableMock.compiled_contract_class.json": {
       "felts": 291
@@ -181,7 +181,7 @@
       "felts": 777
     },
     "openzeppelin_test_common_TimelockControllerMock.compiled_contract_class.json": {
-      "felts": 10502
+      "felts": 10169
     },
     "openzeppelin_test_common_UpgradesV1.compiled_contract_class.json": {
       "felts": 1074
@@ -198,7 +198,7 @@
       "bytes": 37219
     },
     "openzeppelin_test_common_DualCaseAccessControlDefaultAdminRulesMock.contract_class.json": {
-      "bytes": 171636
+      "bytes": 169901
     },
     "openzeppelin_test_common_DualCaseAccessControlMock.contract_class.json": {
       "bytes": 96706
@@ -240,7 +240,7 @@
       "bytes": 124793
     },
     "openzeppelin_test_common_ERC20ReentrantMock.contract_class.json": {
-      "bytes": 189745
+      "bytes": 187066
     },
     "openzeppelin_test_common_ERC20TimestampVotesMock.contract_class.json": {
       "bytes": 291932
@@ -294,7 +294,7 @@
       "bytes": 556705
     },
     "openzeppelin_test_common_GovernorTimelockedMock.contract_class.json": {
-      "bytes": 579123
+      "bytes": 572887
     },
     "openzeppelin_test_common_InitializableMock.contract_class.json": {
       "bytes": 9238
@@ -372,7 +372,7 @@
       "bytes": 22711
     },
     "openzeppelin_test_common_TimelockControllerMock.contract_class.json": {
-      "bytes": 250722
+      "bytes": 241207
     },
     "openzeppelin_test_common_UpgradesV1.contract_class.json": {
       "bytes": 25813

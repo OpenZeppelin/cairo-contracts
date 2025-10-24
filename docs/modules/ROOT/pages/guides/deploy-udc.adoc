@@ -25,7 +25,7 @@ NOTE: For declaring contracts on Starknet, you can use the {sncast} tool from th
 == Note on the UDC final address
 
 It is important that the Universal Deployer Contract (UDC) in Starknet maintains the same address across all
-networks because essential developer tools like  *sncast* and *starkli* rely on this address by default when deploying contracts.
+networks because essential developer tools like *sncast* and *starkli* rely on this address by default when deploying contracts.
 These tools are widely used in the Starknet ecosystem to streamline and standardize contract deployment workflows.
 
 If the UDC address is consistent, developers can write deployment scripts, CI/CD pipelines, and integrations that work seamlessly

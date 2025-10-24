@@ -55,7 +55,7 @@ CAUTION: Before version 3.0.0-alpha.3, class hashes were computed using the `sca
 | `{VestingWallet-class-hash}`
 |===
 
-TIP: {sncast} utils class-hash command can be used to compute the class hash of specified contract.
+TIP: `sncast utils class-hash --contract-name <CONTRACT_NAME>` can be used to compute the class hash of specified contract.
 
 == Usage
 

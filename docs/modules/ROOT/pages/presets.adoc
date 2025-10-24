@@ -152,7 +152,7 @@ mod ERC20Upgradeable {
 }
 ----
 
-Then, declare the preset.
+Then, declare the contract.
 
 [,bash]
 ----

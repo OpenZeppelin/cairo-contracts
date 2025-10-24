@@ -25,7 +25,7 @@ NOTE: For declaring contracts on Starknet, you can use the {sncast} tool from th
 == Note on the UDC final address
 
 It is important that the Universal Deployer Contract (UDC) in Starknet maintains the same address across all
-networks because essential developer tools like *starkli* and *sncast* rely on this address by default when deploying contracts.
+networks because essential developer tools like  *sncast* and *starkli* rely on this address by default when deploying contracts.
 These tools are widely used in the Starknet ecosystem to streamline and standardize contract deployment workflows.
 
 If the UDC address is consistent, developers can write deployment scripts, CI/CD pipelines, and integrations that work seamlessly
@@ -45,23 +45,19 @@ IMPORTANT: If you are using a different compiler version, you need to make sure 
 
 [TIP]
 ====
-To avoid potential issues by using a different compiler version, you can directly import the contract class deployed on Starknet mainnet and declare it on your appchain. At
-the time of writing, this is not easily achievable with the `sncast` tool, but you can leverage `{starkli}` to do it.
+To avoid potential issues by using a different compiler version, you can directly declare the contract class deployed on Starknet mainnet and declare it on your appchain. Below *sncast* command shows how to declare the UDC class:
 
 Quick reference:
 
 ```bash
-starkli class-by-hash --parse \
-    0x01b2df6d8861670d4a8ca4670433b2418d78169c2947f46dc614e69f333745c8 \
-    --network mainnet \
-    > udc.json
+sncast declare-from \
+    --class-hash 0x01b2df6d8861670d4a8ca4670433b2418d78169c2947f46dc614e69f333745c8 \
+    --source-network mainnet \
+    --url <rpc-url>
 ```
 
-This will output a `udc.json` file that you can use to declare the UDC on your appchain.
+For more details, check out the *sncast* guide about https://foundry-rs.github.io/starknet-foundry/starknet/declare.html#declaring-a-contract-by-fetching-it-from-a-different-starknet-instance[declaring a contract from a different Starknet instance].
 
-```bash
-starkli declare udc.json --rpc <rpc-url>
-```
 ====
 
 == Madara Appchains

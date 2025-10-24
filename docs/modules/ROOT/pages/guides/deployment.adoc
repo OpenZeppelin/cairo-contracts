@@ -1,4 +1,4 @@
-:foundry: https://foundry-rs.github.io/starknet-foundry/starknet/account.html[Starknet Foundry]
+:sncast: https://foundry-rs.github.io/starknet-foundry/starknet/account.html[sncast]
 :starkli: https://book.starkli.rs/accounts#account-deployment[Starkli]
 
 = Counterfactual deployments
@@ -10,7 +10,7 @@ We can leverage this property to make a contract pay for its own deployment by s
 
 This process can be described with the following steps:
 
-TIP: For testing this flow you can check the {foundry} or the {starkli} guides for deploying accounts.
+TIP: For testing this flow you can check the {sncast} or the {starkli} guides for deploying accounts.
 
 1. Deterministically precompute the `contract_address` given a `class_hash`, `salt`, and constructor `calldata`.
 Note that the `class_hash` must be previously declared for the deployment to succeed.

@@ -23,7 +23,7 @@ pub use security::{initializable, pausable};
 
 // Token
 pub mod token;
-pub use token::{erc1155, erc20, erc2981, erc4626, erc721};
+pub use token::{erc1155, erc20, erc2981, erc4626, erc6909, erc721};
 
 // Upgrades
 pub mod upgrades;

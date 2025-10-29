@@ -8,6 +8,8 @@
 #[starknet::component]
 pub mod ERC6909ContentURIComponent {
     use openzeppelin_interfaces::erc6909 as interface;
+    use openzeppelin_introspection::src5::SRC5Component;
+    use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin_token::erc6909::ERC6909Component;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 
@@ -46,11 +48,16 @@ pub mod ERC6909ContentURIComponent {
         +HasComponent<TContractState>,
         impl ERC6909: ERC6909Component::HasComponent<TContractState>,
         +ERC6909Component::ERC6909HooksTrait<TContractState>,
+        impl SRC5: SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>,
     > of InternalTrait<TContractState> {
-        /// Sets the base URI.
+        /// Initializes the contract by setting the contract uri and declaring support
+        /// for the `IERC6909ContentUri` interface id.
         fn initializer(ref self: ComponentState<TContractState>, contract_uri: ByteArray) {
             self.ERC6909ContentURI_contract_uri.write(contract_uri);
+
+            let mut src5_component = get_dep_component_mut!(ref self, SRC5);
+            src5_component.register_interface(interface::IERC6909_CONTENT_URI_ID);
         }
     }
 }

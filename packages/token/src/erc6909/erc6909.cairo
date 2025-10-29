@@ -8,6 +8,10 @@
 pub mod ERC6909Component {
     use core::num::traits::{Bounded, Zero};
     use openzeppelin_interfaces::erc6909 as interface;
+    use openzeppelin_introspection::src5::SRC5Component;
+    use openzeppelin_introspection::src5::SRC5Component::{
+        InternalTrait as SRC5InternalTrait, SRC5Impl,
+    };
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
     use starknet::{ContractAddress, get_caller_address};
 
@@ -96,9 +100,14 @@ pub mod ERC6909Component {
         ) {}
     }
 
+
     #[embeddable_as(ERC6909Impl)]
     impl ERC6909<
-        TContractState, +HasComponent<TContractState>, +ERC6909HooksTrait<TContractState>,
+        TContractState,
+        +HasComponent<TContractState>,
+        +SRC5Component::HasComponent<TContractState>,
+        +ERC6909HooksTrait<TContractState>,
+        +Drop<TContractState>,
     > of interface::IERC6909<ComponentState<TContractState>> {
         /// Returns the amount of `id` tokens owned by `account`.
         fn balance_of(
@@ -172,13 +181,6 @@ pub mod ERC6909Component {
             self._set_operator(caller, spender, approved);
             true
         }
-
-        /// Checks if a contract implements an interface.
-        fn supports_interface(
-            self: @ComponentState<TContractState>, interface_id: felt252,
-        ) -> bool {
-            interface_id == interface::IERC6909_ID || interface_id == ISRC6_ID
-        }
     }
 
 
@@ -186,8 +188,17 @@ pub mod ERC6909Component {
     pub impl InternalImpl<
         TContractState,
         +HasComponent<TContractState>,
+        impl SRC5: SRC5Component::HasComponent<TContractState>,
         impl Hooks: ERC6909HooksTrait<TContractState>,
+        +Drop<TContractState>,
     > of InternalTrait<TContractState> {
+        /// Initializes the contract by regisrtering the supported interfaces
+        /// This should only be used inside the contract's constructor.
+        fn initializer(ref self: ComponentState<TContractState>) {
+            let mut src5_component = get_dep_component_mut!(ref self, SRC5);
+            src5_component.register_interface(interface::IERC6909_ID);
+        }
+
         /// Creates a `value` amount of tokens and assigns them to `account`.
         ///
         /// Requirements:

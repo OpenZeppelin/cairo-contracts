@@ -8,6 +8,8 @@
 pub mod ERC6909TokenSupplyComponent {
     use core::num::traits::Zero;
     use openzeppelin_interfaces::erc6909 as interface;
+    use openzeppelin_introspection::src5::SRC5Component;
+    use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin_token::erc6909::ERC6909Component;
     use starknet::ContractAddress;
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
@@ -41,8 +43,16 @@ pub mod ERC6909TokenSupplyComponent {
         +HasComponent<TContractState>,
         impl ERC6909: ERC6909Component::HasComponent<TContractState>,
         +ERC6909Component::ERC6909HooksTrait<TContractState>,
+        impl SRC5: SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>,
     > of InternalTrait<TContractState> {
+        /// Initializes the contract by declaring support for the `IERC6909TokenSupply`
+        /// interface id.
+        fn initialize(ref self: ComponentState<TContractState>) {
+            let mut src5_component = get_dep_component_mut!(ref self, SRC5);
+            src5_component.register_interface(interface::IERC6909_TOKEN_SUPPLY_ID);
+        }
+
         /// Updates the total supply of a token ID.
         /// Ideally this function should be called in a `before_update` or `after_update`
         /// hook during mints and burns.
@@ -67,3 +77,4 @@ pub mod ERC6909TokenSupplyComponent {
         }
     }
 }
+

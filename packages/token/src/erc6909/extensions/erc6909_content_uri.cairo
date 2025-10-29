@@ -23,7 +23,7 @@ pub mod ERC6909ContentURIComponent {
         +ERC6909Component::HasComponent<TContractState>,
         +ERC6909Component::ERC6909HooksTrait<TContractState>,
         +Drop<TContractState>,
-    > of interface::IERC6909ContentURI<ComponentState<TContractState>> {
+    > of interface::IERC6909ContentUri<ComponentState<TContractState>> {
         /// Returns the contract level URI.
         fn contract_uri(self: @ComponentState<TContractState>) -> ByteArray {
             self.ERC6909ContentURI_contract_uri.read()

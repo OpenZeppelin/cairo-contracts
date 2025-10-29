@@ -1,9 +1,4 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.14.0 (token/erc6909/erc6909.cairo)
-
-use core::starknet::ContractAddress;
-
-/// TODO: ADD SRC5 As a component
 
 /// # ERC6909 Component
 ///
@@ -12,9 +7,8 @@ use core::starknet::ContractAddress;
 #[starknet::component]
 pub mod ERC6909Component {
     use core::num::traits::{Bounded, Zero};
-    use openzeppelin_account::interface::ISRC6_ID;
-    use openzeppelin_token::erc6909::interface;
-    use starknet::storage::Map;
+    use openzeppelin_interfaces::erc6909 as interface;
+    use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
     use starknet::{ContractAddress, get_caller_address};
 
     #[storage]

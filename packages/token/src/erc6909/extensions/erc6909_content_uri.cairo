@@ -1,16 +1,15 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.14.0 (token/erc6909/extensions/erc6909_votes.cairo)
 
-use starknet::ContractAddress;
-
 /// # ERC6909ContentURI Component
 ///
 /// The ERC6909ContentURI component allows to set the contract and token ID URIs.
 /// The internal function `initializer` should be used ideally in the constructor.
 #[starknet::component]
 pub mod ERC6909ContentURIComponent {
+    use openzeppelin_interfaces::erc6909 as interface;
     use openzeppelin_token::erc6909::ERC6909Component;
-    use openzeppelin_token::erc6909::interface;
+    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 
     #[storage]
     struct Storage {
@@ -23,7 +22,7 @@ pub mod ERC6909ContentURIComponent {
         +HasComponent<TContractState>,
         +ERC6909Component::HasComponent<TContractState>,
         +ERC6909Component::ERC6909HooksTrait<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of interface::IERC6909ContentURI<ComponentState<TContractState>> {
         /// Returns the contract level URI.
         fn contract_uri(self: @ComponentState<TContractState>) -> ByteArray {
@@ -47,7 +46,7 @@ pub mod ERC6909ContentURIComponent {
         +HasComponent<TContractState>,
         impl ERC6909: ERC6909Component::HasComponent<TContractState>,
         +ERC6909Component::ERC6909HooksTrait<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of InternalTrait<TContractState> {
         /// Sets the base URI.
         fn initializer(ref self: ComponentState<TContractState>, contract_uri: ByteArray) {

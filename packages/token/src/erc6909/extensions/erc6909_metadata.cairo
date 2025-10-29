@@ -1,7 +1,4 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v0.14.0 (token/erc6909/extensions/erc6909_votes.cairo)
-
-use starknet::ContractAddress;
 
 /// # ERC6909Metadata Component
 ///
@@ -10,10 +7,10 @@ use starknet::ContractAddress;
 #[starknet::component]
 pub mod ERC6909MetadataComponent {
     use core::num::traits::Zero;
+    use openzeppelin_interfaces::erc6909 as interface;
     use openzeppelin_token::erc6909::ERC6909Component;
-    use openzeppelin_token::erc6909::interface;
     use starknet::ContractAddress;
-    use starknet::storage::Map;
+    use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
 
     #[storage]
     struct Storage {
@@ -28,7 +25,7 @@ pub mod ERC6909MetadataComponent {
         +HasComponent<TContractState>,
         +ERC6909Component::HasComponent<TContractState>,
         +ERC6909Component::ERC6909HooksTrait<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of interface::IERC6909Metadata<ComponentState<TContractState>> {
         /// Returns the name of a token ID
         fn name(self: @ComponentState<TContractState>, id: u256) -> ByteArray {
@@ -52,7 +49,7 @@ pub mod ERC6909MetadataComponent {
         +HasComponent<TContractState>,
         impl ERC6909: ERC6909Component::HasComponent<TContractState>,
         +ERC6909Component::ERC6909HooksTrait<TContractState>,
-        +Drop<TContractState>
+        +Drop<TContractState>,
     > of InternalTrait<TContractState> {
         /// Updates the metadata of a token ID.
         fn _update_token_metadata(
@@ -61,7 +58,7 @@ pub mod ERC6909MetadataComponent {
             id: u256,
             name: ByteArray,
             symbol: ByteArray,
-            decimals: u8
+            decimals: u8,
         ) {
             // In case of new ID mints update the token metadata
             if (sender.is_zero()) {
@@ -83,7 +80,7 @@ pub mod ERC6909MetadataComponent {
             id: u256,
             name: ByteArray,
             symbol: ByteArray,
-            decimals: u8
+            decimals: u8,
         ) {
             self._set_token_name(id, name);
             self._set_token_symbol(id, symbol);
@@ -97,7 +94,7 @@ pub mod ERC6909MetadataComponent {
 
         /// Sets the token symbol.
         fn _set_token_symbol(
-            ref self: ComponentState<TContractState>, id: u256, symbol: ByteArray
+            ref self: ComponentState<TContractState>, id: u256, symbol: ByteArray,
         ) {
             self.ERC6909Metadata_symbol.write(id, symbol);
         }

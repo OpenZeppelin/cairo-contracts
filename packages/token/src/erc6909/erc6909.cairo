@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v0.14.0 (token/erc6909/erc6909.cairo)
 
-use core::starknet::{ContractAddress};
+use core::starknet::ContractAddress;
 
 /// TODO: ADD SRC5 As a component
 
@@ -11,8 +11,7 @@ use core::starknet::{ContractAddress};
 /// jtriley.eth See https://eips.ethereum.org/EIPS/eip-6909.
 #[starknet::component]
 pub mod ERC6909Component {
-    use core::num::traits::Bounded;
-    use core::num::traits::Zero;
+    use core::num::traits::{Bounded, Zero};
     use openzeppelin_account::interface::ISRC6_ID;
     use openzeppelin_token::erc6909::interface;
     use starknet::storage::Map;
@@ -30,7 +29,7 @@ pub mod ERC6909Component {
     pub enum Event {
         Transfer: Transfer,
         Approval: Approval,
-        OperatorSet: OperatorSet
+        OperatorSet: OperatorSet,
     }
 
     /// Emitted when `id` tokens are moved from address `from` to address `to`.
@@ -56,7 +55,7 @@ pub mod ERC6909Component {
         pub spender: ContractAddress,
         #[key]
         pub id: u256,
-        pub amount: u256
+        pub amount: u256,
     }
 
     /// Emitted when `account` enables or disables (`approved`) `spender` to manage
@@ -91,25 +90,25 @@ pub mod ERC6909Component {
             from: ContractAddress,
             recipient: ContractAddress,
             id: u256,
-            amount: u256
-        );
+            amount: u256,
+        ) {}
 
         fn after_update(
             ref self: ComponentState<TContractState>,
             from: ContractAddress,
             recipient: ContractAddress,
             id: u256,
-            amount: u256
-        );
+            amount: u256,
+        ) {}
     }
 
     #[embeddable_as(ERC6909Impl)]
     impl ERC6909<
-        TContractState, +HasComponent<TContractState>, +ERC6909HooksTrait<TContractState>
+        TContractState, +HasComponent<TContractState>, +ERC6909HooksTrait<TContractState>,
     > of interface::IERC6909<ComponentState<TContractState>> {
         /// Returns the amount of `id` tokens owned by `account`.
         fn balance_of(
-            self: @ComponentState<TContractState>, owner: ContractAddress, id: u256
+            self: @ComponentState<TContractState>, owner: ContractAddress, id: u256,
         ) -> u256 {
             self.ERC6909_balances.read((owner, id))
         }
@@ -121,14 +120,14 @@ pub mod ERC6909Component {
             self: @ComponentState<TContractState>,
             owner: ContractAddress,
             spender: ContractAddress,
-            id: u256
+            id: u256,
         ) -> u256 {
             self.ERC6909_allowances.read((owner, spender, id))
         }
 
         /// Returns if a spender is approved by an owner as an operator
         fn is_operator(
-            self: @ComponentState<TContractState>, owner: ContractAddress, spender: ContractAddress
+            self: @ComponentState<TContractState>, owner: ContractAddress, spender: ContractAddress,
         ) -> bool {
             self.ERC6909_operators.read((owner, spender))
         }
@@ -138,7 +137,7 @@ pub mod ERC6909Component {
             ref self: ComponentState<TContractState>,
             receiver: ContractAddress,
             id: u256,
-            amount: u256
+            amount: u256,
         ) -> bool {
             let caller = get_caller_address();
             self._transfer(caller, receiver, id, amount);
@@ -151,7 +150,7 @@ pub mod ERC6909Component {
             sender: ContractAddress,
             receiver: ContractAddress,
             id: u256,
-            amount: u256
+            amount: u256,
         ) -> bool {
             let caller = get_caller_address();
             self._spend_allowance(sender, caller, id, amount);
@@ -164,7 +163,7 @@ pub mod ERC6909Component {
             ref self: ComponentState<TContractState>,
             spender: ContractAddress,
             id: u256,
-            amount: u256
+            amount: u256,
         ) -> bool {
             let caller = get_caller_address();
             self._approve(caller, spender, id, amount);
@@ -173,7 +172,7 @@ pub mod ERC6909Component {
 
         /// Sets or unsets a spender as an operator for the caller.
         fn set_operator(
-            ref self: ComponentState<TContractState>, spender: ContractAddress, approved: bool
+            ref self: ComponentState<TContractState>, spender: ContractAddress, approved: bool,
         ) -> bool {
             let caller = get_caller_address();
             self._set_operator(caller, spender, approved);
@@ -182,7 +181,7 @@ pub mod ERC6909Component {
 
         /// Checks if a contract implements an interface.
         fn supports_interface(
-            self: @ComponentState<TContractState>, interface_id: felt252
+            self: @ComponentState<TContractState>, interface_id: felt252,
         ) -> bool {
             interface_id == interface::IERC6909_ID || interface_id == ISRC6_ID
         }
@@ -191,7 +190,9 @@ pub mod ERC6909Component {
 
     #[generate_trait]
     pub impl InternalImpl<
-        TContractState, +HasComponent<TContractState>, impl Hooks: ERC6909HooksTrait<TContractState>
+        TContractState,
+        +HasComponent<TContractState>,
+        impl Hooks: ERC6909HooksTrait<TContractState>,
     > of InternalTrait<TContractState> {
         /// Creates a `value` amount of tokens and assigns them to `account`.
         ///
@@ -204,7 +205,7 @@ pub mod ERC6909Component {
             ref self: ComponentState<TContractState>,
             receiver: ContractAddress,
             id: u256,
-            amount: u256
+            amount: u256,
         ) {
             assert(!receiver.is_zero(), Errors::MINT_TO_ZERO);
             self.update(Zero::zero(), receiver, id, amount);
@@ -222,7 +223,7 @@ pub mod ERC6909Component {
             ref self: ComponentState<TContractState>,
             account: ContractAddress,
             id: u256,
-            amount: u256
+            amount: u256,
         ) {
             assert(!account.is_zero(), Errors::BURN_FROM_ZERO);
             self.update(account, Zero::zero(), id, amount);
@@ -241,7 +242,7 @@ pub mod ERC6909Component {
             sender: ContractAddress,
             receiver: ContractAddress,
             id: u256,
-            amount: u256
+            amount: u256,
         ) {
             Hooks::before_update(ref self, sender, receiver, id, amount);
 
@@ -266,7 +267,7 @@ pub mod ERC6909Component {
             ref self: ComponentState<TContractState>,
             owner: ContractAddress,
             spender: ContractAddress,
-            approved: bool
+            approved: bool,
         ) {
             self.ERC6909_operators.write((owner, spender), approved);
             self.emit(OperatorSet { owner, spender, approved });
@@ -280,7 +281,7 @@ pub mod ERC6909Component {
             owner: ContractAddress,
             spender: ContractAddress,
             id: u256,
-            amount: u256
+            amount: u256,
         ) {
             // In accordance with the transferFrom method, spenders with operator permission are not
             // subject to allowance restrictions (https://eips.ethereum.org/EIPS/eip-6909).
@@ -308,7 +309,7 @@ pub mod ERC6909Component {
             owner: ContractAddress,
             spender: ContractAddress,
             id: u256,
-            amount: u256
+            amount: u256,
         ) {
             assert(owner.is_non_zero(), Errors::APPROVE_FROM_ZERO);
             assert(spender.is_non_zero(), Errors::APPROVE_TO_ZERO);
@@ -330,7 +331,7 @@ pub mod ERC6909Component {
             sender: ContractAddress,
             receiver: ContractAddress,
             id: u256,
-            amount: u256
+            amount: u256,
         ) {
             assert(!sender.is_zero(), Errors::TRANSFER_FROM_ZERO);
             assert(!receiver.is_zero(), Errors::TRANSFER_TO_ZERO);
@@ -341,21 +342,5 @@ pub mod ERC6909Component {
 
 /// An empty implementation of the ERC6909 hooks to be used in basic ERC6909 preset contracts.
 pub impl ERC6909HooksEmptyImpl<
-    TContractState
-> of ERC6909Component::ERC6909HooksTrait<TContractState> {
-    fn before_update(
-        ref self: ERC6909Component::ComponentState<TContractState>,
-        from: ContractAddress,
-        recipient: ContractAddress,
-        id: u256,
-        amount: u256
-    ) {}
-
-    fn after_update(
-        ref self: ERC6909Component::ComponentState<TContractState>,
-        from: ContractAddress,
-        recipient: ContractAddress,
-        id: u256,
-        amount: u256
-    ) {}
-}
+    TContractState,
+> of ERC6909Component::ERC6909HooksTrait<TContractState> {}

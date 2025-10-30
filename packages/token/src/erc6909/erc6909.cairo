@@ -70,13 +70,12 @@ pub mod ERC6909Component {
     pub mod Errors {
         pub const INSUFFICIENT_BALANCE: felt252 = 'ERC6909: insufficient balance';
         pub const INSUFFICIENT_ALLOWANCE: felt252 = 'ERC6909: insufficient allowance';
-        pub const TRANSFER_FROM_ZERO: felt252 = 'ERC6909: transfer from 0';
-        pub const TRANSFER_TO_ZERO: felt252 = 'ERC6909: transfer to 0';
-        pub const MINT_TO_ZERO: felt252 = 'ERC6909: mint to 0';
-        pub const BURN_FROM_ZERO: felt252 = 'ERC6909: burn from 0';
-        pub const APPROVE_FROM_ZERO: felt252 = 'ERC6909: approve from 0';
-        pub const APPROVE_TO_ZERO: felt252 = 'ERC6909: approve to 0';
+        pub const INVALID_APPROVER: felt252 = 'ERC6909: invalid approver';
+        pub const INVALID_RECEIVER: felt252 = 'ERC6909: invalid receiver';
+        pub const INVALID_SENDER: felt252 = 'ERC6909: invalid sender';
+        pub const INVALID_SPENDER: felt252 = 'ERC6909: invalid spender';
     }
+
 
     //
     // Hooks
@@ -206,14 +205,14 @@ pub mod ERC6909Component {
         /// - `receiver` is not the zero address.
         ///
         /// Emits a `Transfer` event with `from` set to the zero address.
-        fn mint(
+        fn _mint(
             ref self: ComponentState<TContractState>,
             receiver: ContractAddress,
             id: u256,
             amount: u256,
         ) {
-            assert(!receiver.is_zero(), Errors::MINT_TO_ZERO);
-            self.update(Zero::zero(), receiver, id, amount);
+            assert(!receiver.is_zero(), Errors::INVALID_RECEIVER);
+            self._update(Zero::zero(), receiver, id, amount);
         }
 
         /// Destroys `amount` of tokens from `account`.
@@ -224,14 +223,14 @@ pub mod ERC6909Component {
         /// - `account` must have at least a balance of `amount`.
         ///
         /// Emits a `Transfer` event with `to` set to the zero address.
-        fn burn(
+        fn _burn(
             ref self: ComponentState<TContractState>,
             account: ContractAddress,
             id: u256,
             amount: u256,
         ) {
-            assert(!account.is_zero(), Errors::BURN_FROM_ZERO);
-            self.update(account, Zero::zero(), id, amount);
+            assert(!account.is_zero(), Errors::INVALID_SENDER);
+            self._update(account, Zero::zero(), id, amount);
         }
 
         /// Transfers an `amount` of tokens from `sender` to `receiver`, or alternatively mints (or
@@ -242,7 +241,7 @@ pub mod ERC6909Component {
         /// left to the extensions instead.
         ///
         /// Emits a `Transfer` event.
-        fn update(
+        fn _update(
             ref self: ComponentState<TContractState>,
             sender: ContractAddress,
             receiver: ContractAddress,
@@ -316,8 +315,8 @@ pub mod ERC6909Component {
             id: u256,
             amount: u256,
         ) {
-            assert(owner.is_non_zero(), Errors::APPROVE_FROM_ZERO);
-            assert(spender.is_non_zero(), Errors::APPROVE_TO_ZERO);
+            assert(owner.is_non_zero(), Errors::INVALID_APPROVER);
+            assert(spender.is_non_zero(), Errors::INVALID_SPENDER);
             self.ERC6909_allowances.write((owner, spender, id), amount);
             self.emit(Approval { owner, spender, id, amount });
         }
@@ -338,9 +337,9 @@ pub mod ERC6909Component {
             id: u256,
             amount: u256,
         ) {
-            assert(!sender.is_zero(), Errors::TRANSFER_FROM_ZERO);
-            assert(!receiver.is_zero(), Errors::TRANSFER_TO_ZERO);
-            self.update(sender, receiver, id, amount);
+            assert(!sender.is_zero(), Errors::INVALID_SENDER);
+            assert(!receiver.is_zero(), Errors::INVALID_RECEIVER);
+            self._update(sender, receiver, id, amount);
         }
     }
 }

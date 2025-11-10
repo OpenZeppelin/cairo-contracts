@@ -1,10 +1,9 @@
 use cairo_lang_macro::{inline_macro, Diagnostic, ProcMacroResult, TokenStream};
 use cairo_lang_parser::utils::SimpleParserDatabase;
-use cairo_lang_syntax::node::with_db::SyntaxNodeWithDb;
 use proc_macro2::TokenStream as ProcTokenStream;
 use quote::{format_ident, quote};
 
-use crate::{generate_event_spy_helpers::parser, utils::camel_to_snake};
+use crate::{attribute::common::text_span::merge_spans_from_initial, generate_event_spy_helpers::parser, utils::camel_to_snake};
 
 /// Generates helper functions for spying on events in tests.
 ///
@@ -12,7 +11,7 @@ use crate::{generate_event_spy_helpers::parser, utils::camel_to_snake};
 /// ```
 /// generate_event_spy_helpers! {
 ///     impl AccessControlDefaultAdminRulesSpyHelpers {
-///         event DefaultAdminTransferScheduled(
+///         struct DefaultAdminTransferScheduled(
 ///            #[key]
 ///            new_admin: ContractAddress,
 ///            accept_schedule: u64
@@ -67,12 +66,15 @@ pub fn generate_event_spy_helpers(token_stream: TokenStream) -> ProcMacroResult 
     // 2. Generate the helper functions
     let expanded = generate_code(&impl_block).to_string();
 
-    // 3. Return the result
+    // 3. Merge spans from the token stream into the expanded code
     let db = SimpleParserDatabase::default();
-    let syntax_node = db.parse_virtual(expanded).unwrap();
-    let content_node = SyntaxNodeWithDb::new(&syntax_node, &db);
 
-    ProcMacroResult::new(cairo_lang_macro::quote! {#content_node})
+
+    let syntax_node_with_spans = merge_spans_from_initial(&token_stream.tokens, &expanded, &db);
+    let token_stream_with_spans =
+        TokenStream::new(syntax_node_with_spans).with_metadata(token_stream.metadata().clone());
+    ProcMacroResult::new(token_stream_with_spans)
+
 }
 
 /// Generates the code for event spy helper functions based on the provided implementation block.
@@ -84,7 +86,7 @@ pub fn generate_event_spy_helpers(token_stream: TokenStream) -> ProcMacroResult 
 /// # Returns
 ///
 /// A `ProcTokenStream` containing the generated code for event spy helper functions
-fn generate_code(impl_block: &parser::ImplBlock) -> ProcTokenStream {
+pub(crate) fn generate_code(impl_block: &parser::ImplBlock) -> ProcTokenStream {
     let impl_name = format_ident!("{}", impl_block.name);
     let trait_name = format_ident!("{}Trait", impl_block.name);
 

@@ -1,14 +1,8 @@
 use openzeppelin_test_common::mocks::governor::GovernorQuorumFractionMock;
 use openzeppelin_test_common::mocks::governor::GovernorQuorumFractionMock::SNIP12MetadataImpl;
 use openzeppelin_testing::constants::{OTHER, VOTES_TOKEN, ZERO};
-<<<<<<< HEAD
-use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
-use openzeppelin_utils::serde::SerializedAppend;
-use snforge_std::{Event, start_cheat_block_number_global, start_mock_call, test_address};
-=======
 use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, ExpectedEvent, spy_events};
 use snforge_std::{start_cheat_block_number_global, start_mock_call, test_address};
->>>>>>> d3a7c0cc9e8ff51b7b87394bf196b963970eb4b2
 use starknet::ContractAddress;
 use crate::governor::GovernorComponent::InternalImpl;
 use crate::governor::extensions::GovernorVotesQuorumFractionComponent::{
@@ -246,21 +240,10 @@ pub(crate) impl GovernorSettingsSpyHelpersImpl of GovernorSettingsSpyHelpers {
         old_quorum_numerator: u256,
         new_quorum_numerator: u256,
     ) {
-<<<<<<< HEAD
-        let mut keys = array![];
-        keys.append_serde(selector!("QuorumNumeratorUpdated"));
-
-        let mut data = array![];
-        data.append_serde(old_quorum_numerator);
-        data.append_serde(new_quorum_numerator);
-
-        let expected = Event { keys, data };
-=======
         let expected = ExpectedEvent::new()
             .key(selector!("QuorumNumeratorUpdated"))
             .data(old_quorum_numerator)
             .data(new_quorum_numerator);
->>>>>>> d3a7c0cc9e8ff51b7b87394bf196b963970eb4b2
         self.assert_emitted_single(contract, expected);
     }
 

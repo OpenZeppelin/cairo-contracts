@@ -2158,11 +2158,8 @@ impl ERC4626HooksSpyHelpersImpl of ERC4626HooksSpyHelpers {
     ) {
         let expected = ExpectedEvent::new()
             .key(selector!("BeforeDeposit"))
-<<<<<<< HEAD
-=======
             .data(caller)
             .data(receiver)
->>>>>>> d3a7c0cc9e8ff51b7b87394bf196b963970eb4b2
             .data(assets)
             .data(shares);
         self.assert_emitted_single(contract, expected);
@@ -2178,11 +2175,8 @@ impl ERC4626HooksSpyHelpersImpl of ERC4626HooksSpyHelpers {
     ) {
         let expected = ExpectedEvent::new()
             .key(selector!("AfterDeposit"))
-<<<<<<< HEAD
-=======
             .data(caller)
             .data(receiver)
->>>>>>> d3a7c0cc9e8ff51b7b87394bf196b963970eb4b2
             .data(assets)
             .data(shares);
         self.assert_emitted_single(contract, expected);
@@ -2199,12 +2193,9 @@ impl ERC4626HooksSpyHelpersImpl of ERC4626HooksSpyHelpers {
     ) {
         let expected = ExpectedEvent::new()
             .key(selector!("BeforeWithdraw"))
-<<<<<<< HEAD
-=======
             .data(caller)
             .data(receiver)
             .data(owner)
->>>>>>> d3a7c0cc9e8ff51b7b87394bf196b963970eb4b2
             .data(assets)
             .data(shares);
         self.assert_emitted_single(contract, expected);
@@ -2221,12 +2212,9 @@ impl ERC4626HooksSpyHelpersImpl of ERC4626HooksSpyHelpers {
     ) {
         let expected = ExpectedEvent::new()
             .key(selector!("AfterWithdraw"))
-<<<<<<< HEAD
-=======
             .data(caller)
             .data(receiver)
             .data(owner)
->>>>>>> d3a7c0cc9e8ff51b7b87394bf196b963970eb4b2
             .data(assets)
             .data(shares);
         self.assert_emitted_single(contract, expected);

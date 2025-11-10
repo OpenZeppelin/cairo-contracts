@@ -39,7 +39,9 @@ pub struct ParserError {
 
 impl ParserError {
     fn new(message: impl Into<String>) -> Self {
-        Self { message: message.into() }
+        Self {
+            message: message.into(),
+        }
     }
 
     fn with_context(message: impl Into<String>, tip: &'static str, input: &str) -> Self {
@@ -75,9 +77,11 @@ impl<'a> ParseError<&'a str> for ParserError {
     }
 
     fn append(input: &'a str, kind: ErrorKind, mut other: Self) -> Self {
-        other
-            .message
-            .push_str(&format!(" Additional context: {:?} near `{}`.", kind, preview(input)));
+        other.message.push_str(&format!(
+            " Additional context: {:?} near `{}`.",
+            kind,
+            preview(input)
+        ));
         other
     }
 }
@@ -213,23 +217,22 @@ fn event_attributes(input: &str) -> ParseResult<bool> {
     let (input, _) = multispace0(input)?;
 
     // Parse #[...] if present
-    let (input, maybe_attrs): (&str, Option<Vec<&str>>) =
-        opt(|input| {
-            delimited(
-                tag("#["),
-                separated_list0(delimited(multispace0, char(','), multispace0), alpha1),
-                |i| {
-                    expect_char_token(
-                        i,
-                        ']',
-                        "close the attribute list",
-                        "Attributes must end with `]`.",
-                    )
-                },
-            )
-            .parse(input)
-        })
-        .parse(input)?;
+    let (input, maybe_attrs): (&str, Option<Vec<&str>>) = opt(|input| {
+        delimited(
+            tag("#["),
+            separated_list0(delimited(multispace0, char(','), multispace0), alpha1),
+            |i| {
+                expect_char_token(
+                    i,
+                    ']',
+                    "close the attribute list",
+                    "Attributes must end with `]`.",
+                )
+            },
+        )
+        .parse(input)
+    })
+    .parse(input)?;
 
     let attrs = maybe_attrs.unwrap_or_default();
 

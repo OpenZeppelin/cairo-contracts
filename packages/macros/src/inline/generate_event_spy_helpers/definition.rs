@@ -3,7 +3,10 @@ use cairo_lang_parser::utils::SimpleParserDatabase;
 use proc_macro2::{Ident, TokenStream as ProcTokenStream};
 use quote::{format_ident, quote};
 
-use crate::{attribute::common::text_span::merge_spans_from_initial, generate_event_spy_helpers::parser, utils::camel_to_snake};
+use crate::{
+    attribute::common::text_span::merge_spans_from_initial, generate_event_spy_helpers::parser,
+    utils::camel_to_snake,
+};
 
 /// Generates helper functions for spying on events in tests.
 ///

@@ -1,7 +1,7 @@
 ---
 source: src/tests/test_generate_event_spy_helpers.rs
+assertion_line: 65
 expression: get_string_result(input)
-snapshot_kind: text
 ---
 TokenStream:
 
@@ -10,19 +10,14 @@ pub impl MockContractSpyHelpers of MockContractSpyHelpersTrait {
     fn assert_event_only_keyed_event(
         ref self: EventSpy, contract: ContractAddress, user: ContractAddress, value: u64,
     ) {
-        let mut keys = array![];
-        keys.append_serde(selector!("OnlyKeyedEvent"));
-        keys.append_serde(user);
-        let mut data = array![];
-        data.append_serde(value);
-        let expected = Event { keys, data };
-        self.assert_only_event(contract, expected);
+        let expected = ExpectedEvent::new().key(selector!("OnlyKeyedEvent")).key(user).data(value);
+        self.assert_emitted_single(contract, expected);
     }
     fn assert_only_event_only_keyed_event(
         ref self: EventSpy, contract: ContractAddress, user: ContractAddress, value: u64,
     ) {
-        self.assert_event_only_keyed_event(contract, user, value);
-        self.assert_no_events_left_from(contract);
+        let expected = ExpectedEvent::new().key(selector!("OnlyKeyedEvent")).key(user).data(value);
+        self.assert_only_event(contract, expected);
     }
 }
 

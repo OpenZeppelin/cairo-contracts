@@ -5,12 +5,12 @@ use super::common::format_proc_macro_result;
 use crate::generate_event_spy_helpers::definition::generate_event_spy_helpers_q2hsv6hnhh3ug as generate_event_spy_helpers;
 
 #[test]
-fn test_event_without_attrs() {
+fn test_public_impl_generates_basic_event() {
     let input = quote!(
         {
-            pub impl MockContractSpyHelpers {
-                event SimpleEvent(
-                    field: u64
+            pub impl TreasurySpyHelpers {
+                event FundsReleased(
+                    amount: u256
                 );
             }
         }
@@ -19,13 +19,13 @@ fn test_event_without_attrs() {
 }
 
 #[test]
-fn test_event_with_only() {
+fn test_only_event_generates_only_helper() {
     let input = quote!(
         {
-            pub impl MockContractSpyHelpers {
+            impl TreasurySpyHelpers {
                 #[only]
-                event OnlyEvent(
-                    field: u64
+                event EmergencyHalt(
+                    requester: ContractAddress
                 );
             }
         }
@@ -34,14 +34,16 @@ fn test_event_with_only() {
 }
 
 #[test]
-fn test_event_with_key() {
+fn test_event_with_indexed_fields() {
     let input = quote!(
         {
-            pub impl ContrMockContractSpyHelpersactSpy {
-                event KeyedEvent(
+            pub impl TokenSpyHelpers {
+                event Transfer(
                     #[key]
-                    user: ContractAddress,
-                    value: u64
+                    from: ContractAddress,
+                    #[key]
+                    to: ContractAddress,
+                    value: u256
                 );
             }
         }
@@ -50,14 +52,15 @@ fn test_event_with_key() {
 }
 
 #[test]
-fn test_event_with_only_and_key() {
+fn test_only_event_with_indexed_fields() {
     let input = quote!(
         {
-            pub impl MockContractSpyHelpers {
+            impl GovernorSpyHelpers {
                 #[only]
-                event OnlyKeyedEvent(
-                    #[key] user: ContractAddress,
-                    value: u64
+                event ProposalExecuted(
+                    #[key]
+                    proposal_id: felt252,
+                    executor: ContractAddress
                 );
             }
         }
@@ -84,9 +87,10 @@ fn test_event_with_invalid_non_default_attr() {
 fn test_impl_without_pub() {
     let input = quote!(
         {
-            impl MockContractSpyHelpers {
-                event MockEvent(
-                    field: u64
+            impl VaultSpyHelpers {
+                event WithdrawalQueued(
+                    recipient: ContractAddress,
+                    amount: u256
                 );
             }
         }
@@ -106,14 +110,16 @@ fn test_empty_impl() {
 fn test_multiple_events() {
     let input = quote!(
         {
-            impl MockContractSpyHelpers {
-                event MockEvent(
-                    field: u64
+            impl TreasurySpyHelpers {
+                event DepositRecorded(
+                    depositor: ContractAddress,
+                    amount: u256
                 );
 
                 #[only]
-                event MockEvent2(
-                    field: u64
+                event WithdrawalSettled(
+                    depositor: ContractAddress,
+                    amount: u256
                 );
             }
         }
@@ -125,9 +131,78 @@ fn test_multiple_events() {
 fn test_empty_event() {
     let input = quote!(
         {
-            impl MockContractSpyHelpers {
+            impl LifecycleSpyHelpers {
                 #[only]
-                event EmptyEvent();
+                event ContractReset();
+            }
+        }
+    );
+    assert_snapshot!(get_string_result(input));
+}
+
+#[test]
+fn test_event_with_multiple_keys_and_data() {
+    let input = quote!(
+        {
+            impl ComplexSpyHelpers {
+                event ComplexEvent(
+                    #[key]
+                    first_key: felt252,
+                    #[key]
+                    second_key: felt252,
+                    caller: ContractAddress,
+                    amount: u256,
+                    memo: felt252
+                );
+            }
+        }
+    );
+    assert_snapshot!(get_string_result(input));
+}
+
+#[test]
+fn test_only_event_with_mixed_fields() {
+    let input = quote!(
+        {
+            pub impl MixedSpyHelpers {
+                #[only]
+                event ScheduledEvent(
+                    #[key]
+                    role: felt252,
+                    #[key]
+                    account: ContractAddress,
+                    sender: ContractAddress,
+                    delay: u64,
+                    extra: felt252
+                );
+            }
+        }
+    );
+    assert_snapshot!(get_string_result(input));
+}
+
+#[test]
+fn test_event_missing_semicolon() {
+    let input = quote!(
+        {
+            impl BrokenHelpers {
+                event MissingSemicolon(
+                    field: u64
+                )
+            }
+        }
+    );
+    assert_snapshot!(get_string_result(input));
+}
+
+#[test]
+fn test_missing_event_keyword() {
+    let input = quote!(
+        {
+            impl BrokenHelpers {
+                MissingKeywordEvent(
+                    field: u64
+                );
             }
         }
     );

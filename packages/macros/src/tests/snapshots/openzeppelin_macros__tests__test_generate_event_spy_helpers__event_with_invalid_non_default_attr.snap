@@ -1,7 +1,7 @@
 ---
 source: src/tests/test_generate_event_spy_helpers.rs
+assertion_line: 80
 expression: get_string_result(input)
-snapshot_kind: text
 ---
 TokenStream:
 
@@ -10,7 +10,7 @@ None
 Diagnostics:
 
 ====
-Error: Parsing Error: Error { input: "#[non_default]event InvalidEvent(field:u64);}}", code: Char }====
+Error: Parsing Failure: ParserError { message: "Expected `]` to close the attribute list. Attributes must end with `]`. (around `_default]event Inv...`)" }====
 
 AuxData:
 

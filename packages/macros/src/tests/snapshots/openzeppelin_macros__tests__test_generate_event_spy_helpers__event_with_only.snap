@@ -1,23 +1,19 @@
 ---
 source: src/tests/test_generate_event_spy_helpers.rs
+assertion_line: 33
 expression: get_string_result(input)
-snapshot_kind: text
 ---
 TokenStream:
 
 #[generate_trait]
 pub impl MockContractSpyHelpers of MockContractSpyHelpersTrait {
     fn assert_event_only_event(ref self: EventSpy, contract: ContractAddress, field: u64) {
-        let mut keys = array![];
-        keys.append_serde(selector!("OnlyEvent"));
-        let mut data = array![];
-        data.append_serde(field);
-        let expected = Event { keys, data };
-        self.assert_only_event(contract, expected);
+        let expected = ExpectedEvent::new().key(selector!("OnlyEvent")).data(field);
+        self.assert_emitted_single(contract, expected);
     }
     fn assert_only_event_only_event(ref self: EventSpy, contract: ContractAddress, field: u64) {
-        self.assert_event_only_event(contract, field);
-        self.assert_no_events_left_from(contract);
+        let expected = ExpectedEvent::new().key(selector!("OnlyEvent")).data(field);
+        self.assert_only_event(contract, expected);
     }
 }
 

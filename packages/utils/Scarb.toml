@@ -1,6 +1,7 @@
 
 [package]
 name = "openzeppelin_utils"
+version = "2.1.0-alpha.0"
 readme = "README.md"
 keywords = [
     "openzeppelin",
@@ -9,7 +10,6 @@ keywords = [
     "standards",
     "utils"
 ]
-version.workspace = true
 edition.workspace = true
 cairo-version.workspace = true
 scarb-version.workspace = true
@@ -42,3 +42,9 @@ fuzzing = []
 allowed-libfuncs-list.name = "experimental"
 sierra = true
 casm = false
+
+[[test]]
+name = "openzeppelin_utils_unittest"
+build-external-contracts = [
+    "openzeppelin_test_common::mocks::account::DualCaseAccountMock",
+]

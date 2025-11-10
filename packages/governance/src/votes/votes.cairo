@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v3.0.0-alpha.1 (governance/src/votes/votes.cairo)
+// OpenZeppelin Contracts for Cairo v3.0.0-alpha.3 (governance/src/votes/votes.cairo)
 
 /// # Votes Component
 ///
@@ -20,12 +20,11 @@
 /// purpose, as shown in the following ERC20 example:
 ///
 /// See [the documentation]
-/// (https://docs.openzeppelin.com/contracts-cairo/3.0.0-alpha.1/governance.html#usage_2)
+/// (https://docs.openzeppelin.com/contracts-cairo/3.0.0-alpha.3/governance.html#usage_2)
 /// for examples and more details.
 #[starknet::component]
 pub mod VotesComponent {
     use core::num::traits::Zero;
-    use openzeppelin_account::utils::assert_valid_signature;
     use openzeppelin_interfaces::erc20::IERC20;
     use openzeppelin_interfaces::erc721::IERC721;
     use openzeppelin_interfaces::votes::IVotes;
@@ -34,6 +33,7 @@ pub mod VotesComponent {
     use openzeppelin_token::erc721::ERC721Component;
     use openzeppelin_utils::contract_clock::ERC6372Clock;
     use openzeppelin_utils::cryptography::snip12::{OffchainMessageHash, SNIP12Metadata};
+    use openzeppelin_utils::execution::assert_valid_signature;
     use openzeppelin_utils::nonces::NoncesComponent;
     use openzeppelin_utils::nonces::NoncesComponent::InternalTrait as NoncesInternalTrait;
     use openzeppelin_utils::structs::checkpoint::{Checkpoint, Trace, TraceTrait};

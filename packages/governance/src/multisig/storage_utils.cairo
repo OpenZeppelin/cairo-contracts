@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v3.0.0-alpha.1 (governance/src/multisig/storage_utils.cairo)
+// OpenZeppelin Contracts for Cairo v3.0.0-alpha.3 (governance/src/multisig/storage_utils.cairo)
 
 use core::integer::u128_safe_divmod;
 use starknet::storage_access::StorePacking;
@@ -85,7 +85,6 @@ pub impl SignersInfoStorePackingV2 of StorePacking<SignersInfo, u128> {
 #[cfg(test)]
 #[cfg(feature: 'fuzzing')]
 mod tests {
-    use openzeppelin_testing::FuzzableBool;
     use starknet::storage_access::StorePacking;
     use super::{SignersInfo, TxInfo};
 

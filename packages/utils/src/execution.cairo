@@ -1,0 +1,39 @@
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts for Cairo v3.0.0-alpha.3 (utils/src/execution.cairo)
+
+use openzeppelin_interfaces::accounts::{ISRC6Dispatcher, ISRC6DispatcherTrait};
+use starknet::account::Call;
+use starknet::{ContractAddress, SyscallResultTrait};
+
+/// Executes a list of calls and returns the return values.
+pub fn execute_calls(calls: Span<Call>) -> Array<Span<felt252>> {
+    let mut res = array![];
+    for call in calls {
+        res.append(execute_single_call(call));
+    }
+    res
+}
+
+/// Executes a single call and returns the return value.
+pub fn execute_single_call(call: @Call) -> Span<felt252> {
+    let Call { to, selector, calldata } = *call;
+    starknet::syscalls::call_contract_syscall(to, selector, calldata).unwrap_syscall()
+}
+
+/// Validates a signature using SRC6 `is_valid_signature` and asserts it's valid.
+/// Checks both 'VALID' (starknet::VALIDATED) and true (1) for backwards compatibility.
+pub fn assert_valid_signature(
+    signer: ContractAddress,
+    hash: felt252,
+    signature: Span<felt252>,
+    invalid_signature_error: felt252,
+) {
+    let is_valid_signature_felt = ISRC6Dispatcher { contract_address: signer }
+        .is_valid_signature(hash, signature.into());
+
+    // Check either 'VALID' or true for backwards compatibility
+    let is_valid_signature = is_valid_signature_felt == starknet::VALIDATED
+        || is_valid_signature_felt == 1;
+
+    assert(is_valid_signature, invalid_signature_error);
+}

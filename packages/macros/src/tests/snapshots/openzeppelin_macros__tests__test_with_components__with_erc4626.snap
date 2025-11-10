@@ -7,11 +7,11 @@ TokenStream:
 
 #[starknet::contract]
 pub mod ERC4626Mock {
-    use openzeppelin_token::erc20::ERC20HooksEmptyImpl;
     use openzeppelin_token::erc20::extensions::erc4626::{
         DefaultConfig, ERC4626DefaultNoFees, ERC4626DefaultNoLimits, ERC4626EmptyHooks,
         ERC4626SelfAssetsManagement,
     };
+    use openzeppelin_token::erc20::{DefaultConfig as ERC20DefaultConfig, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
     #[abi(embed_v0)]
     impl ERC4626ComponentImpl = ERC4626Component::ERC4626Impl<ContractState>;
@@ -63,14 +63,7 @@ pub mod ERC4626Mock {
 
 Diagnostics:
 
-====
-Warning: The ERC20 component requires an ImmutableConfig implementation in scope and
-it looks like it is missing.
-
-You can use the default implementation by importing it:
-
-`use openzeppelin_token::erc20::DefaultConfig;`
-====
+None
 
 AuxData:
 

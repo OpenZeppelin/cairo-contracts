@@ -1,7 +1,7 @@
 use core::num::traits::Zero;
 use openzeppelin_interfaces::erc1155 as interface;
 use openzeppelin_interfaces::erc1155::{
-    IERC1155CamelSafeDispatcher, IERC1155CamelSafeDispatcherTrait, IERC1155Dispatcher,
+    IERC1155CamelDispatcher, IERC1155CamelDispatcherTrait, IERC1155Dispatcher,
     IERC1155DispatcherTrait,
 };
 use openzeppelin_test_common::erc1155::{
@@ -762,7 +762,7 @@ fn test_upgraded_event() {
 }
 
 #[test]
-#[feature("safe_dispatcher")]
+#[should_panic(expected: 'ENTRYPOINT_NOT_FOUND')]
 fn test_v2_missing_camel_selector() {
     let (_, v1, owner) = setup_dispatcher();
     let v2_class_hash = V2_CLASS_HASH();
@@ -770,10 +770,8 @@ fn test_v2_missing_camel_selector() {
     start_cheat_caller_address(v1.contract_address, owner);
     v1.upgrade(v2_class_hash);
 
-    let safe_dispatcher = IERC1155CamelSafeDispatcher { contract_address: v1.contract_address };
-    let result = safe_dispatcher.balanceOf(owner, TOKEN_ID);
-
-    utils::assert_entrypoint_not_found_error(result, selector!("balanceOf"), v1.contract_address)
+    let dispatcher = IERC1155CamelDispatcher { contract_address: v1.contract_address };
+    dispatcher.balanceOf(owner, TOKEN_ID);
 }
 
 #[test]

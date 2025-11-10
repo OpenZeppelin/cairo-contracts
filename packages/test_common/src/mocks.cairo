@@ -1,6 +1,7 @@
 pub mod access;
 pub mod account;
 pub mod checkpoint;
+pub mod counter;
 pub mod erc1155;
 pub mod erc20;
 pub mod erc2981;
@@ -10,6 +11,7 @@ pub mod governor;
 pub mod multisig;
 pub mod non_implementing;
 pub mod nonces;
+pub mod observer;
 pub mod security;
 pub mod simple;
 pub mod src5;

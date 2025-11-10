@@ -1,6 +1,6 @@
 [package]
 name = "openzeppelin_macros"
-version = "3.0.0-alpha.1"
+version = "3.0.0-alpha.3"
 edition = "2021"
 
 [lib]
@@ -15,8 +15,11 @@ cairo-lang-syntax = "2.12"
 cairo-lang-defs = "2.12"
 cairo-lang-formatter = "2.12"
 cairo-lang-starknet-classes = "2.12"
+proc-macro2 = "1.0.87"
 indoc = "2.0.5"
 regex = "1.11.1"
 insta = "1.42.0"
 convert_case = "0.8.0"
 fancy-regex = "0.16.0"
+nom = "8.0.0"
+quote = "1.0.37"

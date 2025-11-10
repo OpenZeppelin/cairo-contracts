@@ -9,6 +9,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## 3.0.0-alpha.3 (2025-10-9)
+
+### Added
+
+- `execute_single_call`, `execute_calls` and `assert_valid_signature` to openzeppelin_utils::execution (#1531)
+
+### Changed
+
+- Decoupled openzeppelin_utils version from the umbrella package (#1531)
+- Removed openzeppelin_governance dependency on openzeppelin_account (#1531)
+- Removed openzeppelin_token dependency on openzeppelin_account (#1531)
+
+### Changed (Breaking)
+
+- Removed `execute_single_call`, `execute_calls` and `assert_valid_signature` from openzeppelin_account::utils (#1531)
+
+## 3.0.0-alpha.2 (2025-09-10)
+
+### Added
+
+- MetaTransactionV0 preset, interface, and dispatchers (#1512)
+- Embeddable `ERC2981AdminAccessControlDefaultAdminRulesImpl` implementation providing admin functions for a `ERC2981` token based on `AccessControlDefaultAdminRules` component (#1516)
+
 ## 3.0.0-alpha.1 (2025-08-18)
 
 ### Added

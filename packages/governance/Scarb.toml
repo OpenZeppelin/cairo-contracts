@@ -27,7 +27,6 @@ starknet.workspace = true
 openzeppelin_access = { path = "../access" }
 openzeppelin_interfaces = { path = "../interfaces" }
 openzeppelin_introspection = { path = "../introspection" }
-openzeppelin_account = { path = "../account" }
 openzeppelin_token = { path= "../token" }
 openzeppelin_utils = { path = "../utils" }
 

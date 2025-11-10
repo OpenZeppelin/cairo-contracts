@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v3.0.0-alpha.1 (governance/src/governor/governor.cairo)
+// OpenZeppelin Contracts for Cairo v3.0.0-alpha.3 (governance/src/governor/governor.cairo)
 
 /// # Governor Component
 ///
@@ -10,12 +10,12 @@ pub mod GovernorComponent {
     use core::num::traits::Zero;
     use core::pedersen::PedersenTrait;
     use core::traits::PartialEq;
-    use openzeppelin_account::utils::assert_valid_signature;
     use openzeppelin_interfaces::governor::{IGOVERNOR_ID, IGovernor, ProposalState};
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_introspection::src5::SRC5Component::InternalImpl as SRC5InternalImpl;
     use openzeppelin_utils::bytearray::ByteArrayExtTrait;
     use openzeppelin_utils::cryptography::snip12::{OffchainMessageHash, SNIP12Metadata};
+    use openzeppelin_utils::execution::assert_valid_signature;
     use starknet::account::Call;
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
     use starknet::{ContractAddress, SyscallResultTrait};

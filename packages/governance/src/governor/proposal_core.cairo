@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v3.0.0-alpha.1 (governance/src/governor/proposal_core.cairo)
+// OpenZeppelin Contracts for Cairo v3.0.0-alpha.3 (governance/src/governor/proposal_core.cairo)
 
 use core::traits::DivRem;
 use starknet::ContractAddress;
@@ -83,8 +83,9 @@ impl ProposalCoreStorePacking of StorePacking<ProposalCore, (felt252, felt252)> 
 mod tests {
     use core::num::traits::Bounded;
     use openzeppelin_testing::constants::ALICE;
-    use openzeppelin_testing::{FuzzableBool, FuzzableContractAddress};
-    use super::{ContractAddress, ProposalCore, ProposalCoreStorePacking as StorePacking};
+    #[cfg(feature: 'fuzzing')]
+    use super::ContractAddress;
+    use super::{ProposalCore, ProposalCoreStorePacking as StorePacking};
 
     #[test]
     fn test_pack_and_unpack() {

@@ -13,6 +13,11 @@ pub mod errors {
     pub fn NO_CONTRACT_ATTRIBUTE(contract_attribute: &str) -> String {
         format!("Contract module must have the `#[{contract_attribute}]` attribute.\n")
     }
+
+    /// Error when multiple AccessControl components are used together.
+    pub fn MULTIPLE_ACCESS_CONTROL_COMPONENTS(components: &str) -> String {
+        format!("Only one AccessControl component can be used. Found: [{components}].\n")
+    }
 }
 
 #[allow(non_snake_case)]

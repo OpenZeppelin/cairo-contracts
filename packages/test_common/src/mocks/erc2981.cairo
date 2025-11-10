@@ -107,3 +107,47 @@ pub mod ERC2981AccessControlMock {
         self.access_control._grant_role(ROYALTY_ADMIN_ROLE, owner);
     }
 }
+
+#[starknet::contract]
+#[with_components(ERC2981, SRC5, AccessControlDefaultAdminRules)]
+pub mod ERC2981AccessControlDefaultAdminRulesMock {
+    use openzeppelin_access::accesscontrol::extensions::DefaultConfig as AccessControlDefaultAdminRulesDefaultConfig;
+    use openzeppelin_token::common::erc2981::DefaultConfig as ERC2981DefaultConfig;
+    use openzeppelin_token::common::erc2981::ERC2981Component::ROYALTY_ADMIN_ROLE;
+    use starknet::ContractAddress;
+
+    // ERC2981
+    #[abi(embed_v0)]
+    impl ERC2981Impl = ERC2981Component::ERC2981Impl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC2981InfoImpl = ERC2981Component::ERC2981InfoImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC2981AdminAccessControlDefaultAdminRulesImpl =
+        ERC2981Component::ERC2981AdminAccessControlDefaultAdminRulesImpl<ContractState>;
+
+    // AccessControl
+    #[abi(embed_v0)]
+    impl AccessControlImpl =
+        AccessControlDefaultAdminRulesComponent::AccessControlImpl<ContractState>;
+
+    // SRC5
+    #[abi(embed_v0)]
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
+
+    pub const INITIAL_DELAY: u64 = 3600; // 1 hour
+
+    #[storage]
+    pub struct Storage {}
+
+    #[constructor]
+    fn constructor(
+        ref self: ContractState,
+        owner: ContractAddress,
+        default_receiver: ContractAddress,
+        default_royalty_fraction: u128,
+    ) {
+        self.erc2981.initializer(default_receiver, default_royalty_fraction);
+        self.access_control_dar.initializer(INITIAL_DELAY, owner);
+        self.access_control_dar._grant_role(ROYALTY_ADMIN_ROLE, owner);
+    }
+}

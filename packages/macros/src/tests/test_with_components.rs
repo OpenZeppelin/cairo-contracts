@@ -319,6 +319,100 @@ fn test_with_access_control() {
 }
 
 #[test]
+fn test_with_access_control_default_admin_rules() {
+    let attribute = quote! { (AccessControlDefaultAdminRules) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod Contract {
+            use starknet::ContractAddress;
+            use openzeppelin_access::accesscontrol::extensions::DefaultConfig;
+
+            const INITIAL_DELAY: u64 = 3600; // 1 hour
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState, default_admin: ContractAddress) {
+                self.access_control_dar.initializer(INITIAL_DELAY, default_admin);
+            }
+        }
+    };
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_cannot_use_access_control_with_access_control_dar() {
+    let attribute = quote! { (AccessControl, AccessControlDefaultAdminRules) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod Contract {
+            use openzeppelin_access::accesscontrol::DEFAULT_ADMIN_ROLE;
+            use starknet::ContractAddress;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState, default_admin: ContractAddress) {
+                self.access_control.initializer();
+                self.access_control_dar.initializer(INITIAL_DELAY, default_admin);
+
+                self.access_control._grant_role(DEFAULT_ADMIN_ROLE, default_admin);
+            }
+        }
+    };
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_access_control_default_admin_rules_no_initializer() {
+    let attribute = quote! { (AccessControlDefaultAdminRules) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod Contract {
+            use starknet::ContractAddress;
+            use openzeppelin_access::accesscontrol::extensions::DefaultConfig;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState, default_admin: ContractAddress) {
+
+            }
+        }
+    };
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_access_control_default_admin_rules_no_config() {
+    let attribute = quote! { (AccessControlDefaultAdminRules) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod Contract {
+            use starknet::ContractAddress;
+
+            const INITIAL_DELAY: u64 = 3600; // 1 hour
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState, default_admin: ContractAddress) {
+                self.access_control_dar.initializer(INITIAL_DELAY, default_admin);
+            }
+        }
+    };
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
 fn test_with_access_control_no_initializer() {
     let attribute = quote! { (AccessControl) };
     let item = quote! {
@@ -1143,7 +1237,294 @@ fn test_with_erc4626() {
                 DefaultConfig, ERC4626DefaultNoLimits, ERC4626DefaultNoFees,
                 ERC4626EmptyHooks, ERC4626SelfAssetsManagement,
             };
-            use openzeppelin_token::erc20::ERC20HooksEmptyImpl;
+            use openzeppelin_token::erc20::{ERC20HooksEmptyImpl, DefaultConfig as ERC20DefaultConfig};
+            use starknet::ContractAddress;
+
+            // ERC4626
+            #[abi(embed_v0)]
+            impl ERC4626ComponentImpl = ERC4626Component::ERC4626Impl<ContractState>;
+            // ERC4626MetadataImpl is a custom impl of IERC20Metadata
+            #[abi(embed_v0)]
+            impl ERC4626MetadataImpl = ERC4626Component::ERC4626MetadataImpl<ContractState>;
+
+            // ERC20
+            #[abi(embed_v0)]
+            impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
+            #[abi(embed_v0)]
+            impl ERC20CamelOnlyImpl = ERC20Component::ERC20CamelOnlyImpl<ContractState>;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(
+                ref self: ContractState,
+                name: ByteArray,
+                symbol: ByteArray,
+                underlying_asset: ContractAddress,
+                initial_supply: u256,
+                recipient: ContractAddress,
+            ) {
+                self.erc20.initializer(name, symbol);
+                self.erc20.mint(recipient, initial_supply);
+                self.erc4626.initializer(underlying_asset);
+            }
+        }
+    };
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_erc4626_no_initializer() {
+    let attribute = quote! { (ERC20, ERC4626) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod ERC4626Mock {
+            use openzeppelin_token::erc20::extensions::erc4626::{
+                DefaultConfig, ERC4626DefaultNoLimits, ERC4626DefaultNoFees,
+                ERC4626EmptyHooks, ERC4626SelfAssetsManagement,
+            };
+            use openzeppelin_token::erc20::{ERC20HooksEmptyImpl, DefaultConfig as ERC20DefaultConfig};
+            use starknet::ContractAddress;
+
+            // ERC4626
+            #[abi(embed_v0)]
+            impl ERC4626ComponentImpl = ERC4626Component::ERC4626Impl<ContractState>;
+            // ERC4626MetadataImpl is a custom impl of IERC20Metadata
+            #[abi(embed_v0)]
+            impl ERC4626MetadataImpl = ERC4626Component::ERC4626MetadataImpl<ContractState>;
+
+            // ERC20
+            #[abi(embed_v0)]
+            impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
+            #[abi(embed_v0)]
+            impl ERC20CamelOnlyImpl = ERC20Component::ERC20CamelOnlyImpl<ContractState>;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(
+                ref self: ContractState,
+                name: ByteArray,
+                symbol: ByteArray,
+                underlying_asset: ContractAddress,
+                initial_supply: u256,
+                recipient: ContractAddress,
+            ) {
+                self.erc20.initializer(name, symbol);
+                self.erc20.mint(recipient, initial_supply);
+            }
+        }
+    };
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_erc4626_no_config() {
+    let attribute = quote! { (ERC20, ERC4626) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod ERC4626Mock {
+            use openzeppelin_token::erc20::extensions::erc4626::{
+                ERC4626DefaultNoLimits, ERC4626DefaultNoFees,
+                ERC4626EmptyHooks, ERC4626SelfAssetsManagement,
+            };
+            use openzeppelin_token::erc20::{ERC20HooksEmptyImpl, DefaultConfig as ERC20DefaultConfig};
+            use starknet::ContractAddress;
+
+            // ERC4626
+            #[abi(embed_v0)]
+            impl ERC4626ComponentImpl = ERC4626Component::ERC4626Impl<ContractState>;
+            // ERC4626MetadataImpl is a custom impl of IERC20Metadata
+            #[abi(embed_v0)]
+            impl ERC4626MetadataImpl = ERC4626Component::ERC4626MetadataImpl<ContractState>;
+
+            // ERC20
+            #[abi(embed_v0)]
+            impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
+            #[abi(embed_v0)]
+            impl ERC20CamelOnlyImpl = ERC20Component::ERC20CamelOnlyImpl<ContractState>;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(
+                ref self: ContractState,
+                name: ByteArray,
+                symbol: ByteArray,
+                underlying_asset: ContractAddress,
+                initial_supply: u256,
+                recipient: ContractAddress,
+            ) {
+                self.erc20.initializer(name, symbol);
+                self.erc20.mint(recipient, initial_supply);
+                self.erc4626.initializer(underlying_asset);
+            }
+        }
+    };
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_erc4626_no_hooks() {
+    let attribute = quote! { (ERC20, ERC4626) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod ERC4626Mock {
+            use openzeppelin_token::erc20::extensions::erc4626::{
+                DefaultConfig, ERC4626DefaultNoLimits, ERC4626DefaultNoFees,
+                ERC4626SelfAssetsManagement,
+            };
+            use openzeppelin_token::erc20::{ERC20HooksEmptyImpl, DefaultConfig as ERC20DefaultConfig};
+            use starknet::ContractAddress;
+
+            // ERC4626
+            #[abi(embed_v0)]
+            impl ERC4626ComponentImpl = ERC4626Component::ERC4626Impl<ContractState>;
+            // ERC4626MetadataImpl is a custom impl of IERC20Metadata
+            #[abi(embed_v0)]
+            impl ERC4626MetadataImpl = ERC4626Component::ERC4626MetadataImpl<ContractState>;
+
+            // ERC20
+            #[abi(embed_v0)]
+            impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
+            #[abi(embed_v0)]
+            impl ERC20CamelOnlyImpl = ERC20Component::ERC20CamelOnlyImpl<ContractState>;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(
+                ref self: ContractState,
+                name: ByteArray,
+                symbol: ByteArray,
+                underlying_asset: ContractAddress,
+                initial_supply: u256,
+                recipient: ContractAddress,
+            ) {
+                self.erc20.initializer(name, symbol);
+                self.erc20.mint(recipient, initial_supply);
+                self.erc4626.initializer(underlying_asset);
+            }
+        }
+    };
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_erc4626_no_fees_trait() {
+    let attribute = quote! { (ERC20, ERC4626) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod ERC4626Mock {
+            use openzeppelin_token::erc20::extensions::erc4626::{
+                DefaultConfig, ERC4626DefaultNoLimits,
+                ERC4626EmptyHooks, ERC4626SelfAssetsManagement,
+            };
+            use openzeppelin_token::erc20::{ERC20HooksEmptyImpl, DefaultConfig as ERC20DefaultConfig};
+            use starknet::ContractAddress;
+
+            // ERC4626
+            #[abi(embed_v0)]
+            impl ERC4626ComponentImpl = ERC4626Component::ERC4626Impl<ContractState>;
+            // ERC4626MetadataImpl is a custom impl of IERC20Metadata
+            #[abi(embed_v0)]
+            impl ERC4626MetadataImpl = ERC4626Component::ERC4626MetadataImpl<ContractState>;
+
+            // ERC20
+            #[abi(embed_v0)]
+            impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
+            #[abi(embed_v0)]
+            impl ERC20CamelOnlyImpl = ERC20Component::ERC20CamelOnlyImpl<ContractState>;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(
+                ref self: ContractState,
+                name: ByteArray,
+                symbol: ByteArray,
+                underlying_asset: ContractAddress,
+                initial_supply: u256,
+                recipient: ContractAddress,
+            ) {
+                self.erc20.initializer(name, symbol);
+                self.erc20.mint(recipient, initial_supply);
+                self.erc4626.initializer(underlying_asset);
+            }
+        }
+    };
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_erc4626_no_limits_trait() {
+    let attribute = quote! { (ERC20, ERC4626) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod ERC4626Mock {
+            use openzeppelin_token::erc20::extensions::erc4626::{
+                DefaultConfig, ERC4626DefaultNoFees,
+                ERC4626EmptyHooks, ERC4626SelfAssetsManagement,
+            };
+            use openzeppelin_token::erc20::{ERC20HooksEmptyImpl, DefaultConfig as ERC20DefaultConfig};
+            use starknet::ContractAddress;
+
+            // ERC4626
+            #[abi(embed_v0)]
+            impl ERC4626ComponentImpl = ERC4626Component::ERC4626Impl<ContractState>;
+            // ERC4626MetadataImpl is a custom impl of IERC20Metadata
+            #[abi(embed_v0)]
+            impl ERC4626MetadataImpl = ERC4626Component::ERC4626MetadataImpl<ContractState>;
+
+            // ERC20
+            #[abi(embed_v0)]
+            impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
+            #[abi(embed_v0)]
+            impl ERC20CamelOnlyImpl = ERC20Component::ERC20CamelOnlyImpl<ContractState>;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(
+                ref self: ContractState,
+                name: ByteArray,
+                symbol: ByteArray,
+                underlying_asset: ContractAddress,
+                initial_supply: u256,
+                recipient: ContractAddress,
+            ) {
+                self.erc20.initializer(name, symbol);
+                self.erc20.mint(recipient, initial_supply);
+                self.erc4626.initializer(underlying_asset);
+            }
+        }
+    };
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_erc4626_no_assets_management_trait() {
+    let attribute = quote! { (ERC20, ERC4626) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod ERC4626Mock {
+            use openzeppelin_token::erc20::extensions::erc4626::{
+                DefaultConfig, ERC4626DefaultNoLimits, ERC4626DefaultNoFees,
+                ERC4626EmptyHooks,
+            };
+            use openzeppelin_token::erc20::{ERC20HooksEmptyImpl, DefaultConfig as ERC20DefaultConfig};
             use starknet::ContractAddress;
 
             // ERC4626

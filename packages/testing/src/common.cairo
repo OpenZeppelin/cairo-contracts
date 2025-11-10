@@ -1,8 +1,5 @@
 use core::to_byte_array::FormatAsByteArray;
 use openzeppelin_testing::constants::AsAddressImpl;
-use snforge_std::cheatcodes::generate_arg::generate_arg;
-use snforge_std::fuzzable::Fuzzable;
-use starknet::{ContractAddress, SyscallResult};
 
 /// Converts panic data into a string (ByteArray).
 ///
@@ -52,52 +49,5 @@ pub impl IntoBase16String<T, +Into<T, felt252>> of IntoBase16StringTrait<T> {
 
     fn into_base_16_string_no_padding(self: T) -> ByteArray {
         to_base_16_string_no_padding(self.into())
-    }
-}
-
-/// Asserts that the syscall result of a call failed with an "Entrypoint not found" error,
-/// following the Starknet Foundry emitted error format.
-pub fn assert_entrypoint_not_found_error<T, +Drop<T>>(
-    result: SyscallResult<T>, selector: felt252, contract_address: ContractAddress,
-) {
-    if let Result::Err(panic_data) = result {
-        let expected_panic_message = format!(
-            "Entry point selector {} not found in contract {}",
-            selector.into_base_16_string_no_padding(),
-            contract_address.into_base_16_string_no_padding(),
-        );
-        let actual_panic_message = panic_data_to_byte_array(panic_data);
-        assert!(
-            actual_panic_message == expected_panic_message,
-            "Got unexpected panic message: {actual_panic_message}",
-        );
-    } else {
-        panic!("{selector} call was expected to fail, but succeeded");
-    }
-}
-
-/// An implementation of Fuzzable trait to support boolean parameters in fuzz tests.
-pub impl FuzzableBool of Fuzzable<bool> {
-    fn blank() -> bool {
-        false
-    }
-
-    fn generate() -> bool {
-        generate_arg(0, 1) == 1
-    }
-}
-
-const MAX_CONTRACT_ADDRESS: felt252 =
-    0x800000000000000000000000000000000000000000000000000000000000000
-    - 1;
-
-/// An implementation of Fuzzable trait to support ContractAddress parameters in fuzz tests.
-pub impl FuzzableContractAddress of Fuzzable<ContractAddress> {
-    fn blank() -> ContractAddress {
-        0.as_address()
-    }
-
-    fn generate() -> ContractAddress {
-        generate_arg(0, MAX_CONTRACT_ADDRESS).as_address()
     }
 }

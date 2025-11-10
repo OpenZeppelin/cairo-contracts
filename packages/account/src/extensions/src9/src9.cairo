@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v3.0.0-alpha.1 (account/src/extensions/src9/src9.cairo)
+// OpenZeppelin Contracts for Cairo v3.0.0-alpha.3 (account/src/extensions/src9/src9.cairo)
 
 /// # SRC9 Component (Outside Execution)
 ///
@@ -15,9 +15,9 @@ pub mod SRC9Component {
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin_utils::cryptography::snip12::{OffchainMessageHash, SNIP12Metadata};
+    use openzeppelin_utils::execution::{assert_valid_signature, execute_calls};
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
     use crate::extensions::src9::snip12_utils::OutsideExecutionStructHash;
-    use crate::utils::{assert_valid_signature, execute_calls};
 
     #[storage]
     pub struct Storage {

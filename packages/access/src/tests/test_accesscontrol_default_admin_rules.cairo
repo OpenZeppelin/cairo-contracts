@@ -1153,11 +1153,11 @@ fn test_default_admin_role_is_its_own_admin() {
     let current_admin_role = state.get_role_admin(DEFAULT_ADMIN_ROLE);
     assert_eq!(current_admin_role, DEFAULT_ADMIN_ROLE);
 }
-
 //
 // Helpers
 //
 
+#[cairofmt::skip]
 generate_event_spy_helpers! {
     impl AccessControlDefaultAdminRulesSpyHelpers {
         #[only]

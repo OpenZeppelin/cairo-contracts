@@ -1158,46 +1158,25 @@ fn test_default_admin_role_is_its_own_admin() {
 // Helpers
 //
 
-#[generate_trait]
-impl AccessControlDefaultAdminRulesSpyHelpersImpl of AccessControlDefaultAdminRulesSpyHelpers {
-    fn assert_only_event_default_admin_transfer_scheduled(
-        ref self: EventSpy,
-        contract: ContractAddress,
-        new_admin: ContractAddress,
-        accept_schedule: u64,
-    ) {
-        let expected = ExpectedEvent::new()
-            .key(selector!("DefaultAdminTransferScheduled"))
-            .key(new_admin)
-            .data(accept_schedule);
+generate_event_spy_helpers! {
+    impl AccessControlDefaultAdminRulesSpyHelpers {
+        #[only]
+        event DefaultAdminTransferScheduled(
+            #[key]
+            new_admin: ContractAddress,
+            accept_schedule: u64
+        );
 
-        self.assert_only_event(contract, expected);
+        #[only]
+        event DefaultAdminTransferCanceled();
+
+        #[only]
+        event DefaultAdminDelayChangeScheduled(
+            new_delay: u64,
+            effect_schedule: u64
+        );
+
+        #[only]
+        event DefaultAdminDelayChangeCanceled();
     }
-
-    fn assert_only_event_default_admin_transfer_canceled(
-        ref self: EventSpy, contract: ContractAddress,
-    ) {
-        let expected = ExpectedEvent::new().key(selector!("DefaultAdminTransferCanceled"));
-
-        self.assert_only_event(contract, expected);
-    }
-
-    fn assert_only_event_default_admin_delay_change_scheduled(
-        ref self: EventSpy, contract: ContractAddress, new_delay: u64, effect_schedule: u64,
-    ) {
-        let expected = ExpectedEvent::new()
-            .key(selector!("DefaultAdminDelayChangeScheduled"))
-            .data(new_delay)
-            .data(effect_schedule);
-
-        self.assert_only_event(contract, expected);
-    }
-
-    fn assert_only_event_default_admin_delay_change_canceled(
-        ref self: EventSpy, contract: ContractAddress,
-    ) {
-        let expected = ExpectedEvent::new().key(selector!("DefaultAdminDelayChangeCanceled"));
-
-        self.assert_only_event(contract, expected);
-    }
-}
+};

@@ -16,7 +16,7 @@ pub mod ERC6909Component {
     use starknet::{ContractAddress, get_caller_address};
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         ERC6909_balances: Map<(ContractAddress, u256), u256>,
         ERC6909_allowances: Map<(ContractAddress, ContractAddress, u256), u256>,
         ERC6909_operators: Map<(ContractAddress, ContractAddress), bool>,

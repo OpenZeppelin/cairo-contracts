@@ -15,7 +15,7 @@ pub mod ERC6909TokenSupplyComponent {
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         ERC6909TokenSupply_total_supply: Map<u256, u256>,
     }
 
@@ -48,7 +48,7 @@ pub mod ERC6909TokenSupplyComponent {
     > of InternalTrait<TContractState> {
         /// Initializes the contract by declaring support for the `IERC6909TokenSupply`
         /// interface id.
-        fn initialize(ref self: ComponentState<TContractState>) {
+        fn initializer(ref self: ComponentState<TContractState>) {
             let mut src5_component = get_dep_component_mut!(ref self, SRC5);
             src5_component.register_interface(interface::IERC6909_TOKEN_SUPPLY_ID);
         }

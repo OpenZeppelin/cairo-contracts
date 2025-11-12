@@ -14,7 +14,7 @@ pub mod ERC6909ContentURIComponent {
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         ERC6909ContentURI_contract_uri: ByteArray,
     }
 

@@ -15,7 +15,7 @@ pub mod ERC6909MetadataComponent {
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
 
     #[storage]
-    struct Storage {
+    pub struct Storage {
         ERC6909Metadata_name: Map<u256, ByteArray>,
         ERC6909Metadata_symbol: Map<u256, ByteArray>,
         ERC6909Metadata_decimals: Map<u256, u8>,
@@ -56,7 +56,7 @@ pub mod ERC6909MetadataComponent {
     > of InternalTrait<TContractState> {
         /// Initializes the contract by declaring support for the `IERC6909Metadata`
         /// interface id.
-        fn initialize(ref self: ComponentState<TContractState>) {
+        fn initializer(ref self: ComponentState<TContractState>) {
             let mut src5_component = get_dep_component_mut!(ref self, SRC5);
             src5_component.register_interface(interface::IERC6909_METADATA_ID);
         }

@@ -1,6 +1,7 @@
 # panic_data_to_byte_array
 
 Converts panic data into a string (ByteArray).
+
 `panic_data` is expected to be a valid serialized byte array with an extra
 felt252 at the beginning, which is the BYTE_ARRAY_MAGIC.
 

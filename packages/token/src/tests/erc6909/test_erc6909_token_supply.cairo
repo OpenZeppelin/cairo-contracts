@@ -1,164 +1,74 @@
-use core::integer::BoundedInt;
-use core::num::traits::Zero;
-use openzeppelin::tests::mocks::erc6909_token_supply_mocks::DualCaseERC6909TokenSupplyMock;
-use openzeppelin::tests::utils::constants::{OWNER, SPENDER, RECIPIENT, SUPPLY, ZERO};
-use openzeppelin::tests::utils;
-use openzeppelin::token::erc6909::ERC6909Component::{
-    InternalImpl as InternalERC6909Impl, ERC6909Impl
-};
-use openzeppelin::token::erc6909::extensions::ERC6909TokenSupplyComponent::{
+use openzeppelin_interfaces::erc6909::IERC6909_TOKEN_SUPPLY_ID;
+use openzeppelin_interfaces::introspection::ISRC5_ID;
+use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
+use openzeppelin_test_common::mocks::erc6909::ERC6909TokenSupplyMock;
+use openzeppelin_testing::constants::{OWNER, RECIPIENT, TOKEN_ID, VALUE, ZERO};
+use starknet::ContractAddress;
+use crate::erc6909::extensions::erc6909_token_supply::ERC6909TokenSupplyComponent;
+use crate::erc6909::extensions::erc6909_token_supply::ERC6909TokenSupplyComponent::{
     ERC6909TokenSupplyImpl, InternalImpl,
 };
-use openzeppelin::token::erc6909::extensions::ERC6909TokenSupplyComponent;
-use openzeppelin::utils::serde::SerializedAppend;
-use starknet::ContractAddress;
-use starknet::contract_address_const;
-use starknet::storage::{StorageMapMemberAccessTrait, StorageMemberAccessTrait};
-use starknet::testing;
-
-use super::common::{
-    assert_event_approval, assert_only_event_approval, assert_only_event_transfer,
-    assert_only_event_operator_set, assert_event_operator_set
-};
-
-//
-// Setup
-//
-
-const TOKEN_ID: u256 = 420;
 
 type ComponentState =
-    ERC6909TokenSupplyComponent::ComponentState<DualCaseERC6909TokenSupplyMock::ContractState>;
+    ERC6909TokenSupplyComponent::ComponentState<ERC6909TokenSupplyMock::ContractState>;
 
-fn CONTRACT_STATE() -> DualCaseERC6909TokenSupplyMock::ContractState {
-    DualCaseERC6909TokenSupplyMock::contract_state_for_testing()
+fn CONTRACT_STATE() -> ERC6909TokenSupplyMock::ContractState {
+    ERC6909TokenSupplyMock::contract_state_for_testing()
 }
 
 fn COMPONENT_STATE() -> ComponentState {
     ERC6909TokenSupplyComponent::component_state_for_testing()
 }
 
-fn setup() -> (ComponentState, DualCaseERC6909TokenSupplyMock::ContractState) {
+#[test]
+fn test_initializer_registers_interface() {
     let mut state = COMPONENT_STATE();
-    let mut mock_state = CONTRACT_STATE();
-    mock_state.erc6909.mint(OWNER(), TOKEN_ID, SUPPLY);
-    utils::drop_event(ZERO());
-    (state, mock_state)
-}
+    let mock_state = CONTRACT_STATE();
 
-//
-// Getters
-//
+    state.initializer();
 
-#[test]
-fn test__state_total_supply() {
-    let (mut state, _) = setup();
-    let mut id_supply = state.ERC6909TokenSupply_total_supply.read(TOKEN_ID);
-    assert_eq!(id_supply, SUPPLY);
+    assert!(mock_state.supports_interface(IERC6909_TOKEN_SUPPLY_ID));
+    assert!(mock_state.supports_interface(ISRC5_ID));
 }
 
 #[test]
-fn test__state_no_total_supply() {
-    let (mut state, _) = setup();
-    let mut id_supply = state.ERC6909TokenSupply_total_supply.read(TOKEN_ID + 69);
-    assert_eq!(id_supply, 0);
-}
-
-
-#[test]
-fn test_total_supply() {
-    let (mut state, _) = setup();
-    let mut id_supply = state.total_supply(TOKEN_ID);
-    assert_eq!(id_supply, SUPPLY);
+fn test_total_supply_default_zero() {
+    let state = COMPONENT_STATE();
+    assert_eq!(state.total_supply(TOKEN_ID), 0);
 }
 
 #[test]
-fn test_no_total_supply() {
-    let (mut state, _) = setup();
-    let mut id_supply = state.total_supply(TOKEN_ID + 69);
-    assert_eq!(id_supply, 0);
+fn test__update_token_supply_increments_on_mint() {
+    let mut state = COMPONENT_STATE();
+    let before = state.total_supply(TOKEN_ID);
+
+    state._update_token_supply(ZERO, RECIPIENT, TOKEN_ID, VALUE);
+
+    assert_eq!(state.total_supply(TOKEN_ID), before + VALUE);
 }
 
 #[test]
-fn test_total_supply_contract() {
-    let (_, mut mock_state) = setup();
-    let mut id_supply = mock_state.total_supply(TOKEN_ID);
-    assert_eq!(id_supply, SUPPLY);
-}
-//
-// mint & burn
-//
+fn test__update_token_supply_decrements_on_burn() {
+    let mut state = COMPONENT_STATE();
 
-#[test]
-fn test_mint_increase_supply() {
-    let (_, mut mock_state) = setup();
-    let mut id_supply = mock_state.total_supply(TOKEN_ID);
-    assert_eq!(id_supply, SUPPLY);
+    state._update_token_supply(ZERO, RECIPIENT, TOKEN_ID, VALUE + 1);
+    let mid = state.total_supply(TOKEN_ID);
 
-    let new_token_id = TOKEN_ID + 69;
+    state._update_token_supply(OWNER, ZERO, TOKEN_ID, 1);
 
-    testing::set_caller_address(OWNER());
-    mock_state.erc6909.mint(OWNER(), new_token_id, SUPPLY * 2);
-
-    let mut old_token_id_supply = mock_state.total_supply(TOKEN_ID);
-    let mut new_token_id_supply = mock_state.total_supply(new_token_id);
-    assert_eq!(old_token_id_supply, SUPPLY);
-    assert_eq!(new_token_id_supply, SUPPLY * 2);
+    assert_eq!(state.total_supply(TOKEN_ID), mid - 1);
 }
 
 #[test]
-fn test_burn_decrease_supply() {
-    let (_, mut mock_state) = setup();
-    let mut id_supply = mock_state.total_supply(TOKEN_ID);
-    assert_eq!(id_supply, SUPPLY);
+fn test__update_token_supply_no_change_on_transfer() {
+    let mut state = COMPONENT_STATE();
 
-    let new_token_id = TOKEN_ID + 69;
+    state._update_token_supply(ZERO, RECIPIENT, TOKEN_ID, VALUE);
+    let before = state.total_supply(TOKEN_ID);
 
-    testing::set_caller_address(OWNER());
-    mock_state.erc6909.mint(OWNER(), new_token_id, SUPPLY * 2);
+    let sender: ContractAddress = OWNER;
+    let receiver: ContractAddress = RECIPIENT;
+    state._update_token_supply(sender, receiver, TOKEN_ID, VALUE);
 
-    let mut new_token_id_supply = mock_state.total_supply(new_token_id);
-    assert_eq!(new_token_id_supply, SUPPLY * 2);
-
-    testing::set_caller_address(OWNER());
-    mock_state.erc6909.burn(OWNER(), new_token_id, SUPPLY * 2);
-
-    let mut new_token_id_supply = mock_state.total_supply(new_token_id);
-    assert_eq!(new_token_id_supply, 0);
-}
-
-// transfer & transferFrom
-#[test]
-fn test_transfers_dont_change_supply() {
-    let (_, mut mock_state) = setup();
-    let mut id_supply = mock_state.total_supply(TOKEN_ID);
-    assert_eq!(id_supply, SUPPLY);
-
-    testing::set_caller_address(OWNER());
-    mock_state.transfer(RECIPIENT(), TOKEN_ID, SUPPLY);
-
-    let mut id_supply = mock_state.total_supply(TOKEN_ID);
-    assert_eq!(id_supply, SUPPLY);
-
-    testing::set_caller_address(RECIPIENT());
-    mock_state.transfer(OWNER(), TOKEN_ID, SUPPLY / 2);
-
-    let mut id_supply = mock_state.total_supply(TOKEN_ID);
-    assert_eq!(id_supply, SUPPLY);
-}
-
-// transfer & transferFrom
-#[test]
-fn test_transfer_from_doesnt_change_supply() {
-    let (_, mut mock_state) = setup();
-    let mut id_supply = mock_state.total_supply(TOKEN_ID);
-    assert_eq!(id_supply, SUPPLY);
-
-    testing::set_caller_address(OWNER());
-    mock_state.approve(SPENDER(), TOKEN_ID, SUPPLY);
-    testing::set_caller_address(SPENDER());
-    mock_state.transfer_from(OWNER(), SPENDER(), TOKEN_ID, SUPPLY);
-
-    let mut id_supply = mock_state.total_supply(TOKEN_ID);
-    assert_eq!(id_supply, SUPPLY);
+    assert_eq!(state.total_supply(TOKEN_ID), before);
 }

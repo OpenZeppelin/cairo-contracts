@@ -1,105 +1,80 @@
-use core::integer::BoundedInt;
-use core::num::traits::Zero;
-use openzeppelin::tests::mocks::erc6909_content_uri_mocks::DualCaseERC6909ContentURIMock;
-use openzeppelin::tests::utils::constants::{
-    OWNER, SPENDER, RECIPIENT, SUPPLY, ZERO, BASE_URI, BASE_URI_2
-};
-use openzeppelin::tests::utils;
-use openzeppelin::token::erc6909::ERC6909Component::InternalImpl as InternalERC6909Impl;
-use openzeppelin::token::erc6909::extensions::ERC6909ContentURIComponent::{
+use openzeppelin_interfaces::erc6909::IERC6909_CONTENT_URI_ID;
+use openzeppelin_interfaces::introspection::ISRC5_ID;
+use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
+use openzeppelin_test_common::mocks::erc6909::ERC6909ContentURIMock;
+use crate::erc6909::extensions::erc6909_content_uri::ERC6909ContentURIComponent;
+use crate::erc6909::extensions::erc6909_content_uri::ERC6909ContentURIComponent::{
     ERC6909ContentURIImpl, InternalImpl,
 };
-use openzeppelin::token::erc6909::extensions::ERC6909ContentURIComponent;
-use openzeppelin::utils::serde::SerializedAppend;
-use starknet::ContractAddress;
-use starknet::contract_address_const;
-use starknet::storage::{StorageMapMemberAccessTrait, StorageMemberAccessTrait};
-use starknet::testing;
 
-use super::common::{
-    assert_event_approval, assert_only_event_approval, assert_only_event_transfer,
-    assert_only_event_operator_set, assert_event_operator_set
-};
 
-//
-// Setup
-//
+fn CONTRACT_URI() -> ByteArray {
+    "ipfs://erc6909/"
+}
 
-const TOKEN_ID: u256 = 420;
+const SAMPLE_ID: u256 = 1234;
+
 
 type ComponentState =
-    ERC6909ContentURIComponent::ComponentState<DualCaseERC6909ContentURIMock::ContractState>;
+    ERC6909ContentURIComponent::ComponentState<ERC6909ContentURIMock::ContractState>;
 
-fn CONTRACT_STATE() -> DualCaseERC6909ContentURIMock::ContractState {
-    DualCaseERC6909ContentURIMock::contract_state_for_testing()
+fn CONTRACT_STATE() -> ERC6909ContentURIMock::ContractState {
+    ERC6909ContentURIMock::contract_state_for_testing()
 }
 
 fn COMPONENT_STATE() -> ComponentState {
     ERC6909ContentURIComponent::component_state_for_testing()
 }
 
-fn setup() -> (ComponentState, DualCaseERC6909ContentURIMock::ContractState) {
+
+#[test]
+fn test_initializer_registers_interface_and_sets_uri() {
     let mut state = COMPONENT_STATE();
     let mut mock_state = CONTRACT_STATE();
-    mock_state.erc6909.mint(OWNER(), TOKEN_ID, SUPPLY);
-    utils::drop_event(ZERO());
-    (state, mock_state)
+
+    let uri = CONTRACT_URI();
+    state.initializer(uri);
+
+    let supports_content_uri = mock_state.supports_interface(IERC6909_CONTENT_URI_ID);
+    assert!(supports_content_uri);
+
+    let supports_isrc5 = mock_state.supports_interface(ISRC5_ID);
+    assert!(supports_isrc5);
+
+    assert_eq!(state.contract_uri(), uri);
 }
 
-//
-// Getters
-//
 
 #[test]
-fn test_unset_content_uri() {
-    let (mut state, _) = setup();
-    let mut uri = state.contract_uri();
-    assert_eq!(uri, "");
-}
-
-#[test]
-fn test_unset_token_uri() {
-    let (mut state, _) = setup();
-    let uri = state.token_uri(TOKEN_ID);
-    assert_eq!(uri, "");
-}
-
-//
-// internal setters
-//
-
-#[test]
-fn test_set_contract_uri() {
-    let (mut state, _) = setup();
-    testing::set_caller_address(OWNER());
-    state.initializer(BASE_URI());
-    let uri = state.contract_uri();
-    assert_eq!(uri, BASE_URI());
+fn test_contract_uri_default_is_empty() {
+    let state = COMPONENT_STATE();
+    let empty: ByteArray = "";
+    assert_eq!(state.contract_uri(), empty);
 }
 
 #[test]
-fn test_set_token_uri() {
-    let (mut state, _) = setup();
-    testing::set_caller_address(OWNER());
-    state.initializer(BASE_URI());
-    let uri = state.token_uri(TOKEN_ID);
-    let expected = format!("{}{}", BASE_URI(), TOKEN_ID);
-    assert_eq!(uri, expected);
+fn test_contract_uri_after_initializer_returns_set_value() {
+    let mut state = COMPONENT_STATE();
+    let uri = CONTRACT_URI();
+    state.initializer(uri);
+
+    assert_eq!(state.contract_uri(), uri);
 }
 
-// Updates the URI once set
-#[test]
-fn test_update_token_uri() {
-    let (mut state, _) = setup();
-    testing::set_caller_address(OWNER());
-    state.initializer(BASE_URI());
-    let mut uri = state.token_uri(TOKEN_ID);
-    let mut expected = format!("{}{}", BASE_URI(), TOKEN_ID);
-    assert_eq!(uri, expected);
 
-    testing::set_caller_address(OWNER());
-    state.initializer(BASE_URI_2());
-    let mut uri = state.token_uri(TOKEN_ID);
-    let expected = format!("{}{}", BASE_URI_2(), TOKEN_ID);
-    assert_eq!(uri, expected);
+#[test]
+fn test_token_uri_concatenates_contract_uri_and_id() {
+    let mut state = COMPONENT_STATE();
+    let uri = CONTRACT_URI();
+    state.initializer(uri);
+
+    let expected = format!("{}{}", uri, SAMPLE_ID);
+    assert_eq!(state.token_uri(SAMPLE_ID), expected);
+}
+
+#[test]
+fn test_token_uri_when_contract_uri_not_set_is_empty() {
+    let state = COMPONENT_STATE();
+    let empty: ByteArray = "";
+    assert_eq!(state.token_uri(SAMPLE_ID), empty);
 }

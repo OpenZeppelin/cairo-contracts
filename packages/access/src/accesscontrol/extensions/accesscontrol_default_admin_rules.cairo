@@ -120,7 +120,8 @@ pub mod AccessControlDefaultAdminRulesComponent {
     ///
     /// - `DEFAULT_ADMIN_DELAY_INCREASE_WAIT`: Returns the maximum number of seconds to wait for a
     /// delay increase.
-    /// - `MAXIMUM_TRANSFER_DELAY`: Returns the maximum number of seconds for a transfer delay.
+    /// - `MAXIMUM_DEFAULT_ADMIN_TRANSFER_DELAY`: Returns the maximum number of seconds for a
+    /// transfer delay.
     ///
     /// IMPORTANT:
     ///
@@ -130,16 +131,16 @@ pub mod AccessControlDefaultAdminRulesComponent {
     /// could be activated almost instantly, leaving no opportunity for manual correction.
     ///
     /// The maximum time you have to recover from an accidental delay increase is controlled by
-    /// `MAXIMUM_TRANSFER_DELAY`. See the `delay_change_wait` function for details on how these
-    /// constants interact.
+    /// `MAXIMUM_DEFAULT_ADMIN_TRANSFER_DELAY`. See the `delay_change_wait` function for details on
+    /// how these constants interact.
     ///
-    /// If `MAXIMUM_TRANSFER_DELAY` is set too high, you might be unable to recover from an
-    /// accidental increase for an extended period. Too low, and it unnecessarily restricts how much
-    /// security delay you can impose for admin transfers. As a best practice, consider setting it
-    /// in the 30-60 day range for a good balance between security and recoverability.
+    /// If `MAXIMUM_DEFAULT_ADMIN_TRANSFER_DELAY` is set too high, you might be unable to recover
+    /// from an accidental increase for an extended period. Too low, and it unnecessarily restricts
+    /// how much security delay you can impose for admin transfers. As a best practice, consider
+    /// setting it in the 30-60 day range for a good balance between security and recoverability.
     pub trait ImmutableConfig {
         const DEFAULT_ADMIN_DELAY_INCREASE_WAIT: u64;
-        const MAXIMUM_TRANSFER_DELAY: u64;
+        const MAXIMUM_DEFAULT_ADMIN_TRANSFER_DELAY: u64;
     }
 
     #[embeddable_as(AccessControlDefaultAdminRulesImpl)]
@@ -313,7 +314,7 @@ pub mod AccessControlDefaultAdminRulesComponent {
         fn change_default_admin_delay(ref self: ComponentState<TContractState>, new_delay: u64) {
             self.assert_only_role(DEFAULT_ADMIN_ROLE);
             assert(
-                new_delay <= Immutable::MAXIMUM_TRANSFER_DELAY,
+                new_delay <= Immutable::MAXIMUM_DEFAULT_ADMIN_TRANSFER_DELAY,
                 Errors::ADMIN_TRANSFER_DELAY_TOO_HIGH,
             );
 
@@ -338,15 +339,7 @@ pub mod AccessControlDefaultAdminRulesComponent {
         }
 
         /// Maximum time in seconds for an increase to `default_admin_delay` (that is scheduled
-        /// using `change_default_admin_delay`)
-        /// to take effect. Defaults to 5 days.
-        ///
-        /// When the `default_admin_delay` is scheduled to be increased, it goes into effect after
-        /// the new delay has passed with the purpose of giving enough time for reverting any
-        /// accidental change increasing the delay more than expected by mistake (i.e. using
-        /// milliseconds instead of seconds).
-        /// However, to avoid excessive schedules, the wait is capped by
-        /// this function and it can be configured.
+        /// using `change_default_admin_delay`) to take effect.
         ///
         /// IMPORTANT:
         ///
@@ -355,10 +348,23 @@ pub mod AccessControlDefaultAdminRulesComponent {
         /// immediately without the possibility of human intervention in the case of an input error
         /// (eg. set milliseconds instead of seconds).
         ///
-        /// Consider carefully the value set for `MAXIMUM_TRANSFER_DELAY` too, since it will affect
-        /// how fast you can recover from an accidental delay increase.
+        /// Consider carefully the value set for `MAXIMUM_DEFAULT_ADMIN_TRANSFER_DELAY` too, since
+        /// it will affect how fast you can recover from an accidental delay increase.
         fn default_admin_delay_increase_wait(self: @ComponentState<TContractState>) -> u64 {
             Immutable::DEFAULT_ADMIN_DELAY_INCREASE_WAIT
+        }
+
+        /// Maximum time in seconds for a `default_admin` transfer delay.
+        ///
+        /// IMPORTANT:
+        ///
+        /// If `MAXIMUM_DEFAULT_ADMIN_TRANSFER_DELAY` is set too high, you might be unable to
+        /// recover from an accidental delay increase for an extended period. Too low, and it
+        /// unnecessarily restricts how much security delay you can impose for `default_admin`
+        /// transfers. As a best practice, consider setting it in the 30-60 day range for a good
+        /// balance between security and recoverability.
+        fn maximum_default_admin_transfer_delay(self: @ComponentState<TContractState>) -> u64 {
+            Immutable::MAXIMUM_DEFAULT_ADMIN_TRANSFER_DELAY
         }
     }
 
@@ -566,7 +572,7 @@ pub mod AccessControlDefaultAdminRulesComponent {
         ) {
             assert(initial_default_admin.is_non_zero(), Errors::INVALID_DEFAULT_ADMIN);
             assert(
-                initial_admin_transfer_delay <= Immutable::MAXIMUM_TRANSFER_DELAY,
+                initial_admin_transfer_delay <= Immutable::MAXIMUM_DEFAULT_ADMIN_TRANSFER_DELAY,
                 Errors::ADMIN_TRANSFER_DELAY_TOO_HIGH,
             );
 
@@ -1000,8 +1006,9 @@ pub mod AccessControlDefaultAdminRulesComponent {
 /// The default delay increase wait is set to 5 days.
 /// The maximum transfer delay is set to 30 days.
 ///
-/// NOTE: You cannot set a transfer delay to a value greater than this `MAXIMUM_TRANSFER_DELAY`.
+/// NOTE: You cannot set a transfer delay to a value greater than this
+/// `MAXIMUM_DEFAULT_ADMIN_TRANSFER_DELAY`.
 pub impl DefaultConfig of AccessControlDefaultAdminRulesComponent::ImmutableConfig {
     const DEFAULT_ADMIN_DELAY_INCREASE_WAIT: u64 = 5 * 24 * 60 * 60; // 5 days
-    const MAXIMUM_TRANSFER_DELAY: u64 = 30 * 24 * 60 * 60; // 30 days
+    const MAXIMUM_DEFAULT_ADMIN_TRANSFER_DELAY: u64 = 30 * 24 * 60 * 60; // 30 days
 }

@@ -9,6 +9,7 @@ Fully qualified path: [openzeppelin_testing](./openzeppelin_testing.md)::[consta
 ### as_address
 
 Converts a felt252 to a ContractAddress as a constant function.
+
 Requirements:
 - `value` must be a valid contract address.
 

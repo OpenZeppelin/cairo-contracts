@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+- ERC-6909: interfaces, components, tests, and docs. (initial contribution by @swan-of-bodom; rebased to current main)
+
 ## 3.0.0-alpha.3 (2025-10-9)
 
 ### Added

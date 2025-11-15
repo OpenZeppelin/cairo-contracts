@@ -79,6 +79,13 @@ fn test_initializer_with_zero_address() {
     state.initializer(INITIAL_DELAY, ZERO);
 }
 
+#[test]
+#[should_panic(expected: 'Admin transfer delay too high')]
+fn test_initializer_with_delay_above_maximum() {
+    let mut state = COMPONENT_STATE();
+    state.initializer(DefaultConfig::MAXIMUM_DEFAULT_ADMIN_TRANSFER_DELAY + 1, ADMIN);
+}
+
 //
 // default_admin
 //
@@ -125,6 +132,13 @@ fn test_default_admin_delay_default_values() {
     let mut state = setup();
     let delay = state.default_admin_delay();
     assert_eq!(delay, INITIAL_DELAY);
+}
+
+#[test]
+fn test_maximum_default_admin_transfer_delay_api() {
+    let state = setup();
+    let max_delay = state.maximum_default_admin_transfer_delay();
+    assert_eq!(max_delay, DefaultConfig::MAXIMUM_DEFAULT_ADMIN_TRANSFER_DELAY);
 }
 
 #[test]
@@ -180,6 +194,27 @@ fn test_change_default_admin_delay_unauthorized() {
 
     start_cheat_caller_address(contract_address, OTHER);
     state.change_default_admin_delay(new_delay);
+}
+
+#[test]
+#[should_panic(expected: 'Admin transfer delay too high')]
+fn test_change_default_admin_delay_above_maximum_via_config() {
+    let mut state = setup();
+    let contract_address = test_address();
+    let new_delay = DefaultConfig::MAXIMUM_DEFAULT_ADMIN_TRANSFER_DELAY + 1;
+
+    start_cheat_caller_address(contract_address, ADMIN);
+    state.change_default_admin_delay(new_delay);
+}
+
+#[test]
+#[should_panic(expected: 'Admin transfer delay too high')]
+fn test_change_default_admin_delay_above_maximum() {
+    let mut state = setup();
+    let contract_address = test_address();
+    start_cheat_caller_address(contract_address, ADMIN);
+    let max_delay = state.maximum_default_admin_transfer_delay();
+    state.change_default_admin_delay(max_delay + 1);
 }
 
 #[test]

@@ -1,0 +1,17 @@
+---
+source: src/tests/test_generate_event_spy_helpers.rs
+assertion_line: 189
+expression: get_string_result(input)
+---
+TokenStream:
+
+None
+
+Diagnostics:
+
+====
+Error: Parsing Failure: ParserError { message: "Expected `;` to finish the event definition. Terminate each event with `;`. (around `}}`)" }====
+
+AuxData:
+
+None

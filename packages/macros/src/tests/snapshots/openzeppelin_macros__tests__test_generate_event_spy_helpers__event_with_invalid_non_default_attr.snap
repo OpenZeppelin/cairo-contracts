@@ -1,0 +1,17 @@
+---
+source: src/tests/test_generate_event_spy_helpers.rs
+assertion_line: 80
+expression: get_string_result(input)
+---
+TokenStream:
+
+None
+
+Diagnostics:
+
+====
+Error: Parsing Failure: ParserError { message: "Expected `]` to close the attribute list. Attributes must end with `]`. (around `_default]event Inv...`)" }====
+
+AuxData:
+
+None

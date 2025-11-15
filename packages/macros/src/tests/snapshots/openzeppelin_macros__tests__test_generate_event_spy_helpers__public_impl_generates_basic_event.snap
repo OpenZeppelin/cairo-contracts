@@ -1,0 +1,23 @@
+---
+source: src/tests/test_generate_event_spy_helpers.rs
+assertion_line: 18
+expression: get_string_result(input)
+---
+TokenStream:
+
+#[generate_trait]
+pub impl TreasurySpyHelpers of TreasurySpyHelpersTrait {
+    fn assert_event_funds_released(ref self: EventSpy, contract: ContractAddress, amount: u256) {
+        let expected = ExpectedEvent::new().key(selector!("FundsReleased")).data(amount);
+        self.assert_emitted_single(contract, expected);
+    }
+}
+
+
+Diagnostics:
+
+None
+
+AuxData:
+
+None

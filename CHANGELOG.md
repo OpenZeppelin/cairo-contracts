@@ -10,7 +10,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Unreleased
 
 ### Added
-- ERC-6909: interfaces, components, tests, and docs. (initial contribution by @swan-of-bodom; rebased to current main)
+
+- ERC-6909 standard implementation and extensions (#1594)
+  - Added `ERC6909Component`, `ERC6909ContentURIComponent`, `ERC6909MetadataComponent`, and `ERC6909TokenSupplyComponent`.
+  - Added interfaces and ABI traits: `IERC6909`, `ERC6909ABI`, `IERC6909Metadata`, `ERC6909MetadataABI`, `IERC6909TokenSupply`, `ERC6909TokenSupplyABI`, `IERC6909ContentUri`, and `IERC6909ContentUriABI`.
+  - Added mocks: `ERC6909Mock`, `ERC6909MockWithHooks`, `ERC6909ContentURIMock`, `ERC6909MetadataMock`, `ERC6909TokenSupplyMock`.
+  - Added tests for components.
+
+- Integration of ERC-6909 components into the `with_components` macro (#1594)
+  - Added `ComponentInfo` implementations for ERC-6909 and its extensions.
+  - Added new diagnostic `ERC6909_HOOKS_IMPL_MISSING`.
+  - Added parser validation for missing hooks implementations.
 
 ## 3.0.0-alpha.3 (2025-10-9)
 

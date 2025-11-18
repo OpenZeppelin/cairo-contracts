@@ -1,133 +1,337 @@
+:eip6909: https://eips.ethereum.org/EIPS/eip-6909[EIP-6909]
+:fungibility-agnostic: https://docs.openzeppelin.com/contracts/5.x/tokens#different-kinds-of-tokens[fungibility-agnostic]
+
 = ERC6909
 
-:fungibility-agnostic: https://docs.openzeppelin.com/contracts/5.x/tokens#different-kinds-of-tokens[fungibility-agnostic]
-:eip-6909: https://eips.ethereum.org/EIPS/eip-6909[EIP-6909]
-
-The ERC6909 minimal multi token standard is a specification for {fungibility-agnostic} token contracts.
-`token::erc6909::ERC6909Component` provides an approximation of {eip-6909} in Cairo for StarkNet.
-
-== Minimal Multi Token Standard
-
-Similar to ERC1155, it uses a single smart contract to represent multiple tokens via unique IDs. The main difference is 
-that in ERC6909 "the callbacks and batching have been removed from the interface and the permission system is a hybrid operator-approval
-scheme for granular and scalable permissions. Functionally, the interface has been reduced to the bare minimum 
-required to manage multiple tokens under the same contract." {eip-6909}
+The ERC6909 minimal multi-token standard is a specification for {fungibility-agnostic} token contracts that manage multiple token IDs in a single contract. Compared to ERC1155, it removes batch operations and transfer callbacks, and introduces a hybrid allowance–operator approval model for more granular control over approvals.
+The ERC6909 library provides an approximation of {eip6909} in Cairo for Starknet.
 
 == Usage
 
-:eip-6909: https://eips.ethereum.org/EIPS/eip-6909[EIP-6909]
-:erc6909-extensions: xref:/guides/erc6909-extensions.adoc[ERC6909 Extensions]
+:mint-api: xref:api/erc6909.adoc#ERC6909Component-_mint[_mint]
+:burn-api: xref:api/erc6909.adoc#ERC6909Component-_burn[_burn]
+:transfer-api: xref:api/erc6909.adoc#IERC6909-transfer[transfer]
+:transfer-from-api: xref:api/erc6909.adoc#IERC6909-transfer_from[transfer_from]
+:set-operator-api: xref:api/erc6909.adoc#IERC6909-set_operator[set_operator]
 
-The ERC6909 minimal multi token standard is a specification for {fungibility-agnostic} token contracts.
-
-Using Contracts for Cairo, constructing an ERC6909 contract requires integrating the `ERC6909Component`.
-Here's an example of a basic ERC6909 contract:
+Using Contracts for Cairo, constructing an ERC6909 contract requires integrating both `ERC6909Component` and `SRC5Component`.
+The contract should also set up the constructor to register interface support and optionally mint initial balances.
+Here's an example of a basic contract:
 
 [,cairo]
 ----
 #[starknet::contract]
-mod MyERC6909Token {
-    use openzeppelin::token::erc6909::{ERC6909Component, ERC6909HooksEmptyImpl};
+mod MyERC6909 {
+    use openzeppelin_introspection::src5::SRC5Component;
+    use openzeppelin_token::erc6909::{ERC6909Component, ERC6909HooksEmptyImpl};
     use starknet::ContractAddress;
 
     component!(path: ERC6909Component, storage: erc6909, event: ERC6909Event);
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
-    // ERC6909 Mixin
     #[abi(embed_v0)]
-    impl ERC6909MixinImpl = ERC6909Component::ERC6909MixinImpl<ContractState>;
+    impl ERC6909Impl = ERC6909Component::ERC6909Impl<ContractState>;
     impl ERC6909InternalImpl = ERC6909Component::InternalImpl<ContractState>;
 
     #[storage]
     struct Storage {
         #[substorage(v0)]
-        erc6909: ERC6909Component::Storage
+        erc6909: ERC6909Component::Storage,
+        #[substorage(v0)]
+        src5: SRC5Component::Storage
     }
 
     #[event]
     #[derive(Drop, starknet::Event)]
     enum Event {
         #[flat]
-        ERC6909Event: ERC6909Component::Event
+        ERC6909Event: ERC6909Component::Event,
+        #[flat]
+        SRC5Event: SRC5Component::Event
     }
 
     #[constructor]
     fn constructor(
         ref self: ContractState,
-        recipient: ContractAddress,
-        token_id: u256,
-        initial_supply: u256,
-        contract_uri: ByteArray
+        recipient: ContractAddress
+        id: u256,
+        amount: u256,
     ) {
-        self.erc6909.mint(recipient, token_id, initial_supply);
+        self.erc6909.initializer();
+        self.erc6909._mint(recipient, id, amount);
+
     }
 }
 ----
 
-`MyERC6909Token` integrates the `ERC6909Impl` with the embed directive which marks the implementation as external in the contract
-by importing the `ERC6909Mixin` which has both camel and snake-case functions.
-
-The above example also includes the `ERC6909InternalImpl` instance to access internal functions (such as `mint`)
-
-There are 3 optional extensions which can also be imported into `MyERC6909Token`:
-
-* `ERC6909ContentURI` - Allows to set the base contract URI and thus show individual token URIs.
-* `ERC6909Metadata` - Allows to set the `name`, `symbol` and `decimals` of each token ID.
-* `ERC6909TokenSupply` - Allows to keep track of individual token supplies upon mints and burns.
-
-TIP: For a more complete guide on using these extensions, see {erc6909-extensions}.
+Once deployed, this contract exposes the full {transfer-api}, {transfer-from-api}, and {set-operator-api} entrypoints defined in {eip6909}, supporting both token ID allowances and global operators for an account.
 
 == Interface
 
-:dual-interfaces: xref:/interfaces.adoc#dual_interfaces[Dual interfaces]
+:compatibility: xref:/erc6909.adoc#erc6909_compatibility[ERC6909 Compatibility]
+:isrc5-interface: xref:/api/introspection.adoc#ISRC5[ISRC5]
 :ierc6909-interface: xref:/api/erc6909.adoc#IERC6909[IERC6909]
-:ierc6909_metadata-interface: xref:/api/erc6909.adoc#IERC6909Metadata[IERC6909Metadata]
-:ierc6909_tokensupply-interface: xref:/api/erc6909.adoc#IERC6909TokenSupply[IERC6909TokenSupply]
-:ierc6909_contenturi-interface: xref:/api/erc6909.adoc#IERC6909ContentURI[IERC6909ContentURI]
+:ierc6909-metadata-interface: xref:/api/erc6909.adoc#IERC6909Metadata[IERC6909Metadata]
+:ierc6909-content-uri-interface: xref:/api/erc6909.adoc#IERC6909ContentUri[IERC6909ContentUri]
+:ierc6909-token-supply-interface: xref:/api/erc6909.adoc#IERC6909TokenSupply[IERC6909TokenSupply]
 :erc6909-component: xref:/api/erc6909.adoc#ERC6909Component[ERC6909Component]
 
-The following interface represents the full ABI of the Contracts for Cairo {erc6909-component}.
-The interface includes the {ierc6909-interface} standard interface.
-
-To support older token deployments, as mentioned in {dual-interfaces}, the component also includes an implementation of the interface written in camelCase.
+The following interface represents a convenient ABI that mirrors the full surface of the Contracts for Cairo
+{erc6909-component} together with its optional extensions. It includes the {ierc6909-interface} minimal multi-token
+interface, the optional {ierc6909-content-uri-interface}, {ierc6909-metadata-interface}, and
+{ierc6909-token-supply-interface} interfaces, as well as {isrc5-interface} for introspection.
 
 [,cairo]
 ----
 #[starknet::interface]
-pub trait ERC6909ABI<TState> {
-    /// @notice IERC6909 standard interface
-    fn balance_of(self: @TState, owner: ContractAddress, id: u256) -> u256;
-    fn allowance(self: @TState, owner: ContractAddress, spender: ContractAddress, id: u256) -> u256;
-    fn is_operator(self: @TState, owner: ContractAddress, spender: ContractAddress) -> bool;
-    fn transfer(ref self: TState, receiver: ContractAddress, id: u256, amount: u256) -> bool;
+pub trait ERC6909ABI {
+    // IERC6909
+    fn balance_of(owner: ContractAddress, id: u256) -> u256;
+    fn allowance(owner: ContractAddress, spender: ContractAddress, id: u256) -> u256;
+    fn is_operator(owner: ContractAddress, spender: ContractAddress) -> bool;
+    fn transfer(receiver: ContractAddress, id: u256, amount: u256) -> bool;
     fn transfer_from(
-        ref self: TState, sender: ContractAddress, receiver: ContractAddress, id: u256, amount: u256
+        sender: ContractAddress,
+        receiver: ContractAddress,
+        id: u256,
+        amount: u256
     ) -> bool;
-    fn approve(ref self: TState, spender: ContractAddress, id: u256, amount: u256) -> bool;
-    fn set_operator(ref self: TState, spender: ContractAddress, approved: bool) -> bool;
-    fn supports_interface(self: @TState, interface_id: felt252) -> bool;
+    fn approve(spender: ContractAddress, id: u256, amount: u256) -> bool;
+    fn set_operator(spender: ContractAddress, approved: bool) -> bool;
 
-    /// @notice IERC6909Camel
-    fn balanceOf(self: @TState, owner: ContractAddress, id: u256) -> u256;
-    fn isOperator(self: @TState, owner: ContractAddress, spender: ContractAddress) -> bool;
-    fn transferFrom(
-        ref self: TState, sender: ContractAddress, receiver: ContractAddress, id: u256, amount: u256
-    ) -> bool;
-    fn setOperator(ref self: TState, spender: ContractAddress, approved: bool) -> bool;
-    fn supportsInterface(self: @TState, interfaceId: felt252) -> bool;
+    // IERC6909ContentUri
+    fn contract_uri() -> ByteArray;
+    fn token_uri(id: u256) -> ByteArray;
+
+    // IERC6909Metadata
+    fn name(id: u256) -> ByteArray;
+    fn symbol(id: u256) -> ByteArray;
+    fn decimals(id: u256) -> u8;
+
+    // IERC6909TokenSupply
+    fn total_supply(id: u256) -> u256;
+
+    // ISRC5
+    fn supports_interface(interface_id: felt252) -> bool;
 }
 ----
 
+NOTE: This ABI is provided as a convenience example that groups the standard and optional interfaces implemented by the
+components. Your contracts are free to expose a subset of these functions depending on which extensions you integrate.
+
+[#erc6909_compatibility]
 == ERC6909 compatibility
 
-:cairo-selectors: https://github.com/starkware-libs/cairo/blob/7dd34f6c57b7baf5cd5a30c15e00af39cb26f7e1/crates/cairo-lang-starknet/src/contract.rs#L39-L48[Cairo]
-:solidity-selectors: https://solidity-by-example.org/function-selector/[Solidity]
-:dual-interface: xref:/interfaces.adoc#dual_interfaces[dual interface]
-:interface-id: https://community.starknet.io/t/starknet-standard-interface-detection/92664/23[interface ID]
+:src5-api: xref:introspection.adoc#src5[SRC5]
+:introspection: xref:introspection.adoc[Introspection]
+:eip6909-spec: https://eips.ethereum.org/EIPS/eip-6909[EIP-6909]
 
-Although Starknet is not EVM compatible, this component aims to be as close as possible to the ERC6909 token standard.
-Some notable differences, however, can still be found, such as:
+Although Starknet is not EVM compatible, this implementation aims to be as close as possible to the ERC6909 standard.
+Some notable differences are:
 
-* The `ByteArray` type is used to represent strings in Cairo in the Metadata extension.
-* The `felt252` type is used to represent the  `byte4` interface ID. The {interface-id} is also calculated different in Cairo.
-* The component offers a {dual-interface} which supports both snake_case and camelCase methods, as opposed to just camelCase in Solidity.
-* `transfer`, `transfer_from` and `approve` will never return anything different from `true` because they will revert on any error.
+* Interface detection is implemented through the {src5-api} introspection standard on Starknet.
+  Components hardcode their interface IDs according to Cairo selector calculations and register them via SRC5.
+  See the {introspection} docs for details.
+* Strings and URIs are represented as `ByteArray` instead of Solidity's `string`.
+* Infinite allowances follow the {eip6909-spec} convention by assigning the maximum possible value of the u256 type
+* Spenders marked as operators for an owner are not subject to allowance restrictions.
+  In that case, `transfer_from` will bypass allowance accounting and only enforce balance constraints, in line with
+  the {eip6909-spec} semantics.
+
+== Hooks and extensions
+
+:hooks-api: xref:api/erc6909.adoc#ERC6909Component-ERC6909HooksTrait[ERC6909HooksTrait]
+:before-update-api: xref:api/erc6909.adoc#ERC6909Component-before_update[before_update]
+:after-update-api: xref:api/erc6909.adoc#ERC6909Component-after_update[after_update]
+
+The {erc6909-component} exposes a hook trait, {hooks-api}, that allows extending its core behavior without modifying
+the component code itself. Every contract using `ERC6909Component` is expected to provide an implementation of this
+trait, even if empty, typically using `ERC6909HooksEmptyImpl` for basic presets.
+
+Hooks are invoked by the internal `_update` helper whenever tokens are transferred, minted, or burned:
+
+* {before-update-api} is executed before balances are modified.
+* {after-update-api} is executed after balances are modified and events have been emitted.
+
+TIP: Extensions such as `ERC6909TokenSupplyComponent` and `ERC6909MetadataComponent` are designed to be called from
+these hooks.
+
+=== ERC6909ContentURI
+
+:erc6909-contenturi-component: xref:/api/erc6909.adoc#ERC6909ContentURIComponent[ERC6909ContentURIComponent]
+:contract-uri-api: xref:/api/erc6909.adoc#IERC6909ContentUri-contract_uri[contract_uri]
+:token-uri-api: xref:/api/erc6909.adoc#IERC6909ContentUri-token_uri[token_uri]
+
+The {erc6909-contenturi-component} implements {ierc6909-content-uri-interface} and provides contract-level and
+token-level URIs.
+
+* {contract-uri-api} returns the base contract URI.
+* {token-uri-api} returns the concatenation of the contract URI and the token ID, or an empty `ByteArray` if no
+  contract URI is set.
+
+A typical integration calls the component's `initializer` in the constructor:
+
+[,cairo]
+----
+#[starknet::contract]
+mod MyERC6909WithURI {
+    use openzeppelin_introspection::src5::SRC5Component;
+    use openzeppelin_token::erc6909::{
+        ERC6909Component, ERC6909ContentURIComponent, ERC6909HooksEmptyImpl
+    };
+    use starknet::ContractAddress;
+
+    component!(path: ERC6909Component, storage: erc6909, event: ERC6909Event);
+    component!(path: ERC6909ContentURIComponent, storage: erc6909_content_uri, event: ERC6909ContentURIEvent);
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
+
+    #[abi(embed_v0)]
+    impl ERC6909Impl = ERC6909Component::ERC6909Impl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC6909ContentURIImpl = ERC6909ContentURIComponent::ERC6909ContentURIImpl<ContractState>;
+    impl ERC6909InternalImpl = ERC6909Component::InternalImpl<ContractState>;
+    impl ERC6909ContentURIInternalImpl = ERC6909ContentURIComponent::InternalImpl<ContractState>;
+
+    #[storage]
+    struct Storage {
+        #[substorage(v0)]
+        erc6909: ERC6909Component::Storage,
+        #[substorage(v0)]
+        erc6909_content_uri: ERC6909ContentURIComponent::Storage,
+        #[substorage(v0)]
+        src5: SRC5Component::Storage
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        ERC6909Event: ERC6909Component::Event,
+        #[flat]
+        ERC6909ContentURIEvent: ERC6909ContentURIComponent::Event,
+        #[flat]
+        SRC5Event: SRC5Component::Event
+    }
+
+    #[constructor]
+    fn constructor(
+        ref self: ContractState,
+        contract_uri: ByteArray,
+        recipient: ContractAddress,
+        id: u256,
+        amount: u256,
+    ) {
+        self.erc6909.initializer();
+        self.erc6909_content_uri.initializer(contract_uri);
+        self.erc6909._mint(recipient, id, amount);
+    }
+}
+----
+
+=== ERC6909Metadata
+
+:erc6909-metadata-component: xref:/api/erc6909.adoc#ERC6909MetadataComponent[ERC6909MetadataComponent]
+:metadata-name-api: xref:/api/erc6909.adoc#IERC6909Metadata-name[name]
+:metadata-symbol-api: xref:/api/erc6909.adoc#IERC6909Metadata-symbol[symbol]
+:metadata-decimals-api: xref:/api/erc6909.adoc#IERC6909Metadata-decimals[decimals]
+:update-token-metadata-api: xref:/api/erc6909.adoc#ERC6909MetadataComponent-_update_token_metadata[_update_token_metadata]
+
+The {erc6909-metadata-component} implements {ierc6909-metadata-interface} and allows associating metadata with each
+token ID:
+
+* {metadata-name-api} returns the token name.
+* {metadata-symbol-api} returns the token symbol.
+* {metadata-decimals-api} returns the number of decimals for that token ID.
+
+The extension expects its helper {update-token-metadata-api} to be called from the ERC6909 hooks.
+A simple pattern is to call it from `before_update`, passing the `from` address. The helper will detect mints
+(when `from` is the zero address) and only set metadata for token IDs that do not already have it.
+
+[,cairo]
+----
+use openzeppelin_token::erc6909::{ERC6909Component, ERC6909MetadataComponent};
+use starknet::ContractAddress;
+
+pub impl ERC6909HooksImpl of ERC6909Component::ERC6909HooksTrait<ContractState> {
+    fn before_update(
+        ref self: ContractState,
+        from: ContractAddress,
+        recipient: ContractAddress,
+        id: u256,
+        amount: u256,
+    ) {
+        // Example: assign default metadata on first mint of each ID
+        let name = "MyERC6909Token";
+        let symbol = "M6909";
+        let decimals: u8 = 18_u8;
+
+        self
+            .erc6909_metadata
+            ._update_token_metadata(from, id, name, symbol, decimals);
+    }
+
+    fn after_update(
+        ref self: ContractState,
+        from: ContractAddress,
+        recipient: ContractAddress,
+        id: u256,
+        amount: u256,
+    ) {}
+}
+----
+
+Don't forget to:
+
+* Add `ERC6909MetadataComponent` as a component in your contract.
+* Call its `initializer` in the constructor so that the `IERC6909Metadata` interface ID is registered via SRC5.
+
+=== ERC6909TokenSupply
+
+:erc6909-supply-component: xref:/api/erc6909.adoc#ERC6909TokenSupplyComponent[ERC6909TokenSupplyComponent]
+:total-supply-api: xref:/api/erc6909.adoc#IERC6909TokenSupply-total_supply[total_supply]
+:update-token-supply-api: xref:/api/erc6909.adoc#ERC6909TokenSupplyComponent-_update_token_supply[_update_token_supply]
+
+The {erc6909-supply-component} implements {ierc6909-token-supply-interface} and tracks the total supply per token ID.
+
+* {total-supply-api} returns the total supply of a given token ID.
+
+The helper {update-token-supply-api} is designed to be called from ERC6909 hooks during mints and burns:
+
+* When `sender` is the zero address, `amount` is added to the total supply.
+* When `receiver` is the zero address, `amount` is subtracted from the total supply.
+
+[,cairo]
+----
+use openzeppelin_token::erc6909::{ERC6909Component, ERC6909TokenSupplyComponent};
+use starknet::ContractAddress;
+
+pub impl ERC6909HooksImpl of ERC6909Component::ERC6909HooksTrait<ContractState> {
+    fn before_update(
+        ref self: ContractState,
+        from: ContractAddress,
+        recipient: ContractAddress,
+        id: u256,
+        amount: u256,
+    ) {
+        self
+            .erc6909_token_supply
+            ._update_token_supply(from, recipient, id, amount);
+    }
+
+    fn after_update(
+        ref self: ContractState,
+        from: ContractAddress,
+        recipient: ContractAddress,
+        id: u256,
+        amount: u256,
+    ) {}
+}
+----
+
+As with other extensions:
+
+* Add `ERC6909TokenSupplyComponent` as a component in your contract.
+* Call its `initializer` during construction to register `IERC6909TokenSupply` support via SRC5.
+
+By composing `ERC6909Component` with these extensions and your own hook logic, you can build rich multi-token systems
+with per-ID metadata, URIs, and supply tracking while keeping the core transfer logic minimal and reusable.

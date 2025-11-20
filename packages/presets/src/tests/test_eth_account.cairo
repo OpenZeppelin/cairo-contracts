@@ -32,9 +32,6 @@ use starknet::secp256_trait::Secp256Trait;
 use starknet::secp256k1::Secp256k1Point;
 use starknet::{ClassHash, ContractAddress, SyscallResultTrait};
 use crate::EthAccountUpgradeable;
-use crate::interfaces::eth_account::{
-    EthAccountUpgradeableABISafeDispatcher, EthAccountUpgradeableABISafeDispatcherTrait,
-};
 use crate::interfaces::{
     EthAccountUpgradeableABIDispatcher, EthAccountUpgradeableABIDispatcherTrait,
 };
@@ -472,7 +469,7 @@ fn test_upgraded_event() {
 }
 
 #[test]
-#[feature("safe_dispatcher")]
+#[should_panic(expected: 'ENTRYPOINT_NOT_FOUND')]
 fn test_v2_missing_camel_selector() {
     let (_, v1) = setup_dispatcher(KEY_PAIR());
     let contract_address = v1.contract_address;
@@ -481,10 +478,8 @@ fn test_v2_missing_camel_selector() {
     start_cheat_caller_address(contract_address, contract_address);
     v1.upgrade(v2_class_hash);
 
-    let safe_dispatcher = EthAccountUpgradeableABISafeDispatcher { contract_address };
-    let result = safe_dispatcher.getPublicKey();
-
-    utils::assert_entrypoint_not_found_error(result, selector!("getPublicKey"), contract_address)
+    let dispatcher = EthAccountUpgradeableABIDispatcher { contract_address };
+    dispatcher.getPublicKey();
 }
 
 #[test]

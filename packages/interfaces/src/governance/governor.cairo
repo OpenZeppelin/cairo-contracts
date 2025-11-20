@@ -83,6 +83,10 @@ pub trait IGovernor<TState> {
     ///
     /// This can be increased to leave time for users to buy voting power, or delegate it, before
     /// the voting of a proposal starts.
+    ///
+    /// NOTE: While this function returns a u64 value, timepoints must fit into u48 according to
+    /// the EIP-6372 specification. Consequently this value must fit in a u48 (when added to the
+    /// current clock).
     fn voting_delay(self: @TState) -> u64;
 
     /// Delay between the vote start and vote end. The unit this duration is expressed in depends on

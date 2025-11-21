@@ -5,7 +5,7 @@ use openzeppelin_interfaces::governor::{IGovernor, ProposalState};
 use openzeppelin_test_common::mocks::governor::GovernorMock::SNIP12MetadataImpl;
 use openzeppelin_test_common::mocks::governor::{GovernorMock, GovernorTimelockedMock};
 use openzeppelin_testing as utils;
-use openzeppelin_testing::constants::{ADMIN, OTHER, VOTES_TOKEN, SUPPLY};
+use openzeppelin_testing::constants::{ADMIN, OTHER, SUPPLY, VOTES_TOKEN};
 use openzeppelin_utils::bytearray::ByteArrayExtTrait;
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{start_cheat_block_number_global, start_mock_call};

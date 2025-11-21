@@ -1,4 +1,5 @@
 use core::num::traits::Bounded;
+use openzeppelin_interfaces::governance::votes::{IVotesDispatcher, IVotesDispatcherTrait};
 use openzeppelin_interfaces::governor::{
     IGOVERNOR_ID, IGovernor, IGovernorDispatcher, IGovernorDispatcherTrait, ProposalState,
 };
@@ -9,11 +10,10 @@ use openzeppelin_test_common::mocks::timelock::{
     IMockContractDispatcher, IMockContractDispatcherTrait,
 };
 use openzeppelin_testing as utils;
-use openzeppelin_testing::constants::{ADMIN, OTHER, VOTES_TOKEN, ZERO, SUPPLY, TIMESTAMP};
+use openzeppelin_testing::constants::{ADMIN, OTHER, SUPPLY, TIMESTAMP, VOTES_TOKEN, ZERO};
 use openzeppelin_testing::{AsAddressTrait, spy_events};
 use openzeppelin_utils::bytearray::ByteArrayExtTrait;
 use openzeppelin_utils::cryptography::snip12::OffchainMessageHash;
-use openzeppelin_interfaces::governance::votes::{IVotesDispatcher, IVotesDispatcherTrait};
 use snforge_std::signature::stark_curve::{StarkCurveKeyPairImpl, StarkCurveSignerImpl};
 use snforge_std::{
     start_cheat_block_timestamp_global, start_cheat_caller_address, start_cheat_chain_id_global,
@@ -29,8 +29,9 @@ use crate::governor::{DefaultConfig, ProposalCore};
 use crate::tests::governor::common::GovernorSpyHelpersImpl;
 use crate::tests::governor::timestamp::common::{
     COMPONENT_STATE, CONTRACT_STATE, deploy_votes_token, get_calls, get_mock_state,
-    get_proposal_info, get_proposal_info_with_custom_delay, get_state, hash_proposal, setup_active_proposal, setup_canceled_proposal,
-    setup_defeated_proposal, setup_executed_proposal, setup_pending_proposal, setup_queued_proposal,
+    get_proposal_info, get_proposal_info_with_custom_delay, get_state, hash_proposal,
+    setup_active_proposal, setup_canceled_proposal, setup_defeated_proposal,
+    setup_executed_proposal, setup_pending_proposal, setup_queued_proposal,
     setup_succeeded_proposal,
 };
 
@@ -975,7 +976,7 @@ fn test__cast_vote_zero_delay() {
     deploy_votes_token();
     delegate_votes_to(voter);
     initialize_votes_component(VOTES_TOKEN);
-    
+
     // Setup proposal with 0 delay
     start_cheat_block_timestamp_global(TIMESTAMP);
     let (id, proposal) = get_proposal_info_with_custom_delay(0);
@@ -995,7 +996,7 @@ fn test__cast_vote_zero_delay_after_some_time() {
     deploy_votes_token();
     delegate_votes_to(voter);
     initialize_votes_component(VOTES_TOKEN);
-    
+
     // Setup proposal with 0 delay
     start_cheat_block_timestamp_global(TIMESTAMP);
     let (id, proposal) = get_proposal_info_with_custom_delay(0);

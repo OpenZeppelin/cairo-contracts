@@ -5,8 +5,9 @@ use openzeppelin_interfaces::governor::{IGovernor, ProposalState};
 use openzeppelin_test_common::mocks::governor::GovernorMock::SNIP12MetadataImpl;
 use openzeppelin_test_common::mocks::governor::{GovernorMock, GovernorTimelockedMock};
 use openzeppelin_testing as utils;
-use openzeppelin_testing::constants::{ADMIN, OTHER, VOTES_TOKEN};
+use openzeppelin_testing::constants::{ADMIN, OTHER, VOTES_TOKEN, SUPPLY};
 use openzeppelin_utils::bytearray::ByteArrayExtTrait;
+use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{start_cheat_block_number_global, start_mock_call};
 use starknet::ContractAddress;
 use starknet::account::Call;
@@ -45,10 +46,16 @@ pub fn hash_proposal(calls: Span<Call>, description_hash: felt252) -> felt252 {
 
 pub fn get_proposal_info() -> (felt252, ProposalCore) {
     let calls = get_calls(OTHER, false);
-    get_proposal_with_id(calls, @"proposal description")
+    build_proposal_with_id(calls, @"proposal description")
 }
 
-pub fn get_proposal_with_id(calls: Span<Call>, description: @ByteArray) -> (felt252, ProposalCore) {
+pub fn get_proposal_info_with_custom_delay(delay: u64) -> (felt252, ProposalCore) {
+    let (id, mut proposal) = get_proposal_info();
+    proposal.vote_start = starknet::get_block_number() + delay;
+    (id, proposal)
+}
+
+fn build_proposal_with_id(calls: Span<Call>, description: @ByteArray) -> (felt252, ProposalCore) {
     let block_number = starknet::get_block_number();
     let vote_start = block_number + GovernorMock::VOTING_DELAY;
     let vote_duration = GovernorMock::VOTING_PERIOD;
@@ -105,7 +112,9 @@ pub fn set_executor(
 }
 
 pub fn deploy_votes_token() -> IERC20Dispatcher {
-    utils::declare_and_deploy_at("ERC20BlockNumberVotesMock", VOTES_TOKEN, array![]);
+    let mut calldata = array![];
+    calldata.append_serde(SUPPLY);
+    utils::declare_and_deploy_at("ERC20BlockNumberVotesMock", VOTES_TOKEN, calldata);
     IERC20Dispatcher { contract_address: VOTES_TOKEN }
 }
 

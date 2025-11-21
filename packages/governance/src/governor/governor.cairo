@@ -562,6 +562,7 @@ pub mod GovernorComponent {
         /// Requirements:
         ///
         /// - The proposal must be active.
+        /// - The current timepoint must be greater than the proposal's snapshot timepoint.
         ///
         /// Emits a `VoteCast` event.
         fn cast_vote(
@@ -576,6 +577,7 @@ pub mod GovernorComponent {
         /// Requirements:
         ///
         /// - The proposal must be active.
+        /// - The current timepoint must be greater than the proposal's snapshot timepoint.
         ///
         /// Emits a `VoteCast` event.
         fn cast_vote_with_reason(
@@ -593,6 +595,7 @@ pub mod GovernorComponent {
         /// Requirements:
         ///
         /// - The proposal must be active.
+        /// - The current timepoint must be greater than the proposal's snapshot timepoint.
         ///
         /// Emits either:
         /// - `VoteCast` event if no params are provided.
@@ -613,6 +616,7 @@ pub mod GovernorComponent {
         /// Requirements:
         ///
         /// - The proposal must be active.
+        /// - The current timepoint must be greater than the proposal's snapshot timepoint.
         /// - The nonce in the signed message must match the account's current nonce.
         /// - `voter` must implement `SRC6::is_valid_signature`.
         /// - `signature` should be valid for the message hash.
@@ -645,6 +649,7 @@ pub mod GovernorComponent {
         /// Requirements:
         ///
         /// - The proposal must be active.
+        /// - The current timepoint must be greater than the proposal's snapshot timepoint.
         /// - The nonce in the signed message must match the account's current nonce.
         /// - `voter` must implement `SRC6::is_valid_signature`.
         /// - `signature` should be valid for the message hash.

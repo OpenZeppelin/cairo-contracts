@@ -9,10 +9,11 @@ use openzeppelin_test_common::mocks::timelock::{
     IMockContractDispatcher, IMockContractDispatcherTrait,
 };
 use openzeppelin_testing as utils;
-use openzeppelin_testing::constants::{ADMIN, OTHER, VOTES_TOKEN, ZERO};
+use openzeppelin_testing::constants::{ADMIN, OTHER, VOTES_TOKEN, ZERO, SUPPLY, TIMESTAMP};
 use openzeppelin_testing::{AsAddressTrait, spy_events};
 use openzeppelin_utils::bytearray::ByteArrayExtTrait;
 use openzeppelin_utils::cryptography::snip12::OffchainMessageHash;
+use openzeppelin_interfaces::governance::votes::{IVotesDispatcher, IVotesDispatcherTrait};
 use snforge_std::signature::stark_curve::{StarkCurveKeyPairImpl, StarkCurveSignerImpl};
 use snforge_std::{
     start_cheat_block_timestamp_global, start_cheat_caller_address, start_cheat_chain_id_global,
@@ -28,7 +29,7 @@ use crate::governor::{DefaultConfig, ProposalCore};
 use crate::tests::governor::common::GovernorSpyHelpersImpl;
 use crate::tests::governor::timestamp::common::{
     COMPONENT_STATE, CONTRACT_STATE, deploy_votes_token, get_calls, get_mock_state,
-    get_proposal_info, get_state, hash_proposal, setup_active_proposal, setup_canceled_proposal,
+    get_proposal_info, get_proposal_info_with_custom_delay, get_state, hash_proposal, setup_active_proposal, setup_canceled_proposal,
     setup_defeated_proposal, setup_executed_proposal, setup_pending_proposal, setup_queued_proposal,
     setup_succeeded_proposal,
 };
@@ -436,10 +437,10 @@ fn test_has_voted() {
 
 fn test_propose_external_version(external_state_version: bool) {
     let mut state = COMPONENT_STATE();
-    let mut spy = spy_events();
     let contract_address = test_address();
     deploy_votes_token();
     initialize_votes_component(VOTES_TOKEN);
+    let mut spy = spy_events();
 
     let calls = get_calls(OTHER, false);
     let proposer = ADMIN;
@@ -932,6 +933,19 @@ fn test_cast_vote_pending() {
 }
 
 #[test]
+#[should_panic(expected: 'Votes: future Lookup')]
+fn test__cast_vote_at_vote_start() {
+    let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
+    let (id, proposal) = setup_pending_proposal(ref state, false);
+
+    start_cheat_block_timestamp_global(proposal.vote_start);
+    let params = array![].span();
+    state._cast_vote(id, OTHER, 0, "", params);
+}
+
+#[test]
 fn test_cast_vote_active() {
     let mut state = COMPONENT_STATE();
     deploy_votes_token();
@@ -950,6 +964,49 @@ fn test_cast_vote_active() {
     assert_eq!(weight, expected_weight);
 
     spy.assert_only_event_vote_cast(contract_address, OTHER, id, 0, expected_weight, @"");
+}
+
+#[test]
+#[should_panic(expected: 'Votes: future Lookup')]
+fn test__cast_vote_zero_delay() {
+    start_cheat_block_timestamp_global(TIMESTAMP - 1);
+    let voter = test_address();
+    let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    delegate_votes_to(voter);
+    initialize_votes_component(VOTES_TOKEN);
+    
+    // Setup proposal with 0 delay
+    start_cheat_block_timestamp_global(TIMESTAMP);
+    let (id, proposal) = get_proposal_info_with_custom_delay(0);
+    state.Governor_proposals.write(id, proposal);
+
+    // Try to cast vote
+    let reason = "reason";
+    let params = array![].span();
+    state._cast_vote(id, voter, 0, reason, params);
+}
+
+#[test]
+fn test__cast_vote_zero_delay_after_some_time() {
+    start_cheat_block_timestamp_global(TIMESTAMP - 1);
+    let voter = test_address();
+    let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    delegate_votes_to(voter);
+    initialize_votes_component(VOTES_TOKEN);
+    
+    // Setup proposal with 0 delay
+    start_cheat_block_timestamp_global(TIMESTAMP);
+    let (id, proposal) = get_proposal_info_with_custom_delay(0);
+    state.Governor_proposals.write(id, proposal);
+
+    // Cast vote
+    start_cheat_block_timestamp_global(TIMESTAMP + 1);
+    let reason = "reason";
+    let params = array![].span();
+    let weight = state._cast_vote(id, voter, 0, reason, params);
+    assert_eq!(weight, SUPPLY);
 }
 
 #[test]
@@ -2145,4 +2202,9 @@ fn test__cast_vote_executed() {
 fn initialize_votes_component(votes_token: ContractAddress) {
     let mut mock_state = CONTRACT_STATE();
     mock_state.governor_votes.initializer(votes_token);
+}
+
+fn delegate_votes_to(delegatee: ContractAddress) {
+    let votes_dispatcher = IVotesDispatcher { contract_address: VOTES_TOKEN };
+    votes_dispatcher.delegate(delegatee);
 }

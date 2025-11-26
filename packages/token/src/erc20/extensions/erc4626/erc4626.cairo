@@ -241,6 +241,15 @@ pub mod ERC4626Component {
     /// Fees are calculated using `FeeConfigTrait` methods and automatically adjust the final
     /// asset and share amounts. Fee transfers are handled in `ERC4626HooksTrait` methods.
     ///
+    /// NOTE: When a vault implements fees on deposits or withdrawals (either in shares or
+    /// assets), fee transfers must be handled in these hooks by library clients. This creates
+    /// a non-atomic operation flow consisting of multiple state-changing steps: transferring
+    /// assets, minting or burning shares, and transferring (or minting) fees. Between these steps,
+    /// the vault's state is temporarily inconsistent: the asset-to-share conversion rate does not
+    /// accurately reflect the vault's final state until all steps have completed. Therefore, it is
+    /// critical to avoid making any external calls (including to the vault contract itself) or
+    /// querying conversion rates during hook execution.
+    ///
     /// CAUTION: Special care must be taken when calling external contracts in these hooks. In
     /// that case, consider implementing reentrancy protections. For example, in the
     /// `withdraw` flow, the `withdraw_limit` is checked *before* the `before_withdraw` hook

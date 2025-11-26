@@ -94,7 +94,6 @@ pub mod ERC4626Component {
         pub const TOKEN_TRANSFER_FAILED: felt252 = 'ERC4626: token transfer failed';
         pub const INVALID_ASSET_ADDRESS: felt252 = 'ERC4626: asset address set to 0';
         pub const DECIMALS_OVERFLOW: felt252 = 'ERC4626: decimals overflow';
-        pub const NEGATIVE_FEE: felt252 = 'ERC4626: negative fee';
     }
 
     /// Constants expected to be defined at the contract level which configure virtual

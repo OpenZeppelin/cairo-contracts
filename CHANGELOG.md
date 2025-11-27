@@ -15,6 +15,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `MAXIMUM_DEFAULT_ADMIN_TRANSFER_DELAY` constant exposed in the component ImmutableConfig.
   - `maximum_default_admin_transfer_delay` getter to the `IAccessControlDefaultAdminRules` interface.
 
+### Changed
+
+- Bump scarb to 2.14.0 (#1604)
+
 ## 3.0.0-alpha.3 (2025-10-9)
 
 ### Added

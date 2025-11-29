@@ -308,6 +308,15 @@ fn add_per_component_warnings(code: &str, component_info: &ComponentInfo) -> Vec
                 warnings.push(warning);
             }
         }
+        AllowedComponents::ERC6909 => {
+            // Check that the ERC6909HooksTrait is implemented
+            let hooks_trait_used = code.contains("ERC6909HooksTrait");
+            let hooks_empty_impl_used = code.contains("ERC6909HooksEmptyImpl");
+            if !hooks_trait_used && !hooks_empty_impl_used {
+                let warning = Diagnostic::warn(warnings::ERC6909_HOOKS_IMPL_MISSING);
+                warnings.push(warning);
+            }
+        }
         AllowedComponents::Upgradeable => {
             // Check that the upgrade function is called
             let upgrade_function_called = code.contains("self.upgradeable.upgrade");

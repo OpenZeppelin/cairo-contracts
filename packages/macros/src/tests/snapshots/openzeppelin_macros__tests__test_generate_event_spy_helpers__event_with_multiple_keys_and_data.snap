@@ -1,0 +1,37 @@
+---
+source: src/tests/test_generate_event_spy_helpers.rs
+assertion_line: 154
+expression: get_string_result(input)
+---
+TokenStream:
+
+#[generate_trait]
+impl ComplexSpyHelpers of ComplexSpyHelpersTrait {
+    fn assert_event_complex_event(
+        ref self: EventSpy,
+        contract: ContractAddress,
+        first_key: felt252,
+        second_key: felt252,
+        caller: ContractAddress,
+        amount: u256,
+        memo: felt252,
+    ) {
+        let expected = ExpectedEvent::new()
+            .key(selector!("ComplexEvent"))
+            .key(first_key)
+            .key(second_key)
+            .data(caller)
+            .data(amount)
+            .data(memo);
+        self.assert_emitted_single(contract, expected);
+    }
+}
+
+
+Diagnostics:
+
+None
+
+AuxData:
+
+None

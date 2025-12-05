@@ -1,0 +1,33 @@
+---
+source: src/tests/test_generate_event_spy_helpers.rs
+assertion_line: 51
+expression: get_string_result(input)
+---
+TokenStream:
+
+#[generate_trait]
+pub impl TokenSpyHelpers of TokenSpyHelpersTrait {
+    fn assert_event_transfer(
+        ref self: EventSpy,
+        contract: ContractAddress,
+        from: ContractAddress,
+        to: ContractAddress,
+        value: u256,
+    ) {
+        let expected = ExpectedEvent::new()
+            .key(selector!("Transfer"))
+            .key(from)
+            .key(to)
+            .data(value);
+        self.assert_emitted_single(contract, expected);
+    }
+}
+
+
+Diagnostics:
+
+None
+
+AuxData:
+
+None

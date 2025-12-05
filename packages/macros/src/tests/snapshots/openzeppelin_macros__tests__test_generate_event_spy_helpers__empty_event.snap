@@ -1,0 +1,27 @@
+---
+source: src/tests/test_generate_event_spy_helpers.rs
+assertion_line: 140
+expression: get_string_result(input)
+---
+TokenStream:
+
+#[generate_trait]
+impl LifecycleSpyHelpers of LifecycleSpyHelpersTrait {
+    fn assert_event_contract_reset(ref self: EventSpy, contract: ContractAddress) {
+        let expected = ExpectedEvent::new().key(selector!("ContractReset"));
+        self.assert_emitted_single(contract, expected);
+    }
+    fn assert_only_event_contract_reset(ref self: EventSpy, contract: ContractAddress) {
+        let expected = ExpectedEvent::new().key(selector!("ContractReset"));
+        self.assert_only_event(contract, expected);
+    }
+}
+
+
+Diagnostics:
+
+None
+
+AuxData:
+
+None

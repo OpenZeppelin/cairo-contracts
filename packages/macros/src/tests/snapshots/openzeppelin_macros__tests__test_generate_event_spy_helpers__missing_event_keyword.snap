@@ -1,0 +1,17 @@
+---
+source: src/tests/test_generate_event_spy_helpers.rs
+assertion_line: 203
+expression: get_string_result(input)
+---
+TokenStream:
+
+None
+
+Diagnostics:
+
+====
+Error: Parsing Failure: ParserError { message: "Expected `event` to start an event definition. Use `event Name(...)` inside the impl body. (around `MissingKeywordEven...`)" }====
+
+AuxData:
+
+None

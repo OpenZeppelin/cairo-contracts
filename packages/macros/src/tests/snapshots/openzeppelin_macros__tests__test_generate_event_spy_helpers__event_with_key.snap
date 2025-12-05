@@ -1,0 +1,25 @@
+---
+source: src/tests/test_generate_event_spy_helpers.rs
+assertion_line: 49
+expression: get_string_result(input)
+---
+TokenStream:
+
+#[generate_trait]
+pub impl ContrMockContractSpyHelpersactSpy of ContrMockContractSpyHelpersactSpyTrait {
+    fn assert_event_keyed_event(
+        ref self: EventSpy, contract: ContractAddress, user: ContractAddress, value: u64,
+    ) {
+        let expected = ExpectedEvent::new().key(selector!("KeyedEvent")).key(user).data(value);
+        self.assert_emitted_single(contract, expected);
+    }
+}
+
+
+Diagnostics:
+
+None
+
+AuxData:
+
+None

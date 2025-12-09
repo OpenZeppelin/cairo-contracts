@@ -144,6 +144,19 @@ fn test_state_pending() {
     setup_pending_proposal(ref state, true);
 }
 
+#[test]
+fn test_state_pending_at_snapshot() {
+    let mut state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
+    let (id, proposal) = setup_pending_proposal(ref state, true);
+    
+    let snapshot = proposal.vote_start;
+    start_cheat_block_number_global(snapshot);
+    let current_state = get_state(@state, id, true);
+    assert_eq!(current_state, ProposalState::Pending);
+}
+
 fn test_state_active_external_version(external_state_version: bool) {
     let mut state = COMPONENT_STATE();
     deploy_votes_token();

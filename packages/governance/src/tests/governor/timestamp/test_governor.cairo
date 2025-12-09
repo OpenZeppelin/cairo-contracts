@@ -150,7 +150,7 @@ fn test_state_pending_at_snapshot() {
     deploy_votes_token();
     initialize_votes_component(VOTES_TOKEN);
     let (id, proposal) = setup_pending_proposal(ref state, true);
-    
+
     let snapshot = proposal.vote_start;
     start_cheat_block_timestamp_global(snapshot);
     let current_state = get_state(@state, id, true);

@@ -595,9 +595,7 @@ fn test_execute() {
     // 2. Cast vote
 
     // Fast forward to voting start
-    let snapshot = current_time + GovernorMock::VOTING_DELAY;
-    let voting_start = snapshot + 1;
-    current_time = voting_start;
+    current_time = resolve_voting_start(current_time);
     start_cheat_block_number_global(current_time);
 
     // Cast vote
@@ -650,9 +648,7 @@ fn test_execute_panics() {
     // 2. Cast vote
 
     // Fast forward to voting start
-    let snapshot = current_time + GovernorMock::VOTING_DELAY;
-    let voting_start = snapshot + 1;
-    current_time = voting_start;
+    current_time = resolve_voting_start(current_time);
     start_cheat_block_number_global(current_time);
 
     // Cast vote
@@ -1248,9 +1244,7 @@ fn prepare_governor_and_signature(
     let proposal_id = governor.propose(calls, description.clone());
 
     // 2. Fast forward the voting start
-    let snapshot = current_time + GovernorMock::VOTING_DELAY;
-    let voting_start = snapshot + 1;
-    current_time = voting_start;
+    current_time = resolve_voting_start(current_time);
     start_cheat_block_number_global(current_time);
 
     // 3. Generate a key pair and set up an account
@@ -1352,9 +1346,7 @@ fn prepare_governor_and_signature_with_reason_and_params(
     let proposal_id = governor.propose(calls, description.clone());
 
     // 2. Fast forward to voting start
-    let snapshot = current_time + GovernorMock::VOTING_DELAY;
-    let voting_start = snapshot + 1;
-    current_time = voting_start;
+    current_time = resolve_voting_start(current_time);
     start_cheat_block_number_global(current_time);
 
     // 3. Generate a key pair and set up an account
@@ -2229,4 +2221,10 @@ fn initialize_votes_component(votes_token: ContractAddress) {
 fn delegate_votes_to(delegatee: ContractAddress) {
     let votes_dispatcher = IVotesDispatcher { contract_address: VOTES_TOKEN };
     votes_dispatcher.delegate(delegatee);
+}
+
+fn resolve_voting_start(propose_timepoint: u64) -> u64 {
+    let voting_delay = GovernorMock::VOTING_DELAY;
+    let snapshot_timepoint = propose_timepoint + voting_delay;
+    snapshot_timepoint + 1
 }

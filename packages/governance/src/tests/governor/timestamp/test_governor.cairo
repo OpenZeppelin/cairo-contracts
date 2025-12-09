@@ -581,8 +581,10 @@ fn test_execute() {
 
     // 2. Cast vote
 
-    // Fast forward the vote delay
-    current_time += GovernorMock::VOTING_DELAY;
+    // Fast forward to voting start
+    let snapshot = current_time + GovernorMock::VOTING_DELAY;
+    let voting_start = snapshot + 1;
+    current_time = voting_start;
     start_cheat_block_timestamp_global(current_time);
 
     // Cast vote
@@ -634,8 +636,10 @@ fn test_execute_panics() {
 
     // 2. Cast vote
 
-    // Fast forward the vote delay
-    current_time += GovernorMock::VOTING_DELAY;
+    // Fast forward to voting start
+    let snapshot = current_time + GovernorMock::VOTING_DELAY;
+    let voting_start = snapshot + 1;
+    current_time = voting_start;
     start_cheat_block_timestamp_global(current_time);
 
     // Cast vote
@@ -934,7 +938,7 @@ fn test_cast_vote_pending() {
 }
 
 #[test]
-#[should_panic(expected: 'Votes: future Lookup')]
+#[should_panic(expected: 'Unexpected proposal state')]
 fn test__cast_vote_at_vote_start() {
     let mut state = COMPONENT_STATE();
     deploy_votes_token();
@@ -968,7 +972,7 @@ fn test_cast_vote_active() {
 }
 
 #[test]
-#[should_panic(expected: 'Votes: future Lookup')]
+#[should_panic(expected: 'Unexpected proposal state')]
 fn test__cast_vote_zero_delay() {
     start_cheat_block_timestamp_global(TIMESTAMP - 1);
     let voter = test_address();
@@ -1286,8 +1290,10 @@ fn prepare_governor_and_signature(
     start_cheat_block_timestamp_global(current_time);
     let proposal_id = governor.propose(calls, description.clone());
 
-    // 2. Fast forward the vote delay
-    current_time += GovernorMock::VOTING_DELAY;
+    // 2. Fast forward the voting start
+    let snapshot = current_time + GovernorMock::VOTING_DELAY;
+    let voting_start = snapshot + 1;
+    current_time = voting_start;
     start_cheat_block_timestamp_global(current_time);
 
     // 3. Generate a key pair and set up an account
@@ -1388,8 +1394,10 @@ fn prepare_governor_and_signature_with_reason_and_params(
     start_cheat_block_timestamp_global(current_time);
     let proposal_id = governor.propose(calls, description.clone());
 
-    // 2. Fast forward the vote delay
-    current_time += GovernorMock::VOTING_DELAY;
+    // 2. Fast forward to voting start
+    let snapshot = current_time + GovernorMock::VOTING_DELAY;
+    let voting_start = snapshot + 1;
+    current_time = voting_start;
     start_cheat_block_timestamp_global(current_time);
 
     // 3. Generate a key pair and set up an account

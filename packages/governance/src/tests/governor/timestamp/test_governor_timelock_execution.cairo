@@ -381,8 +381,10 @@ fn test_execute_operations() {
 
     // 3. Cast vote
 
-    // Fast forward the vote delay
-    current_time += GovernorTimelockedMock::VOTING_DELAY;
+    // Fast forward to voting start
+    let snapshot = current_time + GovernorTimelockedMock::VOTING_DELAY;
+    let voting_start = snapshot + 1;
+    current_time = voting_start;
     start_cheat_block_timestamp_global(current_time);
 
     // Cast vote
@@ -458,8 +460,10 @@ fn test_queue_operations() {
 
     // 3. Cast vote
 
-    // Fast forward the vote delay
-    current_time += GovernorTimelockedMock::VOTING_DELAY;
+    // Fast forward to voting start
+    let snapshot = current_time + GovernorTimelockedMock::VOTING_DELAY;
+    let voting_start = snapshot + 1;
+    current_time = voting_start;
     start_cheat_block_timestamp_global(current_time);
 
     // Cast vote
@@ -535,8 +539,10 @@ fn test_cancel_operations_queued() {
 
     // 3. Cast vote
 
-    // Fast forward the vote delay
-    current_time += GovernorTimelockedMock::VOTING_DELAY;
+    // Fast forward to voting start
+    let snapshot = current_time + GovernorTimelockedMock::VOTING_DELAY;
+    let voting_start = snapshot + 1;
+    current_time = voting_start;
     start_cheat_block_timestamp_global(current_time);
 
     // Cast vote

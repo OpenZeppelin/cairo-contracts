@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed (Breaking)
 
-- `GovernorComponent` proposal state resolution at snapshot timestamp changed from Active to Pending (#1606)
+- `GovernorComponent` proposal state resolution at snapshot timepoint changed from Active to Pending (#1606)
 
 ## 3.0.0-alpha.3 (2025-10-9)
 

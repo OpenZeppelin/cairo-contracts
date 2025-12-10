@@ -48,7 +48,7 @@ jobs:
         run: scarb fmt --check --workspace
 
       - name: Run tests
-        run: snforge test --workspace --features fuzzing --fuzzer-runs 50
+        run: snforge test --workspace --features fuzzing --fuzzer-runs 200
 
       - name: Run tests and generate coverage report
         run: snforge test --workspace --coverage

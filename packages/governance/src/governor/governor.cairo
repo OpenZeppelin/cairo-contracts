@@ -894,13 +894,12 @@ pub mod GovernorComponent {
             assert(snapshot.is_non_zero(), Errors::NONEXISTENT_PROPOSAL);
 
             let current_timepoint = self.clock();
-            if current_timepoint < snapshot {
+            if snapshot >= current_timepoint {
                 return ProposalState::Pending;
             }
 
             let deadline = self._proposal_deadline(proposal_id);
-
-            if current_timepoint <= deadline {
+            if deadline >= current_timepoint {
                 return ProposalState::Active;
             } else if !self.quorum_reached(proposal_id) || !self.vote_succeeded(proposal_id) {
                 return ProposalState::Defeated;

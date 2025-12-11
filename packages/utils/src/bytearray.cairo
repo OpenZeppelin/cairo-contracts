@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v3.0.0-alpha.3 (utils/src/bytearray.cairo)
+// OpenZeppelin Contracts for Cairo v3.0.0 (utils/src/bytearray.cairo)
 
 use core::byte_array::ByteArrayTrait;
 use core::hash::{HashStateExTrait, HashStateTrait};

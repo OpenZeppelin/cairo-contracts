@@ -75,7 +75,7 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_interfaces"
-version = "2.1.0-alpha.0"
+version = "2.1.0"
 dependencies = [
  "snforge_std",
 ]
@@ -179,7 +179,7 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_utils"
-version = "2.1.0-alpha.0"
+version = "2.1.0"
 dependencies = [
  "openzeppelin_interfaces",
  "openzeppelin_test_common",

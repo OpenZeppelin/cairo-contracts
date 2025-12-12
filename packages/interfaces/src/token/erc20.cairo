@@ -168,3 +168,14 @@ pub trait ERC20ABI<TState> {
     // ISNIP12Metadata
     fn snip12_metadata(self: @TState) -> (felt252, felt252);
 }
+
+//
+// Extensions
+//
+
+#[starknet::interface]
+pub trait IERC20Wrapper<TState> {
+    fn underlying(self: @TState) -> ContractAddress;
+    fn deposit_for(ref self: TState, receiver: ContractAddress, amount: u256) -> bool;
+    fn withdraw_to(ref self: TState, receiver: ContractAddress, amount: u256) -> bool;
+}

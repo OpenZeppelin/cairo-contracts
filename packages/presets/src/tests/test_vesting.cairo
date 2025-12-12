@@ -3,7 +3,7 @@ use openzeppelin_finance::vesting::VestingComponent::InternalImpl;
 use openzeppelin_interfaces::erc20::{IERC20Dispatcher, IERC20DispatcherTrait};
 use openzeppelin_test_common::erc20::deploy_erc20;
 use openzeppelin_test_common::ownable::OwnableSpyHelpers;
-use openzeppelin_test_common::vesting::VestingSpyHelpers;
+use openzeppelin_test_common::vesting::VestingSpyHelpersTrait;
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{OTHER, OWNER, ZERO};
 use openzeppelin_testing::spy_events;

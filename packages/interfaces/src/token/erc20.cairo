@@ -99,7 +99,6 @@ pub trait IERC20Mixin<TState> {
     ) -> bool;
 }
 
-
 #[starknet::interface]
 pub trait IERC20Permit<TState> {
     /// Sets `amount` as the allowance of `spender` over `owner`'s tokens, given the `signature`.

@@ -326,3 +326,45 @@ pub mod ERC20ReentrantMock {
         self.reenter_type.write(Type::No);
     }
 }
+
+#[starknet::contract]
+pub mod ERC20WrapperMock {
+    use openzeppelin_token::erc20::ERC20Component::InternalImpl as ERC20InternalImpl;
+    use openzeppelin_token::erc20::extensions::erc20_wrapper::ERC20WrapperComponent;
+    use openzeppelin_token::erc20::extensions::erc20_wrapper::ERC20WrapperComponent::InternalImpl;
+    use openzeppelin_token::erc20::{DefaultConfig, ERC20Component, ERC20HooksEmptyImpl};
+    use starknet::ContractAddress;
+
+    component!(path: ERC20Component, storage: erc20, event: ERC20Event);
+    component!(path: ERC20WrapperComponent, storage: erc20_wrapper, event: ERC20WrapperEvent);
+
+    #[abi(embed_v0)]
+    impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC20WrapperImpl = ERC20WrapperComponent::ERC20WrapperImpl<ContractState>;
+
+    #[storage]
+    struct Storage {
+        #[substorage(v0)]
+        erc20: ERC20Component::Storage,
+        #[substorage(v0)]
+        erc20_wrapper: ERC20WrapperComponent::Storage,
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        ERC20Event: ERC20Component::Event,
+        #[flat]
+        ERC20WrapperEvent: ERC20WrapperComponent::Event,
+    }
+
+    #[constructor]
+    fn constructor(
+        ref self: ContractState, name: ByteArray, symbol: ByteArray, underlying: ContractAddress,
+    ) {
+        self.erc20.initializer(name, symbol);
+        self.erc20_wrapper.initializer(underlying);
+    }
+}

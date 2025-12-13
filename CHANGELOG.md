@@ -36,6 +36,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed `execute_single_call`, `execute_calls` and `assert_valid_signature` from openzeppelin_account::utils (#1531)
 - `VotesComponent` now supports customizable clock mechanisms via `ERC6372Clock`, enabling alternative clock sources (#1417)
 
+### Changed
+
+- Bump scarb to 2.14.0 (#1604)
+
 ## 3.0.0-alpha.3 (2025-10-9)
 
 ### Added

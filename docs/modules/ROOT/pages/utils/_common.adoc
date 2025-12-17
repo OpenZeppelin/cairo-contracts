@@ -6,5 +6,5 @@
 :immutable-config: xref:components.adoc#immutable_config[Immutable Component Config]
 
 // Variables
-:current_openzeppelin_interfaces_version: 2.1.0
-:current_openzeppelin_utils_version: 2.1.0
+:current_openzeppelin_interfaces_version: 2.1.1
+:current_openzeppelin_utils_version: 2.1.1

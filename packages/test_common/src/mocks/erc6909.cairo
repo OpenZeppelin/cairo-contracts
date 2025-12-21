@@ -4,7 +4,6 @@ pub mod ERC6909Mock {
     use openzeppelin_token::erc6909::ERC6909HooksEmptyImpl;
     use starknet::ContractAddress;
 
-
     #[abi(embed_v0)]
     impl ERC6909Impl = ERC6909Component::ERC6909Impl<ContractState>;
 

@@ -1,12 +1,12 @@
 use openzeppelin_interfaces::erc20::{IERC20Dispatcher, IERC20DispatcherTrait};
-use openzeppelin_interfaces::token::erc20::{
-    IERC20Wrapper, IERC20WrapperDispatcher, IERC20WrapperDispatcherTrait,
-};
+use openzeppelin_interfaces::token::erc20::{IERC20WrapperDispatcher, IERC20WrapperDispatcherTrait};
 use openzeppelin_test_common::erc20::{ERC20SpyHelpers, deploy_erc20};
-use openzeppelin_test_common::mocks::erc20::ERC20WrapperMock;
+use openzeppelin_test_common::mocks::erc20::{
+    ERC20WrapperMock, IERC20WrapperRecovererDispatcher, IERC20WrapperRecovererDispatcherTrait,
+};
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{AsAddressTrait, NAME, OWNER, RECIPIENT, SYMBOL, VALUE, ZERO};
-use openzeppelin_testing::spy_events;
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, ExpectedEvent, spy_events};
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{start_cheat_caller_address, stop_cheat_caller_address, test_address};
 use starknet::ContractAddress;
@@ -43,6 +43,10 @@ fn setup_wrapped() -> (IERC20Dispatcher, IERC20WrapperDispatcher) {
     let underlying = deploy_erc20(OWNER, TOKEN_SUPPLY);
     let wrapper = deploy_wrapper(underlying.contract_address);
     (underlying, wrapper)
+}
+
+fn recover_dispatcher(address: ContractAddress) -> IERC20WrapperRecovererDispatcher {
+    IERC20WrapperRecovererDispatcher { contract_address: address }
 }
 
 //
@@ -94,6 +98,7 @@ fn deposit_for_mints_wrapped_and_pulls_underlying() {
 
     // wrapped tokens minted to recipient (Transfer event from zero)
     spy.assert_event_transfer(wrapper.contract_address, ZERO, RECIPIENT, VALUE);
+    spy.assert_event_deposit(wrapper.contract_address, OWNER, RECIPIENT, VALUE);
 }
 
 #[test]
@@ -126,6 +131,7 @@ fn withdraw_to_burns_wrapped_and_returns_underlying() {
 
     // wrapped burned from owner (Transfer to zero)
     spy.assert_event_transfer(wrapper.contract_address, OWNER, ZERO, VALUE);
+    spy.assert_event_withdraw(wrapper.contract_address, OWNER, RECIPIENT, VALUE);
 
     // underlying moved out to recipient
     assert_eq!(underlying.balance_of(RECIPIENT), VALUE);
@@ -145,4 +151,103 @@ fn withdraw_to_reverts_when_receiver_is_wrapper() {
     wrapper.deposit_for(OWNER, VALUE);
 
     wrapper.withdraw_to(wrapper.contract_address, VALUE);
+}
+
+//
+// recover
+//
+
+#[test]
+fn recover_mints_excess_underlying() {
+    let (underlying, wrapper) = setup_wrapped();
+    let wrapper_erc20 = IERC20Dispatcher { contract_address: wrapper.contract_address };
+    let recoverer = recover_dispatcher(wrapper.contract_address);
+
+    start_cheat_caller_address(underlying.contract_address, OWNER);
+    assert!(underlying.transfer(wrapper.contract_address, VALUE));
+    stop_cheat_caller_address(underlying.contract_address);
+
+    let recovered = recoverer.recover(RECIPIENT);
+    assert_eq!(recovered, VALUE);
+    assert_eq!(wrapper_erc20.total_supply(), VALUE);
+    assert_eq!(wrapper_erc20.balance_of(RECIPIENT), VALUE);
+}
+
+#[test]
+fn recover_returns_zero_when_no_excess_underlying() {
+    let (underlying, wrapper) = setup_wrapped();
+    let wrapper_erc20 = IERC20Dispatcher { contract_address: wrapper.contract_address };
+    let recoverer = recover_dispatcher(wrapper.contract_address);
+
+    start_cheat_caller_address(underlying.contract_address, OWNER);
+    assert!(underlying.approve(wrapper.contract_address, VALUE));
+    stop_cheat_caller_address(underlying.contract_address);
+
+    start_cheat_caller_address(wrapper.contract_address, OWNER);
+    assert!(wrapper.deposit_for(OWNER, VALUE));
+    stop_cheat_caller_address(wrapper.contract_address);
+
+    let recovered = recoverer.recover(RECIPIENT);
+    assert_eq!(recovered, 0);
+    assert_eq!(wrapper_erc20.total_supply(), VALUE);
+    assert_eq!(wrapper_erc20.balance_of(OWNER), VALUE);
+    assert_eq!(wrapper_erc20.balance_of(RECIPIENT), 0);
+}
+
+#[test]
+#[should_panic]
+fn recover_reverts_when_underlying_below_total_supply() {
+    let (underlying, wrapper) = setup_wrapped();
+    let recoverer = recover_dispatcher(wrapper.contract_address);
+
+    start_cheat_caller_address(underlying.contract_address, OWNER);
+    assert!(underlying.approve(wrapper.contract_address, VALUE));
+    stop_cheat_caller_address(underlying.contract_address);
+
+    start_cheat_caller_address(wrapper.contract_address, OWNER);
+    assert!(wrapper.deposit_for(OWNER, VALUE));
+    stop_cheat_caller_address(wrapper.contract_address);
+
+    start_cheat_caller_address(underlying.contract_address, wrapper.contract_address);
+    assert!(underlying.transfer(OWNER, VALUE));
+    stop_cheat_caller_address(underlying.contract_address);
+
+    recoverer.recover(RECIPIENT);
+}
+
+//
+// Spy helpers
+//
+
+#[generate_trait]
+pub impl ERC20WrapperSpyHelpersImpl of ERC20WrapperSpyHelpers {
+    fn assert_event_deposit(
+        ref self: EventSpy,
+        contract: ContractAddress,
+        sender: ContractAddress,
+        receiver: ContractAddress,
+        assets: u256,
+    ) {
+        let expected = ExpectedEvent::new()
+            .key(selector!("Deposit"))
+            .key(sender)
+            .key(receiver)
+            .data(assets);
+        self.assert_emitted_single(contract, expected);
+    }
+
+    fn assert_event_withdraw(
+        ref self: EventSpy,
+        contract: ContractAddress,
+        caller: ContractAddress,
+        receiver: ContractAddress,
+        assets: u256,
+    ) {
+        let expected = ExpectedEvent::new()
+            .key(selector!("Withdraw"))
+            .key(caller)
+            .key(receiver)
+            .data(assets);
+        self.assert_emitted_single(contract, expected);
+    }
 }

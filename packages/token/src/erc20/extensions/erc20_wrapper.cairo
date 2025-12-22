@@ -29,6 +29,35 @@ pub mod ERC20WrapperComponent {
         pub ERC20Wrapper_underlying: ContractAddress,
     }
 
+    #[event]
+    #[derive(Drop, PartialEq, starknet::Event)]
+    pub enum Event {
+        Deposit: Deposit,
+        Withdraw: Withdraw,
+    }
+
+    /// Emitted when `caller` deposits `assets` and transfers those
+    /// `assets` to `receiver`.
+    #[derive(Drop, PartialEq, starknet::Event)]
+    pub struct Deposit {
+        #[key]
+        pub sender: ContractAddress,
+        #[key]
+        pub receiver: ContractAddress,
+        pub assets: u256,
+    }
+
+    /// Emitted when `caller` withdraws `assets` and transfers those
+    /// `assets` to `receiver`.
+    #[derive(Drop, PartialEq, starknet::Event)]
+    pub struct Withdraw {
+        #[key]
+        pub caller: ContractAddress,
+        #[key]
+        pub receiver: ContractAddress,
+        pub assets: u256,
+    }
+
     pub mod Errors {
         pub const INVALID_UNDERLYING_ADDRESS: felt252 = 'Wrapper: invalid underlying';
         pub const INVALID_SENDER: felt252 = 'Wrapper: invalid sender';
@@ -69,6 +98,8 @@ pub mod ERC20WrapperComponent {
 
             let mut erc20_component = get_dep_component_mut!(ref self, ERC20);
             erc20_component.mint(receiver, amount);
+
+            self.emit(Deposit { sender: caller, receiver, assets: amount });
             true
         }
 
@@ -87,6 +118,8 @@ pub mod ERC20WrapperComponent {
             let token = IERC20Dispatcher { contract_address: underlying };
             let ok = token.transfer(receiver, amount);
             assert(ok, Errors::TRANSFER_FAILED);
+
+            self.emit(Withdraw { caller, receiver, assets: amount });
             true
         }
     }

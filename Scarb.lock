@@ -28,6 +28,7 @@ version = "3.0.0-alpha.3"
 dependencies = [
  "openzeppelin_interfaces",
  "openzeppelin_introspection",
+ "openzeppelin_macros",
  "openzeppelin_test_common",
  "openzeppelin_testing",
  "openzeppelin_utils",

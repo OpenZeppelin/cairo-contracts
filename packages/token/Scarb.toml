@@ -51,6 +51,8 @@ name = "openzeppelin_token_unittest"
 build-external-contracts = [
     "openzeppelin_test_common::mocks::account::DualCaseAccountMock",
     "openzeppelin_test_common::mocks::erc20::ERC20ReentrantMock",
+    "openzeppelin_test_common::mocks::erc20::ERC20WrapperMock",
+    "openzeppelin_test_common::mocks::erc20::DualCaseERC20Mock",
     "openzeppelin_test_common::mocks::erc4626::ERC4626Mock",
     "openzeppelin_test_common::mocks::erc4626::ERC4626OffsetMock",
     "openzeppelin_test_common::mocks::erc4626::ERC4626AssetsFeesMock",

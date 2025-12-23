@@ -375,9 +375,7 @@ pub mod ERC20Component {
                 token: starknet::get_contract_address(), spender, amount, nonce, deadline,
             };
             let permit_hash = permit.get_message_hash(owner);
-            assert_valid_signature(
-                owner, permit_hash, signature.into(), Errors::INVALID_PERMIT_SIGNATURE,
-            );
+            assert_valid_signature(owner, permit_hash, signature, Errors::INVALID_PERMIT_SIGNATURE);
 
             // 4. Approve
             self._approve(owner, spender, amount);

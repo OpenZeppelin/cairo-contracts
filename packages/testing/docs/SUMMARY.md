@@ -1,5 +1,3 @@
-# Summary
-
 - [openzeppelin_testing](./openzeppelin_testing.md)
   - [Modules](./openzeppelin_testing-modules.md)
     - [common](./openzeppelin_testing-common.md)

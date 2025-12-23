@@ -1,0 +1,23 @@
+---
+source: src/tests/test_generate_event_spy_helpers.rs
+assertion_line: 18
+expression: get_string_result(input)
+---
+TokenStream:
+
+#[generate_trait]
+pub impl MockContractSpyHelpers of MockContractSpyHelpersTrait {
+    fn assert_event_simple_event(ref self: EventSpy, contract: ContractAddress, field: u64) {
+        let expected = ExpectedEvent::new().key(selector!("SimpleEvent")).data(field);
+        self.assert_emitted_single(contract, expected);
+    }
+}
+
+
+Diagnostics:
+
+None
+
+AuxData:
+
+None

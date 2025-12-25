@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v3.0.0-alpha.3
+// OpenZeppelin Contracts for Cairo v3.0.0
 // (access/src/accesscontrol/extensions/pending_delay.cairo)
 
 use core::integer::u128_safe_divmod;

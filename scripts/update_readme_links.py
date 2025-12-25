@@ -4,7 +4,7 @@ import os
 import re
 from typing import Tuple
 
-ROOT_DIR = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "packages", "access"))
+ROOT_DIR = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "packages"))
 
 def parse_args() -> Tuple[str, str, str]:
     p = argparse.ArgumentParser(description="Update README.md links for versioning rules.")

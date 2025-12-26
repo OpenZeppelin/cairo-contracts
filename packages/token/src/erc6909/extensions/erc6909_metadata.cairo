@@ -81,7 +81,7 @@ pub mod ERC6909MetadataComponent {
 
         /// Checks if a token has metadata at the time of minting.
         fn _token_metadata_exists(self: @ComponentState<TContractState>, id: u256) -> bool {
-            return self.ERC6909Metadata_name.read(id).len() > 0;
+            self.ERC6909Metadata_name.read(id).len() > 0
         }
 
         /// Updates the token metadata for `id`.

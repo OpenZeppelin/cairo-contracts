@@ -70,7 +70,7 @@ pub mod ERC6909TokenSupplyComponent {
             }
 
             // In case of burns we decrease the total supply of this token ID
-            if (receiver.is_zero()) {
+            if receiver.is_zero() {
                 let total_supply = self.ERC6909TokenSupply_total_supply.read(id);
                 self.ERC6909TokenSupply_total_supply.write(id, total_supply - amount);
             }

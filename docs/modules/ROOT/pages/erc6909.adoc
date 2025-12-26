@@ -53,7 +53,7 @@ mod MyERC6909 {
     #[constructor]
     fn constructor(
         ref self: ContractState,
-        recipient: ContractAddress
+        recipient: ContractAddress,
         id: u256,
         amount: u256,
     ) {

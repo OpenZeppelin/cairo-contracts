@@ -19,12 +19,10 @@ pub mod ERC6909Mock {
     }
 }
 
-
 #[starknet::contract]
 #[with_components(ERC6909, SRC5)]
 pub mod ERC6909MockWithHooks {
     use starknet::ContractAddress;
-
 
     #[abi(embed_v0)]
     impl ERC6909Impl = ERC6909Component::ERC6909Impl<ContractState>;
@@ -42,7 +40,6 @@ pub mod ERC6909MockWithHooks {
         AfterUpdate: AfterUpdate,
     }
 
-
     #[derive(Drop, PartialEq, starknet::Event)]
     pub struct BeforeUpdate {
         pub from: ContractAddress,
@@ -50,7 +47,6 @@ pub mod ERC6909MockWithHooks {
         pub id: u256,
         pub amount: u256,
     }
-
 
     #[derive(Drop, PartialEq, starknet::Event)]
     pub struct AfterUpdate {
@@ -162,7 +158,6 @@ pub mod ERC6909TokenSupplyMock {
     use openzeppelin_token::erc6909::ERC6909HooksEmptyImpl;
     use starknet::ContractAddress;
 
-
     #[abi(embed_v0)]
     impl ERC6909Impl = ERC6909Component::ERC6909Impl<ContractState>;
     #[abi(embed_v0)]
@@ -173,7 +168,6 @@ pub mod ERC6909TokenSupplyMock {
 
     #[storage]
     pub struct Storage {}
-
 
     #[constructor]
     fn constructor(ref self: ContractState, recipient: ContractAddress, id: u256, amount: u256) {

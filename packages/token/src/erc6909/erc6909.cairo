@@ -189,7 +189,7 @@ pub mod ERC6909Component {
         impl Hooks: ERC6909HooksTrait<TContractState>,
         +Drop<TContractState>,
     > of InternalTrait<TContractState> {
-        /// Initializes the contract by regisrtering the supported interfaces
+        /// Initializes the contract by registering the supported interfaces
         /// This should only be used inside the contract's constructor.
         fn initializer(ref self: ComponentState<TContractState>) {
             let mut src5_component = get_dep_component_mut!(ref self, SRC5);

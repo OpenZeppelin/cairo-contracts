@@ -71,7 +71,7 @@ pub mod ERC6909MetadataComponent {
             decimals: u8,
         ) {
             // In case of new ID mints update the token metadata
-            if (sender.is_zero()) {
+            if sender.is_zero() {
                 let token_metadata_exists = self._token_metadata_exists(id);
                 if (!token_metadata_exists) {
                     self._set_token_metadata(id, name, symbol, decimals)

@@ -19,13 +19,13 @@ fn COMPONENT_STATE() -> ComponentState {
     ERC6909MetadataComponent::component_state_for_testing()
 }
 
-fn NAME_2() -> ByteArray {
+fn ALT_NAME() -> ByteArray {
     "ALT_NAME"
 }
-fn SYMBOL_2() -> ByteArray {
+fn ALT_SYMBOL() -> ByteArray {
     "ALT_SYMBOL"
 }
-const DECIMALS_2: u8 = 6;
+const ALT_DECIMALS: u8 = 6;
 
 #[test]
 fn test_initializer_registers_interface() {

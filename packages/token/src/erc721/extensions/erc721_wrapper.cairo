@@ -15,11 +15,11 @@ pub mod ERC721WrapperComponent {
     use openzeppelin_interfaces::erc721::{IERC721Dispatcher, IERC721DispatcherTrait};
     use openzeppelin_interfaces::token::erc721::{IERC721Receiver, IERC721Wrapper};
     use openzeppelin_introspection::src5::SRC5Component;
+    use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use starknet::ContractAddress;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
     use crate::erc721::ERC721Component;
     use crate::erc721::ERC721Component::InternalImpl as ERC721InternalImpl;
-    use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
 
     #[storage]
     pub struct Storage {
@@ -65,8 +65,9 @@ pub mod ERC721WrapperComponent {
             let data = array![].span();
 
             for token_id in token_ids {
-                // This is an "unsafe" transfer that doesn't call any hook on the receiver. With underlying() being trusted
-                // (by design of this contract) and no other contracts expected to be called from there, reentrancy should be safe.
+                // This is an "unsafe" transfer that doesn't call any hook on the receiver. With
+                // underlying() being trusted (by design of this contract) and no other contracts
+                // expected to be called from there, reentrancy should be safe.
                 token.transfer_from(caller, this, *token_id);
                 erc721_component.safe_mint(receiver, *token_id, data);
             }
@@ -87,11 +88,12 @@ pub mod ERC721WrapperComponent {
             let data = array![].span();
 
             for token_id in token_ids {
-                // Setting an "auth" arguments enables the `_check_authorized` check which verifies that the token exists
-                // (owner != 0). Therefore, it is not needed to verify that the return value is not 0 here.
+                // Setting an "auth" arguments enables the `_check_authorized` check which verifies
+                // that the token exists (owner != 0). Therefore, it is not needed to verify that
+                // the return value is not 0 here.
                 erc721_component.update(Zero::zero(), *token_id, caller);
-                // Checks were already performed at this point, and there's no way to retake ownership or approval from
-                // the wrapped token id after this point.
+                // Checks were already performed at this point, and there's no way to retake
+                // ownership or approval from the wrapped token id after this point.
                 token.safe_transfer_from(this, receiver, *token_id, data);
             }
             true

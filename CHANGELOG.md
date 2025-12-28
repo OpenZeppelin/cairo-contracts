@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added `ComponentInfo` implementations for ERC-6909 and its extensions.
   - Added new diagnostic `ERC6909_HOOKS_IMPL_MISSING`.
   - Added parser validation for missing hooks implementations.
+
 ## 3.0.0 (2025-12-11)
 
 ### Added

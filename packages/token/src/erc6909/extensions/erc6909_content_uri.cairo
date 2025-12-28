@@ -29,7 +29,6 @@ pub mod ERC6909ContentURIComponent {
         TContractState,
         +HasComponent<TContractState>,
         +ERC6909Component::HasComponent<TContractState>,
-        +ERC6909Component::ERC6909HooksTrait<TContractState>,
         +Drop<TContractState>,
     > of interface::IERC6909ContentUri<ComponentState<TContractState>> {
         /// Returns the contract level URI.
@@ -48,9 +47,8 @@ pub mod ERC6909ContentURIComponent {
     pub impl InternalImpl<
         TContractState,
         +HasComponent<TContractState>,
-        impl ERC6909: ERC6909Component::HasComponent<TContractState>,
-        +ERC6909Component::ERC6909HooksTrait<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
+        +ERC6909Component::HasComponent<TContractState>,
         +Drop<TContractState>,
     > of InternalTrait<TContractState> {
         /// Initializes the contract by setting the contract uri and declaring support

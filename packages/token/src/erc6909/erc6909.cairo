@@ -207,7 +207,7 @@ pub mod ERC6909Component {
             id: u256,
             amount: u256,
         ) {
-            assert(!receiver.is_zero(), Errors::INVALID_RECEIVER);
+            assert(receiver.is_non_zero(), Errors::INVALID_RECEIVER);
             self._update(Zero::zero(), receiver, id, amount);
         }
 
@@ -225,7 +225,7 @@ pub mod ERC6909Component {
             id: u256,
             amount: u256,
         ) {
-            assert(!account.is_zero(), Errors::INVALID_SENDER);
+            assert(account.is_non_zero(), Errors::INVALID_SENDER);
             self._update(account, Zero::zero(), id, amount);
         }
 
@@ -333,8 +333,8 @@ pub mod ERC6909Component {
             id: u256,
             amount: u256,
         ) {
-            assert(!sender.is_zero(), Errors::INVALID_SENDER);
-            assert(!receiver.is_zero(), Errors::INVALID_RECEIVER);
+            assert(sender.is_non_zero(), Errors::INVALID_SENDER);
+            assert(receiver.is_non_zero(), Errors::INVALID_RECEIVER);
             self._update(sender, receiver, id, amount);
         }
     }

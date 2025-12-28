@@ -4,7 +4,7 @@
 /// # ERC6909Metadata Component
 ///
 /// The ERC6909Metadata component allows setting metadata (name, symbol, decimals) for
-/// individual token IDs. Unlike ERC20, ERC6909 supports multiple token types each with 
+/// individual token IDs. Unlike ERC20, ERC6909 supports multiple token types each with
 /// its own metadata.
 ///
 /// To use this component:
@@ -126,4 +126,3 @@ pub mod ERC6909MetadataComponent {
         }
     }
 }
-

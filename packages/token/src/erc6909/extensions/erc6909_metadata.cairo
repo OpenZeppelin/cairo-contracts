@@ -33,8 +33,8 @@ pub mod ERC6909MetadataComponent {
         ERC6909Metadata_decimals: Map<u256, u8>,
     }
 
-    // TODO: In case we decide to remove hook functionality then we can just remove the hooks trait bound
-    // and update component docs.
+    // TODO: In case we decide to remove hook functionality then we can just remove the hooks trait
+    // bound and update component docs.
     // See: https://github.com/OpenZeppelin/cairo-contracts/pull/1594#issuecomment-2694759237
     #[embeddable_as(ERC6909MetadataImpl)]
     impl ERC6909Metadata<

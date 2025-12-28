@@ -4,16 +4,17 @@
 /// # ERC6909Metadata Component
 ///
 /// The ERC6909Metadata component allows setting metadata (name, symbol, decimals) for
-/// individual token IDs. Unlike ERC20 where metadata is contract-wide, ERC6909 supports
-/// multiple token types, each with its own metadata.
+/// individual token IDs. Unlike ERC20, ERC6909 supports multiple token types each with 
+/// its own metadata.
 ///
-/// To set token metadata on mint, integrate this component with the ERC6909 hooks system:
+/// To use this component:
 ///
-/// 1. Implement `ERC6909HooksTrait` in your contract.
-/// 2. In the `after_update` hook, call `_update_token_metadata` with the desired metadata.
+/// 1. Call `initializer` in your contract's constructor to register the SRC5 interface.
+/// 2. Implement `ERC6909HooksTrait` in your contract.
+/// 3. In the `after_update` hook, call `_update_token_metadata` with the desired metadata.
 ///    This function only sets metadata when `sender` is zero (indicating a mint) and the
 ///    token ID doesn't already have metadata, preventing overwrites on subsequent mints.
-/// 3. For direct metadata control, use `_set_token_metadata` or the individual setters
+/// 4. For direct metadata control, use `_set_token_metadata` or the individual setters
 ///    `_set_token_name`, `_set_token_symbol`, and `_set_token_decimals`.
 #[starknet::component]
 pub mod ERC6909MetadataComponent {

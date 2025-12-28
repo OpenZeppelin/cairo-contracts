@@ -7,10 +7,11 @@
 /// Since ERC6909 supports multiple token types within a single contract, each token ID
 /// maintains its own supply counter.
 ///
-/// To track token supply changes, integrate this component with the ERC6909 hooks trait:
+/// To use this component:
 ///
-/// 1. Implement `ERC6909HooksTrait` in your contract.
-/// 2. In either `before_update` or `after_update` hook, call `_update_token_supply`.
+/// 1. Call `initializer` in your contract's constructor to register the SRC5 interface.
+/// 2. Implement `ERC6909HooksTrait` in your contract.
+/// 3. In either `before_update` or `after_update` hook, call `_update_token_supply`.
 ///    This function automatically adjusts the supply: increasing it when `sender` is zero
 ///    (mint) and decreasing it when `receiver` is zero (burn). Regular transfers between
 ///    non-zero addresses do not affect the supply.

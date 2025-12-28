@@ -47,6 +47,18 @@ pub trait ERC6909ABI<TState> {
 
     // ISRC5
     fn supports_interface(self: @TState, interface_id: felt252) -> bool;
+
+    // IERC6909Metadata
+    fn name(self: @TState, id: u256) -> ByteArray;
+    fn symbol(self: @TState, id: u256) -> ByteArray;
+    fn decimals(self: @TState, id: u256) -> u8;
+
+    // IERC6909TokenSupply
+    fn total_supply(self: @TState, id: u256) -> u256;
+
+    // IERC6909ContentUri
+    fn contract_uri(self: @TState) -> ByteArray;
+    fn token_uri(self: @TState, id: u256) -> ByteArray;
 }
 
 //
@@ -55,13 +67,6 @@ pub trait ERC6909ABI<TState> {
 
 #[starknet::interface]
 pub trait IERC6909Metadata<TState> {
-    fn name(self: @TState, id: u256) -> ByteArray;
-    fn symbol(self: @TState, id: u256) -> ByteArray;
-    fn decimals(self: @TState, id: u256) -> u8;
-}
-
-#[starknet::interface]
-pub trait ERC6909MetadataABI<TState> {
     fn name(self: @TState, id: u256) -> ByteArray;
     fn symbol(self: @TState, id: u256) -> ByteArray;
     fn decimals(self: @TState, id: u256) -> u8;
@@ -76,23 +81,12 @@ pub trait IERC6909TokenSupply<TState> {
     fn total_supply(self: @TState, id: u256) -> u256;
 }
 
-#[starknet::interface]
-pub trait ERC6909TokenSupplyABI<TState> {
-    fn total_supply(self: @TState, id: u256) -> u256;
-}
-
 //
 // ERC6909ContentURI
 //
 
 #[starknet::interface]
 pub trait IERC6909ContentUri<TState> {
-    fn contract_uri(self: @TState) -> ByteArray;
-    fn token_uri(self: @TState, id: u256) -> ByteArray;
-}
-
-#[starknet::interface]
-pub trait IERC6909ContentUriABI<TState> {
     fn contract_uri(self: @TState) -> ByteArray;
     fn token_uri(self: @TState, id: u256) -> ByteArray;
 }

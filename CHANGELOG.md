@@ -13,7 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - ERC-6909 standard implementation and extensions (#1594)
   - Added `ERC6909Component`, `ERC6909ContentURIComponent`, `ERC6909MetadataComponent`, and `ERC6909TokenSupplyComponent`.
-  - Added interfaces and ABI traits: `IERC6909`, `ERC6909ABI`, `IERC6909Metadata`, `ERC6909MetadataABI`, `IERC6909TokenSupply`, `ERC6909TokenSupplyABI`, `IERC6909ContentUri`, and `IERC6909ContentUriABI`.
+  - Added interfaces: `IERC6909`, `IERC6909Metadata`, `IERC6909TokenSupply`, and `IERC6909ContentUri`.
+  - Added `ERC6909ABI` trait covering full ERC-6909 tokens functionality including extensions.
   - Added mocks: `ERC6909Mock`, `ERC6909MockWithHooks`, `ERC6909ContentURIMock`, `ERC6909MetadataMock`, `ERC6909TokenSupplyMock`.
   - Added tests for components.
 

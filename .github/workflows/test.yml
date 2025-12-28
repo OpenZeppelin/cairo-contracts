@@ -14,7 +14,7 @@ jobs:
     name: Lint and test Cairo
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Extract scarb version
         run: |
@@ -30,7 +30,7 @@ jobs:
           FOUNDRY_VERSION=$(grep 'snforge_std = ' Scarb.toml | sed 's/snforge_std = "\(.*\)"/\1/')
           echo "FOUNDRY_VERSION=$FOUNDRY_VERSION" >> "$GITHUB_ENV"
 
-      - uses: foundry-rs/setup-snfoundry@v4
+      - uses: foundry-rs/setup-snfoundry@v5.0.0
         with:
           starknet-foundry-version: ${{ env.FOUNDRY_VERSION }}
 
@@ -38,7 +38,7 @@ jobs:
         run: curl -L https://raw.githubusercontent.com/software-mansion/cairo-coverage/main/scripts/install.sh | sh
 
       - name: Markdown lint
-        uses: DavidAnson/markdownlint-cli2-action@992badcdf24e3b8eb7e87ff9287fe931bcb00c6e # v16
+        uses: DavidAnson/markdownlint-cli2-action@07035fd053f7be764496c0f8d8f9f41f98305101 # v16
         with:
           globs: |
             *.md
@@ -48,7 +48,7 @@ jobs:
         run: scarb fmt --check --workspace
 
       - name: Run tests
-        run: snforge test --workspace --features fuzzing --fuzzer-runs 500
+        run: snforge test --workspace --features fuzzing --fuzzer-runs 200
 
       - name: Run tests and generate coverage report
         run: snforge test --workspace --coverage

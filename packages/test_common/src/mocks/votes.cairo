@@ -128,8 +128,9 @@ pub mod ERC20TimestampVotesMock {
     }
 
     #[constructor]
-    fn constructor(ref self: ContractState) {
+    fn constructor(ref self: ContractState, total_supply: u256) {
         self.erc20.initializer("MyToken", "MTK");
+        self.erc20.mint(starknet::get_caller_address(), total_supply);
     }
 }
 
@@ -179,8 +180,9 @@ pub mod ERC20BlockNumberVotesMock {
     }
 
     #[constructor]
-    fn constructor(ref self: ContractState) {
+    fn constructor(ref self: ContractState, total_supply: u256) {
         self.erc20.initializer("MyToken", "MTK");
+        self.erc20.mint(starknet::get_caller_address(), total_supply);
     }
 }
 

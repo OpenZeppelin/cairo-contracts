@@ -7,7 +7,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## 6.3.0 (2025-12-24)
+
+- Bump snforge to v0.54.1 (#1621)
+
+## 6.2.0 (2025-12-11)
+
+- Bump snforge to v0.53.0 (#1610)
 
 ## 6.1.0 (2025-11-12)
 

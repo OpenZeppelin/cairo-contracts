@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v3.0.0-alpha.3
+// OpenZeppelin Contracts for Cairo v3.0.0
 // (governance/src/timelock/timelock_controller.cairo)
 
 /// # TimelockController Component

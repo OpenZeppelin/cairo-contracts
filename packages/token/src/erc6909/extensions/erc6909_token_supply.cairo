@@ -3,8 +3,17 @@
 
 /// # ERC6909TokenSupply Component
 ///
-/// The ERC6909TokenSupply component allows to keep track of individual token ID supplies.
-/// The internal function `_update_token_supply` should be used inside the ERC6909 Hooks.
+/// The ERC6909TokenSupply component tracks the total supply for each individual token ID.
+/// Since ERC6909 supports multiple token types within a single contract, each token ID
+/// maintains its own supply counter.
+///
+/// To track token supply changes, integrate this component with the ERC6909 hooks trait:
+///
+/// 1. Implement `ERC6909HooksTrait` in your contract.
+/// 2. In either `before_update` or `after_update` hook, call `_update_token_supply`.
+///    This function automatically adjusts the supply: increasing it when `sender` is zero
+///    (mint) and decreasing it when `receiver` is zero (burn). Regular transfers between
+///    non-zero addresses do not affect the supply.
 #[starknet::component]
 pub mod ERC6909TokenSupplyComponent {
     use core::num::traits::Zero;

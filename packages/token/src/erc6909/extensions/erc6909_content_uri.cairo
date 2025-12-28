@@ -4,7 +4,9 @@
 /// # ERC6909ContentURI Component
 ///
 /// The ERC6909ContentURI component allows to set the contract and token ID URIs.
-/// The internal function `initializer` should be used ideally in the constructor.
+///
+/// To implement the URIs, call the `initializer` function in your contract's constructor with
+/// the desired base URI. If the contract URI is empty, `token_uri` returns an empty string.
 #[starknet::component]
 pub mod ERC6909ContentURIComponent {
     use openzeppelin_interfaces::erc6909 as interface;

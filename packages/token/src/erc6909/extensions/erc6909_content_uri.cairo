@@ -6,7 +6,7 @@
 /// The ERC6909ContentURI component allows to set the contract and token ID URIs.
 ///
 /// To implement the URIs, call the `initializer` function in your contract's constructor with
-/// the desired base URI. If the contract URI is empty, `token_uri` returns an empty string.
+/// the desired base URI. The URI must be non-empty.
 #[starknet::component]
 pub mod ERC6909ContentURIComponent {
     use openzeppelin_interfaces::erc6909 as interface;
@@ -18,6 +18,10 @@ pub mod ERC6909ContentURIComponent {
     #[storage]
     pub struct Storage {
         ERC6909ContentURI_contract_uri: ByteArray,
+    }
+
+    pub mod Errors {
+        pub const INVALID_URI: felt252 = 'ERC6909ContentURI: invalid uri';
     }
 
     #[embeddable_as(ERC6909ContentURIImpl)]
@@ -36,11 +40,7 @@ pub mod ERC6909ContentURIComponent {
         /// Returns the token level URI.
         fn token_uri(self: @ComponentState<TContractState>, id: u256) -> ByteArray {
             let contract_uri = self.contract_uri();
-            if contract_uri.len() == 0 {
-                ""
-            } else {
-                format!("{}{}", contract_uri, id)
-            }
+            format!("{}{}", contract_uri, id)
         }
     }
 
@@ -56,6 +56,8 @@ pub mod ERC6909ContentURIComponent {
         /// Initializes the contract by setting the contract uri and declaring support
         /// for the `IERC6909ContentUri` interface id.
         fn initializer(ref self: ComponentState<TContractState>, contract_uri: ByteArray) {
+            assert(contract_uri.len() > 0, Errors::INVALID_URI);
+
             self.ERC6909ContentURI_contract_uri.write(contract_uri);
 
             let mut src5_component = get_dep_component_mut!(ref self, SRC5);
@@ -63,4 +65,3 @@ pub mod ERC6909ContentURIComponent {
         }
     }
 }
-

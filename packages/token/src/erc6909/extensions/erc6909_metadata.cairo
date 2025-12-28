@@ -61,7 +61,7 @@ pub mod ERC6909MetadataComponent {
     pub impl InternalImpl<
         TContractState,
         +HasComponent<TContractState>,
-        impl ERC6909: ERC6909Component::HasComponent<TContractState>,
+        +ERC6909Component::HasComponent<TContractState>,
         +ERC6909Component::ERC6909HooksTrait<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>,

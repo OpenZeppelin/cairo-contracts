@@ -1,3 +1,5 @@
+use starknet::ContractAddress;
+
 const SUCCESS: felt252 = 'SUCCESS';
 
 #[starknet::contract]
@@ -255,5 +257,111 @@ pub mod ERC721EnumerableMock {
         self.erc721.initializer(name, symbol, base_uri);
         self.erc721_enumerable.initializer();
         self.erc721.mint(recipient, token_id);
+    }
+}
+
+#[starknet::interface]
+pub trait IERC721Mintable<TState> {
+    fn mint(ref self: TState, to: ContractAddress, token_id: u256);
+}
+
+#[starknet::interface]
+pub trait IERC721WrapperRecoverer<TState> {
+    fn recover(ref self: TState, account: ContractAddress, token_id: u256) -> u256;
+}
+
+#[starknet::contract]
+#[with_components(ERC721, SRC5)]
+pub mod ERC721MintableMock {
+    use openzeppelin_token::erc721::ERC721HooksEmptyImpl;
+    use openzeppelin_token::erc721::ERC721Component::InternalImpl as ERC721InternalImpl;
+    use starknet::ContractAddress;
+    use super::IERC721Mintable;
+
+    // ERC721
+    #[abi(embed_v0)]
+    impl ERC721Impl = ERC721Component::ERC721Impl<ContractState>;
+
+    // SRC5
+    #[abi(embed_v0)]
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
+
+    #[storage]
+    pub struct Storage {}
+
+    #[constructor]
+    fn constructor(ref self: ContractState, name: ByteArray, symbol: ByteArray, base_uri: ByteArray) {
+        self.erc721.initializer(name, symbol, base_uri);
+    }
+
+    #[abi(embed_v0)]
+    impl ERC721MintableImpl of IERC721Mintable<ContractState> {
+        fn mint(ref self: ContractState, to: ContractAddress, token_id: u256) {
+            self.erc721.mint(to, token_id);
+        }
+    }
+}
+
+#[starknet::contract]
+pub mod ERC721WrapperMock {
+    use openzeppelin_introspection::src5::SRC5Component;
+    use openzeppelin_token::erc721::extensions::erc721_wrapper::ERC721WrapperComponent;
+    use openzeppelin_token::erc721::extensions::erc721_wrapper::ERC721WrapperComponent::InternalImpl;
+    use openzeppelin_token::erc721::{ERC721Component, ERC721HooksEmptyImpl};
+    use starknet::ContractAddress;
+    use super::IERC721WrapperRecoverer;
+
+    component!(path: ERC721Component, storage: erc721, event: ERC721Event);
+    component!(path: ERC721WrapperComponent, storage: erc721_wrapper, event: ERC721WrapperEvent);
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
+
+    #[abi(embed_v0)]
+    impl ERC721Impl = ERC721Component::ERC721Impl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC721WrapperImpl = ERC721WrapperComponent::ERC721WrapperImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC721WrapperReceiverImpl =
+        ERC721WrapperComponent::ERC721WrapperReceiverImpl<ContractState>;
+    #[abi(embed_v0)]
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
+
+    #[storage]
+    struct Storage {
+        #[substorage(v0)]
+        erc721: ERC721Component::Storage,
+        #[substorage(v0)]
+        erc721_wrapper: ERC721WrapperComponent::Storage,
+        #[substorage(v0)]
+        src5: SRC5Component::Storage,
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        ERC721Event: ERC721Component::Event,
+        #[flat]
+        ERC721WrapperEvent: ERC721WrapperComponent::Event,
+        #[flat]
+        SRC5Event: SRC5Component::Event,
+    }
+
+    #[constructor]
+    fn constructor(
+        ref self: ContractState,
+        name: ByteArray,
+        symbol: ByteArray,
+        base_uri: ByteArray,
+        underlying: ContractAddress,
+    ) {
+        self.erc721.initializer(name, symbol, base_uri);
+        self.erc721_wrapper.initializer(underlying);
+    }
+
+    #[abi(embed_v0)]
+    impl ERC721WrapperRecovererImpl of IERC721WrapperRecoverer<ContractState> {
+        fn recover(ref self: ContractState, account: ContractAddress, token_id: u256) -> u256 {
+            self.erc721_wrapper.recover(account, token_id)
+        }
     }
 }

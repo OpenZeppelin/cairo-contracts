@@ -13,7 +13,7 @@ pub mod ERC721WrapperComponent {
     use core::num::traits::Zero;
     use openzeppelin_interfaces::erc721 as interface;
     use openzeppelin_interfaces::erc721::{IERC721Dispatcher, IERC721DispatcherTrait};
-    use openzeppelin_interfaces::token::erc721::{IERC721Receiver, IERC721Wrapper};
+    use openzeppelin_interfaces::token::erc721::{IERC721ReceiverMut, IERC721Wrapper};
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use starknet::ContractAddress;
@@ -108,11 +108,10 @@ pub mod ERC721WrapperComponent {
         +ERC721Component::ERC721HooksTrait<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>,
-        +Copy<ComponentState<TContractState>>,
-    > of IERC721Receiver<ComponentState<TContractState>> {
+    > of IERC721ReceiverMut<ComponentState<TContractState>> {
         /// Accepts safe transfers of the underlying token and mints the wrapped token.
         fn on_erc721_received(
-            self: @ComponentState<TContractState>,
+            ref self: ComponentState<TContractState>,
             operator: ContractAddress,
             from: ContractAddress,
             token_id: u256,
@@ -121,8 +120,6 @@ pub mod ERC721WrapperComponent {
             let caller = starknet::get_caller_address();
             assert(caller == self.underlying(), Errors::UNSUPPORTED_TOKEN);
 
-            // TODO!: Check type conversion
-            let mut self = *self;
             let mut erc721_component = get_dep_component_mut!(ref self, ERC721);
             // TODO!: Should mint to from or operator?
             erc721_component.safe_mint(from, token_id, data);

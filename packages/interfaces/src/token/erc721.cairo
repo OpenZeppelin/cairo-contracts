@@ -128,6 +128,19 @@ pub trait IERC721Receiver<TState> {
     ) -> felt252;
 }
 
+/// Identical to IERC721Receiver externally, but uses `ref self`
+/// for functions to allow state mutations during execution.
+#[starknet::interface]
+pub trait IERC721ReceiverMut<TState> {
+    fn on_erc721_received(
+        ref self: TState,
+        operator: ContractAddress,
+        from: ContractAddress,
+        token_id: u256,
+        data: Span<felt252>,
+    ) -> felt252;
+}
+
 #[starknet::interface]
 pub trait IERC721ReceiverCamel<TState> {
     fn onERC721Received(

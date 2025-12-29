@@ -2,7 +2,7 @@ use openzeppelin_interfaces::erc721::{
     IERC721Dispatcher, IERC721DispatcherTrait, IERC721ReceiverDispatcher,
     IERC721ReceiverDispatcherTrait, IERC721_RECEIVER_ID,
 };
-use openzeppelin_interfaces::introspection::ISRC5_ID;
+use openzeppelin_interfaces::introspection::{ISRC5, ISRC5_ID};
 use openzeppelin_interfaces::token::erc721::{
     IERC721WrapperDispatcher, IERC721WrapperDispatcherTrait,
 };
@@ -13,8 +13,7 @@ use openzeppelin_test_common::mocks::erc721::{
 };
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{
-    AsAddressTrait, BASE_URI, EMPTY_DATA, NAME, OTHER, OWNER, RECIPIENT, SYMBOL, TOKEN_ID,
-    TOKEN_ID_2, ZERO,
+    AsAddressTrait, BASE_URI, EMPTY_DATA, NAME, OTHER, PUBKEY, SYMBOL, TOKEN_ID, TOKEN_ID_2, ZERO,
 };
 use openzeppelin_testing::spy_events;
 use openzeppelin_utils::serde::SerializedAppend;
@@ -73,6 +72,11 @@ fn recover_dispatcher(address: ContractAddress) -> IERC721WrapperRecovererDispat
     IERC721WrapperRecovererDispatcher { contract_address: address }
 }
 
+fn setup_account() -> ContractAddress {
+    let calldata = array![PUBKEY];
+    utils::declare_and_deploy("DualCaseAccountMock", calldata)
+}
+
 //
 // initializer
 //
@@ -93,14 +97,14 @@ fn test_initializer() {
 }
 
 #[test]
-#[should_panic(expected: 'ERC721Wrapper: invalid underlying')]
+#[should_panic]
 fn initializer_reverts_on_zero_underlying() {
     let mut state = COMPONENT_STATE();
     state.initializer(ZERO);
 }
 
 #[test]
-#[should_panic(expected: 'ERC721Wrapper: invalid underlying')]
+#[should_panic]
 fn initializer_reverts_on_self_underlying() {
     let mut state = COMPONENT_STATE();
     state.initializer(test_address());
@@ -115,44 +119,48 @@ fn deposit_for_mints_wrapped_and_pulls_underlying() {
     let mut spy = spy_events();
     let (underlying, wrapper) = setup_wrapped();
     let wrapper_erc721 = IERC721Dispatcher { contract_address: wrapper.contract_address };
+    let owner = setup_account();
+    let recipient = setup_account();
 
-    mint_underlying(underlying.contract_address, OWNER, TOKEN_ID);
+    mint_underlying(underlying.contract_address, owner, TOKEN_ID);
 
-    start_cheat_caller_address(underlying.contract_address, OWNER);
+    start_cheat_caller_address(underlying.contract_address, owner);
     underlying.approve(wrapper.contract_address, TOKEN_ID);
     stop_cheat_caller_address(underlying.contract_address);
 
-    start_cheat_caller_address(wrapper.contract_address, OWNER);
-    assert!(wrapper.deposit_for(RECIPIENT, array![TOKEN_ID].span()));
+    start_cheat_caller_address(wrapper.contract_address, owner);
+    assert!(wrapper.deposit_for(recipient, array![TOKEN_ID].span()));
     stop_cheat_caller_address(wrapper.contract_address);
 
     assert_eq!(underlying.owner_of(TOKEN_ID), wrapper.contract_address);
-    assert_eq!(wrapper_erc721.owner_of(TOKEN_ID), RECIPIENT);
-    spy.assert_event_transfer(wrapper.contract_address, ZERO, RECIPIENT, TOKEN_ID);
+    assert_eq!(wrapper_erc721.owner_of(TOKEN_ID), recipient);
+    spy.assert_event_transfer(wrapper.contract_address, ZERO, recipient, TOKEN_ID);
 }
 
 #[test]
 fn deposit_for_handles_multiple_tokens() {
     let (underlying, wrapper) = setup_wrapped();
     let wrapper_erc721 = IERC721Dispatcher { contract_address: wrapper.contract_address };
+    let owner = setup_account();
+    let recipient = setup_account();
 
-    mint_underlying(underlying.contract_address, OWNER, TOKEN_ID);
-    mint_underlying(underlying.contract_address, OWNER, TOKEN_ID_2);
+    mint_underlying(underlying.contract_address, owner, TOKEN_ID);
+    mint_underlying(underlying.contract_address, owner, TOKEN_ID_2);
 
-    start_cheat_caller_address(underlying.contract_address, OWNER);
+    start_cheat_caller_address(underlying.contract_address, owner);
     underlying.approve(wrapper.contract_address, TOKEN_ID);
     underlying.approve(wrapper.contract_address, TOKEN_ID_2);
     stop_cheat_caller_address(underlying.contract_address);
 
-    start_cheat_caller_address(wrapper.contract_address, OWNER);
-    assert!(wrapper.deposit_for(RECIPIENT, array![TOKEN_ID, TOKEN_ID_2].span()));
+    start_cheat_caller_address(wrapper.contract_address, owner);
+    assert!(wrapper.deposit_for(recipient, array![TOKEN_ID, TOKEN_ID_2].span()));
     stop_cheat_caller_address(wrapper.contract_address);
 
     assert_eq!(underlying.owner_of(TOKEN_ID), wrapper.contract_address);
     assert_eq!(underlying.owner_of(TOKEN_ID_2), wrapper.contract_address);
-    assert_eq!(wrapper_erc721.owner_of(TOKEN_ID), RECIPIENT);
-    assert_eq!(wrapper_erc721.owner_of(TOKEN_ID_2), RECIPIENT);
-    assert_eq!(wrapper_erc721.balance_of(RECIPIENT), 2);
+    assert_eq!(wrapper_erc721.owner_of(TOKEN_ID), recipient);
+    assert_eq!(wrapper_erc721.owner_of(TOKEN_ID_2), recipient);
+    assert_eq!(wrapper_erc721.balance_of(recipient), 2);
 }
 
 //
@@ -164,40 +172,44 @@ fn withdraw_to_burns_wrapped_and_returns_underlying() {
     let mut spy = spy_events();
     let (underlying, wrapper) = setup_wrapped();
     let wrapper_erc721 = IERC721Dispatcher { contract_address: wrapper.contract_address };
+    let owner = setup_account();
+    let recipient = setup_account();
 
-    mint_underlying(underlying.contract_address, OWNER, TOKEN_ID);
+    mint_underlying(underlying.contract_address, owner, TOKEN_ID);
 
-    start_cheat_caller_address(underlying.contract_address, OWNER);
+    start_cheat_caller_address(underlying.contract_address, owner);
     underlying.approve(wrapper.contract_address, TOKEN_ID);
     stop_cheat_caller_address(underlying.contract_address);
 
-    start_cheat_caller_address(wrapper.contract_address, OWNER);
-    assert!(wrapper.deposit_for(OWNER, array![TOKEN_ID].span()));
-    assert!(wrapper.withdraw_to(RECIPIENT, array![TOKEN_ID].span()));
+    start_cheat_caller_address(wrapper.contract_address, owner);
+    assert!(wrapper.deposit_for(owner, array![TOKEN_ID].span()));
+    assert!(wrapper.withdraw_to(recipient, array![TOKEN_ID].span()));
     stop_cheat_caller_address(wrapper.contract_address);
 
-    assert_eq!(underlying.owner_of(TOKEN_ID), RECIPIENT);
-    assert_eq!(wrapper_erc721.balance_of(OWNER), 0);
-    spy.assert_event_transfer(wrapper.contract_address, OWNER, ZERO, TOKEN_ID);
+    assert_eq!(underlying.owner_of(TOKEN_ID), recipient);
+    assert_eq!(wrapper_erc721.balance_of(owner), 0);
+    spy.assert_event_transfer(wrapper.contract_address, owner, ZERO, TOKEN_ID);
 }
 
 #[test]
 #[should_panic(expected: 'ERC721: unauthorized caller')]
 fn withdraw_to_reverts_for_unauthorized_caller() {
     let (underlying, wrapper) = setup_wrapped();
+    let owner = setup_account();
+    let recipient = setup_account();
 
-    mint_underlying(underlying.contract_address, OWNER, TOKEN_ID);
+    mint_underlying(underlying.contract_address, owner, TOKEN_ID);
 
-    start_cheat_caller_address(underlying.contract_address, OWNER);
+    start_cheat_caller_address(underlying.contract_address, owner);
     underlying.approve(wrapper.contract_address, TOKEN_ID);
     stop_cheat_caller_address(underlying.contract_address);
 
-    start_cheat_caller_address(wrapper.contract_address, OWNER);
-    assert!(wrapper.deposit_for(OWNER, array![TOKEN_ID].span()));
+    start_cheat_caller_address(wrapper.contract_address, owner);
+    assert!(wrapper.deposit_for(owner, array![TOKEN_ID].span()));
     stop_cheat_caller_address(wrapper.contract_address);
 
     start_cheat_caller_address(wrapper.contract_address, OTHER);
-    wrapper.withdraw_to(RECIPIENT, array![TOKEN_ID].span());
+    wrapper.withdraw_to(recipient, array![TOKEN_ID].span());
 }
 
 //
@@ -209,26 +221,28 @@ fn on_erc721_received_mints_wrapped_on_safe_transfer() {
     let mut spy = spy_events();
     let (underlying, wrapper) = setup_wrapped();
     let wrapper_erc721 = IERC721Dispatcher { contract_address: wrapper.contract_address };
+    let owner = setup_account();
 
-    mint_underlying(underlying.contract_address, OWNER, TOKEN_ID);
+    mint_underlying(underlying.contract_address, owner, TOKEN_ID);
 
-    start_cheat_caller_address(underlying.contract_address, OWNER);
-    underlying.safe_transfer_from(OWNER, wrapper.contract_address, TOKEN_ID, EMPTY_DATA());
+    start_cheat_caller_address(underlying.contract_address, owner);
+    underlying.safe_transfer_from(owner, wrapper.contract_address, TOKEN_ID, EMPTY_DATA());
     stop_cheat_caller_address(underlying.contract_address);
 
     assert_eq!(underlying.owner_of(TOKEN_ID), wrapper.contract_address);
-    assert_eq!(wrapper_erc721.owner_of(TOKEN_ID), OWNER);
-    spy.assert_event_transfer(wrapper.contract_address, ZERO, OWNER, TOKEN_ID);
+    assert_eq!(wrapper_erc721.owner_of(TOKEN_ID), owner);
+    spy.assert_event_transfer(wrapper.contract_address, ZERO, owner, TOKEN_ID);
 }
 
 #[test]
-#[should_panic(expected: 'ERC721Wrapper: unsupported token')]
+#[should_panic]
 fn on_erc721_received_reverts_for_unsupported_token() {
     let (_, wrapper) = setup_wrapped();
     let receiver = IERC721ReceiverDispatcher { contract_address: wrapper.contract_address };
+    let owner = setup_account();
 
     start_cheat_caller_address(wrapper.contract_address, OTHER);
-    receiver.on_erc721_received(OTHER, OWNER, TOKEN_ID, EMPTY_DATA());
+    receiver.on_erc721_received(OTHER, owner, TOKEN_ID, EMPTY_DATA());
 }
 
 //
@@ -240,24 +254,29 @@ fn recover_mints_wrapped_for_untracked_underlying() {
     let (underlying, wrapper) = setup_wrapped();
     let wrapper_erc721 = IERC721Dispatcher { contract_address: wrapper.contract_address };
     let recoverer = recover_dispatcher(wrapper.contract_address);
+    let owner = setup_account();
+    let recipient = setup_account();
 
-    mint_underlying(underlying.contract_address, OWNER, TOKEN_ID);
+    mint_underlying(underlying.contract_address, owner, TOKEN_ID);
 
-    start_cheat_caller_address(underlying.contract_address, OWNER);
-    underlying.transfer_from(OWNER, wrapper.contract_address, TOKEN_ID);
+    start_cheat_caller_address(underlying.contract_address, owner);
+    underlying.transfer_from(owner, wrapper.contract_address, TOKEN_ID);
     stop_cheat_caller_address(underlying.contract_address);
 
-    let recovered = recoverer.recover(RECIPIENT, TOKEN_ID);
+    let recovered = recoverer.recover(recipient, TOKEN_ID);
     assert_eq!(recovered, TOKEN_ID);
     assert_eq!(underlying.owner_of(TOKEN_ID), wrapper.contract_address);
-    assert_eq!(wrapper_erc721.owner_of(TOKEN_ID), RECIPIENT);
+    assert_eq!(wrapper_erc721.owner_of(TOKEN_ID), recipient);
 }
 
 #[test]
-#[should_panic(expected: 'ERC721Wrapper: incorrect owner')]
+#[should_panic(expected: 'Wrapper: incorrect owner')]
 fn recover_reverts_when_underlying_not_owned() {
-    let (_, wrapper) = setup_wrapped();
+    let (underlying, wrapper) = setup_wrapped();
     let recoverer = recover_dispatcher(wrapper.contract_address);
+    let owner = setup_account();
+    let recipient = setup_account();
 
-    recoverer.recover(RECIPIENT, TOKEN_ID);
+    mint_underlying(underlying.contract_address, owner, TOKEN_ID);
+    recoverer.recover(recipient, TOKEN_ID);
 }

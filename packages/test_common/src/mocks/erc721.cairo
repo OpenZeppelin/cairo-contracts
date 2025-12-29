@@ -273,8 +273,8 @@ pub trait IERC721WrapperRecoverer<TState> {
 #[starknet::contract]
 #[with_components(ERC721, SRC5)]
 pub mod ERC721MintableMock {
-    use openzeppelin_token::erc721::ERC721HooksEmptyImpl;
     use openzeppelin_token::erc721::ERC721Component::InternalImpl as ERC721InternalImpl;
+    use openzeppelin_token::erc721::ERC721HooksEmptyImpl;
     use starknet::ContractAddress;
     use super::IERC721Mintable;
 
@@ -290,7 +290,9 @@ pub mod ERC721MintableMock {
     pub struct Storage {}
 
     #[constructor]
-    fn constructor(ref self: ContractState, name: ByteArray, symbol: ByteArray, base_uri: ByteArray) {
+    fn constructor(
+        ref self: ContractState, name: ByteArray, symbol: ByteArray, base_uri: ByteArray,
+    ) {
         self.erc721.initializer(name, symbol, base_uri);
     }
 
@@ -318,7 +320,8 @@ pub mod ERC721WrapperMock {
     #[abi(embed_v0)]
     impl ERC721Impl = ERC721Component::ERC721Impl<ContractState>;
     #[abi(embed_v0)]
-    impl ERC721WrapperImpl = ERC721WrapperComponent::ERC721WrapperImpl<ContractState>;
+    impl ERC721WrapperImpl =
+        ERC721WrapperComponent::ERC721WrapperImpl<ContractState>;
     #[abi(embed_v0)]
     impl ERC721WrapperReceiverImpl =
         ERC721WrapperComponent::ERC721WrapperReceiverImpl<ContractState>;

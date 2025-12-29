@@ -9,8 +9,7 @@ use openzeppelin_interfaces::token::erc721::{
 use openzeppelin_test_common::erc721::ERC721SpyHelpers;
 use openzeppelin_test_common::mocks::erc721::{
     ERC721WrapperMock, IERC721MintableDispatcher, IERC721MintableDispatcherTrait,
-    IERC721WrapperRecovererDispatcher,
-    IERC721WrapperRecovererDispatcherTrait,
+    IERC721WrapperRecovererDispatcher, IERC721WrapperRecovererDispatcherTrait,
 };
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{
@@ -28,8 +27,7 @@ use crate::erc721::extensions::erc721_wrapper::ERC721WrapperComponent::{
 
 const UNDERLYING: ContractAddress = 'UNDERLYING'.as_address();
 
-type ComponentState =
-    ERC721WrapperComponent::ComponentState<ERC721WrapperMock::ContractState>;
+type ComponentState = ERC721WrapperComponent::ComponentState<ERC721WrapperMock::ContractState>;
 
 fn COMPONENT_STATE() -> ComponentState {
     ERC721WrapperComponent::component_state_for_testing()

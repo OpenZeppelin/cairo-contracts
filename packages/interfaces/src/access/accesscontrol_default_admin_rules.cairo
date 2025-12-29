@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v3.0.0-alpha.3
+// OpenZeppelin Contracts for Cairo v3.0.0
 // (interfaces/src/access/extensions/accesscontrol_default_admin_rules.cairo)
 
 use starknet::ContractAddress;
@@ -119,22 +119,30 @@ pub trait IAccessControlDefaultAdminRules<TState> {
     /// May emit a `DefaultAdminDelayChangeCanceled` event.
     fn rollback_default_admin_delay(ref self: TState);
 
-    /// Maximum time in seconds for an increase to `default_admin_delay` (that is scheduled using
-    /// `change_default_admin_delay`) to take effect. Defaults to 5 days.
+    /// Maximum time in seconds for an increase to `default_admin_delay` (that is scheduled
+    /// using `change_default_admin_delay`) to take effect.
     ///
-    /// When the `default_admin_delay` is scheduled to be increased, it goes into effect after the
-    /// new delay has passed with the purpose of giving enough time for reverting any accidental
-    /// change (i.e. using milliseconds instead of seconds)
-    /// that may lock the contract. However, to avoid excessive schedules, the wait is capped by
-    /// this function and it can be overridden for a custom `default_admin_delay` increase
-    /// scheduling.
+    /// IMPORTANT:
     ///
-    /// IMPORTANT: Make sure to add a reasonable amount of time while overriding this value,
+    /// Make sure to add a reasonable amount of time while setting this value,
     /// otherwise, there's a risk of setting a high new delay that goes into effect almost
     /// immediately without the possibility of human intervention in the case of an input error
-    /// (e.g.
-    /// set milliseconds instead of seconds).
+    /// (eg. set milliseconds instead of seconds).
+    ///
+    /// Consider carefully the value set for `maximum_default_admin_transfer_delay` too, since
+    /// it will affect how fast you can recover from an accidental delay increase.
     fn default_admin_delay_increase_wait(self: @TState) -> u64;
+
+    /// Maximum time in seconds for a `default_admin` transfer delay.
+    ///
+    /// IMPORTANT:
+    ///
+    /// If this value is set too high, you might be unable to recover
+    /// from an accidental delay increase for an extended period. Too low, and it unnecessarily
+    /// restricts how much security delay you can impose for `default_admin` transfers. As a best
+    /// practice, consider setting it in the 30-60 day range for a good balance between security and
+    /// recoverability.
+    fn maximum_default_admin_transfer_delay(self: @TState) -> u64;
 }
 
 #[starknet::interface]

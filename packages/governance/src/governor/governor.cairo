@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v3.0.0-alpha.3 (governance/src/governor/governor.cairo)
+// OpenZeppelin Contracts for Cairo v3.0.0 (governance/src/governor/governor.cairo)
 
 /// # Governor Component
 ///
@@ -562,6 +562,7 @@ pub mod GovernorComponent {
         /// Requirements:
         ///
         /// - The proposal must be active.
+        /// - The current timepoint must be greater than the proposal's snapshot timepoint.
         ///
         /// Emits a `VoteCast` event.
         fn cast_vote(
@@ -576,6 +577,7 @@ pub mod GovernorComponent {
         /// Requirements:
         ///
         /// - The proposal must be active.
+        /// - The current timepoint must be greater than the proposal's snapshot timepoint.
         ///
         /// Emits a `VoteCast` event.
         fn cast_vote_with_reason(
@@ -593,6 +595,7 @@ pub mod GovernorComponent {
         /// Requirements:
         ///
         /// - The proposal must be active.
+        /// - The current timepoint must be greater than the proposal's snapshot timepoint.
         ///
         /// Emits either:
         /// - `VoteCast` event if no params are provided.
@@ -613,6 +616,7 @@ pub mod GovernorComponent {
         /// Requirements:
         ///
         /// - The proposal must be active.
+        /// - The current timepoint must be greater than the proposal's snapshot timepoint.
         /// - The nonce in the signed message must match the account's current nonce.
         /// - `voter` must implement `SRC6::is_valid_signature`.
         /// - `signature` should be valid for the message hash.
@@ -645,6 +649,7 @@ pub mod GovernorComponent {
         /// Requirements:
         ///
         /// - The proposal must be active.
+        /// - The current timepoint must be greater than the proposal's snapshot timepoint.
         /// - The nonce in the signed message must match the account's current nonce.
         /// - `voter` must implement `SRC6::is_valid_signature`.
         /// - `signature` should be valid for the message hash.
@@ -889,13 +894,12 @@ pub mod GovernorComponent {
             assert(snapshot.is_non_zero(), Errors::NONEXISTENT_PROPOSAL);
 
             let current_timepoint = self.clock();
-            if current_timepoint < snapshot {
+            if snapshot >= current_timepoint {
                 return ProposalState::Pending;
             }
 
             let deadline = self._proposal_deadline(proposal_id);
-
-            if current_timepoint <= deadline {
+            if deadline >= current_timepoint {
                 return ProposalState::Active;
             } else if !self.quorum_reached(proposal_id) || !self.vote_succeeded(proposal_id) {
                 return ProposalState::Defeated;

@@ -3,7 +3,7 @@ version = 1
 
 [[package]]
 name = "openzeppelin"
-version = "3.0.0-alpha.3"
+version = "3.0.0"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_account",
@@ -24,10 +24,11 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_access"
-version = "3.0.0-alpha.3"
+version = "3.0.0"
 dependencies = [
  "openzeppelin_interfaces",
  "openzeppelin_introspection",
+ "openzeppelin_macros",
  "openzeppelin_test_common",
  "openzeppelin_testing",
  "openzeppelin_utils",
@@ -36,7 +37,7 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_account"
-version = "3.0.0-alpha.3"
+version = "3.0.0"
 dependencies = [
  "openzeppelin_interfaces",
  "openzeppelin_introspection",
@@ -48,7 +49,7 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_finance"
-version = "3.0.0-alpha.3"
+version = "3.0.0"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_interfaces",
@@ -61,7 +62,7 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_governance"
-version = "3.0.0-alpha.3"
+version = "3.0.0"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_interfaces",
@@ -75,14 +76,14 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_interfaces"
-version = "2.1.0-alpha.0"
+version = "2.1.0"
 dependencies = [
  "snforge_std",
 ]
 
 [[package]]
 name = "openzeppelin_introspection"
-version = "3.0.0-alpha.3"
+version = "3.0.0"
 dependencies = [
  "openzeppelin_interfaces",
  "openzeppelin_test_common",
@@ -91,11 +92,11 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_macros"
-version = "3.0.0-alpha.3"
+version = "3.0.0"
 
 [[package]]
 name = "openzeppelin_merkle_tree"
-version = "3.0.0-alpha.3"
+version = "3.0.0"
 dependencies = [
  "openzeppelin_testing",
  "snforge_std",
@@ -103,7 +104,7 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_presets"
-version = "3.0.0-alpha.3"
+version = "3.0.0"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_account",
@@ -120,7 +121,7 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_security"
-version = "3.0.0-alpha.3"
+version = "3.0.0"
 dependencies = [
  "openzeppelin_interfaces",
  "openzeppelin_test_common",
@@ -131,7 +132,7 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_test_common"
-version = "3.0.0-alpha.3"
+version = "3.0.0"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_account",
@@ -150,14 +151,14 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_testing"
-version = "6.1.0"
+version = "6.3.0"
 dependencies = [
  "snforge_std",
 ]
 
 [[package]]
 name = "openzeppelin_token"
-version = "3.0.0-alpha.3"
+version = "3.0.0"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_interfaces",
@@ -170,7 +171,7 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_upgrades"
-version = "3.0.0-alpha.3"
+version = "3.0.0"
 dependencies = [
  "openzeppelin_test_common",
  "openzeppelin_testing",
@@ -179,7 +180,7 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_utils"
-version = "2.1.0-alpha.0"
+version = "2.1.0"
 dependencies = [
  "openzeppelin_interfaces",
  "openzeppelin_test_common",
@@ -189,15 +190,15 @@ dependencies = [
 
 [[package]]
 name = "snforge_scarb_plugin"
-version = "0.52.0"
+version = "0.54.1"
 source = "registry+https://scarbs.xyz/"
-checksum = "sha256:c33027f8ac078e4bbfc0bd1b7e7849ffe2e6bdd6c24649d0b5ede145095b4743"
+checksum = "sha256:5c754ba8c262633e60c2cd06710cb96604c8bf20595fe60965013fedd8a55df9"
 
 [[package]]
 name = "snforge_std"
-version = "0.52.0"
+version = "0.54.1"
 source = "registry+https://scarbs.xyz/"
-checksum = "sha256:db8d395191bb2b526c44cee65b10a4044dc59e23a1c1d8009a73c7035760ed6b"
+checksum = "sha256:e0532e6149ffc580e282d0774404e512a6814d477cd65529b91d5a09ac6e07d6"
 dependencies = [
  "snforge_scarb_plugin",
 ]

@@ -1,0 +1,31 @@
+---
+source: src/tests/test_generate_event_spy_helpers.rs
+assertion_line: 33
+expression: get_string_result(input)
+---
+TokenStream:
+
+#[generate_trait]
+impl TreasurySpyHelpers of TreasurySpyHelpersTrait {
+    fn assert_event_emergency_halt(
+        ref self: EventSpy, contract: ContractAddress, requester: ContractAddress,
+    ) {
+        let expected = ExpectedEvent::new().key(selector!("EmergencyHalt")).data(requester);
+        self.assert_emitted_single(contract, expected);
+    }
+    fn assert_only_event_emergency_halt(
+        ref self: EventSpy, contract: ContractAddress, requester: ContractAddress,
+    ) {
+        let expected = ExpectedEvent::new().key(selector!("EmergencyHalt")).data(requester);
+        self.assert_only_event(contract, expected);
+    }
+}
+
+
+Diagnostics:
+
+None
+
+AuxData:
+
+None

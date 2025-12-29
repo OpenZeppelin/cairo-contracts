@@ -63,6 +63,19 @@ fn test_state_pending() {
 }
 
 #[test]
+fn test_state_pending_at_snapshot() {
+    let mut component_state = COMPONENT_STATE();
+    deploy_votes_token();
+    initialize_votes_component(VOTES_TOKEN);
+    let (id, proposal) = setup_pending_proposal(ref component_state, false);
+
+    let snapshot = proposal.vote_start;
+    start_cheat_block_timestamp_global(snapshot);
+    let state = GovernorExecution::state(@component_state, id);
+    assert_eq!(state, ProposalState::Pending);
+}
+
+#[test]
 fn test_state_active() {
     let mut component_state = COMPONENT_STATE();
     deploy_votes_token();

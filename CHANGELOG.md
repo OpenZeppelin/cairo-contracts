@@ -11,8 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `IERC721Wrapper` interface in `openzeppelin_interfaces::token::erc721` (#1624)
-- `ERC721WrapperComponent` providing ERC721 wrapping and unwrapping functionality (#1624)
+- `IERC721Wrapper` interface in `openzeppelin_interfaces::token::erc721` (#1625)
+- `ERC721WrapperComponent` providing ERC721 wrapping and unwrapping functionality (#1625)
 
 ## 3.0.0 (2025-12-11)
 

@@ -12,7 +12,6 @@ pub const IERC721_RECEIVER_ID: felt252 =
 pub const IERC721_ENUMERABLE_ID: felt252 =
     0x16bc0f502eeaf65ce0b3acb5eea656e2f26979ce6750e8502a82f377e538c87;
 
-
 #[starknet::interface]
 pub trait IERC721<TState> {
     fn balance_of(self: @TState, account: ContractAddress) -> u256;

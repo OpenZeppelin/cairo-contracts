@@ -14,10 +14,16 @@
 /// balance. Please exercise caution when wrapping tokens that may undercollateralize the wrapper
 /// (i.e. the wrapper's total supply is higher than its underlying balance). See `recover` for
 /// recovering value accrued to the wrapper.
+///
+/// IMPORTANT: The underlying token must implement IERC20Metadata and have the same decimals as the
+/// wrapper. This is enforced in the initializer.
 #[starknet::component]
 pub mod ERC20WrapperComponent {
     use core::num::traits::Zero;
-    use openzeppelin_interfaces::erc20::{IERC20Dispatcher, IERC20DispatcherTrait};
+    use openzeppelin_interfaces::erc20::{
+        IERC20Dispatcher, IERC20DispatcherTrait, IERC20MetadataDispatcher,
+        IERC20MetadataDispatcherTrait,
+    };
     use openzeppelin_interfaces::token::erc20::{IERC20, IERC20Wrapper};
     use starknet::ContractAddress;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
@@ -64,6 +70,7 @@ pub mod ERC20WrapperComponent {
         pub const INVALID_RECEIVER: felt252 = 'Wrapper: invalid receiver';
         pub const TRANSFER_FAILED: felt252 = 'Wrapper: transfer failed';
         pub const NOTHING_TO_RECOVER: felt252 = 'Wrapper: nothing to recover';
+        pub const INVALID_DECIMALS: felt252 = 'Wrapper: invalid decimals';
     }
 
     //
@@ -136,15 +143,28 @@ pub mod ERC20WrapperComponent {
         TContractState,
         +HasComponent<TContractState>,
         impl ERC20: ERC20Component::HasComponent<TContractState>,
+        impl ERC20ImmutableConfig: ERC20Component::ImmutableConfig,
         +ERC20Component::ERC20HooksTrait<TContractState>,
         +Drop<TContractState>,
     > of InternalTrait<TContractState> {
         /// Sets the underlying token address.
+        ///
+        /// Requirements:
+        /// - `underlying` cannot be the zero address.
+        /// - `underlying` cannot be the same as the contract address.
+        /// - The underlying token must implement IERC20Metadata.
+        /// - The underlying token must have the same decimals as the wrapper.
         fn initializer(ref self: ComponentState<TContractState>, underlying: ContractAddress) {
             let this = starknet::get_contract_address();
             assert(underlying.is_non_zero(), Errors::INVALID_UNDERLYING_ADDRESS);
             assert(underlying != this, Errors::INVALID_UNDERLYING_ADDRESS);
             self.ERC20Wrapper_underlying.write(underlying);
+
+            // Validate that decimals are the same
+            let underlying_token = IERC20MetadataDispatcher { contract_address: underlying };
+            let underlying_decimals = underlying_token.decimals();
+            let wrapper_decimals = ERC20ImmutableConfig::DECIMALS;
+            assert(underlying_decimals == wrapper_decimals, Errors::INVALID_DECIMALS);
         }
 
         /// Mints wrapped tokens to cover any underlying tokens that were transferred to this

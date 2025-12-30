@@ -59,6 +59,8 @@ build-external-contracts = [
     "openzeppelin_test_common::mocks::erc4626::ERC4626MockWithHooks",
     "openzeppelin_test_common::mocks::erc4626::ERC4626ExternalVaultMock",
     "openzeppelin_test_common::mocks::erc721::DualCaseERC721ReceiverMock",
+    "openzeppelin_test_common::mocks::erc721::ERC721MintableMock",
+    "openzeppelin_test_common::mocks::erc721::ERC721WrapperMock",
     "openzeppelin_test_common::mocks::erc1155::DualCaseERC1155ReceiverMock",
     "openzeppelin_test_common::mocks::non_implementing::NonImplementingMock",
     "openzeppelin_test_common::mocks::src5::SRC5Mock",

@@ -163,6 +163,10 @@ pub trait ERC721ReceiverMixin<TState> {
     fn supports_interface(self: @TState, interface_id: felt252) -> bool;
 }
 
+//
+// IERC721Enumerable
+//
+
 #[starknet::interface]
 pub trait IERC721Enumerable<TState> {
     fn total_supply(self: @TState) -> u256;

@@ -170,7 +170,7 @@ pub trait ERC20ABI<TState> {
 }
 
 //
-// Extensions
+// IERC20Wrapper
 //
 
 #[starknet::interface]

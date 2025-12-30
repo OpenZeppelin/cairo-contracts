@@ -109,6 +109,38 @@ fn deposit_for_reverts_when_receiver_is_wrapper() {
     wrapper.deposit_for(wrapper.contract_address, VALUE);
 }
 
+#[test]
+fn deposit_for_allows_zero_amount() {
+    let (underlying, wrapper) = setup_wrapped();
+    let wrapper_erc20 = IERC20Dispatcher { contract_address: wrapper.contract_address };
+
+    start_cheat_caller_address(underlying.contract_address, OWNER);
+    assert!(underlying.approve(wrapper.contract_address, 0));
+    stop_cheat_caller_address(underlying.contract_address);
+
+    start_cheat_caller_address(wrapper.contract_address, OWNER);
+    assert!(wrapper.deposit_for(RECIPIENT, 0));
+    stop_cheat_caller_address(wrapper.contract_address);
+
+    assert_eq!(underlying.balance_of(OWNER), TOKEN_SUPPLY);
+    assert_eq!(underlying.balance_of(wrapper.contract_address), 0);
+    assert_eq!(wrapper_erc20.total_supply(), 0);
+    assert_eq!(wrapper_erc20.balance_of(RECIPIENT), 0);
+}
+
+#[test]
+#[should_panic(expected: 'Wrapper: invalid receiver')]
+fn deposit_for_reverts_when_receiver_is_zero() {
+    let (underlying, wrapper) = setup_wrapped();
+
+    start_cheat_caller_address(underlying.contract_address, OWNER);
+    assert!(underlying.approve(wrapper.contract_address, VALUE));
+    stop_cheat_caller_address(underlying.contract_address);
+
+    start_cheat_caller_address(wrapper.contract_address, OWNER);
+    wrapper.deposit_for(ZERO, VALUE);
+}
+
 //
 // withdraw_to
 //
@@ -151,6 +183,44 @@ fn withdraw_to_reverts_when_receiver_is_wrapper() {
     wrapper.deposit_for(OWNER, VALUE);
 
     wrapper.withdraw_to(wrapper.contract_address, VALUE);
+}
+
+#[test]
+fn withdraw_to_allows_zero_amount() {
+    let (underlying, wrapper) = setup_wrapped();
+    let wrapper_erc20 = IERC20Dispatcher { contract_address: wrapper.contract_address };
+
+    start_cheat_caller_address(wrapper.contract_address, OWNER);
+    assert!(wrapper.withdraw_to(RECIPIENT, 0));
+    stop_cheat_caller_address(wrapper.contract_address);
+
+    assert_eq!(underlying.balance_of(RECIPIENT), 0);
+    assert_eq!(underlying.balance_of(wrapper.contract_address), 0);
+    assert_eq!(wrapper_erc20.total_supply(), 0);
+    assert_eq!(wrapper_erc20.balance_of(OWNER), 0);
+}
+
+#[test]
+#[should_panic(expected: 'ERC20: insufficient balance')]
+fn withdraw_to_reverts_when_insufficient_balance() {
+    let (_, wrapper) = setup_wrapped();
+
+    start_cheat_caller_address(wrapper.contract_address, OWNER);
+    wrapper.withdraw_to(RECIPIENT, VALUE);
+}
+
+#[test]
+#[should_panic(expected: 'Wrapper: invalid receiver')]
+fn withdraw_to_reverts_when_receiver_is_zero() {
+    let (underlying, wrapper) = setup_wrapped();
+
+    start_cheat_caller_address(underlying.contract_address, OWNER);
+    assert!(underlying.approve(wrapper.contract_address, VALUE));
+    stop_cheat_caller_address(underlying.contract_address);
+
+    start_cheat_caller_address(wrapper.contract_address, OWNER);
+    assert!(wrapper.deposit_for(OWNER, VALUE));
+    wrapper.withdraw_to(ZERO, VALUE);
 }
 
 //

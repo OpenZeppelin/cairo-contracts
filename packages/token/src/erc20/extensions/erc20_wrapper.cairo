@@ -63,6 +63,7 @@ pub mod ERC20WrapperComponent {
         pub const INVALID_SENDER: felt252 = 'Wrapper: invalid sender';
         pub const INVALID_RECEIVER: felt252 = 'Wrapper: invalid receiver';
         pub const TRANSFER_FAILED: felt252 = 'Wrapper: transfer failed';
+        pub const NOTHING_TO_RECOVER: felt252 = 'Wrapper: nothing to recover';
     }
 
     //
@@ -89,6 +90,7 @@ pub mod ERC20WrapperComponent {
             let caller = starknet::get_caller_address();
             let this = starknet::get_contract_address();
             assert(caller != this, Errors::INVALID_SENDER);
+            assert(receiver.is_non_zero(), Errors::INVALID_RECEIVER);
             assert(receiver != this, Errors::INVALID_RECEIVER);
 
             let underlying = self.underlying();
@@ -109,6 +111,7 @@ pub mod ERC20WrapperComponent {
         ) -> bool {
             let caller = starknet::get_caller_address();
             let this = starknet::get_contract_address();
+            assert(receiver.is_non_zero(), Errors::INVALID_RECEIVER);
             assert(receiver != this, Errors::INVALID_RECEIVER);
 
             let mut erc20_component = get_dep_component_mut!(ref self, ERC20);
@@ -161,6 +164,9 @@ pub mod ERC20WrapperComponent {
 
             // calculate recoverable amount
             let value = underlying_balance - total_supply;
+
+            // if there is nothing to recover, revert
+            assert(value.is_non_zero(), Errors::NOTHING_TO_RECOVER);
 
             // mint recoverable amount to specified account
             erc20_component.mint(account, value);

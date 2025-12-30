@@ -1,0 +1,55 @@
+---
+source: src/tests/test_generate_event_spy_helpers.rs
+assertion_line: 175
+expression: get_string_result(input)
+---
+TokenStream:
+
+#[generate_trait]
+pub impl MixedSpyHelpers of MixedSpyHelpersTrait {
+    fn assert_event_scheduled_event(
+        ref self: EventSpy,
+        contract: ContractAddress,
+        role: felt252,
+        account: ContractAddress,
+        sender: ContractAddress,
+        delay: u64,
+        extra: felt252,
+    ) {
+        let expected = ExpectedEvent::new()
+            .key(selector!("ScheduledEvent"))
+            .key(role)
+            .key(account)
+            .data(sender)
+            .data(delay)
+            .data(extra);
+        self.assert_emitted_single(contract, expected);
+    }
+    fn assert_only_event_scheduled_event(
+        ref self: EventSpy,
+        contract: ContractAddress,
+        role: felt252,
+        account: ContractAddress,
+        sender: ContractAddress,
+        delay: u64,
+        extra: felt252,
+    ) {
+        let expected = ExpectedEvent::new()
+            .key(selector!("ScheduledEvent"))
+            .key(role)
+            .key(account)
+            .data(sender)
+            .data(delay)
+            .data(extra);
+        self.assert_only_event(contract, expected);
+    }
+}
+
+
+Diagnostics:
+
+None
+
+AuxData:
+
+None

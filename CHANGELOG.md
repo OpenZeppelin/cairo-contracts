@@ -9,12 +9,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## Added
+
+- `IERC20Wrapper` interface in `openzeppelin_interfaces::token::erc20` for ERC20 wrappers (#1617)
+- `ERC20WrapperComponent` providing ERC20 wrapping and unwrapping functionality (#1617)
+
+## 3.0.0 (2025-12-11)
+
 ### Added
 
-- New `IERC20Wrapper` interface in `openzeppelin_interfaces::token::erc20` for ERC20 wrappers (#1617)
-- New `ERC20WrapperComponent` providing ERC20 wrapping and unwrapping functionality (#1617)
+- AccessControlDefaultAdminRules (#1567):
+  - `MAXIMUM_DEFAULT_ADMIN_TRANSFER_DELAY` constant exposed in the component ImmutableConfig.
+  - `maximum_default_admin_transfer_delay` getter to the `IAccessControlDefaultAdminRules` interface.
+- `execute_single_call`, `execute_calls` and `assert_valid_signature` to openzeppelin_utils::execution (#1531)
+- MetaTransactionV0 preset, interface, and dispatchers (#1512)
+- Embeddable `ERC2981AdminAccessControlDefaultAdminRulesImpl` implementation providing admin functions for a `ERC2981` token based on `AccessControlDefaultAdminRules` component (#1516)
+- `ERC6372Clock` interface to `openzeppelin_utils::contract_clock` (#1417)
+- AccessControlDefaultAdminRules interface and component (#1432)
 
-## 3.0.0-alpha.3 (2025-10-09)
+### Changed
+
+- Bump scarb to 2.13.1 (#1565)
+- Decoupled openzeppelin_utils version from the umbrella package (#1531)
+- Removed openzeppelin_governance dependency on openzeppelin_account (#1531)
+- Removed openzeppelin_token dependency on openzeppelin_account (#1531)
+- `GovernorComponent` and its extensions support voting tokens that follow the `ERC6372` clock standard (#1417)
+
+### Changed (Breaking)
+
+- `GovernorComponent` proposal state resolution at snapshot timepoint changed from Active to Pending (#1606)
+- Removed `execute_single_call`, `execute_calls` and `assert_valid_signature` from openzeppelin_account::utils (#1531)
+- `VotesComponent` now supports customizable clock mechanisms via `ERC6372Clock`, enabling alternative clock sources (#1417)
+
+## 3.0.0-alpha.3 (2025-10-9)
 
 ### Added
 

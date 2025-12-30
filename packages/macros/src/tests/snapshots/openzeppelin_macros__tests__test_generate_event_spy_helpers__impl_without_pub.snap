@@ -1,0 +1,28 @@
+---
+source: src/tests/test_generate_event_spy_helpers.rs
+assertion_line: 98
+expression: get_string_result(input)
+---
+TokenStream:
+
+#[generate_trait]
+impl VaultSpyHelpers of VaultSpyHelpersTrait {
+    fn assert_event_withdrawal_queued(
+        ref self: EventSpy, contract: ContractAddress, recipient: ContractAddress, amount: u256,
+    ) {
+        let expected = ExpectedEvent::new()
+            .key(selector!("WithdrawalQueued"))
+            .data(recipient)
+            .data(amount);
+        self.assert_emitted_single(contract, expected);
+    }
+}
+
+
+Diagnostics:
+
+None
+
+AuxData:
+
+None

@@ -1,0 +1,46 @@
+---
+source: src/tests/test_generate_event_spy_helpers.rs
+assertion_line: 127
+expression: get_string_result(input)
+---
+TokenStream:
+
+#[generate_trait]
+impl TreasurySpyHelpers of TreasurySpyHelpersTrait {
+    fn assert_event_deposit_recorded(
+        ref self: EventSpy, contract: ContractAddress, depositor: ContractAddress, amount: u256,
+    ) {
+        let expected = ExpectedEvent::new()
+            .key(selector!("DepositRecorded"))
+            .data(depositor)
+            .data(amount);
+        self.assert_emitted_single(contract, expected);
+    }
+    fn assert_event_withdrawal_settled(
+        ref self: EventSpy, contract: ContractAddress, depositor: ContractAddress, amount: u256,
+    ) {
+        let expected = ExpectedEvent::new()
+            .key(selector!("WithdrawalSettled"))
+            .data(depositor)
+            .data(amount);
+        self.assert_emitted_single(contract, expected);
+    }
+    fn assert_only_event_withdrawal_settled(
+        ref self: EventSpy, contract: ContractAddress, depositor: ContractAddress, amount: u256,
+    ) {
+        let expected = ExpectedEvent::new()
+            .key(selector!("WithdrawalSettled"))
+            .data(depositor)
+            .data(amount);
+        self.assert_only_event(contract, expected);
+    }
+}
+
+
+Diagnostics:
+
+None
+
+AuxData:
+
+None

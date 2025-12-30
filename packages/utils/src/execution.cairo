@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v3.0.0-alpha.3 (utils/src/execution.cairo)
+// OpenZeppelin Contracts for Cairo v3.0.0 (utils/src/execution.cairo)
 
 use openzeppelin_interfaces::accounts::{ISRC6Dispatcher, ISRC6DispatcherTrait};
 use starknet::account::Call;

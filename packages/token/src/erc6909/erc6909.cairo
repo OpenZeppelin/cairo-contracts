@@ -276,6 +276,8 @@ pub mod ERC6909Component {
             spender: ContractAddress,
             approved: bool,
         ) {
+            assert(owner.is_non_zero(), Errors::INVALID_APPROVER);
+            assert(spender.is_non_zero(), Errors::INVALID_SPENDER);
             self.ERC6909_operators.write((owner, spender), approved);
             self.emit(OperatorSet { owner, spender, approved });
         }

@@ -76,16 +76,13 @@ fn test_allowance() {
 fn test_is_operator() {
     let mut state = COMPONENT_STATE();
 
-    let not_operator = !state.is_operator(OWNER, SPENDER);
-    assert!(not_operator);
+    assert!(!state.is_operator(OWNER, SPENDER));
 
     state._set_operator(OWNER, SPENDER, true);
-    let is_operator = state.is_operator(OWNER, SPENDER);
-    assert!(is_operator);
+    assert!(state.is_operator(OWNER, SPENDER));
 
     state._set_operator(OWNER, SPENDER, false);
-    let not_operator = !state.is_operator(OWNER, SPENDER);
-    assert!(not_operator);
+    assert!(!state.is_operator(OWNER, SPENDER));
 }
 
 
@@ -104,7 +101,6 @@ fn test_transfer_success() {
     assert_state_before_transfer(caller, receiver, id, amount, SUPPLY);
 
     assert!(state.transfer(receiver, id, amount));
-    assert!(ok);
 
     spy.assert_only_event_transfer(contract_address, caller, caller, receiver, id, amount);
     assert_state_after_transfer(caller, receiver, id, amount, SUPPLY);
@@ -138,8 +134,7 @@ fn test_transfer_from_by_sender_itself() {
     let mut spy = spy_events();
 
     assert_state_before_transfer(sender, receiver, TOKEN_ID, VALUE, SUPPLY);
-    let ok = state.transfer_from(sender, receiver, TOKEN_ID, VALUE);
-    assert!(ok);
+    assert!(state.transfer_from(sender, receiver, TOKEN_ID, VALUE));
     spy.assert_only_event_transfer(contract_address, sender, sender, receiver, TOKEN_ID, VALUE);
     assert_state_after_transfer(sender, receiver, TOKEN_ID, VALUE, SUPPLY);
 }
@@ -155,8 +150,7 @@ fn test_transfer_from_with_allowance() {
     start_cheat_caller_address(contract_address, SPENDER);
     let mut spy = spy_events();
 
-    let ok = state.transfer_from(OWNER, RECIPIENT, TOKEN_ID, VALUE);
-    assert!(ok);
+    assert!(state.transfer_from(OWNER, RECIPIENT, TOKEN_ID, VALUE));
 
     spy.assert_event_approval(contract_address, OWNER, SPENDER, TOKEN_ID, 0);
     spy.assert_only_event_transfer(contract_address, SPENDER, OWNER, RECIPIENT, TOKEN_ID, VALUE);
@@ -192,8 +186,7 @@ fn test_transfer_from_operator_bypass_allowance() {
     start_cheat_caller_address(contract_address, SPENDER);
     let mut spy = spy_events();
 
-    let ok = state.transfer_from(OWNER, RECIPIENT, TOKEN_ID, VALUE);
-    assert!(ok);
+    assert!(state.transfer_from(OWNER, RECIPIENT, TOKEN_ID, VALUE));
 
     spy.assert_only_event_transfer(contract_address, SPENDER, OWNER, RECIPIENT, TOKEN_ID, VALUE);
     assert_eq!(state.allowance(OWNER, SPENDER, TOKEN_ID), 0);
@@ -219,8 +212,7 @@ fn test_approve_external() {
     start_cheat_caller_address(contract_address, OWNER);
     let mut spy = spy_events();
 
-    let ok = state.approve(SPENDER, TOKEN_ID, VALUE);
-    assert!(ok);
+    assert!(state.approve(SPENDER, TOKEN_ID, VALUE));
 
     spy.assert_only_event_approval(contract_address, OWNER, SPENDER, TOKEN_ID, VALUE);
     assert_eq!(state.allowance(OWNER, SPENDER, TOKEN_ID), VALUE);
@@ -249,13 +241,11 @@ fn test_set_operator_external() {
     start_cheat_caller_address(contract_address, OWNER);
     let mut spy = spy_events();
 
-    let ok = state.set_operator(SPENDER, true);
-    assert!(ok);
+    assert!(state.set_operator(SPENDER, true));
     spy.assert_only_event_operator_set(contract_address, OWNER, SPENDER, true);
     assert!(state.is_operator(OWNER, SPENDER));
 
-    let ok2 = state.set_operator(SPENDER, false);
-    assert!(ok2);
+    assert!(state.set_operator(SPENDER, false));
     spy.assert_only_event_operator_set(contract_address, OWNER, SPENDER, false);
     assert!(!state.is_operator(OWNER, SPENDER));
 }

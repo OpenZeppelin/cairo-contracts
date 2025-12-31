@@ -96,6 +96,11 @@ pub mod ERC6909Component {
             amount: u256,
         ) {}
     }
+    
+    //
+    // External
+    //
+    
     #[embeddable_as(ERC6909Impl)]
     impl ERC6909<
         TContractState,

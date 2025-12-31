@@ -65,8 +65,8 @@ pub mod ERC6909TokenSupplyComponent {
         }
 
         /// Updates the total supply of a token ID.
-        /// Ideally this function should be called in a `before_update` or `after_update`
-        /// hook during mints and burns.
+        /// This function MUST be called in the `before_update` hook to track supply
+        /// changes during mints and burns.
         fn _update_token_supply(
             ref self: ComponentState<TContractState>,
             sender: ContractAddress,

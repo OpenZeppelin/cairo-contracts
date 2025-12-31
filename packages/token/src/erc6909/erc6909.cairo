@@ -75,6 +75,7 @@ pub mod ERC6909Component {
         pub const INVALID_SENDER: felt252 = 'ERC6909: invalid sender';
         pub const INVALID_SPENDER: felt252 = 'ERC6909: invalid spender';
     }
+    
     //
     // Hooks
     //

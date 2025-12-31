@@ -3,7 +3,8 @@
 
 /// # ERC6909 Component
 ///
-/// The ERC6909 component provides an implementation of the Minimal Multi-Token standard described in https://eips.ethereum.org/EIPS/eip-6909.
+/// The ERC6909 component provides an implementation of the Minimal Multi-Token standard described
+/// in https://eips.ethereum.org/EIPS/eip-6909.
 #[starknet::component]
 pub mod ERC6909Component {
     use core::num::traits::{Bounded, Zero};
@@ -75,7 +76,7 @@ pub mod ERC6909Component {
         pub const INVALID_SENDER: felt252 = 'ERC6909: invalid sender';
         pub const INVALID_SPENDER: felt252 = 'ERC6909: invalid spender';
     }
-    
+
     //
     // Hooks
     //
@@ -98,11 +99,11 @@ pub mod ERC6909Component {
         ) {}
     }
 
-    
+
     //
     // External
     //
-    
+
     #[embeddable_as(ERC6909Impl)]
     impl ERC6909<
         TContractState,

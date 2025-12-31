@@ -103,7 +103,7 @@ fn test_transfer_success() {
     let mut spy = spy_events();
     assert_state_before_transfer(caller, receiver, id, amount, SUPPLY);
 
-    let ok = state.transfer(receiver, id, amount);
+    assert!(state.transfer(receiver, id, amount));
     assert!(ok);
 
     spy.assert_only_event_transfer(contract_address, caller, caller, receiver, id, amount);

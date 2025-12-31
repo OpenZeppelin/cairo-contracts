@@ -3,8 +3,7 @@
 
 /// # ERC6909 Component
 ///
-/// The ERC6909 component provides an implementation of the Minimal Multi-Token standard authored by
-/// jtriley.eth See https://eips.ethereum.org/EIPS/eip-6909.
+/// The ERC6909 component provides an implementation of the Minimal Multi-Token standard described in https://eips.ethereum.org/EIPS/eip-6909.
 #[starknet::component]
 pub mod ERC6909Component {
     use core::num::traits::{Bounded, Zero};

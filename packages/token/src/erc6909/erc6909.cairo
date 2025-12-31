@@ -158,7 +158,9 @@ pub mod ERC6909Component {
             amount: u256,
         ) -> bool {
             let caller = get_caller_address();
-            self._spend_allowance(sender, caller, id, amount);
+            if sender != caller && !self.ERC6909_operators.read((sender, caller)) {
+                self._spend_allowance(sender, caller, id, amount);
+            }
             self._transfer(sender, receiver, id, amount);
             true
         }
@@ -282,9 +284,12 @@ pub mod ERC6909Component {
             self.emit(OperatorSet { owner, spender, approved });
         }
 
-        /// Updates `sender`'s allowance for `spender`  and `id` based on spent `amount`.
-        /// Does not update the allowance value in case of infinite allowance or if spender is
-        /// operator.
+        /// Updates `owner`'s allowance for `spender` and `id` based on spent `amount`.
+        ///
+        /// Does not update the allowance value in case of infinite allowance.
+        /// Reverts if not enough allowance is available.
+        ///
+        /// Does not emit an `Approval` event.
         fn _spend_allowance(
             ref self: ComponentState<TContractState>,
             owner: ContractAddress,
@@ -292,15 +297,10 @@ pub mod ERC6909Component {
             id: u256,
             amount: u256,
         ) {
-            // In accordance with the transferFrom method, spenders with operator permission are not
-            // subject to allowance restrictions (https://eips.ethereum.org/EIPS/eip-6909).
-            if owner != spender && !self.ERC6909_operators.read((owner, spender)) {
-                let sender_allowance = self.ERC6909_allowances.read((owner, spender, id));
-
-                if sender_allowance != Bounded::MAX {
-                    assert(sender_allowance >= amount, Errors::INSUFFICIENT_ALLOWANCE);
-                    self._approve(owner, spender, id, sender_allowance - amount)
-                }
+            let current_allowance = self.ERC6909_allowances.read((owner, spender, id));
+            if current_allowance != Bounded::MAX {
+                assert(current_allowance >= amount, Errors::INSUFFICIENT_ALLOWANCE);
+                self.ERC6909_allowances.write((owner, spender, id), current_allowance - amount);
             }
         }
 

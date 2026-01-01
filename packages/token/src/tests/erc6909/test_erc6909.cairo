@@ -152,7 +152,6 @@ fn test_transfer_from_with_allowance() {
 
     assert!(state.transfer_from(OWNER, RECIPIENT, TOKEN_ID, VALUE));
 
-    spy.assert_event_approval(contract_address, OWNER, SPENDER, TOKEN_ID, 0);
     spy.assert_only_event_transfer(contract_address, SPENDER, OWNER, RECIPIENT, TOKEN_ID, VALUE);
 
     assert_eq!(state.allowance(OWNER, SPENDER, TOKEN_ID), 0);

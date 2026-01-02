@@ -13,8 +13,10 @@ pub mod ERC6909ContentURIComponent {
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin_token::erc6909::ERC6909Component;
-    use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
-    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use starknet::storage::{
+        Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
+        StoragePointerWriteAccess,
+    };
 
     #[storage]
     pub struct Storage {
@@ -89,7 +91,9 @@ pub mod ERC6909ContentURIComponent {
         /// Sets the token URI for a given token ID.
         ///
         /// Emits a `URI` event.
-        fn _set_token_uri(ref self: ComponentState<TContractState>, id: u256, token_uri: ByteArray) {
+        fn _set_token_uri(
+            ref self: ComponentState<TContractState>, id: u256, token_uri: ByteArray,
+        ) {
             self.ERC6909ContentURI_token_uris.write(id, token_uri.clone());
             self.emit(URI { value: token_uri, id });
         }

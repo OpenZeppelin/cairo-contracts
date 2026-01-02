@@ -134,22 +134,18 @@ fn test_different_token_ids_have_different_uris() {
 
 #[generate_trait]
 impl ERC6909ContentURISpyHelpersImpl of ERC6909ContentURISpyHelpers {
-    fn assert_only_event_contract_uri_updated(ref self: EventSpy, contract: starknet::ContractAddress) {
+    fn assert_only_event_contract_uri_updated(
+        ref self: EventSpy, contract: starknet::ContractAddress,
+    ) {
         let expected = ExpectedEvent::new().key(selector!("ContractURIUpdated"));
         self.assert_emitted_single(contract, expected);
         self.assert_no_events_left_from(contract);
     }
 
     fn assert_only_event_uri(
-        ref self: EventSpy,
-        contract: starknet::ContractAddress,
-        value: ByteArray,
-        id: u256,
+        ref self: EventSpy, contract: starknet::ContractAddress, value: ByteArray, id: u256,
     ) {
-        let expected = ExpectedEvent::new()
-            .key(selector!("URI"))
-            .key(id)
-            .data(value);
+        let expected = ExpectedEvent::new().key(selector!("URI")).key(id).data(value);
         self.assert_emitted_single(contract, expected);
         self.assert_no_events_left_from(contract);
     }

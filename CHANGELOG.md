@@ -17,11 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added `ERC6909ABI` trait covering full ERC-6909 tokens functionality including extensions.
   - Added mocks: `ERC6909Mock`, `ERC6909MockWithHooks`, `ERC6909ContentURIMock`, `ERC6909MetadataMock`, `ERC6909TokenSupplyMock`.
   - Added tests for components.
-
 - Integration of ERC-6909 components into the `with_components` macro (#1594)
   - Added `ComponentInfo` implementations for ERC-6909 and its extensions.
   - Added new diagnostic `ERC6909_HOOKS_IMPL_MISSING`.
   - Added parser validation for missing hooks implementations.
+- `IERC20Wrapper` interface in `openzeppelin_interfaces::token::erc20` for ERC20 wrappers (#1617)
+- `ERC20WrapperComponent` providing ERC20 wrapping and unwrapping functionality (#1617)
 
 ## 3.0.0 (2025-12-11)
 

@@ -159,7 +159,7 @@ pub mod ERC6909Component {
             amount: u256,
         ) -> bool {
             let caller = get_caller_address();
-            if sender != caller && !self.ERC6909_operators.read((sender, caller)) {
+            if sender != caller && !self.is_operator(sender, caller) {
                 self._spend_allowance(sender, caller, id, amount);
             }
             self._transfer(sender, receiver, id, amount);

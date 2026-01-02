@@ -552,7 +552,16 @@ NOTE: Implementing xref:#ERC6909Component[ERC6909Component] is a requirement for
 .Internal functions
 --
 .InternalImpl
-* xref:#ERC6909ContentURIComponent-initializer[`++initializer(self, contract_uri)++`]
+* xref:#ERC6909ContentURIComponent-initializer[`++initializer(self)++`]
+* xref:#ERC6909ContentURIComponent-_set_contract_uri[`++_set_contract_uri(self, contract_uri)++`]
+* xref:#ERC6909ContentURIComponent-_set_token_uri[`++_set_token_uri(self, id, token_uri)++`]
+--
+
+[.contract-index]
+.Events
+--
+* xref:#ERC6909ContentURIComponent-ContractURIUpdated[`++ContractURIUpdated()++`]
+* xref:#ERC6909ContentURIComponent-URI[`++URI(value, id)++`]
 --
 
 ==== Embeddable functions
@@ -568,23 +577,48 @@ Returns the contract-level URI.
 ==== `[.contract-item-name]#++token_uri++#++(self: @ContractState, id: u256) → ByteArray++` [.item-kind]#external#
 
 Returns the token-level URI for token `id`.
-
-If a contract URI is set, the resulting URI for each token will be the concatenation of the contract URI
-and the token ID. For example, the contract URI pass:[<code>https://token-cdn-domain/</code>] would be
-returned as pass:[<code>https://token-cdn-domain/123</code>] for token ID 123.
-
-If the contract URI is not set, the return value will be an empty ByteArray.
+If no URI has been set for the token, the return value will be an empty `ByteArray`.
 
 ==== Internal functions
 
 [.contract-item]
 [[ERC6909ContentURIComponent-initializer]]
-==== `[.contract-item-name]#++initializer++#++(ref self: ContractState, contract_uri: ByteArray)++` [.item-kind]#internal#
+==== `[.contract-item-name]#++initializer++#++(ref self: ContractState)++` [.item-kind]#internal#
 
-Initializes the component by setting the contract-level URI to `contract_uri` and registering the
-IERC6909ContentUri interface ID as supported through introspection.
+Initializes the component by registering the IERC6909ContentUri interface ID as supported through introspection.
 
 This should be used inside the contract's constructor.
+
+[.contract-item]
+[[ERC6909ContentURIComponent-_set_contract_uri]]
+==== `[.contract-item-name]#++_set_contract_uri++#++(ref self: ContractState, contract_uri: ByteArray)++` [.item-kind]#internal#
+
+Sets the contract-level URI to `contract_uri`.
+
+Emits a <<ERC6909ContentURIComponent-ContractURIUpdated,ContractURIUpdated>> event.
+
+[.contract-item]
+[[ERC6909ContentURIComponent-_set_token_uri]]
+==== `[.contract-item-name]#++_set_token_uri++#++(ref self: ContractState, id: u256, token_uri: ByteArray)++` [.item-kind]#internal#
+
+Sets the token-level URI for token `id` to `token_uri`.
+
+Emits a <<ERC6909ContentURIComponent-URI,URI>> event.
+
+==== Events
+
+[.contract-item]
+[[ERC6909ContentURIComponent-ContractURIUpdated]]
+==== `[.contract-item-name]#++ContractURIUpdated++#++()++` [.item-kind]#event#
+
+Emitted when the contract URI is changed.
+See https://eips.ethereum.org/EIPS/eip-7572[ERC-7572] for details.
+
+[.contract-item]
+[[ERC6909ContentURIComponent-URI]]
+==== `[.contract-item-name]#++URI++#++(value: ByteArray, id: u256)++` [.item-kind]#event#
+
+Emitted when the URI for token `id` is changed to `value`.
 
 [.contract]
 [[ERC6909MetadataComponent]]

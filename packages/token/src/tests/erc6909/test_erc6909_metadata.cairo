@@ -75,7 +75,7 @@ fn test__update_token_metadata_on_mint_does_not_overwrite_if_exists() {
     let mut state = COMPONENT_STATE();
 
     state._set_token_metadata(TOKEN_ID, NAME(), SYMBOL(), DECIMALS);
-    state._update_token_metadata(ZERO, TOKEN_ID, NAME_2(), SYMBOL_2(), DECIMALS_2);
+    state._update_token_metadata(ZERO, TOKEN_ID, ALT_NAME(), ALT_SYMBOL(), ALT_DECIMALS);
 
     assert_eq!(state.name(TOKEN_ID), NAME());
     assert_eq!(state.symbol(TOKEN_ID), SYMBOL());
@@ -101,7 +101,7 @@ fn test__update_token_metadata_on_transfer_does_not_overwrite_existing() {
     let sender: ContractAddress = OWNER;
 
     state._set_token_metadata(TOKEN_ID, NAME(), SYMBOL(), DECIMALS);
-    state._update_token_metadata(sender, TOKEN_ID, NAME_2(), SYMBOL_2(), DECIMALS_2);
+    state._update_token_metadata(sender, TOKEN_ID, ALT_NAME(), ALT_SYMBOL(), ALT_DECIMALS);
 
     assert_eq!(state.name(TOKEN_ID), NAME());
     assert_eq!(state.symbol(TOKEN_ID), SYMBOL());

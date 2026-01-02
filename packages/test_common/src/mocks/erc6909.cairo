@@ -113,7 +113,8 @@ pub mod ERC6909ContentURIMock {
         amount: u256,
     ) {
         self.erc6909.initializer();
-        self.erc6909_content_uri.initializer(contract_uri);
+        self.erc6909_content_uri.initializer();
+        self.erc6909_content_uri._set_contract_uri(contract_uri);
         self.erc6909._mint(recipient, id, amount);
     }
 }

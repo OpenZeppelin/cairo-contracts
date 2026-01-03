@@ -2,8 +2,9 @@ use openzeppelin_interfaces::erc6909::IERC6909_METADATA_ID;
 use openzeppelin_interfaces::introspection::ISRC5_ID;
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin_test_common::mocks::erc6909::ERC6909MetadataMock;
-use openzeppelin_testing::constants::{DECIMALS, NAME, OWNER, SYMBOL, TOKEN_ID, ZERO};
-use starknet::ContractAddress;
+use openzeppelin_testing::constants::{DECIMALS, NAME, SYMBOL, TOKEN_ID};
+use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, ExpectedEvent, spy_events};
+use snforge_std::test_address;
 use crate::erc6909::extensions::erc6909_metadata::ERC6909MetadataComponent;
 use crate::erc6909::extensions::erc6909_metadata::ERC6909MetadataComponent::{
     ERC6909MetadataImpl, InternalImpl,
@@ -18,14 +19,6 @@ fn CONTRACT_STATE() -> ERC6909MetadataMock::ContractState {
 fn COMPONENT_STATE() -> ComponentState {
     ERC6909MetadataComponent::component_state_for_testing()
 }
-
-fn ALT_NAME() -> ByteArray {
-    "ALT_NAME"
-}
-fn ALT_SYMBOL() -> ByteArray {
-    "ALT_SYMBOL"
-}
-const ALT_DECIMALS: u8 = 6;
 
 #[test]
 fn test_initializer_registers_interface() {
@@ -49,61 +42,86 @@ fn test_default_getters_are_empty_or_zero() {
 }
 
 #[test]
-fn test__set_token_metadata_sets_values() {
+fn test__set_token_name() {
+    let mut state = COMPONENT_STATE();
+    let contract_address = test_address();
+
+    let mut spy = spy_events();
+    state._set_token_name(TOKEN_ID, NAME());
+
+    spy.assert_only_event_name_updated(contract_address, TOKEN_ID, NAME());
+    assert_eq!(state.name(TOKEN_ID), NAME());
+}
+
+#[test]
+fn test__set_token_symbol() {
+    let mut state = COMPONENT_STATE();
+    let contract_address = test_address();
+
+    let mut spy = spy_events();
+    state._set_token_symbol(TOKEN_ID, SYMBOL());
+
+    spy.assert_only_event_symbol_updated(contract_address, TOKEN_ID, SYMBOL());
+    assert_eq!(state.symbol(TOKEN_ID), SYMBOL());
+}
+
+#[test]
+fn test__set_token_decimals() {
+    let mut state = COMPONENT_STATE();
+    let contract_address = test_address();
+
+    let mut spy = spy_events();
+    state._set_token_decimals(TOKEN_ID, DECIMALS);
+
+    spy.assert_only_event_decimals_updated(contract_address, TOKEN_ID, DECIMALS);
+    assert_eq!(state.decimals(TOKEN_ID), DECIMALS);
+}
+
+#[test]
+fn test_set_all_metadata_individually() {
     let mut state = COMPONENT_STATE();
 
-    state._set_token_metadata(TOKEN_ID, NAME(), SYMBOL(), DECIMALS);
+    state._set_token_name(TOKEN_ID, NAME());
+    state._set_token_symbol(TOKEN_ID, SYMBOL());
+    state._set_token_decimals(TOKEN_ID, DECIMALS);
 
     assert_eq!(state.name(TOKEN_ID), NAME());
     assert_eq!(state.symbol(TOKEN_ID), SYMBOL());
     assert_eq!(state.decimals(TOKEN_ID), DECIMALS);
 }
 
-#[test]
-fn test__update_token_metadata_on_mint_sets_when_absent() {
-    let mut state = COMPONENT_STATE();
+#[generate_trait]
+impl ERC6909MetadataSpyHelpersImpl of ERC6909MetadataSpyHelpers {
+    fn assert_only_event_name_updated(
+        ref self: EventSpy, contract: starknet::ContractAddress, id: u256, new_name: ByteArray,
+    ) {
+        let expected = ExpectedEvent::new()
+            .key(selector!("ERC6909NameUpdated"))
+            .key(id)
+            .data(new_name);
+        self.assert_emitted_single(contract, expected);
+        self.assert_no_events_left_from(contract);
+    }
 
-    state._update_token_metadata(ZERO, TOKEN_ID, NAME(), SYMBOL(), DECIMALS);
+    fn assert_only_event_symbol_updated(
+        ref self: EventSpy, contract: starknet::ContractAddress, id: u256, new_symbol: ByteArray,
+    ) {
+        let expected = ExpectedEvent::new()
+            .key(selector!("ERC6909SymbolUpdated"))
+            .key(id)
+            .data(new_symbol);
+        self.assert_emitted_single(contract, expected);
+        self.assert_no_events_left_from(contract);
+    }
 
-    assert_eq!(state.name(TOKEN_ID), NAME());
-    assert_eq!(state.symbol(TOKEN_ID), SYMBOL());
-    assert_eq!(state.decimals(TOKEN_ID), DECIMALS);
-}
-
-#[test]
-fn test__update_token_metadata_on_mint_does_not_overwrite_if_exists() {
-    let mut state = COMPONENT_STATE();
-
-    state._set_token_metadata(TOKEN_ID, NAME(), SYMBOL(), DECIMALS);
-    state._update_token_metadata(ZERO, TOKEN_ID, ALT_NAME(), ALT_SYMBOL(), ALT_DECIMALS);
-
-    assert_eq!(state.name(TOKEN_ID), NAME());
-    assert_eq!(state.symbol(TOKEN_ID), SYMBOL());
-    assert_eq!(state.decimals(TOKEN_ID), DECIMALS);
-}
-
-#[test]
-fn test__update_token_metadata_on_transfer_does_nothing_when_absent() {
-    let mut state = COMPONENT_STATE();
-    let sender: ContractAddress = OWNER;
-
-    state._update_token_metadata(sender, TOKEN_ID, NAME(), SYMBOL(), DECIMALS);
-
-    let empty: ByteArray = "";
-    assert_eq!(state.name(TOKEN_ID), empty);
-    assert_eq!(state.symbol(TOKEN_ID), empty);
-    assert_eq!(state.decimals(TOKEN_ID), 0);
-}
-
-#[test]
-fn test__update_token_metadata_on_transfer_does_not_overwrite_existing() {
-    let mut state = COMPONENT_STATE();
-    let sender: ContractAddress = OWNER;
-
-    state._set_token_metadata(TOKEN_ID, NAME(), SYMBOL(), DECIMALS);
-    state._update_token_metadata(sender, TOKEN_ID, ALT_NAME(), ALT_SYMBOL(), ALT_DECIMALS);
-
-    assert_eq!(state.name(TOKEN_ID), NAME());
-    assert_eq!(state.symbol(TOKEN_ID), SYMBOL());
-    assert_eq!(state.decimals(TOKEN_ID), DECIMALS);
+    fn assert_only_event_decimals_updated(
+        ref self: EventSpy, contract: starknet::ContractAddress, id: u256, new_decimals: u8,
+    ) {
+        let expected = ExpectedEvent::new()
+            .key(selector!("ERC6909DecimalsUpdated"))
+            .key(id)
+            .data(new_decimals);
+        self.assert_emitted_single(contract, expected);
+        self.assert_no_events_left_from(contract);
+    }
 }

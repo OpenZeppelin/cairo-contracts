@@ -83,6 +83,10 @@ pub mod ERC6909MetadataComponent {
         }
     }
 
+    //
+    // Internal
+    //
+
     #[generate_trait]
     pub impl InternalImpl<
         TContractState,

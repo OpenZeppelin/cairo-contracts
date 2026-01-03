@@ -153,8 +153,7 @@ Hooks are invoked by the internal `_update` helper whenever tokens are transferr
 * {before-update-api} is executed before balances are modified.
 * {after-update-api} is executed after balances are modified and events have been emitted.
 
-TIP: Extensions such as `ERC6909TokenSupplyComponent` and `ERC6909MetadataComponent` are designed to be called from
-these hooks.
+TIP: Extensions such as `ERC6909TokenSupplyComponent` are designed to be called from these hooks.
 
 === ERC6909ContentURI
 
@@ -234,7 +233,6 @@ mod MyERC6909WithURI {
 :metadata-name-api: xref:/api/erc6909.adoc#IERC6909Metadata-name[name]
 :metadata-symbol-api: xref:/api/erc6909.adoc#IERC6909Metadata-symbol[symbol]
 :metadata-decimals-api: xref:/api/erc6909.adoc#IERC6909Metadata-decimals[decimals]
-:update-token-metadata-api: xref:/api/erc6909.adoc#ERC6909MetadataComponent-_update_token_metadata[_update_token_metadata]
 
 The {erc6909-metadata-component} implements {ierc6909-metadata-interface} and allows associating metadata with each
 token ID:
@@ -243,42 +241,8 @@ token ID:
 * {metadata-symbol-api} returns the token symbol.
 * {metadata-decimals-api} returns the number of decimals for that token ID.
 
-The extension expects its helper {update-token-metadata-api} to be called from the ERC6909 hooks.
-A simple pattern is to call it from `before_update`, passing the `from` address. The helper will detect mints
-(when `from` is the zero address) and only set metadata for token IDs that do not already have it.
-
-[,cairo]
-----
-use openzeppelin_token::erc6909::{ERC6909Component, ERC6909MetadataComponent};
-use starknet::ContractAddress;
-
-pub impl ERC6909HooksImpl of ERC6909Component::ERC6909HooksTrait<ContractState> {
-    fn before_update(
-        ref self: ContractState,
-        from: ContractAddress,
-        recipient: ContractAddress,
-        id: u256,
-        amount: u256,
-    ) {
-        // Example: assign default metadata on first mint of each ID
-        let name = "MyERC6909Token";
-        let symbol = "M6909";
-        let decimals: u8 = 18_u8;
-
-        self
-            .erc6909_metadata
-            ._update_token_metadata(from, id, name, symbol, decimals);
-    }
-
-    fn after_update(
-        ref self: ContractState,
-        from: ContractAddress,
-        recipient: ContractAddress,
-        id: u256,
-        amount: u256,
-    ) {}
-}
-----
+Use the individual setters `_set_token_name`, `_set_token_symbol`, and `_set_token_decimals` to configure
+metadata for each token ID.
 
 Don't forget to:
 

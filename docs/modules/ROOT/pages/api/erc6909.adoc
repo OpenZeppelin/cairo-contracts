@@ -634,9 +634,6 @@ ERC6909Metadata component implementing <<IERC6909Metadata,IERC6909Metadata>>.
 This extension allows contracts to associate name, symbol, and decimals metadata with each token ID.
 
 NOTE: Implementing xref:#ERC6909Component[ERC6909Component] is a requirement for this component to be implemented.
-To properly initialize metadata, this extension expects its internal helper
-xref:#ERC6909MetadataComponent-_update_token_metadata[_update_token_metadata] to be used from the ERC6909 hooks
-during mints.
 
 [.contract-index#ERC6909MetadataComponent-Embeddable-Impls]
 .Embeddable Implementations
@@ -653,12 +650,17 @@ during mints.
 --
 .InternalImpl
 * xref:#ERC6909MetadataComponent-initializer[`++initializer(self)++`]
-* xref:#ERC6909MetadataComponent-_update_token_metadata[`++_update_token_metadata(self, sender, id, name, symbol, decimals)++`]
-* xref:#ERC6909MetadataComponent-_token_metadata_exists[`++_token_metadata_exists(self, id)++`]
-* xref:#ERC6909MetadataComponent-_set_token_metadata[`++_set_token_metadata(self, id, name, symbol, decimals)++`]
 * xref:#ERC6909MetadataComponent-_set_token_name[`++_set_token_name(self, id, name)++`]
 * xref:#ERC6909MetadataComponent-_set_token_symbol[`++_set_token_symbol(self, id, symbol)++`]
 * xref:#ERC6909MetadataComponent-_set_token_decimals[`++_set_token_decimals(self, id, decimals)++`]
+--
+
+[.contract-index]
+.Events
+--
+* xref:#ERC6909MetadataComponent-ERC6909NameUpdated[`++ERC6909NameUpdated(id, new_name)++`]
+* xref:#ERC6909MetadataComponent-ERC6909SymbolUpdated[`++ERC6909SymbolUpdated(id, new_symbol)++`]
+* xref:#ERC6909MetadataComponent-ERC6909DecimalsUpdated[`++ERC6909DecimalsUpdated(id, new_decimals)++`]
 --
 
 ==== Embeddable functions
@@ -693,33 +695,12 @@ through introspection.
 This should be used inside the contract's constructor.
 
 [.contract-item]
-[[ERC6909MetadataComponent-_update_token_metadata]]
-==== `[.contract-item-name]#++_update_token_metadata++#++(ref self: ContractState, sender: ContractAddress, id: u256, name: ByteArray, symbol: ByteArray, decimals: u8)++` [.item-kind]#internal#
-
-Updates the metadata of token `id` when it is first minted.
-
-If `sender` is the zero address (i.e. this call happens during a mint) and `id` does not yet
-have metadata, this function stores the provided `name`, `symbol`, and `decimals`.
-
-This helper is intended to be called from the ERC6909 hooks during mint operations.
-
-[.contract-item]
-[[ERC6909MetadataComponent-_token_metadata_exists]]
-==== `[.contract-item-name]#++_token_metadata_exists++#++(self: @ContractState, id: u256) → bool++` [.item-kind]#internal#
-
-Returns `true` if token `id` has metadata associated with it at the time of minting.
-
-[.contract-item]
-[[ERC6909MetadataComponent-_set_token_metadata]]
-==== `[.contract-item-name]#++_set_token_metadata++#++(ref self: ContractState, id: u256, name: ByteArray, symbol: ByteArray, decimals: u8)++` [.item-kind]#internal#
-
-Updates the stored metadata for token `id` with the provided `name`, `symbol`, and `decimals`.
-
-[.contract-item]
 [[ERC6909MetadataComponent-_set_token_name]]
 ==== `[.contract-item-name]#++_set_token_name++#++(ref self: ContractState, id: u256, name: ByteArray)++` [.item-kind]#internal#
 
 Sets the name for token `id`.
+
+Emits an <<ERC6909MetadataComponent-ERC6909NameUpdated,ERC6909NameUpdated>> event.
 
 [.contract-item]
 [[ERC6909MetadataComponent-_set_token_symbol]]
@@ -727,11 +708,35 @@ Sets the name for token `id`.
 
 Sets the symbol for token `id`.
 
+Emits an <<ERC6909MetadataComponent-ERC6909SymbolUpdated,ERC6909SymbolUpdated>> event.
+
 [.contract-item]
 [[ERC6909MetadataComponent-_set_token_decimals]]
 ==== `[.contract-item-name]#++_set_token_decimals++#++(ref self: ContractState, id: u256, decimals: u8)++` [.item-kind]#internal#
 
 Sets the decimals for token `id`.
+
+Emits an <<ERC6909MetadataComponent-ERC6909DecimalsUpdated,ERC6909DecimalsUpdated>> event.
+
+==== Events
+
+[.contract-item]
+[[ERC6909MetadataComponent-ERC6909NameUpdated]]
+==== `[.contract-item-name]#++ERC6909NameUpdated++#++(id: u256, new_name: ByteArray)++` [.item-kind]#event#
+
+Emitted when the name of the token of type `id` was updated to `new_name`.
+
+[.contract-item]
+[[ERC6909MetadataComponent-ERC6909SymbolUpdated]]
+==== `[.contract-item-name]#++ERC6909SymbolUpdated++#++(id: u256, new_symbol: ByteArray)++` [.item-kind]#event#
+
+Emitted when the symbol for the token of type `id` was updated to `new_symbol`.
+
+[.contract-item]
+[[ERC6909MetadataComponent-ERC6909DecimalsUpdated]]
+==== `[.contract-item-name]#++ERC6909DecimalsUpdated++#++(id: u256, new_decimals: u8)++` [.item-kind]#event#
+
+Emitted when the decimals value for token of type `id` was updated to `new_decimals`.
 
 [.contract]
 [[ERC6909TokenSupplyComponent]]

@@ -43,7 +43,7 @@ pub mod ERC6909MetadataComponent {
         pub new_name: ByteArray,
     }
 
-    /// Emited when the symbol for the token of type `id` was updated to `new_symbol`.
+    /// Emitted when the symbol for the token of type `id` was updated to `new_symbol`.
     #[derive(Drop, PartialEq, starknet::Event)]
     pub struct ERC6909SymbolUpdated {
         #[key]

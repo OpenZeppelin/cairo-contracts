@@ -3,7 +3,6 @@
 
 use starknet::ContractAddress;
 
-
 #[starknet::interface]
 pub trait IERC20<TState> {
     /// Returns the total supply of tokens.
@@ -33,7 +32,6 @@ pub trait IERC20<TState> {
     /// Returns a boolean value indicating whether the operation succeeded.
     fn approve(ref self: TState, spender: ContractAddress, amount: u256) -> bool;
 }
-
 
 #[starknet::interface]
 pub trait IERC20Metadata<TState> {
@@ -167,4 +165,26 @@ pub trait ERC20ABI<TState> {
 
     // ISNIP12Metadata
     fn snip12_metadata(self: @TState) -> (felt252, felt252);
+}
+
+//
+// IERC20Wrapper
+//
+
+#[starknet::interface]
+pub trait IERC20Wrapper<TState> {
+    fn underlying(self: @TState) -> ContractAddress;
+    fn deposit_for(ref self: TState, receiver: ContractAddress, amount: u256) -> bool;
+    fn withdraw_to(ref self: TState, receiver: ContractAddress, amount: u256) -> bool;
+}
+
+#[starknet::interface]
+pub trait IERC20WrapperABI<TState> {
+    // IERC20Wrapper
+    fn underlying(self: @TState) -> ContractAddress;
+    fn deposit_for(ref self: TState, receiver: ContractAddress, amount: u256) -> bool;
+    fn withdraw_to(ref self: TState, receiver: ContractAddress, amount: u256) -> bool;
+
+    // recover
+    fn recover(ref self: TState, account: ContractAddress) -> u256;
 }

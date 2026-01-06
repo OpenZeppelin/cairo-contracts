@@ -121,8 +121,7 @@ pub mod ERC721WrapperComponent {
             assert(caller == self.underlying(), Errors::UNSUPPORTED_TOKEN);
 
             let mut erc721_component = get_dep_component_mut!(ref self, ERC721);
-            // TODO!: Should mint to from or operator?
-            erc721_component.safe_mint(from, token_id, data);
+            erc721_component.safe_mint(from, token_id, array![].span());
 
             interface::IERC721_RECEIVER_ID
         }

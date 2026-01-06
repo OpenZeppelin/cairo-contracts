@@ -303,8 +303,8 @@ pub mod ERC721MintableMock {
     }
 }
 
-#[with_components(ERC721, SRC5)]
 #[starknet::contract]
+#[with_components(ERC721, SRC5)]
 pub mod ERC721WrapperMock {
     use openzeppelin_token::erc721::ERC721HooksEmptyImpl;
     use openzeppelin_token::erc721::extensions::erc721_wrapper::ERC721WrapperComponent;

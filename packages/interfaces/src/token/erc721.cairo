@@ -127,6 +127,19 @@ pub trait IERC721Receiver<TState> {
     ) -> felt252;
 }
 
+/// Identical to IERC721Receiver externally, but uses `ref self`
+/// for functions to allow state mutations during execution.
+#[starknet::interface]
+pub trait IERC721ReceiverMut<TState> {
+    fn on_erc721_received(
+        ref self: TState,
+        operator: ContractAddress,
+        from: ContractAddress,
+        token_id: u256,
+        data: Span<felt252>,
+    ) -> felt252;
+}
+
 #[starknet::interface]
 pub trait IERC721ReceiverCamel<TState> {
     fn onERC721Received(
@@ -179,4 +192,15 @@ pub trait ERC721EnumerableABI<TState> {
     fn token_by_index(self: @TState, index: u256) -> u256;
     fn token_of_owner_by_index(self: @TState, owner: ContractAddress, index: u256) -> u256;
     fn all_tokens_of_owner(self: @TState, owner: ContractAddress) -> Span<u256>;
+}
+
+//
+// Extensions
+//
+
+#[starknet::interface]
+pub trait IERC721Wrapper<TState> {
+    fn underlying(self: @TState) -> ContractAddress;
+    fn deposit_for(ref self: TState, receiver: ContractAddress, token_ids: Span<u256>) -> bool;
+    fn withdraw_to(ref self: TState, receiver: ContractAddress, token_ids: Span<u256>) -> bool;
 }

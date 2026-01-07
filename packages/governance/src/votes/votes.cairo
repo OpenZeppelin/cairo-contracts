@@ -186,7 +186,7 @@ pub mod VotesComponent {
             let delegation = Delegation { verifying_contract, delegatee, nonce, expiry };
             let hash = delegation.get_message_hash(delegator);
 
-            assert_valid_signature(delegator, hash, signature.into(), Errors::INVALID_SIGNATURE);
+            assert_valid_signature(delegator, hash, signature, Errors::INVALID_SIGNATURE);
 
             // Delegate votes.
             self._delegate(delegator, delegatee);
@@ -268,7 +268,7 @@ pub mod VotesComponent {
             self: @ComponentState<TContractState>, account: ContractAddress,
         ) -> u256 {
             let erc721_component = get_dep_component!(self, ERC721);
-            erc721_component.balance_of(account).into()
+            erc721_component.balance_of(account)
         }
     }
 

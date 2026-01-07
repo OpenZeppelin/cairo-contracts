@@ -36,7 +36,7 @@ pub impl TraceImpl of TraceTrait {
     fn upper_lookup(self: StoragePath<Trace>, key: u64) -> u256 {
         let checkpoints = self.checkpoints.as_path();
         let len = checkpoints.len();
-        let pos = checkpoints._upper_binary_lookup(key, 0, len).into();
+        let pos = checkpoints._upper_binary_lookup(key, 0, len);
 
         if pos == 0 {
             0

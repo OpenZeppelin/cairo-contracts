@@ -357,3 +357,49 @@ pub mod ERC721WrapperMock {
         }
     }
 }
+
+#[starknet::contract]
+#[with_components(ERC721, SRC5)]
+pub mod ERC721ConsecutiveMock {
+    use openzeppelin_token::erc721::ERC721HooksEmptyImpl;
+    use openzeppelin_token::erc721::extensions::erc721_consecutive::{
+        DefaultConfig, ERC721ConsecutiveComponent,
+    };
+    use openzeppelin_token::erc721::extensions::erc721_consecutive::ERC721ConsecutiveComponent::InternalImpl;
+    use starknet::ContractAddress;
+
+    component!(
+        path: ERC721ConsecutiveComponent, storage: erc721_consecutive, event: ERC721ConsecutiveEvent
+    );
+
+    #[abi(embed_v0)]
+    impl ERC721Impl = ERC721Component::ERC721Impl<ContractState>;
+    #[abi(embed_v0)]
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
+
+    #[storage]
+    struct Storage {
+        #[substorage(v0)]
+        erc721_consecutive: ERC721ConsecutiveComponent::Storage,
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        ERC721ConsecutiveEvent: ERC721ConsecutiveComponent::Event,
+    }
+
+    #[constructor]
+    fn constructor(
+        ref self: ContractState,
+        name: ByteArray,
+        symbol: ByteArray,
+        base_uri: ByteArray,
+        recipient: ContractAddress,
+        batch_size: u256,
+    ) {
+        self.erc721.initializer(name, symbol, base_uri);
+        self.erc721_consecutive.mint_consecutive(recipient, batch_size);
+    }
+}

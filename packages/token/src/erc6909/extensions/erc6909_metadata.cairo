@@ -65,6 +65,7 @@ pub mod ERC6909MetadataComponent {
         TContractState,
         +HasComponent<TContractState>,
         +ERC6909Component::HasComponent<TContractState>,
+        +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>,
     > of interface::IERC6909Metadata<ComponentState<TContractState>> {
         /// Returns the name for the token of type `id`

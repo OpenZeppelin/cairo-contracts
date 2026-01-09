@@ -30,14 +30,14 @@ fn COMPONENT_STATE_WITH_HOOKS() -> ComponentStateWithHooks {
 fn setup() -> ComponentState {
     let mut state = COMPONENT_STATE();
     state.initializer();
-    state._mint(OWNER, TOKEN_ID, SUPPLY);
+    state.mint(OWNER, TOKEN_ID, SUPPLY);
     state
 }
 
 fn setup_with_hooks() -> ComponentStateWithHooks {
     let mut state = COMPONENT_STATE_WITH_HOOKS();
     state.initializer();
-    state._mint(OWNER, TOKEN_ID, SUPPLY);
+    state.mint(OWNER, TOKEN_ID, SUPPLY);
     state
 }
 

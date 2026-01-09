@@ -15,7 +15,7 @@ pub mod ERC6909Mock {
     #[constructor]
     fn constructor(ref self: ContractState, recipient: ContractAddress, id: u256, amount: u256) {
         self.erc6909.initializer();
-        self.erc6909._mint(recipient, id, amount);
+        self.erc6909.mint(recipient, id, amount);
     }
 }
 
@@ -59,7 +59,7 @@ pub mod ERC6909MockWithHooks {
     #[constructor]
     fn constructor(ref self: ContractState, recipient: ContractAddress, id: u256, amount: u256) {
         self.erc6909.initializer();
-        self.erc6909._mint(recipient, id, amount);
+        self.erc6909.mint(recipient, id, amount);
     }
 
     impl ERC6909HooksImpl of ERC6909Component::ERC6909HooksTrait<ContractState> {
@@ -115,7 +115,7 @@ pub mod ERC6909ContentURIMock {
         self.erc6909.initializer();
         self.erc6909_content_uri.initializer();
         self.erc6909_content_uri._set_contract_uri(contract_uri);
-        self.erc6909._mint(recipient, id, amount);
+        self.erc6909.mint(recipient, id, amount);
     }
 }
 
@@ -151,7 +151,7 @@ pub mod ERC6909MetadataMock {
         self.erc6909_metadata._set_token_name(id, name);
         self.erc6909_metadata._set_token_symbol(id, symbol);
         self.erc6909_metadata._set_token_decimals(id, decimals);
-        self.erc6909._mint(recipient, id, amount);
+        self.erc6909.mint(recipient, id, amount);
     }
 }
 
@@ -176,6 +176,6 @@ pub mod ERC6909TokenSupplyMock {
     fn constructor(ref self: ContractState, recipient: ContractAddress, id: u256, amount: u256) {
         self.erc6909.initializer();
         self.erc6909_token_supply.initializer();
-        self.erc6909._mint(recipient, id, amount);
+        self.erc6909.mint(recipient, id, amount);
     }
 }

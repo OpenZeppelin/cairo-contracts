@@ -41,7 +41,6 @@ fn setup_with_hooks() -> ComponentStateWithHooks {
     state
 }
 
-
 #[test]
 fn test_initializer() {
     let mut state = COMPONENT_STATE();

@@ -99,7 +99,6 @@ pub mod ERC6909Component {
         ) {}
     }
 
-
     //
     // External
     //

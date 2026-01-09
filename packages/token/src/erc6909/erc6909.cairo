@@ -211,7 +211,7 @@ pub mod ERC6909Component {
         /// - `receiver` is not the zero address.
         ///
         /// Emits a `Transfer` event with `from` set to the zero address.
-        fn _mint(
+        fn mint(
             ref self: ComponentState<TContractState>,
             receiver: ContractAddress,
             id: u256,

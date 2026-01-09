@@ -12,15 +12,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - ERC-6909 standard implementation and extensions (#1594)
-  - Added `ERC6909Component`, `ERC6909ContentURIComponent`, `ERC6909MetadataComponent`, and `ERC6909TokenSupplyComponent`.
-  - Added interfaces: `IERC6909`, `IERC6909Metadata`, `IERC6909TokenSupply`, and `IERC6909ContentUri`.
-  - Added `ERC6909ABI` trait covering full ERC-6909 tokens functionality including extensions.
-  - Added mocks: `ERC6909Mock`, `ERC6909MockWithHooks`, `ERC6909ContentURIMock`, `ERC6909MetadataMock`, `ERC6909TokenSupplyMock`.
-  - Added tests for components.
-- Integration of ERC-6909 components into the `with_components` macro (#1594)
-  - Added `ComponentInfo` implementations for ERC-6909 and its extensions.
-  - Added new diagnostic `ERC6909_HOOKS_IMPL_MISSING`.
-  - Added parser validation for missing hooks implementations.
+  - Introduced ERC6909Component and extension components: ERC6909ContentURIComponent, ERC6909MetadataComponent, and ERC6909TokenSupplyComponent.
+  - Added standard interfaces: IERC6909, IERC6909Metadata, IERC6909TokenSupply, and IERC6909ContentUri.
+  - Added the ERC6909ABI trait, covering the full ERC-6909 token functionality, including all supported extensions.
+
+- Integration of ERC-6909 components into the with_components macro (#1594)
 - `IERC721Wrapper` interface to `openzeppelin_interfaces::token::erc721` (#1625)
 - `ERC721WrapperComponent` providing ERC721 wrapping and unwrapping functionality (#1625)
 - `IERC20Wrapper` interface in `openzeppelin_interfaces::token::erc20` for ERC20 wrappers (#1617)

@@ -36,6 +36,7 @@ pub mod ERC6909TokenSupplyComponent {
         +HasComponent<TContractState>,
         +ERC6909Component::HasComponent<TContractState>,
         +ERC6909Component::ERC6909HooksTrait<TContractState>,
+        +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>,
     > of interface::IERC6909TokenSupply<ComponentState<TContractState>> {
         /// Returns the total supply of a token.

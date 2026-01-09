@@ -49,6 +49,7 @@ pub mod ERC6909ContentURIComponent {
         TContractState,
         +HasComponent<TContractState>,
         +ERC6909Component::HasComponent<TContractState>,
+        +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>,
     > of interface::IERC6909ContentUri<ComponentState<TContractState>> {
         /// Returns the contract level URI.

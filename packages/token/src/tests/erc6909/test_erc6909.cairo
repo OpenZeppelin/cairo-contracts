@@ -14,7 +14,6 @@ type ComponentState = ERC6909Component::ComponentState<ERC6909Mock::ContractStat
 type ComponentStateWithHooks =
     ERC6909Component::ComponentState<ERC6909MockWithHooks::ContractState>;
 
-
 fn CONTRACT_STATE() -> ERC6909Mock::ContractState {
     ERC6909Mock::contract_state_for_testing()
 }
@@ -56,7 +55,6 @@ fn test_initializer() {
     assert!(supports_isrc5);
 }
 
-
 #[test]
 fn test_balance_of() {
     let state = setup();
@@ -83,7 +81,6 @@ fn test_is_operator() {
     state._set_operator(OWNER, SPENDER, false);
     assert!(!state.is_operator(OWNER, SPENDER));
 }
-
 
 #[test]
 fn test_transfer_success() {
@@ -120,7 +117,6 @@ fn test_transfer_insufficient_balance() {
     start_cheat_caller_address(test_address(), SPENDER);
     state.transfer(RECIPIENT, TOKEN_ID, VALUE);
 }
-
 
 #[test]
 fn test_transfer_from_by_sender_itself() {
@@ -201,7 +197,6 @@ fn test_transfer_from_insufficient_allowance() {
     state.transfer_from(OWNER, RECIPIENT, TOKEN_ID, VALUE);
 }
 
-
 #[test]
 fn test_approve_external() {
     let mut state = setup();
@@ -230,7 +225,6 @@ fn test__approve_invalid_spender_zero() {
     state._approve(OWNER, ZERO, TOKEN_ID, VALUE);
 }
 
-
 #[test]
 fn test_set_operator_external() {
     let mut state = setup();
@@ -247,7 +241,6 @@ fn test_set_operator_external() {
     spy.assert_only_event_operator_set(contract_address, OWNER, SPENDER, false);
     assert!(!state.is_operator(OWNER, SPENDER));
 }
-
 
 #[test]
 fn test__burn_reduces_balance_and_emits() {
@@ -279,7 +272,6 @@ fn test__burn_insufficient_balance() {
     state._burn(OWNER, TOKEN_ID, SUPPLY + 1);
 }
 
-
 #[test]
 fn test_update_calls_before_and_after_update_hooks_on_transfer() {
     let mut state = setup_with_hooks();
@@ -296,7 +288,6 @@ fn test_update_calls_before_and_after_update_hooks_on_transfer() {
     spy.assert_event_before_update(contract_address, OWNER, RECIPIENT, id, amount);
     spy.assert_event_after_update(contract_address, OWNER, RECIPIENT, id, amount);
 }
-
 
 fn assert_state_before_transfer(
     sender: ContractAddress, receiver: ContractAddress, id: u256, amount: u256, total: u256,
@@ -351,4 +342,3 @@ impl ERC6909HooksSpyHelpersImpl of ERC6909HooksSpyHelpers {
         self.assert_emitted_single(contract, expected);
     }
 }
-

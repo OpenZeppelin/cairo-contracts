@@ -9,7 +9,6 @@ use crate::erc6909::extensions::erc6909_content_uri::ERC6909ContentURIComponent:
     ERC6909ContentURIImpl, InternalImpl,
 };
 
-
 fn CONTRACT_URI() -> ByteArray {
     "ipfs://contract/"
 }
@@ -19,7 +18,6 @@ fn TOKEN_URI() -> ByteArray {
 }
 
 const SAMPLE_ID: u256 = 1234;
-
 
 type ComponentState =
     ERC6909ContentURIComponent::ComponentState<ERC6909ContentURIMock::ContractState>;
@@ -31,7 +29,6 @@ fn CONTRACT_STATE() -> ERC6909ContentURIMock::ContractState {
 fn COMPONENT_STATE() -> ComponentState {
     ERC6909ContentURIComponent::component_state_for_testing()
 }
-
 
 #[test]
 fn test_initializer_registers_interface() {
@@ -46,7 +43,6 @@ fn test_initializer_registers_interface() {
     let supports_isrc5 = mock_state.supports_interface(ISRC5_ID);
     assert!(supports_isrc5);
 }
-
 
 #[test]
 fn test_contract_uri_default_is_empty() {
@@ -79,7 +75,6 @@ fn test_set_contract_uri_empty() {
     let empty: ByteArray = "";
     assert_eq!(state.contract_uri(), empty);
 }
-
 
 #[test]
 fn test_token_uri_default_is_empty() {
@@ -130,7 +125,6 @@ fn test_different_token_ids_have_different_uris() {
     assert_eq!(state.token_uri(1), uri_1);
     assert_eq!(state.token_uri(2), uri_2);
 }
-
 
 #[generate_trait]
 impl ERC6909ContentURISpyHelpersImpl of ERC6909ContentURISpyHelpers {

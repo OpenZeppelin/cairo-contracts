@@ -187,7 +187,6 @@ pub mod ERC6909Component {
         }
     }
 
-
     #[generate_trait]
     pub impl InternalImpl<
         TContractState,

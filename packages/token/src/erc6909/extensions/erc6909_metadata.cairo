@@ -59,7 +59,6 @@ pub mod ERC6909MetadataComponent {
         pub new_decimals: u8,
     }
 
-
     #[embeddable_as(ERC6909MetadataImpl)]
     impl ERC6909Metadata<
         TContractState,

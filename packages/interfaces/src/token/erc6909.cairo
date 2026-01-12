@@ -28,7 +28,6 @@ pub trait IERC6909<TState> {
     fn set_operator(ref self: TState, spender: ContractAddress, approved: bool) -> bool;
 }
 
-
 #[starknet::interface]
 pub trait ERC6909ABI<TState> {
     // IERC6909
@@ -91,4 +90,3 @@ pub trait IERC6909ContentUri<TState> {
     fn contract_uri(self: @TState) -> ByteArray;
     fn token_uri(self: @TState, id: u256) -> ByteArray;
 }
-

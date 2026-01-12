@@ -19,8 +19,18 @@ pub mod ERC721ConsecutiveComponent {
     pub const DEFAULT_MAX_BATCH_SIZE: u64 = 5000;
     pub const DEFAULT_FIRST_CONSECUTIVE_ID: u64 = 0;
 
+    /// Used to configure immutable settings for consecutive batch minting.
     pub trait ImmutableConfig {
+        /// Maximum size of a batch of consecutive tokens.
+        /// Designed to limit stress on off-chain indexing services that have to record one entry
+        /// per token, and have protections against "unreasonably large" batches of tokens.
+        ///
+        /// NOTE: Overriding the default value of 5000 will not cause on-chain issues, but may
+        /// result in the asset not being correctly supported by off-chain indexing services
+        /// (including marketplaces).
         const MAX_BATCH_SIZE: u64;
+
+        /// Used to offset the first token id in `next_consecutive_id`.
         const FIRST_CONSECUTIVE_ID: u64;
     }
 
@@ -188,6 +198,10 @@ pub mod ERC721ConsecutiveComponent {
         }
 
         /// ERC721 update wrapper that enforces consecutive minting rules.
+        ///
+        /// WARNING: Using {ERC721Consecutive} prevents minting during construction in favor of
+        /// `mint_consecutive`. After construction, `mint_consecutive` is no longer available and
+        /// minting through `update` becomes available.
         fn update(
             ref self: ComponentState<TContractState>,
             to: ContractAddress,
@@ -197,10 +211,12 @@ pub mod ERC721ConsecutiveComponent {
             let mut erc721_component = get_dep_component_mut!(ref self, ERC721);
             let previous_owner = erc721_component.update(to, token_id, auth);
 
+            // Only mint after construction
             if previous_owner.is_zero() {
                 assert(!is_constructor_scope(), Errors::FORBIDDEN_MINT);
             }
 
+            // Update sequential burn bitmap
             if to.is_zero()
                 && token_id < self.next_consecutive_id().into()
                 && !self.is_sequentially_burned(token_id) {

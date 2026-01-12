@@ -1,5 +1,3 @@
-use openzeppelin_utils::structs::bitmap::{BitMap, BitMapTrait};
-
 #[starknet::interface]
 pub trait IMockBitMap<TContractState> {
     fn get(self: @TContractState, index: u256) -> bool;

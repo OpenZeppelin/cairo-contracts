@@ -250,6 +250,7 @@ pub mod VotesComponent {
         +SRC5Component::HasComponent<TContractState>,
         impl ERC721: ERC721Component::HasComponent<TContractState>,
         +ERC721Component::ERC721HooksTrait<TContractState>,
+        +ERC721Component::ERC721OwnerOfTrait<TContractState>,
         +Drop<TContractState>,
     > of VotingUnitsTrait<ComponentState<TContractState>> {
         /// Returns the number of voting units for a given account.

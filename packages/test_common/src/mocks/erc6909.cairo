@@ -147,10 +147,7 @@ pub mod ERC6909MetadataMock {
         amount: u256,
     ) {
         self.erc6909.initializer();
-        self.erc6909_metadata.initializer();
-        self.erc6909_metadata._set_token_name(id, name);
-        self.erc6909_metadata._set_token_symbol(id, symbol);
-        self.erc6909_metadata._set_token_decimals(id, decimals);
+        self.erc6909_metadata.initializer(id, name, symbol, decimals);
         self.erc6909.mint(recipient, id, amount);
     }
 }

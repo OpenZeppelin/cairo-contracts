@@ -1,5 +1,6 @@
 pub mod access;
 pub mod account;
+pub mod bitmap;
 pub mod checkpoint;
 pub mod counter;
 pub mod erc1155;

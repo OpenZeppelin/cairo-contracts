@@ -5,7 +5,7 @@ const SUCCESS: felt252 = 'SUCCESS';
 #[starknet::contract]
 #[with_components(ERC721, SRC5)]
 pub mod DualCaseERC721Mock {
-    use openzeppelin_token::erc721::ERC721HooksEmptyImpl;
+    use openzeppelin_token::erc721::{ERC721HooksEmptyImpl, ERC721OwnerOfDefaultImpl};
     use starknet::ContractAddress;
 
     // ERC721
@@ -43,7 +43,7 @@ pub mod DualCaseERC721Mock {
 #[starknet::contract]
 #[with_components(ERC721, SRC5)]
 pub mod SnakeERC721Mock {
-    use openzeppelin_token::erc721::ERC721HooksEmptyImpl;
+    use openzeppelin_token::erc721::{ERC721HooksEmptyImpl, ERC721OwnerOfDefaultImpl};
     use starknet::ContractAddress;
 
     // ERC721
@@ -78,6 +78,7 @@ pub mod SnakeERC721Mock {
 #[starknet::contract]
 #[with_components(ERC721, SRC5)]
 pub mod SnakeERC721MockWithHooks {
+    use openzeppelin_token::erc721::ERC721OwnerOfDefaultImpl;
     use starknet::ContractAddress;
 
     // ERC721
@@ -206,6 +207,7 @@ pub mod DualCaseERC721ReceiverMock {
 #[starknet::contract]
 #[with_components(ERC721, ERC721Enumerable, SRC5)]
 pub mod ERC721EnumerableMock {
+    use openzeppelin_token::erc721::ERC721OwnerOfDefaultImpl;
     use starknet::ContractAddress;
 
     // ERC721
@@ -273,7 +275,7 @@ pub trait IERC721WrapperRecoverer<TState> {
 #[starknet::contract]
 #[with_components(ERC721, SRC5)]
 pub mod ERC721MintableMock {
-    use openzeppelin_token::erc721::ERC721HooksEmptyImpl;
+    use openzeppelin_token::erc721::{ERC721HooksEmptyImpl, ERC721OwnerOfDefaultImpl};
     use starknet::ContractAddress;
     use super::IERC721Mintable;
 
@@ -306,9 +308,9 @@ pub mod ERC721MintableMock {
 #[starknet::contract]
 #[with_components(ERC721, SRC5)]
 pub mod ERC721WrapperMock {
-    use openzeppelin_token::erc721::ERC721HooksEmptyImpl;
     use openzeppelin_token::erc721::extensions::erc721_wrapper::ERC721WrapperComponent;
     use openzeppelin_token::erc721::extensions::erc721_wrapper::ERC721WrapperComponent::InternalImpl;
+    use openzeppelin_token::erc721::{ERC721HooksEmptyImpl, ERC721OwnerOfDefaultImpl};
     use starknet::ContractAddress;
     use super::IERC721WrapperRecoverer;
 
@@ -362,14 +364,16 @@ pub mod ERC721WrapperMock {
 #[with_components(ERC721, SRC5)]
 pub mod ERC721ConsecutiveMock {
     use openzeppelin_token::erc721::ERC721HooksEmptyImpl;
+    use openzeppelin_token::erc721::extensions::erc721_consecutive::ERC721ConsecutiveComponent::InternalImpl;
     use openzeppelin_token::erc721::extensions::erc721_consecutive::{
         DefaultConfig, ERC721ConsecutiveComponent,
     };
-    use openzeppelin_token::erc721::extensions::erc721_consecutive::ERC721ConsecutiveComponent::InternalImpl;
     use starknet::ContractAddress;
 
     component!(
-        path: ERC721ConsecutiveComponent, storage: erc721_consecutive, event: ERC721ConsecutiveEvent
+        path: ERC721ConsecutiveComponent,
+        storage: erc721_consecutive,
+        event: ERC721ConsecutiveEvent,
     );
 
     #[abi(embed_v0)]
@@ -397,7 +401,7 @@ pub mod ERC721ConsecutiveMock {
         symbol: ByteArray,
         base_uri: ByteArray,
         recipient: ContractAddress,
-        batch_size: u256,
+        batch_size: u64,
     ) {
         self.erc721.initializer(name, symbol, base_uri);
         self.erc721_consecutive.mint_consecutive(recipient, batch_size);

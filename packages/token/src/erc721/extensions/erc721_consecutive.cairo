@@ -9,31 +9,27 @@
 #[starknet::component]
 pub mod ERC721ConsecutiveComponent {
     use core::num::traits::Zero;
-    use openzeppelin_utils::math;
+    use openzeppelin_introspection::src5::SRC5Component;
+    use openzeppelin_utils::structs::bitmap::{BitMap, BitMapTrait};
     use openzeppelin_utils::structs::checkpoint::{Trace, TraceTrait};
     use starknet::ContractAddress;
-    use starknet::storage::{
-        Map, StorageAsPath, StorageMapReadAccess, StorageMapWriteAccess, StoragePath,
-        StoragePointerReadAccess, StoragePointerWriteAccess, VecTrait,
-    };
     use crate::erc721::ERC721Component;
     use crate::erc721::ERC721Component::InternalImpl as ERC721InternalImpl;
 
-    pub const DEFAULT_MAX_BATCH_SIZE: u256 = 5000;
-    pub const DEFAULT_FIRST_CONSECUTIVE_ID: u256 = 0;
+    pub const DEFAULT_MAX_BATCH_SIZE: u64 = 5000;
+    pub const DEFAULT_FIRST_CONSECUTIVE_ID: u64 = 0;
 
     pub trait ImmutableConfig {
-        const MAX_BATCH_SIZE: u256;
-        const FIRST_CONSECUTIVE_ID: u256;
+        const MAX_BATCH_SIZE: u64;
+        const FIRST_CONSECUTIVE_ID: u64;
     }
 
     pub mod Errors {
-        pub const FORBIDDEN_BATCH_MINT: felt252 = 'ERC721Consecutive: forbidden batch mint';
-        pub const EXCEEDED_MAX_BATCH_MINT: felt252 = 'ERC721Consecutive: max batch exceeded';
-        pub const FORBIDDEN_MINT: felt252 = 'ERC721Consecutive: forbidden mint';
-        pub const FORBIDDEN_BATCH_BURN: felt252 = 'ERC721Consecutive: forbidden batch burn';
-        pub const TOKEN_ID_OVERFLOW: felt252 = 'ERC721Consecutive: token id overflow';
-        pub const ADDRESS_OVERFLOW: felt252 = 'ERC721Consecutive: address overflow';
+        pub const FORBIDDEN_BATCH_MINT: felt252 = 'ERC721: forbidden batch mint';
+        pub const EXCEEDED_MAX_BATCH_MINT: felt252 = 'ERC721: max batch exceeded';
+        pub const FORBIDDEN_MINT: felt252 = 'ERC721: forbidden mint';
+        pub const TOKEN_ID_OVERFLOW: felt252 = 'ERC721: token id overflow';
+        pub const ADDRESS_OVERFLOW: felt252 = 'ERC721: address overflow';
     }
 
     #[event]
@@ -57,7 +53,7 @@ pub mod ERC721ConsecutiveComponent {
     #[storage]
     pub struct Storage {
         pub ERC721Consecutive_sequential_ownership: Trace,
-        pub ERC721Consecutive_sequential_burn: Map<u256, bool>,
+        pub ERC721Consecutive_sequential_burn: BitMap,
     }
 
     /// Returns true if the current execution is in the constructor scope.
@@ -75,11 +71,6 @@ pub mod ERC721ConsecutiveComponent {
         value.low.try_into().unwrap()
     }
 
-    fn u64_to_u256(value: u64) -> u256 {
-        let low: u128 = value.into();
-        u256 { low, high: 0 }
-    }
-
     fn address_to_u256(value: ContractAddress) -> u256 {
         let felt: felt252 = value.into();
         felt.into()
@@ -88,31 +79,6 @@ pub mod ERC721ConsecutiveComponent {
     fn u256_to_address(value: u256) -> ContractAddress {
         let felt: felt252 = value.try_into().expect(Errors::ADDRESS_OVERFLOW);
         felt.try_into().unwrap()
-    }
-
-    fn lower_lookup(trace: StoragePath<Trace>, token_id: u64) -> u256 {
-        let checkpoints = trace.checkpoints.as_path();
-        let len = checkpoints.len();
-
-        let mut low = 0;
-        let mut high = len;
-
-        #[allow(inefficient_while_comp)]
-        while low < high {
-            let mid = math::average(low, high);
-            let checkpoint = checkpoints[mid].read();
-            if token_id <= checkpoint.key {
-                high = mid;
-            } else {
-                low = mid + 1;
-            }
-        }
-
-        if low == len {
-            0
-        } else {
-            checkpoints[low].read().value
-        }
     }
 
     //
@@ -126,61 +92,70 @@ pub mod ERC721ConsecutiveComponent {
         impl ERC721: ERC721Component::HasComponent<TContractState>,
         impl Config: ImmutableConfig,
         +ERC721Component::ERC721HooksTrait<TContractState>,
+        +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>,
     > of InternalTrait<TContractState> {
         /// Returns the max batch size for consecutive mints.
-        fn max_batch_size(self: @ComponentState<TContractState>) -> u256 {
+        fn max_batch_size(self: @ComponentState<TContractState>) -> u64 {
             Config::MAX_BATCH_SIZE
         }
 
         /// Returns the first consecutive token id.
-        fn first_consecutive_id(self: @ComponentState<TContractState>) -> u256 {
+        fn first_consecutive_id(self: @ComponentState<TContractState>) -> u64 {
             Config::FIRST_CONSECUTIVE_ID
         }
 
         /// Returns the next token id to mint using `mint_consecutive`.
-        fn _next_consecutive_id(self: @ComponentState<TContractState>) -> u256 {
-            let (exists, last_id, _) =
-                self.ERC721Consecutive_sequential_ownership.deref().latest_checkpoint();
+        fn next_consecutive_id(self: @ComponentState<TContractState>) -> u64 {
+            let (exists, last_id, _) = self
+                .ERC721Consecutive_sequential_ownership
+                .deref()
+                .latest_checkpoint();
             if exists {
-                let max_u64: u128 = 0xffff_ffff_ffff_ffff;
-                let next_u128: u128 = last_id.into() + 1_u128;
-                assert(next_u128 <= max_u64, Errors::TOKEN_ID_OVERFLOW);
-                u64_to_u256(next_u128.try_into().unwrap())
+                last_id + 1
             } else {
                 Self::first_consecutive_id(self)
             }
         }
 
-        /// Returns the owner of `token_id`, checking sequential ownership when needed.
-        fn _owner_of(self: @ComponentState<TContractState>, token_id: u256) -> ContractAddress {
-            let erc721_component = get_dep_component!(self, ERC721);
-            let owner = erc721_component._owner_of(token_id);
-
-            if owner.is_non_zero()
-                || token_id < Self::first_consecutive_id(self)
-                || !fits_u64(token_id)
-            {
-                return owner;
-            }
-
-            if self.ERC721Consecutive_sequential_burn.read(token_id) {
-                Zero::zero()
-            } else {
-                let token_id_u64 = u256_to_u64(token_id);
-                let packed_owner = lower_lookup(
-                    self.ERC721Consecutive_sequential_ownership.deref(),
-                    token_id_u64,
-                );
-                u256_to_address(packed_owner)
-            }
+        /// Returns whether the consecutive token at `token_id` has been burned.
+        fn is_sequentially_burned(self: @ComponentState<TContractState>, token_id: u256) -> bool {
+            self.ERC721Consecutive_sequential_burn.deref().get(token_id)
         }
 
-        /// Batch mint consecutive tokens for `to`.
+        /// Returns the owner of the consecutive token at `token_id` from sequential ownership.
+        fn sequential_owner_of(
+            self: @ComponentState<TContractState>, token_id: u256,
+        ) -> ContractAddress {
+            let token_id_u64 = u256_to_u64(token_id);
+            let packed_owner = self
+                .ERC721Consecutive_sequential_ownership
+                .deref()
+                .lower_lookup(token_id_u64);
+            u256_to_address(packed_owner)
+        }
+
+        /// Mints a batch of consecutive tokens of length `batch_size` for `to`.
+        ///
+        /// Returns the token id of the first token minted in the batch.
+        /// If `batch_size` is 0, returns the number of consecutive ids minted so far.
+        ///
+        /// Requirements:
+        /// - `batch_size` must not be greater than `max_batch_size`.
+        /// - The function must be called during the contract's constructor (directly or
+        /// indirectly).
+        ///
+        /// CAUTION: Does not emit individual `Transfer` events for each token.
+        /// This is compliant with ERC-721 as long as it is done within the constructor,
+        /// which is enforced by this function.
+        ///
+        /// CAUTION: Does NOT invoke `onERC721Received` on the receiver.
+        ///
+        /// Emits a `ConsecutiveTransfer` event as defined by IERC2309.
         fn mint_consecutive(
-            ref self: ComponentState<TContractState>, to: ContractAddress, batch_size: u256,
-        ) -> u256 {
-            let next = self._next_consecutive_id();
+            ref self: ComponentState<TContractState>, to: ContractAddress, batch_size: u64,
+        ) -> u64 {
+            let next = self.next_consecutive_id();
 
             if batch_size > 0 {
                 assert(is_constructor_scope(), Errors::FORBIDDEN_BATCH_MINT);
@@ -189,29 +164,24 @@ pub mod ERC721ConsecutiveComponent {
                 let max_batch_size = Self::max_batch_size(@self);
                 assert(batch_size <= max_batch_size, Errors::EXCEEDED_MAX_BATCH_MINT);
 
-                let next_u64 = u256_to_u64(next);
-                let batch_size_u64 = u256_to_u64(batch_size);
-                let last_u128: u128 = next_u64.into() + batch_size_u64.into() - 1_u128;
-                let max_u64: u128 = 0xffff_ffff_ffff_ffff;
-                assert(last_u128 <= max_u64, Errors::TOKEN_ID_OVERFLOW);
-                let last_u64: u64 = last_u128.try_into().unwrap();
-                let last = u64_to_u256(last_u64);
+                let last = next + batch_size - 1;
 
                 let mut ownership = self.ERC721Consecutive_sequential_ownership.deref();
-                ownership.push(last_u64, address_to_u256(to));
+                ownership.push(last, address_to_u256(to));
 
                 let mut erc721_component = get_dep_component_mut!(ref self, ERC721);
-                let current_balance = erc721_component.ERC721_balances.read(to);
-                erc721_component.ERC721_balances.write(to, current_balance + batch_size);
+                let batch_size_u128: u128 = batch_size.into();
+                erc721_component.increase_balance(to, batch_size_u128);
 
-                self.emit(
-                    ConsecutiveTransfer {
-                        from_token_id: next,
-                        to_token_id: last,
-                        from_address: Zero::zero(),
-                        to_address: to,
-                    },
-                );
+                self
+                    .emit(
+                        ConsecutiveTransfer {
+                            from_token_id: next.into(),
+                            to_token_id: last.into(),
+                            from_address: Zero::zero(),
+                            to_address: to,
+                        },
+                    );
             }
 
             next
@@ -232,10 +202,9 @@ pub mod ERC721ConsecutiveComponent {
             }
 
             if to.is_zero()
-                && token_id < self._next_consecutive_id()
-                && !self.ERC721Consecutive_sequential_burn.read(token_id)
-            {
-                self.ERC721Consecutive_sequential_burn.write(token_id, true);
+                && token_id < self.next_consecutive_id().into()
+                && !self.is_sequentially_burned(token_id) {
+                self.ERC721Consecutive_sequential_burn.deref().set(token_id);
             }
 
             previous_owner
@@ -245,6 +214,6 @@ pub mod ERC721ConsecutiveComponent {
 
 /// Implementation of the default ERC721ConsecutiveComponent configuration.
 pub impl DefaultConfig of ERC721ConsecutiveComponent::ImmutableConfig {
-    const MAX_BATCH_SIZE: u256 = ERC721ConsecutiveComponent::DEFAULT_MAX_BATCH_SIZE;
-    const FIRST_CONSECUTIVE_ID: u256 = ERC721ConsecutiveComponent::DEFAULT_FIRST_CONSECUTIVE_ID;
+    const MAX_BATCH_SIZE: u64 = ERC721ConsecutiveComponent::DEFAULT_MAX_BATCH_SIZE;
+    const FIRST_CONSECUTIVE_ID: u64 = ERC721ConsecutiveComponent::DEFAULT_FIRST_CONSECUTIVE_ID;
 }

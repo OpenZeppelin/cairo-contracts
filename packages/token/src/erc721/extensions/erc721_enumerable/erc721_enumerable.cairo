@@ -47,6 +47,7 @@ pub mod ERC721EnumerableComponent {
         +HasComponent<TContractState>,
         impl ERC721: ERC721Component::HasComponent<TContractState>,
         +ERC721Component::ERC721HooksTrait<TContractState>,
+        +ERC721Component::ERC721OwnerOfTrait<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>,
     > of interface::IERC721Enumerable<ComponentState<TContractState>> {
@@ -92,6 +93,7 @@ pub mod ERC721EnumerableComponent {
         +HasComponent<TContractState>,
         impl ERC721: ERC721Component::HasComponent<TContractState>,
         +ERC721Component::ERC721HooksTrait<TContractState>,
+        +ERC721Component::ERC721OwnerOfTrait<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>,
     > of InternalTrait<TContractState> {

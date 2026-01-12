@@ -9,7 +9,7 @@ fn test_deploys_consecutive_mock() {
     calldata.append_serde(SYMBOL());
     calldata.append_serde(BASE_URI());
     calldata.append_serde(RECIPIENT);
-    calldata.append_serde(1_u256);
+    calldata.append_serde(1_u64);
 
     let contract_address = utils::declare_and_deploy("ERC721ConsecutiveMock", calldata);
     assert(contract_address.is_non_zero(), 'deploy failed');

@@ -77,6 +77,19 @@ pub impl TraceImpl of TraceTrait {
         }
     }
 
+    /// Returns the value in the first (oldest) checkpoint with key greater or equal than
+    /// the search key, or zero if there is none.
+    fn lower_lookup(self: StoragePath<Trace>, key: u64) -> u256 {
+        let checkpoints = self.checkpoints.as_path();
+        let len = checkpoints.len();
+        let pos = checkpoints._lower_binary_lookup(key, 0, len);
+        if pos == len {
+            0
+        } else {
+            checkpoints[pos].read().value
+        }
+    }
+
     /// Returns the value in the most recent checkpoint, or zero if there are no checkpoints.
     fn latest(self: StoragePath<Trace>) -> u256 {
         let checkpoints = self.checkpoints;
@@ -158,6 +171,27 @@ impl CheckpointImpl of CheckpointTrait {
                 _high = mid;
             } else {
                 _low = mid + 1;
+            };
+        }
+        _high
+    }
+
+    /// Returns the index of the first (oldest) checkpoint with key greater or equal than the search
+    /// key, or `high` if there is none. `low` and `high` define a section where to do the search,
+    /// with inclusive `low` and exclusive `high`.
+    fn _lower_binary_lookup(
+        self: StoragePath<Vec<Checkpoint>>, key: u64, low: u64, high: u64,
+    ) -> u64 {
+        let mut _low = low;
+        let mut _high = high;
+
+        #[allow(inefficient_while_comp)]
+        while _low < _high {
+            let mid = math::average(_low, _high);
+            if self[mid].read().key < key {
+                _low = mid + 1;
+            } else {
+                _high = mid;
             };
         }
         _high

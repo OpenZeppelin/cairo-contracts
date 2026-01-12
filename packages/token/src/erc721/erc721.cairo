@@ -7,7 +7,7 @@
 /// and the IERC721Metadata interface.
 #[starknet::component]
 pub mod ERC721Component {
-    use core::num::traits::Zero;
+    use core::num::traits::{Bounded, Zero};
     use openzeppelin_interfaces::erc721 as interface;
     use openzeppelin_interfaces::erc721::{
         IERC721ReceiverDispatcher, IERC721ReceiverDispatcherTrait,
@@ -17,11 +17,14 @@ pub mod ERC721Component {
     use openzeppelin_introspection::src5::SRC5Component::{
         InternalTrait as SRC5InternalTrait, SRC5Impl,
     };
+    use openzeppelin_utils::structs::checkpoint::TraceTrait;
     use starknet::storage::{
         Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
         StoragePointerWriteAccess,
     };
     use starknet::{ContractAddress, get_caller_address};
+    use crate::erc721::extensions::ERC721ConsecutiveComponent;
+    use crate::erc721::extensions::ERC721ConsecutiveComponent::InternalImpl as ERC721ConsecutiveInternalImpl;
 
     #[storage]
     pub struct Storage {
@@ -107,6 +110,53 @@ pub mod ERC721Component {
         ) {}
     }
 
+    pub trait ERC721OwnerOfTrait<TContractState> {
+        /// Returns the owner of the `token_id`.
+        ///
+        /// IMPORTANT: Any implementations of this function that add ownership of tokens not tracked
+        /// by the core ERC-721 logic MUST be matched with the use of `increase_balance` to keep
+        /// balances consistent with ownership. The invariant to preserve is that for any address
+        /// `a` the value returned by `balance_of(a)` must be equal to the number of tokens such
+        /// that `_owner_of(tokenId)` is `a`.
+        fn owner_of(
+            self: @ComponentState<TContractState>, token_id: u256,
+        ) -> ContractAddress {
+            self.ERC721_owners.read(token_id)
+        }
+    }
+
+    impl ConsecutiveExtensionERC721OwnerOfTraitImpl<
+        TContractState,
+        +HasComponent<TContractState>,
+        +ERC721HooksTrait<TContractState>,
+        impl ERC721Consecutive: ERC721ConsecutiveComponent::HasComponent<TContractState>,
+        +ERC721ConsecutiveComponent::ImmutableConfig,
+        +SRC5Component::HasComponent<TContractState>,
+        +Drop<TContractState>,
+    > of ERC721OwnerOfTrait<TContractState> {
+        /// See `ERC721OwnerOfTrait::owner_of`. Implementation that checks the sequential ownership
+        /// structure for tokens that have been minted as part of a batch, and not yet transferred.
+        fn owner_of(self: @ComponentState<TContractState>, token_id: u256) -> ContractAddress {
+            let owner = self.ERC721_owners.read(token_id);
+            let consecutive = get_dep_component!(self, ERC721Consecutive);
+
+            // If token is owned by the core, or beyond consecutive range, return base value.
+            if owner.is_non_zero()
+                || token_id > Bounded::<u64>::MAX.into()
+                || token_id < consecutive.first_consecutive_id().into() {
+                return owner;
+            }
+
+            // Otherwise, check the token was not burned, and fetch ownership from the anchors.
+            // No safe cast needed: we just validated the u64 range.
+            if consecutive.is_sequentially_burned(token_id) {
+                Zero::zero()
+            } else {
+                consecutive.sequential_owner_of(token_id)
+            }
+        }
+    }
+
     //
     // External
     //
@@ -117,6 +167,7 @@ pub mod ERC721Component {
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +ERC721HooksTrait<TContractState>,
+        +ERC721OwnerOfTrait<TContractState>,
         +Drop<TContractState>,
     > of interface::IERC721<ComponentState<TContractState>> {
         /// Returns the number of NFTs owned by `account`.
@@ -245,6 +296,7 @@ pub mod ERC721Component {
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +ERC721HooksTrait<TContractState>,
+        +ERC721OwnerOfTrait<TContractState>,
         +Drop<TContractState>,
     > of interface::IERC721Metadata<ComponentState<TContractState>> {
         /// Returns the NFT name.
@@ -281,6 +333,7 @@ pub mod ERC721Component {
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +ERC721HooksTrait<TContractState>,
+        +ERC721OwnerOfTrait<TContractState>,
         +Drop<TContractState>,
     > of interface::IERC721CamelOnly<ComponentState<TContractState>> {
         fn balanceOf(self: @ComponentState<TContractState>, account: ContractAddress) -> u256 {
@@ -336,6 +389,7 @@ pub mod ERC721Component {
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +ERC721HooksTrait<TContractState>,
+        +ERC721OwnerOfTrait<TContractState>,
         +Drop<TContractState>,
     > of interface::IERC721MetadataCamelOnly<ComponentState<TContractState>> {
         fn tokenURI(self: @ComponentState<TContractState>, tokenId: u256) -> ByteArray {
@@ -349,6 +403,7 @@ pub mod ERC721Component {
         +HasComponent<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
         +ERC721HooksTrait<TContractState>,
+        +ERC721OwnerOfTrait<TContractState>,
         +Drop<TContractState>,
     > of interface::ERC721ABI<ComponentState<TContractState>> {
         // IERC721
@@ -484,6 +539,7 @@ pub mod ERC721Component {
         +HasComponent<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
         impl Hooks: ERC721HooksTrait<TContractState>,
+        impl OwnerOf: ERC721OwnerOfTrait<TContractState>,
         +Drop<TContractState>,
     > of InternalTrait<TContractState> {
         /// Initializes the contract by setting the token name, symbol, and base URI.
@@ -645,6 +701,24 @@ pub mod ERC721Component {
             assert(!previous_owner.is_zero(), Errors::INVALID_TOKEN_ID);
         }
 
+        /// Unsafe write access to the balances, used by extensions that "mint" tokens using an
+        /// `ERC721OwnerOfTrait` custom implementation.
+        ///
+        /// NOTE: The value is limited to `u128::MAX`. This protects against balance overflow.
+        /// It is unrealistic that a `u256` would ever overflow from increments when these
+        /// increments are bounded to `u128` values.
+        ///
+        /// WARNING: Increasing an account's balance using this function tends to be paired with
+        /// an custom implementation of the `ERC721OwnerOfTrait` trait to resolve the ownership of
+        /// the corresponding tokens so that balances and ownership remain consistent with one
+        /// another.
+        fn increase_balance(
+            ref self: ComponentState<TContractState>, account: ContractAddress, value: u128,
+        ) {
+            let current_balance: u256 = self.ERC721_balances.read(account);
+            self.ERC721_balances.write(account, current_balance + value.into());
+        }
+
         /// Transfers `token_id` from its current owner to `to`, or alternatively mints (or burns)
         /// if the current owner (or `to`) is the zero address. Returns the owner of the `token_id`
         /// before the update.
@@ -658,6 +732,8 @@ pub mod ERC721Component {
         /// NOTE: This function can be extended using the `ERC721HooksTrait`, to add
         /// functionality before and/or after the transfer, mint, or burn.
         ///
+        /// NOTE: If overriding this function in a way that tracks balances, see also
+        /// `increase_balance`.
         fn update(
             ref self: ComponentState<TContractState>,
             to: ContractAddress,
@@ -692,7 +768,7 @@ pub mod ERC721Component {
 
         /// Returns the owner address of `token_id`.
         fn _owner_of(self: @ComponentState<TContractState>, token_id: u256) -> ContractAddress {
-            self.ERC721_owners.read(token_id)
+            OwnerOf::owner_of(self, token_id)
         }
 
         /// Returns the owner address of `token_id`.
@@ -856,3 +932,10 @@ pub mod ERC721Component {
 pub impl ERC721HooksEmptyImpl<
     TContractState,
 > of ERC721Component::ERC721HooksTrait<TContractState> {}
+
+/// Implementation of ERC721OwnerOfTrait for the basic (non-consecutive) ERC721 component.
+/// Returns the owner of the `token_id` from storage.
+/// DOES NOT revert if token doesn't exist.
+pub impl ERC721OwnerOfDefaultImpl<
+    TContractState,
+> of ERC721Component::ERC721OwnerOfTrait<TContractState> {}

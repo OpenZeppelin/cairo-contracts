@@ -11,7 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Added `lower_lookup` support to checkpoint utilities (#) <!-- TODO: add PR number -->
+- Added `lower_lookup` support to checkpoint utilities (#1630)
+- Added `BitMap` struct and associated helpers to `openzeppelin_utils::structs::bitmap` (#1630)
 
 ## 2.1.0 (2025-12-11)
 

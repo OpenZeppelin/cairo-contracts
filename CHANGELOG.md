@@ -12,13 +12,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `openzeppelin_utils`
-  - Added `lower_lookup` support to checkpoint utilities (#) <!-- TODO: add PR number -->
-  - Added `BitMap` struct and associated helpers to `openzeppelin_utils::structs::bitmap` (#) <!-- TODO: add PR number -->
+  - Added `lower_lookup` support to checkpoint utilities (#1630)
+  - Added `BitMap` struct and associated helpers to `openzeppelin_utils::structs::bitmap` (#1630)
 
+- `ERC721ConsecutiveComponent` extension (#1630)
 - `IERC721Wrapper` interface to `openzeppelin_interfaces::token::erc721` (#1625)
 - `ERC721WrapperComponent` providing ERC721 wrapping and unwrapping functionality (#1625)
 - `IERC20Wrapper` interface to `openzeppelin_interfaces::token::erc20` for ERC20 wrappers (#1617)
 - `ERC20WrapperComponent` providing ERC20 wrapping and unwrapping functionality (#1617)
+
+### Changed (Breaking)
+
+- Added `ERC721OwnerOfTrait` hook as a dependency to `ERC721Component` implementations (#1630)
+  - Included `ERC721OwnerOfDefaultImpl` to support the default use case
 
 ## 3.0.0 (2025-12-11)
 

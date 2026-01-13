@@ -92,9 +92,7 @@ pub mod ERC6909ContentURIComponent {
         /// Sets the token URI for a given token ID.
         ///
         /// Emits a `URI` event.
-        fn set_token_uri(
-            ref self: ComponentState<TContractState>, id: u256, token_uri: ByteArray,
-        ) {
+        fn set_token_uri(ref self: ComponentState<TContractState>, id: u256, token_uri: ByteArray) {
             self.ERC6909ContentURI_token_uris.write(id, token_uri.clone());
             self.emit(URI { value: token_uri, id });
         }

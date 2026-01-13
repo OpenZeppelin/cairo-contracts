@@ -38,37 +38,37 @@ fn test_total_supply_default_zero() {
 }
 
 #[test]
-fn test__update_token_supply_increments_on_mint() {
+fn test_update_token_supply_increments_on_mint() {
     let mut state = COMPONENT_STATE();
     let before = state.total_supply(TOKEN_ID);
 
-    state._update_token_supply(ZERO, RECIPIENT, TOKEN_ID, VALUE);
+    state.update_token_supply(ZERO, RECIPIENT, TOKEN_ID, VALUE);
 
     assert_eq!(state.total_supply(TOKEN_ID), before + VALUE);
 }
 
 #[test]
-fn test__update_token_supply_decrements_on_burn() {
+fn test_update_token_supply_decrements_on_burn() {
     let mut state = COMPONENT_STATE();
 
-    state._update_token_supply(ZERO, RECIPIENT, TOKEN_ID, VALUE + 1);
+    state.update_token_supply(ZERO, RECIPIENT, TOKEN_ID, VALUE + 1);
     let mid = state.total_supply(TOKEN_ID);
 
-    state._update_token_supply(OWNER, ZERO, TOKEN_ID, 1);
+    state.update_token_supply(OWNER, ZERO, TOKEN_ID, 1);
 
     assert_eq!(state.total_supply(TOKEN_ID), mid - 1);
 }
 
 #[test]
-fn test__update_token_supply_no_change_on_transfer() {
+fn test_update_token_supply_no_change_on_transfer() {
     let mut state = COMPONENT_STATE();
 
-    state._update_token_supply(ZERO, RECIPIENT, TOKEN_ID, VALUE);
+    state.update_token_supply(ZERO, RECIPIENT, TOKEN_ID, VALUE);
     let before = state.total_supply(TOKEN_ID);
 
     let sender: ContractAddress = OWNER;
     let receiver: ContractAddress = RECIPIENT;
-    state._update_token_supply(sender, receiver, TOKEN_ID, VALUE);
+    state.update_token_supply(sender, receiver, TOKEN_ID, VALUE);
 
     assert_eq!(state.total_supply(TOKEN_ID), before);
 }

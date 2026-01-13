@@ -243,7 +243,7 @@ fn test_set_operator_external() {
 }
 
 #[test]
-fn test__burn_reduces_balance_and_emits() {
+fn test_burn_reduces_balance_and_emits() {
     let mut state = setup();
     let contract_address = test_address();
 
@@ -251,7 +251,7 @@ fn test__burn_reduces_balance_and_emits() {
     let mut spy = spy_events();
 
     assert_eq!(state.balance_of(OWNER, TOKEN_ID), SUPPLY);
-    state._burn(OWNER, TOKEN_ID, VALUE);
+    state.burn(OWNER, TOKEN_ID, VALUE);
 
     spy.assert_only_event_transfer(contract_address, OWNER, OWNER, ZERO, TOKEN_ID, VALUE);
 
@@ -260,16 +260,16 @@ fn test__burn_reduces_balance_and_emits() {
 
 #[test]
 #[should_panic(expected: 'ERC6909: invalid sender')]
-fn test__burn_invalid_sender_zero() {
+fn test_burn_invalid_sender_zero() {
     let mut state = setup();
-    state._burn(ZERO, TOKEN_ID, VALUE);
+    state.burn(ZERO, TOKEN_ID, VALUE);
 }
 
 #[test]
 #[should_panic(expected: 'ERC6909: insufficient balance')]
-fn test__burn_insufficient_balance() {
+fn test_burn_insufficient_balance() {
     let mut state = setup();
-    state._burn(OWNER, TOKEN_ID, SUPPLY + 1);
+    state.burn(OWNER, TOKEN_ID, SUPPLY + 1);
 }
 
 #[test]

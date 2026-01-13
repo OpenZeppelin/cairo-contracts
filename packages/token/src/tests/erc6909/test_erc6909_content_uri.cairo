@@ -59,7 +59,7 @@ fn test_set_contract_uri() {
     state.initializer();
 
     let mut spy = spy_events();
-    state._set_contract_uri(CONTRACT_URI());
+    state.set_contract_uri(CONTRACT_URI());
 
     spy.assert_only_event_contract_uri_updated(contract_address);
     assert_eq!(state.contract_uri(), CONTRACT_URI());
@@ -70,7 +70,7 @@ fn test_set_contract_uri_empty() {
     let mut state = COMPONENT_STATE();
 
     state.initializer();
-    state._set_contract_uri("");
+    state.set_contract_uri("");
 
     let empty: ByteArray = "";
     assert_eq!(state.contract_uri(), empty);
@@ -91,7 +91,7 @@ fn test_set_token_uri() {
     state.initializer();
 
     let mut spy = spy_events();
-    state._set_token_uri(SAMPLE_ID, TOKEN_URI());
+    state.set_token_uri(SAMPLE_ID, TOKEN_URI());
 
     spy.assert_only_event_uri(contract_address, TOKEN_URI(), SAMPLE_ID);
     assert_eq!(state.token_uri(SAMPLE_ID), TOKEN_URI());
@@ -102,8 +102,8 @@ fn test_token_uri_independent_of_contract_uri() {
     let mut state = COMPONENT_STATE();
 
     state.initializer();
-    state._set_contract_uri(CONTRACT_URI());
-    state._set_token_uri(SAMPLE_ID, TOKEN_URI());
+    state.set_contract_uri(CONTRACT_URI());
+    state.set_token_uri(SAMPLE_ID, TOKEN_URI());
 
     // Token URI is independent of contract URI
     assert_eq!(state.contract_uri(), CONTRACT_URI());
@@ -119,8 +119,8 @@ fn test_different_token_ids_have_different_uris() {
     let uri_1: ByteArray = "ipfs://token/1";
     let uri_2: ByteArray = "ipfs://token/2";
 
-    state._set_token_uri(1, uri_1.clone());
-    state._set_token_uri(2, uri_2.clone());
+    state.set_token_uri(1, uri_1.clone());
+    state.set_token_uri(2, uri_2.clone());
 
     assert_eq!(state.token_uri(1), uri_1);
     assert_eq!(state.token_uri(2), uri_2);

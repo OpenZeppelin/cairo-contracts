@@ -55,7 +55,7 @@ fn test__set_token_name() {
     let contract_address = test_address();
 
     let mut spy = spy_events();
-    state._set_token_name(TOKEN_ID, NAME());
+    state.set_token_name(TOKEN_ID, NAME());
 
     spy.assert_only_event_name_updated(contract_address, TOKEN_ID, NAME());
     assert_eq!(state.name(TOKEN_ID), NAME());
@@ -67,7 +67,7 @@ fn test__set_token_symbol() {
     let contract_address = test_address();
 
     let mut spy = spy_events();
-    state._set_token_symbol(TOKEN_ID, SYMBOL());
+    state.set_token_symbol(TOKEN_ID, SYMBOL());
 
     spy.assert_only_event_symbol_updated(contract_address, TOKEN_ID, SYMBOL());
     assert_eq!(state.symbol(TOKEN_ID), SYMBOL());
@@ -79,7 +79,7 @@ fn test__set_token_decimals() {
     let contract_address = test_address();
 
     let mut spy = spy_events();
-    state._set_token_decimals(TOKEN_ID, DECIMALS);
+    state.set_token_decimals(TOKEN_ID, DECIMALS);
 
     spy.assert_only_event_decimals_updated(contract_address, TOKEN_ID, DECIMALS);
     assert_eq!(state.decimals(TOKEN_ID), DECIMALS);
@@ -89,9 +89,9 @@ fn test__set_token_decimals() {
 fn test_set_all_metadata_individually() {
     let mut state = COMPONENT_STATE();
 
-    state._set_token_name(TOKEN_ID, NAME());
-    state._set_token_symbol(TOKEN_ID, SYMBOL());
-    state._set_token_decimals(TOKEN_ID, DECIMALS);
+    state.set_token_name(TOKEN_ID, NAME());
+    state.set_token_symbol(TOKEN_ID, SYMBOL());
+    state.set_token_decimals(TOKEN_ID, DECIMALS);
 
     assert_eq!(state.name(TOKEN_ID), NAME());
     assert_eq!(state.symbol(TOKEN_ID), SYMBOL());

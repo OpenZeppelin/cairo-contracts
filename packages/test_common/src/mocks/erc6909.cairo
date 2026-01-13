@@ -114,7 +114,7 @@ pub mod ERC6909ContentURIMock {
     ) {
         self.erc6909.initializer();
         self.erc6909_content_uri.initializer();
-        self.erc6909_content_uri._set_contract_uri(contract_uri);
+        self.erc6909_content_uri.set_contract_uri(contract_uri);
         self.erc6909.mint(recipient, id, amount);
     }
 }

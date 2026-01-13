@@ -637,7 +637,7 @@ pub mod GovernorComponent {
             let vote = Vote { verifying_contract, nonce, proposal_id, support, voter };
             let hash = vote.get_message_hash(voter);
 
-            assert_valid_signature(voter, hash, signature.into(), Errors::INVALID_SIGNATURE);
+            assert_valid_signature(voter, hash, signature, Errors::INVALID_SIGNATURE);
 
             // 4. Cast vote
             self._cast_vote(proposal_id, voter, support, "", Immutable::DEFAULT_PARAMS())
@@ -677,7 +677,7 @@ pub mod GovernorComponent {
             };
             let hash = vote.get_message_hash(voter);
 
-            assert_valid_signature(voter, hash, signature.into(), Errors::INVALID_SIGNATURE);
+            assert_valid_signature(voter, hash, signature, Errors::INVALID_SIGNATURE);
 
             // 4. Cast vote
             self._cast_vote(proposal_id, voter, support, reason, params)

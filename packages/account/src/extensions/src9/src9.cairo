@@ -104,9 +104,7 @@ pub mod SRC9Component {
 
             // Make this component agnostic to the account implementation, as long
             // as the contract implements the SRC6 interface.
-            assert_valid_signature(
-                this, outside_tx_hash, signature.into(), Errors::INVALID_SIGNATURE,
-            );
+            assert_valid_signature(this, outside_tx_hash, signature, Errors::INVALID_SIGNATURE);
 
             // 5. Execute the calls
             execute_calls(outside_execution.calls)

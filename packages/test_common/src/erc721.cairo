@@ -80,4 +80,36 @@ pub impl ERC721SpyHelpersImpl of ERC721SpyHelpers {
         self.assert_event_transfer(contract, from, to, token_id);
         self.assert_no_events_left_from(contract);
     }
+
+    fn assert_event_consecutive_transfer(
+        ref self: EventSpy,
+        contract: ContractAddress,
+        from_token_id: u256,
+        to_token_id: u256,
+        from_address: ContractAddress,
+        to_address: ContractAddress,
+    ) {
+        let expected = ExpectedEvent::new()
+            .key(selector!("ConsecutiveTransfer"))
+            .key(from_token_id)
+            .data(to_token_id)
+            .key(from_address)
+            .key(to_address);
+        self.assert_emitted_single(contract, expected);
+    }
+
+    fn assert_only_event_consecutive_transfer(
+        ref self: EventSpy,
+        contract: ContractAddress,
+        from_token_id: u256,
+        to_token_id: u256,
+        from_address: ContractAddress,
+        to_address: ContractAddress,
+    ) {
+        self
+            .assert_event_consecutive_transfer(
+                contract, from_token_id, to_token_id, from_address, to_address,
+            );
+        self.assert_no_events_left_from(contract);
+    }
 }

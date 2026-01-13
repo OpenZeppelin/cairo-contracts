@@ -293,9 +293,9 @@ NOTE: See xref:#ERC6909Component-Hooks[Hooks] to understand how hooks are used.
 --
 .InternalImpl
 * xref:#ERC6909Component-initializer[`++initializer(self)++`]
-* xref:#ERC6909Component-_mint[`++_mint(self, receiver, id, amount)++`]
-* xref:#ERC6909Component-_burn[`++_burn(self, account, id, amount)++`]
-* xref:#ERC6909Component-_update[`++_update(self, sender, receiver, id, amount)++`]
+* xref:#ERC6909Component-mint[`++mint(self, receiver, id, amount)++`]
+* xref:#ERC6909Component-burn[`++burn(self, account, id, amount)++`]
+* xref:#ERC6909Component-update[`++update(self, sender, receiver, id, amount)++`]
 * xref:#ERC6909Component-_set_operator[`++_set_operator(self, owner, spender, approved)++`]
 * xref:#ERC6909Component-_spend_allowance[`++_spend_allowance(self, owner, spender, id, amount)++`]
 * xref:#ERC6909Component-_approve[`++_approve(self, owner, spender, id, amount)++`]
@@ -325,13 +325,13 @@ the library for this purpose.
 [[ERC6909Component-before_update]]
 ==== `[.contract-item-name]#++before_update++#++(ref self: ContractState, from: ContractAddress, recipient: ContractAddress, id: u256, amount: u256)++` [.item-kind]#hook#
 
-Function executed at the beginning of the xref:#ERC6909Component-_update[_update] function prior to any other logic.
+Function executed at the beginning of the xref:#ERC6909Component-update[update] function prior to any other logic.
 
 [.contract-item]
 [[ERC6909Component-after_update]]
 ==== `[.contract-item-name]#++after_update++#++(ref self: ContractState, from: ContractAddress, recipient: ContractAddress, id: u256, amount: u256)++` [.item-kind]#hook#
 
-Function executed at the end of the xref:#ERC6909Component-_update[_update] function.
+Function executed at the end of the xref:#ERC6909Component-update[update] function.
 
 ==== Embeddable functions
 
@@ -418,8 +418,8 @@ Initializes the contract by registering the IERC6909 interface ID as supported t
 This should only be used inside the contract's constructor.
 
 [.contract-item]
-[[ERC6909Component-_mint]]
-==== `[.contract-item-name]#++_mint++#++(ref self: ContractState, receiver: ContractAddress, id: u256, amount: u256)++` [.item-kind]#internal#
+[[ERC6909Component-mint]]
+==== `[.contract-item-name]#++mint++#++(ref self: ContractState, receiver: ContractAddress, id: u256, amount: u256)++` [.item-kind]#internal#
 
 Mints `amount` tokens of token ID `id` to `receiver`.
 
@@ -430,8 +430,8 @@ Requirements:
 Emits a <<ERC6909Component-Transfer,Transfer>> event with `sender` set to the zero address.
 
 [.contract-item]
-[[ERC6909Component-_burn]]
-==== `[.contract-item-name]#++_burn++#++(ref self: ContractState, account: ContractAddress, id: u256, amount: u256)++` [.item-kind]#internal#
+[[ERC6909Component-burn]]
+==== `[.contract-item-name]#++burn++#++(ref self: ContractState, account: ContractAddress, id: u256, amount: u256)++` [.item-kind]#internal#
 
 Destroys `amount` tokens of ID `id` from `account`.
 
@@ -443,8 +443,8 @@ Requirements:
 Emits a <<ERC6909Component-Transfer,Transfer>> event with `receiver` set to the zero address.
 
 [.contract-item]
-[[ERC6909Component-_update]]
-==== `[.contract-item-name]#++_update++#++(ref self: ContractState, sender: ContractAddress, receiver: ContractAddress, id: u256, amount: u256)++` [.item-kind]#internal#
+[[ERC6909Component-update]]
+==== `[.contract-item-name]#++update++#++(ref self: ContractState, sender: ContractAddress, receiver: ContractAddress, id: u256, amount: u256)++` [.item-kind]#internal#
 
 Transfers `amount` tokens of ID `id` from `sender` to `receiver`, or alternatively mints (or burns)
 if `sender` (or `receiver`) is the zero address.
@@ -553,8 +553,8 @@ NOTE: Implementing xref:#ERC6909Component[ERC6909Component] is a requirement for
 --
 .InternalImpl
 * xref:#ERC6909ContentURIComponent-initializer[`++initializer(self)++`]
-* xref:#ERC6909ContentURIComponent-_set_contract_uri[`++_set_contract_uri(self, contract_uri)++`]
-* xref:#ERC6909ContentURIComponent-_set_token_uri[`++_set_token_uri(self, id, token_uri)++`]
+* xref:#ERC6909ContentURIComponent-set_contract_uri[`++set_contract_uri(self, contract_uri)++`]
+* xref:#ERC6909ContentURIComponent-set_token_uri[`++set_token_uri(self, id, token_uri)++`]
 --
 
 [.contract-index]
@@ -590,16 +590,16 @@ Initializes the component by registering the IERC6909ContentUri interface ID as 
 This should be used inside the contract's constructor.
 
 [.contract-item]
-[[ERC6909ContentURIComponent-_set_contract_uri]]
-==== `[.contract-item-name]#++_set_contract_uri++#++(ref self: ContractState, contract_uri: ByteArray)++` [.item-kind]#internal#
+[[ERC6909ContentURIComponent-set_contract_uri]]
+==== `[.contract-item-name]#++set_contract_uri++#++(ref self: ContractState, contract_uri: ByteArray)++` [.item-kind]#internal#
 
 Sets the contract-level URI to `contract_uri`.
 
 Emits a <<ERC6909ContentURIComponent-ContractURIUpdated,ContractURIUpdated>> event.
 
 [.contract-item]
-[[ERC6909ContentURIComponent-_set_token_uri]]
-==== `[.contract-item-name]#++_set_token_uri++#++(ref self: ContractState, id: u256, token_uri: ByteArray)++` [.item-kind]#internal#
+[[ERC6909ContentURIComponent-set_token_uri]]
+==== `[.contract-item-name]#++set_token_uri++#++(ref self: ContractState, id: u256, token_uri: ByteArray)++` [.item-kind]#internal#
 
 Sets the token-level URI for token `id` to `token_uri`.
 
@@ -649,10 +649,10 @@ NOTE: Implementing xref:#ERC6909Component[ERC6909Component] is a requirement for
 .Internal functions
 --
 .InternalImpl
-* xref:#ERC6909MetadataComponent-initializer[`++initializer(self)++`]
-* xref:#ERC6909MetadataComponent-_set_token_name[`++_set_token_name(self, id, name)++`]
-* xref:#ERC6909MetadataComponent-_set_token_symbol[`++_set_token_symbol(self, id, symbol)++`]
-* xref:#ERC6909MetadataComponent-_set_token_decimals[`++_set_token_decimals(self, id, decimals)++`]
+* xref:#ERC6909MetadataComponent-initializer[`++initializer(self, id, name, symbol, decimals)++`]
+* xref:#ERC6909MetadataComponent-set_token_name[`++set_token_name(self, id, name)++`]
+* xref:#ERC6909MetadataComponent-set_token_symbol[`++set_token_symbol(self, id, symbol)++`]
+* xref:#ERC6909MetadataComponent-set_token_decimals[`++set_token_decimals(self, id, decimals)++`]
 --
 
 [.contract-index]
@@ -687,32 +687,32 @@ Returns the number of decimals of token `id`.
 
 [.contract-item]
 [[ERC6909MetadataComponent-initializer]]
-==== `[.contract-item-name]#++initializer++#++(ref self: ContractState)++` [.item-kind]#internal#
+==== `[.contract-item-name]#++initializer++#++(ref self: ContractState, id: u256, name: ByteArray, symbol: ByteArray, decimals: u8)++` [.item-kind]#internal#
 
 Initializes the component by registering the IERC6909Metadata interface ID as supported
-through introspection.
+through introspection and setting the initial token metadata.
 
 This should be used inside the contract's constructor.
 
 [.contract-item]
-[[ERC6909MetadataComponent-_set_token_name]]
-==== `[.contract-item-name]#++_set_token_name++#++(ref self: ContractState, id: u256, name: ByteArray)++` [.item-kind]#internal#
+[[ERC6909MetadataComponent-set_token_name]]
+==== `[.contract-item-name]#++set_token_name++#++(ref self: ContractState, id: u256, name: ByteArray)++` [.item-kind]#internal#
 
 Sets the name for token `id`.
 
 Emits an <<ERC6909MetadataComponent-ERC6909NameUpdated,ERC6909NameUpdated>> event.
 
 [.contract-item]
-[[ERC6909MetadataComponent-_set_token_symbol]]
-==== `[.contract-item-name]#++_set_token_symbol++#++(ref self: ContractState, id: u256, symbol: ByteArray)++` [.item-kind]#internal#
+[[ERC6909MetadataComponent-set_token_symbol]]
+==== `[.contract-item-name]#++set_token_symbol++#++(ref self: ContractState, id: u256, symbol: ByteArray)++` [.item-kind]#internal#
 
 Sets the symbol for token `id`.
 
 Emits an <<ERC6909MetadataComponent-ERC6909SymbolUpdated,ERC6909SymbolUpdated>> event.
 
 [.contract-item]
-[[ERC6909MetadataComponent-_set_token_decimals]]
-==== `[.contract-item-name]#++_set_token_decimals++#++(ref self: ContractState, id: u256, decimals: u8)++` [.item-kind]#internal#
+[[ERC6909MetadataComponent-set_token_decimals]]
+==== `[.contract-item-name]#++set_token_decimals++#++(ref self: ContractState, id: u256, decimals: u8)++` [.item-kind]#internal#
 
 Sets the decimals for token `id`.
 
@@ -753,7 +753,7 @@ This extension allows contracts to track the total supply for each token ID.
 
 NOTE: Implementing xref:#ERC6909Component[ERC6909Component] is a requirement for this component to be implemented.
 To properly track total supply, this extension expects its helper
-xref:#ERC6909TokenSupplyComponent-_update_token_supply[_update_token_supply] to be used from the ERC6909 hooks
+xref:#ERC6909TokenSupplyComponent-update_token_supply[update_token_supply] to be used from the ERC6909 hooks
 during mints and burns.
 
 [.contract-index#ERC6909TokenSupplyComponent-Embeddable-Impls]
@@ -769,7 +769,7 @@ during mints and burns.
 --
 .InternalImpl
 * xref:#ERC6909TokenSupplyComponent-initializer[`++initializer(self)++`]
-* xref:#ERC6909TokenSupplyComponent-_update_token_supply[`++_update_token_supply(self, sender, receiver, id, amount)++`]
+* xref:#ERC6909TokenSupplyComponent-update_token_supply[`++update_token_supply(self, sender, receiver, id, amount)++`]
 --
 
 [#ERC6909TokenSupplyComponent-Embeddable-functions]
@@ -794,8 +794,8 @@ through introspection.
 This should be used inside the contract's constructor.
 
 [.contract-item]
-[[ERC6909TokenSupplyComponent-_update_token_supply]]
-==== `[.contract-item-name]#++_update_token_supply++#++(ref self: ContractState, sender: ContractAddress, receiver: ContractAddress, id: u256, amount: u256)++` [.item-kind]#internal#
+[[ERC6909TokenSupplyComponent-update_token_supply]]
+==== `[.contract-item-name]#++update_token_supply++#++(ref self: ContractState, sender: ContractAddress, receiver: ContractAddress, id: u256, amount: u256)++` [.item-kind]#internal#
 
 Updates the total supply of token `id`.
 

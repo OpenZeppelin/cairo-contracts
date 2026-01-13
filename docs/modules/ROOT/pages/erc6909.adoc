@@ -8,8 +8,8 @@ The ERC6909 library provides an approximation of {eip6909} in Cairo for Starknet
 
 == Usage
 
-:mint-api: xref:api/erc6909.adoc#ERC6909Component-_mint[_mint]
-:burn-api: xref:api/erc6909.adoc#ERC6909Component-_burn[_burn]
+:mint-api: xref:api/erc6909.adoc#ERC6909Component-mint[mint]
+:burn-api: xref:api/erc6909.adoc#ERC6909Component-burn[burn]
 :transfer-api: xref:api/erc6909.adoc#IERC6909-transfer[transfer]
 :transfer-from-api: xref:api/erc6909.adoc#IERC6909-transfer_from[transfer_from]
 :set-operator-api: xref:api/erc6909.adoc#IERC6909-set_operator[set_operator]
@@ -58,8 +58,7 @@ mod MyERC6909 {
         amount: u256,
     ) {
         self.erc6909.initializer();
-        self.erc6909._mint(recipient, id, amount);
-
+        self.erc6909.mint(recipient, id, amount);
     }
 }
 ----
@@ -148,7 +147,7 @@ The {erc6909-component} exposes a hook trait, {hooks-api}, that allows extending
 the component code itself. Every contract using `ERC6909Component` is expected to provide an implementation of this
 trait, even if empty, typically using `ERC6909HooksEmptyImpl` for basic presets.
 
-Hooks are invoked by the internal `_update` helper whenever tokens are transferred, minted, or burned:
+Hooks are invoked by the internal `update` helper whenever tokens are transferred, minted, or burned:
 
 * {before-update-api} is executed before balances are modified.
 * {after-update-api} is executed after balances are modified and events have been emitted.
@@ -221,8 +220,9 @@ mod MyERC6909WithURI {
         amount: u256,
     ) {
         self.erc6909.initializer();
-        self.erc6909_content_uri.initializer(contract_uri);
-        self.erc6909._mint(recipient, id, amount);
+        self.erc6909_content_uri.initializer();
+        self.erc6909_content_uri.set_contract_uri(contract_uri);
+        self.erc6909.mint(recipient, id, amount);
     }
 }
 ----
@@ -241,7 +241,7 @@ token ID:
 * {metadata-symbol-api} returns the token symbol.
 * {metadata-decimals-api} returns the number of decimals for that token ID.
 
-Use the individual setters `_set_token_name`, `_set_token_symbol`, and `_set_token_decimals` to configure
+Use the individual setters `set_token_name`, `set_token_symbol`, and `set_token_decimals` to configure
 metadata for each token ID.
 
 Don't forget to:
@@ -253,7 +253,7 @@ Don't forget to:
 
 :erc6909-supply-component: xref:/api/erc6909.adoc#ERC6909TokenSupplyComponent[ERC6909TokenSupplyComponent]
 :total-supply-api: xref:/api/erc6909.adoc#IERC6909TokenSupply-total_supply[total_supply]
-:update-token-supply-api: xref:/api/erc6909.adoc#ERC6909TokenSupplyComponent-_update_token_supply[_update_token_supply]
+:update-token-supply-api: xref:/api/erc6909.adoc#ERC6909TokenSupplyComponent-update_token_supply[update_token_supply]
 
 The {erc6909-supply-component} implements {ierc6909-token-supply-interface} and tracks the total supply per token ID.
 
@@ -279,7 +279,7 @@ pub impl ERC6909HooksImpl of ERC6909Component::ERC6909HooksTrait<ContractState> 
     ) {
         self
             .erc6909_token_supply
-            ._update_token_supply(from, recipient, id, amount);
+            .update_token_supply(from, recipient, id, amount);
     }
 
     fn after_update(

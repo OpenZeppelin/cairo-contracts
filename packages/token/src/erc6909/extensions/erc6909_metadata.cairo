@@ -11,8 +11,8 @@
 ///
 /// 1. Call `initializer` in your contract's constructor with the initial token metadata
 ///    (id, name, symbol, decimals) to register the SRC5 interface and set up the first token.
-/// 2. For additional token IDs, use the individual setters `_set_token_name`,
-///    `_set_token_symbol`, and `_set_token_decimals` to configure metadata.
+/// 2. For additional token IDs, use the individual setters `set_token_name`,
+///    `set_token_symbol`, and `set_token_decimals` to configure metadata.
 #[starknet::component]
 pub mod ERC6909MetadataComponent {
     use openzeppelin_interfaces::erc6909 as interface;
@@ -105,21 +105,22 @@ pub mod ERC6909MetadataComponent {
             symbol: ByteArray,
             decimals: u8,
         ) {
+            self.set_token_name(id, name);
+            self.set_token_symbol(id, symbol);
+            self.set_token_decimals(id, decimals);
+
             let mut src5_component = get_dep_component_mut!(ref self, SRC5);
             src5_component.register_interface(interface::IERC6909_METADATA_ID);
-            self._set_token_name(id, name);
-            self._set_token_symbol(id, symbol);
-            self._set_token_decimals(id, decimals);
         }
 
         /// Sets the token name.
-        fn _set_token_name(ref self: ComponentState<TContractState>, id: u256, name: ByteArray) {
+        fn set_token_name(ref self: ComponentState<TContractState>, id: u256, name: ByteArray) {
             self.ERC6909Metadata_name.write(id, name.clone());
             self.emit(ERC6909NameUpdated { id, new_name: name })
         }
 
         /// Sets the token symbol.
-        fn _set_token_symbol(
+        fn set_token_symbol(
             ref self: ComponentState<TContractState>, id: u256, symbol: ByteArray,
         ) {
             self.ERC6909Metadata_symbol.write(id, symbol.clone());
@@ -127,7 +128,7 @@ pub mod ERC6909MetadataComponent {
         }
 
         /// Sets the token decimals.
-        fn _set_token_decimals(ref self: ComponentState<TContractState>, id: u256, decimals: u8) {
+        fn set_token_decimals(ref self: ComponentState<TContractState>, id: u256, decimals: u8) {
             self.ERC6909Metadata_decimals.write(id, decimals);
             self.emit(ERC6909DecimalsUpdated { id, new_decimals: decimals })
         }

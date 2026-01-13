@@ -11,7 +11,7 @@
 ///
 /// 1. Call `initializer` in your contract's constructor to register the SRC5 interface.
 /// 2. Implement `ERC6909HooksTrait` in your contract.
-/// 3. In either `before_update` or `after_update` hook, call `_update_token_supply`.
+/// 3. In either `before_update` or `after_update` hook, call `update_token_supply`.
 ///    This function automatically adjusts the supply: increasing it when `sender` is zero
 ///    (mint) and decreasing it when `receiver` is zero (burn). Regular transfers between
 ///    non-zero addresses do not affect the supply.
@@ -68,7 +68,7 @@ pub mod ERC6909TokenSupplyComponent {
         /// Updates the total supply of a token ID.
         /// This function MUST be called in the `before_update` hook to track supply
         /// changes during mints and burns.
-        fn _update_token_supply(
+        fn update_token_supply(
             ref self: ComponentState<TContractState>,
             sender: ContractAddress,
             receiver: ContractAddress,

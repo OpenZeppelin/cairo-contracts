@@ -6,7 +6,7 @@
 /// The ERC6909ContentURI component allows to set the contract and token ID URIs.
 ///
 /// Call the `initializer` function in your contract's constructor to register the interface.
-/// Use `_set_contract_uri` and `_set_token_uri` to set the URIs as needed.
+/// Use `set_contract_uri` and `set_token_uri` to set the URIs as needed.
 #[starknet::component]
 pub mod ERC6909ContentURIComponent {
     use openzeppelin_interfaces::erc6909 as interface;
@@ -84,7 +84,7 @@ pub mod ERC6909ContentURIComponent {
         /// Sets the contract URI.
         ///
         /// Emits a `ContractURIUpdated` event.
-        fn _set_contract_uri(ref self: ComponentState<TContractState>, contract_uri: ByteArray) {
+        fn set_contract_uri(ref self: ComponentState<TContractState>, contract_uri: ByteArray) {
             self.ERC6909ContentURI_contract_uri.write(contract_uri);
             self.emit(ContractURIUpdated {});
         }
@@ -92,7 +92,7 @@ pub mod ERC6909ContentURIComponent {
         /// Sets the token URI for a given token ID.
         ///
         /// Emits a `URI` event.
-        fn _set_token_uri(
+        fn set_token_uri(
             ref self: ComponentState<TContractState>, id: u256, token_uri: ByteArray,
         ) {
             self.ERC6909ContentURI_token_uris.write(id, token_uri.clone());

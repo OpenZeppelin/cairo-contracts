@@ -77,7 +77,7 @@ pub impl TraceImpl of TraceTrait {
         }
     }
 
-    /// Returns the value in the first (oldest) checkpoint with key greater or equal than
+    /// Returns the value in the first (oldest) checkpoint with key greater than or equal to
     /// the search key, or zero if there is none.
     fn lower_lookup(self: StoragePath<Trace>, key: u64) -> u256 {
         let checkpoints = self.checkpoints.as_path();
@@ -176,9 +176,9 @@ impl CheckpointImpl of CheckpointTrait {
         _high
     }
 
-    /// Returns the index of the first (oldest) checkpoint with key greater or equal than the search
-    /// key, or `high` if there is none. `low` and `high` define a section where to do the search,
-    /// with inclusive `low` and exclusive `high`.
+    /// Returns the index of the first (oldest) checkpoint with key greater than or equal to the
+    /// search key, or `high` if there is none. `low` and `high` define a section where to do the
+    /// search, with inclusive `low` and exclusive `high`.
     fn _lower_binary_lookup(
         self: StoragePath<Vec<Checkpoint>>, key: u64, low: u64, high: u64,
     ) -> u64 {

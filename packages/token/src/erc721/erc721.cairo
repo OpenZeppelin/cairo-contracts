@@ -124,7 +124,7 @@ pub mod ERC721Component {
         }
     }
 
-    impl ConsecutiveExtensionERC721OwnerOfTraitImpl<
+    impl ConsecutiveERC721OwnerOfTraitImpl<
         TContractState,
         +HasComponent<TContractState>,
         +ERC721HooksTrait<TContractState>,

@@ -88,7 +88,7 @@ pub mod ERC721ConsecutiveComponent {
 
     fn u256_to_address(value: u256) -> ContractAddress {
         let felt: felt252 = value.try_into().expect(Errors::ADDRESS_OVERFLOW);
-        felt.try_into().unwrap()
+        felt.try_into().expect(Errors::ADDRESS_OVERFLOW)
     }
 
     //
@@ -124,7 +124,7 @@ pub mod ERC721ConsecutiveComponent {
             if exists {
                 last_id + 1
             } else {
-                Self::first_consecutive_id(self)
+                self.first_consecutive_id()
             }
         }
 
@@ -148,7 +148,7 @@ pub mod ERC721ConsecutiveComponent {
         /// Mints a batch of consecutive tokens of length `batch_size` for `to`.
         ///
         /// Returns the token id of the first token minted in the batch.
-        /// If `batch_size` is 0, returns the number of consecutive ids minted so far.
+        /// If `batch_size` is 0, returns the number of the next consecutive id to mint.
         ///
         /// Requirements:
         /// - `batch_size` must not be greater than `max_batch_size`.
@@ -174,7 +174,7 @@ pub mod ERC721ConsecutiveComponent {
                 let max_batch_size = Self::max_batch_size(@self);
                 assert(batch_size <= max_batch_size, Errors::EXCEEDED_MAX_BATCH_MINT);
 
-                let last = next + batch_size - 1;
+                let last: u64 = next + batch_size - 1;
 
                 let mut ownership = self.ERC721Consecutive_sequential_ownership.deref();
                 ownership.push(last, address_to_u256(to));
@@ -219,6 +219,7 @@ pub mod ERC721ConsecutiveComponent {
             // Update sequential burn bitmap
             if to.is_zero()
                 && token_id < self.next_consecutive_id().into()
+                && token_id >= self.first_consecutive_id().into()
                 && !self.is_sequentially_burned(token_id) {
                 self.ERC721Consecutive_sequential_burn.deref().set(token_id);
             }

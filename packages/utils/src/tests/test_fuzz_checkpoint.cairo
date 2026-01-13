@@ -55,6 +55,14 @@ fn test_lower_lookup(checkpoints: Span<Checkpoint>) {
         let found_value = mock_trace.lower_lookup(*point.key);
         assert_eq!(found_value, *point.value);
     }
+
+    for i in 1..checkpoints.len() {
+        let index: usize = i.try_into().unwrap();
+        let checkpoint = *checkpoints.at(index);
+        let search_key = checkpoint.key - 1;
+        let found_value = mock_trace.lower_lookup(search_key);
+        assert_eq!(found_value, checkpoint.value);
+    }
 }
 
 #[test]

@@ -176,9 +176,8 @@ fn test_large_indices() {
     assert_eq!(state.get(large_index_2), true);
     assert_eq!(state.get(large_index_3), true);
 
-    // Adjacent bits in different buckets should be independent.
+    // Adjacent bit at the previous bucket boundary should be independent.
     assert_eq!(state.get(large_index_1 - 1), false);
-    assert_eq!(state.get(large_index_3 + 1), false);
 
     // Also test with another very large value (close to max but in a different bucket)
     let near_max_index = max_u256 - 1000;

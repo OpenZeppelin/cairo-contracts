@@ -363,7 +363,7 @@ pub mod ERC721WrapperMock {
 #[starknet::contract]
 #[with_components(ERC721, SRC5)]
 pub mod ERC721ConsecutiveMock {
-    use openzeppelin_token::erc721::ERC721HooksEmptyImpl;
+    use openzeppelin_token::erc721::ERC721Component::ConsecutiveERC721OwnerOfTraitImpl;
     use openzeppelin_token::erc721::extensions::erc721_consecutive::ERC721ConsecutiveComponent::InternalImpl;
     use openzeppelin_token::erc721::extensions::erc721_consecutive::{
         DefaultConfig, ERC721ConsecutiveComponent,
@@ -405,5 +405,27 @@ pub mod ERC721ConsecutiveMock {
     ) {
         self.erc721.initializer(name, symbol, base_uri);
         self.erc721_consecutive.mint_consecutive(recipient, batch_size);
+    }
+
+    impl ERC721HooksImpl of ERC721Component::ERC721HooksTrait<ContractState> {
+        fn before_update(
+            ref self: ERC721Component::ComponentState<ContractState>,
+            to: ContractAddress,
+            token_id: u256,
+            auth: ContractAddress,
+        ) {
+            let mut contract_state = self.get_contract_mut();
+            contract_state.erc721_consecutive.before_update(to, token_id, auth);
+        }
+
+        fn after_update(
+            ref self: ERC721Component::ComponentState<ContractState>,
+            to: ContractAddress,
+            token_id: u256,
+            auth: ContractAddress,
+        ) {
+            let mut contract_state = self.get_contract_mut();
+            contract_state.erc721_consecutive.after_update(to, token_id, auth);
+        }
     }
 }

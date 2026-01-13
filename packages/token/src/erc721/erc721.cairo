@@ -109,6 +109,10 @@ pub mod ERC721Component {
         ) {}
     }
 
+    /// WARNING: Avoid manually implementing this trait with logic that makes external contract
+    /// calls, as doing so can introduce significant reentrancy vulnerabilities and compromise
+    /// contract security. Rely instead on the safe default implementations provided by the
+    /// OpenZeppelin components, which are explicitly designed to prevent these issues.
     pub trait ERC721OwnerOfTrait<TContractState> {
         /// Returns the owner of the `token_id`.
         ///
@@ -124,7 +128,7 @@ pub mod ERC721Component {
         }
     }
 
-    impl ConsecutiveERC721OwnerOfTraitImpl<
+    pub impl ConsecutiveERC721OwnerOfTraitImpl<
         TContractState,
         +HasComponent<TContractState>,
         +ERC721HooksTrait<TContractState>,

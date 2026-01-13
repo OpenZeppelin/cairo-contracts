@@ -6,6 +6,12 @@
 ///
 /// Implementation of the ERC-2309 "Consecutive Transfer Extension".
 /// This allows batch minting of consecutive token IDs during construction.
+///
+/// IMPORTANT: To properly track sequential burns and enforce consecutive minting rules, this
+/// extension requires that `ERC721ConsecutiveComponent::before_update` and
+/// `ERC721ConsecutiveComponent::after_update` are called after every transfer, mint, or burn
+/// operation. For this, the `ERC721HooksTrait::before_update` and
+/// `ERC721HooksTrait::after_update` hooks must be used.
 #[starknet::component]
 pub mod ERC721ConsecutiveComponent {
     use core::num::traits::Zero;
@@ -155,13 +161,13 @@ pub mod ERC721ConsecutiveComponent {
         /// - The function must be called during the contract's constructor (directly or
         /// indirectly).
         ///
+        /// Emits a `ConsecutiveTransfer` event as defined by IERC2309.
+        ///
         /// CAUTION: Does not emit individual `Transfer` events for each token.
         /// This is compliant with ERC-721 as long as it is done within the constructor,
         /// which is enforced by this function.
         ///
         /// CAUTION: Does NOT invoke `onERC721Received` on the receiver.
-        ///
-        /// Emits a `ConsecutiveTransfer` event as defined by IERC2309.
         fn mint_consecutive(
             ref self: ComponentState<TContractState>, to: ContractAddress, batch_size: u64,
         ) -> u64 {
@@ -197,34 +203,45 @@ pub mod ERC721ConsecutiveComponent {
             next
         }
 
-        /// ERC721 update wrapper that enforces consecutive minting rules.
+        /// Enforces consecutive minting rules.
         ///
-        /// WARNING: Using {ERC721Consecutive} prevents minting during construction in favor of
-        /// `mint_consecutive`. After construction, `mint_consecutive` is no longer available and
-        /// minting through `update` becomes available.
-        fn update(
+        /// IMPORTANT: This MUST be added to the implementing contract's
+        /// `ERC721HooksTrait::before_update` hook.
+        ///
+        /// WARNING: Using `ERC721ConsecutiveComponent` prevents minting during construction in
+        /// favor of `mint_consecutive`. After construction, `mint_consecutive` is no longer
+        /// available and minting through `update` becomes available.
+        fn before_update(
             ref self: ComponentState<TContractState>,
             to: ContractAddress,
             token_id: u256,
             auth: ContractAddress,
-        ) -> ContractAddress {
-            let mut erc721_component = get_dep_component_mut!(ref self, ERC721);
-            let previous_owner = erc721_component.update(to, token_id, auth);
+        ) {
+            let erc721_component = get_dep_component!(@self, ERC721);
+            let previous_owner = erc721_component._owner_of(token_id);
 
-            // Only mint after construction
+            // Only mint after construction.
             if previous_owner.is_zero() {
                 assert(!is_constructor_scope(), Errors::FORBIDDEN_MINT);
             }
+        }
 
-            // Update sequential burn bitmap
+        /// Updates sequential burn tracking after an ERC721 update.
+        ///
+        /// IMPORTANT: This MUST be added to the implementing contract's
+        /// `ERC721HooksTrait::after_update` hook.
+        fn after_update(
+            ref self: ComponentState<TContractState>,
+            to: ContractAddress,
+            token_id: u256,
+            _auth: ContractAddress,
+        ) {
             if to.is_zero()
                 && token_id < self.next_consecutive_id().into()
                 && token_id >= self.first_consecutive_id().into()
                 && !self.is_sequentially_burned(token_id) {
                 self.ERC721Consecutive_sequential_burn.deref().set(token_id);
             }
-
-            previous_owner
         }
     }
 }

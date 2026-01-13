@@ -10,7 +10,7 @@
 ///
 /// NOTE: Implementing ERC721Component is a requirement for this component to be implemented.
 ///
-/// WARNING: To properly track token ids, this extension requires that
+/// IMPORTANT: To properly track token ids, this extension requires that
 /// the ERC721EnumerableComponent::before_update function is called after
 /// every transfer, mint, or burn operation.
 /// For this, the ERC721HooksTrait::before_update hook must be used.

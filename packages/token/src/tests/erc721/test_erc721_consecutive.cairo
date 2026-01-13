@@ -1,7 +1,13 @@
+use openzeppelin_interfaces::erc721::{IERC721Dispatcher, IERC721DispatcherTrait};
 use openzeppelin_test_common::erc721::ERC721SpyHelpers;
-use openzeppelin_test_common::mocks::erc721::ERC721ConsecutiveMock;
+use openzeppelin_test_common::mocks::erc721::{
+    ERC721ConsecutiveMock, IERC721ConsecutiveMintableDispatcher,
+    IERC721ConsecutiveMintableDispatcherTrait,
+};
+use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{BASE_URI, NAME, OTHER, RECIPIENT, SYMBOL, ZERO};
 use openzeppelin_testing::spy_events;
+use openzeppelin_utils::serde::SerializedAppend;
 use openzeppelin_utils::structs::checkpoint::TraceTrait;
 use snforge_std::{start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
@@ -73,8 +79,43 @@ fn setup(recipient: ContractAddress, batch_size: u64) -> (ComponentState, Contra
     (erc721_state, contract_address)
 }
 
+fn deploy_consecutive_mock(recipient: ContractAddress, batch_size: u64) -> IERC721Dispatcher {
+    let mut calldata: Array<felt252> = array![];
+    calldata.append_serde(NAME());
+    calldata.append_serde(SYMBOL());
+    calldata.append_serde(BASE_URI());
+    calldata.append_serde(recipient);
+    calldata.append_serde(batch_size);
+
+    let contract_address = utils::declare_and_deploy("ERC721ConsecutiveMock", calldata);
+    IERC721Dispatcher { contract_address }
+}
+
+fn consecutive_minter(address: ContractAddress) -> IERC721ConsecutiveMintableDispatcher {
+    IERC721ConsecutiveMintableDispatcher { contract_address: address }
+}
+
 fn owner_of(token: @ComponentState, token_id: u256) -> ContractAddress {
     ERC721InternalImpl::_require_owned(token, token_id)
+}
+
+#[test]
+fn test_constructor_mints_consecutive_tokens() {
+    let batch_size = 100;
+    let token = deploy_consecutive_mock(RECIPIENT, batch_size);
+
+    assert_eq!(token.balance_of(RECIPIENT), batch_size.into());
+    assert_eq!(token.owner_of(0), RECIPIENT);
+    let last_token_id: u256 = (batch_size - 1).into();
+    assert_eq!(token.owner_of(last_token_id), RECIPIENT);
+}
+
+#[test]
+#[should_panic(expected: 'ERC721: forbidden batch mint')]
+fn test_mint_consecutive_outside_constructor_panics() {
+    let token = deploy_consecutive_mock(RECIPIENT, 1);
+    let minter = consecutive_minter(token.contract_address);
+    minter.mint_consecutive(RECIPIENT, 1);
 }
 
 #[test]

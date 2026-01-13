@@ -272,6 +272,11 @@ pub trait IERC721WrapperRecoverer<TState> {
     fn recover(ref self: TState, account: ContractAddress, token_id: u256) -> u256;
 }
 
+#[starknet::interface]
+pub trait IERC721ConsecutiveMintable<TState> {
+    fn mint_consecutive(ref self: TState, to: ContractAddress, batch_size: u64) -> u64;
+}
+
 #[starknet::contract]
 #[with_components(ERC721, SRC5)]
 pub mod ERC721MintableMock {
@@ -369,6 +374,7 @@ pub mod ERC721ConsecutiveMock {
         DefaultConfig, ERC721ConsecutiveComponent,
     };
     use starknet::ContractAddress;
+    use super::IERC721ConsecutiveMintable;
 
     component!(
         path: ERC721ConsecutiveComponent,
@@ -378,6 +384,12 @@ pub mod ERC721ConsecutiveMock {
 
     #[abi(embed_v0)]
     impl ERC721Impl = ERC721Component::ERC721Impl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC721ConsecutiveMintableImpl of IERC721ConsecutiveMintable<ContractState> {
+        fn mint_consecutive(ref self: ContractState, to: ContractAddress, batch_size: u64) -> u64 {
+            self.erc721_consecutive.mint_consecutive(to, batch_size)
+        }
+    }
     #[abi(embed_v0)]
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 

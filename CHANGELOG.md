@@ -16,6 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `IERC20Wrapper` interface in `openzeppelin_interfaces::token::erc20` for ERC20 wrappers (#1617)
 - `ERC20WrapperComponent` providing ERC20 wrapping and unwrapping functionality (#1617)
 
+## Changed
+
+- Bump scarb to v2.15.1 (#1631)
+
 ## 3.0.0 (2025-12-11)
 
 ### Added

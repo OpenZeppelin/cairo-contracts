@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `IERC1155Supply` interface and `ERC1155SupplyComponent` extension for total supply tracking (#1632)
 - `IERC721Wrapper` interface to `openzeppelin_interfaces::token::erc721` (#1625)
 - `ERC721WrapperComponent` providing ERC721 wrapping and unwrapping functionality (#1625)
 - `IERC20Wrapper` interface in `openzeppelin_interfaces::token::erc20` for ERC20 wrappers (#1617)

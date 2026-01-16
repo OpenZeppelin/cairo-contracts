@@ -42,6 +42,9 @@
     "openzeppelin_test_common_DualCaseTwoStepOwnableMock.compiled_contract_class.json": {
       "felts": 2361
     },
+    "openzeppelin_test_common_ERC1155SupplyMock.compiled_contract_class.json": {
+      "felts": 10435
+    },
     "openzeppelin_test_common_ERC20BlockNumberVotesMock.compiled_contract_class.json": {
       "felts": 13648
     },
@@ -244,6 +247,9 @@
     },
     "openzeppelin_test_common_DualCaseTwoStepOwnableMock.contract_class.json": {
       "bytes": 47776
+    },
+    "openzeppelin_test_common_ERC1155SupplyMock.contract_class.json": {
+      "bytes": 235154
     },
     "openzeppelin_test_common_ERC20BlockNumberVotesMock.contract_class.json": {
       "bytes": 299369

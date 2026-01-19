@@ -110,6 +110,15 @@ pub mod warnings {
         "
     };
 
+    /// Warning when the ERC1155Supply hook call is missing.
+    pub const ERC1155_SUPPLY_HOOKS_MISSING: &str = indoc! {
+        "The ERC1155Supply component requires calling `self.erc1155_supply.after_update(...)`
+        inside the `ERC1155HooksTrait::after_update` hook, and it looks like it is missing.
+
+        This may lead to incorrect total supply tracking.
+        "
+    };
+
     /// Warning when the Upgradeable component is not used.
     pub const UPGRADEABLE_NOT_USED: &str = indoc! {
         "It looks like the `self.upgradeable.upgrade(new_class_hash)` function is not used in the contract. If
@@ -121,6 +130,15 @@ pub mod warnings {
     pub const SNIP12_METADATA_IMPL_MISSING: &str = indoc! {
         "The Votes component requires an implementation of the SNIP12Metadata trait in scope and
         it looks like it is missing.
+        "
+    };
+
+    /// Warning when the ERC721Enumerable hook call is missing.
+    pub const ERC721_ENUMERABLE_HOOKS_MISSING: &str = indoc! {
+        "The ERC721Enumerable component requires calling `self.erc721_enumerable.before_update(...)`
+        inside the `ERC721HooksTrait::before_update` hook, and it looks like it is missing.
+
+        This may lead to incorrect token enumeration data.
         "
     };
 

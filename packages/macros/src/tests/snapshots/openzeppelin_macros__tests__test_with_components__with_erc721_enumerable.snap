@@ -35,7 +35,12 @@ pub mod MyContract {
 
 Diagnostics:
 
-None
+====
+Warning: The ERC721Enumerable component requires calling `self.erc721_enumerable.before_update(...)`
+inside the `ERC721HooksTrait::before_update` hook, and it looks like it is missing.
+
+This may lead to incorrect token enumeration data.
+====
 
 AuxData:
 

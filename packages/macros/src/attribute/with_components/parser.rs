@@ -317,6 +317,14 @@ fn add_per_component_warnings(code: &str, component_info: &ComponentInfo) -> Vec
                 warnings.push(warning);
             }
         }
+        AllowedComponents::ERC1155Supply => {
+            let hook_called = code.contains("erc1155_supply.after_update(")
+                || code.contains("ERC1155SupplyInternalImpl::after_update(");
+            if !hook_called {
+                let warning = Diagnostic::warn(warnings::ERC1155_SUPPLY_HOOKS_MISSING);
+                warnings.push(warning);
+            }
+        }
         AllowedComponents::Upgradeable => {
             // Check that the upgrade function is called
             let upgrade_function_called = code.contains("self.upgradeable.upgrade");
@@ -330,6 +338,14 @@ fn add_per_component_warnings(code: &str, component_info: &ComponentInfo) -> Vec
             let snip12_metadata_implemented = code.contains("of SNIP12Metadata");
             if !snip12_metadata_implemented {
                 let warning = Diagnostic::warn(warnings::SNIP12_METADATA_IMPL_MISSING);
+                warnings.push(warning);
+            }
+        }
+        AllowedComponents::ERC721Enumerable => {
+            let hook_called = code.contains("erc721_enumerable.before_update(")
+                || code.contains("ERC721EnumerableInternalImpl::before_update(");
+            if !hook_called {
+                let warning = Diagnostic::warn(warnings::ERC721_ENUMERABLE_HOOKS_MISSING);
                 warnings.push(warning);
             }
         }

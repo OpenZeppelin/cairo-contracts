@@ -1,0 +1,57 @@
+---
+source: src/tests/test_with_components.rs
+expression: result
+snapshot_kind: text
+---
+TokenStream:
+
+#[starknet::contract]
+pub mod MyToken {
+    use openzeppelin_token::erc721::ERC721HooksEmptyImpl;
+    use starknet::ContractAddress;
+    #[storage]
+    pub struct Storage {
+        #[substorage(v0)]
+        pub erc721: ERC721Component::Storage,
+        #[substorage(v0)]
+        pub src5: SRC5Component::Storage,
+        #[substorage(v0)]
+        pub erc721_wrapper: ERC721WrapperComponent::Storage,
+    }
+    #[constructor]
+    fn constructor(ref self: ContractState, underlying: ContractAddress) {
+        self.erc721.initializer("MyToken", "MTK", "");
+        self.erc721_wrapper.initializer(underlying);
+    }
+    use openzeppelin_introspection::src5::SRC5Component;
+    use openzeppelin_token::erc721::ERC721Component;
+    use openzeppelin_token::erc721::extensions::erc721_wrapper::ERC721WrapperComponent;
+
+    component!(path: ERC721Component, storage: erc721, event: ERC721Event);
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
+    component!(path: ERC721WrapperComponent, storage: erc721_wrapper, event: ERC721WrapperEvent);
+
+    impl ERC721InternalImpl = ERC721Component::InternalImpl<ContractState>;
+    impl SRC5InternalImpl = SRC5Component::InternalImpl<ContractState>;
+    impl ERC721WrapperInternalImpl = ERC721WrapperComponent::InternalImpl<ContractState>;
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        ERC721Event: ERC721Component::Event,
+        #[flat]
+        SRC5Event: SRC5Component::Event,
+        #[flat]
+        ERC721WrapperEvent: ERC721WrapperComponent::Event,
+    }
+}
+
+
+Diagnostics:
+
+None
+
+AuxData:
+
+None

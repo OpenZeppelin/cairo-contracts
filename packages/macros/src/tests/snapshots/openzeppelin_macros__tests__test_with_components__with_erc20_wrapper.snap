@@ -1,0 +1,50 @@
+---
+source: src/tests/test_with_components.rs
+expression: result
+snapshot_kind: text
+---
+TokenStream:
+
+#[starknet::contract]
+pub mod MyToken {
+    use openzeppelin_token::erc20::{DefaultConfig, ERC20HooksEmptyImpl};
+    use starknet::ContractAddress;
+    #[storage]
+    pub struct Storage {
+        #[substorage(v0)]
+        pub erc20: ERC20Component::Storage,
+        #[substorage(v0)]
+        pub erc20_wrapper: ERC20WrapperComponent::Storage,
+    }
+    #[constructor]
+    fn constructor(ref self: ContractState, underlying: ContractAddress) {
+        self.erc20.initializer("MyToken", "MTK");
+        self.erc20_wrapper.initializer(underlying);
+    }
+    use openzeppelin_token::erc20::ERC20Component;
+    use openzeppelin_token::erc20::extensions::erc20_wrapper::ERC20WrapperComponent;
+
+    component!(path: ERC20Component, storage: erc20, event: ERC20Event);
+    component!(path: ERC20WrapperComponent, storage: erc20_wrapper, event: ERC20WrapperEvent);
+
+    impl ERC20InternalImpl = ERC20Component::InternalImpl<ContractState>;
+    impl ERC20WrapperInternalImpl = ERC20WrapperComponent::InternalImpl<ContractState>;
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        ERC20Event: ERC20Component::Event,
+        #[flat]
+        ERC20WrapperEvent: ERC20WrapperComponent::Event,
+    }
+}
+
+
+Diagnostics:
+
+None
+
+AuxData:
+
+None

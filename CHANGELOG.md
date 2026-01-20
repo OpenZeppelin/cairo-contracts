@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Added `BitMap` struct and associated helpers to `openzeppelin_utils::structs::bitmap` (#1630)
 
 - `ERC721ConsecutiveComponent` extension (#1630)
+- `IERC1155Supply` interface and `ERC1155SupplyComponent` extension for total supply tracking (#1632)
 - `IERC721Wrapper` interface to `openzeppelin_interfaces::token::erc721` (#1625)
 - `ERC721WrapperComponent` providing ERC721 wrapping and unwrapping functionality (#1625)
 - `IERC20Wrapper` interface to `openzeppelin_interfaces::token::erc20` for ERC20 wrappers (#1617)
@@ -25,6 +26,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added `ERC721OwnerOfTrait` hook as a dependency to `ERC721Component` implementations (#1630)
   - Included `ERC721OwnerOfDefaultImpl` to support the default use case
+
+## Changed
+
+- Bump scarb to v2.15.1 (#1631)
 
 ## 3.0.0 (2025-12-11)
 

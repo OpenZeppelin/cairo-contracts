@@ -43,6 +43,13 @@ pub trait IERC1155MetadataURI<TState> {
 }
 
 #[starknet::interface]
+pub trait IERC1155Supply<TState> {
+    fn total_supply(self: @TState, token_id: u256) -> u256;
+    fn total_supply_all(self: @TState) -> u256;
+    fn exists(self: @TState, token_id: u256) -> bool;
+}
+
+#[starknet::interface]
 pub trait IERC1155Camel<TState> {
     fn balanceOf(self: @TState, account: ContractAddress, tokenId: u256) -> u256;
     fn balanceOfBatch(

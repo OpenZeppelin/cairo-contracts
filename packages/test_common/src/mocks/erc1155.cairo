@@ -150,6 +150,56 @@ pub mod SnakeERC1155MockWithHooks {
 }
 
 #[starknet::contract]
+#[with_components(ERC1155, ERC1155Supply, SRC5)]
+pub mod ERC1155SupplyMock {
+    use starknet::ContractAddress;
+
+    // ERC1155
+    #[abi(embed_v0)]
+    impl ERC1155Impl = ERC1155Component::ERC1155Impl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC1155MetadataURIImpl =
+        ERC1155Component::ERC1155MetadataURIImpl<ContractState>;
+
+    // ERC1155Supply
+    #[abi(embed_v0)]
+    impl ERC1155SupplyImpl =
+        ERC1155SupplyComponent::ERC1155SupplyImpl<ContractState>;
+
+    // SRC5
+    #[abi(embed_v0)]
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
+
+    #[storage]
+    pub struct Storage {}
+
+    #[constructor]
+    fn constructor(
+        ref self: ContractState,
+        base_uri: ByteArray,
+        recipient: ContractAddress,
+        token_id: u256,
+        value: u256,
+    ) {
+        self.erc1155.initializer(base_uri);
+        self.erc1155.mint_with_acceptance_check(recipient, token_id, value, array![].span());
+    }
+
+    impl ERC1155HooksImpl of ERC1155Component::ERC1155HooksTrait<ContractState> {
+        fn after_update(
+            ref self: ERC1155Component::ComponentState<ContractState>,
+            from: ContractAddress,
+            to: ContractAddress,
+            token_ids: Span<u256>,
+            values: Span<u256>,
+        ) {
+            let mut contract_state = self.get_contract_mut();
+            contract_state.erc1155_supply.after_update(from, to, token_ids, values);
+        }
+    }
+}
+
+#[starknet::contract]
 #[with_components(ERC1155Receiver, SRC5)]
 pub mod DualCaseERC1155ReceiverMock {
     // ERC1155Receiver Mixin

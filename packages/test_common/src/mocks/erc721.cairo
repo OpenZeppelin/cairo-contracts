@@ -316,15 +316,11 @@ pub mod ERC721MintableMock {
 }
 
 #[starknet::contract]
-#[with_components(ERC721, SRC5)]
+#[with_components(ERC721, SRC5, ERC721Wrapper)]
 pub mod ERC721WrapperMock {
-    use openzeppelin_token::erc721::extensions::erc721_wrapper::ERC721WrapperComponent;
-    use openzeppelin_token::erc721::extensions::erc721_wrapper::ERC721WrapperComponent::InternalImpl;
     use openzeppelin_token::erc721::{ERC721HooksEmptyImpl, ERC721OwnerOfDefaultImpl};
     use starknet::ContractAddress;
     use super::IERC721WrapperRecoverer;
-
-    component!(path: ERC721WrapperComponent, storage: erc721_wrapper, event: ERC721WrapperEvent);
 
     #[abi(embed_v0)]
     impl ERC721Impl = ERC721Component::ERC721Impl<ContractState>;
@@ -338,17 +334,11 @@ pub mod ERC721WrapperMock {
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[storage]
-    struct Storage {
-        #[substorage(v0)]
-        erc721_wrapper: ERC721WrapperComponent::Storage,
-    }
+    struct Storage {}
 
     #[event]
     #[derive(Drop, starknet::Event)]
-    enum Event {
-        #[flat]
-        ERC721WrapperEvent: ERC721WrapperComponent::Event,
-    }
+    enum Event {}
 
     #[constructor]
     fn constructor(

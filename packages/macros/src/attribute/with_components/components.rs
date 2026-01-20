@@ -313,6 +313,9 @@ impl AllowedComponents {
                 path: "openzeppelin_token::erc6909::extensions::ERC6909TokenSupplyComponent",
                 storage: "erc6909_token_supply",
                 event: "ERC6909TokenSupplyEvent",
+                has_initializer: true,
+                has_immutable_config: false,
+                internal_impls: vec!["InternalImpl"],
             },
             AllowedComponents::ERC721Wrapper => ComponentInfo {
                 name: "ERC721WrapperComponent",

@@ -110,6 +110,16 @@ pub mod warnings {
         "
     };
 
+    /// Warning when the ERC6909 component is missing an implementation of the ERC6909HooksTrait
+    pub const ERC6909_HOOKS_IMPL_MISSING: &str = indoc! {
+        "The ERC6909 component requires an implementation of the ERC6909HooksTrait in scope and
+        it looks like it is missing.
+
+        You can use the ERC6909HooksEmptyImpl implementation by importing it:
+
+        `use openzeppelin_token::erc6909::ERC6909HooksEmptyImpl;`
+         "
+    };
     /// Warning when the ERC1155Supply hook call is missing.
     pub const ERC1155_SUPPLY_HOOKS_MISSING: &str = indoc! {
         "The ERC1155Supply component requires calling `self.erc1155_supply.after_update(...)`

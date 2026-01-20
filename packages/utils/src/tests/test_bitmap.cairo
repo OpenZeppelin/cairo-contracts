@@ -12,15 +12,15 @@ fn test_get_defaults_to_false() {
     // Unset bitmap entries should read as false across multiple buckets.
     assert_eq!(state.get(0), false);
     assert_eq!(state.get(1), false);
-    assert_eq!(state.get(255), false);
-    assert_eq!(state.get(256), false);
+    assert_eq!(state.get(127), false);
+    assert_eq!(state.get(128), false);
 }
 
 #[test]
-fn test_set_and_get_low_half_bits() {
+fn test_set_and_get_first_bucket_bits() {
     let mut state = CONTRACT_STATE();
 
-    // Bits 0..127 live in the low 128 bits of the bucket.
+    // Bits 0..127 live in the first bucket.
     state.set(0);
     state.set(1);
     state.set(127);
@@ -34,17 +34,17 @@ fn test_set_and_get_low_half_bits() {
 }
 
 #[test]
-fn test_set_and_get_high_half_bits() {
+fn test_set_and_get_second_bucket_bits() {
     let mut state = CONTRACT_STATE();
 
-    // Bits 128..255 live in the high 128 bits of the bucket.
+    // Bits 128..255 live in the second bucket.
     state.set(128);
     state.set(255);
 
     assert_eq!(state.get(128), true);
     assert_eq!(state.get(255), true);
 
-    // Setting high-half bits should not affect low-half bits.
+    // Setting second-bucket bits should not affect first-bucket bits.
     assert_eq!(state.get(127), false);
 }
 
@@ -52,14 +52,14 @@ fn test_set_and_get_high_half_bits() {
 fn test_bucket_boundaries_are_independent() {
     let mut state = CONTRACT_STATE();
 
-    // 255 is the last bit of bucket 0, 256 is the first bit of bucket 1.
-    state.set(255);
-    assert_eq!(state.get(255), true);
-    assert_eq!(state.get(256), false);
+    // 127 is the last bit of bucket 0, 128 is the first bit of bucket 1.
+    state.set(127);
+    assert_eq!(state.get(127), true);
+    assert_eq!(state.get(128), false);
 
-    state.set(256);
-    assert_eq!(state.get(255), true);
-    assert_eq!(state.get(256), true);
+    state.set(128);
+    assert_eq!(state.get(127), true);
+    assert_eq!(state.get(128), true);
 }
 
 #[test]
@@ -113,10 +113,10 @@ fn test_unset_is_idempotent() {
 }
 
 #[test]
-fn test_low_high_half_boundary() {
+fn test_bucket_boundary_neighbors() {
     let mut state = CONTRACT_STATE();
 
-    // Test the boundary between low half (bit 127) and high half (bit 128).
+    // Test the boundary between bucket 0 (bit 127) and bucket 1 (bit 128).
     state.set(127);
     state.set(128);
 
@@ -132,25 +132,25 @@ fn test_multiple_bits_same_bucket() {
 
     // Set multiple bits in the same bucket at various positions.
     state.set(0);
+    state.set(32);
     state.set(64);
-    state.set(128);
-    state.set(192);
-    state.set(255);
+    state.set(96);
+    state.set(127);
 
     // All should be set.
     assert_eq!(state.get(0), true);
+    assert_eq!(state.get(32), true);
     assert_eq!(state.get(64), true);
-    assert_eq!(state.get(128), true);
-    assert_eq!(state.get(192), true);
-    assert_eq!(state.get(255), true);
+    assert_eq!(state.get(96), true);
+    assert_eq!(state.get(127), true);
 
     // Unset one in the middle, others should remain.
-    state.unset(128);
+    state.unset(64);
     assert_eq!(state.get(0), true);
-    assert_eq!(state.get(64), true);
-    assert_eq!(state.get(128), false);
-    assert_eq!(state.get(192), true);
-    assert_eq!(state.get(255), true);
+    assert_eq!(state.get(32), true);
+    assert_eq!(state.get(64), false);
+    assert_eq!(state.get(96), true);
+    assert_eq!(state.get(127), true);
 }
 
 #[test]
@@ -158,15 +158,16 @@ fn test_large_indices() {
     let mut state = CONTRACT_STATE();
 
     // Test with very large indices close to u256::MAX to ensure bucket calculation works correctly.
-    // Use values that are close to the maximum but still allow for bit positions 0-255 within the
+    // Use values that are close to the maximum but still allow for bit positions 0-127 within the
     // bucket.
     let max_u256: u256 = Bounded::MAX;
-    let very_large_bucket = max_u256 / 256_u256;
+    let bucket_size: u256 = 128;
+    let very_large_bucket = max_u256 / bucket_size;
 
     // Test indices in the last possible bucket (or close to it)
-    let large_index_1 = very_large_bucket * 256_u256;
-    let large_index_2 = very_large_bucket * 256_u256 + 128;
-    let large_index_3 = very_large_bucket * 256_u256 + 255;
+    let large_index_1 = very_large_bucket * bucket_size;
+    let large_index_2 = very_large_bucket * bucket_size + 64;
+    let large_index_3 = very_large_bucket * bucket_size + 127;
 
     state.set(large_index_1);
     state.set(large_index_2);

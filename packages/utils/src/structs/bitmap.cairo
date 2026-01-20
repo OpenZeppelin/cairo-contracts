@@ -2,14 +2,15 @@
 // OpenZeppelin Contracts for Cairo v3.0.0 (utils/src/structs/bitmap.cairo)
 
 use core::num::traits::{Bounded, Pow, Zero};
+use core::traits::DivRem;
 use starknet::storage::{Map, Mutable, StorageMapReadAccess, StorageMapWriteAccess, StoragePath};
 
 /// Compact bitset for sequential u256 indices.
 ///
-/// Packs 256 booleans per storage slot, reducing storage reads/writes for adjacent indices.
+/// Packs 128 booleans per storage slot, reducing storage reads/writes for adjacent indices.
 #[starknet::storage_node]
 pub struct BitMap {
-    pub data: Map<u256, u256>,
+    pub data: Map<u256, u128>,
 }
 
 #[generate_trait]
@@ -46,30 +47,21 @@ pub impl BitMapImpl of BitMapTrait {
     }
 }
 
-const _BUCKET_SIZE: u128 = 256;
+const _BUCKET_SIZE: NonZero<u256> = 128;
 
-fn _bucket_and_mask(index: u256) -> (u256, u256) {
-    let bucket = index / _BUCKET_SIZE.into();
-    let bit_index_u256 = index % _BUCKET_SIZE.into();
-    // The modulo result is always < 256, so conversion to usize is safe.
+fn _bucket_and_mask(index: u256) -> (u256, u128) {
+    let (bucket, bit_index_u256) = DivRem::div_rem(index, _BUCKET_SIZE);
+    // The modulo result is always < 128, so conversion to usize is safe.
     let bit_index: usize = bit_index_u256.try_into().unwrap();
     let mask = _bit_mask(bit_index);
     (bucket, mask)
 }
 
-fn _bit_mask(bit_index: usize) -> u256 {
-    // Split the 256-bit word into two 128-bit halves for shifting.
-    if bit_index < 128_usize {
-        let low: u128 = 2_u128.pow(bit_index);
-        u256 { low, high: 0 }
-    } else {
-        let shift = bit_index - 128;
-        let high: u128 = 2_u128.pow(shift);
-        u256 { low: 0, high }
-    }
+fn _bit_mask(bit_index: usize) -> u128 {
+    2_u128.pow(bit_index)
 }
 
-fn _invert_mask(mask: u256) -> u256 {
-    let all_ones: u256 = Bounded::MAX;
+fn _invert_mask(mask: u128) -> u128 {
+    let all_ones: u128 = Bounded::MAX;
     all_ones ^ mask
 }

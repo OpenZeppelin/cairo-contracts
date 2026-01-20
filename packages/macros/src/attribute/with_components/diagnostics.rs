@@ -120,7 +120,6 @@ pub mod warnings {
         `use openzeppelin_token::erc6909::ERC6909HooksEmptyImpl;`
          "
     };
-    
     /// Warning when the ERC1155Supply hook call is missing.
     pub const ERC1155_SUPPLY_HOOKS_MISSING: &str = indoc! {
         "The ERC1155Supply component requires calling `self.erc1155_supply.after_update(...)`

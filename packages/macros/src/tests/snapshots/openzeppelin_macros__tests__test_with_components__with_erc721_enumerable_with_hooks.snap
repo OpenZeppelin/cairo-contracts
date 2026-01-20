@@ -7,10 +7,27 @@ TokenStream:
 
 #[starknet::contract]
 pub mod MyContract {
+    use openzeppelin_token::erc721::ERC721Component;
+    use starknet::ContractAddress;
     #[storage]
     pub struct Storage {
         #[substorage(v0)]
         pub erc721_enumerable: ERC721EnumerableComponent::Storage,
+    }
+    #[constructor]
+    fn constructor(ref self: ContractState) {
+        self.erc721_enumerable.initializer();
+    }
+    impl ERC721HooksImpl of ERC721Component::ERC721HooksTrait<ContractState> {
+        fn before_update(
+            ref self: ERC721Component::ComponentState<ContractState>,
+            to: ContractAddress,
+            token_id: u256,
+            auth: ContractAddress,
+        ) {
+            let mut contract_state = self.get_contract_mut();
+            contract_state.erc721_enumerable.before_update(to, token_id);
+        }
     }
     use openzeppelin_token::erc721::extensions::ERC721EnumerableComponent;
 
@@ -31,19 +48,7 @@ pub mod MyContract {
 
 Diagnostics:
 
-====
-Warning: It looks like the initializers for the following components are missing:
-
-ERC721Enumerable
-
-This may lead to unexpected behavior.
-We recommend adding the corresponding initializer calls to the constructor.
-========
-Warning: The ERC721Enumerable component requires calling `self.erc721_enumerable.before_update(...)`
-inside the `ERC721HooksTrait::before_update` hook, and it looks like it is missing.
-
-This may lead to incorrect token enumeration data.
-====
+None
 
 AuxData:
 

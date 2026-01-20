@@ -193,6 +193,51 @@ fn test_with_erc20_no_config() {
 }
 
 #[test]
+fn test_with_erc20_wrapper() {
+    let attribute = quote! { (ERC20, ERC20Wrapper) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod MyToken {
+            use openzeppelin_token::erc20::{ERC20HooksEmptyImpl, DefaultConfig};
+            use starknet::ContractAddress;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState, underlying: ContractAddress) {
+                self.erc20.initializer("MyToken", "MTK");
+                self.erc20_wrapper.initializer(underlying);
+            }
+        }
+    };
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_erc20_wrapper_no_initializer() {
+    let attribute = quote! { (ERC20, ERC20Wrapper) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod MyToken {
+            use openzeppelin_token::erc20::{ERC20HooksEmptyImpl, DefaultConfig};
+            use starknet::ContractAddress;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState) {
+                self.erc20.initializer("MyToken", "MTK");
+            }
+        }
+    };
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
 fn test_with_ownable() {
     let attribute = quote! { (Ownable) };
     let item = quote! {
@@ -786,6 +831,51 @@ fn test_with_erc721_no_hooks_impl() {
 }
 
 #[test]
+fn test_with_erc721_wrapper() {
+    let attribute = quote! { (ERC721, SRC5, ERC721Wrapper) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod MyToken {
+            use openzeppelin_token::erc721::ERC721HooksEmptyImpl;
+            use starknet::ContractAddress;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState, underlying: ContractAddress) {
+                self.erc721.initializer("MyToken", "MTK", "");
+                self.erc721_wrapper.initializer(underlying);
+            }
+        }
+    };
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_erc721_wrapper_no_initializer() {
+    let attribute = quote! { (ERC721, SRC5, ERC721Wrapper) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod MyToken {
+            use openzeppelin_token::erc721::ERC721HooksEmptyImpl;
+            use starknet::ContractAddress;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState) {
+                self.erc721.initializer("MyToken", "MTK", "");
+            }
+        }
+    };
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
 fn test_with_erc1155() {
     let attribute = quote! { (ERC1155) };
     let item = quote! {
@@ -853,6 +943,40 @@ fn test_with_erc721_enumerable() {
             #[constructor]
             fn constructor(ref self: ContractState) {
                 self.erc721_enumerable.initializer();
+            }
+        }
+    };
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_erc721_enumerable_with_hooks() {
+    let attribute = quote! { (ERC721Enumerable) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod MyContract {
+            use openzeppelin_token::erc721::ERC721Component;
+            use starknet::ContractAddress;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState) {
+                self.erc721_enumerable.initializer();
+            }
+
+            impl ERC721HooksImpl of ERC721Component::ERC721HooksTrait<ContractState> {
+                fn before_update(
+                    ref self: ERC721Component::ComponentState<ContractState>,
+                    to: ContractAddress,
+                    token_id: u256,
+                    auth: ContractAddress,
+                ) {
+                    let mut contract_state = self.get_contract_mut();
+                    contract_state.erc721_enumerable.before_update(to, token_id);
+                }
             }
         }
     };

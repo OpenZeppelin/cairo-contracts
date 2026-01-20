@@ -280,7 +280,7 @@ impl AllowedComponents {
                 has_initializer: true,
                 has_immutable_config: false,
                 internal_impls: vec!["InternalImpl"],
-            },    
+            },
             AllowedComponents::ERC20Wrapper => ComponentInfo {
                 name: "ERC20WrapperComponent",
                 path: "openzeppelin_token::erc20::extensions::erc20_wrapper::ERC20WrapperComponent",

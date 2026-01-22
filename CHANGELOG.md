@@ -24,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed (Breaking)
 
-- Added `ERC721OwnerOfTrait` hook as a dependency to `ERC721Component` implementations (#1630)
+- Added `ERC721TokenOwnerTrait` hook as a dependency to `ERC721Component` implementations (#1630)
   - Included `ERC721OwnerOfDefaultImpl` to support the default use case
 
 ## Changed

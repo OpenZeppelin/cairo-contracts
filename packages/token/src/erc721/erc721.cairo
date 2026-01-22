@@ -113,7 +113,7 @@ pub mod ERC721Component {
     /// calls, as doing so can introduce significant reentrancy vulnerabilities and compromise
     /// contract security. Rely instead on the safe default implementations provided by the
     /// OpenZeppelin components, which are explicitly designed to prevent these issues.
-    pub trait ERC721OwnerOfTrait<TContractState> {
+    pub trait ERC721TokenOwnerTrait<TContractState> {
         /// Returns the owner of the `token_id`.
         ///
         /// IMPORTANT: Any implementations of this function that add ownership of tokens not tracked
@@ -128,7 +128,7 @@ pub mod ERC721Component {
         }
     }
 
-    pub impl ConsecutiveERC721OwnerOfTraitImpl<
+    pub impl ConsecutiveERC721TokenOwnerImpl<
         TContractState,
         +HasComponent<TContractState>,
         +ERC721HooksTrait<TContractState>,
@@ -136,9 +136,10 @@ pub mod ERC721Component {
         +ERC721ConsecutiveComponent::ImmutableConfig,
         +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>,
-    > of ERC721OwnerOfTrait<TContractState> {
-        /// See `ERC721OwnerOfTrait::owner_of`. Implementation that checks the sequential ownership
-        /// structure for tokens that have been minted as part of a batch, and not yet transferred.
+    > of ERC721TokenOwnerTrait<TContractState> {
+        /// See `ERC721TokenOwnerTrait::owner_of`. Implementation that checks the sequential
+        /// ownership structure for tokens that have been minted as part of a batch, and not yet
+        /// transferred.
         fn owner_of(self: @ComponentState<TContractState>, token_id: u256) -> ContractAddress {
             let owner = self.ERC721_owners.read(token_id);
             let consecutive = get_dep_component!(self, ERC721Consecutive);
@@ -170,7 +171,7 @@ pub mod ERC721Component {
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +ERC721HooksTrait<TContractState>,
-        +ERC721OwnerOfTrait<TContractState>,
+        +ERC721TokenOwnerTrait<TContractState>,
         +Drop<TContractState>,
     > of interface::IERC721<ComponentState<TContractState>> {
         /// Returns the number of NFTs owned by `account`.
@@ -299,7 +300,7 @@ pub mod ERC721Component {
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +ERC721HooksTrait<TContractState>,
-        +ERC721OwnerOfTrait<TContractState>,
+        +ERC721TokenOwnerTrait<TContractState>,
         +Drop<TContractState>,
     > of interface::IERC721Metadata<ComponentState<TContractState>> {
         /// Returns the NFT name.
@@ -336,7 +337,7 @@ pub mod ERC721Component {
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +ERC721HooksTrait<TContractState>,
-        +ERC721OwnerOfTrait<TContractState>,
+        +ERC721TokenOwnerTrait<TContractState>,
         +Drop<TContractState>,
     > of interface::IERC721CamelOnly<ComponentState<TContractState>> {
         fn balanceOf(self: @ComponentState<TContractState>, account: ContractAddress) -> u256 {
@@ -392,7 +393,7 @@ pub mod ERC721Component {
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +ERC721HooksTrait<TContractState>,
-        +ERC721OwnerOfTrait<TContractState>,
+        +ERC721TokenOwnerTrait<TContractState>,
         +Drop<TContractState>,
     > of interface::IERC721MetadataCamelOnly<ComponentState<TContractState>> {
         fn tokenURI(self: @ComponentState<TContractState>, tokenId: u256) -> ByteArray {
@@ -406,7 +407,7 @@ pub mod ERC721Component {
         +HasComponent<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
         +ERC721HooksTrait<TContractState>,
-        +ERC721OwnerOfTrait<TContractState>,
+        +ERC721TokenOwnerTrait<TContractState>,
         +Drop<TContractState>,
     > of interface::ERC721ABI<ComponentState<TContractState>> {
         // IERC721
@@ -542,7 +543,7 @@ pub mod ERC721Component {
         +HasComponent<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
         impl Hooks: ERC721HooksTrait<TContractState>,
-        impl OwnerOf: ERC721OwnerOfTrait<TContractState>,
+        impl OwnerOf: ERC721TokenOwnerTrait<TContractState>,
         +Drop<TContractState>,
     > of InternalTrait<TContractState> {
         /// Initializes the contract by setting the token name, symbol, and base URI.
@@ -705,15 +706,15 @@ pub mod ERC721Component {
         }
 
         /// Unsafe write access to the balances, used by extensions that "mint" tokens using an
-        /// `ERC721OwnerOfTrait` custom implementation.
+        /// `ERC721TokenOwnerTrait` custom implementation.
         ///
         /// NOTE: The value is limited to `u128::MAX`. This protects against balance overflow.
         /// It is unrealistic that a `u256` would ever overflow from increments when these
         /// increments are bounded to `u128` values.
         ///
         /// WARNING: Increasing an account's balance using this function tends to be paired with
-        /// an custom implementation of the `ERC721OwnerOfTrait` trait to resolve the ownership of
-        /// the corresponding tokens so that balances and ownership remain consistent with one
+        /// an custom implementation of the `ERC721TokenOwnerTrait` trait to resolve the ownership
+        /// of the corresponding tokens so that balances and ownership remain consistent with one
         /// another.
         fn increase_balance(
             ref self: ComponentState<TContractState>, account: ContractAddress, value: u128,
@@ -936,9 +937,9 @@ pub impl ERC721HooksEmptyImpl<
     TContractState,
 > of ERC721Component::ERC721HooksTrait<TContractState> {}
 
-/// Implementation of ERC721OwnerOfTrait for the basic (non-consecutive) ERC721 component.
+/// Implementation of ERC721TokenOwnerTrait for the basic (non-consecutive) ERC721 component.
 /// Returns the owner of the `token_id` from storage.
 /// DOES NOT revert if token doesn't exist.
 pub impl ERC721OwnerOfDefaultImpl<
     TContractState,
-> of ERC721Component::ERC721OwnerOfTrait<TContractState> {}
+> of ERC721Component::ERC721TokenOwnerTrait<TContractState> {}

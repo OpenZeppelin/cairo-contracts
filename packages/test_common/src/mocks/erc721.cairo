@@ -5,7 +5,7 @@ const SUCCESS: felt252 = 'SUCCESS';
 #[starknet::contract]
 #[with_components(ERC721, SRC5)]
 pub mod DualCaseERC721Mock {
-    use openzeppelin_token::erc721::ERC721HooksEmptyImpl;
+    use openzeppelin_token::erc721::{ERC721HooksEmptyImpl, ERC721TokenURIDefaultImpl};
     use starknet::ContractAddress;
 
     // ERC721
@@ -43,7 +43,7 @@ pub mod DualCaseERC721Mock {
 #[starknet::contract]
 #[with_components(ERC721, SRC5)]
 pub mod SnakeERC721Mock {
-    use openzeppelin_token::erc721::ERC721HooksEmptyImpl;
+    use openzeppelin_token::erc721::{ERC721HooksEmptyImpl, ERC721TokenURIDefaultImpl};
     use starknet::ContractAddress;
 
     // ERC721
@@ -78,6 +78,7 @@ pub mod SnakeERC721Mock {
 #[starknet::contract]
 #[with_components(ERC721, SRC5)]
 pub mod SnakeERC721MockWithHooks {
+    use openzeppelin_token::erc721::ERC721TokenURIDefaultImpl;
     use starknet::ContractAddress;
 
     // ERC721
@@ -206,6 +207,7 @@ pub mod DualCaseERC721ReceiverMock {
 #[starknet::contract]
 #[with_components(ERC721, ERC721Enumerable, SRC5)]
 pub mod ERC721EnumerableMock {
+    use openzeppelin_token::erc721::ERC721TokenURIDefaultImpl;
     use starknet::ContractAddress;
 
     // ERC721
@@ -273,7 +275,7 @@ pub trait IERC721WrapperRecoverer<TState> {
 #[starknet::contract]
 #[with_components(ERC721, SRC5)]
 pub mod ERC721MintableMock {
-    use openzeppelin_token::erc721::ERC721HooksEmptyImpl;
+    use openzeppelin_token::erc721::{ERC721HooksEmptyImpl, ERC721TokenURIDefaultImpl};
     use starknet::ContractAddress;
     use super::IERC721Mintable;
 
@@ -306,7 +308,7 @@ pub mod ERC721MintableMock {
 #[starknet::contract]
 #[with_components(ERC721, SRC5, ERC721Wrapper)]
 pub mod ERC721WrapperMock {
-    use openzeppelin_token::erc721::ERC721HooksEmptyImpl;
+    use openzeppelin_token::erc721::{ERC721HooksEmptyImpl, ERC721TokenURIDefaultImpl};
     use starknet::ContractAddress;
     use super::IERC721WrapperRecoverer;
 
@@ -344,6 +346,86 @@ pub mod ERC721WrapperMock {
     impl ERC721WrapperRecovererImpl of IERC721WrapperRecoverer<ContractState> {
         fn recover(ref self: ContractState, account: ContractAddress, token_id: u256) -> u256 {
             self.erc721_wrapper.recover(account, token_id)
+        }
+    }
+}
+
+#[starknet::interface]
+pub trait ERC721URIStorageMockABI<TState> {
+    fn mint(ref self: TState, to: ContractAddress, token_id: u256);
+    fn set_token_uri(ref self: TState, token_id: u256, uri: ByteArray);
+}
+
+#[starknet::contract]
+#[with_components(ERC721, SRC5)]
+pub mod ERC721URIStorageMock {
+    use openzeppelin_token::erc721::extensions::erc721_uri_storage::ERC721URIStorageComponent;
+    use openzeppelin_token::erc721::extensions::erc721_uri_storage::ERC721URIStorageComponent::{
+        ERC721TokenURIStorageImpl, InternalImpl as ERC721TokenURIStorageInternalImpl,
+    };
+    use starknet::ContractAddress;
+    use super::ERC721URIStorageMockABI;
+
+    component!(
+        path: ERC721URIStorageComponent, storage: erc721_uri_storage, event: ERC721URIStorageEvent,
+    );
+
+    // ERC721
+    #[abi(embed_v0)]
+    impl ERC721Impl = ERC721Component::ERC721Impl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC721MetadataImpl = ERC721Component::ERC721MetadataImpl<ContractState>;
+
+    // SRC5
+    #[abi(embed_v0)]
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
+
+    #[storage]
+    pub struct Storage {
+        #[substorage(v0)]
+        erc721_uri_storage: ERC721URIStorageComponent::Storage,
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    pub enum Event {
+        #[flat]
+        ERC721URIStorageEvent: ERC721URIStorageComponent::Event,
+    }
+
+    #[constructor]
+    fn constructor(
+        ref self: ContractState,
+        name: ByteArray,
+        symbol: ByteArray,
+        base_uri: ByteArray,
+        recipient: ContractAddress,
+        token_id: u256,
+    ) {
+        self.erc721.initializer(name, symbol, base_uri);
+        self.erc721.mint(recipient, token_id);
+    }
+
+    impl ERC721HooksImpl of ERC721Component::ERC721HooksTrait<ContractState> {
+        fn after_update(
+            ref self: ERC721Component::ComponentState<ContractState>,
+            to: ContractAddress,
+            token_id: u256,
+            auth: ContractAddress,
+        ) {
+            let mut contract_state = self.get_contract_mut();
+            contract_state.erc721_uri_storage.after_update(to, token_id, auth);
+        }
+    }
+
+    #[abi(embed_v0)]
+    impl ERC721URIStorageMintableImpl of ERC721URIStorageMockABI<ContractState> {
+        fn mint(ref self: ContractState, to: ContractAddress, token_id: u256) {
+            self.erc721.mint(to, token_id);
+        }
+
+        fn set_token_uri(ref self: ContractState, token_id: u256, uri: ByteArray) {
+            self.erc721_uri_storage.set_token_uri(token_id, uri);
         }
     }
 }

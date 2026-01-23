@@ -72,6 +72,38 @@ fn test_upper_lookup_recent() {
 }
 
 #[test]
+fn test_lower_lookup_empty() {
+    let mock_trace = CONTRACT_STATE();
+
+    let value_at_100 = mock_trace.lower_lookup(100);
+    assert_eq!(value_at_100, 0);
+}
+
+#[test]
+fn test_lower_lookup() {
+    let mut mock_trace = CONTRACT_STATE();
+
+    mock_trace.push_checkpoint(100, 1000);
+    mock_trace.push_checkpoint(200, 2000);
+    mock_trace.push_checkpoint(300, 3000);
+
+    let value_at_50 = mock_trace.lower_lookup(50);
+    assert_eq!(value_at_50, 1000);
+
+    let value_at_100 = mock_trace.lower_lookup(100);
+    assert_eq!(value_at_100, 1000);
+
+    let value_at_150 = mock_trace.lower_lookup(150);
+    assert_eq!(value_at_150, 2000);
+
+    let value_at_300 = mock_trace.lower_lookup(300);
+    assert_eq!(value_at_300, 3000);
+
+    let value_at_350 = mock_trace.lower_lookup(350);
+    assert_eq!(value_at_350, 0);
+}
+
+#[test]
 fn test_get_length() {
     let mut mock_trace = CONTRACT_STATE();
 

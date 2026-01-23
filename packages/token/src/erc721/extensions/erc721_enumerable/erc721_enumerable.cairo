@@ -10,7 +10,7 @@
 ///
 /// NOTE: Implementing ERC721Component is a requirement for this component to be implemented.
 ///
-/// WARNING: To properly track token ids, this extension requires that
+/// IMPORTANT: To properly track token ids, this extension requires that
 /// the ERC721EnumerableComponent::before_update function is called after
 /// every transfer, mint, or burn operation.
 /// For this, the ERC721HooksTrait::before_update hook must be used.
@@ -47,6 +47,7 @@ pub mod ERC721EnumerableComponent {
         +HasComponent<TContractState>,
         impl ERC721: ERC721Component::HasComponent<TContractState>,
         +ERC721Component::ERC721HooksTrait<TContractState>,
+        +ERC721Component::ERC721TokenOwnerTrait<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>,
     > of interface::IERC721Enumerable<ComponentState<TContractState>> {
@@ -92,6 +93,7 @@ pub mod ERC721EnumerableComponent {
         +HasComponent<TContractState>,
         impl ERC721: ERC721Component::HasComponent<TContractState>,
         +ERC721Component::ERC721HooksTrait<TContractState>,
+        +ERC721Component::ERC721TokenOwnerTrait<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>,
     > of InternalTrait<TContractState> {

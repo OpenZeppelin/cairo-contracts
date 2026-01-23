@@ -1,3 +1,4 @@
+mod test_bitmap;
 mod test_checkpoint;
 mod test_execution;
 #[cfg(feature: 'fuzzing')]

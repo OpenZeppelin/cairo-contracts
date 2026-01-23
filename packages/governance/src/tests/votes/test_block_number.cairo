@@ -1,5 +1,4 @@
 use openzeppelin_interfaces::erc20::IERC20;
-use openzeppelin_interfaces::erc721::IERC721;
 use openzeppelin_test_common::mocks::votes::ERC721BlockNumberVotesMock::SNIP12MetadataImpl;
 use openzeppelin_test_common::mocks::votes::{ERC20BlockNumberVotesMock, ERC721BlockNumberVotesMock};
 use openzeppelin_testing as utils;

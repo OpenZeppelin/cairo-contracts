@@ -13,7 +13,9 @@ pub mod ERC721Upgradeable {
     use openzeppelin_access::ownable::OwnableComponent;
     use openzeppelin_interfaces::upgrades::IUpgradeable;
     use openzeppelin_introspection::src5::SRC5Component;
-    use openzeppelin_token::erc721::{ERC721Component, ERC721HooksEmptyImpl};
+    use openzeppelin_token::erc721::{
+        ERC721Component, ERC721HooksEmptyImpl, ERC721OwnerOfDefaultImpl,
+    };
     use openzeppelin_upgrades::UpgradeableComponent;
     use starknet::{ClassHash, ContractAddress};
 

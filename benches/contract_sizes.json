@@ -96,8 +96,29 @@
     "openzeppelin_test_common_ERC4626SharesFeesMock.compiled_contract_class.json": {
       "felts": 18557
     },
+    "openzeppelin_test_common_ERC6909ContentURIMock.compiled_contract_class.json": {
+      "felts": 7851
+    },
+    "openzeppelin_test_common_ERC6909MetadataMock.compiled_contract_class.json": {
+      "felts": 9032
+    },
+    "openzeppelin_test_common_ERC6909Mock.compiled_contract_class.json": {
+      "felts": 5307
+    },
+    "openzeppelin_test_common_ERC6909MockWithHooks.compiled_contract_class.json": {
+      "felts": 5541
+    },
+    "openzeppelin_test_common_ERC6909TokenSupplyMock.compiled_contract_class.json": {
+      "felts": 5638
+    },
     "openzeppelin_test_common_ERC721BlockNumberVotesMock.compiled_contract_class.json": {
       "felts": 17755
+    },
+    "openzeppelin_test_common_ERC721ConsecutiveMock.compiled_contract_class.json": {
+      "felts": 12226
+    },
+    "openzeppelin_test_common_ERC721ConsecutiveMultiBatchMock.compiled_contract_class.json": {
+      "felts": 12150
     },
     "openzeppelin_test_common_ERC721EnumerableMock.compiled_contract_class.json": {
       "felts": 11102
@@ -132,11 +153,14 @@
     "openzeppelin_test_common_LinearVestingMock.compiled_contract_class.json": {
       "felts": 5198
     },
+    "openzeppelin_test_common_MockBitMap.compiled_contract_class.json": {
+      "felts": 2033
+    },
     "openzeppelin_test_common_MockContract.compiled_contract_class.json": {
       "felts": 323
     },
     "openzeppelin_test_common_MockTrace.compiled_contract_class.json": {
-      "felts": 4426
+      "felts": 5180
     },
     "openzeppelin_test_common_MultisigTargetMock.compiled_contract_class.json": {
       "felts": 349
@@ -302,8 +326,29 @@
     "openzeppelin_test_common_ERC4626SharesFeesMock.contract_class.json": {
       "bytes": 398466
     },
+    "openzeppelin_test_common_ERC6909ContentURIMock.contract_class.json": {
+      "bytes": 173503
+    },
+    "openzeppelin_test_common_ERC6909MetadataMock.contract_class.json": {
+      "bytes": 199396
+    },
+    "openzeppelin_test_common_ERC6909Mock.contract_class.json": {
+      "bytes": 108287
+    },
+    "openzeppelin_test_common_ERC6909MockWithHooks.contract_class.json": {
+      "bytes": 115288
+    },
+    "openzeppelin_test_common_ERC6909TokenSupplyMock.contract_class.json": {
+      "bytes": 113703
+    },
     "openzeppelin_test_common_ERC721BlockNumberVotesMock.contract_class.json": {
       "bytes": 379112
+    },
+    "openzeppelin_test_common_ERC721ConsecutiveMock.contract_class.json": {
+      "bytes": 265912
+    },
+    "openzeppelin_test_common_ERC721ConsecutiveMultiBatchMock.contract_class.json": {
+      "bytes": 265702
     },
     "openzeppelin_test_common_ERC721EnumerableMock.contract_class.json": {
       "bytes": 236494
@@ -338,11 +383,14 @@
     "openzeppelin_test_common_LinearVestingMock.contract_class.json": {
       "bytes": 102194
     },
+    "openzeppelin_test_common_MockBitMap.contract_class.json": {
+      "bytes": 37046
+    },
     "openzeppelin_test_common_MockContract.contract_class.json": {
       "bytes": 8400
     },
     "openzeppelin_test_common_MockTrace.contract_class.json": {
-      "bytes": 87030
+      "bytes": 100600
     },
     "openzeppelin_test_common_MultisigTargetMock.contract_class.json": {
       "bytes": 9157

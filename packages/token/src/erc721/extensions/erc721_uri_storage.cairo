@@ -9,99 +9,7 @@
 /// to return per-token URIs when set, falling back to the base URI pattern
 /// when a token URI is not explicitly set.
 ///
-/// ## Usage
-///
-/// This extension requires implementing the ERC721HooksTrait to properly clean up
-/// token URIs when tokens are burned. Here's an example implementation:
-///
-/// ```cairo
-/// #[starknet::contract]
-/// mod MyNFT {
-///     use openzeppelin_introspection::src5::SRC5Component;
-///     use openzeppelin_token::erc721::{ERC721Component, ERC721HooksEmptyImpl};
-///     use openzeppelin_token::erc721::extensions::ERC721URIStorageComponent;
-///     use starknet::ContractAddress;
-///
-///     component!(path: ERC721Component, storage: erc721, event: ERC721Event);
-///     component!(path: ERC721URIStorageComponent, storage: erc721_uri_storage, event:
-///     ERC721URIStorageEvent);
-///     component!(path: SRC5Component, storage: src5, event: SRC5Event);
-///
-///     // ERC721 Mixin
-///     #[abi(embed_v0)]
-///     impl ERC721MixinImpl = ERC721Component::ERC721MixinImpl<ContractState>;
-///     impl ERC721InternalImpl = ERC721Component::InternalImpl<ContractState>;
-///
-///     // ERC721URIStorage
-///     #[abi(embed_v0)]
-///     impl ERC721URIStorageImpl = ERC721URIStorageComponent::ERC721URIStorageImpl<ContractState>;
-///     impl ERC721URIStorageInternalImpl = ERC721URIStorageComponent::InternalImpl<ContractState>;
-///
-///     #[storage]
-///     struct Storage {
-///         #[substorage(v0)]
-///         erc721: ERC721Component::Storage,
-///         #[substorage(v0)]
-///         erc721_uri_storage: ERC721URIStorageComponent::Storage,
-///         #[substorage(v0)]
-///         src5: SRC5Component::Storage
-///     }
-///
-///     #[event]
-///     #[derive(Drop, starknet::Event)]
-///     enum Event {
-///         #[flat]
-///         ERC721Event: ERC721Component::Event,
-///         #[flat]
-///         ERC721URIStorageEvent: ERC721URIStorageComponent::Event,
-///         #[flat]
-///         SRC5Event: SRC5Component::Event
-///     }
-///
-///     // Implement the ERC721 hooks to clean up URIs on burn
-///     impl ERC721Hooks of ERC721Component::ERC721HooksTrait<ContractState> {
-///         fn after_update(
-///             ref self: ERC721Component::ComponentState<ContractState>,
-///             to: ContractAddress,
-///             token_id: u256,
-///             auth: ContractAddress
-///         ) {
-///             let mut uri_storage_component = get_dep_component_mut!(ref self, ERC721URIStorage);
-///             uri_storage_component.after_update(to, token_id, auth);
-///         }
-///     }
-///
-///     #[constructor]
-///     fn constructor(ref self: ContractState) {
-///         self.erc721.initializer("MyNFT", "MNFT", "https://example.com/token/");
-///     }
-///
-///     #[generate_trait]
-///     #[abi(per_item)]
-///     impl ExternalImpl of ExternalTrait {
-///         #[external(v0)]
-///         fn mint(ref self: ContractState, to: ContractAddress, token_id: u256) {
-///             self.erc721.mint(to, token_id);
-///         }
-///
-///         #[external(v0)]
-///         fn set_token_uri(ref self: ContractState, token_id: u256, uri: ByteArray) {
-///             // Add access control as needed
-///             self.erc721_uri_storage._set_token_uri(token_id, uri);
-///         }
-///
-///         // Override token_uri to use the URI storage implementation
-///         #[external(v0)]
-///         fn token_uri(self: @ContractState, token_id: u256) -> ByteArray {
-///             self.erc721_uri_storage.token_uri(token_id)
-///         }
-///     }
-/// }
-/// ```
-///
-/// NOTE: Implementing ERC721Component is a requirement for this component to be implemented.
-///
-/// WARNING: To properly clean up token URIs, this extension requires that
+/// IMPORTANT: To properly clean up token URIs, this extension requires that
 /// the ERC721URIStorageComponent::after_update function is called after
 /// every burn operation.
 /// For this, the ERC721HooksTrait::after_update hook must be used.
@@ -155,6 +63,7 @@ pub mod ERC721URIStorageComponent {
         impl ERC721: ERC721Component::HasComponent<TContractState>,
         impl ERC721URIStorage: HasComponent<TContractState>,
         +ERC721Component::ERC721HooksTrait<TContractState>,
+        +ERC721Component::ERC721TokenOwnerTrait<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>,
     > of ERC721TokenURITrait<TContractState> {
@@ -199,6 +108,7 @@ pub mod ERC721URIStorageComponent {
         +HasComponent<TContractState>,
         impl ERC721: ERC721Component::HasComponent<TContractState>,
         +ERC721Component::ERC721HooksTrait<TContractState>,
+        +ERC721Component::ERC721TokenOwnerTrait<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>,
     > of InternalTrait<TContractState> {
@@ -229,7 +139,7 @@ pub mod ERC721URIStorageComponent {
             token_id: u256,
             auth: ContractAddress,
         ) {
-            // If burning (to == 0), delete the token URI
+            // Delete URI for a burned token
             if to.is_zero() {
                 self.ERC721URIStorage_token_uris.write(token_id, "");
             }

@@ -42,6 +42,7 @@ pub mod ERC721WrapperComponent {
         +HasComponent<TContractState>,
         impl ERC721: ERC721Component::HasComponent<TContractState>,
         +ERC721Component::ERC721HooksTrait<TContractState>,
+        +ERC721Component::ERC721TokenOwnerTrait<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>,
     > of IERC721Wrapper<ComponentState<TContractState>> {
@@ -106,6 +107,7 @@ pub mod ERC721WrapperComponent {
         +HasComponent<TContractState>,
         impl ERC721: ERC721Component::HasComponent<TContractState>,
         +ERC721Component::ERC721HooksTrait<TContractState>,
+        +ERC721Component::ERC721TokenOwnerTrait<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>,
     > of IERC721ReceiverMut<ComponentState<TContractState>> {
@@ -137,6 +139,7 @@ pub mod ERC721WrapperComponent {
         +HasComponent<TContractState>,
         impl ERC721: ERC721Component::HasComponent<TContractState>,
         +ERC721Component::ERC721HooksTrait<TContractState>,
+        +ERC721Component::ERC721TokenOwnerTrait<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>,
     > of InternalTrait<TContractState> {

@@ -5,7 +5,7 @@ const SUCCESS: felt252 = 'SUCCESS';
 #[starknet::contract]
 #[with_components(ERC721, SRC5)]
 pub mod DualCaseERC721Mock {
-    use openzeppelin_token::erc721::{ERC721HooksEmptyImpl, ERC721TokenURIDefaultImpl};
+    use openzeppelin_token::erc721::{ERC721HooksEmptyImpl, ERC721OwnerOfDefaultImpl, ERC721TokenURIDefaultImpl};
     use starknet::ContractAddress;
 
     // ERC721
@@ -43,7 +43,7 @@ pub mod DualCaseERC721Mock {
 #[starknet::contract]
 #[with_components(ERC721, SRC5)]
 pub mod SnakeERC721Mock {
-    use openzeppelin_token::erc721::{ERC721HooksEmptyImpl, ERC721TokenURIDefaultImpl};
+    use openzeppelin_token::erc721::{ERC721HooksEmptyImpl, ERC721OwnerOfDefaultImpl, ERC721TokenURIDefaultImpl};
     use starknet::ContractAddress;
 
     // ERC721
@@ -78,7 +78,7 @@ pub mod SnakeERC721Mock {
 #[starknet::contract]
 #[with_components(ERC721, SRC5)]
 pub mod SnakeERC721MockWithHooks {
-    use openzeppelin_token::erc721::ERC721TokenURIDefaultImpl;
+    use openzeppelin_token::erc721::{ERC721OwnerOfDefaultImpl, ERC721TokenURIDefaultImpl};
     use starknet::ContractAddress;
 
     // ERC721
@@ -207,7 +207,7 @@ pub mod DualCaseERC721ReceiverMock {
 #[starknet::contract]
 #[with_components(ERC721, ERC721Enumerable, SRC5)]
 pub mod ERC721EnumerableMock {
-    use openzeppelin_token::erc721::ERC721TokenURIDefaultImpl;
+    use openzeppelin_token::erc721::{ERC721OwnerOfDefaultImpl, ERC721TokenURIDefaultImpl};
     use starknet::ContractAddress;
 
     // ERC721
@@ -272,10 +272,20 @@ pub trait IERC721WrapperRecoverer<TState> {
     fn recover(ref self: TState, account: ContractAddress, token_id: u256) -> u256;
 }
 
+#[starknet::interface]
+pub trait IERC721ConsecutiveMintable<TState> {
+    fn mint_consecutive(ref self: TState, to: ContractAddress, batch_size: u64) -> u64;
+}
+
+#[starknet::interface]
+pub trait IERC721Burnable<TState> {
+    fn burn(ref self: TState, token_id: u256);
+}
+
 #[starknet::contract]
 #[with_components(ERC721, SRC5)]
 pub mod ERC721MintableMock {
-    use openzeppelin_token::erc721::{ERC721HooksEmptyImpl, ERC721TokenURIDefaultImpl};
+    use openzeppelin_token::erc721::{ERC721HooksEmptyImpl, ERC721OwnerOfDefaultImpl, ERC721TokenURIDefaultImpl};
     use starknet::ContractAddress;
     use super::IERC721Mintable;
 
@@ -308,7 +318,7 @@ pub mod ERC721MintableMock {
 #[starknet::contract]
 #[with_components(ERC721, SRC5, ERC721Wrapper)]
 pub mod ERC721WrapperMock {
-    use openzeppelin_token::erc721::{ERC721HooksEmptyImpl, ERC721TokenURIDefaultImpl};
+    use openzeppelin_token::erc721::{ERC721HooksEmptyImpl, ERC721OwnerOfDefaultImpl, ERC721TokenURIDefaultImpl};
     use starknet::ContractAddress;
     use super::IERC721WrapperRecoverer;
 
@@ -426,6 +436,179 @@ pub mod ERC721URIStorageMock {
 
         fn set_token_uri(ref self: ContractState, token_id: u256, uri: ByteArray) {
             self.erc721_uri_storage.set_token_uri(token_id, uri);
+        }
+    }
+}
+    
+
+#[starknet::contract]
+#[with_components(ERC721, SRC5)]
+pub mod ERC721ConsecutiveMock {
+    use openzeppelin_token::erc721::extensions::erc721_consecutive::ERC721ConsecutiveComponent::InternalImpl;
+    use openzeppelin_token::erc721::ERC721TokenURIDefaultImpl;
+    use openzeppelin_token::erc721::extensions::erc721_consecutive::{
+        DefaultConfig, ERC721ConsecutiveComponent,
+    };
+    use starknet::ContractAddress;
+    use super::{IERC721Burnable, IERC721ConsecutiveMintable};
+
+    component!(
+        path: ERC721ConsecutiveComponent,
+        storage: erc721_consecutive,
+        event: ERC721ConsecutiveEvent,
+    );
+
+    #[abi(embed_v0)]
+    impl ERC721Impl = ERC721Component::ERC721Impl<ContractState>;
+    #[abi(embed_v0)]
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
+
+    #[storage]
+    struct Storage {
+        #[substorage(v0)]
+        erc721_consecutive: ERC721ConsecutiveComponent::Storage,
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        ERC721ConsecutiveEvent: ERC721ConsecutiveComponent::Event,
+    }
+
+    #[constructor]
+    fn constructor(
+        ref self: ContractState,
+        name: ByteArray,
+        symbol: ByteArray,
+        base_uri: ByteArray,
+        recipient: ContractAddress,
+        token_id: u256,
+    ) {
+        self.erc721.initializer(name, symbol, base_uri);
+        self.erc721.mint(recipient, token_id);
+    }
+
+    impl ERC721HooksImpl of ERC721Component::ERC721HooksTrait<ContractState> {
+        batch_size: u64,
+    ) {
+        self.erc721.initializer(name, symbol, base_uri);
+        self.erc721_consecutive.mint_consecutive(recipient, batch_size);
+    }
+
+    impl ERC721HooksImpl of ERC721Component::ERC721HooksTrait<ContractState> {
+        fn before_update(
+            ref self: ERC721Component::ComponentState<ContractState>,
+            to: ContractAddress,
+            token_id: u256,
+            auth: ContractAddress,
+        ) {
+            let mut contract_state = self.get_contract_mut();
+            contract_state.erc721_consecutive.before_update(to, token_id, auth);
+        }
+
+        fn after_update(
+            ref self: ERC721Component::ComponentState<ContractState>,
+            to: ContractAddress,
+            token_id: u256,
+            auth: ContractAddress,
+        ) {
+            let mut contract_state = self.get_contract_mut();
+            contract_state.erc721_consecutive.after_update(to, token_id, auth);
+        }
+    }
+
+    #[abi(embed_v0)]
+    impl ERC721BurnableImpl of IERC721Burnable<ContractState> {
+        fn burn(ref self: ContractState, token_id: u256) {
+            self.erc721.burn(token_id);
+        }
+    }
+
+    #[abi(embed_v0)]
+    impl ERC721ConsecutiveMintableImpl of IERC721ConsecutiveMintable<ContractState> {
+        fn mint_consecutive(ref self: ContractState, to: ContractAddress, batch_size: u64) -> u64 {
+            self.erc721_consecutive.mint_consecutive(to, batch_size)
+        }
+    }
+}
+
+#[starknet::contract]
+#[with_components(ERC721, SRC5)]
+pub mod ERC721ConsecutiveMultiBatchMock {
+    use openzeppelin_token::erc721::extensions::erc721_consecutive::ERC721ConsecutiveComponent::InternalImpl;
+    use openzeppelin_token::erc721::ERC721TokenURIDefaultImpl;
+    use openzeppelin_token::erc721::extensions::erc721_consecutive::{
+        DefaultConfig, ERC721ConsecutiveComponent,
+    };
+    use starknet::ContractAddress;
+    use super::IERC721Burnable;
+
+    component!(
+        path: ERC721ConsecutiveComponent,
+        storage: erc721_consecutive,
+        event: ERC721ConsecutiveEvent,
+    );
+
+    #[abi(embed_v0)]
+    impl ERC721Impl = ERC721Component::ERC721Impl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC721BurnableImpl of IERC721Burnable<ContractState> {
+        fn burn(ref self: ContractState, token_id: u256) {
+            self.erc721.burn(token_id);
+        }
+    }
+    #[abi(embed_v0)]
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
+
+    #[storage]
+    struct Storage {
+        #[substorage(v0)]
+        erc721_consecutive: ERC721ConsecutiveComponent::Storage,
+    }
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        ERC721ConsecutiveEvent: ERC721ConsecutiveComponent::Event,
+    }
+
+    #[constructor]
+    fn constructor(
+        ref self: ContractState,
+        name: ByteArray,
+        symbol: ByteArray,
+        base_uri: ByteArray,
+        first_recipient: ContractAddress,
+        first_batch_size: u64,
+        second_recipient: ContractAddress,
+        second_batch_size: u64,
+    ) {
+        self.erc721.initializer(name, symbol, base_uri);
+        self.erc721_consecutive.mint_consecutive(first_recipient, first_batch_size);
+        self.erc721_consecutive.mint_consecutive(second_recipient, second_batch_size);
+    }
+
+    impl ERC721HooksImpl of ERC721Component::ERC721HooksTrait<ContractState> {
+        fn before_update(
+            ref self: ERC721Component::ComponentState<ContractState>,
+            to: ContractAddress,
+            token_id: u256,
+            auth: ContractAddress,
+        ) {
+            let mut contract_state = self.get_contract_mut();
+            contract_state.erc721_consecutive.before_update(to, token_id, auth);
+        }
+
+        fn after_update(
+            ref self: ERC721Component::ComponentState<ContractState>,
+            to: ContractAddress,
+            token_id: u256,
+            auth: ContractAddress,
+        ) {
+            let mut contract_state = self.get_contract_mut();
+            contract_state.erc721_consecutive.after_update(to, token_id, auth);
         }
     }
 }

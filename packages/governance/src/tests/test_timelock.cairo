@@ -22,8 +22,8 @@ use openzeppelin_testing::{
 use openzeppelin_utils::contract_clock::ERC6372TimestampClock;
 use openzeppelin_utils::serde::SerializedAppend;
 use snforge_std::{
-    CheatSpan, Event, cheat_caller_address, start_cheat_block_timestamp_global,
-    start_cheat_caller_address, test_address,
+    CheatSpan, cheat_caller_address, start_cheat_block_timestamp_global, start_cheat_caller_address,
+    test_address,
 };
 use starknet::ContractAddress;
 use starknet::account::Call;

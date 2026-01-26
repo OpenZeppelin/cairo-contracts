@@ -196,23 +196,36 @@ fn validate_contract_module(
                 .path
                 .strip_suffix(&component.name)
                 .expect("Component path must end with the component name");
-            let re = Regex::new(&format!(
-                r"use {component_parent_path}[{{\w, \n]*DefaultConfig[{{\w}}, \n]*;"
+            let default_config_import_re = Regex::new(&format!(
+                r"use {component_parent_path}[{{\w:, \n]*DefaultConfig(\s+as\s+\w+)?[{{\w}}, \n]*;"
             ))
             .unwrap();
 
-            let default_config_used = re.is_match(&code);
-            if !default_config_used {
-                let immutable_config_implemented =
-                    code.contains(&format!("of {}::ImmutableConfig", component.name));
-                if !immutable_config_implemented {
-                    let warning = Diagnostic::warn(warnings::IMMUTABLE_CONFIG_MISSING(
-                        component.short_name(),
-                        &format!("{component_parent_path}DefaultConfig"),
-                    ));
-                    warnings.push(warning);
-                }
+            let default_config_used = default_config_import_re.is_match(&code);
+            if default_config_used {
+                continue;
             }
+            let immutable_config_implemented =
+                code.contains(&format!("of {}::ImmutableConfig", component.name));
+            if immutable_config_implemented {
+                continue;
+            }
+            let immutable_config_import_re = Regex::new(&format!(
+                r"use {component_parent_path}[\w:]*\w+::[{{\w, \n]*ImmutableConfig(\s+as\s+\w+)?[{{\w}}, \n]*;"
+            ))
+            .unwrap();
+            let immutable_config_imported = immutable_config_import_re.is_match(&code);
+            let imported_immutable_config_implemented = 
+                code.contains("of ImmutableConfig");
+            if immutable_config_imported && imported_immutable_config_implemented {
+                continue;
+            }
+            // Add warning for missing immutable config
+            let warning = Diagnostic::warn(warnings::IMMUTABLE_CONFIG_MISSING(
+                component.short_name(),
+                &format!("{component_parent_path}DefaultConfig"),
+            ));
+            warnings.push(warning);
         }
     }
 
@@ -346,6 +359,14 @@ fn add_per_component_warnings(code: &str, component_info: &ComponentInfo) -> Vec
                 || code.contains("ERC721EnumerableInternalImpl::before_update(");
             if !hook_called {
                 let warning = Diagnostic::warn(warnings::ERC721_ENUMERABLE_HOOKS_MISSING);
+                warnings.push(warning);
+            }
+        },
+        AllowedComponents::ERC721URIStorage => {
+            let hook_called = code.contains("erc721_uri_storage.after_update(")
+                || code.contains("ERC721URIStorageInternalImpl::after_update(");
+            if !hook_called {
+                let warning = Diagnostic::warn(warnings::ERC721_URI_STORAGE_HOOKS_MISSING);
                 warnings.push(warning);
             }
         }

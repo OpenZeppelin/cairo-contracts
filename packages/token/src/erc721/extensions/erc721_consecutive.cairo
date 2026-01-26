@@ -7,6 +7,9 @@
 /// Implementation of the ERC-2309 "Consecutive Transfer Extension".
 /// This allows batch minting of consecutive token IDs during construction.
 ///
+/// CAUTION: This extension does not call the `ERC721Component::update` function for tokens minted in
+/// batch. Any logic added to this function through overrides will not be triggered when tokens are minted in batch.
+///
 /// IMPORTANT: To properly track sequential burns and enforce consecutive minting rules, this
 /// extension requires that `ERC721ConsecutiveComponent::before_update` and
 /// `ERC721ConsecutiveComponent::after_update` are called after every transfer, mint, or burn

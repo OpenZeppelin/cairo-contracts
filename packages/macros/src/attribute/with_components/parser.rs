@@ -191,7 +191,7 @@ fn validate_contract_module(
             builder.add_modified(body_rnode);
             let (code, _) = builder.build();
 
-            // Check if the DefaultConfig is used
+            // Case 1: DefaultConfig is imported and used
             let component_parent_path = component
                 .path
                 .strip_suffix(&component.name)
@@ -200,27 +200,34 @@ fn validate_contract_module(
                 r"use {component_parent_path}[{{\w:, \n]*DefaultConfig(\s+as\s+\w+)?[{{\w}}, \n]*;"
             ))
             .unwrap();
-
             let default_config_used = default_config_import_re.is_match(&code);
             if default_config_used {
                 continue;
             }
+
+            // Case 2: ImmutableConfig is implemented with fully qualified path
             let immutable_config_implemented =
                 code.contains(&format!("of {}::ImmutableConfig", component.name));
             if immutable_config_implemented {
                 continue;
             }
+
+            // Case 3: ImmutableConfig is imported (possibly aliased) and implemented
             let immutable_config_import_re = Regex::new(&format!(
-                r"use {component_parent_path}[\w:]*\w+::[{{\w, \n]*ImmutableConfig(\s+as\s+\w+)?[{{\w}}, \n]*;"
+                r"use {component_parent_path}[\w:]*\w+::[{{\w, \n]*ImmutableConfig(?:\s+as\s+(\w+))?[{{\w}}, \n]*;"
             ))
             .unwrap();
-            let immutable_config_imported = immutable_config_import_re.is_match(&code);
-            let imported_immutable_config_implemented = 
-                code.contains("of ImmutableConfig");
-            if immutable_config_imported && imported_immutable_config_implemented {
-                continue;
+            if let Some(captures) = immutable_config_import_re.captures(&code) {
+                // Use the alias if present, otherwise use "ImmutableConfig"
+                let config_name = captures.get(1).map_or("ImmutableConfig", |m| m.as_str());
+                let imported_immutable_config_implemented =
+                    code.contains(&format!("of {config_name}"));
+                if imported_immutable_config_implemented {
+                    continue;
+                }
             }
-            // Add warning for missing immutable config
+
+            // No valid config found - add warning
             let warning = Diagnostic::warn(warnings::IMMUTABLE_CONFIG_MISSING(
                 component.short_name(),
                 &format!("{component_parent_path}DefaultConfig"),
@@ -361,7 +368,7 @@ fn add_per_component_warnings(code: &str, component_info: &ComponentInfo) -> Vec
                 let warning = Diagnostic::warn(warnings::ERC721_ENUMERABLE_HOOKS_MISSING);
                 warnings.push(warning);
             }
-        },
+        }
         AllowedComponents::ERC721URIStorage => {
             let hook_called = code.contains("erc721_uri_storage.after_update(")
                 || code.contains("ERC721URIStorageInternalImpl::after_update(");

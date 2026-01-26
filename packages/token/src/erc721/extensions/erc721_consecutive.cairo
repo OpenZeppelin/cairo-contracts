@@ -8,7 +8,7 @@
 /// This allows batch minting of consecutive token IDs during construction.
 ///
 /// CAUTION: This extension does not call the `ERC721Component::update` function for tokens minted
-/// in batch. Any logic added to this function through overrides will not be triggered when tokens
+/// in batch. Any logic added to this function through hooks will not be triggered when tokens
 /// are minted in batch.
 ///
 /// IMPORTANT: To properly track sequential burns and enforce consecutive minting rules, this

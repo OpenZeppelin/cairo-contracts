@@ -33,7 +33,6 @@ pub mod ERC721URIStorageComponent {
     #[derive(Drop, Debug, PartialEq, starknet::Event)]
     pub enum Event {
         MetadataUpdate: MetadataUpdate,
-        BatchMetadataUpdate: BatchMetadataUpdate,
     }
 
     /// Emitted when the metadata of a token is changed.
@@ -42,14 +41,6 @@ pub mod ERC721URIStorageComponent {
     pub struct MetadataUpdate {
         #[key]
         pub token_id: u256,
-    }
-
-    /// Emitted when the metadata of a range of tokens is changed.
-    /// See https://eips.ethereum.org/EIPS/eip-4906[ERC-4906] for details.
-    #[derive(Drop, Debug, PartialEq, starknet::Event)]
-    pub struct BatchMetadataUpdate {
-        pub from_token_id: u256,
-        pub to_token_id: u256,
     }
 
     //
@@ -81,12 +72,11 @@ pub mod ERC721URIStorageComponent {
             self: @ERC721Component::ComponentState<TContractState>, token_id: u256,
         ) -> ByteArray {
             let contract = self.get_contract();
-            let erc721_uri_storage = ERC721URIStorage::get_component(contract);
-            let erc721 = ERC721::get_component(contract);
-            erc721._require_owned(token_id);
+            let erc721_uri = ERC721URIStorage::get_component(contract);
+            self._require_owned(token_id);
 
-            let base_uri = erc721._base_uri();
-            let suffix = erc721_uri_storage.ERC721URIStorage_token_uris.read(token_id);
+            let base_uri = self._base_uri();
+            let suffix = erc721_uri.ERC721URIStorage_token_uris.read(token_id);
 
             if base_uri.len() == 0 {
                 suffix

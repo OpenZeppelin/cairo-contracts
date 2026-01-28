@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v3.0.0 (token/src/erc1155/erc1155.cairo)
 
+use starknet::storage::StoragePointerReadAccess;
+
 /// # ERC1155 Component
 ///
 /// The ERC1155 component provides an implementation of the basic standard multi-token.
@@ -19,8 +21,7 @@ pub mod ERC1155Component {
         InternalTrait as SRC5InternalTrait, SRC5Impl,
     };
     use starknet::storage::{
-        Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
-        StoragePointerWriteAccess,
+        Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerWriteAccess,
     };
     use starknet::{ContractAddress, get_caller_address};
 
@@ -762,7 +763,7 @@ pub impl ERC1155TokenURIDefaultImpl<
     ///
     /// Clients calling this function must replace the `\{id\}` substring with the
     /// actual token type ID.
-    fn uri(self: @ComponentState<TContractState>, token_id: u256) -> ByteArray {
+    fn uri(self: @ERC1155Component::ComponentState<TContractState>, token_id: u256) -> ByteArray {
         self.ERC1155_uri.read()
     }
 }

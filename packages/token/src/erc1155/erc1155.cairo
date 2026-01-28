@@ -123,6 +123,15 @@ pub mod ERC1155Component {
     }
 
     //
+    // Token URI
+    //
+
+    pub trait ERC1155TokenURITrait<TContractState> {
+        /// Returns the URI for the given token ID.
+        fn uri(self: @ComponentState<TContractState>, token_id: u256) -> ByteArray;
+    }
+
+    //
     // External
     //
 
@@ -268,16 +277,13 @@ pub mod ERC1155Component {
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +ERC1155HooksTrait<TContractState>,
+        impl ERC1155TokenURI: ERC1155TokenURITrait<TContractState>,
         +Drop<TContractState>,
     > of interface::IERC1155MetadataURI<ComponentState<TContractState>> {
-        /// This implementation returns the same URI for *all* token types. It relies
-        /// on the token type ID substitution mechanism defined in the EIP:
-        /// https://eips.ethereum.org/EIPS/eip-1155#metadata.
-        ///
-        /// Clients calling this function must replace the `\{id\}` substring with the
-        /// actual token type ID.
+        /// Returns the URI for the given token ID. Relies on the ERC1155TokenURITrait
+        /// implementation.
         fn uri(self: @ComponentState<TContractState>, token_id: u256) -> ByteArray {
-            self.ERC1155_uri.read()
+            ERC1155TokenURI::uri(self, token_id)
         }
     }
 
@@ -347,6 +353,7 @@ pub mod ERC1155Component {
         +HasComponent<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
         +ERC1155HooksTrait<TContractState>,
+        +ERC1155TokenURITrait<TContractState>,
         +Drop<TContractState>,
     > of interface::ERC1155ABI<ComponentState<TContractState>> {
         // IERC1155
@@ -744,3 +751,18 @@ pub mod ERC1155Component {
 pub impl ERC1155HooksEmptyImpl<
     TContractState,
 > of ERC1155Component::ERC1155HooksTrait<TContractState> {}
+
+/// A default implementation of ERC1155TokenURITrait that.
+pub impl ERC1155TokenURIDefaultImpl<
+    TContractState,
+> of ERC1155Component::ERC1155TokenURITrait<TContractState> {
+    /// Returns the same base URI for *all* token types.
+    /// It relies on the token type ID substitution mechanism defined in the EIP:
+    /// https://eips.ethereum.org/EIPS/eip-1155#metadata.
+    ///
+    /// Clients calling this function must replace the `\{id\}` substring with the
+    /// actual token type ID.
+    fn uri(self: @ComponentState<TContractState>, token_id: u256) -> ByteArray {
+        self.ERC1155_uri.read()
+    }
+}

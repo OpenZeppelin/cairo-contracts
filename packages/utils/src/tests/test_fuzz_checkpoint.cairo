@@ -59,9 +59,17 @@ fn test_lower_lookup(checkpoints: Span<Checkpoint>) {
     for i in 1..checkpoints.len() {
         let index: usize = i.try_into().unwrap();
         let checkpoint = *checkpoints.at(index);
+        let prev_checkpoint = *checkpoints.at(index - 1);
         let search_key = checkpoint.key - 1;
         let found_value = mock_trace.lower_lookup(search_key);
-        assert_eq!(found_value, checkpoint.value);
+        // If search_key equals the previous checkpoint's key, lower_lookup returns that value.
+        // Otherwise, it returns the current checkpoint's value (first with key >= search_key).
+        let expected = if search_key == prev_checkpoint.key {
+            prev_checkpoint.value
+        } else {
+            checkpoint.value
+        };
+        assert_eq!(found_value, expected);
     }
 }
 

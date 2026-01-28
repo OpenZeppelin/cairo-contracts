@@ -10,6 +10,10 @@
 ///
 /// NOTE: Implementing ERC721Component is a requirement for this component to be implemented.
 ///
+/// CAUTION: `ERC721` extensions that implement custom `balanceOf` logic, such as
+/// `ERC721Consecutive`, interfere with enumerability and should not be used together with
+/// `ERC721Enumerable`.
+///
 /// IMPORTANT: To properly track token ids, this extension requires that
 /// the ERC721EnumerableComponent::before_update function is called after
 /// every transfer, mint, or burn operation.

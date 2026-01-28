@@ -112,7 +112,7 @@
       "felts": 5638
     },
     "openzeppelin_test_common_ERC721BlockNumberVotesMock.compiled_contract_class.json": {
-      "felts": 17755
+      "felts": 17889
     },
     "openzeppelin_test_common_ERC721ConsecutiveMock.compiled_contract_class.json": {
       "felts": 12226
@@ -127,7 +127,10 @@
       "felts": 7385
     },
     "openzeppelin_test_common_ERC721TimestampVotesMock.compiled_contract_class.json": {
-      "felts": 17755
+      "felts": 17889
+    },
+    "openzeppelin_test_common_ERC721URIStorageMock.compiled_contract_class.json": {
+      "felts": 12720
     },
     "openzeppelin_test_common_ERC721WrapperMock.compiled_contract_class.json": {
       "felts": 9910
@@ -208,7 +211,7 @@
       "felts": 9596
     },
     "openzeppelin_test_common_SnakeERC721MockWithHooks.compiled_contract_class.json": {
-      "felts": 9761
+      "felts": 9895
     },
     "openzeppelin_test_common_SnakeEthAccountMock.compiled_contract_class.json": {
       "felts": 5226
@@ -306,25 +309,25 @@
       "bytes": 93472
     },
     "openzeppelin_test_common_ERC4626AssetsFeesMock.contract_class.json": {
-      "bytes": 433390
+      "bytes": 433246
     },
     "openzeppelin_test_common_ERC4626ExternalVaultMock.contract_class.json": {
-      "bytes": 297595
+      "bytes": 297482
     },
     "openzeppelin_test_common_ERC4626LimitsMock.contract_class.json": {
-      "bytes": 299298
+      "bytes": 299149
     },
     "openzeppelin_test_common_ERC4626Mock.contract_class.json": {
-      "bytes": 284571
+      "bytes": 284443
     },
     "openzeppelin_test_common_ERC4626MockWithHooks.contract_class.json": {
-      "bytes": 284882
+      "bytes": 284737
     },
     "openzeppelin_test_common_ERC4626OffsetMock.contract_class.json": {
-      "bytes": 297211
+      "bytes": 297172
     },
     "openzeppelin_test_common_ERC4626SharesFeesMock.contract_class.json": {
-      "bytes": 398466
+      "bytes": 398351
     },
     "openzeppelin_test_common_ERC6909ContentURIMock.contract_class.json": {
       "bytes": 173503
@@ -342,7 +345,7 @@
       "bytes": 113703
     },
     "openzeppelin_test_common_ERC721BlockNumberVotesMock.contract_class.json": {
-      "bytes": 379112
+      "bytes": 380897
     },
     "openzeppelin_test_common_ERC721ConsecutiveMock.contract_class.json": {
       "bytes": 265912
@@ -357,7 +360,10 @@
       "bytes": 163247
     },
     "openzeppelin_test_common_ERC721TimestampVotesMock.contract_class.json": {
-      "bytes": 379082
+      "bytes": 380855
+    },
+    "openzeppelin_test_common_ERC721URIStorageMock.contract_class.json": {
+      "bytes": 275404
     },
     "openzeppelin_test_common_ERC721WrapperMock.contract_class.json": {
       "bytes": 222596
@@ -438,7 +444,7 @@
       "bytes": 209754
     },
     "openzeppelin_test_common_SnakeERC721MockWithHooks.contract_class.json": {
-      "bytes": 216423
+      "bytes": 218393
     },
     "openzeppelin_test_common_SnakeEthAccountMock.contract_class.json": {
       "bytes": 97446

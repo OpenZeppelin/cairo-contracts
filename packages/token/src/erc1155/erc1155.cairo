@@ -753,7 +753,7 @@ pub impl ERC1155HooksEmptyImpl<
     TContractState,
 > of ERC1155Component::ERC1155HooksTrait<TContractState> {}
 
-/// A default implementation of ERC1155TokenURITrait that.
+/// A default implementation of ERC1155TokenURITrait.
 pub impl ERC1155TokenURIDefaultImpl<
     TContractState,
 > of ERC1155Component::ERC1155TokenURITrait<TContractState> {

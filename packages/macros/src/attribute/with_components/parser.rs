@@ -117,6 +117,14 @@ fn validate_contract_module(
             return (vec![error], vec![]);
         };
 
+        // Keep a stringified version of the module body around for validations below.
+        let body_ast = body.as_syntax_node();
+        let typed = ast::ModuleBody::from_syntax_node(db, body_ast);
+        let body_rnode = RewriteNode::from_ast(&typed);
+        let mut builder = PatchBuilder::new_ex(db, &body_ast);
+        builder.add_modified(body_rnode);
+        let (body_code, _) = builder.build();
+
         // 2. Check that the module has the `#[starknet::contract]` attribute (error)
         if !item.has_attr(db, CONTRACT_ATTRIBUTE) {
             let error = Diagnostic::error(errors::NO_CONTRACT_ATTRIBUTE(CONTRACT_ATTRIBUTE));
@@ -141,7 +149,20 @@ fn validate_contract_module(
             return (vec![error], vec![]);
         }
 
-        // 4. Check that the module has the corresponding initializers (warning)
+        // 4. Disallow ERC721Enumerable and ERC721Consecutive being used together (error)
+        let uses_erc721_enumerable = components_info
+            .iter()
+            .any(|c| matches!(c.kind(), AllowedComponents::ERC721Enumerable));
+        let uses_erc721_consecutive = body_code.contains("ERC721Consecutive");
+        if uses_erc721_enumerable && uses_erc721_consecutive
+        {
+            let error = Diagnostic::error(
+                errors::ERC721_BALANCE_OF_INCOPATIBILITY,
+            );
+            return (vec![error], vec![]);
+        }
+
+        // 5. Check that the module has the corresponding initializers (warning)
         let components_with_initializer = components_info
             .iter()
             .filter(|c| c.has_initializer)
@@ -180,17 +201,8 @@ fn validate_contract_module(
             }
         }
 
-        // 5. Check that the contract has the corresponding immutable configs
+        // 6. Check that the contract has the corresponding immutable configs
         for component in components_info.iter().filter(|c| c.has_immutable_config) {
-            // Get the body code (maybe we can do this without the builder)
-            let body_ast = body.as_syntax_node();
-            let typed = ast::ModuleBody::from_syntax_node(db, body_ast);
-            let body_rnode = RewriteNode::from_ast(&typed);
-
-            let mut builder = PatchBuilder::new_ex(db, &body_ast);
-            builder.add_modified(body_rnode);
-            let (code, _) = builder.build();
-
             // Check if the DefaultConfig is used
             let component_parent_path = component
                 .path
@@ -201,10 +213,10 @@ fn validate_contract_module(
             ))
             .unwrap();
 
-            let default_config_used = re.is_match(&code);
+            let default_config_used = re.is_match(&body_code);
             if !default_config_used {
                 let immutable_config_implemented =
-                    code.contains(&format!("of {}::ImmutableConfig", component.name));
+                    body_code.contains(&format!("of {}::ImmutableConfig", component.name));
                 if !immutable_config_implemented {
                     let warning = Diagnostic::warn(warnings::IMMUTABLE_CONFIG_MISSING(
                         component.short_name(),

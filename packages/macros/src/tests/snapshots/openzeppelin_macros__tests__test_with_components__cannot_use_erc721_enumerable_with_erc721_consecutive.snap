@@ -1,0 +1,18 @@
+---
+source: src/tests/test_with_components.rs
+expression: result
+snapshot_kind: text
+---
+TokenStream:
+
+None
+
+Diagnostics:
+
+====
+Error: ERC721Enumerable and ERC721Consecutive interfere with each other in token ownership tracking and should not be used together.
+====
+
+AuxData:
+
+None

@@ -999,6 +999,22 @@ fn test_with_erc721_enumerable_no_initializer() {
 }
 
 #[test]
+fn test_cannot_use_erc721_enumerable_with_erc721_consecutive() {
+    let attribute = quote! { (ERC721Enumerable) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod MyContract {
+            use openzeppelin_token::erc721::extensions::ERC721ConsecutiveComponent;
+
+            #[storage]
+            pub struct Storage {}
+        }
+    };
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
 fn test_with_erc721_receiver() {
     let attribute = quote! { (ERC721Receiver) };
     let item = quote! {

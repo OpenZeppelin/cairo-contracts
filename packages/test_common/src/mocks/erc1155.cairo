@@ -1,7 +1,7 @@
 #[starknet::contract]
 #[with_components(ERC1155, SRC5)]
 pub mod DualCaseERC1155Mock {
-    use openzeppelin_token::erc1155::ERC1155HooksEmptyImpl;
+    use openzeppelin_token::erc1155::{ERC1155HooksEmptyImpl, ERC1155TokenURIDefaultImpl};
     use starknet::ContractAddress;
 
     // ERC1155
@@ -36,7 +36,7 @@ pub mod DualCaseERC1155Mock {
 #[starknet::contract]
 #[with_components(ERC1155, SRC5)]
 pub mod SnakeERC1155Mock {
-    use openzeppelin_token::erc1155::ERC1155HooksEmptyImpl;
+    use openzeppelin_token::erc1155::{ERC1155HooksEmptyImpl, ERC1155TokenURIDefaultImpl};
     use starknet::ContractAddress;
 
     // ERC1155
@@ -71,6 +71,7 @@ pub mod SnakeERC1155Mock {
 #[starknet::contract]
 #[with_components(ERC1155, SRC5)]
 pub mod SnakeERC1155MockWithHooks {
+    use openzeppelin_token::erc1155::ERC1155TokenURIDefaultImpl;
     use starknet::ContractAddress;
 
     // ERC1155
@@ -152,6 +153,7 @@ pub mod SnakeERC1155MockWithHooks {
 #[starknet::contract]
 #[with_components(ERC1155, ERC1155Supply, SRC5)]
 pub mod ERC1155SupplyMock {
+    use openzeppelin_token::erc1155::ERC1155TokenURIDefaultImpl;
     use starknet::ContractAddress;
 
     // ERC1155
@@ -195,6 +197,52 @@ pub mod ERC1155SupplyMock {
         ) {
             let mut contract_state = self.get_contract_mut();
             contract_state.erc1155_supply.after_update(from, to, token_ids, values);
+        }
+    }
+}
+
+#[starknet::contract]
+#[with_components(ERC1155, ERC1155URIStorage, SRC5)]
+pub mod ERC1155URIStorageMock {
+    use openzeppelin_token::erc1155::ERC1155HooksEmptyImpl;
+    use openzeppelin_token::erc1155::extensions::erc1155_uri_storage::ERC1155URIStorageComponent::ERC1155URIStorageImpl;
+    use starknet::ContractAddress;
+
+    // ERC1155
+    #[abi(embed_v0)]
+    impl ERC1155Impl = ERC1155Component::ERC1155Impl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC1155MetadataURIImpl =
+        ERC1155Component::ERC1155MetadataURIImpl<ContractState>;
+
+    // SRC5
+    #[abi(embed_v0)]
+    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
+
+    #[storage]
+    pub struct Storage {}
+
+    #[constructor]
+    fn constructor(ref self: ContractState, base_uri: ByteArray) {
+        self.erc1155.initializer(base_uri);
+    }
+
+    #[generate_trait]
+    #[abi(per_item)]
+    impl ExternalImpl of ExternalTrait {
+        #[external(v0)]
+        fn mint(ref self: ContractState, to: ContractAddress, token_id: u256, value: u256) {
+            self.erc1155.mint_with_acceptance_check(to, token_id, value, array![].span());
+        }
+
+        #[external(v0)]
+        fn set_token_uri(ref self: ContractState, token_id: u256, token_uri: ByteArray) {
+            self.erc1155_uri_storage.set_token_uri(token_id, token_uri);
+        }
+
+        #[external(v0)]
+        fn set_base_uri(ref self: ContractState, base_uri: ByteArray) {
+            self.erc1155_uri_storage.set_base_uri(base_uri);
         }
     }
 }

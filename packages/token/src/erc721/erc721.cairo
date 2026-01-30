@@ -1,6 +1,9 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v3.0.0 (token/src/erc721/erc721.cairo)
 
+use ERC721Component::InternalTrait;
+use openzeppelin_introspection::src5::SRC5Component;
+
 /// # ERC721 Component
 ///
 /// The ERC721 component provides implementations for both the IERC721 interface
@@ -162,6 +165,14 @@ pub mod ERC721Component {
     }
 
     //
+    // Token URI
+    //
+
+    pub trait ERC721TokenURITrait<TContractState> {
+        fn token_uri(self: @ComponentState<TContractState>, token_id: u256) -> ByteArray;
+    }
+
+    //
     // External
     //
 
@@ -300,6 +311,7 @@ pub mod ERC721Component {
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +ERC721HooksTrait<TContractState>,
+        impl ERC721TokenURI: ERC721TokenURITrait<TContractState>,
         +ERC721TokenOwnerTrait<TContractState>,
         +Drop<TContractState>,
     > of interface::IERC721Metadata<ComponentState<TContractState>> {
@@ -320,13 +332,7 @@ pub mod ERC721Component {
         ///
         /// - `token_id` exists.
         fn token_uri(self: @ComponentState<TContractState>, token_id: u256) -> ByteArray {
-            self._require_owned(token_id);
-            let base_uri = self._base_uri();
-            if base_uri.len() == 0 {
-                return "";
-            } else {
-                return format!("{}{}", base_uri, token_id);
-            }
+            ERC721TokenURI::token_uri(self, token_id)
         }
     }
 
@@ -393,6 +399,7 @@ pub mod ERC721Component {
         +HasComponent<TContractState>,
         +SRC5Component::HasComponent<TContractState>,
         +ERC721HooksTrait<TContractState>,
+        +ERC721TokenURITrait<TContractState>,
         +ERC721TokenOwnerTrait<TContractState>,
         +Drop<TContractState>,
     > of interface::IERC721MetadataCamelOnly<ComponentState<TContractState>> {
@@ -407,6 +414,7 @@ pub mod ERC721Component {
         +HasComponent<TContractState>,
         impl SRC5: SRC5Component::HasComponent<TContractState>,
         +ERC721HooksTrait<TContractState>,
+        +ERC721TokenURITrait<TContractState>,
         +ERC721TokenOwnerTrait<TContractState>,
         +Drop<TContractState>,
     > of interface::ERC721ABI<ComponentState<TContractState>> {
@@ -943,3 +951,22 @@ pub impl ERC721HooksEmptyImpl<
 pub impl ERC721OwnerOfDefaultImpl<
     TContractState,
 > of ERC721Component::ERC721TokenOwnerTrait<TContractState> {}
+
+pub impl ERC721TokenURIDefaultImpl<
+    TContractState,
+    +ERC721Component::HasComponent<TContractState>,
+    +SRC5Component::HasComponent<TContractState>,
+    +Drop<TContractState>,
+> of ERC721Component::ERC721TokenURITrait<TContractState> {
+    fn token_uri(
+        self: @ERC721Component::ComponentState<TContractState>, token_id: u256,
+    ) -> ByteArray {
+        self._require_owned(token_id);
+        let base_uri = self._base_uri();
+        if base_uri.len() == 0 {
+            ""
+        } else {
+            format!("{}{}", base_uri, token_id)
+        }
+    }
+}

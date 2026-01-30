@@ -156,6 +156,15 @@ pub mod warnings {
         "
     };
 
+    /// Warning when the ERC721URIStorage hook call is missing.
+    pub const ERC721_URI_STORAGE_HOOKS_MISSING: &str = indoc! {
+        "The ERC721URIStorage component requires calling `self.erc721_uri_storage.after_update(...)`
+        inside the `ERC721HooksTrait::after_update` hook, and it looks like it is missing.
+
+        This may lead to incorrect token URI data.
+        "
+    };
+
     /// Warning when the ERC4626 component is missing an implementation of the ERC4626HooksTrait.
     pub const ERC4626_HOOKS_IMPL_MISSING: &str = indoc! {
         "The ERC4626 component requires an implementation of the ERC4626HooksTrait in scope and

@@ -154,11 +154,8 @@ fn validate_contract_module(
             .iter()
             .any(|c| matches!(c.kind(), AllowedComponents::ERC721Enumerable));
         let uses_erc721_consecutive = body_code.contains("ERC721Consecutive");
-        if uses_erc721_enumerable && uses_erc721_consecutive
-        {
-            let error = Diagnostic::error(
-                errors::ERC721_BALANCE_OF_INCOPATIBILITY,
-            );
+        if uses_erc721_enumerable && uses_erc721_consecutive {
+            let error = Diagnostic::error(errors::ERC721_BALANCE_OF_INCOPATIBILITY);
             return (vec![error], vec![]);
         }
 
@@ -203,28 +200,48 @@ fn validate_contract_module(
 
         // 6. Check that the contract has the corresponding immutable configs
         for component in components_info.iter().filter(|c| c.has_immutable_config) {
-            // Check if the DefaultConfig is used
+            // Case 1: DefaultConfig is imported and used
             let component_parent_path = component
                 .path
                 .strip_suffix(&component.name)
                 .expect("Component path must end with the component name");
-            let re = Regex::new(&format!(
-                r"use {component_parent_path}[{{\w, \n]*DefaultConfig[{{\w}}, \n]*;"
+            let default_config_import_re = Regex::new(&format!(
+                r"use {component_parent_path}[{{\w:, \n]*DefaultConfig(\s+as\s+\w+)?[{{\w}}, \n]*;"
             ))
             .unwrap();
+            let default_config_used = default_config_import_re.is_match(&body_code);
+            if default_config_used {
+                continue;
+            }
 
-            let default_config_used = re.is_match(&body_code);
-            if !default_config_used {
-                let immutable_config_implemented =
-                    body_code.contains(&format!("of {}::ImmutableConfig", component.name));
-                if !immutable_config_implemented {
-                    let warning = Diagnostic::warn(warnings::IMMUTABLE_CONFIG_MISSING(
-                        component.short_name(),
-                        &format!("{component_parent_path}DefaultConfig"),
-                    ));
-                    warnings.push(warning);
+            // Case 2: ImmutableConfig is implemented with fully qualified path
+            let immutable_config_implemented =
+                body_code.contains(&format!("of {}::ImmutableConfig", component.name));
+            if immutable_config_implemented {
+                continue;
+            }
+
+            // Case 3: ImmutableConfig is imported (possibly aliased) and implemented
+            let immutable_config_import_re = Regex::new(&format!(
+                r"use {component_parent_path}[\w:]*\w+::[{{\w, \n]*ImmutableConfig(?:\s+as\s+(\w+))?[{{\w}}, \n]*;"
+            ))
+            .unwrap();
+            if let Some(captures) = immutable_config_import_re.captures(&body_code) {
+                // Use the alias if present, otherwise use "ImmutableConfig"
+                let config_name = captures.get(1).map_or("ImmutableConfig", |m| m.as_str());
+                let imported_immutable_config_implemented =
+                    body_code.contains(&format!("of {config_name}"));
+                if imported_immutable_config_implemented {
+                    continue;
                 }
             }
+
+            // No valid config found - add warning
+            let warning = Diagnostic::warn(warnings::IMMUTABLE_CONFIG_MISSING(
+                component.short_name(),
+                &format!("{component_parent_path}DefaultConfig"),
+            ));
+            warnings.push(warning);
         }
     }
 
@@ -358,6 +375,14 @@ fn add_per_component_warnings(code: &str, component_info: &ComponentInfo) -> Vec
                 || code.contains("ERC721EnumerableInternalImpl::before_update(");
             if !hook_called {
                 let warning = Diagnostic::warn(warnings::ERC721_ENUMERABLE_HOOKS_MISSING);
+                warnings.push(warning);
+            }
+        }
+        AllowedComponents::ERC721URIStorage => {
+            let hook_called = code.contains("erc721_uri_storage.after_update(")
+                || code.contains("ERC721URIStorageInternalImpl::after_update(");
+            if !hook_called {
+                let warning = Diagnostic::warn(warnings::ERC721_URI_STORAGE_HOOKS_MISSING);
                 warnings.push(warning);
             }
         }

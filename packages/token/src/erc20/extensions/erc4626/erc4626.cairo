@@ -838,10 +838,8 @@ pub mod ERC4626Component {
             // Burn shares first
             let shares_to_burn = match fee {
                 Option::None => shares,
-                Option::Some(fee) => match fee {
-                    Fee::Assets(_) => shares,
-                    Fee::Shares(shares_fee) => shares - shares_fee,
-                },
+                Option::Some(Fee::Assets(_)) => shares,
+                Option::Some(Fee::Shares(shares_fee)) => shares - shares_fee,
             };
             let mut erc20_component = get_dep_component_mut!(ref self, ERC20);
             if caller != owner {

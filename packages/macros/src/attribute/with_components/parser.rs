@@ -117,6 +117,14 @@ fn validate_contract_module(
             return (vec![error], vec![]);
         };
 
+        // Keep a stringified version of the module body around for validations below.
+        let body_ast = body.as_syntax_node();
+        let typed = ast::ModuleBody::from_syntax_node(db, body_ast);
+        let body_rnode = RewriteNode::from_ast(&typed);
+        let mut builder = PatchBuilder::new_ex(db, &body_ast);
+        builder.add_modified(body_rnode);
+        let (body_code, _) = builder.build();
+
         // 2. Check that the module has the `#[starknet::contract]` attribute (error)
         if !item.has_attr(db, CONTRACT_ATTRIBUTE) {
             let error = Diagnostic::error(errors::NO_CONTRACT_ATTRIBUTE(CONTRACT_ATTRIBUTE));
@@ -141,7 +149,17 @@ fn validate_contract_module(
             return (vec![error], vec![]);
         }
 
-        // 4. Check that the module has the corresponding initializers (warning)
+        // 4. Disallow ERC721Enumerable and ERC721Consecutive being used together (error)
+        let uses_erc721_enumerable = components_info
+            .iter()
+            .any(|c| matches!(c.kind(), AllowedComponents::ERC721Enumerable));
+        let uses_erc721_consecutive = body_code.contains("ERC721Consecutive");
+        if uses_erc721_enumerable && uses_erc721_consecutive {
+            let error = Diagnostic::error(errors::ERC721_BALANCE_OF_INCOPATIBILITY);
+            return (vec![error], vec![]);
+        }
+
+        // 5. Check that the module has the corresponding initializers (warning)
         let components_with_initializer = components_info
             .iter()
             .filter(|c| c.has_initializer)
@@ -180,17 +198,8 @@ fn validate_contract_module(
             }
         }
 
-        // 5. Check that the contract has the corresponding immutable configs
+        // 6. Check that the contract has the corresponding immutable configs
         for component in components_info.iter().filter(|c| c.has_immutable_config) {
-            // Get the body code (maybe we can do this without the builder)
-            let body_ast = body.as_syntax_node();
-            let typed = ast::ModuleBody::from_syntax_node(db, body_ast);
-            let body_rnode = RewriteNode::from_ast(&typed);
-
-            let mut builder = PatchBuilder::new_ex(db, &body_ast);
-            builder.add_modified(body_rnode);
-            let (code, _) = builder.build();
-
             // Case 1: DefaultConfig is imported and used
             let component_parent_path = component
                 .path
@@ -200,14 +209,14 @@ fn validate_contract_module(
                 r"use {component_parent_path}[{{\w:, \n]*DefaultConfig(\s+as\s+\w+)?[{{\w}}, \n]*;"
             ))
             .unwrap();
-            let default_config_used = default_config_import_re.is_match(&code);
+            let default_config_used = default_config_import_re.is_match(&body_code);
             if default_config_used {
                 continue;
             }
 
             // Case 2: ImmutableConfig is implemented with fully qualified path
             let immutable_config_implemented =
-                code.contains(&format!("of {}::ImmutableConfig", component.name));
+                body_code.contains(&format!("of {}::ImmutableConfig", component.name));
             if immutable_config_implemented {
                 continue;
             }
@@ -217,11 +226,11 @@ fn validate_contract_module(
                 r"use {component_parent_path}[\w:]*\w+::[{{\w, \n]*ImmutableConfig(?:\s+as\s+(\w+))?[{{\w}}, \n]*;"
             ))
             .unwrap();
-            if let Some(captures) = immutable_config_import_re.captures(&code) {
+            if let Some(captures) = immutable_config_import_re.captures(&body_code) {
                 // Use the alias if present, otherwise use "ImmutableConfig"
                 let config_name = captures.get(1).map_or("ImmutableConfig", |m| m.as_str());
                 let imported_immutable_config_implemented =
-                    code.contains(&format!("of {config_name}"));
+                    body_code.contains(&format!("of {config_name}"));
                 if imported_immutable_config_implemented {
                     continue;
                 }

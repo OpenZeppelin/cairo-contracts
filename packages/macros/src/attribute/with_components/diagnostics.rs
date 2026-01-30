@@ -18,6 +18,10 @@ pub mod errors {
     pub fn MULTIPLE_ACCESS_CONTROL_COMPONENTS(components: &str) -> String {
         format!("Only one AccessControl component can be used. Found: [{components}].\n")
     }
+
+    /// Error when `ERC721Enumerable` is used together with `ERC721Consecutive`.
+    pub const ERC721_BALANCE_OF_INCOPATIBILITY: &str =
+        "ERC721Enumerable and ERC721Consecutive interfere with each other in token ownership tracking and should not be used together.\n";
 }
 
 #[allow(non_snake_case)]

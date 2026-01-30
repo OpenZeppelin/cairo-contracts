@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v3.0.0 (presets/src/meta_tx_v0.cairo)
+// OpenZeppelin Contracts for Cairo v4.0.0-alpha.0 (presets/src/meta_tx_v0.cairo)
 
 #[starknet::contract]
 pub mod MetaTransactionV0 {

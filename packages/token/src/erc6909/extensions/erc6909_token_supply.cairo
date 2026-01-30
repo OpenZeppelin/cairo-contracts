@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v3.0.0 (token/src/erc6909/extensions/erc6909_token_supply.cairo)
+// OpenZeppelin Contracts for Cairo v4.0.0-alpha.0 (token/src/erc6909/extensions/erc6909_token_supply.cairo)
 
 /// # ERC6909TokenSupply Component
 ///

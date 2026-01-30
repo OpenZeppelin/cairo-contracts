@@ -45,6 +45,9 @@
     "openzeppelin_test_common_ERC1155SupplyMock.compiled_contract_class.json": {
       "felts": 10435
     },
+    "openzeppelin_test_common_ERC1155URIStorageMock.compiled_contract_class.json": {
+      "felts": 11325
+    },
     "openzeppelin_test_common_ERC20BlockNumberVotesMock.compiled_contract_class.json": {
       "felts": 13648
     },
@@ -130,7 +133,7 @@
       "felts": 17889
     },
     "openzeppelin_test_common_ERC721URIStorageMock.compiled_contract_class.json": {
-      "felts": 12720
+      "felts": 13068
     },
     "openzeppelin_test_common_ERC721WrapperMock.compiled_contract_class.json": {
       "felts": 9910
@@ -278,6 +281,9 @@
     "openzeppelin_test_common_ERC1155SupplyMock.contract_class.json": {
       "bytes": 235154
     },
+    "openzeppelin_test_common_ERC1155URIStorageMock.contract_class.json": {
+      "bytes": 256026
+    },
     "openzeppelin_test_common_ERC20BlockNumberVotesMock.contract_class.json": {
       "bytes": 299369
     },
@@ -363,7 +369,7 @@
       "bytes": 380855
     },
     "openzeppelin_test_common_ERC721URIStorageMock.contract_class.json": {
-      "bytes": 275404
+      "bytes": 283591
     },
     "openzeppelin_test_common_ERC721WrapperMock.contract_class.json": {
       "bytes": 222596

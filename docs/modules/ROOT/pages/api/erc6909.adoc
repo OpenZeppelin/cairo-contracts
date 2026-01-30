@@ -17,7 +17,7 @@ documented here are contained in the `openzeppelin_interfaces` package version `
 
 [.contract]
 [[IERC6909]]
-=== `++IERC6909++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.3/packages/interfaces/src/token/erc6909.cairo[{github-icon},role=heading-link]
+=== `++IERC6909++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v4.0.0-alpha.0-alpha.3/packages/interfaces/src/token/erc6909.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -128,7 +128,7 @@ Emitted when `owner` enables or disables `spender` as an operator over all token
 
 [.contract]
 [[IERC6909ContentUri]]
-=== `++IERC6909ContentUri++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.3/packages/interfaces/src/token/erc6909.cairo[{github-icon},role=heading-link]
+=== `++IERC6909ContentUri++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v4.0.0-alpha.0-alpha.3/packages/interfaces/src/token/erc6909.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -166,7 +166,7 @@ Returns the token-level URI for token `id`.
 
 [.contract]
 [[IERC6909Metadata]]
-=== `++IERC6909Metadata++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.3/packages/interfaces/src/token/erc6909.cairo[{github-icon},role=heading-link]
+=== `++IERC6909Metadata++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v4.0.0-alpha.0-alpha.3/packages/interfaces/src/token/erc6909.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -211,7 +211,7 @@ Returns the number of decimals of token `id`.
 
 [.contract]
 [[IERC6909TokenSupply]]
-=== `++IERC6909TokenSupply++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.3/packages/interfaces/src/token/erc6909.cairo[{github-icon},role=heading-link]
+=== `++IERC6909TokenSupply++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v4.0.0-alpha.0-alpha.3/packages/interfaces/src/token/erc6909.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -244,7 +244,7 @@ Returns the total supply of token `id`.
 
 [.contract]
 [[ERC6909Component]]
-=== `++ERC6909Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.3/packages/token/src/erc6909/erc6909.cairo[{github-icon},role=heading-link]
+=== `++ERC6909Component++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v4.0.0-alpha.0-alpha.3/packages/token/src/erc6909/erc6909.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -528,7 +528,7 @@ See <<IERC6909-OperatorSet,IERC6909::OperatorSet>>.
 
 [.contract]
 [[ERC6909ContentURIComponent]]
-=== `++ERC6909ContentURIComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.3/packages/token/src/erc6909/extensions/erc6909_content_uri.cairo[{github-icon},role=heading-link]
+=== `++ERC6909ContentURIComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v4.0.0-alpha.0-alpha.3/packages/token/src/erc6909/extensions/erc6909_content_uri.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -622,7 +622,7 @@ Emitted when the URI for token `id` is changed to `value`.
 
 [.contract]
 [[ERC6909MetadataComponent]]
-=== `++ERC6909MetadataComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.3/packages/token/src/erc6909/extensions/erc6909_metadata.cairo[{github-icon},role=heading-link]
+=== `++ERC6909MetadataComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v4.0.0-alpha.0-alpha.3/packages/token/src/erc6909/extensions/erc6909_metadata.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo
@@ -740,7 +740,7 @@ Emitted when the decimals value for token of type `id` was updated to `new_decim
 
 [.contract]
 [[ERC6909TokenSupplyComponent]]
-=== `++ERC6909TokenSupplyComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v3.0.0-alpha.3/packages/token/src/erc6909/extensions/erc6909_token_supply.cairo[{github-icon},role=heading-link]
+=== `++ERC6909TokenSupplyComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v4.0.0-alpha.0-alpha.3/packages/token/src/erc6909/extensions/erc6909_token_supply.cairo[{github-icon},role=heading-link]
 
 [.hljs-theme-dark]
 ```cairo

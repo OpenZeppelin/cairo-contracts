@@ -1,15 +1,15 @@
 // Version
-:class-hash-cairo-version: https://crates.io/crates/cairo-lang-compiler/2.13.1[cairo 2.13.1]
+:class-hash-cairo-version: https://crates.io/crates/cairo-lang-compiler/2.15.0[cairo 2.15.0]
 
 // Class Hashes
-:ERC20Upgradeable-class-hash: 0x0385b75aa04cfee201d2e2de42daf00a839367cfd740e9042766b447d891fea0
-:ERC721Upgradeable-class-hash: 0x0356fbb89f6a6574ff97c4ecc5fe97808785ce0b093c8e864b87a184f48dbd9e
-:ERC1155Upgradeable-class-hash: 0x05a6d419c7a599c9731e8e3a8a710b1f49b4857c65bd4d697a391772f96373c1
-:AccountUpgradeable-class-hash: 0x01d1777db36cdd06dd62cfde77b1b6ae06412af95d57a13dc40ac77b8a702381
-:EthAccountUpgradeable-class-hash: 0x000b5bcc16b8b0d86c24996e22206f6071bb8d7307837a02720f0ce2fa1b3d7c
-:UniversalDeployer-class-hash: 0x01724ff2f76fcddb8f4079d35783655e6d61935a281425721e98607cc480ef56
-:MetaTransactionV0-class-hash: 0x03ad59366e049ecc83d7b4842ae73478a18e73761f72c1ad4c4b188fb7673e9f
-:VestingWallet-class-hash: 0x00540c7f907539e1a283318fb3da16f1bf9d9e60ad10c20d0557a0185043b08f
+:ERC20Upgradeable-class-hash: 0x01489445784d82a7d7c72ab1955fc29013ddd0d0f9dc9a6dc54bd190e78cc81c
+:ERC721Upgradeable-class-hash: 0x0755b5aa6b6f6b32632f8d727d8cb556b0820068c5d9bc105eea4768ac725437
+:ERC1155Upgradeable-class-hash: 0x0524ad6e581f28db2961c6e7a600861dae4a6f278b498fbd6a188bd52ba9e3b7
+:AccountUpgradeable-class-hash: 0x01334e20dc6c9945b17add241d5e9a24ed6ad46625b5edbed14b489f7c39cb40
+:EthAccountUpgradeable-class-hash: 0x0448cbbbeb641b28bbf347dbb4f2e17795515411c3239b09261a6fe19d989437
+:UniversalDeployer-class-hash: 0x010af1a5514b315052573c7ce4ee68b57a02b0b881fa69ab03dcfe1dcb0480ed
+:MetaTransactionV0-class-hash: 0x041947a8e3f17c97bed73613e6570a7693eaf0890b83db5bbe746d4b03012822
+:VestingWallet-class-hash: 0x068c316f81947e20b47e3263c50ed81297257055831a2a9ad9bd74597aacf024
 
 // Presets page
 :presets-page: xref:presets.adoc[Sierra class hash]

@@ -8,14 +8,14 @@ ROOT_DIR = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "packa
 
 def parse_args() -> Tuple[str, str, str]:
     p = argparse.ArgumentParser(description="Update README.md links for versioning rules.")
-    p.add_argument("--new-version", required=True, help="New library version (e.g. 3.0.0 or 3.0.0-alpha.2)")
+    p.add_argument("--new-version", required=True, help="New library version (e.g. 4.0.0-alpha.0 or 4.0.0-alpha.0-alpha.2)")
     p.add_argument("--current-version", required=True, help="Current library version (e.g. 2.5.1 or 2.5.1-alpha)")
     p.add_argument("--root", default=ROOT_DIR, help="Root directory (default: ../packages)")
     args = p.parse_args()
     return args.new_version.strip(), args.current_version.strip(), os.path.abspath(args.root)
 
 def major_of(v: str) -> str:
-    # Extract major version number from a semver-like string: e.g., "3.0.0" -> "3"
+    # Extract major version number from a semver-like string: e.g., "4.0.0-alpha.0" -> "3"
     # Falls back to empty string if not found.
     m = re.match(r"^\s*(\d+)(?:\.\d+){0,2}\s*(?:[-+].*)?$", v)
     return m.group(1) if m else ""

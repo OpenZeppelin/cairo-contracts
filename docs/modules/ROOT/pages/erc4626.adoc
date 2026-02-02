@@ -205,7 +205,7 @@ compliant with the ERC4626 requirements regarding the preview functions. Fees ar
 implementation. By default, the ERC4626 component charges no fees. If this is the desired behavior, you can use the default 
 {no_fees_impl} implementation.
 
-NOTE: Starting from v3.0.0, fees can be charged in either assets or shares. Prior versions only supported fees taken in assets. 
+NOTE: Starting from v4.0.0-alpha.0, fees can be charged in either assets or shares. Prior versions only supported fees taken in assets. 
 See the updated {fee_config_trait} and implementation examples in {erc4626_mocks}.
 
 For example, if calling `deposit(100, receiver)`, the caller should deposit exactly 100 underlying tokens, including fees, and the receiver should receive a number of shares that matches the value returned by `preview_deposit(100)`.

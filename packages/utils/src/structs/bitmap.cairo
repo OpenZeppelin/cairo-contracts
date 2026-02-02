@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v3.0.0 (utils/src/structs/bitmap.cairo)
+// OpenZeppelin Contracts for Cairo v4.0.0-alpha.0 (utils/src/structs/bitmap.cairo)
 
 use core::num::traits::{Bounded, Pow, Zero};
 use core::traits::DivRem;

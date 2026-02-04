@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
-- Bump snforge to v0.55.0 (#1631)
+- Bump snforge to v0.56.0 (#1648)
 
 ## 6.3.0 (2025-12-24)
 

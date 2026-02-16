@@ -501,27 +501,74 @@ pub impl DefaultConfig of ERC2981Component::ImmutableConfig {
 
 #[cfg(test)]
 mod tests {
-    use openzeppelin_test_common::mocks::erc2981::ERC2981Mock;
-    use super::ERC2981Component;
-    use super::ERC2981Component::InternalImpl;
+    mod zero_fee_denominator {
+        use openzeppelin_test_common::mocks::erc2981::ERC2981Mock;
+        use super::super::ERC2981Component;
+        use super::super::ERC2981Component::InternalImpl;
 
-    type ComponentState = ERC2981Component::ComponentState<ERC2981Mock::ContractState>;
+        type ComponentState = ERC2981Component::ComponentState<ERC2981Mock::ContractState>;
 
-    fn COMPONENT_STATE() -> ComponentState {
-        ERC2981Component::component_state_for_testing()
+        fn COMPONENT_STATE() -> ComponentState {
+            ERC2981Component::component_state_for_testing()
+        }
+
+        impl ImmutableConfig of ERC2981Component::ImmutableConfig {
+            const FEE_DENOMINATOR: u128 = 0;
+        }
+
+        #[test]
+        #[should_panic(expected: 'Invalid fee denominator')]
+        fn test_validate_panics() {
+            let mut state = COMPONENT_STATE();
+            let receiver = 'DEFAULT_RECEIVER'.try_into().unwrap();
+            state.initializer(receiver, 50);
+        }
     }
 
-    // Invalid fee denominator
-    impl InvalidImmutableConfig of ERC2981Component::ImmutableConfig {
-        const FEE_DENOMINATOR: u128 = 0;
+    mod boundary_fee_denominator {
+        use openzeppelin_test_common::mocks::erc2981::ERC2981Mock;
+        use super::super::ERC2981Component;
+        use super::super::ERC2981Component::InternalImpl;
+
+        type ComponentState = ERC2981Component::ComponentState<ERC2981Mock::ContractState>;
+
+        fn COMPONENT_STATE() -> ComponentState {
+            ERC2981Component::component_state_for_testing()
+        }
+
+        impl ImmutableConfig of ERC2981Component::ImmutableConfig {
+            const FEE_DENOMINATOR: u128 = 1;
+        }
+
+        #[test]
+        fn test_validate_passes() {
+            let mut state = COMPONENT_STATE();
+            let receiver = 'DEFAULT_RECEIVER'.try_into().unwrap();
+            state.initializer(receiver, 0);
+        }
     }
 
-    #[test]
-    #[should_panic(expected: 'Invalid fee denominator')]
-    fn test_initializer_invalid_config_panics() {
-        let mut state = COMPONENT_STATE();
-        let receiver = 'DEFAULT_RECEIVER'.try_into().unwrap();
+    mod max_fee_denominator {
+        use core::num::traits::Bounded;
+        use openzeppelin_test_common::mocks::erc2981::ERC2981Mock;
+        use super::super::ERC2981Component;
+        use super::super::ERC2981Component::InternalImpl;
 
-        state.initializer(receiver, 50);
+        type ComponentState = ERC2981Component::ComponentState<ERC2981Mock::ContractState>;
+
+        fn COMPONENT_STATE() -> ComponentState {
+            ERC2981Component::component_state_for_testing()
+        }
+
+        impl ImmutableConfig of ERC2981Component::ImmutableConfig {
+            const FEE_DENOMINATOR: u128 = Bounded::<u128>::MAX;
+        }
+
+        #[test]
+        fn test_validate_passes() {
+            let mut state = COMPONENT_STATE();
+            let receiver = 'DEFAULT_RECEIVER'.try_into().unwrap();
+            state.initializer(receiver, 0);
+        }
     }
 }

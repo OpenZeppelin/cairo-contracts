@@ -957,29 +957,126 @@ pub impl DefaultConfig of ERC4626Component::ImmutableConfig {
 }
 
 #[cfg(test)]
-mod Test {
-    use openzeppelin_test_common::mocks::erc4626::ERC4626Mock;
-    use super::ERC4626Component::InternalImpl;
-    use super::{ERC4626Component, ERC4626DefaultNoFees, ERC4626DefaultNoLimits};
+mod tests {
+    mod max_underlying_with_offset {
+        use openzeppelin_test_common::mocks::erc4626::ERC4626Mock;
+        use super::super::ERC4626Component;
+        use super::super::ERC4626Component::InternalImpl;
 
-    type ComponentState = ERC4626Component::ComponentState<ERC4626Mock::ContractState>;
+        type ComponentState = ERC4626Component::ComponentState<ERC4626Mock::ContractState>;
 
-    fn COMPONENT_STATE() -> ComponentState {
-        ERC4626Component::component_state_for_testing()
+        fn COMPONENT_STATE() -> ComponentState {
+            ERC4626Component::component_state_for_testing()
+        }
+
+        impl ImmutableConfig of ERC4626Component::ImmutableConfig {
+            const UNDERLYING_DECIMALS: u8 = 255;
+            const DECIMALS_OFFSET: u8 = 1;
+        }
+
+        #[test]
+        #[should_panic(expected: 'ERC4626: decimals overflow')]
+        fn test_validate_panics() {
+            let mut state = COMPONENT_STATE();
+            let asset = 'ASSET'.try_into().unwrap();
+            state.initializer(asset);
+        }
     }
 
-    // Invalid decimals
-    impl InvalidImmutableConfig of ERC4626Component::ImmutableConfig {
-        const UNDERLYING_DECIMALS: u8 = 255;
-        const DECIMALS_OFFSET: u8 = 1;
+    mod sum_exceeds_max {
+        use openzeppelin_test_common::mocks::erc4626::ERC4626Mock;
+        use super::super::ERC4626Component;
+        use super::super::ERC4626Component::InternalImpl;
+
+        type ComponentState = ERC4626Component::ComponentState<ERC4626Mock::ContractState>;
+
+        fn COMPONENT_STATE() -> ComponentState {
+            ERC4626Component::component_state_for_testing()
+        }
+
+        impl ImmutableConfig of ERC4626Component::ImmutableConfig {
+            const UNDERLYING_DECIMALS: u8 = 128;
+            const DECIMALS_OFFSET: u8 = 128;
+        }
+
+        #[test]
+        #[should_panic(expected: 'ERC4626: decimals overflow')]
+        fn test_validate_panics() {
+            let mut state = COMPONENT_STATE();
+            let asset = 'ASSET'.try_into().unwrap();
+            state.initializer(asset);
+        }
     }
 
-    #[test]
-    #[should_panic(expected: 'ERC4626: decimals overflow')]
-    fn test_initializer_invalid_config_panics() {
-        let mut state = COMPONENT_STATE();
-        let asset = 'ASSET'.try_into().unwrap();
+    mod boundary_valid_config {
+        use openzeppelin_test_common::mocks::erc4626::ERC4626Mock;
+        use super::super::ERC4626Component;
+        use super::super::ERC4626Component::InternalImpl;
 
-        state.initializer(asset);
+        type ComponentState = ERC4626Component::ComponentState<ERC4626Mock::ContractState>;
+
+        fn COMPONENT_STATE() -> ComponentState {
+            ERC4626Component::component_state_for_testing()
+        }
+
+        impl ImmutableConfig of ERC4626Component::ImmutableConfig {
+            const UNDERLYING_DECIMALS: u8 = 127;
+            const DECIMALS_OFFSET: u8 = 128;
+        }
+
+        #[test]
+        fn test_validate_passes() {
+            let mut state = COMPONENT_STATE();
+            let asset = 'ASSET'.try_into().unwrap();
+            state.initializer(asset);
+        }
+    }
+
+    mod max_underlying_zero_offset {
+        use openzeppelin_test_common::mocks::erc4626::ERC4626Mock;
+        use super::super::ERC4626Component;
+        use super::super::ERC4626Component::InternalImpl;
+
+        type ComponentState = ERC4626Component::ComponentState<ERC4626Mock::ContractState>;
+
+        fn COMPONENT_STATE() -> ComponentState {
+            ERC4626Component::component_state_for_testing()
+        }
+
+        impl ImmutableConfig of ERC4626Component::ImmutableConfig {
+            const UNDERLYING_DECIMALS: u8 = 255;
+            const DECIMALS_OFFSET: u8 = 0;
+        }
+
+        #[test]
+        fn test_validate_passes() {
+            let mut state = COMPONENT_STATE();
+            let asset = 'ASSET'.try_into().unwrap();
+            state.initializer(asset);
+        }
+    }
+
+    mod zero_underlying_max_offset {
+        use openzeppelin_test_common::mocks::erc4626::ERC4626Mock;
+        use super::super::ERC4626Component;
+        use super::super::ERC4626Component::InternalImpl;
+
+        type ComponentState = ERC4626Component::ComponentState<ERC4626Mock::ContractState>;
+
+        fn COMPONENT_STATE() -> ComponentState {
+            ERC4626Component::component_state_for_testing()
+        }
+
+        impl ImmutableConfig of ERC4626Component::ImmutableConfig {
+            const UNDERLYING_DECIMALS: u8 = 0;
+            const DECIMALS_OFFSET: u8 = 255;
+        }
+
+        #[test]
+        fn test_validate_passes() {
+            let mut state = COMPONENT_STATE();
+            let asset = 'ASSET'.try_into().unwrap();
+            state.initializer(asset);
+        }
     }
 }

@@ -438,21 +438,12 @@ pub mod ERC721URIStorageMock {
 }
 
 #[starknet::contract]
-#[with_components(ERC721, SRC5)]
+#[with_components(ERC721, ERC721Consecutive, SRC5)]
 pub mod ERC721ConsecutiveMock {
     use openzeppelin_token::erc721::ERC721TokenURIDefaultImpl;
-    use openzeppelin_token::erc721::extensions::erc721_consecutive::ERC721ConsecutiveComponent::InternalImpl;
-    use openzeppelin_token::erc721::extensions::erc721_consecutive::{
-        DefaultConfig, ERC721ConsecutiveComponent,
-    };
+    use openzeppelin_token::erc721::extensions::erc721_consecutive::DefaultConfig;
     use starknet::ContractAddress;
     use super::{IERC721Burnable, IERC721ConsecutiveMintable};
-
-    component!(
-        path: ERC721ConsecutiveComponent,
-        storage: erc721_consecutive,
-        event: ERC721ConsecutiveEvent,
-    );
 
     #[abi(embed_v0)]
     impl ERC721Impl = ERC721Component::ERC721Impl<ContractState>;
@@ -460,17 +451,7 @@ pub mod ERC721ConsecutiveMock {
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[storage]
-    struct Storage {
-        #[substorage(v0)]
-        erc721_consecutive: ERC721ConsecutiveComponent::Storage,
-    }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        #[flat]
-        ERC721ConsecutiveEvent: ERC721ConsecutiveComponent::Event,
-    }
+    struct Storage {}
 
     #[constructor]
     fn constructor(
@@ -523,21 +504,12 @@ pub mod ERC721ConsecutiveMock {
 }
 
 #[starknet::contract]
-#[with_components(ERC721, SRC5)]
+#[with_components(ERC721, ERC721Consecutive, SRC5)]
 pub mod ERC721ConsecutiveMultiBatchMock {
     use openzeppelin_token::erc721::ERC721TokenURIDefaultImpl;
-    use openzeppelin_token::erc721::extensions::erc721_consecutive::ERC721ConsecutiveComponent::InternalImpl;
-    use openzeppelin_token::erc721::extensions::erc721_consecutive::{
-        DefaultConfig, ERC721ConsecutiveComponent,
-    };
+    use openzeppelin_token::erc721::extensions::erc721_consecutive::DefaultConfig;
     use starknet::ContractAddress;
     use super::IERC721Burnable;
-
-    component!(
-        path: ERC721ConsecutiveComponent,
-        storage: erc721_consecutive,
-        event: ERC721ConsecutiveEvent,
-    );
 
     #[abi(embed_v0)]
     impl ERC721Impl = ERC721Component::ERC721Impl<ContractState>;
@@ -551,17 +523,7 @@ pub mod ERC721ConsecutiveMultiBatchMock {
     impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
 
     #[storage]
-    struct Storage {
-        #[substorage(v0)]
-        erc721_consecutive: ERC721ConsecutiveComponent::Storage,
-    }
-
-    #[event]
-    #[derive(Drop, starknet::Event)]
-    enum Event {
-        #[flat]
-        ERC721ConsecutiveEvent: ERC721ConsecutiveComponent::Event,
-    }
+    struct Storage {}
 
     #[constructor]
     fn constructor(

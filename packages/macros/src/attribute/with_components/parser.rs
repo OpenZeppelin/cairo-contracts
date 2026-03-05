@@ -152,8 +152,12 @@ fn validate_contract_module(
         // 4. Disallow ERC721Enumerable and ERC721Consecutive being used together (error)
         let uses_erc721_enumerable = components_info
             .iter()
-            .any(|c| matches!(c.kind(), AllowedComponents::ERC721Enumerable));
-        let uses_erc721_consecutive = body_code.contains("ERC721Consecutive");
+            .any(|c| matches!(c.kind(), AllowedComponents::ERC721Enumerable))
+            || body_code.contains("ERC721Enumerable");
+        let uses_erc721_consecutive = components_info
+            .iter()
+            .any(|c| matches!(c.kind(), AllowedComponents::ERC721Consecutive))
+            || body_code.contains("ERC721Consecutive");
         if uses_erc721_enumerable && uses_erc721_consecutive {
             let error = Diagnostic::error(errors::ERC721_BALANCE_OF_INCOPATIBILITY);
             return (vec![error], vec![]);
@@ -383,6 +387,16 @@ fn add_per_component_warnings(code: &str, component_info: &ComponentInfo) -> Vec
                 || code.contains("ERC721URIStorageInternalImpl::after_update(");
             if !hook_called {
                 let warning = Diagnostic::warn(warnings::ERC721_URI_STORAGE_HOOKS_MISSING);
+                warnings.push(warning);
+            }
+        }
+        AllowedComponents::ERC721Consecutive => {
+            let before_update_called = code.contains("erc721_consecutive.before_update(")
+                || code.contains("ERC721ConsecutiveInternalImpl::before_update(");
+            let after_update_called = code.contains("erc721_consecutive.after_update(")
+                || code.contains("ERC721ConsecutiveInternalImpl::after_update(");
+            if !before_update_called || !after_update_called {
+                let warning = Diagnostic::warn(warnings::ERC721_CONSECUTIVE_HOOKS_MISSING);
                 warnings.push(warning);
             }
         }

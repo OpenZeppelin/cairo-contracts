@@ -202,7 +202,7 @@ fn validate_contract_module(
             }
         }
 
-        // 6. Check that the contract has the corresponding immutable configs
+        // 6. Check that the contract has the corresponding immutable configs (warning)
         for component in components_info.iter().filter(|c| c.has_immutable_config) {
             // Case 1: DefaultConfig is imported and used
             let component_parent_path = component

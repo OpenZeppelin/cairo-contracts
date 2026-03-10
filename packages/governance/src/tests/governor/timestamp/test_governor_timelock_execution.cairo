@@ -381,8 +381,8 @@ fn test_execute_operations() {
 
     // 3. Cast vote
 
-    // Fast forward the vote delay
-    current_time += GovernorTimelockedMock::VOTING_DELAY;
+    // Fast forward to voting start
+    current_time = resolve_voting_start(current_time);
     start_cheat_block_timestamp_global(current_time);
 
     // Cast vote
@@ -458,8 +458,8 @@ fn test_queue_operations() {
 
     // 3. Cast vote
 
-    // Fast forward the vote delay
-    current_time += GovernorTimelockedMock::VOTING_DELAY;
+    // Fast forward to voting start
+    current_time = resolve_voting_start(current_time);
     start_cheat_block_timestamp_global(current_time);
 
     // Cast vote
@@ -535,8 +535,8 @@ fn test_cancel_operations_queued() {
 
     // 3. Cast vote
 
-    // Fast forward the vote delay
-    current_time += GovernorTimelockedMock::VOTING_DELAY;
+    // Fast forward to voting start
+    current_time = resolve_voting_start(current_time);
     start_cheat_block_timestamp_global(current_time);
 
     // Cast vote
@@ -689,6 +689,12 @@ fn timelock_salt(contract_address: ContractAddress, description_hash: felt252) -
 fn initialize_votes_component(votes_token: ContractAddress) {
     let mut mock_state = CONTRACT_STATE();
     mock_state.governor_votes.initializer(votes_token);
+}
+
+fn resolve_voting_start(propose_timepoint: u64) -> u64 {
+    let voting_delay = GovernorTimelockedMock::VOTING_DELAY;
+    let snapshot_timepoint = propose_timepoint + voting_delay;
+    snapshot_timepoint + 1
 }
 
 //

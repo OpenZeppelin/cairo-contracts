@@ -7,6 +7,7 @@ pub trait IMockTrace<TContractState> {
     fn get_at_position(self: @TContractState, pos: u64) -> Checkpoint;
     fn upper_lookup(self: @TContractState, key: u64) -> u256;
     fn upper_lookup_recent(self: @TContractState, key: u64) -> u256;
+    fn lower_lookup(self: @TContractState, key: u64) -> u256;
     fn get_length(self: @TContractState) -> u64;
 }
 
@@ -39,6 +40,10 @@ pub mod MockTrace {
 
         fn upper_lookup_recent(self: @ContractState, key: u64) -> u256 {
             self.trace.deref().upper_lookup_recent(key)
+        }
+
+        fn lower_lookup(self: @ContractState, key: u64) -> u256 {
+            self.trace.deref().lower_lookup(key)
         }
 
         fn get_length(self: @ContractState) -> u64 {

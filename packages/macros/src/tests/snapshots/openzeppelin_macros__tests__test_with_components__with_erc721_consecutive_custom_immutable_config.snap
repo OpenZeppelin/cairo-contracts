@@ -1,0 +1,52 @@
+---
+source: src/tests/test_with_components.rs
+expression: result
+snapshot_kind: text
+---
+TokenStream:
+
+#[starknet::contract]
+pub mod MyContract {
+    use openzeppelin_token::erc721::extensions::ERC721ConsecutiveComponent;
+    pub impl ERC721ConsecutiveConfig of ERC721ConsecutiveComponent::ImmutableConfig {
+        const MAX_BATCH_SIZE: u64 = 4200;
+        const FIRST_CONSECUTIVE_ID: u64 = 42;
+    }
+    #[storage]
+    pub struct Storage {
+        #[substorage(v0)]
+        pub erc721_consecutive: ERC721ConsecutiveComponent::Storage,
+    }
+    use openzeppelin_token::erc721::extensions::ERC721ConsecutiveComponent;
+
+    component!(
+        path: ERC721ConsecutiveComponent,
+        storage: erc721_consecutive,
+        event: ERC721ConsecutiveEvent,
+    );
+
+    impl ERC721ConsecutiveInternalImpl = ERC721ConsecutiveComponent::InternalImpl<ContractState>;
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        ERC721ConsecutiveEvent: ERC721ConsecutiveComponent::Event,
+    }
+}
+
+
+Diagnostics:
+
+====
+Warning: The ERC721Consecutive component requires calling both
+`self.erc721_consecutive.before_update(...)` in `ERC721HooksTrait::before_update`
+and `self.erc721_consecutive.after_update(...)` in `ERC721HooksTrait::after_update`,
+and it looks like one or both are missing.
+
+This may lead to incorrect ownership or burn tracking for consecutively minted tokens.
+====
+
+AuxData:
+
+None

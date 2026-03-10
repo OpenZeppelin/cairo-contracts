@@ -951,6 +951,57 @@ fn test_with_erc721_enumerable() {
 }
 
 #[test]
+fn test_with_erc721_consecutive() {
+    let attribute = quote! { (ERC721Consecutive) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod MyContract {
+            use openzeppelin_token::erc721::extensions::DefaultConfig;
+
+            #[storage]
+            pub struct Storage {}
+        }
+    };
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_erc721_consecutive_no_config() {
+    let attribute = quote! { (ERC721Consecutive) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod MyContract {
+            #[storage]
+            pub struct Storage {}
+        }
+    };
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_erc721_consecutive_custom_immutable_config() {
+    let attribute = quote! { (ERC721Consecutive) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod MyContract {
+            use openzeppelin_token::erc721::extensions::ERC721ConsecutiveComponent;
+
+            pub impl ERC721ConsecutiveConfig of ERC721ConsecutiveComponent::ImmutableConfig {
+                const MAX_BATCH_SIZE: u64 = 4200;
+                const FIRST_CONSECUTIVE_ID: u64 = 42;
+            }
+
+            #[storage]
+            pub struct Storage {}
+        }
+    };
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
 fn test_with_erc721_enumerable_with_hooks() {
     let attribute = quote! { (ERC721Enumerable) };
     let item = quote! {
@@ -1000,11 +1051,57 @@ fn test_with_erc721_enumerable_no_initializer() {
 
 #[test]
 fn test_cannot_use_erc721_enumerable_with_erc721_consecutive() {
+    let attribute = quote! { (ERC721Enumerable, ERC721Consecutive) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod MyContract {
+            use openzeppelin_token::erc721::extensions::DefaultConfig;
+
+            #[storage]
+            pub struct Storage {}
+        }
+    };
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_cannot_use_erc721_consecutive_with_manual_erc721_enumerable() {
+    let attribute = quote! { (ERC721Consecutive) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod MyContract {
+            use openzeppelin_token::erc721::extensions::DefaultConfig;
+            use openzeppelin_token::erc721::extensions::ERC721EnumerableComponent;
+
+            component!(
+                path: ERC721EnumerableComponent,
+                storage: erc721_enumerable,
+                event: ERC721EnumerableEvent,
+            );
+
+            #[storage]
+            pub struct Storage {}
+        }
+    };
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_cannot_use_erc721_enumerable_with_manual_erc721_consecutive() {
     let attribute = quote! { (ERC721Enumerable) };
     let item = quote! {
         #[starknet::contract]
         pub mod MyContract {
+            use openzeppelin_token::erc721::extensions::DefaultConfig;
             use openzeppelin_token::erc721::extensions::ERC721ConsecutiveComponent;
+
+            component!(
+                path: ERC721ConsecutiveComponent,
+                storage: erc721_consecutive,
+                event: ERC721ConsecutiveEvent,
+            );
 
             #[storage]
             pub struct Storage {}

@@ -165,6 +165,17 @@ pub mod warnings {
         "
     };
 
+    /// Warning when the ERC721Consecutive hook calls are missing.
+    pub const ERC721_CONSECUTIVE_HOOKS_MISSING: &str = indoc! {
+        "The ERC721Consecutive component requires calling both
+        `self.erc721_consecutive.before_update(...)` in `ERC721HooksTrait::before_update`
+        and `self.erc721_consecutive.after_update(...)` in `ERC721HooksTrait::after_update`,
+        and it looks like one or both are missing.
+
+        This may lead to incorrect ownership or burn tracking for consecutively minted tokens.
+        "
+    };
+
     /// Warning when the ERC4626 component is missing an implementation of the ERC4626HooksTrait.
     pub const ERC4626_HOOKS_IMPL_MISSING: &str = indoc! {
         "The ERC4626 component requires an implementation of the ERC4626HooksTrait in scope and

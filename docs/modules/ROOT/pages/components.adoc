@@ -561,7 +561,7 @@ mod ERC20Pausable {
     use openzeppelin_security::pausable::PausableComponent;
     use openzeppelin_token::erc20::{ERC20Component, ERC20HooksEmptyImpl, DefaultConfig};
     // Import the ERC20 interfaces to create custom implementations
-    use openzeppelin_interfaces::erc20::{IERC20, IERC20CamelOnly};
+    use openzeppelin::interfaces::erc20::{IERC20, IERC20CamelOnly};
     use starknet::ContractAddress;
 
     component!(path: PausableComponent, storage: pausable, event: PausableEvent);

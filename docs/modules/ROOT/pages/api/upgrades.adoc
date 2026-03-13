@@ -10,7 +10,7 @@ This crate provides interfaces and utilities related to upgradeability.
 include::../utils/_common.adoc[]
 
 NOTE: Starting from version `3.x.x`, the interfaces are no longer part of the `openzeppelin_upgrades` package. The references
-documented here are contained in the `openzeppelin_interfaces` package version `v{current_openzeppelin_interfaces_version}`.
+documented here are contained in the `openzeppelin::interfaces` package version `v{current_openzeppelin::interfaces_version}`.
 
 [.contract]
 [[IUpgradeable]]
@@ -19,7 +19,7 @@ documented here are contained in the `openzeppelin_interfaces` package version `
 :Upgraded: xref:UpgradeableComponent-Upgraded[Upgraded]
 
 ```cairo
-use openzeppelin_interfaces::upgrades::IUpgradeable;
+use openzeppelin::interfaces::upgrades::IUpgradeable;
 ```
 
 Interface of an upgradeable contract.
@@ -48,7 +48,7 @@ NOTE: This function is usually protected by an xref:access.adoc[Access Control] 
 :Upgraded: xref:UpgradeableComponent-Upgraded[Upgraded]
 
 ```cairo
-use openzeppelin_interfaces::upgrades::IUpgradeAndCall;
+use openzeppelin::interfaces::upgrades::IUpgradeAndCall;
 ```
 
 Interface for an upgradeable contract that couples an upgrade with a function call in the upgraded context.

@@ -11,14 +11,14 @@ This crate handles https://en.wikipedia.org/wiki/Type_introspection[type introsp
 include::../utils/_common.adoc[]
 
 NOTE: Starting from version `3.x.x`, the interfaces are no longer part of the `openzeppelin_introspection` package. The references
-documented here are contained in the `openzeppelin_interfaces` package version `v{current_openzeppelin_interfaces_version}`.
+documented here are contained in the `openzeppelin::interfaces` package version `v{current_openzeppelin::interfaces_version}`.
 
 [.contract]
 [[ISRC5]]
 === `++ISRC5++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v4.0.0-alpha.0/packages/interfaces/src/introspection.cairo[{github-icon},role=heading-link]
 
 ```cairo
-use openzeppelin_interfaces::introspection::ISRC5;
+use openzeppelin::interfaces::introspection::ISRC5;
 ```
 
 Interface of the SRC5 Introspection Standard as defined in {snip5}.

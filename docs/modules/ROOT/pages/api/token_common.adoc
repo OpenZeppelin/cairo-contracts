@@ -11,7 +11,7 @@ This module provides extensions and utilities that are common to multiple token 
 == Interfaces
 
 NOTE: Starting from version `3.x.x`, the interfaces are no longer part of the `openzeppelin_token` package. The references
-documented here are contained in the `openzeppelin_interfaces` package version `v{current_openzeppelin_interfaces_version}`.
+documented here are contained in the `openzeppelin::interfaces` package version `v{current_openzeppelin::interfaces_version}`.
 
 [.contract]
 [[IERC2981]]
@@ -19,7 +19,7 @@ documented here are contained in the `openzeppelin_interfaces` package version `
 
 [.hljs-theme-dark]
 ```cairo
-use openzeppelin_interfaces::erc2981::IERC2981;
+use openzeppelin::interfaces::erc2981::IERC2981;
 ```
 
 [.contract-index]
@@ -53,7 +53,7 @@ unit of exchange.
 
 [.hljs-theme-dark]
 ```cairo
-use openzeppelin_interfaces::erc2981::IERC2981Info;
+use openzeppelin::interfaces::erc2981::IERC2981Info;
 ```
 
 Interface providing external read functions for discovering the state of ERC2981 component.
@@ -98,7 +98,7 @@ The returned tuple contains:
 
 [.hljs-theme-dark]
 ```cairo
-use openzeppelin_interfaces::erc2981::IERC2981Admin;
+use openzeppelin::interfaces::erc2981::IERC2981Admin;
 ```
 
 Interface providing external admin functions for managing the settings of ERC2981 component.

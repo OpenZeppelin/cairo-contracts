@@ -9,14 +9,14 @@ Reference of the Universal Deployer Contract (UDC) interface and preset.
 include::../utils/_common.adoc[]
 
 NOTE: Starting from version `3.x.x`, the interfaces are no longer part of the `openzeppelin_utils` package. The references
-documented here are contained in the `openzeppelin_interfaces` package version `v{current_openzeppelin_interfaces_version}`.
+documented here are contained in the `openzeppelin::interfaces` package version `v{current_openzeppelin::interfaces_version}`.
 
 [.contract]
 [[IUniversalDeployer]]
 === `++IUniversalDeployer++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v4.0.0-alpha.0/packages/interfaces/src/utils/deployments.cairo[{github-icon},role=heading-link]
 
 ```cairo
-use openzeppelin_interfaces::deployments::IUniversalDeployer;
+use openzeppelin::interfaces::deployments::IUniversalDeployer;
 ```
 
 [.contract-index]

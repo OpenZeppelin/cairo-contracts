@@ -13,7 +13,7 @@ TIP: For an overview of ERC6909, read our xref:erc6909.adoc[ERC6909 guide].
 == Interfaces
 
 NOTE: Starting from version `3.x.x`, the interfaces are no longer part of the `openzeppelin_token` package. The references
-documented here are contained in the `openzeppelin_interfaces` package version `v{current_openzeppelin_interfaces_version}`.
+documented here are contained in the `openzeppelin::interfaces` package version `v{current_openzeppelin::interfaces_version}`.
 
 [.contract]
 [[IERC6909]]
@@ -21,7 +21,7 @@ documented here are contained in the `openzeppelin_interfaces` package version `
 
 [.hljs-theme-dark]
 ```cairo
-use openzeppelin_interfaces::erc6909::IERC6909;
+use openzeppelin::interfaces::erc6909::IERC6909;
 ```
 
 Interface of the IERC6909 minimal multi-token standard as defined in {eip6909}.
@@ -132,7 +132,7 @@ Emitted when `owner` enables or disables `spender` as an operator over all token
 
 [.hljs-theme-dark]
 ```cairo
-use openzeppelin_interfaces::erc6909::IERC6909ContentUri;
+use openzeppelin::interfaces::erc6909::IERC6909ContentUri;
 ```
 
 Interface for contract-level and token-level URIs in {eip6909}.
@@ -170,7 +170,7 @@ Returns the token-level URI for token `id`.
 
 [.hljs-theme-dark]
 ```cairo
-use openzeppelin_interfaces::erc6909::IERC6909Metadata;
+use openzeppelin::interfaces::erc6909::IERC6909Metadata;
 ```
 
 Interface for per-token metadata in {eip6909}.
@@ -215,7 +215,7 @@ Returns the number of decimals of token `id`.
 
 [.hljs-theme-dark]
 ```cairo
-use openzeppelin_interfaces::erc6909::IERC6909TokenSupply;
+use openzeppelin::interfaces::erc6909::IERC6909TokenSupply;
 ```
 
 Interface for querying per-token total supply in {eip6909}.

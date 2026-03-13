@@ -19,7 +19,7 @@ TIP: For an overview of ERC20, read our {erc20-guide}.
 == Interfaces
 
 NOTE: Starting from version `3.x.x`, the interfaces are no longer part of the `openzeppelin_token` package. The references
-documented here are contained in the `openzeppelin_interfaces` package version `v{current_openzeppelin_interfaces_version}`.
+documented here are contained in the `openzeppelin::interfaces` package version `v{current_openzeppelin::interfaces_version}`.
 
 [.contract]
 [[IERC20]]
@@ -27,7 +27,7 @@ documented here are contained in the `openzeppelin_interfaces` package version `
 
 [.hljs-theme-dark]
 ```cairo
-use openzeppelin_interfaces::erc20::IERC20;
+use openzeppelin::interfaces::erc20::IERC20;
 ```
 
 Interface of the IERC20 standard as defined in {eip20}.
@@ -125,7 +125,7 @@ Emitted when the allowance of a `spender` for an `owner` is set.
 
 [.hljs-theme-dark]
 ```cairo
-use openzeppelin_interfaces::erc20::IERC20Metadata;
+use openzeppelin::interfaces::erc20::IERC20Metadata;
 ```
 
 Interface for the optional metadata functions in {eip20}.
@@ -173,7 +173,7 @@ NOTE: This information is only used for _display_ purposes: it in no way affects
 
 [.hljs-theme-dark]
 ```cairo
-use openzeppelin_interfaces::erc20::IERC20Permit;
+use openzeppelin::interfaces::erc20::IERC20Permit;
 ```
 
 Interface of the ERC20Permit standard to support gasless token approvals as defined in {eip-2612}.
@@ -215,7 +215,7 @@ The domain hashing logic follows the {snip-12} standard.
 
 [.hljs-theme-dark]
 ```cairo
-use openzeppelin_interfaces::erc4626::IERC4626;
+use openzeppelin::interfaces::erc4626::IERC4626;
 ```
 
 Interface of the IERC4626 standard as defined in {eip4626}.

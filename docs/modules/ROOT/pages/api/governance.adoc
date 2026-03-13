@@ -23,7 +23,7 @@ This crate includes primitives for on-chain governance.
 == Interfaces
 
 NOTE: Starting from version `3.x.x`, the interfaces are no longer part of the `openzeppelin_governance` package. The references
-documented here are contained in the `openzeppelin_interfaces` package version `v{current_openzeppelin_interfaces_version}`.
+documented here are contained in the `openzeppelin::interfaces` package version `v{current_openzeppelin::interfaces_version}`.
 
 [.contract]
 [[IGovernor]]
@@ -31,7 +31,7 @@ documented here are contained in the `openzeppelin_interfaces` package version `
 
 [.hljs-theme-dark]
 ```cairo
-use openzeppelin_interfaces::governor::IGovernor;
+use openzeppelin::interfaces::governor::IGovernor;
 ```
 
 Interface of a governor contract.
@@ -391,7 +391,7 @@ Emitted when a vote is cast with params.
 
 [.hljs-theme-dark]
 ```cairo
-use openzeppelin_interfaces::multisig::IMultisig;
+use openzeppelin::interfaces::multisig::IMultisig;
 ```
 
 Interface of a multisig contract.
@@ -710,7 +710,7 @@ Emitted when a new transaction is submitted with non-zero salt.
 
 [.hljs-theme-dark]
 ```cairo
-use openzeppelin_interfaces::timelock::ITimelock;
+use openzeppelin::interfaces::timelock::ITimelock;
 ```
 
 Interface of a timelock contract.
@@ -943,7 +943,7 @@ Emitted when the minimum delay for future operations is modified.
 
 [.hljs-theme-dark]
 ```cairo
-use openzeppelin_interfaces::votes::IVotes;
+use openzeppelin::interfaces::votes::IVotes;
 ```
 
 Common interface for Votes-enabled contracts.

@@ -15,7 +15,7 @@ TIP: For an overview of ERC721, read our xref:erc721.adoc[ERC721 guide].
 == Interfaces
 
 NOTE: Starting from version `3.x.x`, the interfaces are no longer part of the `openzeppelin_token` package. The references
-documented here are contained in the `openzeppelin_interfaces` package version `v{current_openzeppelin_interfaces_version}`.
+documented here are contained in the `openzeppelin::interfaces` package version `v{current_openzeppelin::interfaces_version}`.
 
 [.contract]
 [[IERC721]]
@@ -23,7 +23,7 @@ documented here are contained in the `openzeppelin_interfaces` package version `
 
 [.hljs-theme-dark]
 ```cairo
-use openzeppelin_interfaces::erc721::IERC721;
+use openzeppelin::interfaces::erc721::IERC721;
 ```
 
 Interface of the IERC721 standard as defined in {eip721}.
@@ -143,7 +143,7 @@ Emitted when `token_id` token is transferred from `from` to `to`.
 
 [.hljs-theme-dark]
 ```cairo
-use openzeppelin_interfaces::erc721::IERC721Metadata;
+use openzeppelin::interfaces::erc721::IERC721Metadata;
 ```
 
 Interface for the optional metadata functions in {eip721}.
@@ -189,7 +189,7 @@ If the URI is not set for `token_id`, the return value will be an empty `ByteArr
 
 [.hljs-theme-dark]
 ```cairo
-use openzeppelin_interfaces::erc721::IERC721Receiver;
+use openzeppelin::interfaces::erc721::IERC721Receiver;
 ```
 
 Interface for contracts that support receiving `safe_transfer_from` transfers.

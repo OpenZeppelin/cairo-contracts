@@ -15,7 +15,7 @@ TIP: For an overview of ERC1155, read our xref:erc1155.adoc[ERC1155 guide].
 == Interfaces
 
 NOTE: Starting from version `3.x.x`, the interfaces are no longer part of the `openzeppelin_token` package. The references
-documented here are contained in the `openzeppelin_interfaces` package version `v{current_openzeppelin_interfaces_version}`.
+documented here are contained in the `openzeppelin::interfaces` package version `v{current_openzeppelin::interfaces_version}`.
 
 [.contract]
 [[IERC1155]]
@@ -23,7 +23,7 @@ documented here are contained in the `openzeppelin_interfaces` package version `
 
 [.hljs-theme-dark]
 ```cairo
-use openzeppelin_interfaces::erc1155::IERC1155;
+use openzeppelin::interfaces::erc1155::IERC1155;
 ```
 Interface of the IERC1155 standard as defined in {eip1155}.
 
@@ -133,7 +133,7 @@ Emitted when the token URI is updated to `value` for the `id` token.
 
 [.hljs-theme-dark]
 ```cairo
-use openzeppelin_interfaces::erc1155::IERC1155MetadataURI;
+use openzeppelin::interfaces::erc1155::IERC1155MetadataURI;
 ```
 Interface for the optional metadata function in {eip1155-metadata}[EIP1155].
 
@@ -163,7 +163,7 @@ Returns the Uniform Resource Identifier (URI) for the `token_id` token.
 
 [.hljs-theme-dark]
 ```cairo
-use openzeppelin_interfaces::erc1155::IERC1155Receiver;
+use openzeppelin::interfaces::erc1155::IERC1155Receiver;
 ```
 
 Interface for contracts that support receiving token transfers from `ERC1155` contracts.

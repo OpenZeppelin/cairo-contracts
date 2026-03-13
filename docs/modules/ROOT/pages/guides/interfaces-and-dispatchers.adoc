@@ -4,7 +4,7 @@
 
 This section describes the interfaces OpenZeppelin Contracts for Cairo offer, and explains the design choices behind them.
 
-Interfaces can be found in the `openzeppelin_interfaces` package modules, such as `openzeppelin_interfaces::erc20`.
+Interfaces can be found in the `openzeppelin::interfaces` package modules, such as `openzeppelin::interfaces::erc20`.
 
 NOTE: Starting from version `3.x.x`, OpenZeppelin Contracts for Cairo interfaces have been separated from their implementation modules into a dedicated package.
 This architectural change brings several important benefits. Check the xref:interfaces.adoc[Interfaces] section for more information.
@@ -12,13 +12,13 @@ This architectural change brings several important benefits. Check the xref:inte
 For example:
 
 ```cairo
-use openzeppelin_interfaces::erc20::IERC20;
+use openzeppelin::interfaces::erc20::IERC20;
 ```
 
 or
 
 ```cairo
-use openzeppelin_interfaces::erc20::ERC20ABI;
+use openzeppelin::interfaces::erc20::ERC20ABI;
 ```
 
 NOTE: For simplicity, we'll use ERC20 as example but the same concepts apply to other modules.
@@ -88,7 +88,7 @@ pub trait ERC20ABI<TState> {
 Traits annotated with `#[starknet::interface]` automatically generate a dispatcher that can be used to interact with contracts that implement the given interface. They can be imported by appending the `Dispatcher` and `DispatcherTrait` suffixes to the trait name, like this:
 
 ```cairo
-use openzeppelin_interfaces::erc20::{IERC20Dispatcher, IERC20DispatcherTrait};
+use openzeppelin::interfaces::erc20::{IERC20Dispatcher, IERC20DispatcherTrait};
 ```
 
 Other types of dispatchers are also auto-generated from the annotated trait. See the

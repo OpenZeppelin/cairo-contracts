@@ -561,6 +561,7 @@ pub mod ERC3156FlashBorrowerMock {
     #[storage]
     pub struct Storage {
         return_value: felt252,
+        auto_approve: bool,
     }
 
     #[abi(embed_v0)]
@@ -575,15 +576,20 @@ pub mod ERC3156FlashBorrowerMock {
         ) -> felt252 {
             let _ = initiator;
             let _ = data;
-            let lender = get_caller_address();
-            let token_dispatcher = IERC20Dispatcher { contract_address: token };
-            assert(token_dispatcher.approve(lender, amount + fee), 'FlashBorrower: approve failed');
+            if self.auto_approve.read() {
+                let lender = get_caller_address();
+                let token_dispatcher = IERC20Dispatcher { contract_address: token };
+                assert(
+                    token_dispatcher.approve(lender, amount + fee), 'FlashBorrower: approve failed',
+                );
+            }
             self.return_value.read()
         }
     }
 
     #[constructor]
-    fn constructor(ref self: ContractState, return_value: felt252) {
+    fn constructor(ref self: ContractState, return_value: felt252, auto_approve: bool) {
         self.return_value.write(return_value);
+        self.auto_approve.write(auto_approve);
     }
 }

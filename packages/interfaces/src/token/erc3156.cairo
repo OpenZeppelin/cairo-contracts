@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v3.0.0-alpha.3 (interfaces/src/token/erc3156.cairo)
+// OpenZeppelin Contracts for Cairo v4.0.0-alpha.0 (interfaces/src/token/erc3156.cairo)
 
 use starknet::ContractAddress;
 
@@ -42,7 +42,7 @@ pub trait IERC3156FlashBorrower<TState> {
     /// * `fee` - The additional amount of tokens to repay.
     /// * `data` - Arbitrary data structure, intended to contain user-defined parameters.
     ///
-    /// Returns the felt252 pedersen hash of "ERC3156FlashBorrower.onFlashLoan"
+    /// Returns the felt252 sn_keccak hash (Starknet selector) of "ERC3156FlashBorrower.onFlashLoan"
     fn on_flash_loan(
         ref self: TState,
         initiator: ContractAddress,

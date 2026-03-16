@@ -396,3 +396,194 @@ pub mod ERC20WrapperMock {
         }
     }
 }
+
+#[starknet::contract]
+pub mod ERC20FlashMintMock {
+    use openzeppelin_token::erc20::extensions::erc20_flash_mint::{
+        DefaultConfig as FlashMintDefaultConfig, ERC20FlashMintComponent,
+    };
+    use openzeppelin_token::erc20::{
+        DefaultConfig as ERC20DefaultConfig, ERC20Component, ERC20HooksEmptyImpl,
+    };
+    use starknet::ContractAddress;
+
+    component!(path: ERC20Component, storage: erc20, event: ERC20Event);
+    component!(
+        path: ERC20FlashMintComponent, storage: erc20_flash_mint, event: ERC20FlashMintEvent,
+    );
+
+    #[abi(embed_v0)]
+    impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC20FlashMintImpl =
+        ERC20FlashMintComponent::ERC20FlashMintImpl<ContractState>;
+
+    impl ERC20InternalImpl = ERC20Component::InternalImpl<ContractState>;
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    pub enum Event {
+        #[flat]
+        ERC20Event: ERC20Component::Event,
+        #[flat]
+        ERC20FlashMintEvent: ERC20FlashMintComponent::Event,
+    }
+
+    #[storage]
+    pub struct Storage {
+        #[substorage(v0)]
+        pub erc20: ERC20Component::Storage,
+        #[substorage(v0)]
+        pub erc20_flash_mint: ERC20FlashMintComponent::Storage,
+    }
+
+    #[constructor]
+    fn constructor(
+        ref self: ContractState,
+        name: ByteArray,
+        symbol: ByteArray,
+        initial_supply: u256,
+        recipient: ContractAddress,
+    ) {
+        self.erc20.initializer(name, symbol);
+        self.erc20.mint(recipient, initial_supply);
+    }
+}
+
+#[starknet::contract]
+pub mod ERC20FlashMintConfiguredMock {
+    use core::num::traits::Bounded;
+    use openzeppelin_token::erc20::extensions::erc20_flash_mint::ERC20FlashMintComponent;
+    use openzeppelin_token::erc20::{
+        DefaultConfig as ERC20DefaultConfig, ERC20Component, ERC20HooksEmptyImpl,
+    };
+    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use starknet::{ContractAddress, get_contract_address};
+
+    component!(path: ERC20Component, storage: erc20, event: ERC20Event);
+    component!(
+        path: ERC20FlashMintComponent, storage: erc20_flash_mint, event: ERC20FlashMintEvent,
+    );
+
+    #[abi(embed_v0)]
+    impl ERC20Impl = ERC20Component::ERC20Impl<ContractState>;
+    #[abi(embed_v0)]
+    impl ERC20FlashMintImpl =
+        ERC20FlashMintComponent::ERC20FlashMintImpl<ContractState>;
+
+    impl ERC20InternalImpl = ERC20Component::InternalImpl<ContractState>;
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    pub enum Event {
+        #[flat]
+        ERC20Event: ERC20Component::Event,
+        #[flat]
+        ERC20FlashMintEvent: ERC20FlashMintComponent::Event,
+    }
+
+    #[storage]
+    pub struct Storage {
+        #[substorage(v0)]
+        pub erc20: ERC20Component::Storage,
+        #[substorage(v0)]
+        pub erc20_flash_mint: ERC20FlashMintComponent::Storage,
+        configured_flash_fee: u256,
+        configured_fee_receiver: ContractAddress,
+        configured_flash_loan_cap: u256,
+    }
+
+    impl FlashMintConfigImpl of ERC20FlashMintComponent::FlashMintConfigTrait<ContractState> {
+        fn max_flash_loan(
+            self: @ERC20FlashMintComponent::ComponentState<ContractState>,
+            token: ContractAddress,
+            total_supply: u256,
+        ) -> u256 {
+            let this = get_contract_address();
+            if token != this {
+                return 0;
+            }
+
+            let contract_state = self.get_contract();
+            let configured_cap = contract_state.configured_flash_loan_cap.read();
+            let default_max_loan = Bounded::MAX - total_supply;
+
+            if configured_cap < default_max_loan {
+                configured_cap
+            } else {
+                default_max_loan
+            }
+        }
+
+        fn flash_fee(
+            self: @ERC20FlashMintComponent::ComponentState<ContractState>,
+            token: ContractAddress,
+            amount: u256,
+        ) -> u256 {
+            let _ = token;
+            let _ = amount;
+            self.get_contract().configured_flash_fee.read()
+        }
+
+        fn flash_fee_receiver(
+            self: @ERC20FlashMintComponent::ComponentState<ContractState>,
+        ) -> ContractAddress {
+            self.get_contract().configured_fee_receiver.read()
+        }
+    }
+
+    #[constructor]
+    fn constructor(
+        ref self: ContractState,
+        name: ByteArray,
+        symbol: ByteArray,
+        initial_supply: u256,
+        recipient: ContractAddress,
+        flash_fee: u256,
+        fee_receiver: ContractAddress,
+        flash_loan_cap: u256,
+    ) {
+        self.erc20.initializer(name, symbol);
+        self.erc20.mint(recipient, initial_supply);
+        self.configured_flash_fee.write(flash_fee);
+        self.configured_fee_receiver.write(fee_receiver);
+        self.configured_flash_loan_cap.write(flash_loan_cap);
+    }
+}
+
+#[starknet::contract]
+pub mod ERC3156FlashBorrowerMock {
+    use openzeppelin_interfaces::erc20::{IERC20Dispatcher, IERC20DispatcherTrait};
+    use openzeppelin_interfaces::erc3156::IERC3156FlashBorrower;
+    use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
+    use starknet::{ContractAddress, get_caller_address};
+
+    #[storage]
+    pub struct Storage {
+        return_value: felt252,
+    }
+
+    #[abi(embed_v0)]
+    impl ERC3156FlashBorrowerImpl of IERC3156FlashBorrower<ContractState> {
+        fn on_flash_loan(
+            ref self: ContractState,
+            initiator: ContractAddress,
+            token: ContractAddress,
+            amount: u256,
+            fee: u256,
+            data: Span<felt252>,
+        ) -> felt252 {
+            let _ = initiator;
+            let _ = data;
+            let lender = get_caller_address();
+            let token_dispatcher = IERC20Dispatcher { contract_address: token };
+            assert(token_dispatcher.approve(lender, amount + fee), 'FlashBorrower: approve failed');
+            self.return_value.read()
+        }
+    }
+
+    #[constructor]
+    fn constructor(ref self: ContractState, return_value: felt252) {
+        self.return_value.write(return_value);
+    }
+}

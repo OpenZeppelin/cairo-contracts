@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v3.0.0-alpha.3
+// OpenZeppelin Contracts for Cairo v4.0.0-alpha.0
 // (token/src/erc20/extensions/erc20_flash_mint.cairo)
 
 /// # ERC20 Flash Mint Component
@@ -11,12 +11,13 @@
 /// them after use).
 ///
 /// Integrate this component into your ERC20 contract to enable single-transaction flash loans.
-/// You may override the fee calculation or recipient by extending the `FeeConfigTrait`.
+/// You may override the max loan, fee calculation, or fee recipient by extending the
+/// `FlashMintConfigTrait`.
 ///
-/// NOTE: When this extension is used along with the {ERC20Votes} extension,
-/// {maxFlashLoan} will not correctly reflect the maximum that can be flash minted. We advice
-/// against combining this extension with the {ERC20Votes} extension. If you need to combine them,
-/// you should override {maxFlashLoan} to correctly reflect the supply cap.
+/// NOTE: When this extension is used along with the `ERC20Votes` extension,
+/// `max_flash_loan` will not correctly reflect the maximum that can be flash minted. We advise
+/// against combining this extension with the `ERC20Votes` extension. If you need to combine them,
+/// you should override the flash mint config to correctly reflect the supply cap.
 #[starknet::component]
 pub mod ERC20FlashMintComponent {
     use core::num::traits::{Bounded, Zero};
@@ -42,10 +43,24 @@ pub mod ERC20FlashMintComponent {
     #[storage]
     pub struct Storage {}
 
-    /// ## Flash Loan Fee Configuration Trait
+    /// ## Flash Mint Configuration Trait
     ///
-    /// Override to provide custom flash fee calculations or fee receivers.
-    pub trait FeeConfigTrait<TContractState, +HasComponent<TContractState>> {
+    /// Override to provide custom max flash loan calculations, flash fees, or fee receivers.
+    pub trait FlashMintConfigTrait<TContractState, +HasComponent<TContractState>> {
+        /// Returns the maximum amount of tokens available for flash loan.
+        ///
+        /// By default, this is the maximum value minus `total_supply`, if `token` matches this
+        /// contract's address.
+        fn max_flash_loan(
+            self: @ComponentState<TContractState>, token: ContractAddress, total_supply: u256,
+        ) -> u256 {
+            let this = get_contract_address();
+            if token != this {
+                return 0;
+            }
+            Bounded::MAX - total_supply
+        }
+
         /// Returns the fee to charge for a flash loan of `amount` tokens of `token`.
         ///
         /// The default implementation charges no fee.
@@ -84,7 +99,7 @@ pub mod ERC20FlashMintComponent {
         TContractState,
         +HasComponent<TContractState>,
         impl ERC20: ERC20Component::HasComponent<TContractState>,
-        impl FeeConfig: FeeConfigTrait<TContractState>,
+        impl FlashMintConfig: FlashMintConfigTrait<TContractState>,
         +ERC20Component::ERC20HooksTrait<TContractState>,
         +Drop<TContractState>,
     > of IERC3156FlashLender<ComponentState<TContractState>> {
@@ -96,28 +111,22 @@ pub mod ERC20FlashMintComponent {
         /// WARNING: If your implementation has an additional supply cap, this function will not
         /// correctly reflect the maximum that can be flash minted.
         fn max_flash_loan(self: @ComponentState<TContractState>, token: ContractAddress) -> u256 {
-            // By default, this function returns the maximum mintable amount,
-            // which is max value - total supply, if token == this contract.
-            let this = get_contract_address();
-            if token != this {
-                return 0;
-            }
             let erc20_component = get_dep_component!(self, ERC20);
             let supply = erc20_component.total_supply();
-            Bounded::MAX - supply
+            FlashMintConfig::max_flash_loan(self, token, supply)
         }
 
         /// Returns the fee to be charged for a given flash loan.
         ///
-        /// Validates the token and dispatches to `_flash_fee` for calculation.
-        /// Override `FeeConfigTrait` to provide custom fees.
+        /// Validates the token and dispatches to `FlashMintConfigTrait` for calculation.
+        /// Override `FlashMintConfigTrait` to provide custom fees.
         fn flash_fee(
             self: @ComponentState<TContractState>, token: ContractAddress, amount: u256,
         ) -> u256 {
             // Returns the fee applied when doing flash loans.
             let this = get_contract_address();
             assert(token == this, Errors::UNSUPPORTED_TOKEN);
-            self._flash_fee(token, amount)
+            FlashMintConfig::flash_fee(self, token, amount)
         }
 
         /// Executes a flash loan to `receiver` of `amount` tokens.
@@ -147,7 +156,7 @@ pub mod ERC20FlashMintComponent {
             data: Span<felt252>,
         ) -> bool {
             // Check maximum flash loan.
-            let max_loan = self.max_flash_loan(token);
+            let max_loan = Self::max_flash_loan(@self, token);
             assert(amount <= max_loan, Errors::EXCEEDED_MAX_LOAN);
 
             // Calculate flash fee.
@@ -164,7 +173,7 @@ pub mod ERC20FlashMintComponent {
             assert(on_flash_ret == ON_FLASH_LOAN_RETURN, Errors::INVALID_RECEIVER);
 
             // Determine fee receiver.
-            let fee_receiver = self._flash_fee_receiver();
+            let fee_receiver = FlashMintConfig::flash_fee_receiver(@self);
 
             // `receiver` must approve contract for (amount + fee)
             erc20_component._spend_allowance(receiver, get_contract_address(), amount + fee);
@@ -180,30 +189,8 @@ pub mod ERC20FlashMintComponent {
             true
         }
     }
-
-    /// ## ERC20 Flash Mint Internal Implementation
-    ///
-    /// Provides internal hooks for customizing flash fee calculation and fee receiver.
-    #[generate_trait]
-    pub impl ERC20FlashMintInternal<
-        TContractState,
-        +HasComponent<TContractState>,
-        impl FeeConfig: FeeConfigTrait<TContractState>,
-    > of ERC20FlashMintInternalTrait<TContractState> {
-        /// Internal hook to calculate the flash loan fee.
-        ///
-        /// Forwards calculation to `FeeConfig::flash_fee`.
-        fn _flash_fee(
-            self: @ComponentState<TContractState>, token: ContractAddress, amount: u256,
-        ) -> u256 {
-            FeeConfig::flash_fee(self, token, amount)
-        }
-
-        /// Internal hook to get the address that should receive the flash fee.
-        ///
-        /// Forwards to `FeeConfig::flash_fee_receiver`.
-        fn _flash_fee_receiver(self: @ComponentState<TContractState>) -> ContractAddress {
-            FeeConfig::flash_fee_receiver(self)
-        }
-    }
 }
+
+pub impl DefaultConfig<
+    TContractState, +ERC20FlashMintComponent::HasComponent<TContractState>,
+> of ERC20FlashMintComponent::FlashMintConfigTrait<TContractState> {}

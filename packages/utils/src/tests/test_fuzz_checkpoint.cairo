@@ -47,6 +47,34 @@ fn test_upper_lookup_recent(checkpoints: Span<Checkpoint>) {
 
 #[test]
 #[fuzzer]
+fn test_lower_lookup(checkpoints: Span<Checkpoint>) {
+    let mut mock_trace = CONTRACT_STATE();
+    push_checkpoints(checkpoints);
+
+    for point in checkpoints {
+        let found_value = mock_trace.lower_lookup(*point.key);
+        assert_eq!(found_value, *point.value);
+    }
+
+    for i in 1..checkpoints.len() {
+        let index: usize = i.try_into().unwrap();
+        let checkpoint = *checkpoints.at(index);
+        let prev_checkpoint = *checkpoints.at(index - 1);
+        let search_key = checkpoint.key - 1;
+        let found_value = mock_trace.lower_lookup(search_key);
+        // If search_key equals the previous checkpoint's key, lower_lookup returns that value.
+        // Otherwise, it returns the current checkpoint's value (first with key >= search_key).
+        let expected = if search_key == prev_checkpoint.key {
+            prev_checkpoint.value
+        } else {
+            checkpoint.value
+        };
+        assert_eq!(found_value, expected);
+    }
+}
+
+#[test]
+#[fuzzer]
 fn test_get_at_position(checkpoints: Span<Checkpoint>) {
     let mut mock_trace = CONTRACT_STATE();
     push_checkpoints(checkpoints);

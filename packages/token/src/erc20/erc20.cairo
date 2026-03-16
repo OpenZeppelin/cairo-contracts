@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v3.0.0-alpha.3 (token/src/erc20/erc20.cairo)
+// OpenZeppelin Contracts for Cairo v4.0.0-alpha.0 (token/src/erc20/erc20.cairo)
 
 /// # ERC20 Component
 ///
@@ -8,7 +8,7 @@
 /// component is agnostic regarding how tokens are created, which means that developers
 /// must create their own token distribution mechanism.
 /// See [the documentation]
-/// (https://docs.openzeppelin.com/contracts-cairo/3.0.0-alpha.3/guides/erc20-supply)
+/// (https://docs.openzeppelin.com/contracts-cairo/4.0.0-alpha.0/guides/erc20-supply)
 /// for examples.
 #[starknet::component]
 pub mod ERC20Component {
@@ -375,9 +375,7 @@ pub mod ERC20Component {
                 token: starknet::get_contract_address(), spender, amount, nonce, deadline,
             };
             let permit_hash = permit.get_message_hash(owner);
-            assert_valid_signature(
-                owner, permit_hash, signature.into(), Errors::INVALID_PERMIT_SIGNATURE,
-            );
+            assert_valid_signature(owner, permit_hash, signature, Errors::INVALID_PERMIT_SIGNATURE);
 
             // 4. Approve
             self._approve(owner, spender, amount);

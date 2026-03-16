@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v3.0.0-alpha.3 (interfaces/src/token/erc1155.cairo)
+// OpenZeppelin Contracts for Cairo v4.0.0-alpha.0 (interfaces/src/token/erc1155.cairo)
 
 use starknet::ContractAddress;
 
@@ -40,6 +40,13 @@ pub trait IERC1155<TState> {
 #[starknet::interface]
 pub trait IERC1155MetadataURI<TState> {
     fn uri(self: @TState, token_id: u256) -> ByteArray;
+}
+
+#[starknet::interface]
+pub trait IERC1155Supply<TState> {
+    fn total_supply(self: @TState, token_id: u256) -> u256;
+    fn total_supply_all(self: @TState) -> u256;
+    fn exists(self: @TState, token_id: u256) -> bool;
 }
 
 #[starknet::interface]

@@ -2,7 +2,7 @@ use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, ExpectedEvent
 use starknet::ContractAddress;
 
 #[generate_trait]
-pub impl VestingSpyHelpersImpl of VestingSpyHelpers {
+pub impl VestingSpyHelpersImpl of VestingSpyHelpersTrait {
     fn assert_only_event_amount_released(
         ref self: EventSpy, contract: ContractAddress, token: ContractAddress, amount: u256,
     ) {

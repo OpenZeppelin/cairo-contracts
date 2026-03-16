@@ -128,8 +128,9 @@ pub mod ERC20TimestampVotesMock {
     }
 
     #[constructor]
-    fn constructor(ref self: ContractState) {
+    fn constructor(ref self: ContractState, total_supply: u256) {
         self.erc20.initializer("MyToken", "MTK");
+        self.erc20.mint(starknet::get_caller_address(), total_supply);
     }
 }
 
@@ -179,14 +180,16 @@ pub mod ERC20BlockNumberVotesMock {
     }
 
     #[constructor]
-    fn constructor(ref self: ContractState) {
+    fn constructor(ref self: ContractState, total_supply: u256) {
         self.erc20.initializer("MyToken", "MTK");
+        self.erc20.mint(starknet::get_caller_address(), total_supply);
     }
 }
 
 #[starknet::contract]
 #[with_components(ERC721, Votes, SRC5, Nonces)]
 pub mod ERC721TimestampVotesMock {
+    use openzeppelin_token::erc721::{ERC721OwnerOfDefaultImpl, ERC721TokenURIDefaultImpl};
     use openzeppelin_utils::contract_clock::ERC6372TimestampClock;
     use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
     use starknet::ContractAddress;
@@ -243,6 +246,7 @@ pub mod ERC721TimestampVotesMock {
 #[starknet::contract]
 #[with_components(ERC721, Votes, SRC5, Nonces)]
 pub mod ERC721BlockNumberVotesMock {
+    use openzeppelin_token::erc721::{ERC721OwnerOfDefaultImpl, ERC721TokenURIDefaultImpl};
     use openzeppelin_utils::contract_clock::ERC6372BlockNumberClock;
     use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
     use starknet::ContractAddress;

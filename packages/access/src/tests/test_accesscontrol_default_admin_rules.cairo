@@ -79,6 +79,13 @@ fn test_initializer_with_zero_address() {
     state.initializer(INITIAL_DELAY, ZERO);
 }
 
+#[test]
+#[should_panic(expected: 'Admin transfer delay too high')]
+fn test_initializer_with_delay_above_maximum() {
+    let mut state = COMPONENT_STATE();
+    state.initializer(DefaultConfig::MAXIMUM_DEFAULT_ADMIN_TRANSFER_DELAY + 1, ADMIN);
+}
+
 //
 // default_admin
 //
@@ -125,6 +132,13 @@ fn test_default_admin_delay_default_values() {
     let mut state = setup();
     let delay = state.default_admin_delay();
     assert_eq!(delay, INITIAL_DELAY);
+}
+
+#[test]
+fn test_maximum_default_admin_transfer_delay_api() {
+    let state = setup();
+    let max_delay = state.maximum_default_admin_transfer_delay();
+    assert_eq!(max_delay, DefaultConfig::MAXIMUM_DEFAULT_ADMIN_TRANSFER_DELAY);
 }
 
 #[test]
@@ -180,6 +194,27 @@ fn test_change_default_admin_delay_unauthorized() {
 
     start_cheat_caller_address(contract_address, OTHER);
     state.change_default_admin_delay(new_delay);
+}
+
+#[test]
+#[should_panic(expected: 'Admin transfer delay too high')]
+fn test_change_default_admin_delay_above_maximum_via_config() {
+    let mut state = setup();
+    let contract_address = test_address();
+    let new_delay = DefaultConfig::MAXIMUM_DEFAULT_ADMIN_TRANSFER_DELAY + 1;
+
+    start_cheat_caller_address(contract_address, ADMIN);
+    state.change_default_admin_delay(new_delay);
+}
+
+#[test]
+#[should_panic(expected: 'Admin transfer delay too high')]
+fn test_change_default_admin_delay_above_maximum() {
+    let mut state = setup();
+    let contract_address = test_address();
+    start_cheat_caller_address(contract_address, ADMIN);
+    let max_delay = state.maximum_default_admin_transfer_delay();
+    state.change_default_admin_delay(max_delay + 1);
 }
 
 #[test]
@@ -1153,51 +1188,30 @@ fn test_default_admin_role_is_its_own_admin() {
     let current_admin_role = state.get_role_admin(DEFAULT_ADMIN_ROLE);
     assert_eq!(current_admin_role, DEFAULT_ADMIN_ROLE);
 }
-
 //
 // Helpers
 //
 
-#[generate_trait]
-impl AccessControlDefaultAdminRulesSpyHelpersImpl of AccessControlDefaultAdminRulesSpyHelpers {
-    fn assert_only_event_default_admin_transfer_scheduled(
-        ref self: EventSpy,
-        contract: ContractAddress,
-        new_admin: ContractAddress,
-        accept_schedule: u64,
-    ) {
-        let expected = ExpectedEvent::new()
-            .key(selector!("DefaultAdminTransferScheduled"))
-            .key(new_admin)
-            .data(accept_schedule);
+#[cairofmt::skip]
+generate_event_spy_helpers! {
+    impl AccessControlDefaultAdminRulesSpyHelpers {
+        #[only]
+        event DefaultAdminTransferScheduled(
+            #[key]
+            new_admin: ContractAddress,
+            accept_schedule: u64
+        );
 
-        self.assert_only_event(contract, expected);
+        #[only]
+        event DefaultAdminTransferCanceled();
+
+        #[only]
+        event DefaultAdminDelayChangeScheduled(
+            new_delay: u64,
+            effect_schedule: u64
+        );
+
+        #[only]
+        event DefaultAdminDelayChangeCanceled();
     }
-
-    fn assert_only_event_default_admin_transfer_canceled(
-        ref self: EventSpy, contract: ContractAddress,
-    ) {
-        let expected = ExpectedEvent::new().key(selector!("DefaultAdminTransferCanceled"));
-
-        self.assert_only_event(contract, expected);
-    }
-
-    fn assert_only_event_default_admin_delay_change_scheduled(
-        ref self: EventSpy, contract: ContractAddress, new_delay: u64, effect_schedule: u64,
-    ) {
-        let expected = ExpectedEvent::new()
-            .key(selector!("DefaultAdminDelayChangeScheduled"))
-            .data(new_delay)
-            .data(effect_schedule);
-
-        self.assert_only_event(contract, expected);
-    }
-
-    fn assert_only_event_default_admin_delay_change_canceled(
-        ref self: EventSpy, contract: ContractAddress,
-    ) {
-        let expected = ExpectedEvent::new().key(selector!("DefaultAdminDelayChangeCanceled"));
-
-        self.assert_only_event(contract, expected);
-    }
-}
+};

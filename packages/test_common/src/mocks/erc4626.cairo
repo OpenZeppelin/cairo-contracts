@@ -259,7 +259,7 @@ pub mod ERC4626AssetsFeesMock {
     use openzeppelin_token::erc20::{DefaultConfig as ERC20DefaultConfig, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
-    use super::{fee_on_raw, fee_on_total};
+    use super::{ONE_SHARE, fee_on_raw, fee_on_total};
 
     // ERC4626
     #[abi(embed_v0)]
@@ -307,6 +307,21 @@ pub mod ERC4626AssetsFeesMock {
 
     /// Hooks
     impl ERC4626HooksImpl of ERC4626Component::ERC4626HooksTrait<ContractState> {
+        fn before_deposit(
+            ref self: ERC4626Component::ComponentState<ContractState>,
+            caller: ContractAddress,
+            receiver: ContractAddress,
+            assets: u256,
+            shares: u256,
+            fee: Option<Fee>,
+        ) {
+            // Ensure conversion rate is correct before deposit has started
+            assert!(
+                ONE_SHARE == self.convert_to_assets(ONE_SHARE),
+                "ERC4626AssetsFeesMock: incorrect conversion rate in before_deposit",
+            );
+        }
+
         fn after_deposit(
             ref self: ERC4626Component::ComponentState<ContractState>,
             caller: ContractAddress,
@@ -315,6 +330,8 @@ pub mod ERC4626AssetsFeesMock {
             shares: u256,
             fee: Option<Fee>,
         ) {
+            // The conversion rate is temporarily incorrect as the asset fee remains in the vault
+            // awaiting transfer to the fee recipient.
             let fee = fee
                 .unwrap_or_else(
                     || panic!("ERC4626AssetsFeesMock expects fee in after_deposit to not be None"),
@@ -342,6 +359,11 @@ pub mod ERC4626AssetsFeesMock {
                 let asset_dispatcher = IERC20Dispatcher { contract_address: asset_address };
                 assert(asset_dispatcher.transfer(fee_recipient, fee), 'Fee transfer failed');
             }
+            // Ensure conversion rate is correct after fee has been transferred
+            assert!(
+                ONE_SHARE == self.convert_to_assets(ONE_SHARE),
+                "ERC4626AssetsFeesMock: incorrect conversion rate in after_deposit (end)",
+            );
         }
 
         fn before_withdraw(
@@ -353,6 +375,11 @@ pub mod ERC4626AssetsFeesMock {
             shares: u256,
             fee: Option<Fee>,
         ) {
+            // Ensure conversion rate is correct before withdraw has started
+            assert!(
+                ONE_SHARE == self.convert_to_assets(ONE_SHARE),
+                "ERC4626AssetsFeesMock: incorrect conversion rate in before_withdraw (start)",
+            );
             let fee = fee
                 .unwrap_or_else(
                     || panic!(
@@ -382,6 +409,23 @@ pub mod ERC4626AssetsFeesMock {
                 let asset_dispatcher = IERC20Dispatcher { contract_address: asset_address };
                 assert(asset_dispatcher.transfer(fee_recipient, fee), 'Fee transfer failed');
             }
+            // Rate is incorrect here: fee transferred out but corresponding shares yet to be burned
+        }
+
+        fn after_withdraw(
+            ref self: ERC4626Component::ComponentState<ContractState>,
+            caller: ContractAddress,
+            receiver: ContractAddress,
+            owner: ContractAddress,
+            assets: u256,
+            shares: u256,
+            fee: Option<Fee>,
+        ) {
+            // Ensure conversion rate is correct after withdraw has completed
+            assert!(
+                ONE_SHARE == self.convert_to_assets(ONE_SHARE),
+                "ERC4626AssetsFeesMock: incorrect conversion rate in after_withdraw",
+            );
         }
     }
 
@@ -433,7 +477,7 @@ pub mod ERC4626SharesFeesMock {
     use openzeppelin_token::erc20::{DefaultConfig as ERC20DefaultConfig, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
-    use super::{fee_on_raw, fee_on_total};
+    use super::{ONE_SHARE, fee_on_raw, fee_on_total};
 
     // ERC4626
     #[abi(embed_v0)]
@@ -481,6 +525,21 @@ pub mod ERC4626SharesFeesMock {
 
     /// Hooks
     impl ERC4626HooksImpl of ERC4626Component::ERC4626HooksTrait<ContractState> {
+        fn before_deposit(
+            ref self: ERC4626Component::ComponentState<ContractState>,
+            caller: ContractAddress,
+            receiver: ContractAddress,
+            assets: u256,
+            shares: u256,
+            fee: Option<Fee>,
+        ) {
+            // Ensure conversion rate is correct before deposit has started
+            assert!(
+                ONE_SHARE == self.convert_to_assets(ONE_SHARE),
+                "ERC4626FeesSharesMock: incorrect conversion rate in before_deposit",
+            );
+        }
+
         fn after_deposit(
             ref self: ERC4626Component::ComponentState<ContractState>,
             caller: ContractAddress,
@@ -489,6 +548,8 @@ pub mod ERC4626SharesFeesMock {
             shares: u256,
             fee: Option<Fee>,
         ) {
+            // The conversion rate is temporarily incorrect as the assets were transferred in
+            // but the corresponding share fee has not been minted yet.
             let fee = fee
                 .unwrap_or_else(
                     || panic!("ERC4626FeesSharesMock expects fee in after_deposit to not be None"),
@@ -510,6 +571,11 @@ pub mod ERC4626SharesFeesMock {
                 let fee_recipient = contract_state.entry_fee_recipient.read();
                 contract_state.erc20.mint(fee_recipient, fee);
             }
+            // Ensure conversion rate is correct after fee has been minted
+            assert!(
+                ONE_SHARE == self.convert_to_assets(ONE_SHARE),
+                "ERC4626FeesSharesMock: incorrect conversion rate in after_deposit (end)",
+            );
         }
 
         fn before_withdraw(
@@ -521,6 +587,11 @@ pub mod ERC4626SharesFeesMock {
             shares: u256,
             fee: Option<Fee>,
         ) {
+            // Ensure conversion rate is correct
+            assert!(
+                ONE_SHARE == self.convert_to_assets(ONE_SHARE),
+                "ERC4626FeesSharesMock: incorrect conversion rate in before_withdraw (start)",
+            );
             let fee = fee
                 .unwrap_or_else(
                     || panic!(
@@ -547,6 +618,27 @@ pub mod ERC4626SharesFeesMock {
                 }
                 contract_state.erc20._transfer(owner, fee_recipient, fee);
             }
+            // Ensure conversion rate is correct
+            assert!(
+                ONE_SHARE == self.convert_to_assets(ONE_SHARE),
+                "ERC4626FeesSharesMock: incorrect conversion rate in before_withdraw (end)",
+            );
+        }
+
+        fn after_withdraw(
+            ref self: ERC4626Component::ComponentState<ContractState>,
+            caller: ContractAddress,
+            receiver: ContractAddress,
+            owner: ContractAddress,
+            assets: u256,
+            shares: u256,
+            fee: Option<Fee>,
+        ) {
+            // Ensure conversion rate is correct after withdraw has completed
+            assert!(
+                ONE_SHARE == self.convert_to_assets(ONE_SHARE),
+                "ERC4626FeesSharesMock: incorrect conversion rate in after_withdraw",
+            );
         }
     }
 
@@ -735,6 +827,7 @@ use openzeppelin_utils::math;
 use openzeppelin_utils::math::Rounding;
 
 const _BASIS_POINT_SCALE: u256 = 10_000;
+const ONE_SHARE: u256 = 1_000_000_000_000_000_000;
 
 /// Calculates the fees that should be added to an amount `assets` that does not already
 /// include fees.

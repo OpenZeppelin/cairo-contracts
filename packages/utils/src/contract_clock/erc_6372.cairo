@@ -6,6 +6,9 @@ pub trait ERC6372Clock {
     /// Requirements:
     ///
     /// - This function MUST always be non-decreasing.
+    ///
+    /// NOTE: While this function returns a u64 value, timepoints must fit into u48 according to
+    /// the EIP-6372 specification.
     fn clock() -> u64;
 
     /// Returns a description of the clock the contract is operating in.

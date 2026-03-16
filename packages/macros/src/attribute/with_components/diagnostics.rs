@@ -18,6 +18,10 @@ pub mod errors {
     pub fn MULTIPLE_ACCESS_CONTROL_COMPONENTS(components: &str) -> String {
         format!("Only one AccessControl component can be used. Found: [{components}].\n")
     }
+
+    /// Error when `ERC721Enumerable` is used together with `ERC721Consecutive`.
+    pub const ERC721_BALANCE_OF_INCOPATIBILITY: &str =
+        "ERC721Enumerable and ERC721Consecutive interfere with each other in token ownership tracking and should not be used together.\n";
 }
 
 #[allow(non_snake_case)]
@@ -110,6 +114,25 @@ pub mod warnings {
         "
     };
 
+    /// Warning when the ERC6909 component is missing an implementation of the ERC6909HooksTrait
+    pub const ERC6909_HOOKS_IMPL_MISSING: &str = indoc! {
+        "The ERC6909 component requires an implementation of the ERC6909HooksTrait in scope and
+        it looks like it is missing.
+
+        You can use the ERC6909HooksEmptyImpl implementation by importing it:
+
+        `use openzeppelin_token::erc6909::ERC6909HooksEmptyImpl;`
+         "
+    };
+    /// Warning when the ERC1155Supply hook call is missing.
+    pub const ERC1155_SUPPLY_HOOKS_MISSING: &str = indoc! {
+        "The ERC1155Supply component requires calling `self.erc1155_supply.after_update(...)`
+        inside the `ERC1155HooksTrait::after_update` hook, and it looks like it is missing.
+
+        This may lead to incorrect total supply tracking.
+        "
+    };
+
     /// Warning when the Upgradeable component is not used.
     pub const UPGRADEABLE_NOT_USED: &str = indoc! {
         "It looks like the `self.upgradeable.upgrade(new_class_hash)` function is not used in the contract. If
@@ -121,6 +144,35 @@ pub mod warnings {
     pub const SNIP12_METADATA_IMPL_MISSING: &str = indoc! {
         "The Votes component requires an implementation of the SNIP12Metadata trait in scope and
         it looks like it is missing.
+        "
+    };
+
+    /// Warning when the ERC721Enumerable hook call is missing.
+    pub const ERC721_ENUMERABLE_HOOKS_MISSING: &str = indoc! {
+        "The ERC721Enumerable component requires calling `self.erc721_enumerable.before_update(...)`
+        inside the `ERC721HooksTrait::before_update` hook, and it looks like it is missing.
+
+        This may lead to incorrect token enumeration data.
+        "
+    };
+
+    /// Warning when the ERC721URIStorage hook call is missing.
+    pub const ERC721_URI_STORAGE_HOOKS_MISSING: &str = indoc! {
+        "The ERC721URIStorage component requires calling `self.erc721_uri_storage.after_update(...)`
+        inside the `ERC721HooksTrait::after_update` hook, and it looks like it is missing.
+
+        This may lead to incorrect token URI data.
+        "
+    };
+
+    /// Warning when the ERC721Consecutive hook calls are missing.
+    pub const ERC721_CONSECUTIVE_HOOKS_MISSING: &str = indoc! {
+        "The ERC721Consecutive component requires calling both
+        `self.erc721_consecutive.before_update(...)` in `ERC721HooksTrait::before_update`
+        and `self.erc721_consecutive.after_update(...)` in `ERC721HooksTrait::after_update`,
+        and it looks like one or both are missing.
+
+        This may lead to incorrect ownership or burn tracking for consecutively minted tokens.
         "
     };
 

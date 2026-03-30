@@ -66,11 +66,11 @@ pub mod ERC20FlashMintComponent {
         /// The default implementation charges no fee.
         ///
         /// # Arguments
-        /// * `token` - The token address requested for the flash loan
-        /// * `amount` - The amount of tokens to be flash loaned
+        /// - `token` - The token address requested for the flash loan
+        /// - `amount` - The amount of tokens to be flash loaned
         ///
         /// # Returns
-        /// * `u256` - The fee amount to be charged
+        /// - `u256` - The fee amount to be charged
         fn flash_fee(
             self: @ComponentState<TContractState>, token: ContractAddress, amount: u256,
         ) -> u256 {
@@ -82,7 +82,7 @@ pub mod ERC20FlashMintComponent {
         /// The default implementation returns the zero address (fee is burnt).
         ///
         /// # Returns
-        /// * `ContractAddress` - The address to receive the flash loan fee (or zero address to
+        /// - `ContractAddress` - The address to receive the flash loan fee (or zero address to
         /// burn)
         fn flash_fee_receiver(
             self: @ComponentState<TContractState>,
@@ -141,13 +141,13 @@ pub mod ERC20FlashMintComponent {
         /// and burned or the call reverts.
         ///
         /// # Arguments
-        /// * `receiver` - The recipient of the flash loan (must implement on_flash_loan)
-        /// * `token` - The token contract address requested (must be this contract)
-        /// * `amount` - The number of tokens to loan
-        /// * `data` - Arbitrary calldata passed to the receiver
+        /// - `receiver` - The recipient of the flash loan (must implement on_flash_loan)
+        /// - `token` - The token contract address requested (must be this contract)
+        /// - `amount` - The number of tokens to loan
+        /// - `data` - Arbitrary calldata passed to the receiver
         ///
         /// # Returns
-        /// * `bool` - True if the flash loan was completed successfully
+        /// - `bool` - True if the flash loan was completed successfully
         fn flash_loan(
             ref self: ComponentState<TContractState>,
             receiver: ContractAddress,
@@ -173,7 +173,7 @@ pub mod ERC20FlashMintComponent {
             assert(on_flash_ret == ON_FLASH_LOAN_RETURN, Errors::INVALID_RECEIVER);
 
             // Determine fee receiver.
-            let fee_receiver = FlashMintConfig::flash_fee_receiver(@self);
+            let fee_receiver = self.flash_fee_receiver();
 
             // `receiver` must approve contract for (amount + fee)
             erc20_component._spend_allowance(receiver, get_contract_address(), amount + fee);

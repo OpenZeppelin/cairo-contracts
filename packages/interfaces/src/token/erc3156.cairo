@@ -8,19 +8,32 @@ use starknet::ContractAddress;
 #[starknet::interface]
 pub trait IERC3156FlashLender<TState> {
     /// Returns the maximum amount of `token` that can be flash loaned.
+    ///
+    /// # Arguments
+    ///
+    /// - `token` - The contract address of the loan currency.
     fn max_flash_loan(self: @TState, token: ContractAddress) -> u256;
 
     /// Returns the fee for borrowing `amount` of `token`.
+    ///
+    /// # Arguments
+    ///
+    /// - `token` - The contract address of the loan currency.
+    /// - `amount` - The amount of tokens to borrow.
     fn flash_fee(self: @TState, token: ContractAddress, amount: u256) -> u256;
 
     /// Initiates a flash loan.
     ///
-    /// * `receiver` - The receiver of the tokens and callback.
-    /// * `token` - The contract address of the loan currency.
-    /// * `amount` - The amount of tokens to loan.
-    /// * `data` - Arbitrary data to pass to the receiver.
+    /// # Arguments
     ///
-    /// Returns true if the loan was successful.
+    /// - `receiver` - The receiver of the tokens and callback.
+    /// - `token` - The contract address of the loan currency.
+    /// - `amount` - The amount of tokens to loan.
+    /// - `data` - Arbitrary data to pass to the receiver.
+    ///
+    /// # Returns
+    ///
+    /// - `bool` - Returns `true` if the loan was successful.
     fn flash_loan(
         ref self: TState,
         receiver: ContractAddress,
@@ -36,13 +49,17 @@ pub trait IERC3156FlashLender<TState> {
 pub trait IERC3156FlashBorrower<TState> {
     /// Receive a flash loan.
     ///
-    /// * `initiator` - The initiator of the loan.
-    /// * `token` - The loan currency.
-    /// * `amount` - The amount of tokens lent.
-    /// * `fee` - The additional amount of tokens to repay.
-    /// * `data` - Arbitrary data structure, intended to contain user-defined parameters.
+    /// # Arguments
     ///
-    /// Returns the felt252 sn_keccak hash (Starknet selector) of "ERC3156FlashBorrower.onFlashLoan"
+    /// - `initiator` - The initiator of the loan.
+    /// - `token` - The loan currency.
+    /// - `amount` - The amount of tokens lent.
+    /// - `fee` - The additional amount of tokens to repay.
+    /// - `data` - Arbitrary data structure, intended to contain user-defined parameters.
+    ///
+    /// # Returns
+    ///
+    /// - `felt252` - The Starknet selector of `"ERC3156FlashBorrower.onFlashLoan"`.
     fn on_flash_loan(
         ref self: TState,
         initiator: ContractAddress,

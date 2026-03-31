@@ -54,6 +54,12 @@
     "openzeppelin_test_common_ERC20CustomDecimalsMock.compiled_contract_class.json": {
       "felts": 6267
     },
+    "openzeppelin_test_common_ERC20FlashMintConfiguredMock.compiled_contract_class.json": {
+      "felts": 7570
+    },
+    "openzeppelin_test_common_ERC20FlashMintMock.compiled_contract_class.json": {
+      "felts": 7003
+    },
     "openzeppelin_test_common_ERC20OptionalTransferPanicMock.compiled_contract_class.json": {
       "felts": 6636
     },
@@ -77,6 +83,9 @@
     },
     "openzeppelin_test_common_ERC2981OwnableMock.compiled_contract_class.json": {
       "felts": 4604
+    },
+    "openzeppelin_test_common_ERC3156FlashBorrowerMock.compiled_contract_class.json": {
+      "felts": 1014
     },
     "openzeppelin_test_common_ERC4626AssetsFeesMock.compiled_contract_class.json": {
       "felts": 18778
@@ -290,6 +299,12 @@
     "openzeppelin_test_common_ERC20CustomDecimalsMock.contract_class.json": {
       "bytes": 126957
     },
+    "openzeppelin_test_common_ERC20FlashMintConfiguredMock.contract_class.json": {
+      "bytes": 173123
+    },
+    "openzeppelin_test_common_ERC20FlashMintMock.contract_class.json": {
+      "bytes": 158846
+    },
     "openzeppelin_test_common_ERC20OptionalTransferPanicMock.contract_class.json": {
       "bytes": 135304
     },
@@ -313,6 +328,9 @@
     },
     "openzeppelin_test_common_ERC2981OwnableMock.contract_class.json": {
       "bytes": 93472
+    },
+    "openzeppelin_test_common_ERC3156FlashBorrowerMock.contract_class.json": {
+      "bytes": 25789
     },
     "openzeppelin_test_common_ERC4626AssetsFeesMock.contract_class.json": {
       "bytes": 433246

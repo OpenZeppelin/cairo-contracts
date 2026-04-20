@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - ERC-3156 standard interfaces and `ERC20FlashMintComponent` extension (#1608)
 
+## Changed
+
+- Bump scarb to v2.17.0 (#1672)
+
 ## 4.0.0-alpha.0 (2026-01-31)
 
 ### Added

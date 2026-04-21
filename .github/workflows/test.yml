@@ -50,11 +50,13 @@ jobs:
       - name: Run tests
         run: snforge test --workspace --features fuzzing --fuzzer-runs 200
 
-      - name: Run tests and generate coverage report
-        run: snforge test --workspace --coverage
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v6
-        with:
-          file: ./coverage.lcov
-          token: ${{ secrets.CODECOV_TOKEN }}
+      # TODO: Uncomment once a cairo-coverage version compatible with Scarb 2.17.0 is released.
+      # The latest cairo-coverage (0.6.0) does not support Scarb 2.17.0.
+      # - name: Run tests and generate coverage report
+      #   run: snforge test --workspace --coverage
+      #
+      # - name: Upload coverage to Codecov
+      #   uses: codecov/codecov-action@v6
+      #   with:
+      #     file: ./coverage.lcov
+      #     token: ${{ secrets.CODECOV_TOKEN }}

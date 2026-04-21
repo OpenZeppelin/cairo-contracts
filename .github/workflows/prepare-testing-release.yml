@@ -32,7 +32,8 @@ jobs:
         echo "Current version: $CURRENT_VERSION"
         echo "New version: $NEW_VERSION"
         ESCAPED_CURRENT_VERSION="${CURRENT_VERSION//\./\\.}"
-        find . -type f -not -path './CHANGELOG.md' -not -path './docs/*' \
+        find . -type f \
+          -not -path './CHANGELOG.md' \
           -not -path './RELEASING.md' \
           -exec sed -i "s/$ESCAPED_CURRENT_VERSION/$NEW_VERSION/g" {} +
 

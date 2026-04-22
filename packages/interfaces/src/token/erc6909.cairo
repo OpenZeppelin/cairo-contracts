@@ -53,12 +53,21 @@ pub trait ERC6909ABI<TState> {
     fn symbol(self: @TState, id: u256) -> ByteArray;
     fn decimals(self: @TState, id: u256) -> u8;
 
+    // IERC6909MetadataAdmin
+    fn set_token_name(ref self: TState, id: u256, name: ByteArray);
+    fn set_token_symbol(ref self: TState, id: u256, symbol: ByteArray);
+    fn set_token_decimals(ref self: TState, id: u256, decimals: u8);
+
     // IERC6909TokenSupply
     fn total_supply(self: @TState, id: u256) -> u256;
 
     // IERC6909ContentUri
     fn contract_uri(self: @TState) -> ByteArray;
     fn token_uri(self: @TState, id: u256) -> ByteArray;
+
+    // IERC6909ContentUriAdmin
+    fn set_contract_uri(ref self: TState, contract_uri: ByteArray);
+    fn set_token_uri(ref self: TState, id: u256, token_uri: ByteArray);
 }
 
 //
@@ -70,6 +79,19 @@ pub trait IERC6909Metadata<TState> {
     fn name(self: @TState, id: u256) -> ByteArray;
     fn symbol(self: @TState, id: u256) -> ByteArray;
     fn decimals(self: @TState, id: u256) -> u8;
+}
+
+/// Interface providing external admin functions for managing the metadata of ERC6909 component.
+#[starknet::interface]
+pub trait IERC6909MetadataAdmin<TState> {
+    /// Sets the name for the token of type `id`.
+    fn set_token_name(ref self: TState, id: u256, name: ByteArray);
+
+    /// Sets the symbol for the token of type `id`.
+    fn set_token_symbol(ref self: TState, id: u256, symbol: ByteArray);
+
+    /// Sets the decimals for the token of type `id`.
+    fn set_token_decimals(ref self: TState, id: u256, decimals: u8);
 }
 
 //
@@ -89,4 +111,14 @@ pub trait IERC6909TokenSupply<TState> {
 pub trait IERC6909ContentUri<TState> {
     fn contract_uri(self: @TState) -> ByteArray;
     fn token_uri(self: @TState, id: u256) -> ByteArray;
+}
+
+/// Interface providing external admin functions for managing the content URIs of ERC6909 component.
+#[starknet::interface]
+pub trait IERC6909ContentUriAdmin<TState> {
+    /// Sets the contract-level URI.
+    fn set_contract_uri(ref self: TState, contract_uri: ByteArray);
+
+    /// Sets the URI for the token of type `id`.
+    fn set_token_uri(ref self: TState, id: u256, token_uri: ByteArray);
 }

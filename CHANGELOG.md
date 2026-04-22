@@ -12,6 +12,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - ERC-3156 standard interfaces and `ERC20FlashMintComponent` extension (#1608)
+- `IERC6909MetadataAdmin` and `IERC6909ContentUriAdmin` interfaces to `openzeppelin_interfaces::token::erc6909` (#1676)
+- Embeddable Ownable, AccessControl, and AccessControlDefaultAdminRules admin impls for `ERC6909MetadataComponent` and `ERC6909ContentURIComponent` (#1676)
+
+### Changed (Breaking)
+
+- Simplified `ERC6909MetadataComponent.initializer` to only register the SRC5 interface, matching the other ERC-6909 extensions. (#1676)
+- Renamed `ERC6909MetadataComponent` internal setters to `_set_token_name`, `_set_token_symbol`, and `_set_token_decimals` (#1676)
+- Renamed `ERC6909ContentURIComponent` internal setters to `_set_contract_uri` and `_set_token_uri` (#1676)
 
 ## Changed
 

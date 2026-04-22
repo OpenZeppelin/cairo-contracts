@@ -8,19 +8,25 @@
 /// individual token IDs. Unlike ERC20, ERC6909 supports multiple token types each with
 /// its own metadata.
 ///
-/// To use this component:
-///
-/// 1. Call `initializer` in your contract's constructor with the initial token metadata
-///    (id, name, symbol, decimals) to register the SRC5 interface and set up the first token.
-/// 2. For additional token IDs, use the individual setters `set_token_name`,
-///    `set_token_symbol`, and `set_token_decimals` to configure metadata.
+/// Call the `initializer` function in your contract's constructor to register the interface.
+/// Use `set_token_name`, `set_token_symbol`, and `set_token_decimals` to configure metadata
+/// per token ID as needed.
 #[starknet::component]
 pub mod ERC6909MetadataComponent {
+    use openzeppelin_access::accesscontrol::AccessControlComponent;
+    use openzeppelin_access::accesscontrol::AccessControlComponent::InternalTrait as AccessControlInternalTrait;
+    use openzeppelin_access::accesscontrol::extensions::AccessControlDefaultAdminRulesComponent;
+    use openzeppelin_access::accesscontrol::extensions::AccessControlDefaultAdminRulesComponent::InternalTrait as AccessControlDefaultAdminRulesInternalTrait;
+    use openzeppelin_access::ownable::OwnableComponent;
+    use openzeppelin_access::ownable::OwnableComponent::InternalTrait as OwnableInternalTrait;
     use openzeppelin_interfaces::erc6909 as interface;
     use openzeppelin_introspection::src5::SRC5Component;
     use openzeppelin_introspection::src5::SRC5Component::InternalTrait as SRC5InternalTrait;
     use openzeppelin_token::erc6909::ERC6909Component;
     use starknet::storage::{Map, StorageMapReadAccess, StorageMapWriteAccess};
+
+    /// Role for the admin responsible for managing token metadata.
+    pub const METADATA_ADMIN_ROLE: felt252 = selector!("METADATA_ADMIN_ROLE");
 
     #[storage]
     pub struct Storage {
@@ -86,6 +92,159 @@ pub mod ERC6909MetadataComponent {
     }
 
     //
+    // Ownable-based implementation of IERC6909MetadataAdmin
+    //
+
+    #[embeddable_as(ERC6909MetadataAdminOwnableImpl)]
+    impl ERC6909MetadataAdminOwnable<
+        TContractState,
+        +HasComponent<TContractState>,
+        +ERC6909Component::HasComponent<TContractState>,
+        +SRC5Component::HasComponent<TContractState>,
+        impl Ownable: OwnableComponent::HasComponent<TContractState>,
+        +Drop<TContractState>,
+    > of interface::IERC6909MetadataAdmin<ComponentState<TContractState>> {
+        /// Sets the name for the token of type `id`.
+        ///
+        /// Requirements:
+        ///
+        /// - The caller is the contract owner.
+        ///
+        /// Emits an `ERC6909NameUpdated` event.
+        fn set_token_name(ref self: ComponentState<TContractState>, id: u256, name: ByteArray) {
+            get_dep_component!(@self, Ownable).assert_only_owner();
+            self._set_token_name(id, name)
+        }
+
+        /// Sets the symbol for the token of type `id`.
+        ///
+        /// Requirements:
+        ///
+        /// - The caller is the contract owner.
+        ///
+        /// Emits an `ERC6909SymbolUpdated` event.
+        fn set_token_symbol(ref self: ComponentState<TContractState>, id: u256, symbol: ByteArray) {
+            get_dep_component!(@self, Ownable).assert_only_owner();
+            self._set_token_symbol(id, symbol)
+        }
+
+        /// Sets the decimals for the token of type `id`.
+        ///
+        /// Requirements:
+        ///
+        /// - The caller is the contract owner.
+        ///
+        /// Emits an `ERC6909DecimalsUpdated` event.
+        fn set_token_decimals(ref self: ComponentState<TContractState>, id: u256, decimals: u8) {
+            get_dep_component!(@self, Ownable).assert_only_owner();
+            self._set_token_decimals(id, decimals)
+        }
+    }
+
+    //
+    // AccessControl-based implementation of IERC6909MetadataAdmin
+    //
+
+    #[embeddable_as(ERC6909MetadataAdminAccessControlImpl)]
+    impl ERC6909MetadataAdminAccessControl<
+        TContractState,
+        +HasComponent<TContractState>,
+        +ERC6909Component::HasComponent<TContractState>,
+        +SRC5Component::HasComponent<TContractState>,
+        impl AccessControl: AccessControlComponent::HasComponent<TContractState>,
+        +Drop<TContractState>,
+    > of interface::IERC6909MetadataAdmin<ComponentState<TContractState>> {
+        /// Sets the name for the token of type `id`.
+        ///
+        /// Requirements:
+        ///
+        /// - The caller must have `METADATA_ADMIN_ROLE` role.
+        ///
+        /// Emits an `ERC6909NameUpdated` event.
+        fn set_token_name(ref self: ComponentState<TContractState>, id: u256, name: ByteArray) {
+            get_dep_component!(@self, AccessControl).assert_only_role(METADATA_ADMIN_ROLE);
+            self._set_token_name(id, name)
+        }
+
+        /// Sets the symbol for the token of type `id`.
+        ///
+        /// Requirements:
+        ///
+        /// - The caller must have `METADATA_ADMIN_ROLE` role.
+        ///
+        /// Emits an `ERC6909SymbolUpdated` event.
+        fn set_token_symbol(ref self: ComponentState<TContractState>, id: u256, symbol: ByteArray) {
+            get_dep_component!(@self, AccessControl).assert_only_role(METADATA_ADMIN_ROLE);
+            self._set_token_symbol(id, symbol)
+        }
+
+        /// Sets the decimals for the token of type `id`.
+        ///
+        /// Requirements:
+        ///
+        /// - The caller must have `METADATA_ADMIN_ROLE` role.
+        ///
+        /// Emits an `ERC6909DecimalsUpdated` event.
+        fn set_token_decimals(ref self: ComponentState<TContractState>, id: u256, decimals: u8) {
+            get_dep_component!(@self, AccessControl).assert_only_role(METADATA_ADMIN_ROLE);
+            self._set_token_decimals(id, decimals)
+        }
+    }
+
+    //
+    // AccessControlDefaultAdminRules-based implementation of IERC6909MetadataAdmin
+    //
+
+    #[embeddable_as(ERC6909MetadataAdminAccessControlDefaultAdminRulesImpl)]
+    impl ERC6909MetadataAdminAccessControlDefaultAdminRules<
+        TContractState,
+        +HasComponent<TContractState>,
+        +ERC6909Component::HasComponent<TContractState>,
+        +AccessControlDefaultAdminRulesComponent::ImmutableConfig,
+        +SRC5Component::HasComponent<TContractState>,
+        impl AccessControlDAR: AccessControlDefaultAdminRulesComponent::HasComponent<
+            TContractState,
+        >,
+        +Drop<TContractState>,
+    > of interface::IERC6909MetadataAdmin<ComponentState<TContractState>> {
+        /// Sets the name for the token of type `id`.
+        ///
+        /// Requirements:
+        ///
+        /// - The caller must have `METADATA_ADMIN_ROLE` role.
+        ///
+        /// Emits an `ERC6909NameUpdated` event.
+        fn set_token_name(ref self: ComponentState<TContractState>, id: u256, name: ByteArray) {
+            get_dep_component!(@self, AccessControlDAR).assert_only_role(METADATA_ADMIN_ROLE);
+            self._set_token_name(id, name)
+        }
+
+        /// Sets the symbol for the token of type `id`.
+        ///
+        /// Requirements:
+        ///
+        /// - The caller must have `METADATA_ADMIN_ROLE` role.
+        ///
+        /// Emits an `ERC6909SymbolUpdated` event.
+        fn set_token_symbol(ref self: ComponentState<TContractState>, id: u256, symbol: ByteArray) {
+            get_dep_component!(@self, AccessControlDAR).assert_only_role(METADATA_ADMIN_ROLE);
+            self._set_token_symbol(id, symbol)
+        }
+
+        /// Sets the decimals for the token of type `id`.
+        ///
+        /// Requirements:
+        ///
+        /// - The caller must have `METADATA_ADMIN_ROLE` role.
+        ///
+        /// Emits an `ERC6909DecimalsUpdated` event.
+        fn set_token_decimals(ref self: ComponentState<TContractState>, id: u256, decimals: u8) {
+            get_dep_component!(@self, AccessControlDAR).assert_only_role(METADATA_ADMIN_ROLE);
+            self._set_token_decimals(id, decimals)
+        }
+    }
+
+    //
     // Internal
     //
 
@@ -98,36 +257,28 @@ pub mod ERC6909MetadataComponent {
         +Drop<TContractState>,
     > of InternalTrait<TContractState> {
         /// Initializes the contract by declaring support for the `IERC6909Metadata`
-        /// interface id and setting the initial token metadata.
-        fn initializer(
-            ref self: ComponentState<TContractState>,
-            id: u256,
-            name: ByteArray,
-            symbol: ByteArray,
-            decimals: u8,
-        ) {
-            self.set_token_name(id, name);
-            self.set_token_symbol(id, symbol);
-            self.set_token_decimals(id, decimals);
-
+        /// interface id.
+        fn initializer(ref self: ComponentState<TContractState>) {
             let mut src5_component = get_dep_component_mut!(ref self, SRC5);
             src5_component.register_interface(interface::IERC6909_METADATA_ID);
         }
 
         /// Sets the token name.
-        fn set_token_name(ref self: ComponentState<TContractState>, id: u256, name: ByteArray) {
+        fn _set_token_name(ref self: ComponentState<TContractState>, id: u256, name: ByteArray) {
             self.ERC6909Metadata_name.write(id, name.clone());
             self.emit(ERC6909NameUpdated { id, new_name: name })
         }
 
         /// Sets the token symbol.
-        fn set_token_symbol(ref self: ComponentState<TContractState>, id: u256, symbol: ByteArray) {
+        fn _set_token_symbol(
+            ref self: ComponentState<TContractState>, id: u256, symbol: ByteArray,
+        ) {
             self.ERC6909Metadata_symbol.write(id, symbol.clone());
             self.emit(ERC6909SymbolUpdated { id, new_symbol: symbol });
         }
 
         /// Sets the token decimals.
-        fn set_token_decimals(ref self: ComponentState<TContractState>, id: u256, decimals: u8) {
+        fn _set_token_decimals(ref self: ComponentState<TContractState>, id: u256, decimals: u8) {
             self.ERC6909Metadata_decimals.write(id, decimals);
             self.emit(ERC6909DecimalsUpdated { id, new_decimals: decimals })
         }

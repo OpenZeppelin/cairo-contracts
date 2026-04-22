@@ -8,12 +8,9 @@
 /// individual token IDs. Unlike ERC20, ERC6909 supports multiple token types each with
 /// its own metadata.
 ///
-/// To use this component:
-///
-/// 1. Call `initializer` in your contract's constructor with the initial token metadata
-///    (id, name, symbol, decimals) to register the SRC5 interface and set up the first token.
-/// 2. For additional token IDs, use the individual setters `set_token_name`,
-///    `set_token_symbol`, and `set_token_decimals` to configure metadata.
+/// Call the `initializer` function in your contract's constructor to register the interface.
+/// Use `set_token_name`, `set_token_symbol`, and `set_token_decimals` to configure metadata
+/// per token ID as needed.
 #[starknet::component]
 pub mod ERC6909MetadataComponent {
     use openzeppelin_interfaces::erc6909 as interface;
@@ -98,18 +95,8 @@ pub mod ERC6909MetadataComponent {
         +Drop<TContractState>,
     > of InternalTrait<TContractState> {
         /// Initializes the contract by declaring support for the `IERC6909Metadata`
-        /// interface id and setting the initial token metadata.
-        fn initializer(
-            ref self: ComponentState<TContractState>,
-            id: u256,
-            name: ByteArray,
-            symbol: ByteArray,
-            decimals: u8,
-        ) {
-            self.set_token_name(id, name);
-            self.set_token_symbol(id, symbol);
-            self.set_token_decimals(id, decimals);
-
+        /// interface id.
+        fn initializer(ref self: ComponentState<TContractState>) {
             let mut src5_component = get_dep_component_mut!(ref self, SRC5);
             src5_component.register_interface(interface::IERC6909_METADATA_ID);
         }

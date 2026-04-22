@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - ERC-3156 standard interfaces and `ERC20FlashMintComponent` extension (#1608)
 
+### Changed (Breaking)
+
+- Simplified `ERC6909MetadataComponent.initializer` to only register the SRC5 interface, matching the other ERC-6909 extensions.
+
 ## Changed
 
 - Bump scarb to v2.17.0 (#1672)

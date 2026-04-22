@@ -21,27 +21,17 @@ fn COMPONENT_STATE() -> ComponentState {
 }
 
 #[test]
-fn test_initializer_registers_interface_and_sets_metadata() {
+fn test_initializer_registers_interface() {
     let mut state = COMPONENT_STATE();
     let mock_state = CONTRACT_STATE();
     let contract_address = test_address();
 
     let mut spy = spy_events();
-    state.initializer(TOKEN_ID, NAME(), SYMBOL(), DECIMALS);
+    state.initializer();
 
-    spy.assert_event_name_updated(contract_address, TOKEN_ID, NAME());
-    spy.assert_event_symbol_updated(contract_address, TOKEN_ID, SYMBOL());
-    spy.assert_only_event_decimals_updated(contract_address, TOKEN_ID, DECIMALS);
+    spy.assert_no_events_left_from(contract_address);
     assert!(mock_state.supports_interface(IERC6909_METADATA_ID));
     assert!(mock_state.supports_interface(ISRC5_ID));
-    assert_eq!(state.name(TOKEN_ID), NAME());
-    assert_eq!(state.symbol(TOKEN_ID), SYMBOL());
-    assert_eq!(state.decimals(TOKEN_ID), DECIMALS);
-}
-
-#[test]
-fn test_default_getters_are_empty_or_zero() {
-    let state = COMPONENT_STATE();
 
     let empty: ByteArray = "";
     assert_eq!(state.name(TOKEN_ID), empty);

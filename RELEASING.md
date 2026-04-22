@@ -28,10 +28,4 @@ git push origin v0.8.0
 (6) After that, go to the repo's [releases page](https://github.com/OpenZeppelin/cairo-contracts/releases/) and [create a new one](https://github.com/OpenZeppelin/cairo-contracts/releases/new) with the new tag and the base branch as target (`main` except in the event of a hotfix).
 Make sure to write a detailed release description and a short changelog.
 
-(7) Finally, from the released tag, create and push a doc branch to deploy the corresponding version
-to the doc-site.
-
-```sh
-git checkout -b docs-v0.8.0
-git push docs-v0.8.0
-```
+(7) Finally, go to the [Documentation](https://github.com/OpenZeppelin/docs/tree/main/content/contracts-cairo) repo and update the docs to support the new version.

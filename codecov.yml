@@ -24,7 +24,6 @@ coverage:
 
 ignore:
   - "**/tests/**"
-  - "docs/"
   - "scripts/"
   - "packages/test_common/"
   - "packages/testing/"

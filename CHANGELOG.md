@@ -7,7 +7,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## 4.0.0-alpha.1 (2026-04-22)
 
 ### Added
 
@@ -17,7 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed (Breaking)
 
-- Simplified `ERC6909MetadataComponent.initializer` to only register the SRC5 interface, matching the other ERC-6909 extensions. (#1676)
+- Simplified `ERC6909MetadataComponent.initializer` to only register the SRC5 interface, matching the other ERC-6909 extensions (#1676)
 - Renamed `ERC6909MetadataComponent` internal setters to `_set_token_name`, `_set_token_symbol`, and `_set_token_decimals` (#1676)
 - Renamed `ERC6909ContentURIComponent` internal setters to `_set_contract_uri` and `_set_token_uri` (#1676)
 

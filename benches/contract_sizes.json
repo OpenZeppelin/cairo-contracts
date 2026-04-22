@@ -108,11 +108,29 @@
     "openzeppelin_test_common_ERC4626SharesFeesMock.compiled_contract_class.json": {
       "felts": 18557
     },
+    "openzeppelin_test_common_ERC6909ContentURIAccessControlDefaultAdminRulesMock.compiled_contract_class.json": {
+      "felts": 11687
+    },
+    "openzeppelin_test_common_ERC6909ContentURIAccessControlMock.compiled_contract_class.json": {
+      "felts": 10595
+    },
     "openzeppelin_test_common_ERC6909ContentURIMock.compiled_contract_class.json": {
       "felts": 7851
     },
+    "openzeppelin_test_common_ERC6909ContentURIOwnableMock.compiled_contract_class.json": {
+      "felts": 9286
+    },
+    "openzeppelin_test_common_ERC6909MetadataAccessControlDefaultAdminRulesMock.compiled_contract_class.json": {
+      "felts": 12833
+    },
+    "openzeppelin_test_common_ERC6909MetadataAccessControlMock.compiled_contract_class.json": {
+      "felts": 11741
+    },
     "openzeppelin_test_common_ERC6909MetadataMock.compiled_contract_class.json": {
-      "felts": 9032
+      "felts": 8982
+    },
+    "openzeppelin_test_common_ERC6909MetadataOwnableMock.compiled_contract_class.json": {
+      "felts": 10531
     },
     "openzeppelin_test_common_ERC6909Mock.compiled_contract_class.json": {
       "felts": 5307
@@ -353,11 +371,29 @@
     "openzeppelin_test_common_ERC4626SharesFeesMock.contract_class.json": {
       "bytes": 398291
     },
+    "openzeppelin_test_common_ERC6909ContentURIAccessControlDefaultAdminRulesMock.contract_class.json": {
+      "bytes": 263615
+    },
+    "openzeppelin_test_common_ERC6909ContentURIAccessControlMock.contract_class.json": {
+      "bytes": 235108
+    },
     "openzeppelin_test_common_ERC6909ContentURIMock.contract_class.json": {
       "bytes": 173470
     },
+    "openzeppelin_test_common_ERC6909ContentURIOwnableMock.contract_class.json": {
+      "bytes": 208439
+    },
+    "openzeppelin_test_common_ERC6909MetadataAccessControlDefaultAdminRulesMock.contract_class.json": {
+      "bytes": 286343
+    },
+    "openzeppelin_test_common_ERC6909MetadataAccessControlMock.contract_class.json": {
+      "bytes": 257909
+    },
     "openzeppelin_test_common_ERC6909MetadataMock.contract_class.json": {
-      "bytes": 199413
+      "bytes": 198649
+    },
+    "openzeppelin_test_common_ERC6909MetadataOwnableMock.contract_class.json": {
+      "bytes": 233578
     },
     "openzeppelin_test_common_ERC6909Mock.contract_class.json": {
       "bytes": 108296

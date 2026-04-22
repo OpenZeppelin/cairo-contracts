@@ -1,4 +1,10 @@
 mod test_erc6909;
 mod test_erc6909_content_uri;
+mod test_erc6909_content_uri_accesscontrol;
+mod test_erc6909_content_uri_accesscontrol_default_admin_rules;
+mod test_erc6909_content_uri_ownable;
 mod test_erc6909_metadata;
+mod test_erc6909_metadata_accesscontrol;
+mod test_erc6909_metadata_accesscontrol_default_admin_rules;
+mod test_erc6909_metadata_ownable;
 mod test_erc6909_token_supply;

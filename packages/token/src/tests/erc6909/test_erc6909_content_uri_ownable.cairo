@@ -1,8 +1,9 @@
 use openzeppelin_access::ownable::OwnableComponent;
 use openzeppelin_access::ownable::OwnableComponent::InternalImpl as OwnableInternalImpl;
+use openzeppelin_test_common::erc6909::ERC6909ContentURISpyHelpers;
 use openzeppelin_test_common::mocks::erc6909::ERC6909ContentURIOwnableMock;
 use openzeppelin_testing::constants::{OTHER, OWNER};
-use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, ExpectedEvent, spy_events};
+use openzeppelin_testing::spy_events;
 use snforge_std::{start_cheat_caller_address, test_address};
 use crate::erc6909::extensions::erc6909_content_uri::ERC6909ContentURIComponent;
 use crate::erc6909::extensions::erc6909_content_uri::ERC6909ContentURIComponent::{
@@ -85,25 +86,3 @@ fn test_set_token_uri_unauthorized() {
     state.set_token_uri(SAMPLE_ID, TOKEN_URI());
 }
 
-//
-// Helpers
-//
-
-#[generate_trait]
-impl ERC6909ContentURISpyHelpersImpl of ERC6909ContentURISpyHelpers {
-    fn assert_only_event_contract_uri_updated(
-        ref self: EventSpy, contract: starknet::ContractAddress,
-    ) {
-        let expected = ExpectedEvent::new().key(selector!("ContractURIUpdated"));
-        self.assert_emitted_single(contract, expected);
-        self.assert_no_events_left_from(contract);
-    }
-
-    fn assert_only_event_uri(
-        ref self: EventSpy, contract: starknet::ContractAddress, value: ByteArray, id: u256,
-    ) {
-        let expected = ExpectedEvent::new().key(selector!("URI")).key(id).data(value);
-        self.assert_emitted_single(contract, expected);
-        self.assert_no_events_left_from(contract);
-    }
-}

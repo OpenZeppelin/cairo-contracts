@@ -2,11 +2,12 @@ use openzeppelin_access::accesscontrol::extensions::AccessControlDefaultAdminRul
 use openzeppelin_access::accesscontrol::extensions::{
     AccessControlDefaultAdminRulesComponent, DefaultConfig as AccessControlDARDefaultConfig,
 };
+use openzeppelin_test_common::erc6909::ERC6909MetadataSpyHelpers;
 use openzeppelin_test_common::mocks::erc6909::ERC6909MetadataAccessControlDefaultAdminRulesMock;
 use openzeppelin_testing::constants::{
     ADMIN, DECIMALS, NAME, OTHER, OTHER_ADMIN, OTHER_ROLE, SYMBOL, TOKEN_ID,
 };
-use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, ExpectedEvent, spy_events};
+use openzeppelin_testing::spy_events;
 use snforge_std::{start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
 use crate::erc6909::extensions::erc6909_metadata::ERC6909MetadataComponent;
@@ -181,58 +182,4 @@ fn test_set_token_decimals_invalid_role() {
 fn grant_accesscontrol_role(role: felt252, admin: ContractAddress) {
     let mut state = ACCESS_CONTROL_STATE();
     state._grant_role(role, admin);
-}
-
-#[generate_trait]
-impl ERC6909MetadataSpyHelpersImpl of ERC6909MetadataSpyHelpers {
-    fn assert_event_name_updated(
-        ref self: EventSpy, contract: starknet::ContractAddress, id: u256, new_name: ByteArray,
-    ) {
-        let expected = ExpectedEvent::new()
-            .key(selector!("ERC6909NameUpdated"))
-            .key(id)
-            .data(new_name);
-        self.assert_emitted_single(contract, expected);
-    }
-
-    fn assert_only_event_name_updated(
-        ref self: EventSpy, contract: starknet::ContractAddress, id: u256, new_name: ByteArray,
-    ) {
-        self.assert_event_name_updated(contract, id, new_name);
-        self.assert_no_events_left_from(contract);
-    }
-
-    fn assert_event_symbol_updated(
-        ref self: EventSpy, contract: starknet::ContractAddress, id: u256, new_symbol: ByteArray,
-    ) {
-        let expected = ExpectedEvent::new()
-            .key(selector!("ERC6909SymbolUpdated"))
-            .key(id)
-            .data(new_symbol);
-        self.assert_emitted_single(contract, expected);
-    }
-
-    fn assert_only_event_symbol_updated(
-        ref self: EventSpy, contract: starknet::ContractAddress, id: u256, new_symbol: ByteArray,
-    ) {
-        self.assert_event_symbol_updated(contract, id, new_symbol);
-        self.assert_no_events_left_from(contract);
-    }
-
-    fn assert_event_decimals_updated(
-        ref self: EventSpy, contract: starknet::ContractAddress, id: u256, new_decimals: u8,
-    ) {
-        let expected = ExpectedEvent::new()
-            .key(selector!("ERC6909DecimalsUpdated"))
-            .key(id)
-            .data(new_decimals);
-        self.assert_emitted_single(contract, expected);
-    }
-
-    fn assert_only_event_decimals_updated(
-        ref self: EventSpy, contract: starknet::ContractAddress, id: u256, new_decimals: u8,
-    ) {
-        self.assert_event_decimals_updated(contract, id, new_decimals);
-        self.assert_no_events_left_from(contract);
-    }
 }

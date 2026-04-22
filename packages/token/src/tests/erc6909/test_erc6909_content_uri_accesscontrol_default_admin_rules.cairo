@@ -2,9 +2,10 @@ use openzeppelin_access::accesscontrol::extensions::AccessControlDefaultAdminRul
 use openzeppelin_access::accesscontrol::extensions::{
     AccessControlDefaultAdminRulesComponent, DefaultConfig as AccessControlDARDefaultConfig,
 };
+use openzeppelin_test_common::erc6909::ERC6909ContentURISpyHelpers;
 use openzeppelin_test_common::mocks::erc6909::ERC6909ContentURIAccessControlDefaultAdminRulesMock;
 use openzeppelin_testing::constants::{ADMIN, OTHER, OTHER_ADMIN, OTHER_ROLE};
-use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, ExpectedEvent, spy_events};
+use openzeppelin_testing::spy_events;
 use snforge_std::{start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
 use crate::erc6909::extensions::erc6909_content_uri::ERC6909ContentURIComponent;
@@ -146,23 +147,4 @@ fn test_set_token_uri_invalid_role() {
 fn grant_accesscontrol_role(role: felt252, admin: ContractAddress) {
     let mut state = ACCESS_CONTROL_STATE();
     state._grant_role(role, admin);
-}
-
-#[generate_trait]
-impl ERC6909ContentURISpyHelpersImpl of ERC6909ContentURISpyHelpers {
-    fn assert_only_event_contract_uri_updated(
-        ref self: EventSpy, contract: starknet::ContractAddress,
-    ) {
-        let expected = ExpectedEvent::new().key(selector!("ContractURIUpdated"));
-        self.assert_emitted_single(contract, expected);
-        self.assert_no_events_left_from(contract);
-    }
-
-    fn assert_only_event_uri(
-        ref self: EventSpy, contract: starknet::ContractAddress, value: ByteArray, id: u256,
-    ) {
-        let expected = ExpectedEvent::new().key(selector!("URI")).key(id).data(value);
-        self.assert_emitted_single(contract, expected);
-        self.assert_no_events_left_from(contract);
-    }
 }

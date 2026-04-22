@@ -105,9 +105,7 @@ pub mod ERC6909ContentURIComponent {
         /// - The caller is the contract owner.
         ///
         /// Emits a `URI` event.
-        fn set_token_uri(
-            ref self: ComponentState<TContractState>, id: u256, token_uri: ByteArray,
-        ) {
+        fn set_token_uri(ref self: ComponentState<TContractState>, id: u256, token_uri: ByteArray) {
             get_dep_component!(@self, Ownable).assert_only_owner();
             self._set_token_uri(id, token_uri)
         }
@@ -145,9 +143,7 @@ pub mod ERC6909ContentURIComponent {
         /// - The caller must have `CONTENT_URI_ADMIN_ROLE` role.
         ///
         /// Emits a `URI` event.
-        fn set_token_uri(
-            ref self: ComponentState<TContractState>, id: u256, token_uri: ByteArray,
-        ) {
+        fn set_token_uri(ref self: ComponentState<TContractState>, id: u256, token_uri: ByteArray) {
             get_dep_component!(@self, AccessControl).assert_only_role(CONTENT_URI_ADMIN_ROLE);
             self._set_token_uri(id, token_uri)
         }
@@ -188,9 +184,7 @@ pub mod ERC6909ContentURIComponent {
         /// - The caller must have `CONTENT_URI_ADMIN_ROLE` role.
         ///
         /// Emits a `URI` event.
-        fn set_token_uri(
-            ref self: ComponentState<TContractState>, id: u256, token_uri: ByteArray,
-        ) {
+        fn set_token_uri(ref self: ComponentState<TContractState>, id: u256, token_uri: ByteArray) {
             get_dep_component!(@self, AccessControlDAR).assert_only_role(CONTENT_URI_ADMIN_ROLE);
             self._set_token_uri(id, token_uri)
         }

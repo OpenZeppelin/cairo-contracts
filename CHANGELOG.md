@@ -21,9 +21,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Renamed `ERC6909MetadataComponent` internal setters to `_set_token_name`, `_set_token_symbol`, and `_set_token_decimals` (#1676)
 - Renamed `ERC6909ContentURIComponent` internal setters to `_set_contract_uri` and `_set_token_uri` (#1676)
 
-## Changed
+### Changed
 
-- Bump scarb to v2.17.0 (#1672)
+- Bump scarb to v2.18.0 (#1677)
 
 ## 4.0.0-alpha.0 (2026-01-31)
 

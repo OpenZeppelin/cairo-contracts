@@ -8,6 +8,7 @@ use crate::{
     utils::tabs,
 };
 use cairo_lang_defs::patcher::{PatchBuilder, RewriteNode};
+use cairo_lang_filesystem::ids::CodeMapping;
 use cairo_lang_macro::{Diagnostic, Diagnostics};
 use cairo_lang_syntax::node::{
     ast::{self, MaybeModuleBody},
@@ -26,22 +27,22 @@ use super::{
 /// The parser for the with_components macro.
 pub struct WithComponentsParser<'a> {
     /// The base node.
-    base_node: SyntaxNode,
+    base_node: SyntaxNode<'a>,
     /// The components info.
     components_info: &'a [ComponentInfo<'a>],
 }
 
 impl<'a> WithComponentsParser<'a> {
     /// Creates a new parser for the with_components macro.
-    pub fn new(base_node: SyntaxNode, components_info: &'a [ComponentInfo]) -> Self {
+    pub fn new(base_node: SyntaxNode<'a>, components_info: &'a [ComponentInfo<'a>]) -> Self {
         Self {
             base_node,
             components_info,
         }
     }
 
-    /// Parses the module and returns the patched code.
-    pub fn parse(&mut self, db: &dyn SyntaxGroup) -> (String, Diagnostics) {
+    /// Parses the module and returns the patched code plus mappings for copied user source.
+    pub fn parse(&mut self, db: &'a dyn SyntaxGroup) -> (String, Vec<CodeMapping>, Diagnostics) {
         let base_node = self.base_node;
         let mut builder = PatchBuilder::new_ex(db, &base_node);
 
@@ -66,7 +67,7 @@ impl<'a> WithComponentsParser<'a> {
         let (errors, mut warnings) =
             validate_contract_module(db, module_rnode, self.components_info);
         if !errors.is_empty() {
-            return (String::new(), errors.into());
+            return (String::new(), vec![], errors.into());
         }
 
         // Get the body node
@@ -76,7 +77,7 @@ impl<'a> WithComponentsParser<'a> {
         add_use_clauses_and_macros(body_rnode, db, self.components_info);
 
         builder.add_modified(base_rnode);
-        let (content, _) = builder.build();
+        let (content, code_mappings) = builder.build();
 
         // Add warnings for each component
         for component_info in self.components_info.iter() {
@@ -84,7 +85,7 @@ impl<'a> WithComponentsParser<'a> {
             warnings.extend(component_warnings);
         }
 
-        (content, warnings.into())
+        (content, code_mappings, warnings.into())
     }
 }
 
@@ -101,10 +102,10 @@ impl<'a> WithComponentsParser<'a> {
 ///
 /// * `errors` - The errors that arose during the validation.
 /// * `warnings` - The warnings that arose during the validation.
-fn validate_contract_module(
-    db: &dyn SyntaxGroup,
-    node: &mut RewriteNode,
-    components_info: &[ComponentInfo],
+fn validate_contract_module<'db>(
+    db: &'db dyn SyntaxGroup,
+    node: &mut RewriteNode<'db>,
+    components_info: &[ComponentInfo<'_>],
 ) -> (Vec<Diagnostic>, Vec<Diagnostic>) {
     let mut warnings = vec![];
 
@@ -406,10 +407,10 @@ fn add_per_component_warnings(code: &str, component_info: &ComponentInfo) -> Vec
 }
 
 /// Iterates over the items in the body node and processes them.
-fn process_module_items(
-    body_rnode: &mut RewriteNode,
-    db: &dyn SyntaxGroup,
-    components_info: &[ComponentInfo],
+fn process_module_items<'db>(
+    body_rnode: &mut RewriteNode<'db>,
+    db: &'db dyn SyntaxGroup,
+    components_info: &[ComponentInfo<'_>],
 ) {
     let items_rnode = body_rnode.modify_child(db, ast::ModuleBody::INDEX_ITEMS);
     let items_mnode = items_rnode.modify(db);
@@ -421,12 +422,12 @@ fn process_module_items(
 
             match item {
                 ast::ModuleItem::Struct(item_struct)
-                    if item_struct.name(db).text(db) == STORAGE_STRUCT_NAME =>
+                    if item_struct.name(db).text(db).long(db).as_str() == STORAGE_STRUCT_NAME =>
                 {
                     process_storage_struct(item_rnode, db, components_info);
                 }
                 ast::ModuleItem::Enum(item_enum)
-                    if item_enum.name(db).text(db) == EVENT_ENUM_NAME =>
+                    if item_enum.name(db).text(db).long(db).as_str() == EVENT_ENUM_NAME =>
                 {
                     process_event_enum(item_rnode, db, components_info);
                     event_enum_found = true;
@@ -443,10 +444,10 @@ fn process_module_items(
 }
 
 /// Modifies the storage struct to add the component entries.
-fn process_storage_struct(
-    item_struct: &mut RewriteNode,
-    db: &dyn SyntaxGroup,
-    components_info: &[ComponentInfo],
+fn process_storage_struct<'db>(
+    item_struct: &mut RewriteNode<'db>,
+    db: &'db dyn SyntaxGroup,
+    components_info: &[ComponentInfo<'_>],
 ) {
     let item_struct_mnode = item_struct.modify(db);
     let item_struct_children = item_struct_mnode.children.as_mut().unwrap();
@@ -458,10 +459,10 @@ fn process_storage_struct(
 }
 
 /// Modifies the event enum to add the component events.
-fn process_event_enum(
-    item_enum: &mut RewriteNode,
-    db: &dyn SyntaxGroup,
-    components_info: &[ComponentInfo],
+fn process_event_enum<'db>(
+    item_enum: &mut RewriteNode<'db>,
+    db: &'db dyn SyntaxGroup,
+    components_info: &[ComponentInfo<'_>],
 ) {
     let item_enum_mnode = item_enum.modify(db);
     let item_enum_children = item_enum_mnode.children.as_mut().unwrap();
@@ -471,10 +472,10 @@ fn process_event_enum(
     item_enum_children.insert(ast::ItemEnum::INDEX_LBRACE + 1, components_rnode);
 }
 
-fn add_event_enum(
-    body_rnode: &mut RewriteNode,
-    db: &dyn SyntaxGroup,
-    components_info: &[ComponentInfo],
+fn add_event_enum<'db>(
+    body_rnode: &mut RewriteNode<'db>,
+    db: &'db dyn SyntaxGroup,
+    components_info: &[ComponentInfo<'_>],
 ) {
     let body_mnode = body_rnode.modify(db);
     let event_enum_rnode = ComponentsGenerationData(components_info).generate_event_enum(db);
@@ -488,10 +489,10 @@ fn add_event_enum(
 }
 
 /// Modifies the body node to add the use clauses and the `component!` macros to the module.
-fn add_use_clauses_and_macros(
-    body_rnode: &mut RewriteNode,
-    db: &dyn SyntaxGroup,
-    components_info: &[ComponentInfo],
+fn add_use_clauses_and_macros<'db>(
+    body_rnode: &mut RewriteNode<'db>,
+    db: &'db dyn SyntaxGroup,
+    components_info: &[ComponentInfo<'_>],
 ) {
     let body_mnode = body_rnode.modify(db);
     let components_rnode = ComponentsGenerationData(components_info).generate_for_module(db);
@@ -507,8 +508,8 @@ fn add_use_clauses_and_macros(
 /// Set of component information to be used for code generation.
 struct ComponentsGenerationData<'a>(&'a [ComponentInfo<'a>]);
 
-impl ComponentsGenerationData<'_> {
-    fn generate_for_module(self, _db: &dyn SyntaxGroup) -> RewriteNode {
+impl<'a> ComponentsGenerationData<'a> {
+    fn generate_for_module<'db>(self, _db: &'db dyn SyntaxGroup) -> RewriteNode<'db> {
         RewriteNode::interpolate_patched(
             indoc! {"
 
@@ -536,7 +537,7 @@ impl ComponentsGenerationData<'_> {
         )
     }
 
-    fn generate_for_storage_struct(self, _db: &dyn SyntaxGroup) -> RewriteNode {
+    fn generate_for_storage_struct<'db>(self, _db: &'db dyn SyntaxGroup) -> RewriteNode<'db> {
         let mut entries = vec![];
         for component in self.0.iter() {
             entries.push(format!("{}#[{}]", tabs(2), SUBSTORAGE_ATTRIBUTE));
@@ -550,7 +551,7 @@ impl ComponentsGenerationData<'_> {
         RewriteNode::Text(entries.join("\n") + "\n")
     }
 
-    fn generate_for_event_enum(self, _db: &dyn SyntaxGroup) -> RewriteNode {
+    fn generate_for_event_enum<'db>(self, _db: &'db dyn SyntaxGroup) -> RewriteNode<'db> {
         let mut entries = vec![];
         for component in self.0.iter() {
             entries.push(format!("{}#[{}]", tabs(2), FLAT_ATTRIBUTE));
@@ -564,7 +565,7 @@ impl ComponentsGenerationData<'_> {
         RewriteNode::Text(entries.join("\n") + "\n")
     }
 
-    fn generate_event_enum(self, _db: &dyn SyntaxGroup) -> RewriteNode {
+    fn generate_event_enum<'db>(self, _db: &'db dyn SyntaxGroup) -> RewriteNode<'db> {
         let mut entries = vec![];
 
         entries.push(format!("\n{}#[event]", tabs(1)));
@@ -583,7 +584,7 @@ impl ComponentsGenerationData<'_> {
         RewriteNode::Text(entries.join("\n"))
     }
 
-    fn component_use_clause_entries(&self) -> RewriteNode {
+    fn component_use_clause_entries<'db>(&self) -> RewriteNode<'db> {
         let mut entries = vec![];
         for component in self.0.iter() {
             entries.push(format!("{}use {};", tabs(1), component.path));
@@ -591,7 +592,7 @@ impl ComponentsGenerationData<'_> {
         RewriteNode::Text(entries.join("\n"))
     }
 
-    fn component_macro_entries(&self) -> RewriteNode {
+    fn component_macro_entries<'db>(&self) -> RewriteNode<'db> {
         let mut entries = vec![];
         for component in self.0.iter() {
             entries.push(format!(
@@ -605,7 +606,7 @@ impl ComponentsGenerationData<'_> {
         RewriteNode::Text(entries.join("\n"))
     }
 
-    fn component_internal_impls_entries(&self) -> RewriteNode {
+    fn component_internal_impls_entries<'db>(&self) -> RewriteNode<'db> {
         let mut entries = vec![];
         for component in self.0.iter() {
             for implementation in component.internal_impls.iter() {

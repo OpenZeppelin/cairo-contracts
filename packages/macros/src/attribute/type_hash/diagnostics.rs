@@ -1,5 +1,6 @@
 //! List of errors and warnings for the type hash macro.
 
+#[allow(non_snake_case)]
 pub mod errors {
     /// Error when the type hash macro is applied to a struct containing a custom type.
     pub const CUSTOM_TYPE_NOT_SUPPORTED: &str = "Inner custom types are not supported yet.\n";
@@ -16,4 +17,8 @@ pub mod errors {
     /// Error when the string argument is invalid.
     pub const INVALID_STRING_ARGUMENT: &str =
         "Invalid string argument. Expected a non-empty string between double quotes.\n";
+    /// Error when a SNIP-12 type override cannot be parsed.
+    pub fn INVALID_SNIP12_TYPE(ty: &str) -> String {
+        format!("Invalid SNIP-12 type: {ty}.\n")
+    }
 }

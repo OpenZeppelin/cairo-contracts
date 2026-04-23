@@ -4,8 +4,8 @@ use proc_macro2::{Ident, TokenStream as ProcTokenStream};
 use quote::{format_ident, quote};
 
 use crate::{
-    attribute::common::text_span::merge_spans_from_initial, generate_event_spy_helpers::parser,
-    utils::camel_to_snake,
+    attribute::common::token_stream::generated_code_token_stream,
+    generate_event_spy_helpers::parser, utils::camel_to_snake,
 };
 
 /// Generates helper functions for spying on events in tests.
@@ -74,12 +74,14 @@ pub fn generate_event_spy_helpers(token_stream: TokenStream) -> ProcMacroResult 
     // 2. Generate the helper functions
     let expanded = generate_code(&impl_block).to_string();
 
-    // 3. Merge spans from the token stream into the expanded code
+    // 3. Tokenize generated code with call-site spans
     let db = SimpleParserDatabase::default();
-    let syntax_node_with_spans = merge_spans_from_initial(&token_stream.tokens, &expanded, &db);
-    let token_stream_with_spans =
-        TokenStream::new(syntax_node_with_spans).with_metadata(token_stream.metadata().clone());
-    ProcMacroResult::new(token_stream_with_spans)
+    match generated_code_token_stream(&db, expanded, token_stream.metadata().clone()) {
+        Ok(token_stream) => ProcMacroResult::new(token_stream),
+        Err(diagnostic) => {
+            ProcMacroResult::new(TokenStream::empty()).with_diagnostics(diagnostic.into())
+        }
+    }
 }
 
 /// Generates the code for event spy helper functions based on the provided implementation block.

@@ -1,11 +1,22 @@
 ---
 source: src/tests/test_with_components.rs
+assertion_line: 1111
 expression: result
-snapshot_kind: text
 ---
 TokenStream:
 
-None
+#[starknet::contract]
+pub mod MyContract {
+    use openzeppelin_token::erc721::extensions::{DefaultConfig, ERC721ConsecutiveComponent};
+    component!(
+        path: ERC721ConsecutiveComponent,
+        storage: erc721_consecutive,
+        event: ERC721ConsecutiveEvent,
+    );
+    #[storage]
+    pub struct Storage {}
+}
+
 
 Diagnostics:
 

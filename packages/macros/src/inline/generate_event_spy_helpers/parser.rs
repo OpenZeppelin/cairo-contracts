@@ -87,7 +87,7 @@ impl<'a> ParseError<&'a str> for ParserError {
 }
 
 // Parses an identifier like `AccessControlDefaultAdminRulesSpyHelpers`
-fn identifier(input: &str) -> ParseResult<String> {
+fn identifier(input: &str) -> ParseResult<'_, String> {
     map(
         pair(alpha1, many0(alt((alphanumeric1, tag("_"))))),
         |(first, rest)| format!("{}{}", first, rest.concat()),
@@ -96,7 +96,7 @@ fn identifier(input: &str) -> ParseResult<String> {
 }
 
 // #[key] (optional)
-fn key_attribute(input: &str) -> ParseResult<bool> {
+fn key_attribute(input: &str) -> ParseResult<'_, bool> {
     let (input, attr) = opt(|input| {
         let (input, _) = tag("#[")(input)?;
         let (input, attr) = identifier(input)?;
@@ -124,7 +124,7 @@ fn key_attribute(input: &str) -> ParseResult<bool> {
 }
 
 // new_admin: ContractAddress
-fn parameter(input: &str) -> ParseResult<Parameter> {
+fn parameter(input: &str) -> ParseResult<'_, Parameter> {
     map(
         (
             multispace0,
@@ -150,7 +150,7 @@ fn parameter(input: &str) -> ParseResult<Parameter> {
 }
 
 // event DefaultAdminTransferScheduled(...)
-fn event(input: &str) -> ParseResult<Event> {
+fn event(input: &str) -> ParseResult<'_, Event> {
     let (input, _) = multispace0(input)?;
     let (input, is_only) = event_attributes(input)?;
     let (input, _) = multispace0(input)?;
@@ -213,7 +213,7 @@ fn event(input: &str) -> ParseResult<Event> {
     ))
 }
 
-fn event_attributes(input: &str) -> ParseResult<bool> {
+fn event_attributes(input: &str) -> ParseResult<'_, bool> {
     let (input, _) = multispace0(input)?;
 
     // Parse #[...] if present
@@ -250,7 +250,7 @@ fn event_attributes(input: &str) -> ParseResult<bool> {
 }
 
 // impl AccessControlDefaultAdminRulesSpyHelpers { ... }
-fn impl_block(input: &str) -> ParseResult<ImplBlock> {
+fn impl_block(input: &str) -> ParseResult<'_, ImplBlock> {
     let (input, _) = multispace0(input)?;
     let (input, is_public) = opt(tag("pub")).parse(input)?;
     let (input, _) = multispace0(input)?;
@@ -302,7 +302,7 @@ fn impl_block(input: &str) -> ParseResult<ImplBlock> {
 }
 
 // Outer {}
-pub fn parse_dsl(input: &str) -> ParseResult<ImplBlock> {
+pub fn parse_dsl(input: &str) -> ParseResult<'_, ImplBlock> {
     delimited(
         delimited(
             multispace0,

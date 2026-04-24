@@ -1,11 +1,12 @@
 ---
 source: src/tests/test_with_components.rs
+assertion_line: 593
 expression: result
-snapshot_kind: text
 ---
 TokenStream:
 
-None
+pub mod MyContract;
+
 
 Diagnostics:
 

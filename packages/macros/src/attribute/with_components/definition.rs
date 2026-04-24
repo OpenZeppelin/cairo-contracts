@@ -1,4 +1,4 @@
-use cairo_lang_macro::{attribute_macro, Diagnostic, ProcMacroResult, TokenStream};
+use cairo_lang_macro::{attribute_macro, Diagnostic, ProcMacroResult, Severity, TokenStream};
 use cairo_lang_parser::utils::SimpleParserDatabase;
 
 use crate::{
@@ -45,6 +45,13 @@ pub fn with_components(attribute_stream: TokenStream, item_stream: TokenStream) 
             return no_op_result.with_diagnostics(diagnostic.into());
         }
     };
+    let has_errors = diagnostics
+        .clone()
+        .into_iter()
+        .any(|diagnostic| diagnostic.severity() == Severity::Error);
+    if has_errors {
+        return no_op_result.with_diagnostics(diagnostics);
+    }
 
     // 3. Tokenize the patched module, preserving spans for copied user code.
     let token_stream = match mapped_code_token_stream(
@@ -120,7 +127,7 @@ fn invalid_attribute_format() -> Diagnostic {
 
 #[cfg(test)]
 mod tests {
-    use super::parse_args;
+    use super::{parse_args, parse_component_args};
 
     #[test]
     fn test_parse_args() {
@@ -135,5 +142,23 @@ mod tests {
         let attribute = "(Ownable, ERC20, Other, Another)";
         let result = parse_args(attribute);
         assert_eq!(result, vec!["Ownable", "ERC20", "Other", "Another"]);
+    }
+
+    #[test]
+    fn rejects_unmatched_parentheses() {
+        assert!(parse_component_args("(ERC20, Ownable").is_err());
+        assert!(parse_component_args("ERC20, Ownable)").is_err());
+    }
+
+    #[test]
+    fn rejects_empty_elements() {
+        assert!(parse_component_args("(ERC20,,Ownable)").is_err());
+        assert!(parse_component_args("(,)").is_err());
+        assert!(parse_component_args("ERC20, ,Ownable").is_err());
+    }
+
+    #[test]
+    fn rejects_malformed_separators() {
+        assert!(parse_component_args("ERC20 Ownable").is_err());
     }
 }

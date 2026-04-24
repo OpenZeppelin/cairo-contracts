@@ -103,6 +103,8 @@ fn parse_args(s: &str) -> Result<TypeHashArgs, Diagnostic> {
         name: String::new(),
         debug: false,
     };
+    let mut name_seen = false;
+    let mut debug_seen = false;
 
     // If the attribute is empty, return the default config
     let s = s.trim();
@@ -130,8 +132,24 @@ fn parse_args(s: &str) -> Result<TypeHashArgs, Diagnostic> {
         };
 
         match name.trim() {
-            "name" => args.name = parse_string_arg(value.trim())?,
-            "debug" => args.debug = parse_bool_arg(value.trim())?,
+            "name" => {
+                if name_seen {
+                    return Err(Diagnostic::error(
+                        errors::INVALID_TYPE_HASH_ATTRIBUTE_FORMAT,
+                    ));
+                }
+                args.name = parse_string_arg(value.trim())?;
+                name_seen = true;
+            }
+            "debug" => {
+                if debug_seen {
+                    return Err(Diagnostic::error(
+                        errors::INVALID_TYPE_HASH_ATTRIBUTE_FORMAT,
+                    ));
+                }
+                args.debug = parse_bool_arg(value.trim())?;
+                debug_seen = true;
+            }
             _ => {
                 return Err(Diagnostic::error(
                     errors::INVALID_TYPE_HASH_ATTRIBUTE_FORMAT,
@@ -214,4 +232,19 @@ fn generate_code(
     );
 
     Ok(code)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::parse_args;
+
+    #[test]
+    fn rejects_duplicate_name_argument() {
+        assert!(parse_args(r#"(name: "A", name: "B")"#).is_err());
+    }
+
+    #[test]
+    fn rejects_duplicate_debug_argument() {
+        assert!(parse_args("(debug: true, debug: false)").is_err());
+    }
 }

@@ -1,11 +1,24 @@
 ---
 source: src/tests/test_with_components.rs
+assertion_line: 412
 expression: result
-snapshot_kind: text
 ---
 TokenStream:
 
-None
+#[starknet::contract]
+pub mod Contract {
+    use openzeppelin_access::accesscontrol::DEFAULT_ADMIN_ROLE;
+    use starknet::ContractAddress;
+    #[storage]
+    pub struct Storage {}
+    #[constructor]
+    fn constructor(ref self: ContractState, default_admin: ContractAddress) {
+        self.access_control.initializer();
+        self.access_control_dar.initializer(INITIAL_DELAY, default_admin);
+        self.access_control._grant_role(DEFAULT_ADMIN_ROLE, default_admin);
+    }
+}
+
 
 Diagnostics:
 

@@ -1,11 +1,17 @@
 ---
 source: src/tests/test_with_components.rs
+assertion_line: 1065
 expression: result
-snapshot_kind: text
 ---
 TokenStream:
 
-None
+#[starknet::contract]
+pub mod MyContract {
+    use openzeppelin_token::erc721::extensions::DefaultConfig;
+    #[storage]
+    pub struct Storage {}
+}
+
 
 Diagnostics:
 

@@ -64,11 +64,12 @@ impl<'db, 'a> TypeHashParser<'db, 'a> {
                 let attr_type = args.kind;
 
                 // If there is an attribute, use it, otherwise use the type from the member
-                let s12_type = if !attr_type.is_empty() {
-                    S12Type::from_str(&attr_type)
+                let type_input = if !attr_type.is_empty() {
+                    attr_type.clone()
                 } else {
-                    S12Type::from_str(member.ty)
+                    member.ty.to_string()
                 };
+                let s12_type = S12Type::from_str(&type_input);
 
                 // If there is an attribute, use it, otherwise use the name from the member
                 let s12_name = if !attr_name.is_empty() {
@@ -78,7 +79,7 @@ impl<'db, 'a> TypeHashParser<'db, 'a> {
                 };
 
                 let Some(s12_type) = s12_type else {
-                    return Err(Diagnostic::error(errors::INVALID_SNIP12_TYPE(&attr_type)));
+                    return Err(Diagnostic::error(errors::INVALID_SNIP12_TYPE(&type_input)));
                 };
 
                 Ok((s12_name, s12_type))

@@ -15,10 +15,9 @@ pub fn split_top_level_args(s: &str) -> Option<Vec<&str>> {
     let mut paren_depth = 0usize;
     let mut angle_depth = 0usize;
     let mut in_string = false;
-    let mut previous = None;
 
     for (index, ch) in s.char_indices() {
-        if ch == '"' && previous != Some('\\') {
+        if ch == '"' && !quote_is_escaped(s, index) {
             in_string = !in_string;
         } else if !in_string {
             match ch {
@@ -33,7 +32,6 @@ pub fn split_top_level_args(s: &str) -> Option<Vec<&str>> {
                 _ => {}
             }
         }
-        previous = Some(ch);
     }
 
     if in_string || paren_depth != 0 || angle_depth != 0 {
@@ -42,4 +40,25 @@ pub fn split_top_level_args(s: &str) -> Option<Vec<&str>> {
 
     parts.push(s[start..].trim());
     Some(parts)
+}
+
+fn quote_is_escaped(s: &str, quote_index: usize) -> bool {
+    s[..quote_index]
+        .chars()
+        .rev()
+        .take_while(|&ch| ch == '\\')
+        .count()
+        % 2
+        == 1
+}
+
+#[cfg(test)]
+mod tests {
+    use super::split_top_level_args;
+
+    #[test]
+    fn splits_args_when_string_ends_with_escaped_backslash() {
+        let parts = split_top_level_args(r#"name: "test\\", debug: true"#).unwrap();
+        assert_eq!(parts, vec![r#"name: "test\\""#, "debug: true"]);
+    }
 }

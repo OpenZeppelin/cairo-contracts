@@ -593,3 +593,48 @@ pub mod ERC3156FlashBorrowerMock {
         self.auto_approve.write(auto_approve);
     }
 }
+
+/// ERC20 mock whose `transfer`, `transfer_from`, and `approve` always return `false`. Used to test
+/// `SafeERC20` failure paths.
+#[starknet::contract]
+pub mod ERC20ReturnFalseMock {
+    use openzeppelin_interfaces::token::erc20::IERC20;
+    use starknet::ContractAddress;
+
+    #[storage]
+    pub struct Storage {}
+
+    #[abi(embed_v0)]
+    pub impl ERC20ReturnFalseImpl of IERC20<ContractState> {
+        fn total_supply(self: @ContractState) -> u256 {
+            0
+        }
+
+        fn balance_of(self: @ContractState, account: ContractAddress) -> u256 {
+            0
+        }
+
+        fn allowance(
+            self: @ContractState, owner: ContractAddress, spender: ContractAddress,
+        ) -> u256 {
+            0
+        }
+
+        fn transfer(ref self: ContractState, recipient: ContractAddress, amount: u256) -> bool {
+            false
+        }
+
+        fn transfer_from(
+            ref self: ContractState,
+            sender: ContractAddress,
+            recipient: ContractAddress,
+            amount: u256,
+        ) -> bool {
+            false
+        }
+
+        fn approve(ref self: ContractState, spender: ContractAddress, amount: u256) -> bool {
+            false
+        }
+    }
+}

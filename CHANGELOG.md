@@ -7,6 +7,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Added
+
+- `SafeERC20DispatcherTrait` in `openzeppelin_token::erc20::utils` with `assert_transfer`, `assert_transfer_from`, `assert_increase_allowance`, and `assert_decrease_allowance`
+
+### Changed (Breaking)
+
+- `ERC20WrapperComponent` failed-transfer error changed to `'SafeERC20: failed operation'`; removed `Errors::TRANSFER_FAILED`
+- `ERC4626SelfAssetsManagement` failed-transfer error changed to `'SafeERC20: failed operation'`; removed `ERC4626Component::Errors::TOKEN_TRANSFER_FAILED`
+- `VestingComponent.release` failed-transfer error changed to `'SafeERC20: failed operation'`; removed `Errors::TOKEN_TRANSFER_FAILED`
+
 ## 4.0.0-alpha.1 (2026-04-22)
 
 ### Added

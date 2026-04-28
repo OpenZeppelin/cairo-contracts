@@ -231,7 +231,7 @@ fn test_release_after_ownership_transferred() {
 }
 
 #[test]
-#[should_panic(expected: 'Vesting: Token transfer failed')]
+#[should_panic(expected: 'SafeERC20: failed operation')]
 fn test_panics_when_transfer_fails() {
     let data = TEST_DATA();
     let (vesting, token) = setup(data);

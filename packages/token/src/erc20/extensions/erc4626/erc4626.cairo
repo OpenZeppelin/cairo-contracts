@@ -91,7 +91,6 @@ pub mod ERC4626Component {
         pub const EXCEEDED_MAX_MINT: felt252 = 'ERC4626: exceeds max mint';
         pub const EXCEEDED_MAX_WITHDRAW: felt252 = 'ERC4626: exceeds max withdraw';
         pub const EXCEEDED_MAX_REDEEM: felt252 = 'ERC4626: exceeds max redeem';
-        pub const TOKEN_TRANSFER_FAILED: felt252 = 'ERC4626: token transfer failed';
         pub const INVALID_ASSET_ADDRESS: felt252 = 'ERC4626: asset address set to 0';
         pub const DECIMALS_OVERFLOW: felt252 = 'ERC4626: decimals overflow';
     }
@@ -897,6 +896,7 @@ pub mod ERC4626Component {
 use openzeppelin_interfaces::erc20::{IERC20Dispatcher, IERC20DispatcherTrait};
 use starknet::ContractAddress;
 use starknet::storage::StoragePointerReadAccess;
+use crate::erc20::utils::SafeERC20DispatcherTrait;
 
 pub impl ERC4626EmptyHooks<
     TContractState, +ERC4626Component::HasComponent<TContractState>,
@@ -926,10 +926,7 @@ pub impl ERC4626SelfAssetsManagement<
     ) {
         let this = starknet::get_contract_address();
         let asset_dispatcher = IERC20Dispatcher { contract_address: self.ERC4626_asset.read() };
-        assert(
-            asset_dispatcher.transfer_from(from, this, assets),
-            ERC4626Component::Errors::TOKEN_TRANSFER_FAILED,
-        );
+        asset_dispatcher.assert_transfer_from(from, this, assets);
     }
 
     fn transfer_assets_out(
@@ -938,9 +935,7 @@ pub impl ERC4626SelfAssetsManagement<
         assets: u256,
     ) {
         let asset_dispatcher = IERC20Dispatcher { contract_address: self.ERC4626_asset.read() };
-        assert(
-            asset_dispatcher.transfer(to, assets), ERC4626Component::Errors::TOKEN_TRANSFER_FAILED,
-        );
+        asset_dispatcher.assert_transfer(to, assets);
     }
 }
 

@@ -46,6 +46,7 @@ pub mod ERC4626ExternalVaultMock {
     use openzeppelin_token::erc20::extensions::erc4626::{
         ERC4626DefaultNoFees, ERC4626DefaultNoLimits, ERC4626EmptyHooks,
     };
+    use openzeppelin_token::erc20::utils::SafeERC20DispatcherTrait;
     use openzeppelin_token::erc20::{DefaultConfig as ERC20DefaultConfig, ERC20HooksEmptyImpl};
     use starknet::ContractAddress;
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
@@ -97,10 +98,7 @@ pub mod ERC4626ExternalVaultMock {
         ) {
             let asset_storage = self.get_contract().external_storage.read();
             let asset_dispatcher = IERC20Dispatcher { contract_address: self.ERC4626_asset.read() };
-            assert(
-                asset_dispatcher.transfer_from(from, asset_storage, assets),
-                ERC4626Component::Errors::TOKEN_TRANSFER_FAILED,
-            );
+            asset_dispatcher.assert_transfer_from(from, asset_storage, assets);
         }
 
         fn transfer_assets_out(
@@ -110,10 +108,7 @@ pub mod ERC4626ExternalVaultMock {
         ) {
             let asset_storage = self.get_contract().external_storage.read();
             let asset_dispatcher = IERC20Dispatcher { contract_address: self.ERC4626_asset.read() };
-            assert(
-                asset_dispatcher.transfer_from(asset_storage, to, assets),
-                ERC4626Component::Errors::TOKEN_TRANSFER_FAILED,
-            );
+            asset_dispatcher.assert_transfer_from(asset_storage, to, assets);
         }
 
         fn get_total_assets(self: @ERC4626Component::ComponentState<ContractState>) -> u256 {

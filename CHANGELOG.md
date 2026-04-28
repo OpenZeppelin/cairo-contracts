@@ -11,13 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `SafeERC20DispatcherTrait` in `openzeppelin_token::erc20::utils` with `assert_transfer`, `assert_transfer_from`, `assert_increase_allowance`, and `assert_decrease_allowance`
+- `SafeERC20DispatcherTrait` in `openzeppelin_token::erc20::utils` with `assert_transfer`, `assert_transfer_from`, `assert_increase_allowance`, and `assert_decrease_allowance` (#1683)
 
 ### Changed (Breaking)
 
-- `ERC20WrapperComponent` failed-transfer error changed to `'SafeERC20: failed operation'`; removed `Errors::TRANSFER_FAILED`
-- `ERC4626SelfAssetsManagement` failed-transfer error changed to `'SafeERC20: failed operation'`; removed `ERC4626Component::Errors::TOKEN_TRANSFER_FAILED`
-- `VestingComponent.release` failed-transfer error changed to `'SafeERC20: failed operation'`; removed `Errors::TOKEN_TRANSFER_FAILED`
+- `ERC20WrapperComponent` failed-transfer error changed to `'SafeERC20: failed operation'`; removed `Errors::TRANSFER_FAILED` (#1683)
+- `ERC4626SelfAssetsManagement` failed-transfer error changed to `'SafeERC20: failed operation'`; removed `ERC4626Component::Errors::TOKEN_TRANSFER_FAILED` (#1683)
+- `VestingComponent.release` failed-transfer error changed to `'SafeERC20: failed operation'`; removed `Errors::TOKEN_TRANSFER_FAILED` (#1683)
 
 ## 4.0.0-alpha.1 (2026-04-22)
 

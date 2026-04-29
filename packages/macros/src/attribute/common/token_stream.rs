@@ -5,7 +5,7 @@
 //! generated-code tokenization.
 
 use cairo_lang_filesystem::{
-    ids::{CodeMapping, CodeOrigin},
+    ids::CodeMapping,
     span::{TextSpan as CairoTextSpan, TextWidth},
 };
 use cairo_lang_macro::{
@@ -125,10 +125,6 @@ fn translate_copied_source_span(
     );
 
     code_mappings.iter().find_map(|mapping| {
-        if !matches!(mapping.origin, CodeOrigin::Start(_)) {
-            return None;
-        }
-
         mapping
             .translate(mapped_span)
             .map(|translated| TextSpan::new(translated.start.as_u32(), translated.end.as_u32()))

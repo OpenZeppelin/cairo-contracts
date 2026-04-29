@@ -102,7 +102,8 @@ impl<'db, 'a> TypeHashParser<'db, 'a> {
                     encoded_type.push_str(&format!("\"{name}\":\"{type_name}\","))
                 }
                 TypeVariant::Enum => {
-                    encoded_type.push_str(&format!("\"{}\"({}),", name, maybe_tuple(&type_name)))
+                    let tuple = maybe_tuple(&type_name)?;
+                    encoded_type.push_str(&format!("\"{}\"({}),", name, tuple))
                 }
             };
 
@@ -260,17 +261,19 @@ pub fn parse_string_arg(s: &str) -> Result<String, Diagnostic> {
 ///
 /// Example:
 /// ```
-/// let encoded_type = maybe_tuple("(felt252, felt252, ClassHash, NftId)");
+/// let encoded_type = maybe_tuple("(felt252, felt252, ClassHash, NftId)").unwrap();
 /// assert_eq!(encoded_type, "\"felt252\",\"felt252\",\"ClassHash\",\"NftId\"");
 /// ```
-fn maybe_tuple(s: &str) -> String {
+fn maybe_tuple(s: &str) -> Result<String, Diagnostic> {
     if s.starts_with("(") && s.ends_with(")") {
-        split_types(&s[1..s.len() - 1])
+        let types = split_types(&s[1..s.len() - 1])
+            .ok_or_else(|| Diagnostic::error(errors::INVALID_SNIP12_TYPE(s)))?;
+        Ok(types
             .iter()
             .map(|s| format!("\"{}\"", s.trim()))
             .collect::<Vec<_>>()
-            .join(",")
+            .join(","))
     } else {
-        format!("\"{s}\"")
+        Ok(format!("\"{s}\""))
     }
 }

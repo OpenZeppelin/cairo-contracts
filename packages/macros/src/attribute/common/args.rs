@@ -13,8 +13,12 @@ pub fn split_top_level_args(s: &str) -> Option<Vec<&str>> {
     let mut parts = vec![];
     let mut start = 0;
     let mut paren_depth = 0usize;
+    // Track `<...>` conservatively: only delimiters attached to identifier-like tokens are
+    // treated as generics. This prefers avoiding false positives for comparison operators over
+    // accepting every whitespace-heavy generic spelling.
     let mut angle_depth = 0usize;
     let mut in_string = false;
+    let mut last_non_whitespace = None;
 
     for (index, ch) in s.char_indices() {
         if ch == '"' && !quote_is_escaped(s, index) {
@@ -23,13 +27,17 @@ pub fn split_top_level_args(s: &str) -> Option<Vec<&str>> {
             match ch {
                 '(' => paren_depth += 1,
                 ')' => paren_depth = paren_depth.checked_sub(1)?,
-                '<' => angle_depth += 1,
-                '>' => angle_depth = angle_depth.checked_sub(1)?,
+                '<' if opens_generic_arguments(s, index, last_non_whitespace) => angle_depth += 1,
+                '>' if angle_depth > 0 => angle_depth -= 1,
                 ',' if paren_depth == 0 && angle_depth == 0 => {
                     parts.push(s[start..index].trim());
                     start = index + ch.len_utf8();
                 }
                 _ => {}
+            }
+
+            if !ch.is_whitespace() {
+                last_non_whitespace = Some(ch);
             }
         }
     }
@@ -50,6 +58,18 @@ fn quote_is_escaped(s: &str, quote_index: usize) -> bool {
         .count()
         % 2
         == 1
+}
+
+fn opens_generic_arguments(s: &str, index: usize, previous_non_whitespace: Option<char>) -> bool {
+    s[..index]
+        .chars()
+        .next_back()
+        .is_some_and(|ch| !ch.is_whitespace())
+        && matches!(
+            previous_non_whitespace,
+            Some(ch)
+                if ch.is_ascii_alphanumeric() || ch == '_' || matches!(ch, ')' | ']' | '>' | ':')
+        )
 }
 
 #[cfg(test)]

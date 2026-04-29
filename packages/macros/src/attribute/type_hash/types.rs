@@ -318,10 +318,10 @@ impl UserDefinedType {
 /// ```
 /// let s = "a,b,(c,d),e";
 /// let result = split_types(s);
-/// assert_eq!(result, vec!["a", "b", "(c,d)", "e"]);
+/// assert_eq!(result, Some(vec!["a", "b", "(c,d)", "e"]));
 /// ```
-pub fn split_types(s: &str) -> Vec<&str> {
-    try_split_types(s).unwrap_or_default()
+pub fn split_types(s: &str) -> Option<Vec<&str>> {
+    try_split_types(s)
 }
 
 fn try_split_types(s: &str) -> Option<Vec<&str>> {

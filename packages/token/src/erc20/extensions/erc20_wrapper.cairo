@@ -29,6 +29,7 @@ pub mod ERC20WrapperComponent {
     use starknet::storage::{StoragePointerReadAccess, StoragePointerWriteAccess};
     use crate::erc20::ERC20Component;
     use crate::erc20::ERC20Component::InternalImpl as ERC20InternalImpl;
+    use crate::erc20::utils::SafeERC20DispatcherTrait;
 
     #[storage]
     pub struct Storage {
@@ -68,7 +69,6 @@ pub mod ERC20WrapperComponent {
         pub const INVALID_UNDERLYING_ADDRESS: felt252 = 'Wrapper: invalid underlying';
         pub const INVALID_SENDER: felt252 = 'Wrapper: invalid sender';
         pub const INVALID_RECEIVER: felt252 = 'Wrapper: invalid receiver';
-        pub const TRANSFER_FAILED: felt252 = 'Wrapper: transfer failed';
         pub const NOTHING_TO_RECOVER: felt252 = 'Wrapper: nothing to recover';
         pub const INVALID_DECIMALS: felt252 = 'Wrapper: invalid decimals';
     }
@@ -102,8 +102,7 @@ pub mod ERC20WrapperComponent {
 
             let underlying = self.underlying();
             let token = IERC20Dispatcher { contract_address: underlying };
-            let ok = token.transfer_from(caller, this, amount);
-            assert(ok, Errors::TRANSFER_FAILED);
+            token.assert_transfer_from(caller, this, amount);
 
             let mut erc20_component = get_dep_component_mut!(ref self, ERC20);
             erc20_component.mint(receiver, amount);
@@ -126,8 +125,7 @@ pub mod ERC20WrapperComponent {
 
             let underlying = self.underlying();
             let token = IERC20Dispatcher { contract_address: underlying };
-            let ok = token.transfer(receiver, amount);
-            assert(ok, Errors::TRANSFER_FAILED);
+            token.assert_transfer(receiver, amount);
 
             self.emit(Withdraw { caller, receiver, assets: amount });
             true

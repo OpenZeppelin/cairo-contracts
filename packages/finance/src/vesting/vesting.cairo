@@ -33,6 +33,7 @@ pub mod VestingComponent {
     use openzeppelin_access::ownable::OwnableComponent::OwnableImpl;
     use openzeppelin_interfaces::erc20::{IERC20Dispatcher, IERC20DispatcherTrait};
     use openzeppelin_interfaces::vesting as interface;
+    use openzeppelin_token::erc20::utils::SafeERC20DispatcherTrait;
     use starknet::ContractAddress;
     use starknet::storage::{
         Map, StorageMapReadAccess, StorageMapWriteAccess, StoragePointerReadAccess,
@@ -63,7 +64,6 @@ pub mod VestingComponent {
 
     pub mod Errors {
         pub const INVALID_CLIFF_DURATION: felt252 = 'Vesting: Invalid cliff duration';
-        pub const TOKEN_TRANSFER_FAILED: felt252 = 'Vesting: Token transfer failed';
     }
 
     /// A trait that defines the logic for calculating the vested amount based on a given timestamp.
@@ -154,9 +154,7 @@ pub mod VestingComponent {
 
                 let beneficiary = get_dep_component!(@self, Ownable).owner();
                 let token_dispatcher = IERC20Dispatcher { contract_address: token };
-                assert(
-                    token_dispatcher.transfer(beneficiary, amount), Errors::TOKEN_TRANSFER_FAILED,
-                );
+                token_dispatcher.assert_transfer(beneficiary, amount);
             }
             amount
         }

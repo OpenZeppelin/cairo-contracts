@@ -1,11 +1,20 @@
 ---
 source: src/tests/test_with_components.rs
+assertion_line: 1088
 expression: result
-snapshot_kind: text
 ---
 TokenStream:
 
-None
+#[starknet::contract]
+pub mod MyContract {
+    use openzeppelin_token::erc721::extensions::{DefaultConfig, ERC721EnumerableComponent};
+    component!(
+        path: ERC721EnumerableComponent, storage: erc721_enumerable, event: ERC721EnumerableEvent,
+    );
+    #[storage]
+    pub struct Storage {}
+}
+
 
 Diagnostics:
 

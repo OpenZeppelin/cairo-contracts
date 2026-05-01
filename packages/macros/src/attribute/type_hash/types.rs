@@ -9,6 +9,8 @@
 
 use cairo_lang_macro::Diagnostic;
 
+use crate::attribute::common::args::split_top_level_args;
+
 use super::diagnostics::errors;
 
 /// The different types of types as defined in the SNIP-12.
@@ -69,26 +71,29 @@ impl S12Type {
     pub fn from_str(s: &str) -> Option<S12Type> {
         let s = s.trim();
 
+        if s.is_empty() {
+            return None;
+        }
+
         // Check if the type is a tuple
-        if s.starts_with("(") && s.ends_with(")") {
-            let types = split_types(&s[1..s.len() - 1])
-                .iter()
-                .map(|s| S12Type::from_str(s).unwrap())
-                .collect();
+        if let Some(inner) = s.strip_prefix('(').and_then(|s| s.strip_suffix(')')) {
+            let types = try_split_types(inner)?
+                .into_iter()
+                .map(S12Type::from_str)
+                .collect::<Option<Vec<_>>>()?;
             return Some(S12Type::Collection(CollectionType::Tuple(types)));
+        } else if s.starts_with('(') || s.ends_with(')') {
+            return None;
         }
 
         // Check if the type is an array/span
-        if s.starts_with("Array<") || s.starts_with("Span<") {
-            let prefix_len = if s.starts_with("Array<") { 6 } else { 5 };
-            let array_type = Box::new(S12Type::from_str(&s[prefix_len..s.len() - 1]).unwrap());
+        if let Some(inner) = s.strip_prefix("Array<").or_else(|| s.strip_prefix("Span<")) {
+            let inner = inner.strip_suffix('>')?;
+            let array_type = Box::new(S12Type::from_str(inner)?);
             return Some(S12Type::Collection(CollectionType::Array(array_type)));
         }
 
         Some(match s {
-            // Check empty string
-            "" => return None,
-
             // Check basic types
             "felt252" => S12Type::Basic(BasicType::Felt),
             "shortstring" => S12Type::Basic(BasicType::ShortString),
@@ -313,31 +318,26 @@ impl UserDefinedType {
 /// ```
 /// let s = "a,b,(c,d),e";
 /// let result = split_types(s);
-/// assert_eq!(result, vec!["a", "b", "(c,d)", "e"]);
+/// assert_eq!(result, Some(vec!["a", "b", "(c,d)", "e"]));
 /// ```
-pub fn split_types(s: &str) -> Vec<&str> {
-    let mut result = Vec::new();
-    let mut start = 0;
-    let mut paren_count = 0;
+pub fn split_types(s: &str) -> Option<Vec<&str>> {
+    try_split_types(s)
+}
 
-    for (i, c) in s.char_indices() {
-        match c {
-            '(' => paren_count += 1,
-            ')' => paren_count -= 1,
-            ',' if paren_count == 0 => {
-                if start < i {
-                    result.push(s[start..i].trim());
-                }
-                start = i + 1;
-            }
-            _ => {}
-        }
+fn try_split_types(s: &str) -> Option<Vec<&str>> {
+    let mut parts = split_top_level_args(s.trim())?;
+    if parts == [""] {
+        return Some(vec![]);
     }
 
-    // Add the last segment
-    if start < s.len() {
-        result.push(s[start..].trim());
+    // Cairo accepts a trailing comma in single-element tuples, e.g. `(ContractAddress,)`.
+    if parts.last() == Some(&"") {
+        parts.pop();
     }
 
-    result
+    if parts.iter().any(|part| part.is_empty()) {
+        return None;
+    }
+
+    Some(parts)
 }

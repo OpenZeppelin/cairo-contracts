@@ -1,20 +1,20 @@
-use cairo_lang_formatter::format_string;
-use cairo_lang_macro::{attribute_macro, quote, Diagnostic, ProcMacroResult, TokenStream};
+use cairo_lang_macro::{attribute_macro, Diagnostic, ProcMacroResult, TokenStream};
 use cairo_lang_parser::utils::SimpleParserDatabase;
 use cairo_lang_plugins::plugins::utils::PluginTypeInfo;
 use cairo_lang_starknet_classes::keccak::starknet_keccak;
-use cairo_lang_syntax::node::with_db::SyntaxNodeWithDb;
 use cairo_lang_syntax::node::{ast, TypedSyntaxNode};
 use cairo_lang_syntax::node::{db::SyntaxGroup, SyntaxNode};
 use convert_case::{Case, Casing};
 use indoc::formatdoc;
-use regex::Regex;
 
-use crate::attribute::common::text_span::merge_spans_from_initial;
+use crate::attribute::common::{
+    args::split_top_level_args,
+    token_stream::{append_generated_code, parse_macro_input},
+};
 use crate::type_hash::parser::TypeHashParser;
 
 use super::diagnostics::errors;
-use super::parser::parse_string_arg;
+use super::parser::{parse_snip12_args, parse_string_arg};
 
 /// Derive macro that generates a SNIP-12 type hash constant for a struct.
 ///
@@ -42,12 +42,10 @@ pub fn type_hash(attr_stream: TokenStream, item_stream: TokenStream) -> ProcMacr
 
     // 2. Parse the item stream
     let db = SimpleParserDatabase::default();
-    let formatted_item_stream = format_string(&db, item_stream.to_string());
-    let content = match db.parse_virtual(formatted_item_stream) {
+    let content = match parse_macro_input(&db, &item_stream) {
         Ok(node) => handle_node(&db, node, &config),
-        Err(err) => {
-            let error = Diagnostic::error(err.format(&db));
-            return no_op_result.with_diagnostics(error.into());
+        Err(diagnostic) => {
+            return no_op_result.with_diagnostics(diagnostic.into());
         }
     };
 
@@ -58,19 +56,11 @@ pub fn type_hash(attr_stream: TokenStream, item_stream: TokenStream) -> ProcMacr
         }
     };
 
-    // 3. Merge spans from the item stream into the content
-    // TODO!: This should be refactored when scarb APIs get improved
-    let syntax_node = db.parse_virtual(generated).unwrap();
-    let content_node = SyntaxNodeWithDb::new(&syntax_node, &db);
-
-    let mut result = item_stream.clone();
-    result.extend(quote! {#content_node});
-
-    let syntax_node_with_spans =
-        merge_spans_from_initial(&item_stream.tokens, &result.to_string(), &db);
-    let token_stream =
-        TokenStream::new(syntax_node_with_spans).with_metadata(item_stream.metadata().clone());
-    ProcMacroResult::new(token_stream)
+    // 3. Preserve the original item tokens and append generated code with call-site spans
+    match append_generated_code(&db, item_stream, generated) {
+        Ok(token_stream) => ProcMacroResult::new(token_stream),
+        Err(diagnostic) => no_op_result.with_diagnostics(diagnostic.into()),
+    }
 }
 
 /// This attribute macro is used to specify an override for the SNIP-12 type.
@@ -87,18 +77,9 @@ pub fn type_hash(attr_stream: TokenStream, item_stream: TokenStream) -> ProcMacr
 /// ```
 #[attribute_macro]
 pub fn snip12(attr_stream: TokenStream, item_stream: TokenStream) -> ProcMacroResult {
-    // Validate the received format
-    let re1 = Regex::new(r"^\(name: (.*), kind: (.*)\)$").unwrap();
-    let re2 = Regex::new(r"^\(kind: (.*), name: (.*)\)$").unwrap();
-    let re3 = Regex::new(r"^\(kind: (.*)\)$").unwrap();
-    let re4 = Regex::new(r"^\(name: (.*)\)$").unwrap();
-    let s = attr_stream.to_string();
-
-    if re1.is_match(&s) || re2.is_match(&s) || re3.is_match(&s) || re4.is_match(&s) {
-        ProcMacroResult::new(item_stream)
-    } else {
-        let error = Diagnostic::error(errors::INVALID_SNIP12_ATTRIBUTE_FORMAT);
-        ProcMacroResult::new(item_stream).with_diagnostics(error.into())
+    match parse_snip12_args(&attr_stream.to_string()) {
+        Ok(_) => ProcMacroResult::new(item_stream),
+        Err(error) => ProcMacroResult::new(item_stream).with_diagnostics(error.into()),
     }
 }
 
@@ -122,44 +103,77 @@ fn parse_args(s: &str) -> Result<TypeHashArgs, Diagnostic> {
         name: String::new(),
         debug: false,
     };
+    let mut name_seen = false;
+    let mut debug_seen = false;
+
     // If the attribute is empty, return the default config
+    let s = s.trim();
     if s.is_empty() || s == "()" {
         return Ok(args);
     }
 
-    let allowed_args = ["name", "debug"];
-    let allowed_args_re = allowed_args.join("|");
+    let Some(s) = s.strip_prefix('(').and_then(|s| s.strip_suffix(')')) else {
+        return Err(Diagnostic::error(
+            errors::INVALID_TYPE_HASH_ATTRIBUTE_FORMAT,
+        ));
+    };
 
-    let re = Regex::new(&format!(
-        r#"^\(({allowed_args_re}):\s?([\w"' ])+(?:,\s?({allowed_args_re}):\s?([\w"' ])+)*\)$"#
-    ))
-    .unwrap();
+    let Some(parts) = split_top_level_args(s) else {
+        return Err(Diagnostic::error(
+            errors::INVALID_TYPE_HASH_ATTRIBUTE_FORMAT,
+        ));
+    };
 
-    if re.is_match(s) {
-        // Remove the parentheses
-        let s = &s[1..s.len() - 1];
-        for arg in s.split(",") {
-            let parts = arg.split(":").collect::<Vec<&str>>();
-            let name = parts[0].trim();
-            let value = parts[1].trim();
-            match name {
-                "name" => args.name = parse_string_arg(value)?,
-                "debug" => args.debug = value == "true",
-                // This should be unreachable as long as the regex is correct
-                _ => panic!("Invalid argument: {name}"),
+    for arg in parts {
+        let Some((name, value)) = arg.split_once(':') else {
+            return Err(Diagnostic::error(
+                errors::INVALID_TYPE_HASH_ATTRIBUTE_FORMAT,
+            ));
+        };
+
+        match name.trim() {
+            "name" => {
+                if name_seen {
+                    return Err(Diagnostic::error(
+                        errors::INVALID_TYPE_HASH_ATTRIBUTE_FORMAT,
+                    ));
+                }
+                args.name = parse_string_arg(value.trim())?;
+                name_seen = true;
+            }
+            "debug" => {
+                if debug_seen {
+                    return Err(Diagnostic::error(
+                        errors::INVALID_TYPE_HASH_ATTRIBUTE_FORMAT,
+                    ));
+                }
+                args.debug = parse_bool_arg(value.trim())?;
+                debug_seen = true;
+            }
+            _ => {
+                return Err(Diagnostic::error(
+                    errors::INVALID_TYPE_HASH_ATTRIBUTE_FORMAT,
+                ))
             }
         }
-        Ok(args)
-    } else {
-        Err(Diagnostic::error(
+    }
+
+    Ok(args)
+}
+
+fn parse_bool_arg(s: &str) -> Result<bool, Diagnostic> {
+    match s {
+        "true" => Ok(true),
+        "false" => Ok(false),
+        _ => Err(Diagnostic::error(
             errors::INVALID_TYPE_HASH_ATTRIBUTE_FORMAT,
-        ))
+        )),
     }
 }
 
 fn handle_node(
     db: &dyn SyntaxGroup,
-    node: SyntaxNode,
+    node: SyntaxNode<'_>,
     args: &TypeHashArgs,
 ) -> Result<String, Diagnostic> {
     let typed = ast::SyntaxFile::from_syntax_node(db, node);
@@ -173,8 +187,9 @@ fn handle_node(
     // Generate type hash for structs/enums only
     match item_ast {
         ast::ModuleItem::Struct(_) | ast::ModuleItem::Enum(_) => {
-            // It is safe to unwrap here because we know the item is a struct
-            let plugin_type_info = PluginTypeInfo::new(db, &item_ast).unwrap();
+            let Some(plugin_type_info) = PluginTypeInfo::new(db, &item_ast) else {
+                return Err(Diagnostic::error(errors::NOT_VALID_TYPE_TO_DECORATE));
+            };
             generate_code(db, &plugin_type_info, args)
         }
         _ => {
@@ -187,13 +202,13 @@ fn handle_node(
 /// Generates the code for the type hash constant.
 fn generate_code(
     db: &dyn SyntaxGroup,
-    plugin_type_info: &PluginTypeInfo,
+    plugin_type_info: &PluginTypeInfo<'_>,
     args: &TypeHashArgs,
 ) -> Result<String, Diagnostic> {
     let mut parser = TypeHashParser::new(plugin_type_info);
     let type_hash_string = parser.parse(db, args)?;
     let type_hash = starknet_keccak(type_hash_string.as_bytes());
-    let type_name = plugin_type_info.name.as_str().to_case(Case::UpperSnake);
+    let type_name = plugin_type_info.name.to_case(Case::UpperSnake);
 
     let debug_string = if args.debug {
         formatdoc!(
@@ -217,4 +232,19 @@ fn generate_code(
     );
 
     Ok(code)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::parse_args;
+
+    #[test]
+    fn rejects_duplicate_name_argument() {
+        assert!(parse_args(r#"(name: "A", name: "B")"#).is_err());
+    }
+
+    #[test]
+    fn rejects_duplicate_debug_argument() {
+        assert!(parse_args("(debug: true, debug: false)").is_err());
+    }
 }

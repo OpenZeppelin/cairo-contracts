@@ -9,6 +9,9 @@ pub mod errors {
     pub fn INVALID_COMPONENT(short_name: &str) -> String {
         format!("{short_name} is not in the list of allowed components.\n")
     }
+    /// Error when the attribute arguments are malformed.
+    pub const INVALID_ATTRIBUTE_FORMAT: &str =
+        "Invalid format for the with_components attribute. Expected a comma-separated list of component names.\n";
     /// Error when the module has no `#[starknet::contract]` attribute.
     pub fn NO_CONTRACT_ATTRIBUTE(contract_attribute: &str) -> String {
         format!("Contract module must have the `#[{contract_attribute}]` attribute.\n")

@@ -44,8 +44,8 @@ pub fn type_hash(attr_stream: TokenStream, item_stream: TokenStream) -> ProcMacr
     let db = SimpleParserDatabase::default();
     let content = match parse_macro_input(&db, &item_stream) {
         Ok(node) => handle_node(&db, node, &config),
-        Err(diagnostic) => {
-            return no_op_result.with_diagnostics(diagnostic.into());
+        Err(diagnostics) => {
+            return no_op_result.with_diagnostics(diagnostics);
         }
     };
 
@@ -59,7 +59,7 @@ pub fn type_hash(attr_stream: TokenStream, item_stream: TokenStream) -> ProcMacr
     // 3. Preserve the original item tokens and append generated code with call-site spans
     match append_generated_code(&db, item_stream, generated) {
         Ok(token_stream) => ProcMacroResult::new(token_stream),
-        Err(diagnostic) => no_op_result.with_diagnostics(diagnostic.into()),
+        Err(diagnostics) => no_op_result.with_diagnostics(diagnostics),
     }
 }
 

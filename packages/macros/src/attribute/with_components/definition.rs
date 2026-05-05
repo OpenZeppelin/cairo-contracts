@@ -41,8 +41,8 @@ pub fn with_components(attribute_stream: TokenStream, item_stream: TokenStream) 
     let db = SimpleParserDatabase::default();
     let (content, code_mappings, diagnostics) = match parse_macro_input(&db, &item_stream) {
         Ok(node) => WithComponentsParser::new(node, &components_info).parse(&db),
-        Err(diagnostic) => {
-            return no_op_result.with_diagnostics(diagnostic.into());
+        Err(diagnostics) => {
+            return ProcMacroResult::new(TokenStream::empty()).with_diagnostics(diagnostics);
         }
     };
     let has_errors = diagnostics
@@ -50,7 +50,7 @@ pub fn with_components(attribute_stream: TokenStream, item_stream: TokenStream) 
         .into_iter()
         .any(|diagnostic| diagnostic.severity() == Severity::Error);
     if has_errors {
-        return no_op_result.with_diagnostics(diagnostics);
+        return ProcMacroResult::new(TokenStream::empty()).with_diagnostics(diagnostics);
     }
 
     // 3. Tokenize the patched module, preserving spans for copied user code.
@@ -61,8 +61,8 @@ pub fn with_components(attribute_stream: TokenStream, item_stream: TokenStream) 
         item_stream.metadata().clone(),
     ) {
         Ok(token_stream) => token_stream,
-        Err(diagnostic) => {
-            return no_op_result.with_diagnostics(diagnostic.into());
+        Err(diagnostics) => {
+            return no_op_result.with_diagnostics(diagnostics);
         }
     };
 
@@ -94,6 +94,10 @@ fn parse_component_args(text: &str) -> Result<Vec<String>, Diagnostic> {
     } else {
         text
     };
+    let inner = inner.trim();
+    if inner.is_empty() {
+        return Ok(vec![]);
+    }
 
     let mut parts = split_top_level_args(inner).ok_or_else(invalid_attribute_format)?;
     if parts.last() == Some(&"") {
@@ -142,6 +146,10 @@ mod tests {
         let attribute = "(Ownable, ERC20, Other, Another)";
         let result = parse_args(attribute);
         assert_eq!(result, vec!["Ownable", "ERC20", "Other", "Another"]);
+
+        let attribute = "( )";
+        let result = parse_args(attribute);
+        assert_eq!(result, Vec::<String>::new());
     }
 
     #[test]

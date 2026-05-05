@@ -5,8 +5,7 @@ expression: result
 ---
 TokenStream:
 
-pub mod MyContract;
-
+None
 
 Diagnostics:
 

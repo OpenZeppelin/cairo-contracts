@@ -5,13 +5,7 @@ expression: result
 ---
 TokenStream:
 
-#[starknet::contract]
-pub mod MyContract {
-    use openzeppelin_token::erc721::extensions::DefaultConfig;
-    #[storage]
-    pub struct Storage {}
-}
-
+None
 
 Diagnostics:
 

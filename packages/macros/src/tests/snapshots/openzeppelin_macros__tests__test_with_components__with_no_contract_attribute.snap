@@ -5,16 +5,7 @@ expression: result
 ---
 TokenStream:
 
-pub mod Owned {
-    use starknet::ContractAddress;
-    #[storage]
-    pub struct Storage {}
-    #[constructor]
-    fn constructor(ref self: ContractState, owner: ContractAddress) {
-        self.ownable.initializer(owner);
-    }
-}
-
+None
 
 Diagnostics:
 

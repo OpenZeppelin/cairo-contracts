@@ -247,12 +247,39 @@ pub(crate) fn parse_snip12_args(s: &str) -> Result<Snip12Args, Diagnostic> {
 
 /// Parses the string argument from the attribute.
 pub fn parse_string_arg(s: &str) -> Result<String, Diagnostic> {
-    if s.len() >= 3 && s.starts_with("\"") && s.ends_with("\"") {
-        // Remove the quotes
-        Ok(s[1..s.len() - 1].to_string())
-    } else {
-        Err(Diagnostic::error(errors::INVALID_STRING_ARGUMENT))
+    let Some(body) = s.strip_prefix('"').and_then(|s| s.strip_suffix('"')) else {
+        return Err(Diagnostic::error(errors::INVALID_STRING_ARGUMENT));
+    };
+    if body.is_empty() {
+        return Err(Diagnostic::error(errors::INVALID_STRING_ARGUMENT));
     }
+
+    decode_escaped_string(body).ok_or_else(|| Diagnostic::error(errors::INVALID_STRING_ARGUMENT))
+}
+
+fn decode_escaped_string(s: &str) -> Option<String> {
+    let mut decoded = String::with_capacity(s.len());
+    let mut chars = s.chars();
+
+    while let Some(ch) = chars.next() {
+        if ch != '\\' {
+            decoded.push(ch);
+            continue;
+        }
+
+        let escaped = match chars.next()? {
+            '"' => '"',
+            '\\' => '\\',
+            'n' => '\n',
+            'r' => '\r',
+            't' => '\t',
+            '0' => '\0',
+            _ => return None,
+        };
+        decoded.push(escaped);
+    }
+
+    Some(decoded)
 }
 
 /// Returns the enum compliant string representation of a tuple for the encoded type.
@@ -275,5 +302,34 @@ fn maybe_tuple(s: &str) -> Result<String, Diagnostic> {
             .join(","))
     } else {
         Ok(format!("\"{s}\""))
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::parse_string_arg;
+
+    #[test]
+    fn parses_plain_string_arg() {
+        assert_eq!(parse_string_arg(r#""example""#).unwrap(), "example");
+    }
+
+    #[test]
+    fn decodes_escaped_string_arg() {
+        assert_eq!(
+            parse_string_arg(r#""example\"quote""#).unwrap(),
+            "example\"quote"
+        );
+        assert_eq!(
+            parse_string_arg(r#""example\\path""#).unwrap(),
+            "example\\path"
+        );
+    }
+
+    #[test]
+    fn rejects_invalid_string_arg() {
+        assert!(parse_string_arg(r#""""#).is_err());
+        assert!(parse_string_arg("example").is_err());
+        assert!(parse_string_arg(r#""example\q""#).is_err());
     }
 }

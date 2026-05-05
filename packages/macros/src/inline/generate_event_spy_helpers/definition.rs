@@ -78,8 +78,8 @@ pub fn generate_event_spy_helpers(token_stream: TokenStream) -> ProcMacroResult 
     let db = SimpleParserDatabase::default();
     match generated_code_token_stream(&db, expanded, token_stream.metadata().clone()) {
         Ok(token_stream) => ProcMacroResult::new(token_stream),
-        Err(diagnostic) => {
-            ProcMacroResult::new(TokenStream::empty()).with_diagnostics(diagnostic.into())
+        Err(diagnostics) => {
+            ProcMacroResult::new(TokenStream::empty()).with_diagnostics(diagnostics)
         }
     }
 }

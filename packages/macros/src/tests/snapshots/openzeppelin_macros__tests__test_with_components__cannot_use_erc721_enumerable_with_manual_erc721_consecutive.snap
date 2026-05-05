@@ -5,18 +5,7 @@ expression: result
 ---
 TokenStream:
 
-#[starknet::contract]
-pub mod MyContract {
-    use openzeppelin_token::erc721::extensions::{DefaultConfig, ERC721ConsecutiveComponent};
-    component!(
-        path: ERC721ConsecutiveComponent,
-        storage: erc721_consecutive,
-        event: ERC721ConsecutiveEvent,
-    );
-    #[storage]
-    pub struct Storage {}
-}
-
+None
 
 Diagnostics:
 

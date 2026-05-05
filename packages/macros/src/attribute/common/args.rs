@@ -77,8 +77,60 @@ mod tests {
     use super::split_top_level_args;
 
     #[test]
+    fn splits_empty_input_as_single_empty_arg() {
+        let parts = split_top_level_args("").unwrap();
+        assert_eq!(parts, vec![""]);
+    }
+
+    #[test]
+    fn splits_only_top_level_commas() {
+        let parts = split_top_level_args(
+            r#"name: "a,b", kind: Map<felt252, (u256, ContractAddress)>, debug: true"#,
+        )
+        .unwrap();
+        assert_eq!(
+            parts,
+            vec![
+                r#"name: "a,b""#,
+                "kind: Map<felt252, (u256, ContractAddress)>",
+                "debug: true"
+            ]
+        );
+    }
+
+    #[test]
+    fn keeps_escaped_quote_inside_string() {
+        let parts = split_top_level_args(r#"name: "te\"st", debug: true"#).unwrap();
+        assert_eq!(parts, vec![r#"name: "te\"st""#, "debug: true"]);
+    }
+
+    #[test]
     fn splits_args_when_string_ends_with_escaped_backslash() {
         let parts = split_top_level_args(r#"name: "test\\", debug: true"#).unwrap();
         assert_eq!(parts, vec![r#"name: "test\\""#, "debug: true"]);
+    }
+
+    #[test]
+    fn keeps_trailing_empty_arg() {
+        let parts = split_top_level_args("ERC20,").unwrap();
+        assert_eq!(parts, vec!["ERC20", ""]);
+    }
+
+    #[test]
+    fn rejects_unterminated_string() {
+        assert!(split_top_level_args(r#"name: "test, debug: true"#).is_none());
+    }
+
+    #[test]
+    fn rejects_unbalanced_delimiters() {
+        assert!(split_top_level_args("name: (a, b").is_none());
+        assert!(split_top_level_args("name: a, b)").is_none());
+        assert!(split_top_level_args("kind: Map<felt252, u256").is_none());
+    }
+
+    #[test]
+    fn treats_spaced_comparisons_as_top_level_tokens() {
+        let parts = split_top_level_args("first: a < b, second: c > d").unwrap();
+        assert_eq!(parts, vec!["first: a < b", "second: c > d"]);
     }
 }

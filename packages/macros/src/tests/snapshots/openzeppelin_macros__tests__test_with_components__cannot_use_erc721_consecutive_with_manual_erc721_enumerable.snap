@@ -5,16 +5,7 @@ expression: result
 ---
 TokenStream:
 
-#[starknet::contract]
-pub mod MyContract {
-    use openzeppelin_token::erc721::extensions::{DefaultConfig, ERC721EnumerableComponent};
-    component!(
-        path: ERC721EnumerableComponent, storage: erc721_enumerable, event: ERC721EnumerableEvent,
-    );
-    #[storage]
-    pub struct Storage {}
-}
-
+None
 
 Diagnostics:
 

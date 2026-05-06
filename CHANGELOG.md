@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## 4.0.0-rc.0 (2026-05-06)
+
 ### Added
 
 - `SafeERC20DispatcherTrait` in `openzeppelin_token::erc20::utils` with `assert_transfer`, `assert_transfer_from`, `assert_increase_allowance`, and `assert_decrease_allowance` (#1683)

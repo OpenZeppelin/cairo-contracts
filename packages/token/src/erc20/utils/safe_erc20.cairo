@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v4.0.0-alpha.1 (token/src/erc20/utils/safe_erc20.cairo)
+// OpenZeppelin Contracts for Cairo v4.0.0 (token/src/erc20/utils/safe_erc20.cairo)
 
 use openzeppelin_interfaces::erc20::{IERC20Dispatcher, IERC20DispatcherTrait};
 use starknet::{ContractAddress, get_contract_address};

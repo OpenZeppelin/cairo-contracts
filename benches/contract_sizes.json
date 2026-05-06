@@ -66,11 +66,14 @@
     "openzeppelin_test_common_ERC20ReentrantMock.compiled_contract_class.json": {
       "felts": 9046
     },
+    "openzeppelin_test_common_ERC20ReturnFalseMock.compiled_contract_class.json": {
+      "felts": 1004
+    },
     "openzeppelin_test_common_ERC20TimestampVotesMock.compiled_contract_class.json": {
       "felts": 14013
     },
     "openzeppelin_test_common_ERC20WrapperMock.compiled_contract_class.json": {
-      "felts": 7605
+      "felts": 7577
     },
     "openzeppelin_test_common_ERC2981AccessControlDefaultAdminRulesMock.compiled_contract_class.json": {
       "felts": 7099
@@ -88,25 +91,25 @@
       "felts": 963
     },
     "openzeppelin_test_common_ERC4626AssetsFeesMock.compiled_contract_class.json": {
-      "felts": 19371
+      "felts": 19341
     },
     "openzeppelin_test_common_ERC4626ExternalVaultMock.compiled_contract_class.json": {
-      "felts": 14748
+      "felts": 14718
     },
     "openzeppelin_test_common_ERC4626LimitsMock.compiled_contract_class.json": {
-      "felts": 14728
+      "felts": 14698
     },
     "openzeppelin_test_common_ERC4626Mock.compiled_contract_class.json": {
-      "felts": 14114
+      "felts": 14084
     },
     "openzeppelin_test_common_ERC4626MockWithHooks.compiled_contract_class.json": {
-      "felts": 14088
+      "felts": 14058
     },
     "openzeppelin_test_common_ERC4626OffsetMock.compiled_contract_class.json": {
-      "felts": 14640
+      "felts": 14610
     },
     "openzeppelin_test_common_ERC4626SharesFeesMock.compiled_contract_class.json": {
-      "felts": 19150
+      "felts": 19120
     },
     "openzeppelin_test_common_ERC6909ContentURIAccessControlDefaultAdminRulesMock.compiled_contract_class.json": {
       "felts": 11990
@@ -184,7 +187,7 @@
       "felts": 9984
     },
     "openzeppelin_test_common_LinearVestingMock.compiled_contract_class.json": {
-      "felts": 4940
+      "felts": 4925
     },
     "openzeppelin_test_common_MockBitMap.compiled_contract_class.json": {
       "felts": 2149
@@ -247,7 +250,7 @@
       "felts": 5135
     },
     "openzeppelin_test_common_StepsVestingMock.compiled_contract_class.json": {
-      "felts": 5150
+      "felts": 5135
     },
     "openzeppelin_test_common_TimelockAttackerMock.compiled_contract_class.json": {
       "felts": 725
@@ -329,11 +332,14 @@
     "openzeppelin_test_common_ERC20ReentrantMock.contract_class.json": {
       "bytes": 191945
     },
+    "openzeppelin_test_common_ERC20ReturnFalseMock.contract_class.json": {
+      "bytes": 16818
+    },
     "openzeppelin_test_common_ERC20TimestampVotesMock.contract_class.json": {
       "bytes": 291702
     },
     "openzeppelin_test_common_ERC20WrapperMock.contract_class.json": {
-      "bytes": 163558
+      "bytes": 162846
     },
     "openzeppelin_test_common_ERC2981AccessControlDefaultAdminRulesMock.contract_class.json": {
       "bytes": 138327
@@ -351,25 +357,25 @@
       "bytes": 25029
     },
     "openzeppelin_test_common_ERC4626AssetsFeesMock.contract_class.json": {
-      "bytes": 392492
+      "bytes": 391829
     },
     "openzeppelin_test_common_ERC4626ExternalVaultMock.contract_class.json": {
-      "bytes": 287523
+      "bytes": 286853
     },
     "openzeppelin_test_common_ERC4626LimitsMock.contract_class.json": {
-      "bytes": 289146
+      "bytes": 288470
     },
     "openzeppelin_test_common_ERC4626Mock.contract_class.json": {
-      "bytes": 274428
+      "bytes": 273609
     },
     "openzeppelin_test_common_ERC4626MockWithHooks.contract_class.json": {
-      "bytes": 274759
+      "bytes": 274037
     },
     "openzeppelin_test_common_ERC4626OffsetMock.contract_class.json": {
-      "bytes": 287133
+      "bytes": 286432
     },
     "openzeppelin_test_common_ERC4626SharesFeesMock.contract_class.json": {
-      "bytes": 388215
+      "bytes": 387531
     },
     "openzeppelin_test_common_ERC6909ContentURIAccessControlDefaultAdminRulesMock.contract_class.json": {
       "bytes": 257026
@@ -447,7 +453,7 @@
       "bytes": 211150
     },
     "openzeppelin_test_common_LinearVestingMock.contract_class.json": {
-      "bytes": 97996
+      "bytes": 97597
     },
     "openzeppelin_test_common_MockBitMap.contract_class.json": {
       "bytes": 35770
@@ -510,7 +516,7 @@
       "bytes": 95352
     },
     "openzeppelin_test_common_StepsVestingMock.contract_class.json": {
-      "bytes": 102070
+      "bytes": 101716
     },
     "openzeppelin_test_common_TimelockAttackerMock.contract_class.json": {
       "bytes": 22433

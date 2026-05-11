@@ -238,6 +238,78 @@ fn test_with_erc20_wrapper_no_initializer() {
 }
 
 #[test]
+fn test_with_erc20_flash_mint() {
+    let attribute = quote! { (ERC20, ERC20FlashMint) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod MyToken {
+            use openzeppelin_token::erc20::extensions::erc20_flash_mint::DefaultConfig as FlashMintDefaultConfig;
+            use openzeppelin_token::erc20::{ERC20HooksEmptyImpl, DefaultConfig};
+
+            #[abi(embed_v0)]
+            impl ERC20FlashMintImpl = ERC20FlashMintComponent::ERC20FlashMintImpl<ContractState>;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState) {
+                self.erc20.initializer("MyToken", "MTK");
+            }
+        }
+    };
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_erc20_flash_mint_no_config() {
+    let attribute = quote! { (ERC20, ERC20FlashMint) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod MyToken {
+            use openzeppelin_token::erc20::{ERC20HooksEmptyImpl, DefaultConfig};
+
+            #[abi(embed_v0)]
+            impl ERC20FlashMintImpl = ERC20FlashMintComponent::ERC20FlashMintImpl<ContractState>;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState) {
+                self.erc20.initializer("MyToken", "MTK");
+            }
+        }
+    };
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_erc20_flash_mint_no_erc20_initializer() {
+    let attribute = quote! { (ERC20, ERC20FlashMint) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod MyToken {
+            use openzeppelin_token::erc20::extensions::erc20_flash_mint::DefaultConfig as FlashMintDefaultConfig;
+            use openzeppelin_token::erc20::{ERC20HooksEmptyImpl, DefaultConfig};
+
+            #[abi(embed_v0)]
+            impl ERC20FlashMintImpl = ERC20FlashMintComponent::ERC20FlashMintImpl<ContractState>;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState) {}
+        }
+    };
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
 fn test_with_ownable() {
     let attribute = quote! { (Ownable) };
     let item = quote! {

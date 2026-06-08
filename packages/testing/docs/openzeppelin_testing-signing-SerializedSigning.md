@@ -1,5 +1,7 @@
 # SerializedSigning
 
+<a href='https://github.com/OpenZeppelin/cairo-contracts/blob/e4c5e434fb1cf8890b0c6b577e194876449e1d48/packages/testing/src/signing.cairo#L28-L30'> [source code] </a>
+
 A helper trait that facilitates converting a signature into a serialized format.
 
 Fully qualified path: [openzeppelin_testing](./openzeppelin_testing.md)::[signing](./openzeppelin_testing-signing.md)::[SerializedSigning](./openzeppelin_testing-signing-SerializedSigning.md)

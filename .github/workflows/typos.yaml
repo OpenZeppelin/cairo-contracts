@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout the repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Check for typos
         uses: crate-ci/typos@bee27e3a4fd1ea2111cf90ab89cd076c870fce14

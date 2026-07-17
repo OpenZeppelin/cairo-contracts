@@ -69,6 +69,15 @@ def benchmark_contracts(target_dir):
     return results
 
 
+def get_processing_errors(results):
+    errors = []
+    for category in (BYTECODE_KEY, CONTRACT_CLASS_KEY):
+        for file, info in results[category].items():
+            if "error" in info:
+                errors.append((file, info["error"]))
+    return errors
+
+
 def print_benchmark_results(results):
     print(f"{BOLD}{CYAN}CASM bytecode sizes:{RESET}")
     for file, info in results[BYTECODE_KEY].items():
@@ -97,8 +106,15 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     results = benchmark_contracts(args.dir)
+    errors = get_processing_errors(results)
     if args.json:
         print(json.dumps(results, indent=2))
     else:
         print(f"{BOLD}Benchmarking CASM and Sierra contract class sizes in: {args.dir}\n{RESET}")
         print_benchmark_results(results)
+
+    if errors:
+        if args.json:
+            for file, error in errors:
+                print(f"Error processing {file}: {error}", file=sys.stderr)
+        sys.exit(1)

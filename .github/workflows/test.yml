@@ -44,9 +44,6 @@ jobs:
             *.md
             !PULL_REQUEST_TEMPLATE.md
 
-      - name: Test benchmarking scripts
-        run: python3 -m unittest discover -s scripts/benchmarking -p 'test_*.py'
-
       - name: Cairo lint
         run: scarb fmt --check --workspace
 

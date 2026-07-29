@@ -1,6 +1,6 @@
 use core::fmt::{Debug, Error, Formatter};
 use snforge_std::cheatcodes::events::Events;
-use snforge_std::{Event, EventSpy, EventSpyTrait, EventsFilterTrait};
+use snforge_std::{Event, EventSpy, EventSpyTrait, EventsFilterTrait, IsEmitted};
 use starknet::ContractAddress;
 
 /// A wrapper around the `EventSpy` structure to allow treating the events as a queue.
@@ -233,7 +233,7 @@ impl EventSpyQueueAssertionsTraitImpl<
 
         while i != events.len() {
             let (from, event) = events.at(i);
-            let emitted = is_emitted(@received_events, from, event);
+            let emitted = received_events.is_emitted(*from, event);
 
             if !emitted {
                 let from: felt252 = (*from).into();
@@ -250,7 +250,7 @@ impl EventSpyQueueAssertionsTraitImpl<
 
         while i != events.len() {
             let (from, event) = events.at(i);
-            let emitted = is_emitted(@received_events, from, event);
+            let emitted = received_events.is_emitted(*from, event);
 
             if emitted {
                 let from: felt252 = (*from).into();
@@ -260,28 +260,4 @@ impl EventSpyQueueAssertionsTraitImpl<
             i += 1;
         };
     }
-}
-
-fn is_emitted<T, impl TEvent: starknet::Event<T>, impl TDrop: Drop<T>>(
-    self: @Events, expected_emitted_by: @ContractAddress, expected_event: @T,
-) -> bool {
-    let mut expected_keys = array![];
-    let mut expected_data = array![];
-    expected_event.append_keys_and_data(ref expected_keys, ref expected_data);
-
-    let mut i = 0;
-    let mut is_emitted = false;
-    while i != self.events.len() {
-        let (from, event) = self.events.at(i);
-
-        if from == expected_emitted_by
-            && event.keys == @expected_keys
-            && event.data == @expected_data {
-            is_emitted = true;
-            break;
-        }
-
-        i += 1;
-    }
-    return is_emitted;
 }

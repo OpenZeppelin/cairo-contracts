@@ -1,4 +1,4 @@
-use snforge_std::{ContractClass, ContractClassTrait, DeclareResult};
+use snforge_std::{ContractClass, ContractClassTrait, DeclareResultTrait};
 use starknet::ContractAddress;
 use crate::panic_data_to_byte_array;
 
@@ -8,10 +8,7 @@ use crate::panic_data_to_byte_array;
 /// `DeclareResult::AlreadyDeclared`)
 pub fn declare_class(contract_name: ByteArray) -> ContractClass {
     match snforge_std::declare(contract_name) {
-        Result::Ok(declare_result) => match declare_result {
-            DeclareResult::Success(contract_class) => contract_class,
-            DeclareResult::AlreadyDeclared(contract_class) => contract_class,
-        },
+        Result::Ok(declare_result) => *declare_result.contract_class(),
         Result::Err(panic_data) => panic!("{}", panic_data_to_byte_array(panic_data)),
     }
 }

@@ -869,6 +869,27 @@ fn test_with_erc721() {
 }
 
 #[test]
+fn test_with_erc721_no_metadata_initializer() {
+    let attribute = quote! { (ERC721) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod MyContract {
+            use openzeppelin_token::erc721::ERC721HooksEmptyImpl;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState) {
+                self.erc721.initializer_no_metadata();
+            }
+        }
+    };
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
 fn test_with_erc721_no_initializer() {
     let attribute = quote! { (ERC721) };
     let item = quote! {
@@ -962,6 +983,27 @@ fn test_with_erc1155() {
             #[constructor]
             fn constructor(ref self: ContractState) {
                 self.erc1155.initializer("");
+            }
+        }
+    };
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_erc1155_no_metadata_initializer() {
+    let attribute = quote! { (ERC1155) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod MyContract {
+            use openzeppelin_token::erc1155::ERC1155HooksEmptyImpl;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState) {
+                self.erc1155.initializer_no_metadata();
             }
         }
     };

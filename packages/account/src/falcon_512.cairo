@@ -3,9 +3,12 @@
 
 //! Falcon-512 SHAKE account contracts and their verification implementation.
 //!
-//! These accounts implement the legacy Falcon submission algorithm with SHAKE-256
-//! hash-to-point. Their packed felt public keys and signatures are contract-specific;
-//! they are not the encoding or finalized behavior of a NIST FN-DSA standard.
+//! Both accounts implement the Falcon-512 verification relation from the FALCON submission
+//! selected by NIST, using SHAKE-256 hash-to-point. The hint variant adds a verifier-checked
+//! polynomial-product witness to its contract-specific signature encoding to reduce on-chain
+//! execution cost; the direct variant recomputes that product on-chain. Their packed felt public
+//! keys and signature encodings are contract-specific, and neither account claims conformance
+//! with FN-DSA/FIPS 206.
 
 pub(crate) mod account;
 pub(crate) mod falcon;

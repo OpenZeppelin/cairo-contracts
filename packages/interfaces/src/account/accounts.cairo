@@ -74,11 +74,16 @@ pub trait IPublicKey<TState> {
     fn set_public_key(ref self: TState, new_public_key: felt252, signature: Span<felt252>);
 }
 
-/// Read access to a public key encoded as a felt array.
+/// Access to a public key encoded as a felt array.
 #[starknet::interface]
 pub trait IFeltArrayPublicKey<TState> {
     /// Returns the current public key of the account.
     fn get_public_key(self: @TState) -> Array<felt252>;
+
+    /// Sets the public key of the account to `new_public_key`.
+    ///
+    /// Emits both an `OwnerRemoved` and an `OwnerAdded` event.
+    fn set_public_key(ref self: TState, new_public_key: Array<felt252>, signature: Span<felt252>);
 }
 
 /// Adds camelCase support for `ISRC6`.
@@ -92,6 +97,13 @@ pub trait ISRC6CamelOnly<TState> {
 pub trait IPublicKeyCamel<TState> {
     fn getPublicKey(self: @TState) -> felt252;
     fn setPublicKey(ref self: TState, newPublicKey: felt252, signature: Span<felt252>);
+}
+
+/// Adds camelCase support for `IFeltArrayPublicKey`.
+#[starknet::interface]
+pub trait IFeltArrayPublicKeyCamel<TState> {
+    fn getPublicKey(self: @TState) -> Array<felt252>;
+    fn setPublicKey(ref self: TState, newPublicKey: Array<felt252>, signature: Span<felt252>);
 }
 
 //
@@ -126,6 +138,43 @@ pub trait AccountABI<TState> {
     // IPublicKeyCamel
     fn getPublicKey(self: @TState) -> felt252;
     fn setPublicKey(ref self: TState, newPublicKey: felt252, signature: Span<felt252>);
+}
+
+//
+// FeltArrayAccount ABI
+//
+
+#[starknet::interface]
+pub trait FeltArrayAccountABI<TState> {
+    // ISRC6
+    fn __execute__(self: @TState, calls: Array<Call>);
+    fn __validate__(self: @TState, calls: Array<Call>) -> felt252;
+    fn is_valid_signature(self: @TState, hash: felt252, signature: Array<felt252>) -> felt252;
+
+    // ISRC5
+    fn supports_interface(self: @TState, interface_id: felt252) -> bool;
+
+    // IDeclarer
+    fn __validate_declare__(self: @TState, class_hash: felt252) -> felt252;
+
+    // IFeltArrayDeployable
+    fn __validate_deploy__(
+        self: @TState,
+        class_hash: felt252,
+        contract_address_salt: felt252,
+        public_key: Array<felt252>,
+    ) -> felt252;
+
+    // IFeltArrayPublicKey
+    fn get_public_key(self: @TState) -> Array<felt252>;
+    fn set_public_key(ref self: TState, new_public_key: Array<felt252>, signature: Span<felt252>);
+
+    // ISRC6CamelOnly
+    fn isValidSignature(self: @TState, hash: felt252, signature: Array<felt252>) -> felt252;
+
+    // IFeltArrayPublicKeyCamel
+    fn getPublicKey(self: @TState) -> Array<felt252>;
+    fn setPublicKey(ref self: TState, newPublicKey: Array<felt252>, signature: Span<felt252>);
 }
 
 //

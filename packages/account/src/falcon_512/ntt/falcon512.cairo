@@ -1,9 +1,8 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v4.0.0-alpha.1 (account/src/falcon_512/ntt/falcon512.cairo)
 
-//! Falcon parameter set for the NTT engine: q = 12289, negacyclic (x^n + 1),
-//! tprest/falcon.py evaluation order — interoperable with the s2morrow convention and
-//! the falcon.py reference signer.
+//! Falcon parameter set for the NTT engine: q = 12289, negacyclic (x^n + 1), using
+//! tprest/falcon.py evaluation order for interoperability with the reference signer.
 
 use super::bitrev::bitrev_512;
 use super::engine::NttConfig;

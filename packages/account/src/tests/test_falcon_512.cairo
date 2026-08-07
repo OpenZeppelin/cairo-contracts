@@ -1,8 +1,9 @@
 use core::num::traits::Zero;
 use openzeppelin_interfaces::accounts::{
-    IDeclarerDispatcher, IDeclarerDispatcherTrait, IFeltArrayDeployableDispatcher,
-    IFeltArrayDeployableDispatcherTrait, IFeltArrayPublicKeyDispatcher,
-    IFeltArrayPublicKeyDispatcherTrait, ISRC6Dispatcher, ISRC6DispatcherTrait, ISRC6_ID,
+    FeltArrayAccountABIDispatcher, FeltArrayAccountABIDispatcherTrait, IDeclarerDispatcher,
+    IDeclarerDispatcherTrait, IFeltArrayDeployableDispatcher, IFeltArrayDeployableDispatcherTrait,
+    IFeltArrayPublicKeyDispatcher, IFeltArrayPublicKeyDispatcherTrait, ISRC6Dispatcher,
+    ISRC6DispatcherTrait, ISRC6_ID,
 };
 use openzeppelin_interfaces::introspection::{ISRC5Dispatcher, ISRC5DispatcherTrait, ISRC5_ID};
 use openzeppelin_test_common::mocks::simple::{ISimpleMockDispatcher, ISimpleMockDispatcherTrait};
@@ -10,9 +11,11 @@ use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{
     CALLER, MIN_TRANSACTION_VERSION, QUERY_OFFSET, QUERY_VERSION, SALT, ZERO,
 };
+use openzeppelin_testing::{EventSpyExt, ExpectedEvent, spy_events};
 use snforge_std::{
-    start_cheat_caller_address, start_cheat_signature_global, start_cheat_transaction_hash_global,
-    start_cheat_transaction_version_global,
+    CheatSpan, cheat_caller_address, start_cheat_caller_address, start_cheat_signature_global,
+    start_cheat_transaction_hash_global, start_cheat_transaction_version_global,
+    stop_cheat_caller_address,
 };
 use starknet::ContractAddress;
 use starknet::account::Call;
@@ -21,6 +24,10 @@ use crate::falcon_512::{
     SIGNATURE_FELTS,
 };
 use super::falcon_512_fixture::{msg, public_key, signature};
+use super::falcon_512_rotation_fixture::{
+    accept_ownership_hash, accept_ownership_signature, account_address, current_owner_guid,
+    new_owner_guid, new_public_key, second_accept_ownership_signature,
+};
 
 const Q_POW_9: felt252 = 6392178558614694273495691177456939009;
 const TWO_POW_160: felt252 = 0x10000000000000000000000000000000000000000;
@@ -68,12 +75,47 @@ fn direct_signature() -> Array<felt252> {
     copy_prefix(signature().span(), DIRECT_SIGNATURE_FELTS)
 }
 
+fn direct_accept_ownership_signature() -> Array<felt252> {
+    copy_prefix(accept_ownership_signature().span(), DIRECT_SIGNATURE_FELTS)
+}
+
 fn deploy_account(contract_name: ByteArray) -> (ContractAddress, felt252) {
     let contract_class = utils::declare_class(contract_name);
     let mut calldata = array![];
     public_key().serialize(ref calldata);
     let contract_address = utils::deploy(contract_class, calldata);
     (contract_address, contract_class.class_hash.into())
+}
+
+fn deploy_account_at(
+    contract_name: ByteArray, contract_address: ContractAddress,
+) -> FeltArrayAccountABIDispatcher {
+    let contract_class = utils::declare_class(contract_name);
+    let mut calldata = array![];
+    public_key().serialize(ref calldata);
+    utils::deploy_at(contract_class, contract_address, calldata);
+    FeltArrayAccountABIDispatcher { contract_address }
+}
+
+fn execute_key_rotation(
+    account: FeltArrayAccountABIDispatcher,
+    new_key: Array<felt252>,
+    acceptance_signature: Array<felt252>,
+    setter_selector: felt252,
+) {
+    let mut calldata = array![];
+    new_key.serialize(ref calldata);
+    acceptance_signature.serialize(ref calldata);
+    account
+        .__execute__(
+            array![
+                Call {
+                    to: account.contract_address,
+                    selector: setter_selector,
+                    calldata: calldata.span(),
+                },
+            ],
+        );
 }
 
 fn setup_transaction(
@@ -311,6 +353,168 @@ fn test_accounts_is_valid_signature_return_convention() {
     assert_eq!(direct.is_valid_signature(msg(), direct_signature()), starknet::VALIDATED);
     assert!(direct.is_valid_signature(msg() + 1, direct_signature()).is_zero());
     assert!(direct.is_valid_signature(msg(), signature()).is_zero());
+}
+
+#[test]
+fn test_hint_account_rotates_key_via_authenticated_execute() {
+    let address = account_address();
+    let account = deploy_account_at("Falcon512ShakeAccount", address);
+    setup_transaction(address, msg(), signature(), MIN_TRANSACTION_VERSION);
+
+    // Protocol validation authenticates the outer invoke with the current owner.
+    assert_eq!(account.__validate__(array![]), starknet::VALIDATED);
+    stop_cheat_caller_address(address);
+    // Cheat only the outer entrypoint call. The nested self-call keeps its real caller.
+    cheat_caller_address(address, ZERO, CheatSpan::TargetCalls(1));
+
+    let mut spy = spy_events();
+    execute_key_rotation(
+        account, new_public_key(), accept_ownership_signature(), selector!("set_public_key"),
+    );
+
+    spy
+        .assert_emitted_single(
+            address, ExpectedEvent::new().key(selector!("OwnerRemoved")).key(current_owner_guid()),
+        );
+    spy
+        .assert_only_event(
+            address, ExpectedEvent::new().key(selector!("OwnerAdded")).key(new_owner_guid()),
+        );
+
+    let account = FeltArrayAccountABIDispatcher { contract_address: address };
+    assert_eq!(account.get_public_key().span(), new_public_key().span());
+    assert_eq!(account.getPublicKey().span(), new_public_key().span());
+}
+
+#[test]
+fn test_hint_rotated_key_accepts_new_owner_and_rejects_old_owner() {
+    let address = account_address();
+    let account = deploy_account_at("Falcon512ShakeAccount", address);
+    let acceptance_signature = accept_ownership_signature();
+    start_cheat_caller_address(address, address);
+    account.set_public_key(new_public_key(), acceptance_signature.span());
+
+    assert_eq!(
+        account.is_valid_signature(accept_ownership_hash(), accept_ownership_signature()),
+        starknet::VALIDATED,
+    );
+    assert!(account.is_valid_signature(msg(), signature()).is_zero());
+}
+
+#[test]
+fn test_repeated_key_rotation_keeps_exact_storage_length() {
+    let address = account_address();
+    let account = deploy_account_at("Falcon512ShakeAccount", address);
+    start_cheat_caller_address(address, address);
+    let first_signature = accept_ownership_signature();
+    account.set_public_key(new_public_key(), first_signature.span());
+
+    // A second rotation overwrites the 29 stored felts instead of growing the Vec.
+    let second_signature = second_accept_ownership_signature();
+    account.set_public_key(new_public_key(), second_signature.span());
+    assert_eq!(account.get_public_key().len(), PUBLIC_KEY_FELTS);
+}
+
+#[test]
+fn test_direct_account_rotates_key_through_camel_case_abi() {
+    let address = account_address();
+    let account = deploy_account_at("Falcon512ShakeDirectAccount", address);
+    let acceptance_signature = direct_accept_ownership_signature();
+    start_cheat_caller_address(address, address);
+
+    let mut spy = spy_events();
+    account.setPublicKey(new_public_key(), acceptance_signature.span());
+
+    spy
+        .assert_emitted_single(
+            address, ExpectedEvent::new().key(selector!("OwnerRemoved")).key(current_owner_guid()),
+        );
+    spy
+        .assert_only_event(
+            address, ExpectedEvent::new().key(selector!("OwnerAdded")).key(new_owner_guid()),
+        );
+
+    assert_eq!(account.getPublicKey().span(), new_public_key().span());
+    assert_eq!(account.get_public_key().span(), new_public_key().span());
+}
+
+#[test]
+fn test_direct_account_camel_case_signature_alias() {
+    let address = account_address();
+    let account = deploy_account_at("Falcon512ShakeDirectAccount", address);
+
+    assert_eq!(account.isValidSignature(msg(), direct_signature()), starknet::VALIDATED);
+}
+
+#[test]
+fn test_constructor_emits_owner_added_guid() {
+    let address = account_address();
+    let mut spy = spy_events();
+    deploy_account_at("Falcon512ShakeAccount", address);
+
+    spy
+        .assert_only_event(
+            address, ExpectedEvent::new().key(selector!("OwnerAdded")).key(current_owner_guid()),
+        );
+}
+
+#[test]
+#[should_panic(expected: 'Account: unauthorized')]
+fn test_key_rotation_rejects_non_self_caller() {
+    let address = account_address();
+    let account = deploy_account_at("Falcon512ShakeAccount", address);
+    start_cheat_caller_address(address, CALLER);
+
+    account.set_public_key(new_public_key(), array![].span());
+}
+
+#[test]
+#[should_panic(expected: 'Account: invalid public key')]
+fn test_key_rotation_rejects_malformed_public_key_before_signature() {
+    let address = account_address();
+    let account = deploy_account_at("Falcon512ShakeDirectAccount", address);
+    start_cheat_caller_address(address, address);
+
+    account
+        .set_public_key(
+            copy_prefix(new_public_key().span(), PUBLIC_KEY_FELTS - 1), array![].span(),
+        );
+}
+
+#[test]
+#[should_panic(expected: 'Account: invalid signature')]
+fn test_key_rotation_rejects_invalid_new_owner_proof() {
+    let address = account_address();
+    let account = deploy_account_at("Falcon512ShakeAccount", address);
+    start_cheat_caller_address(address, address);
+    let valid_signature = accept_ownership_signature();
+    let invalid_signature = with_replaced(valid_signature.span(), 0, *valid_signature.at(0) + 1);
+
+    account.set_public_key(new_public_key(), invalid_signature.span());
+}
+
+#[test]
+#[should_panic(expected: 'Account: invalid signature')]
+fn test_key_rotation_proof_cannot_be_replayed_to_another_account() {
+    let address = CALLER;
+    let account = deploy_account_at("Falcon512ShakeDirectAccount", address);
+    start_cheat_caller_address(address, address);
+    let acceptance_signature = direct_accept_ownership_signature();
+
+    account.set_public_key(new_public_key(), acceptance_signature.span());
+}
+
+#[test]
+#[should_panic(expected: 'Account: invalid signature')]
+fn test_key_rotation_proof_cannot_be_replayed_after_rotation() {
+    let address = account_address();
+    let account = deploy_account_at("Falcon512ShakeDirectAccount", address);
+    start_cheat_caller_address(address, address);
+    let acceptance_signature = direct_accept_ownership_signature();
+
+    account.set_public_key(new_public_key(), acceptance_signature.span());
+    // The current-owner GUID changed, so the first acceptance proof is no longer valid.
+    account.set_public_key(new_public_key(), acceptance_signature.span());
 }
 
 #[test]

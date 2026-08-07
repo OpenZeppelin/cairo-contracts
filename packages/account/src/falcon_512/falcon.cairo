@@ -32,7 +32,7 @@ use super::ntt::falcon512_fast::ntt_falcon512_fast_u16_unchecked;
 use super::ntt::falcon512_fast::ntt_falcon512_fast_u16_unchecked;
 use super::zq::{Q32, center_sq, centered_difference_sq};
 
-/// Maximum allowed `||s0||^2 + ||s1||^2` for the legacy Falcon-512 submission algorithm.
+/// Maximum allowed `||s0||^2 + ||s1||^2` for FALCON-512 as submitted to NIST.
 pub const SIG_BOUND_512: u64 = 34034726;
 
 /// The Falcon modulus as a u32 divisor.

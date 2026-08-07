@@ -19,12 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-Third-party notices
-
-Portions of this software (the NTT engine and parts of the Falcon-512 verifier) are
-ported from s2morrow (https://github.com/feltroidprime/s2morrow and
-https://github.com/starkware-bitcoin/s2morrow),
-Copyright (c) 2025 StarkWare Industries Ltd., licensed under the MIT License.

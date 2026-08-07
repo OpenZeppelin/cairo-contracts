@@ -1,8 +1,8 @@
-//! Generated legacy Falcon-512 submission-algorithm test vector — do not edit by hand.
+//! Locally generated FALCON-512 submission-algorithm fixture — do not edit by hand.
 //!
-//! The fixture contains a genuine tprest/falcon.py keypair and signature over
+//! The fixture contains a keypair and signature generated with `tprest/falcon.py` over
 //! `BENCH_MSG`, using falcon.py's SHAKE-256 hash-to-point. Its felt encoding is specific
-//! to these Cairo accounts and is not the serialized signature format of a NIST standard.
+//! to these Cairo accounts and does not claim conformance with FN-DSA/FIPS 206.
 //! salt = 0x4ad23197d576f705594ac172f4fca80e3338e991b8b55e269d421aa1522cd0aa2490034127651fc2.
 
 /// The benchmark message hash ('BENCH_MSG').

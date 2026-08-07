@@ -2,7 +2,7 @@
 // OpenZeppelin Contracts for Cairo v4.0.0-alpha.1
 // (account/src/falcon_512/hashing/hash_to_point.cairo)
 
-//! SHAKE-256 hash-to-point for the legacy Falcon-512 submission algorithm.
+//! SHAKE-256 hash-to-point used by FALCON-512 as submitted to NIST.
 //!
 //! The function absorbs a 40-byte salt followed by the message hash's 32-byte
 //! little-endian representation. It reads the SHAKE-256 output as big-endian u16 words

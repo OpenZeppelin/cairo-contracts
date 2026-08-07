@@ -5,8 +5,8 @@
 //!
 //! # Algorithm
 //!
-//! This computes exactly the recursive split/merge NTT of tprest/falcon.py (the
-//! convention s2morrow and the Falcon-512 verifier use), reformulated iteratively:
+//! This computes the recursive split/merge NTT of tprest/falcon.py, reformulated
+//! iteratively for the Falcon-512 verifier:
 //!
 //! - **Forward** ([`ntt`]): permute the input into recursion-leaf order (bit reversal),
 //!   then run merge levels bottom-up. The level merging blocks into size `2h` reads two

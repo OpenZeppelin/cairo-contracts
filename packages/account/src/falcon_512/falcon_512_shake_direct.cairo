@@ -4,10 +4,10 @@
 
 /// # Falcon-512 SHAKE Direct Account
 ///
-/// Immutable account using the legacy Falcon-512 submission algorithm's SHAKE-256
-/// hash-to-point and a 31-felt signature. It recomputes the polynomial product on-chain
-/// instead of accepting a signer-supplied hint. The felt encoding is specific to this
-/// contract and is not a standardized FN-DSA signature format.
+/// Account validating the same Falcon-512 verification relation as `Falcon512ShakeAccount`, from
+/// the FALCON submission selected by NIST. It uses SHAKE-256 hash-to-point and a contract-specific
+/// 31-felt signature encoding, and recomputes the polynomial product on-chain instead of
+/// accepting a signer-supplied hint. This account does not claim conformance with FN-DSA/FIPS 206.
 #[starknet::contract(account)]
 pub mod Falcon512ShakeDirectAccount {
     use openzeppelin_introspection::src5::SRC5Component;
@@ -18,18 +18,10 @@ pub mod Falcon512ShakeDirectAccount {
     component!(path: SRC5Component, storage: src5, event: SRC5Event);
 
     #[abi(embed_v0)]
-    impl SRC6Impl =
-        Falcon512AccountComponent::SRC6Impl<ContractState, Falcon512ShakeDirectVerifier>;
-    #[abi(embed_v0)]
-    impl DeclarerImpl =
-        Falcon512AccountComponent::DeclarerImpl<ContractState, Falcon512ShakeDirectVerifier>;
-    #[abi(embed_v0)]
-    impl DeployableImpl =
-        Falcon512AccountComponent::DeployableImpl<ContractState, Falcon512ShakeDirectVerifier>;
-    #[abi(embed_v0)]
-    impl PublicKeyImpl = Falcon512AccountComponent::PublicKeyImpl<ContractState>;
-    #[abi(embed_v0)]
-    impl SRC5Impl = SRC5Component::SRC5Impl<ContractState>;
+    impl AccountMixinImpl =
+        Falcon512AccountComponent::Falcon512AccountMixinImpl<
+            ContractState, Falcon512ShakeDirectVerifier,
+        >;
 
     impl AccountInternalImpl = Falcon512AccountComponent::InternalImpl<ContractState>;
 

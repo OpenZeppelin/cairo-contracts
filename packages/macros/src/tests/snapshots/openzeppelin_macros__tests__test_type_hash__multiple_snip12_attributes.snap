@@ -1,0 +1,22 @@
+---
+source: src/tests/test_type_hash.rs
+expression: result
+---
+TokenStream:
+
+pub struct MyType {
+    #[snip12(name: "ts")]
+    #[snip12(kind: "timestamp")]
+    pub timestamp: u128,
+}
+
+
+Diagnostics:
+
+====
+Error: Only one snip12 attribute can be applied to a member.
+====
+
+AuxData:
+
+None

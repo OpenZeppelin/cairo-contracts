@@ -664,6 +664,14 @@ fn add_per_component_warnings(
                 warnings.push(warning);
             }
         }
+        AllowedComponents::ERC6909TokenSupply => {
+            let hook_called = facts.has_call(&["erc6909_token_supply", "update_token_supply"])
+                || facts.has_call(&["ERC6909TokenSupplyInternalImpl", "update_token_supply"]);
+            if !hook_called {
+                let warning = Diagnostic::warn(warnings::ERC6909_TOKEN_SUPPLY_HOOKS_MISSING);
+                warnings.push(warning);
+            }
+        }
         AllowedComponents::Upgradeable => {
             // Check that the upgrade function is called
             let upgrade_function_called = facts.has_call(&["self", "upgradeable", "upgrade"]);

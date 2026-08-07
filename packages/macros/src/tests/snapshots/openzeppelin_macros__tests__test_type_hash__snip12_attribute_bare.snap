@@ -1,0 +1,21 @@
+---
+source: src/tests/test_type_hash.rs
+expression: result
+---
+TokenStream:
+
+pub struct MyType {
+    #[snip12]
+    pub name: felt252,
+}
+
+
+Diagnostics:
+
+====
+Error: Invalid format for the snip12 attribute. The only valid arguments are: name, kind.
+====
+
+AuxData:
+
+None

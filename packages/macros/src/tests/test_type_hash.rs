@@ -629,6 +629,32 @@ fn test_name_attribute() {
 }
 
 #[test]
+fn test_duplicate_snip12_struct_name() {
+    let item = quote! {
+        pub struct MyType {
+            pub value: felt252,
+            #[snip12(name: "value")]
+            pub other: felt252,
+        }
+    };
+    let result = get_string_result(quote! {}, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_duplicate_snip12_enum_name() {
+    let item = quote! {
+        pub enum MyEnum {
+            Value: felt252,
+            #[snip12(name: "Value")]
+            Other: felt252,
+        }
+    };
+    let result = get_string_result(quote! {}, item);
+    assert_snapshot!(result);
+}
+
+#[test]
 fn test_debug_attribute() {
     let item = quote! {
         pub struct MyType {

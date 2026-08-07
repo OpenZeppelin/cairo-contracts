@@ -6,18 +6,25 @@ snapshot_kind: text
 TokenStream:
 
 pub struct MyType {
+    #[snip12(kind: "(felt252, felt252, ClassHash, NftId)")]
     pub member1: (felt252, felt252, ClassHash, NftId),
+    #[snip12(kind: "Array<TokenAmount>")]
     pub member2: Array<TokenAmount>,
     pub member3: Span<ClassHash>,
+    #[snip12(kind: "(ContractAddress, TokenAmount)")]
     pub member4: (ContractAddress, TokenAmount),
     pub member5: Array<ContractAddress>,
     pub member6: (),
     #[snip12(kind: "(timestamp, shortstring)")]
     pub member7: (u128, felt252),
     pub member8: (ContractAddress,),
+    #[snip12(kind: "(TokenAmount, (felt252, ClassHash), NftId)")]
     pub member9: (TokenAmount, (felt252, ClassHash), NftId),
+    #[snip12(kind: "(Array<TokenAmount>, Array<ContractAddress>)")]
     pub member10: (Array<TokenAmount>, Array<ContractAddress>),
+    #[snip12(kind: "Array<(TokenAmount, ContractAddress, Array<felt252>)>")]
     pub member11: Array<(TokenAmount, ContractAddress, Array<felt252>)>,
+    #[snip12(kind: "Array<Array<(Array<TokenAmount>, Array<ContractAddress>, Array<felt252>)>>")]
     pub member12: Array<Array<(Array<TokenAmount>, Array<ContractAddress>, Array<felt252>)>>,
 }
 pub fn __MY_TYPE_encoded_type() {

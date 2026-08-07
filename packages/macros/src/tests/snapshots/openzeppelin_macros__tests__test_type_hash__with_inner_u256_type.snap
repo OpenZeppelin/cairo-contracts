@@ -6,6 +6,7 @@ snapshot_kind: text
 TokenStream:
 
 pub struct MyType {
+    #[snip12(kind: "TokenAmount")]
     pub token_amount: TokenAmount,
 }
 pub fn __MY_TYPE_encoded_type() {

@@ -6,9 +6,9 @@ snapshot_kind: text
 TokenStream:
 
 pub enum MyEnum {
-    #[snip12(name: "Token Amount")]
+    #[snip12(name: "Token Amount", kind: "TokenAmount")]
     TokenAmount: TokenAmount,
-    #[snip12(name: "NFT ID")]
+    #[snip12(name: "NFT ID", kind: "NftId")]
     NftId: NftId,
     #[snip12(name: "Number")]
     Number: u256,

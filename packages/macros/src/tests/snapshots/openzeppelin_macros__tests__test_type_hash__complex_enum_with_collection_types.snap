@@ -6,18 +6,25 @@ snapshot_kind: text
 TokenStream:
 
 pub enum MyEnum {
+    #[snip12(kind: "(felt252, felt252, ClassHash, NftId)")]
     Variant1: (felt252, felt252, ClassHash, NftId),
+    #[snip12(kind: "Array<TokenAmount>")]
     Variant2: Array<TokenAmount>,
     Variant3: Span<ClassHash>,
+    #[snip12(kind: "(ContractAddress, TokenAmount)")]
     Variant4: (ContractAddress, TokenAmount),
     Variant5: Array<ContractAddress>,
     Variant6: (),
     #[snip12(kind: "(timestamp, shortstring)")]
     Variant7: (u128, felt252),
     Variant8: (ContractAddress,),
+    #[snip12(kind: "(TokenAmount, (felt252, ClassHash), NftId)")]
     Variant9: (TokenAmount, (felt252, ClassHash), NftId),
+    #[snip12(kind: "(Array<TokenAmount>, Array<ContractAddress>)")]
     Variant10: (Array<TokenAmount>, Array<ContractAddress>),
+    #[snip12(kind: "Array<(TokenAmount, ContractAddress, Array<felt252>)>")]
     Variant11: Array<(TokenAmount, ContractAddress, Array<felt252>)>,
+    #[snip12(kind: "Array<Array<(Array<TokenAmount>, Array<ContractAddress>, Array<felt252>)>>")]
     Variant12: Array<Array<(Array<TokenAmount>, Array<ContractAddress>, Array<felt252>)>>,
 }
 pub fn __MY_ENUM_encoded_type() {

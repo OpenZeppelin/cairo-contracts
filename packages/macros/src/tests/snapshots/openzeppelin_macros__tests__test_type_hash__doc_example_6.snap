@@ -6,9 +6,9 @@ snapshot_kind: text
 TokenStream:
 
 pub struct MyStruct {
-    #[snip12(name: "Token Amount")]
+    #[snip12(name: "Token Amount", kind: "TokenAmount")]
     pub token_amount: TokenAmount,
-    #[snip12(name: "NFT ID")]
+    #[snip12(name: "NFT ID", kind: "NftId")]
     pub nft_id: NftId,
     #[snip12(name: "Number")]
     pub number: u256,

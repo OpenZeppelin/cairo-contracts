@@ -26,6 +26,8 @@ pub enum S12Type {
 #[derive(Debug)]
 pub enum BasicType {
     Felt,
+    Bool,
+    String,
     ShortString,
     ClassHash,
     ContractAddress,
@@ -114,6 +116,8 @@ impl S12Type {
         Some(match s {
             // Check basic types
             "felt252" => S12Type::Basic(BasicType::Felt),
+            "bool" => S12Type::Basic(BasicType::Bool),
+            "string" => S12Type::Basic(BasicType::String),
             "shortstring" => S12Type::Basic(BasicType::ShortString),
             "ClassHash" => S12Type::Basic(BasicType::ClassHash),
             "ContractAddress" => S12Type::Basic(BasicType::ContractAddress),
@@ -214,6 +218,8 @@ impl BasicType {
     pub fn get_snip12_type_name(&self) -> Result<String, Diagnostic> {
         Ok(match self {
             BasicType::Felt => "felt",
+            BasicType::Bool => "bool",
+            BasicType::String => "string",
             BasicType::ShortString => "shortstring",
             BasicType::ClassHash => "ClassHash",
             BasicType::ContractAddress => "ContractAddress",
@@ -232,6 +238,8 @@ impl BasicType {
     pub fn get_encoded_ref_type(&self) -> Result<(String, Vec<InnerType>), Diagnostic> {
         match self {
             BasicType::Felt
+            | BasicType::Bool
+            | BasicType::String
             | BasicType::ShortString
             | BasicType::ClassHash
             | BasicType::ContractAddress

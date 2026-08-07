@@ -28,4 +28,8 @@ pub mod errors {
     pub fn RESERVED_SNIP12_TYPE_NAME(name: &str) -> String {
         format!("SNIP-12 type name `{name}` is reserved and cannot be used as a primary type.\n")
     }
+    /// Error when multiple members or variants resolve to the same SNIP-12 name.
+    pub fn DUPLICATE_SNIP12_NAME(name: &str) -> String {
+        format!("Duplicate SNIP-12 member or variant name: {name}.\n")
+    }
 }

@@ -642,6 +642,19 @@ fn test_duplicate_snip12_struct_name() {
 }
 
 #[test]
+fn test_json_escaped_struct_names() {
+    let item = quote! {
+        pub struct MyType {
+            #[snip12(name: "member\"\\}\n\r\t\0")]
+            pub value: felt252,
+        }
+    };
+    let attr_stream = quote! { (name: "type\"\\{\n\r\t\0", debug: true) };
+    let result = get_string_result(attr_stream, item);
+    assert_snapshot!(result);
+}
+
+#[test]
 fn test_duplicate_snip12_enum_name() {
     let item = quote! {
         pub enum MyEnum {
@@ -651,6 +664,19 @@ fn test_duplicate_snip12_enum_name() {
         }
     };
     let result = get_string_result(quote! {}, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_json_escaped_enum_variant_name() {
+    let item = quote! {
+        pub enum MyEnum {
+            #[snip12(name: "variant\"\\")]
+            Value: felt252,
+        }
+    };
+    let attr_stream = quote! { (debug: true) };
+    let result = get_string_result(attr_stream, item);
     assert_snapshot!(result);
 }
 

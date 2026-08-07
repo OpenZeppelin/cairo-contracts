@@ -1,6 +1,6 @@
 # ExpectedEvent
 
-<a href='https://github.com/OpenZeppelin/cairo-contracts/blob/e595c322b51f702363311a93b1e15f172083aa65/packages/testing/src/events.cairo#L135-L155'> [source code] </a>
+<a href='https://github.com/OpenZeppelin/cairo-contracts/blob/881d4090ba46959cf8dbecff414b478e8bf70542/packages/testing/src/events.cairo#L135-L155'> [source code] </a>
 
 The `ExpectedEvent` trait provides a convenient API for constructing
 expected events in tests.

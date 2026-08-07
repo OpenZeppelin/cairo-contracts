@@ -50,6 +50,9 @@ jobs:
       - name: Run tests
         run: snforge test --workspace --features fuzzing --fuzzer-runs 200
 
+      - name: Run Falcon production-path tests
+        run: snforge test -p openzeppelin_account --release --features falcon_fast_tests falcon_512
+
       - name: Run tests and generate coverage report
         run: snforge test --workspace --coverage
 

@@ -160,6 +160,15 @@ pub mod warnings {
         "
     };
 
+    /// Warning when token updates are not forwarded to the Votes component.
+    pub const VOTES_HOOKS_MISSING: &str = indoc! {
+        "The Votes component requires calling `self.votes.transfer_voting_units(...)` from the
+        token update hooks, and it looks like it is missing.
+
+        This may lead to incorrect voting units and checkpoint tracking.
+        "
+    };
+
     /// Warning when the ERC721Enumerable hook call is missing.
     pub const ERC721_ENUMERABLE_HOOKS_MISSING: &str = indoc! {
         "The ERC721Enumerable component requires calling `self.erc721_enumerable.before_update(...)`

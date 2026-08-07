@@ -367,7 +367,8 @@ impl<'a> WithComponentsParser<'a> {
 
         // Add warnings for each component
         for component_info in self.components_info.iter() {
-            let component_warnings = add_per_component_warnings(&module_facts, component_info);
+            let component_warnings =
+                add_per_component_warnings(&module_facts, component_info, self.components_info);
             warnings.extend(component_warnings);
         }
 
@@ -524,6 +525,7 @@ fn validate_contract_module<'db>(
 fn add_per_component_warnings(
     facts: &ModuleFacts,
     component_info: &ComponentInfo,
+    components_info: &[ComponentInfo<'_>],
 ) -> Vec<Diagnostic> {
     let mut warnings = vec![];
 
@@ -651,6 +653,23 @@ fn add_per_component_warnings(
             let snip12_metadata_implemented = facts.implements_trait("SNIP12Metadata");
             if !snip12_metadata_implemented {
                 let warning = Diagnostic::warn(warnings::SNIP12_METADATA_IMPL_MISSING);
+                warnings.push(warning);
+            }
+
+            // Token integrations must forward token updates to Votes.
+            let uses_token_component = components_info.iter().any(|component| {
+                matches!(
+                    component.kind(),
+                    AllowedComponents::ERC20
+                        | AllowedComponents::ERC20FlashMint
+                        | AllowedComponents::ERC721
+                        | AllowedComponents::ERC721Consecutive
+                )
+            });
+            let hook_called = facts.has_call(&["votes", "transfer_voting_units"])
+                || facts.has_call(&["VotesInternalImpl", "transfer_voting_units"]);
+            if uses_token_component && !hook_called {
+                let warning = Diagnostic::warn(warnings::VOTES_HOOKS_MISSING);
                 warnings.push(warning);
             }
         }

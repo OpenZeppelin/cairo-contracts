@@ -6,6 +6,7 @@ snapshot_kind: text
 TokenStream:
 
 pub enum MyEnum {
+    #[snip12(kind: "TokenAmount")]
     Variant1: TokenAmount,
     Variant2: (),
 }

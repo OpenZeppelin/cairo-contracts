@@ -69,6 +69,18 @@ pub struct InnerType {
 impl S12Type {
     /// Creates a S12Type from a String
     pub fn from_str(s: &str) -> Option<S12Type> {
+        Self::parse(s, true)
+    }
+
+    /// Creates a S12Type from a Cairo type.
+    ///
+    /// SNIP-12-only schema aliases are treated as user-defined types unless they are selected
+    /// explicitly through a `#[snip12(kind: ...)]` override.
+    pub fn from_cairo_type(s: &str) -> Option<S12Type> {
+        Self::parse(s, false)
+    }
+
+    fn parse(s: &str, allow_schema_only_aliases: bool) -> Option<S12Type> {
         let s = s.trim();
 
         if s.is_empty() {
@@ -79,7 +91,7 @@ impl S12Type {
         if let Some(inner) = s.strip_prefix('(').and_then(|s| s.strip_suffix(')')) {
             let types = try_split_types(inner)?
                 .into_iter()
-                .map(S12Type::from_str)
+                .map(|ty| Self::parse(ty, allow_schema_only_aliases))
                 .collect::<Option<Vec<_>>>()?;
             return Some(S12Type::Collection(CollectionType::Tuple(types)));
         } else if s.starts_with('(') || s.ends_with(')') {
@@ -89,8 +101,14 @@ impl S12Type {
         // Check if the type is an array/span
         if let Some(inner) = s.strip_prefix("Array<").or_else(|| s.strip_prefix("Span<")) {
             let inner = inner.strip_suffix('>')?;
-            let array_type = Box::new(S12Type::from_str(inner)?);
+            let array_type = Box::new(Self::parse(inner, allow_schema_only_aliases)?);
             return Some(S12Type::Collection(CollectionType::Array(array_type)));
+        }
+
+        // These names exist in the SNIP-12 schema but are not unambiguous Cairo types. Without an
+        // explicit kind override they may instead refer to user-defined types with the same name.
+        if !allow_schema_only_aliases && is_schema_only_alias(s) {
+            return Some(S12Type::UserDefined(UserDefinedType::Custom(s.to_string())));
         }
 
         Some(match s {
@@ -154,6 +172,41 @@ impl S12Type {
             S12Type::UserDefined(user_defined_type) => user_defined_type.get_encoded_ref_type(),
         }
     }
+}
+
+/// Returns whether a name is a SNIP-12 schema alias rather than an unambiguous Cairo type.
+fn is_schema_only_alias(name: &str) -> bool {
+    matches!(
+        name,
+        "shortstring"
+            | "timestamp"
+            | "selector"
+            | "merkletree"
+            | "string"
+            | "TokenAmount"
+            | "NftId"
+    )
+}
+
+/// Returns whether a name is reserved for a SNIP-12 basic or preset type.
+pub fn is_reserved_type_name(name: &str) -> bool {
+    matches!(
+        name,
+        "felt"
+            | "bool"
+            | "string"
+            | "shortstring"
+            | "ClassHash"
+            | "ContractAddress"
+            | "timestamp"
+            | "selector"
+            | "merkletree"
+            | "u128"
+            | "i128"
+            | "TokenAmount"
+            | "NftId"
+            | "u256"
+    )
 }
 
 impl BasicType {

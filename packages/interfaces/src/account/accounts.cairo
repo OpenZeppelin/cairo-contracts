@@ -49,6 +49,20 @@ pub trait IDeployable<TState> {
     ) -> felt252;
 }
 
+/// Deployment validation for accounts whose public key is encoded as a felt array.
+#[starknet::interface]
+pub trait IFeltArrayDeployable<TState> {
+    /// Validates a deploy-account transaction before deployment.
+    ///
+    /// Returns the short string 'VALID' if valid, otherwise it reverts.
+    fn __validate_deploy__(
+        self: @TState,
+        class_hash: felt252,
+        contract_address_salt: felt252,
+        public_key: Array<felt252>,
+    ) -> felt252;
+}
+
 #[starknet::interface]
 pub trait IPublicKey<TState> {
     /// Returns the current public key of the account.
@@ -58,6 +72,13 @@ pub trait IPublicKey<TState> {
     ///
     /// Emits both an `OwnerRemoved` and an `OwnerAdded` event.
     fn set_public_key(ref self: TState, new_public_key: felt252, signature: Span<felt252>);
+}
+
+/// Read access to a public key encoded as a felt array.
+#[starknet::interface]
+pub trait IFeltArrayPublicKey<TState> {
+    /// Returns the current public key of the account.
+    fn get_public_key(self: @TState) -> Array<felt252>;
 }
 
 /// Adds camelCase support for `ISRC6`.

@@ -2,6 +2,12 @@
 version = 1
 
 [[package]]
+name = "corelib_imports"
+version = "0.1.3"
+source = "registry+https://scarbs.xyz/"
+checksum = "sha256:1dbf8982484a6a085a143f2352dfbc716261c50c60551eb03bff5f0167260ad9"
+
+[[package]]
 name = "openzeppelin"
 version = "4.0.0-alpha.1"
 dependencies = [
@@ -39,6 +45,7 @@ dependencies = [
 name = "openzeppelin_account"
 version = "4.0.0-alpha.1"
 dependencies = [
+ "corelib_imports",
  "openzeppelin_interfaces",
  "openzeppelin_introspection",
  "openzeppelin_test_common",

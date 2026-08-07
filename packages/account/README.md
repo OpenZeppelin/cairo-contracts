@@ -10,6 +10,16 @@ This crate provides components to implement account contracts that can be used f
 - `EthAccount` validates transactions from signatures over the
 [Secp256k1 curve](https://en.bitcoin.it/wiki/Secp256k1).
 
+- `Falcon512ShakeAccount` validates legacy Falcon-512 submission-algorithm signatures
+  using SHAKE-256 hash-to-point and a verifier-bound product hint.
+
+- `Falcon512ShakeDirectAccount` validates the corresponding hint-free signatures by
+  recomputing the polynomial product on-chain.
+
+> **WARNING:** The Falcon accounts use immutable keys and a contract-specific felt encoding.
+> They do not implement a finalized NIST FN-DSA standard. Key loss, key compromise, or a
+> verifier revision requires migration to a new account address.
+
 ### Interfaces
 
 - [`ISRC6`](https://docs.openzeppelin.com/contracts-cairo/3.x/api/account#ISRC6)

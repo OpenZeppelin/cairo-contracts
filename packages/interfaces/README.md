@@ -16,6 +16,8 @@ List of standardized interfaces, ABI traits and dispatchers.
 - `ISRC6CamelOnly`
 - `IDeclarer`
 - `IDeployable`
+- `IFeltArrayDeployable`
+- `IFeltArrayPublicKey`
 - `IPublicKey`
 - `IPublicKeyCamel`
 - `IEthDeployable`

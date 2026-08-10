@@ -666,11 +666,13 @@ fn add_per_component_warnings(
                         | AllowedComponents::ERC721Consecutive
                 )
             });
-            let hook_called = facts.has_call(&["votes", "transfer_voting_units"])
-                || facts.has_call(&["VotesInternalImpl", "transfer_voting_units"]);
-            if uses_token_component && !hook_called {
-                let warning = Diagnostic::warn(warnings::VOTES_HOOKS_MISSING);
-                warnings.push(warning);
+            if uses_token_component {
+                let hook_called = facts.has_call(&["votes", "transfer_voting_units"])
+                    || facts.has_call(&["VotesInternalImpl", "transfer_voting_units"]);
+                if !hook_called {
+                    let warning = Diagnostic::warn(warnings::VOTES_HOOKS_MISSING);
+                    warnings.push(warning);
+                }
             }
         }
         AllowedComponents::ERC721Enumerable => {

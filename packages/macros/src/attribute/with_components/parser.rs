@@ -138,7 +138,8 @@ impl ModuleFacts {
 
     fn implements_imported_trait_from(&self, parent_path: &[&str], trait_name: &str) -> bool {
         self.imports.iter().any(|import| {
-            path_starts_with(&import.source_path, parent_path)
+            import.source_path.len() == parent_path.len() + 1
+                && path_starts_with(&import.source_path, parent_path)
                 && import
                     .source_path
                     .last()
@@ -264,6 +265,7 @@ fn collect_call_paths(db: &dyn SyntaxGroup, node: SyntaxNode<'_>) -> Vec<Vec<Str
         let mut cursor = lparen_index;
         let mut reversed_path = vec![];
         loop {
+            skip_turbofish_arguments(&terminals, &mut cursor);
             if cursor == 0 {
                 break;
             }
@@ -292,6 +294,37 @@ fn collect_call_paths(db: &dyn SyntaxGroup, node: SyntaxNode<'_>) -> Vec<Vec<Str
     }
 
     calls
+}
+
+/// Skips a balanced `::<...>` group immediately before `cursor` while scanning a call path
+/// backwards.
+fn skip_turbofish_arguments(terminals: &[(SyntaxKind, String)], cursor: &mut usize) {
+    if *cursor == 0 || terminals[*cursor - 1].0 != SyntaxKind::TerminalGT {
+        return;
+    }
+
+    let original_cursor = *cursor;
+    let mut depth = 0;
+    while *cursor > 0 {
+        *cursor -= 1;
+        match terminals[*cursor].0 {
+            SyntaxKind::TerminalGT => depth += 1,
+            SyntaxKind::TerminalLT => {
+                depth -= 1;
+                if depth == 0 {
+                    break;
+                }
+            }
+            _ => {}
+        }
+    }
+
+    if depth != 0 || *cursor == 0 || terminals[*cursor - 1].0 != SyntaxKind::TerminalColonColon {
+        *cursor = original_cursor;
+        return;
+    }
+
+    *cursor -= 1;
 }
 
 fn path_starts_with(path: &[String], prefix: &[&str]) -> bool {
@@ -474,12 +507,12 @@ fn validate_contract_module<'db>(
                 .path
                 .strip_suffix(&component.name)
                 .expect("Component path must end with the component name");
-            let component_parent_segments = component_parent_path
+            let mut component_path_segments = component_parent_path
                 .trim_end_matches("::")
                 .split("::")
                 .collect::<Vec<_>>();
             let default_config_used =
-                facts.imports_name_from(&component_parent_segments, "DefaultConfig");
+                facts.imports_name_from(&component_path_segments, "DefaultConfig");
             if default_config_used {
                 continue;
             }
@@ -492,7 +525,8 @@ fn validate_contract_module<'db>(
             }
 
             // Case 3: ImmutableConfig is imported (possibly aliased) and implemented
-            if facts.implements_imported_trait_from(&component_parent_segments, "ImmutableConfig") {
+            component_path_segments.push(component.name);
+            if facts.implements_imported_trait_from(&component_path_segments, "ImmutableConfig") {
                 continue;
             }
 

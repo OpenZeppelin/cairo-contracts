@@ -1,6 +1,7 @@
 use crate::attribute::with_components::definition::with_components_avevetedp5blk as with_components;
 use crate::attribute::with_components::diagnostics::warnings;
-use cairo_lang_macro::{quote, TokenStream};
+use cairo_lang_macro::{quote, TextSpan, Token, TokenStream, TokenTree};
+use indoc::indoc;
 use insta::assert_snapshot;
 
 use super::common::format_proc_macro_result;
@@ -2214,7 +2215,7 @@ fn test_with_header_doc() {
 #[test]
 fn validation_ignores_hook_names_in_comments_and_longer_identifiers() {
     let attribute = quote! { (ERC20) };
-    let item = quote! {
+    let item = raw_token_stream(indoc! {r#"
         #[starknet::contract]
         pub mod MyToken {
             use openzeppelin_token::erc20::DefaultConfig;
@@ -2231,7 +2232,7 @@ fn validation_ignores_hook_names_in_comments_and_longer_identifiers() {
                 self.erc20.initializer("MyToken", "MTK");
             }
         }
-    };
+    "#});
 
     let diagnostics = get_diagnostics(attribute, item);
     assert!(diagnostics
@@ -2340,7 +2341,7 @@ fn validation_recognizes_aliased_snip12_metadata_trait() {
 #[test]
 fn validation_ignores_component_calls_in_comments_and_longer_methods() {
     let attribute = quote! { (ERC1155Supply) };
-    let item = quote! {
+    let item = raw_token_stream(indoc! {r#"
         #[starknet::contract]
         pub mod MyContract {
             // ERC1155SupplyInternalImpl::after_update();
@@ -2351,7 +2352,7 @@ fn validation_ignores_component_calls_in_comments_and_longer_methods() {
             #[storage]
             pub struct Storage {}
         }
-    };
+    "#});
 
     let diagnostics = get_diagnostics(attribute, item);
     assert!(diagnostics
@@ -2380,6 +2381,54 @@ fn validation_recognizes_qualified_component_call() {
     assert!(!diagnostics
         .iter()
         .any(|message| message == warnings::ERC1155_SUPPLY_HOOKS_MISSING));
+}
+
+#[test]
+fn validation_recognizes_turbofish_component_call() {
+    let attribute = quote! { (ERC1155Supply) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod MyContract {
+            fn update_supply(ref self: ContractState) {
+                ERC1155SupplyInternalImpl::<Wrapper<Array<ContractState>>>::after_update(
+                    ref self.erc1155_supply,
+                );
+            }
+
+            #[storage]
+            pub struct Storage {}
+        }
+    };
+
+    let diagnostics = get_diagnostics(attribute, item);
+    assert!(!diagnostics
+        .iter()
+        .any(|message| message == warnings::ERC1155_SUPPLY_HOOKS_MISSING));
+}
+
+#[test]
+fn validation_recognizes_turbofish_initializer_call() {
+    let attribute = quote! { (ERC20) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod MyToken {
+            use openzeppelin_token::erc20::DefaultConfig;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState) {
+                self.erc20.initializer::<ContractState>("MyToken", "MTK");
+            }
+        }
+    };
+
+    let diagnostics = get_diagnostics(attribute, item);
+    let missing_initializer = warnings::INITIALIZERS_MISSING("ERC20");
+    assert!(!diagnostics
+        .iter()
+        .any(|message| message == &missing_initializer));
 }
 
 #[test]
@@ -2431,6 +2480,55 @@ fn validation_recognizes_aliased_component_immutable_config() {
     assert!(!diagnostics.iter().any(|message| message == &missing_config));
 }
 
+#[test]
+fn validation_recognizes_aliased_imported_component_immutable_config() {
+    let attribute = quote! { (ERC721Consecutive) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod MyContract {
+            use openzeppelin_token::erc721::extensions::ERC721ConsecutiveComponent::ImmutableConfig as ConsecutiveConfig;
+
+            pub impl Config of ConsecutiveConfig {
+                const MAX_BATCH_SIZE: u64 = 4200;
+                const FIRST_CONSECUTIVE_ID: u64 = 42;
+            }
+
+            #[storage]
+            pub struct Storage {}
+        }
+    };
+
+    let diagnostics = get_diagnostics(attribute, item);
+    let missing_config = warnings::IMMUTABLE_CONFIG_MISSING(
+        "ERC721Consecutive",
+        "openzeppelin_token::erc721::extensions::DefaultConfig",
+    );
+    assert!(!diagnostics.iter().any(|message| message == &missing_config));
+}
+
+#[test]
+fn validation_rejects_sibling_component_immutable_config() {
+    let attribute = quote! { (ERC721Consecutive) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod MyContract {
+            use openzeppelin_token::erc721::extensions::ERC721URIStorageComponent::ImmutableConfig;
+
+            pub impl Config of ImmutableConfig {}
+
+            #[storage]
+            pub struct Storage {}
+        }
+    };
+
+    let diagnostics = get_diagnostics(attribute, item);
+    let missing_config = warnings::IMMUTABLE_CONFIG_MISSING(
+        "ERC721Consecutive",
+        "openzeppelin_token::erc721::extensions::DefaultConfig",
+    );
+    assert!(diagnostics.iter().any(|message| message == &missing_config));
+}
+
 //
 // Helpers
 //
@@ -2448,4 +2546,11 @@ fn get_diagnostics(attr_stream: TokenStream, item_stream: TokenStream) -> Vec<St
         .iter()
         .map(|diagnostic| diagnostic.message().to_string())
         .collect()
+}
+
+fn raw_token_stream(source: &str) -> TokenStream {
+    TokenStream::new(vec![TokenTree::Ident(Token::new(
+        source,
+        TextSpan::new(0, source.len() as u32),
+    ))])
 }

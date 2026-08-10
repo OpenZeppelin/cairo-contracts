@@ -220,7 +220,7 @@ pub(crate) fn parse_snip12_args(s: &str) -> Result<Snip12Args, Diagnostic> {
         kind: String::new(),
     };
 
-    // If the attribute is empty, return the default args
+    // Reject empty arguments; explicit `()` uses the default args.
     let s = s.trim();
     if s.is_empty() {
         return Err(Diagnostic::error(errors::INVALID_SNIP12_ATTRIBUTE_FORMAT));

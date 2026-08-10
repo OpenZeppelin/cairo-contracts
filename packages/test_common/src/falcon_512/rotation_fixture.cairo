@@ -1,9 +1,9 @@
-//! Deterministic Falcon-512 ownership-acceptance test vector — do not edit by hand.
+//! Fixed Falcon-512 account integration test vectors.
 //!
-//! The public key comes from the benchmark-only demo key. The signature authenticates
-//! `accept_ownership_hash()` and uses a deterministic salt and sampling seed so the
-//! fixture remains reproducible. These values are test material and must never be used
-//! for production keys.
+//! The vectors cover new-owner acceptance, same-key rotation, and SRC9 outside execution for
+//! `account_address()`. Their keys and signatures were generated with the
+//! `tprest/falcon.py`-based test signer and use the accounts' Cairo-specific felt encoding. This
+//! test material must not be used in production.
 
 /// Fixed address used to domain-separate the ownership-acceptance fixture.
 pub fn account_address() -> starknet::ContractAddress {
@@ -15,7 +15,7 @@ pub fn accept_ownership_hash() -> felt252 {
     0x4e62665f5de5d234888da2b01cedcd1c3ed0b70149a6697d6c881b38021c0a
 }
 
-/// Poseidon hash of the original fixture's packed public key.
+/// Poseidon hash of [`super::fixture::public_key()`].
 pub fn current_owner_guid() -> felt252 {
     0x1c017f6368c49d94e2fee2cebcac6def11fd9d75dd9042216f630dac0376c4
 }
@@ -25,7 +25,7 @@ pub fn new_owner_guid() -> felt252 {
     0x17705763a1277b0c72cc319dc0015046911575a5f00c2c4b8cde3936383f329
 }
 
-/// Canonical packed NTT-domain public key accepted by the new owner (29 felts).
+/// Canonical packed NTT-domain public key for the prospective owner (29 felts).
 pub fn new_public_key() -> Array<felt252> {
     array![
         0x9b070736af5cc06617e666684c2c7a010403b7d0d19dcd9cfb81189549805a,
@@ -60,7 +60,7 @@ pub fn new_public_key() -> Array<felt252> {
     ]
 }
 
-/// New-owner acceptance signature: s1 (29) || salt (2) || checked product hint (29).
+/// New-owner acceptance signature: packed s1 (29) || salt (2) || packed mul_hint (29).
 pub fn accept_ownership_signature() -> Array<felt252> {
     array![
         0x4bd8ec4b708072cf5362a321179003104c4c50f2f986221418a96705d433e21,
@@ -124,12 +124,13 @@ pub fn accept_ownership_signature() -> Array<felt252> {
         0xcbd8a83727b237f7924603d6f19,
     ]
 }
-/// Ownership-acceptance hash after the first rotation, when the demo key is current.
+
+/// Ownership-acceptance hash after the first rotation, when `new_public_key()` is current.
 pub fn second_accept_ownership_hash() -> felt252 {
     0x2ab9ca182c4cf47c5a03e1d9a614497b148d52814e8837f308fb0aa02355dc8
 }
 
-/// Acceptance signature for repeating the rotation while the demo key is current.
+/// Acceptance signature for a same-key rotation while `new_public_key()` is current.
 pub fn second_accept_ownership_signature() -> Array<felt252> {
     array![
         0xf6d56a03695a92ffe10775fa7611a000a51ff4f283bb2847933b6b46f5eea,
@@ -191,5 +192,78 @@ pub fn second_accept_ownership_signature() -> Array<felt252> {
         0x2c6c8582db3ab172621fc31949c694e014888d6dcaa3278230f90cd9a19910b,
         0x39678a33f5573e81e8aa9317e88624701b6c81616be373d7f5be12868926d92,
         0x141b32eb53245d40045054b63367,
+    ]
+}
+
+/// SRC9 message hash for an empty outside execution addressed to `account_address()` with
+/// `ANY_CALLER`, nonce 5, `execute_after` 10, and `execute_before` 20. Its SNIP-12 domain uses
+/// name `Account.execute_from_outside`, version 2, chain ID `SN_SEPOLIA`, and revision 1.
+pub fn outside_execution_hash() -> felt252 {
+    0x6b92f58cb9070d5700b3dfbc62e82131a570bc1d2ca9133db3842f94eceeac4
+}
+
+/// SHAKE-256 hint signature over `outside_execution_hash()`, produced with the test private key
+/// corresponding to `new_public_key()`.
+pub fn outside_execution_signature() -> Array<felt252> {
+    array![
+        0x4b4f151f45c3b0494a32916b674cdb2001f749ceb287d544d4eb1b423c612d5,
+        0x669c2b57f4da0f10725003a59831704c7c74cb0c97465fd29ca1e7cfb402a,
+        0x14bc9f29138bd2b5dd4955b8ba3fbe00004ca48190fc41d52930a646935f67,
+        0x4b58b17f52f2ceb59b3c61c78d5100c000d056ba419eac52a06ea247229f1dc,
+        0x19e784e2e4caa1e0ba283dca81f90011d4fb189e4ebce11970597abf6028,
+        0x1e75077ddd44ba0b716b14ea2ff5604c1f74d4aa5074234290c8a2b36311b,
+        0xd6bfb5f18d753edd248480e94ff5304cac84dead887afd07681a0517c11f9,
+        0x4b9da03cfe36602cf75d985cc669f8804c1908d74e335bcdd37f45b7c241ee0,
+        0x984043daabe592da7fc4e939f0053001bd8fe689974f62c4a9c8bbae5f008,
+        0xab76b5c232aafc3429c166b7fefb2000903fdb022dd6bb5c491ae4aa30d03,
+        0x4c2de4e714cf0c3bc91d71f101642830000b345550b0a64845ee5ada701fd04,
+        0xa04f43ba95737f00106fb91a6015c04c5dfad25791a2c784b31b563c90f57,
+        0x9eb444c7c0d1316c89d5acc49c285000f8628dd7b9bda83a35b4a959f3b8f,
+        0x4c82d1fd95d2dcb0ec1a01fa7c0403d04ce3016739b647936d5e58df8bd30aa,
+        0x4bff67c6cf029ed1d9543399390d06404cc152bd4f37628f3ac591c2c35d0d7,
+        0x4bec22a3b29465fe1c3c7a5ebbd1f0900105422562575c128f10f7b1429c137,
+        0x31ace09d8191e3824c24c682defd90000ffd1c96849f1479129c98943fdf7,
+        0x14d53fc7239a11655b08b8d83cf9b04caae52163fa83d8f37f062d5e71dc5,
+        0x4c45e9c4c151b8048e2b3a580af5f7f04c0dd22bd09e81b3f740f0b99acb261,
+        0x44ef939b33c377045dc4b8809dade00115511f504c7a669f6cd0a9a1cd321,
+        0x4c64505f931305097e6656b43dc910000034d80526b841d7a733b0aa2e87e04,
+        0x4c9ade0086aa6a479ef11e7a8ecef680006e8ae19225179ec16434f5d239d8d,
+        0x133a95f7e1f1a5e9ba02392266f7d04c8e122d8360fab80ce04b6893e6585,
+        0x4bf5c25a4f6512d687f09043d70fe76001fa78db7dd9d5ecd2f84bf1c01d1d4,
+        0x4c5123e95a855e6323e19a2d8a710ec04c9fae5c2333d3487add6f11b189e91,
+        0x4c879d92c45dd6e62c5698fdade1e7e04b88b8b9612a15111c52e5cb61a3deb,
+        0x4b58afe4be4ccce5be0a144ffed1c7800081d486817109a2fa988a0455edf0d,
+        0x4b4f0bf92fd7940f8067e3c04b28dc504cc6251102450e734433651191d424a,
+        0x1ab4cce57920b58f81e20b60db, 0xb80dead152bad04f674347ab1ab2316e0819c776,
+        0xb10b59cd20ba7e6b932a53bb005a7c520a863dec,
+        0x4b44c9a863df768c8359ec527d3c7490199a8e7920e4a78e24ddd509f7118a1,
+        0x30a24369c757325e6f10fdba527c9450069d063f15798a3ac74907d2811f2a5,
+        0x79694d4295f1990078644ca15c0f4303a871d9275157534407ddf2d7062bcf,
+        0x3f7c4dd3711929129ac76e18d31e1b02185051a8ab79cbd6187cfd34724aab,
+        0x2dd032e5419dcd93295c7c0c3a0107a008f09aafd5afd15ee3cc198c74f0165,
+        0x16efbe27c5931f09de4f0afd81c2d1d014acf1e0b31a57c5e52cddc5d205912,
+        0x34724daa7b50655841e43076be0653601ec0530a3ffba787e9627f7026b1c95,
+        0x360a1d235d9da8dee21aae138bc935101ebe51741d2fb32b50046c3871aef9f,
+        0x14a4b268d64bee657bfdaa57d16feb01a3af3aa0d5f729d4ab7d4ce2107c74,
+        0x37c1924a346a648a07fd892877479ef04700ff9c31878fef065e5d1f9b19fb1,
+        0x1cacc5fa22f1d916415a7a71c3132cd03be9dd39aee46d29d20d5c595767b5f,
+        0x15fe178b816546d91e6f8ab2aa28cde04716fcff74bd578462ac0f2d1abd7c9,
+        0x428055334432c3b4a0c68a8957f5459029a54fe83bc944df1ca0d078e50ae54,
+        0x1d69ed931e5a94e384e07c2576fbeab03a39e3d2eb37ecd71f988bbebaf35f9,
+        0x62edf675f00ec8a0cb8ee2b2120ebe0350bca5f7f14ecd7e12036d04d15052,
+        0x15cf6f0b586cc06ac67945ef11576c0052ebaf911c2d525f0b17b5772d4ef8,
+        0x20bb1217bc9d9bc929d8c3d650d98fd032b78dfd0f39a74fef9c564df3b6d6e,
+        0x4306db5a13a7ec15fdb4ce63999fdd037590c842025460f903b70e208a92f5,
+        0x4013552d954d5e2bbef1ed4d838d91804543e8c639e7b3f01fd7dbdf04345d2,
+        0x4c6d90027346dd12b1e9bbf24ca59b3047b5778058b35edbab930d485fc662a,
+        0x1eb6cabc8e08b00e90500dc103eb67301e72ad3aa33801e4231966a4ceb0484,
+        0x443d6fa13abe7de7208a5ccde5b1e80042b5b027441297ede9a9aab33012d96,
+        0x4198eea2930ce04241e14f446ee882a01563d42e6dae95f64bbc7b612011117,
+        0xa136d1fdb5a1bbf4515709da15e0b200680ae20b27443a7bf0a485372f0fec,
+        0x24150041bfbc26a21f6665ee16a042702091d6cc00cd2e924d2f23c1d6256e7,
+        0x1885d40d392b1d6e838473a57ff705403488156122fb5faa95d10640e660f7b,
+        0x45de57705f8580e6f94493d9a39de340442c117a13a255dc60e4f5b0018aacb,
+        0x124081749e93c944284324c3e23b2b002a3186d4070e5863dc20aa85287e799,
+        0x14355bbe3b117dc3152be52f77de,
     ]
 }

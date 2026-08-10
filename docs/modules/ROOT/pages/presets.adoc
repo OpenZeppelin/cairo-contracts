@@ -3,6 +3,8 @@
 :erc721-upgradeable: xref:/api/erc721.adoc#ERC721Upgradeable[ERC721Upgradeable]
 :erc1155-upgradeable: xref:/api/erc1155.adoc#ERC1155Upgradeable[ERC1155Upgradeable]
 :eth-account-upgradeable: xref:/api/account.adoc#EthAccountUpgradeable[EthAccountUpgradeable]
+:falcon512-shake-account-upgradeable: xref:/api/account.adoc#Falcon512ShakeAccountUpgradeable[Falcon512ShakeAccountUpgradeable]
+:falcon512-shake-direct-account-upgradeable: xref:/api/account.adoc#Falcon512ShakeDirectAccountUpgradeable[Falcon512ShakeDirectAccountUpgradeable]
 :udc: xref:/api/udc.adoc#UniversalDeployer[UniversalDeployer]
 :vesting-wallet: xref:/api/finance.adoc#VestingWallet[VestingWallet]
 :sierra-class-hashes: https://docs.starknet.io/architecture-and-concepts/smart-contracts/class-hash/[Sierra class hashes]
@@ -48,6 +50,12 @@ CAUTION: Before version 4.0.0-alpha.1, class hashes were computed using the `sca
 | `{eth-account-upgradeable}`
 | `{EthAccountUpgradeable-class-hash}`
 
+| `{falcon512-shake-account-upgradeable}`
+| `{Falcon512ShakeAccountUpgradeable-class-hash}`
+
+| `{falcon512-shake-direct-account-upgradeable}`
+| `{Falcon512ShakeDirectAccountUpgradeable-class-hash}`
+
 | `{udc}`
 | `{UniversalDeployer-class-hash}`
 
@@ -56,6 +64,10 @@ CAUTION: Before version 4.0.0-alpha.1, class hashes were computed using the `sca
 |===
 
 TIP: {starkli} class-hash command can be used to compute the class hash from a Sierra artifact.
+
+IMPORTANT: Build Falcon account preset artifacts with
+`scarb --release build -p openzeppelin_presets`. Their verification paths require compiler
+inlining, so use the artifacts under `target/release` for declaration.
 
 == Usage
 

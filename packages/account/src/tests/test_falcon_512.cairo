@@ -6,6 +6,11 @@ use openzeppelin_interfaces::accounts::{
     ISRC6DispatcherTrait, ISRC6_ID,
 };
 use openzeppelin_interfaces::introspection::{ISRC5Dispatcher, ISRC5DispatcherTrait, ISRC5_ID};
+use openzeppelin_test_common::falcon_512::fixture::{msg, public_key, signature};
+use openzeppelin_test_common::falcon_512::rotation_fixture::{
+    accept_ownership_hash, accept_ownership_signature, account_address, current_owner_guid,
+    new_owner_guid, new_public_key, second_accept_ownership_signature,
+};
 use openzeppelin_test_common::mocks::simple::{ISimpleMockDispatcher, ISimpleMockDispatcherTrait};
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{
@@ -19,15 +24,8 @@ use snforge_std::{
 };
 use starknet::ContractAddress;
 use starknet::account::Call;
-use crate::falcon_512::{
-    DIRECT_SIGNATURE_FELTS, Falcon512ShakeDirectVerifier, Falcon512ShakeVerifier, PUBLIC_KEY_FELTS,
-    SIGNATURE_FELTS,
-};
-use super::falcon_512_fixture::{msg, public_key, signature};
-use super::falcon_512_rotation_fixture::{
-    accept_ownership_hash, accept_ownership_signature, account_address, current_owner_guid,
-    new_owner_guid, new_public_key, second_accept_ownership_signature,
-};
+use crate::falcon_512::verifier_impls::{DIRECT_SIGNATURE_FELTS, PUBLIC_KEY_FELTS, SIGNATURE_FELTS};
+use crate::falcon_512::{Falcon512ShakeDirectVerifier, Falcon512ShakeVerifier};
 
 const Q_POW_9: felt252 = 6392178558614694273495691177456939009;
 const TWO_POW_160: felt252 = 0x10000000000000000000000000000000000000000;
@@ -206,7 +204,7 @@ fn test_hint_verifier_rejects_all_malformed_layout_branches() {
 }
 
 #[test]
-fn test_hint_verifier_rejects_every_authenticated_input_tamper() {
+fn test_hint_verifier_rejects_tampering_in_each_authenticated_region() {
     let key = public_key();
     let valid_signature = signature();
 
@@ -285,7 +283,7 @@ fn test_direct_verifier_rejects_all_malformed_layout_branches() {
 }
 
 #[test]
-fn test_direct_verifier_rejects_every_authenticated_input_tamper() {
+fn test_direct_verifier_rejects_tampering_in_each_authenticated_region() {
     let key = public_key();
     let valid_signature = direct_signature();
 
@@ -310,7 +308,7 @@ fn test_direct_verifier_rejects_every_authenticated_input_tamper() {
 }
 
 #[test]
-fn test_hint_tampering_does_not_change_direct_signature() {
+fn test_direct_signature_prefix_remains_valid_when_hint_suffix_is_tampered() {
     let key = public_key();
     let valid_signature = signature();
     let tampered = with_replaced(valid_signature.span(), 31, *valid_signature.at(31) + 1);
@@ -325,8 +323,8 @@ fn test_hint_tampering_does_not_change_direct_signature() {
 
 #[test]
 fn test_accounts_expose_exact_public_key_and_interfaces() {
-    let (hint_address, _) = deploy_account("Falcon512ShakeAccount");
-    let (direct_address, _) = deploy_account("Falcon512ShakeDirectAccount");
+    let (hint_address, _) = deploy_account("Falcon512ShakeAccountMock");
+    let (direct_address, _) = deploy_account("Falcon512ShakeDirectAccountMock");
 
     for address in [hint_address, direct_address].span() {
         let key_dispatcher = IFeltArrayPublicKeyDispatcher { contract_address: *address };
@@ -340,9 +338,9 @@ fn test_accounts_expose_exact_public_key_and_interfaces() {
 }
 
 #[test]
-fn test_accounts_is_valid_signature_return_convention() {
-    let (hint_address, _) = deploy_account("Falcon512ShakeAccount");
-    let (direct_address, _) = deploy_account("Falcon512ShakeDirectAccount");
+fn test_accounts_follow_is_valid_signature_return_convention_and_reject_cross_layout() {
+    let (hint_address, _) = deploy_account("Falcon512ShakeAccountMock");
+    let (direct_address, _) = deploy_account("Falcon512ShakeDirectAccountMock");
     let hint = ISRC6Dispatcher { contract_address: hint_address };
     let direct = ISRC6Dispatcher { contract_address: direct_address };
 
@@ -358,13 +356,13 @@ fn test_accounts_is_valid_signature_return_convention() {
 #[test]
 fn test_hint_account_rotates_key_via_authenticated_execute() {
     let address = account_address();
-    let account = deploy_account_at("Falcon512ShakeAccount", address);
+    let account = deploy_account_at("Falcon512ShakeAccountMock", address);
     setup_transaction(address, msg(), signature(), MIN_TRANSACTION_VERSION);
 
     // Protocol validation authenticates the outer invoke with the current owner.
     assert_eq!(account.__validate__(array![]), starknet::VALIDATED);
     stop_cheat_caller_address(address);
-    // Cheat only the outer entrypoint call. The nested self-call keeps its real caller.
+    // Cheat only the outer entry point call. The nested self-call keeps its real caller.
     cheat_caller_address(address, ZERO, CheatSpan::TargetCalls(1));
 
     let mut spy = spy_events();
@@ -389,7 +387,7 @@ fn test_hint_account_rotates_key_via_authenticated_execute() {
 #[test]
 fn test_hint_rotated_key_accepts_new_owner_and_rejects_old_owner() {
     let address = account_address();
-    let account = deploy_account_at("Falcon512ShakeAccount", address);
+    let account = deploy_account_at("Falcon512ShakeAccountMock", address);
     let acceptance_signature = accept_ownership_signature();
     start_cheat_caller_address(address, address);
     account.set_public_key(new_public_key(), acceptance_signature.span());
@@ -404,12 +402,12 @@ fn test_hint_rotated_key_accepts_new_owner_and_rejects_old_owner() {
 #[test]
 fn test_repeated_key_rotation_keeps_exact_storage_length() {
     let address = account_address();
-    let account = deploy_account_at("Falcon512ShakeAccount", address);
+    let account = deploy_account_at("Falcon512ShakeAccountMock", address);
     start_cheat_caller_address(address, address);
     let first_signature = accept_ownership_signature();
     account.set_public_key(new_public_key(), first_signature.span());
 
-    // A second rotation overwrites the 29 stored felts instead of growing the Vec.
+    // A second rotation keeps the stored key at its fixed 29-felt length.
     let second_signature = second_accept_ownership_signature();
     account.set_public_key(new_public_key(), second_signature.span());
     assert_eq!(account.get_public_key().len(), PUBLIC_KEY_FELTS);
@@ -418,7 +416,7 @@ fn test_repeated_key_rotation_keeps_exact_storage_length() {
 #[test]
 fn test_direct_account_rotates_key_through_camel_case_abi() {
     let address = account_address();
-    let account = deploy_account_at("Falcon512ShakeDirectAccount", address);
+    let account = deploy_account_at("Falcon512ShakeDirectAccountMock", address);
     let acceptance_signature = direct_accept_ownership_signature();
     start_cheat_caller_address(address, address);
 
@@ -441,7 +439,7 @@ fn test_direct_account_rotates_key_through_camel_case_abi() {
 #[test]
 fn test_direct_account_camel_case_signature_alias() {
     let address = account_address();
-    let account = deploy_account_at("Falcon512ShakeDirectAccount", address);
+    let account = deploy_account_at("Falcon512ShakeDirectAccountMock", address);
 
     assert_eq!(account.isValidSignature(msg(), direct_signature()), starknet::VALIDATED);
 }
@@ -450,7 +448,7 @@ fn test_direct_account_camel_case_signature_alias() {
 fn test_constructor_emits_owner_added_guid() {
     let address = account_address();
     let mut spy = spy_events();
-    deploy_account_at("Falcon512ShakeAccount", address);
+    deploy_account_at("Falcon512ShakeAccountMock", address);
 
     spy
         .assert_only_event(
@@ -459,20 +457,20 @@ fn test_constructor_emits_owner_added_guid() {
 }
 
 #[test]
-#[should_panic(expected: 'Account: unauthorized')]
+#[should_panic(expected: 'Falcon512: unauthorized')]
 fn test_key_rotation_rejects_non_self_caller() {
     let address = account_address();
-    let account = deploy_account_at("Falcon512ShakeAccount", address);
+    let account = deploy_account_at("Falcon512ShakeAccountMock", address);
     start_cheat_caller_address(address, CALLER);
 
     account.set_public_key(new_public_key(), array![].span());
 }
 
 #[test]
-#[should_panic(expected: 'Account: invalid public key')]
+#[should_panic(expected: 'Falcon512: invalid public key')]
 fn test_key_rotation_rejects_malformed_public_key_before_signature() {
     let address = account_address();
-    let account = deploy_account_at("Falcon512ShakeDirectAccount", address);
+    let account = deploy_account_at("Falcon512ShakeDirectAccountMock", address);
     start_cheat_caller_address(address, address);
 
     account
@@ -482,10 +480,10 @@ fn test_key_rotation_rejects_malformed_public_key_before_signature() {
 }
 
 #[test]
-#[should_panic(expected: 'Account: invalid signature')]
+#[should_panic(expected: 'Falcon512: invalid signature')]
 fn test_key_rotation_rejects_invalid_new_owner_proof() {
     let address = account_address();
-    let account = deploy_account_at("Falcon512ShakeAccount", address);
+    let account = deploy_account_at("Falcon512ShakeAccountMock", address);
     start_cheat_caller_address(address, address);
     let valid_signature = accept_ownership_signature();
     let invalid_signature = with_replaced(valid_signature.span(), 0, *valid_signature.at(0) + 1);
@@ -494,10 +492,10 @@ fn test_key_rotation_rejects_invalid_new_owner_proof() {
 }
 
 #[test]
-#[should_panic(expected: 'Account: invalid signature')]
+#[should_panic(expected: 'Falcon512: invalid signature')]
 fn test_key_rotation_proof_cannot_be_replayed_to_another_account() {
     let address = CALLER;
-    let account = deploy_account_at("Falcon512ShakeDirectAccount", address);
+    let account = deploy_account_at("Falcon512ShakeDirectAccountMock", address);
     start_cheat_caller_address(address, address);
     let acceptance_signature = direct_accept_ownership_signature();
 
@@ -505,10 +503,10 @@ fn test_key_rotation_proof_cannot_be_replayed_to_another_account() {
 }
 
 #[test]
-#[should_panic(expected: 'Account: invalid signature')]
+#[should_panic(expected: 'Falcon512: invalid signature')]
 fn test_key_rotation_proof_cannot_be_replayed_after_rotation() {
     let address = account_address();
-    let account = deploy_account_at("Falcon512ShakeDirectAccount", address);
+    let account = deploy_account_at("Falcon512ShakeDirectAccountMock", address);
     start_cheat_caller_address(address, address);
     let acceptance_signature = direct_accept_ownership_signature();
 
@@ -519,7 +517,7 @@ fn test_key_rotation_proof_cannot_be_replayed_after_rotation() {
 
 #[test]
 fn test_all_validation_entrypoints_accept_hint_account_signature() {
-    let (address, class_hash) = deploy_account("Falcon512ShakeAccount");
+    let (address, class_hash) = deploy_account("Falcon512ShakeAccountMock");
     setup_transaction(address, msg(), signature(), MIN_TRANSACTION_VERSION);
 
     let src6 = ISRC6Dispatcher { contract_address: address };
@@ -532,7 +530,7 @@ fn test_all_validation_entrypoints_accept_hint_account_signature() {
 
 #[test]
 fn test_all_validation_entrypoints_accept_direct_account_signature() {
-    let (address, class_hash) = deploy_account("Falcon512ShakeDirectAccount");
+    let (address, class_hash) = deploy_account("Falcon512ShakeDirectAccountMock");
     setup_transaction(address, msg(), direct_signature(), MIN_TRANSACTION_VERSION);
 
     let src6 = ISRC6Dispatcher { contract_address: address };
@@ -544,33 +542,33 @@ fn test_all_validation_entrypoints_accept_direct_account_signature() {
 }
 
 #[test]
-#[should_panic(expected: 'Account: invalid signature')]
+#[should_panic(expected: 'Falcon512: invalid signature')]
 fn test_hint_validate_rejects_invalid_signature() {
-    let (address, _) = deploy_account("Falcon512ShakeAccount");
+    let (address, _) = deploy_account("Falcon512ShakeAccountMock");
     setup_transaction(address, msg() + 1, signature(), MIN_TRANSACTION_VERSION);
     ISRC6Dispatcher { contract_address: address }.__validate__(array![]);
 }
 
 #[test]
-#[should_panic(expected: 'Account: invalid signature')]
+#[should_panic(expected: 'Falcon512: invalid signature')]
 fn test_direct_validate_rejects_invalid_signature() {
-    let (address, _) = deploy_account("Falcon512ShakeDirectAccount");
+    let (address, _) = deploy_account("Falcon512ShakeDirectAccountMock");
     setup_transaction(address, msg() + 1, direct_signature(), MIN_TRANSACTION_VERSION);
     ISRC6Dispatcher { contract_address: address }.__validate__(array![]);
 }
 
 #[test]
-#[should_panic(expected: 'Account: invalid signature')]
+#[should_panic(expected: 'Falcon512: invalid signature')]
 fn test_validate_declare_rejects_invalid_signature() {
-    let (address, class_hash) = deploy_account("Falcon512ShakeAccount");
+    let (address, class_hash) = deploy_account("Falcon512ShakeAccountMock");
     setup_transaction(address, msg() + 1, signature(), MIN_TRANSACTION_VERSION);
     IDeclarerDispatcher { contract_address: address }.__validate_declare__(class_hash);
 }
 
 #[test]
-#[should_panic(expected: 'Account: invalid signature')]
+#[should_panic(expected: 'Falcon512: invalid signature')]
 fn test_validate_deploy_rejects_invalid_signature() {
-    let (address, class_hash) = deploy_account("Falcon512ShakeAccount");
+    let (address, class_hash) = deploy_account("Falcon512ShakeAccountMock");
     setup_transaction(address, msg() + 1, signature(), MIN_TRANSACTION_VERSION);
     IFeltArrayDeployableDispatcher { contract_address: address }
         .__validate_deploy__(class_hash, SALT, public_key());
@@ -579,7 +577,7 @@ fn test_validate_deploy_rejects_invalid_signature() {
 #[test]
 #[should_panic]
 fn test_constructor_rejects_wrong_public_key_length() {
-    let contract_class = utils::declare_class("Falcon512ShakeAccount");
+    let contract_class = utils::declare_class("Falcon512ShakeAccountMock");
     let mut calldata = array![];
     copy_prefix(public_key().span(), PUBLIC_KEY_FELTS - 1).serialize(ref calldata);
     utils::deploy(contract_class, calldata);
@@ -588,7 +586,7 @@ fn test_constructor_rejects_wrong_public_key_length() {
 #[test]
 #[should_panic]
 fn test_constructor_rejects_noncanonical_public_key() {
-    let contract_class = utils::declare_class("Falcon512ShakeDirectAccount");
+    let contract_class = utils::declare_class("Falcon512ShakeDirectAccountMock");
     let mut calldata = array![];
     with_replaced(public_key().span(), 0, Q_POW_9).serialize(ref calldata);
     utils::deploy(contract_class, calldata);
@@ -596,7 +594,7 @@ fn test_constructor_rejects_noncanonical_public_key() {
 
 #[test]
 fn test_execute_empty_single_multicall_and_supported_versions() {
-    let (address, _) = deploy_account("Falcon512ShakeAccount");
+    let (address, _) = deploy_account("Falcon512ShakeAccountMock");
     setup_transaction(address, msg(), signature(), MIN_TRANSACTION_VERSION);
     let account = ISRC6Dispatcher { contract_address: address };
     account.__execute__(array![]);
@@ -622,25 +620,25 @@ fn test_execute_empty_single_multicall_and_supported_versions() {
 }
 
 #[test]
-#[should_panic(expected: 'Account: invalid tx version')]
+#[should_panic(expected: 'Falcon512: invalid tx version')]
 fn test_execute_rejects_zero_version() {
-    let (address, _) = deploy_account("Falcon512ShakeAccount");
+    let (address, _) = deploy_account("Falcon512ShakeAccountMock");
     setup_transaction(address, msg(), signature(), MIN_TRANSACTION_VERSION - 1);
     ISRC6Dispatcher { contract_address: address }.__execute__(array![]);
 }
 
 #[test]
-#[should_panic(expected: 'Account: invalid tx version')]
+#[should_panic(expected: 'Falcon512: invalid tx version')]
 fn test_execute_rejects_query_offset_without_version() {
-    let (address, _) = deploy_account("Falcon512ShakeAccount");
+    let (address, _) = deploy_account("Falcon512ShakeAccountMock");
     setup_transaction(address, msg(), signature(), QUERY_OFFSET);
     ISRC6Dispatcher { contract_address: address }.__execute__(array![]);
 }
 
 #[test]
-#[should_panic(expected: 'Account: invalid caller')]
+#[should_panic(expected: 'Falcon512: invalid caller')]
 fn test_execute_rejects_contract_caller() {
-    let (address, _) = deploy_account("Falcon512ShakeAccount");
+    let (address, _) = deploy_account("Falcon512ShakeAccountMock");
     setup_transaction(address, msg(), signature(), MIN_TRANSACTION_VERSION);
     start_cheat_caller_address(address, CALLER);
     ISRC6Dispatcher { contract_address: address }.__execute__(array![]);

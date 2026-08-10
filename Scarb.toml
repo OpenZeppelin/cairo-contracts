@@ -2,6 +2,7 @@
 members = [
     "packages/access",
     "packages/account",
+    "packages/corelib_imports",
     "packages/finance",
     "packages/interfaces",
     "packages/governance",
@@ -44,7 +45,6 @@ keywords = [
 
 [workspace.dependencies]
 assert_macros = "2.18.0"
-corelib_imports = "0.1.2"
 starknet = "2.18.0"
 snforge_std = "0.62.1"
 

@@ -1,102 +1,26 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v4.0.0-alpha.1 (account/src/falcon_512.cairo)
 
-//! Falcon-512 SHAKE account contracts and their verification implementation.
+//! Falcon-512 SHAKE account component and verifier strategies.
 //!
-//! Both accounts implement the Falcon-512 verification relation from the FALCON submission
-//! selected by NIST, using SHAKE-256 hash-to-point. The hint variant adds a verifier-checked
-//! polynomial-product witness to its contract-specific signature encoding to reduce on-chain
-//! execution cost; the direct variant recomputes that product on-chain. Their packed felt public
-//! keys and signature encodings are contract-specific, and neither account claims conformance
-//! with FN-DSA/FIPS 206.
+//! `Falcon512ShakeVerifier` validates the FALCON submission relation with a verifier-checked
+//! polynomial-product hint that reduces on-chain execution cost. `Falcon512ShakeDirectVerifier`
+//! recomputes the product on-chain. Both strategies use SHAKE-256 hash-to-point and
+//! contract-specific felt encodings; they are not FN-DSA (FIPS 206) implementations.
+//!
+//! `Falcon512AccountComponent` provides SRC6 account behavior and owner-authorized key rotation
+//! for canonical packed Falcon-512 public keys. Ready-to-deploy compositions are provided by the
+//! `openzeppelin_presets` package.
 
-pub(crate) mod account;
+pub mod account;
 pub(crate) mod falcon;
-pub mod falcon_512_shake;
-pub mod falcon_512_shake_direct;
 pub(crate) mod hashing;
 pub(crate) mod ntt;
 pub(crate) mod packing;
+pub mod verifier;
+pub mod verifier_impls;
 pub(crate) mod zq;
-use account::Falcon512SignatureVerifier;
 
-pub use falcon_512_shake::Falcon512ShakeAccount;
-pub use falcon_512_shake_direct::Falcon512ShakeDirectAccount;
-use hashing::hash_to_point::hash_to_point_shake_512;
-
-/// Number of felts in a packed Falcon-512 public key.
-pub(crate) const PUBLIC_KEY_FELTS: u32 = 29;
-
-/// Number of felts in a Falcon-512 signature carrying a product hint.
-pub(crate) const SIGNATURE_FELTS: u32 = 60;
-
-/// Number of felts in a hint-free Falcon-512 signature.
-pub(crate) const DIRECT_SIGNATURE_FELTS: u32 = 31;
-
-/// Verifier for the 60-felt SHAKE-256 signature carrying a polynomial-product hint.
-pub(crate) impl Falcon512ShakeVerifier of Falcon512SignatureVerifier {
-    fn verify(message_hash: felt252, public_key: Span<felt252>, signature: Span<felt252>) -> bool {
-        if public_key.len() != PUBLIC_KEY_FELTS || signature.len() != SIGNATURE_FELTS {
-            return false;
-        }
-        let h_ntt = match packing::unpack_512_u16(public_key) {
-            Some(value) => value,
-            None => { return false; },
-        };
-        let s1 = match packing::unpack_512_u16(signature.slice(0, 29)) {
-            Some(value) => value,
-            None => { return false; },
-        };
-        let salt_a = *signature.at(29);
-        let salt_b = *signature.at(30);
-        let mul_hint = match packing::unpack_512_u16(signature.slice(31, 29)) {
-            Some(value) => value,
-            None => { return false; },
-        };
-        let message_point = match hash_to_point_shake_512(message_hash, salt_a, salt_b) {
-            Some(value) => value,
-            None => { return false; },
-        };
-        falcon::verify_512_with_hint_u16(
-            s1.span(), h_ntt.span(), mul_hint.span(), message_point.span(),
-        )
-    }
-
-    fn is_valid_public_key(public_key: Span<felt252>) -> bool {
-        if public_key.len() != PUBLIC_KEY_FELTS {
-            return false;
-        }
-        match packing::unpack_512_u16(public_key) {
-            Some(_) => true,
-            None => false,
-        }
-    }
-}
-
-/// Verifier for the 31-felt SHAKE-256 signature that recomputes the product on-chain.
-pub(crate) impl Falcon512ShakeDirectVerifier of Falcon512SignatureVerifier {
-    fn verify(message_hash: felt252, public_key: Span<felt252>, signature: Span<felt252>) -> bool {
-        if public_key.len() != PUBLIC_KEY_FELTS || signature.len() != DIRECT_SIGNATURE_FELTS {
-            return false;
-        }
-        let h_ntt = match packing::unpack_512_u16(public_key) {
-            Some(value) => value,
-            None => { return false; },
-        };
-        let s1 = match packing::unpack_512_u16(signature.slice(0, 29)) {
-            Some(value) => value,
-            None => { return false; },
-        };
-        let salt_a = *signature.at(29);
-        let salt_b = *signature.at(30);
-        let message_point = match hash_to_point_shake_512(message_hash, salt_a, salt_b) {
-            Some(value) => value,
-            None => { return false; },
-        };
-        falcon::verify_512_direct_u16(s1.span(), h_ntt.span(), message_point.span())
-    }
-
-    fn is_valid_public_key(public_key: Span<felt252>) -> bool {
-        Falcon512ShakeVerifier::is_valid_public_key(public_key)
-    }
-}
+pub use account::Falcon512AccountComponent;
+pub use verifier::Falcon512SignatureVerifier;
+pub use verifier_impls::{Falcon512ShakeDirectVerifier, Falcon512ShakeVerifier};

@@ -71,12 +71,26 @@ fn assert_fast_matches_generic(values: Span<u16>) {
 
 #[cfg(feature: 'falcon_fast_tests')]
 #[test]
-fn test_fast_ntt_matches_generic_reference_on_adversarial_inputs() {
+fn test_fast_ntt_matches_generic_on_boundary_and_pseudorandom_inputs() {
     assert_fast_matches_generic(zeros().span());
     assert_fast_matches_generic(max_values().span());
     assert_fast_matches_generic(basis(0).span());
     assert_fast_matches_generic(basis(511).span());
     assert_fast_matches_generic(pseudorandom_values(7).span());
+}
+
+#[cfg(feature: 'falcon_fast_tests')]
+#[test]
+fn test_fast_ntt_matches_generic_reference_for_every_basis_vector() {
+    let mut index = 0;
+    while index != 512 {
+        let values = basis(index);
+        let input = as_felts(values.span());
+        let generic = ntt(input.span(), @config());
+        let fast = ntt_falcon512_fast_u16_unchecked(values.span());
+        assert_eq!(generic.span(), as_felts(fast.span()).span());
+        index += 1;
+    }
 }
 
 #[cfg(feature: 'falcon_fast_tests')]
@@ -119,7 +133,7 @@ fn test_intt_rejects_wrong_length() {
 
 #[test]
 #[should_panic(expected: 'intt: input too large')]
-fn test_intt_rejects_excessive_input_bound() {
+fn test_intt_rejects_excessive_input_bits() {
     let values = as_felts(zeros().span());
     intt(values.span(), 120, PRODUCT_BOUND_FELT, @config());
 }

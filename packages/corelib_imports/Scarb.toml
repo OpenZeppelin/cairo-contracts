@@ -1,0 +1,24 @@
+[package]
+name = "openzeppelin_corelib_imports"
+readme = "README.md"
+version.workspace = true
+edition = "2023_10"
+cairo-version.workspace = true
+scarb-version.workspace = true
+authors.workspace = true
+description = "OpenZeppelin compatibility imports for gated Cairo corelib APIs"
+documentation.workspace = true
+repository.workspace = true
+license-file.workspace = true
+keywords = [
+    "openzeppelin",
+    "cairo",
+    "corelib",
+    "internal"
+]
+
+[tool]
+fmt.workspace = true
+scarb.workspace = true
+
+[lib]

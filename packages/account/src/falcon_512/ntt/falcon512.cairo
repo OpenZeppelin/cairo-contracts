@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v4.0.0-alpha.1 (account/src/falcon_512/ntt/falcon512.cairo)
 
-//! Falcon parameter set for the NTT engine: q = 12289, negacyclic (x^n + 1), using
-//! tprest/falcon.py evaluation order for interoperability with the reference signer.
+//! Falcon parameter set for the NTT engine: `q = 12289` and negacyclic ring `(x^n + 1)`.
+//! The generated root tables use the evaluation order expected by the accounts' packed
+//! NTT-domain public keys.
 
 use super::bitrev::bitrev_512;
 use super::engine::NttConfig;
@@ -19,7 +20,8 @@ pub const I2_FELT: felt252 = 6145;
 pub const REDUCED_BITS: u32 = 14;
 /// Unreduced pointwise products of two reduced values are < q^2 < 2^28.
 pub const PRODUCT_BITS: u32 = 28;
-/// q^2 as a felt: the exact bound matching [`PRODUCT_BITS`].
+/// Exclusive bound for unreduced products of two reduced values; each product fits
+/// [`PRODUCT_BITS`] bits.
 pub const PRODUCT_BOUND_FELT: felt252 = 151019521;
 
 /// Engine configuration for the production size n = 512 (table-driven permutation).
@@ -27,9 +29,9 @@ pub fn config() -> NttConfig {
     config_with_perm(512, 9, bitrev_512())
 }
 
-/// Engine configuration for any supported degree (4..512), computing the bit-reversal
-/// permutation programmatically. Meant for tests and auxiliary tooling; production
-/// callers use [`config`], which reads the pinned table instead.
+/// Engine configuration for a supported power-of-two degree from 4 through 512, computing the
+/// bit-reversal permutation programmatically. `levels` must equal `log2(n)`. Tests and auxiliary
+/// tooling use this function; production callers use [`config`], which reads the pinned table.
 pub fn config_for_degree(n: u32, levels: u32) -> NttConfig {
     let mut perm: Array<u16> = array![];
     let mut i: u32 = 0;

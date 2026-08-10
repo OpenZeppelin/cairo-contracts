@@ -2,7 +2,7 @@
 
 List of interfaces, ABI traits and dispatchers.
 
-### Interfaces
+### Interface Traits
 
 - [`IAccessControlDefaultAdminRules`](https://docs.openzeppelin.com/contracts-cairo/3.x/api/access#IAccessControlDefaultAdminRules)
 - [`IAccessControl`](https://docs.openzeppelin.com/contracts-cairo/3.x/api/access#IAccessControl)
@@ -67,7 +67,6 @@ List of interfaces, ABI traits and dispatchers.
 - [`ISRC5`](https://docs.openzeppelin.com/contracts-cairo/3.x/api/introspection#ISRC5)
 - [`IUpgradeable`](https://docs.openzeppelin.com/contracts-cairo/3.x/api/upgrades#IUpgradeable)
 - [`IUpgradeAndCall`](https://docs.openzeppelin.com/contracts-cairo/3.x/api/upgrades#IUpgradeAndCall)
-
 
 ### ABI Traits
 

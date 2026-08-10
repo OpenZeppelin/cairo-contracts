@@ -1,7 +1,6 @@
 mod extensions;
 
-mod falcon_512_fixture;
-mod falcon_512_rotation_fixture;
+mod falcon_512_account_mocks;
 mod test_account;
 mod test_eth_account;
 mod test_falcon_512;

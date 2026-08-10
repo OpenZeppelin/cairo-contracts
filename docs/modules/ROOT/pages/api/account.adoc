@@ -67,6 +67,87 @@ Validates whether a signature is valid or not for the given message hash.
 Returns the short string `'VALID'` if valid, otherwise it reverts.
 
 [.contract]
+[[IFeltArrayDeployable]]
+=== `++IFeltArrayDeployable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v4.0.0-alpha.1/packages/interfaces/src/account/accounts.cairo[{github-icon},role=heading-link]
+
+```cairo
+use openzeppelin_interfaces::accounts::IFeltArrayDeployable;
+```
+
+Deployment validation interface for accounts whose public key is encoded as an array of felts.
+
+[.contract-index]
+.Functions
+--
+* xref:#IFeltArrayDeployable-\\__validate_deploy__[`++__validate_deploy__(class_hash, contract_address_salt, public_key)++`]
+--
+
+[#IFeltArrayDeployable-Functions]
+==== Functions
+
+[.contract-item]
+[[IFeltArrayDeployable-__validate_deploy__]]
+==== `[.contract-item-name]#++__validate_deploy__++#++(class_hash: felt252, contract_address_salt: felt252, public_key: Array<felt252>) → felt252++` [.item-kind]#external#
+
+Validates a deploy-account transaction.
+
+This function is used by the protocol to verify `deploy_account` transactions.
+
+Returns the short string `'VALID'` if valid, otherwise it reverts.
+
+[.contract]
+[[IFeltArrayPublicKey]]
+=== `++IFeltArrayPublicKey++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v4.0.0-alpha.1/packages/interfaces/src/account/accounts.cairo[{github-icon},role=heading-link]
+
+```cairo
+use openzeppelin_interfaces::accounts::IFeltArrayPublicKey;
+```
+
+Public-key management interface for accounts whose key is encoded as an array of felts.
+
+[.contract-index]
+.Functions
+--
+* xref:#IFeltArrayPublicKey-get_public_key[`++get_public_key()++`]
+* xref:#IFeltArrayPublicKey-set_public_key[`++set_public_key(new_public_key, signature)++`]
+--
+
+[#IFeltArrayPublicKey-Functions]
+==== Functions
+
+[.contract-item]
+[[IFeltArrayPublicKey-get_public_key]]
+==== `[.contract-item-name]#++get_public_key++#++() → Array<felt252>++` [.item-kind]#external#
+
+Returns the account's current public key.
+
+[.contract-item]
+[[IFeltArrayPublicKey-set_public_key]]
+==== `[.contract-item-name]#++set_public_key++#++(new_public_key: Array<felt252>, signature: Span<felt252>)++` [.item-kind]#external#
+
+Sets the public key of the account to `new_public_key`.
+
+[.contract]
+[[IFeltArrayPublicKeyCamel]]
+=== `++IFeltArrayPublicKeyCamel++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v4.0.0-alpha.1/packages/interfaces/src/account/accounts.cairo[{github-icon},role=heading-link]
+
+```cairo
+use openzeppelin_interfaces::accounts::IFeltArrayPublicKeyCamel;
+```
+
+Camel-case aliases `getPublicKey` and `setPublicKey` for xref:IFeltArrayPublicKey[`IFeltArrayPublicKey`].
+
+[.contract]
+[[FeltArrayAccountABI]]
+=== `++FeltArrayAccountABI++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v4.0.0-alpha.1/packages/interfaces/src/account/accounts.cairo[{github-icon},role=heading-link]
+
+```cairo
+use openzeppelin_interfaces::accounts::FeltArrayAccountABI;
+```
+
+Aggregate ABI trait combining `ISRC6`, `ISRC5`, `IDeclarer`, xref:IFeltArrayDeployable[`IFeltArrayDeployable`], xref:IFeltArrayPublicKey[`IFeltArrayPublicKey`], and their camel-case aliases.
+
+[.contract]
 [[ISRC9_V2]]
 === `++ISRC9_V2++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v4.0.0-alpha.1/packages/interfaces/src/account/src9.cairo[{github-icon},role=heading-link]
 
@@ -621,6 +702,267 @@ Emitted when a `public_key` is added.
 
 Emitted when a `public_key` is removed.
 
+[.contract]
+[[Falcon512AccountComponent]]
+=== `++Falcon512AccountComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v4.0.0-alpha.1/packages/account/src/falcon_512/account.cairo[{github-icon},role=heading-link]
+
+:FalconOwnerAdded: xref:Falcon512AccountComponent-OwnerAdded[OwnerAdded]
+:FalconOwnerRemoved: xref:Falcon512AccountComponent-OwnerRemoved[OwnerRemoved]
+
+```cairo
+use openzeppelin_account::{
+    Falcon512AccountComponent, Falcon512ShakeDirectVerifier, Falcon512ShakeVerifier,
+    Falcon512SignatureVerifier,
+};
+```
+
+Account component for canonical packed Falcon-512 public keys. The component is generic over an
+implementation of `Falcon512SignatureVerifier`; use `Falcon512ShakeVerifier` for the
+verifier-checked product-hint signature or `Falcon512ShakeDirectVerifier` to recompute the
+polynomial product on-chain.
+
+[WARNING]
+====
+The supplied verifiers target the verification relation and SHAKE-256 hash-to-point from the
+FALCON submission selected by NIST. Their public-key and signature encodings are contract-specific,
+and they are not FN-DSA (FIPS 206) implementations.
+====
+
+NOTE: {src5-component-required-note}
+
+[.contract-index#Falcon512AccountComponent-Embeddable-Mixin-Impl]
+.{mixin-impls}
+--
+.Falcon512AccountMixinImpl
+
+* xref:#Falcon512AccountComponent-Embeddable-Impls-SRC6Impl[`++SRC6Impl++`]
+* xref:#Falcon512AccountComponent-Embeddable-Impls-DeclarerImpl[`++DeclarerImpl++`]
+* xref:#Falcon512AccountComponent-Embeddable-Impls-DeployableImpl[`++DeployableImpl++`]
+* xref:#Falcon512AccountComponent-Embeddable-Impls-PublicKeyImpl[`++PublicKeyImpl++`]
+* xref:#Falcon512AccountComponent-Embeddable-Impls-SRC6CamelOnlyImpl[`++SRC6CamelOnlyImpl++`]
+* xref:#Falcon512AccountComponent-Embeddable-Impls-PublicKeyCamelImpl[`++PublicKeyCamelImpl++`]
+* xref:api/introspection.adoc#SRC5Component-Embeddable-Impls[`++SRC5Impl++`]
+--
+
+[.contract-index#Falcon512AccountComponent-Embeddable-Impls]
+.Embeddable Implementations
+--
+[.sub-index#Falcon512AccountComponent-Embeddable-Impls-SRC6Impl]
+.SRC6Impl
+
+* xref:#Falcon512AccountComponent-\\__execute__[`++__execute__(self, calls)++`]
+* xref:#Falcon512AccountComponent-\\__validate__[`++__validate__(self, calls)++`]
+* xref:#Falcon512AccountComponent-is_valid_signature[`++is_valid_signature(self, hash, signature)++`]
+
+[.sub-index#Falcon512AccountComponent-Embeddable-Impls-DeclarerImpl]
+.DeclarerImpl
+
+* xref:#Falcon512AccountComponent-\\__validate_declare__[`++__validate_declare__(self, class_hash)++`]
+
+[.sub-index#Falcon512AccountComponent-Embeddable-Impls-DeployableImpl]
+.DeployableImpl
+
+* xref:#Falcon512AccountComponent-\\__validate_deploy__[`++__validate_deploy__(self, class_hash, contract_address_salt, public_key)++`]
+
+[.sub-index#Falcon512AccountComponent-Embeddable-Impls-PublicKeyImpl]
+.PublicKeyImpl
+
+* xref:#Falcon512AccountComponent-get_public_key[`++get_public_key(self)++`]
+* xref:#Falcon512AccountComponent-set_public_key[`++set_public_key(self, new_public_key, signature)++`]
+
+[.sub-index#Falcon512AccountComponent-Embeddable-Impls-SRC6CamelOnlyImpl]
+.SRC6CamelOnlyImpl
+
+* xref:#Falcon512AccountComponent-isValidSignature[`++isValidSignature(self, hash, signature)++`]
+
+[.sub-index#Falcon512AccountComponent-Embeddable-Impls-PublicKeyCamelImpl]
+.PublicKeyCamelImpl
+
+* xref:#Falcon512AccountComponent-getPublicKey[`++getPublicKey(self)++`]
+* xref:#Falcon512AccountComponent-setPublicKey[`++setPublicKey(self, newPublicKey, signature)++`]
+--
+
+[.contract-index]
+.Internal Implementations
+--
+.InternalImpl
+
+* xref:#Falcon512AccountComponent-initializer[`++initializer(self, public_key)++`]
+* xref:#Falcon512AccountComponent-assert_only_self[`++assert_only_self(self)++`]
+* xref:#Falcon512AccountComponent-assert_valid_new_owner[`++assert_valid_new_owner(self, current_owner, new_owner, signature)++`]
+* xref:#Falcon512AccountComponent-validate_transaction[`++validate_transaction(self)++`]
+* xref:#Falcon512AccountComponent-_set_public_key[`++_set_public_key(self, new_public_key)++`]
+* xref:#Falcon512AccountComponent-read_public_key[`++read_public_key(self)++`]
+--
+
+[.contract-index]
+.Events
+--
+* xref:#Falcon512AccountComponent-OwnerAdded[`++OwnerAdded(new_owner_guid)++`]
+* xref:#Falcon512AccountComponent-OwnerRemoved[`++OwnerRemoved(removed_owner_guid)++`]
+--
+
+==== Verifier strategies
+
+`Falcon512SignatureVerifier` defines the compile-time verification strategy used by the component.
+Its `verify` function authenticates a message hash and its `is_valid_public_key` function validates
+the packed public-key encoding.
+
+`Falcon512ShakeVerifier` accepts a 60-felt signature containing 29 felts for `s1`, 2 salt felts, and
+a 29-felt polynomial-product hint. `Falcon512ShakeDirectVerifier` accepts 29 felts for `s1` and 2
+salt felts, and recomputes the polynomial product on-chain.
+
+==== Felt encoding
+
+Each 29-felt polynomial represents 512 coefficients in `Z_q`, where `q = 12289`. Each of the first
+28 felts stores 18 coefficients in two 128-bit halves. The low half contains the first nine
+coefficients and the high half contains the next nine, with each half encoded as
+`c0 + q(c1 + q(c2 + ... + q*c8))`. The final felt stores eight coefficients in its low half and
+requires a zero high half. Public keys use the verifier's NTT-domain coefficient order.
+
+Each signature salt felt must be smaller than `2^160`. The two felts encode the 40-byte Falcon salt
+as two consecutive 20-byte little-endian limbs. Hash-to-point absorbs those limbs followed by the
+message hash encoded as 32 little-endian bytes.
+
+IMPORTANT: Build the deployable Falcon presets from this repository with
+`scarb --release build -p openzeppelin_presets`. The workspace dev profile produces Falcon Sierra
+artifacts that cannot be lowered to CASM. Only the workspace's `target/release` Falcon preset
+artifacts are suitable for declaration. Consumer projects that embed the component must likewise
+use a declaration profile with inlining enabled.
+
+[#Falcon512AccountComponent-Embeddable-Functions]
+==== Embeddable functions
+
+[.contract-item]
+[[Falcon512AccountComponent-__execute__]]
+==== `[.contract-item-name]#++__execute__++#++(self: @ContractState, calls: Array<Call>)++` [.item-kind]#external#
+
+Executes the list of calls after protocol validation succeeds.
+
+[.contract-item]
+[[Falcon512AccountComponent-__validate__]]
+==== `[.contract-item-name]#++__validate__++#++(self: @ContractState, calls: Array<Call>) → felt252++` [.item-kind]#external#
+
+Validates an invoke transaction with the selected verifier strategy.
+
+[.contract-item]
+[[Falcon512AccountComponent-is_valid_signature]]
+==== `[.contract-item-name]#++is_valid_signature++#++(self: @ContractState, hash: felt252, signature: Array<felt252>) → felt252++` [.item-kind]#external#
+
+Returns the short string `'VALID'` when `signature` authenticates `hash` under the current public
+key, and returns `0` otherwise.
+
+[.contract-item]
+[[Falcon512AccountComponent-__validate_declare__]]
+==== `[.contract-item-name]#++__validate_declare__++#++(self: @ContractState, class_hash: felt252) → felt252++` [.item-kind]#external#
+
+Validates a declare transaction with the selected verifier strategy.
+
+[.contract-item]
+[[Falcon512AccountComponent-__validate_deploy__]]
+==== `[.contract-item-name]#++__validate_deploy__++#++(self: @ContractState, class_hash: felt252, contract_address_salt: felt252, public_key: Array<felt252>) → felt252++` [.item-kind]#external#
+
+Validates a deploy-account transaction with the selected verifier strategy.
+
+[.contract-item]
+[[Falcon512AccountComponent-get_public_key]]
+==== `[.contract-item-name]#++get_public_key++#++(self: @ContractState) → Array<felt252>++` [.item-kind]#external#
+
+Returns the current packed public key.
+
+[.contract-item]
+[[Falcon512AccountComponent-set_public_key]]
+==== `[.contract-item-name]#++set_public_key++#++(ref self: ContractState, new_public_key: Array<felt252>, signature: Span<felt252>)++` [.item-kind]#external#
+
+Sets the current key to `new_public_key`.
+
+Requirements:
+
+- The caller must be the account contract itself.
+- `new_public_key` must use the canonical 29-felt encoding.
+- `signature` must authenticate the ownership-acceptance message under `new_public_key`.
+
+Emits both a {FalconOwnerRemoved} and a {FalconOwnerAdded} event.
+
+[.contract-item]
+[[Falcon512AccountComponent-isValidSignature]]
+==== `[.contract-item-name]#++isValidSignature++#++(self: @ContractState, hash: felt252, signature: Array<felt252>) → felt252++` [.item-kind]#external#
+
+See xref:Falcon512AccountComponent-is_valid_signature[is_valid_signature].
+
+[.contract-item]
+[[Falcon512AccountComponent-getPublicKey]]
+==== `[.contract-item-name]#++getPublicKey++#++(self: @ContractState) → Array<felt252>++` [.item-kind]#external#
+
+See xref:Falcon512AccountComponent-get_public_key[get_public_key].
+
+[.contract-item]
+[[Falcon512AccountComponent-setPublicKey]]
+==== `[.contract-item-name]#++setPublicKey++#++(ref self: ContractState, newPublicKey: Array<felt252>, signature: Span<felt252>)++` [.item-kind]#external#
+
+See xref:Falcon512AccountComponent-set_public_key[set_public_key].
+
+[#Falcon512AccountComponent-Internal-Functions]
+==== Internal functions
+
+[.contract-item]
+[[Falcon512AccountComponent-initializer]]
+==== `[.contract-item-name]#++initializer++#++(ref self: ComponentState, public_key: Array<felt252>)++` [.item-kind]#internal#
+
+Validates and stores a canonical packed public key and registers the `ISRC6` interface ID.
+
+Emits a {FalconOwnerAdded} event.
+
+[.contract-item]
+[[Falcon512AccountComponent-assert_only_self]]
+==== `[.contract-item-name]#++assert_only_self++#++(self: @ComponentState)++` [.item-kind]#internal#
+
+Validates that the caller is the account contract itself.
+
+[.contract-item]
+[[Falcon512AccountComponent-assert_valid_new_owner]]
+==== `[.contract-item-name]#++assert_valid_new_owner++#++(self: @ComponentState, current_owner: Span<felt252>, new_owner: Span<felt252>, signature: Span<felt252>)++` [.item-kind]#internal#
+
+Validates that `new_owner` signed the domain-separated ownership-acceptance message.
+
+CAUTION: The caller must pass the account's current public key as `current_owner`.
+
+[.contract-item]
+[[Falcon512AccountComponent-validate_transaction]]
+==== `[.contract-item-name]#++validate_transaction++#++(self: @ComponentState) → felt252++` [.item-kind]#internal#
+
+Validates the current transaction signature and returns the short string `'VALID'`.
+
+[.contract-item]
+[[Falcon512AccountComponent-_set_public_key]]
+==== `[.contract-item-name]#++_set_public_key++#++(ref self: ComponentState, new_public_key: Array<felt252>)++` [.item-kind]#internal#
+
+Stores `new_public_key` and emits a {FalconOwnerAdded} event. Callers are responsible for validating
+authorization and key encoding before using this function.
+
+[.contract-item]
+[[Falcon512AccountComponent-read_public_key]]
+==== `[.contract-item-name]#++read_public_key++#++(self: @ComponentState) → Array<felt252>++` [.item-kind]#internal#
+
+Returns the stored key in its 29-felt packed representation.
+
+[#Falcon512AccountComponent-Events]
+==== Events
+
+The event GUID is the Poseidon hash of the packed public key.
+
+[.contract-item]
+[[Falcon512AccountComponent-OwnerAdded]]
+==== `[.contract-item-name]#++OwnerAdded++#++(new_owner_guid: felt252)++` [.item-kind]#event#
+
+Emitted when a public key is added.
+
+[.contract-item]
+[[Falcon512AccountComponent-OwnerRemoved]]
+==== `[.contract-item-name]#++OwnerRemoved++#++(removed_owner_guid: felt252)++` [.item-kind]#event#
+
+Emitted when a public key is removed.
+
 == Extensions
 
 [.contract]
@@ -827,4 +1169,140 @@ Upgrades the contract to a new implementation given by `new_class_hash`.
 Requirements:
 
 - The caller is the account contract itself.
+- `new_class_hash` cannot be zero.
+
+[WARNING]
+====
+The Falcon presets use contract-specific public-key and signature encodings for the FALCON
+submission verification relation. They are not FN-DSA (FIPS 206) implementations.
+====
+
+[.contract]
+[[Falcon512ShakeAccountUpgradeable]]
+=== `++Falcon512ShakeAccountUpgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v4.0.0-alpha.1/packages/presets/src/falcon_512_shake_account.cairo[{github-icon},role=heading-link]
+
+```cairo
+use openzeppelin_presets::Falcon512ShakeAccountUpgradeable;
+```
+
+Upgradeable Falcon-512 account using SHAKE-256 hash-to-point and a 60-felt signature with a
+verifier-checked polynomial-product hint. It supports owner-authorized key rotation and outside
+execution through xref:#SRC9Component[SRC9].
+
+include::../utils/_class_hashes.adoc[]
+
+[.contract-index]
+.{presets-page}
+--
+{Falcon512ShakeAccountUpgradeable-class-hash}
+--
+
+[.contract-index]
+.Constructor
+--
+* xref:#Falcon512ShakeAccountUpgradeable-constructor[`++constructor(self, public_key)++`]
+--
+
+[.contract-index]
+.Embedded Implementations
+--
+.Falcon512AccountComponent
+* xref:#Falcon512AccountComponent-Embeddable-Mixin-Impl[`++Falcon512AccountMixinImpl++`]
+
+.SRC9Component
+* xref:#SRC9Component-Embeddable-Impls-OutsideExecutionV2Impl[`++OutsideExecutionV2Impl++`]
+--
+
+[.contract-index]
+.External Functions
+--
+* xref:#Falcon512ShakeAccountUpgradeable-upgrade[`++upgrade(self, new_class_hash)++`]
+--
+
+[#Falcon512ShakeAccountUpgradeable-constructor-section]
+==== Constructor
+
+[.contract-item]
+[[Falcon512ShakeAccountUpgradeable-constructor]]
+==== `[.contract-item-name]#++constructor++#++(ref self: ContractState, public_key: Array<felt252>)++` [.item-kind]#constructor#
+
+Sets a canonical 29-felt NTT-domain public key and registers the interfaces the contract supports.
+
+[#Falcon512ShakeAccountUpgradeable-external-functions]
+==== External functions
+
+[.contract-item]
+[[Falcon512ShakeAccountUpgradeable-upgrade]]
+==== `[.contract-item-name]#++upgrade++#++(ref self: ContractState, new_class_hash: ClassHash)++` [.item-kind]#external#
+
+Upgrades the account implementation to `new_class_hash`.
+
+Requirements:
+
+- The caller must be the account contract itself.
+- `new_class_hash` cannot be zero.
+
+[.contract]
+[[Falcon512ShakeDirectAccountUpgradeable]]
+=== `++Falcon512ShakeDirectAccountUpgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v4.0.0-alpha.1/packages/presets/src/falcon_512_shake_direct_account.cairo[{github-icon},role=heading-link]
+
+```cairo
+use openzeppelin_presets::Falcon512ShakeDirectAccountUpgradeable;
+```
+
+Upgradeable Falcon-512 account using SHAKE-256 hash-to-point and a 31-felt signature. It recomputes
+the polynomial product on-chain and supports owner-authorized key rotation and outside execution
+through xref:#SRC9Component[SRC9].
+
+include::../utils/_class_hashes.adoc[]
+
+[.contract-index]
+.{presets-page}
+--
+{Falcon512ShakeDirectAccountUpgradeable-class-hash}
+--
+
+[.contract-index]
+.Constructor
+--
+* xref:#Falcon512ShakeDirectAccountUpgradeable-constructor[`++constructor(self, public_key)++`]
+--
+
+[.contract-index]
+.Embedded Implementations
+--
+.Falcon512AccountComponent
+* xref:#Falcon512AccountComponent-Embeddable-Mixin-Impl[`++Falcon512AccountMixinImpl++`]
+
+.SRC9Component
+* xref:#SRC9Component-Embeddable-Impls-OutsideExecutionV2Impl[`++OutsideExecutionV2Impl++`]
+--
+
+[.contract-index]
+.External Functions
+--
+* xref:#Falcon512ShakeDirectAccountUpgradeable-upgrade[`++upgrade(self, new_class_hash)++`]
+--
+
+[#Falcon512ShakeDirectAccountUpgradeable-constructor-section]
+==== Constructor
+
+[.contract-item]
+[[Falcon512ShakeDirectAccountUpgradeable-constructor]]
+==== `[.contract-item-name]#++constructor++#++(ref self: ContractState, public_key: Array<felt252>)++` [.item-kind]#constructor#
+
+Sets a canonical 29-felt NTT-domain public key and registers the interfaces the contract supports.
+
+[#Falcon512ShakeDirectAccountUpgradeable-external-functions]
+==== External functions
+
+[.contract-item]
+[[Falcon512ShakeDirectAccountUpgradeable-upgrade]]
+==== `[.contract-item-name]#++upgrade++#++(ref self: ContractState, new_class_hash: ClassHash)++` [.item-kind]#external#
+
+Upgrades the account implementation to `new_class_hash`.
+
+Requirements:
+
+- The caller must be the account contract itself.
 - `new_class_hash` cannot be zero.

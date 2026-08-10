@@ -1,20 +1,21 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v4.0.0-alpha.1 (account/src/falcon_512/zq.cairo)
 
-//! Operations on the base ring Z_q (q = 12289).
+//! Arithmetic helpers for `Z_q`, where `q = 12289`.
 //!
-//! Coefficients are `u16` values in `[0, Q)` by construction — every function returns a
-//! `% Q` result — with u32/u64 intermediates sized so the arithmetic cannot overflow.
+//! Modular operands are canonical `u16` values in `[0, Q)`. The modular helpers return canonical
+//! residues, while the norm helpers return squared centered representatives. All intermediate
+//! values fit their declared types.
 
-/// The Falcon modulus q = 12289 = 12·1024 + 1.
+/// The Falcon modulus `q = 12289 = 12 · 1024 + 1`.
 pub const Q: u16 = 12289;
 pub const Q32: u32 = 12289;
-pub const Q64: u64 = 12289;
 
-/// Largest centered-low value: (Q-1)/2. Coefficients above this represent negatives.
+/// Largest centered-low value: `(Q - 1) / 2`. Coefficients above this represent negatives.
 pub const Q_HALF: u16 = 6144;
 
-/// Add two values modulo Q.
+/// Adds two values modulo `Q`.
+#[cfg(test)]
 #[inline(always)]
 pub fn add_mod(a: u16, b: u16) -> u16 {
     // a, b < Q so a + b <= 24576 < 2^16: the checked u16 add never overflows, and a
@@ -27,7 +28,8 @@ pub fn add_mod(a: u16, b: u16) -> u16 {
     }
 }
 
-/// Subtract two values modulo Q, via a + Q - b and one conditional subtraction.
+/// Subtracts two values modulo `Q` via `a + Q - b` and one conditional subtraction.
+#[cfg(test)]
 #[inline(always)]
 pub fn sub_mod(a: u16, b: u16) -> u16 {
     // a < Q so a + Q <= 24577 < 2^16; a + Q - b is in [1, 2Q-1].
@@ -39,7 +41,8 @@ pub fn sub_mod(a: u16, b: u16) -> u16 {
     }
 }
 
-/// Multiply two values modulo Q.
+/// Multiplies two values modulo `Q`.
+#[cfg(test)]
 #[inline(always)]
 pub fn mul_mod(a: u16, b: u16) -> u16 {
     let a: u32 = a.into();
@@ -49,7 +52,7 @@ pub fn mul_mod(a: u16, b: u16) -> u16 {
     res.try_into().unwrap()
 }
 
-/// Squared centered representative of a coefficient, as felt252:
+/// Squared centered representative of a coefficient as `felt252`:
 /// x ∈ [0, 6144] → x²; x ∈ [6145, 12288] → (Q - x)².
 #[inline(always)]
 pub fn center_sq(coeff: u16) -> felt252 {
@@ -132,17 +135,5 @@ mod tests {
                 assert_eq!(centered_difference_sq(*a, *b), center_sq(sub_mod(*a, *b)));
             }
         }
-    }
-
-    // Probe retained from the port plan: `[u16; N]` const tables are the format the
-    // generated NTT root tables use.
-    const PROBE_TABLE: [u16; 3] = [0, 6144, 12288];
-
-    #[test]
-    fn test_const_u16_table() {
-        let t = PROBE_TABLE.span();
-        assert_eq!(*t.at(0), 0);
-        assert_eq!(*t.at(1), 6144);
-        assert_eq!(*t.at(2), 12288);
     }
 }

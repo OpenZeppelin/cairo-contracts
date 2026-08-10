@@ -1,38 +1,35 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v4.0.0-alpha.1 (account/src/falcon_512/hashing/shake256.cairo)
 
-//! SHAKE-256 extendable-output function (FIPS 202), implemented in pure Cairo.
+//! Pure-Cairo SHAKE-256 extendable-output function from FIPS 202.
 //!
-//! Written from the FIPS 202 specification (Keccak-f[1600] sponge, rate 1088 bits =
-//! 136 bytes, capacity 512, domain-separation `0x1F`, pad10*1). Starknet exposes no
-//! SHAKE primitive and its `keccak` syscall bakes in keccak256's `0x01` padding and a
-//! fixed 256-bit output, so neither is reusable here; the permutation is implemented
-//! directly. A future `keccak_f1600` syscall (SNIP-32) would replace [`keccak_f1600`]
-//! and collapse the cost.
+//! This module implements the Keccak-f[1600] sponge with a 1088-bit rate, 512-bit capacity,
+//! `0x1F` domain separation, and pad10*1 padding. Starknet's `keccak` syscall implements
+//! Keccak-256 with `0x01` padding and a fixed 256-bit output, so this module supplies the
+//! permutation required by SHAKE-256 directly.
 //!
 //! State: 25 lanes of 64 bits, `lane[x + 5y]`, bytes mapped little-endian per lane.
 //!
 //! The permutation dominates on-chain cost, so it is written flat:
-//! - each round is a straight-line expression over 25 lane locals — no round-local
-//!   arrays, no index arithmetic, no table lookups; θ is fused into the ρ+π terms and
-//!   ι into the first χ lane;
-//! - lanes are carried as `u128` — the bitwise builtin's native operand width — so
-//!   XOR/AND need no per-operation downcast. The `< 2^64` lane invariant is
+//! - each round is a straight-line expression over 25 lane locals; θ is fused into the ρ+π
+//!   terms and ι into the first χ lane;
+//! - lanes are carried as `u128`, the bitwise builtin's native operand width, so XOR/AND operate
+//!   directly on lane values. The `< 2^64` lane invariant is
 //!   maintained structurally: XOR/AND of 64-bit values is 64-bit, complements are
-//!   `MASK64 - b` (exact on 64-bit values, no builtin), and rotations reassemble
-//!   disjoint bit ranges below bit 64;
-//! - rotations are division-free: every rotation amount is baked in as its power of
-//!   two, so a left-rotate is one felt252 multiply and one u128 `div_rem` by 2^64 —
-//!   the wrapped high bits and the shifted low bits occupy disjoint positions, so
+//!   `MASK64 - b`, and rotations reassemble disjoint bit ranges below bit 64;
+//! - rotations use baked-in powers of two, so a left-rotate is one `felt252` multiply and one
+//!   `u128` division by `2^64` via
+//!   `div_rem`. The wrapped high bits and the shifted low bits occupy disjoint positions, so
 //!   their sum is the rotation.
 //!
-//! [`keccak_f1600`] is shared with the hash-to-point squeezer
-//! (`hash_to_point::hash_to_point_shake_512`), which drives the sponge lazily and
-//! reads candidates straight from the rate lanes; the byte-oriented [`shake256`] here
-//! is the generic XOF, pinned to the FIPS 202 known-answer vectors below.
+//! `hash_to_point::hash_to_point_shake_512` uses [`keccak_f1600`] directly to consume candidates
+//! from the sponge's rate lanes. A test-only byte-oriented XOF checks the permutation and sponge
+//! construction against FIPS 202 known-answer vectors.
 
 const MASK64: u128 = 0xffffffffffffffff;
+#[cfg(test)]
 const RATE_LANES: u32 = 17; // 136 bytes / 8
+#[cfg(test)]
 const RATE_BYTES: u32 = 136;
 
 /// Keccak-f[1600] round constants (FIPS 202, Table 1).
@@ -45,7 +42,7 @@ const ROUND_CONSTANTS: [u128; 24] = [
     0x8000000080008081, 0x8000000000008080, 0x0000000080000001, 0x8000000080008008,
 ];
 
-/// Rotate a 64-bit lane left, given `pow = 2^r` with 0 < r < 64. The widened felt
+/// Rotates a 64-bit lane left, given `pow = 2^r` with `0 < r < 64`. The widened felt
 /// product `x * 2^r < 2^127` splits at bit 64 into the bits that stay (`lo`) and the
 /// bits that wrap to the bottom (`hi`); they occupy disjoint positions, so `lo + hi`
 /// is the rotation.
@@ -93,7 +90,7 @@ pub(crate) fn keccak_f1600(state: [u128; 25]) -> [u128; 25] {
         ] =
             s;
 
-        // theta: column parities and the per-column mixing term d[x] = c[x-1] ^ rotl(c[x+1], 1).
+        // θ: column parities and the per-column mixing term d[x] = c[x-1] ^ rotl(c[x+1], 1).
         let c0 = s00 ^ s05 ^ s10 ^ s15 ^ s20;
         let c1 = s01 ^ s06 ^ s11 ^ s16 ^ s21;
         let c2 = s02 ^ s07 ^ s12 ^ s17 ^ s22;
@@ -105,7 +102,7 @@ pub(crate) fn keccak_f1600(state: [u128; 25]) -> [u128; 25] {
         let d3 = c2 ^ rotl(c4, 0x2, two64);
         let d4 = c3 ^ rotl(c0, 0x2, two64);
 
-        // theta (fused) + rho + pi, straight into destination order.
+        // θ (fused) + ρ + π, straight into destination order.
         let b00 = s00 ^ d0;
         let b01 = rotl(s06 ^ d1, 0x100000000000, two64);
         let b02 = rotl(s12 ^ d2, 0x80000000000, two64);
@@ -132,7 +129,7 @@ pub(crate) fn keccak_f1600(state: [u128; 25]) -> [u128; 25] {
         let b23 = rotl(s15 ^ d0, 0x20000000000, two64);
         let b24 = rotl(s21 ^ d1, 0x4, two64);
 
-        // chi (complement as MASK64 - b), with iota folded into lane 0.
+        // χ (complement as MASK64 - b), with ι folded into lane 0.
         s =
             [
                 b00 ^ ((MASK64 - b01) & b02) ^ rc, b01 ^ ((MASK64 - b02) & b03),
@@ -153,7 +150,8 @@ pub(crate) fn keccak_f1600(state: [u128; 25]) -> [u128; 25] {
     s
 }
 
-/// SHAKE-256: absorb `input`, squeeze `out_bytes` bytes.
+/// Absorbs `input` with SHAKE-256 and squeezes `out_bytes` bytes.
+#[cfg(test)]
 pub(crate) fn shake256(input: Array<u8>, out_bytes: u32) -> Array<u8> {
     // Pad (pad10*1 with SHAKE domain 0x1F) to a multiple of the rate.
     let mut padded = input;
@@ -234,7 +232,8 @@ pub(crate) fn shake256(input: Array<u8>, out_bytes: u32) -> Array<u8> {
     out
 }
 
-/// Append up to 8 little-endian bytes of the lane `v` (< 2^64), stopping at `out_bytes`.
+/// Appends up to 8 little-endian bytes of lane `v` (`v < 2^64`), stopping at `out_bytes`.
+#[cfg(test)]
 fn emit_lane_le(v: u128, ref out: Array<u8>, out_bytes: u32) {
     let mut rem: u64 = v.try_into().unwrap();
     let mut k = 0;
@@ -245,7 +244,8 @@ fn emit_lane_le(v: u128, ref out: Array<u8>, out_bytes: u32) {
     }
 }
 
-/// Rebuild `bytes` with `bytes[idx] |= 0x80` (that byte is < 0x80 here, so `+ 0x80`).
+/// Rebuilds `bytes` with `bytes[idx] |= 0x80` (that byte is below `0x80`, so `+ 0x80`).
+#[cfg(test)]
 fn pad_ored_msb(bytes: Array<u8>, idx: u32) -> Array<u8> {
     let mut out: Array<u8> = array![];
     let span = bytes.span();
@@ -262,6 +262,7 @@ fn pad_ored_msb(bytes: Array<u8>, idx: u32) -> Array<u8> {
 }
 
 /// Little-endian 64-bit lane from 8 bytes at `off`.
+#[cfg(test)]
 fn load_lane_le(bytes: @Array<u8>, off: u32) -> u128 {
     let span = bytes.span();
     let mut acc: u128 = 0;

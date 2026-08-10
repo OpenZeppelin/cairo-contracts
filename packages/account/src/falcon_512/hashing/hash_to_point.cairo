@@ -2,21 +2,22 @@
 // OpenZeppelin Contracts for Cairo v4.0.0-alpha.1
 // (account/src/falcon_512/hashing/hash_to_point.cairo)
 
-//! SHAKE-256 hash-to-point used by FALCON-512 as submitted to NIST.
+//! SHAKE-256 hash-to-point for the Falcon-512 submission algorithm.
 //!
 //! The function absorbs a 40-byte salt followed by the message hash's 32-byte
-//! little-endian representation. It reads the SHAKE-256 output as big-endian u16 words
-//! and rejection-samples each word into Z_q until it has 512 coefficients.
+//! little-endian representation. It reads the SHAKE-256 output as big-endian `u16` words
+//! and rejection-samples each word into `Z_q` until it has 512 coefficients.
 
 use super::shake256::keccak_f1600;
 
 /// Rejection bound: the largest multiple of q = 12289 below 2^16.
 const REJECT_BOUND: u32 = 61445;
 
-/// Each salt felt must fit in 20 bytes.
+/// Exclusive upper bound for each 20-byte salt limb.
 const TWO_POW_160: u256 = 0x10000000000000000000000000000000000000000;
 
-/// Hashes `(message_hash, salt)` to 512 coefficients in `[0, 12289)`.
+/// Hashes the 40-byte salt encoded by `(salt_a, salt_b)` and `message_hash` to
+/// 512 coefficients in `[0, 12289)`.
 ///
 /// Returns `None` if either salt felt exceeds 20 bytes.
 pub(crate) fn hash_to_point_shake_512(
@@ -66,7 +67,7 @@ pub(crate) fn hash_to_point_shake_512(
     Some(coeffs)
 }
 
-/// Reads one squeezed lane as four big-endian u16 candidate words.
+/// Reads one squeezed lane as four big-endian `u16` candidate words.
 #[inline(always)]
 fn push_lane_words(
     lane: u128, two16: NonZero<u64>, b256: NonZero<u64>, q32: NonZero<u32>, ref coeffs: Array<u16>,

@@ -9,4 +9,7 @@ pub mod utils;
 
 pub use account::AccountComponent;
 pub use eth_account::EthAccountComponent;
-pub use falcon_512::{Falcon512ShakeAccount, Falcon512ShakeDirectAccount};
+pub use falcon_512::{
+    Falcon512AccountComponent, Falcon512ShakeDirectVerifier, Falcon512ShakeVerifier,
+    Falcon512SignatureVerifier,
+};

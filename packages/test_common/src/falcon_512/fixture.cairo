@@ -1,11 +1,11 @@
-//! Locally generated FALCON-512 submission-algorithm fixture — do not edit by hand.
+//! Fixed test vector for the Falcon-512 submission algorithm.
 //!
-//! The fixture contains a keypair and signature generated with `tprest/falcon.py` over
-//! `BENCH_MSG`, using falcon.py's SHAKE-256 hash-to-point. Its felt encoding is specific
-//! to these Cairo accounts and does not claim conformance with FN-DSA/FIPS 206.
-//! salt = 0x4ad23197d576f705594ac172f4fca80e3338e991b8b55e269d421aa1522cd0aa2490034127651fc2.
+//! The public key and signature were produced with the `tprest/falcon.py` Falcon-512 signer using
+//! its SHAKE-256 hash-to-point over `msg()`, then packed with the accounts' Cairo-specific felt
+//! encoding. This is not an FN-DSA (FIPS 206) conformance vector.
+//! Salt: `0x4ad23197d576f705594ac172f4fca80e3338e991b8b55e269d421aa1522cd0aa2490034127651fc2`.
 
-/// The benchmark message hash ('BENCH_MSG').
+/// Fixed reference message hash used by this fixture.
 pub fn msg() -> felt252 {
     1222479111879746474823
 }

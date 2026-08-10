@@ -1,29 +1,31 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v4.0.0-alpha.1 (account/src/falcon_512/packing.cairo)
 
-//! Base-Q packing of 512 Z_q coefficients into 29 felt252 slots.
+//! Base-`Q` packing of 512 `Z_q` coefficients into 29 `felt252` slots.
 //!
-//! Each full slot carries two u128 halves; each half Horner-packs 9 coefficients in base
-//! Q = 12289 (Q^9 < 2^128): `half = c0 + Q*(c1 + Q*(c2 + ...))`. 28 full slots hold 18
-//! coefficients each; the last slot holds the remaining 8 in its low half.
+//! Each full slot carries two `u128` halves; each half Horner-packs 9 coefficients in base
+//! `Q = 12289` (`Q^9 < 2^128`): `half = c0 + Q*(c1 + Q*(c2 + ...))`. 28 full slots
+//! hold 18 coefficients each; the last slot holds the remaining 8 in its low half.
 //!
-//! Unpacking is validating: every extracted base-Q digit is < Q by construction, and the
-//! residual quotient after the last digit must be zero (each half < Q^9, the last slot
-//! < Q^8). The accepted felt vectors are therefore in bijection with coefficient vectors
-//! in [0, Q)^512 — no coefficient can be smuggled in a non-canonical encoding.
+//! Unpacking accepts exactly canonical encodings: each full half is downcast to `[0, Q^9)`, the
+//! final low half to `[0, Q^8)`, and the final high half must be zero. The accepted felt vectors
+//! are therefore in bijection with coefficient vectors in `[0, Q)^512`.
 
-use corelib_imports::bounded_int::{
+use openzeppelin_corelib_imports::bounded_int::{
     BoundedInt, DivRemHelper, UnitInt, bounded_int_div_rem, downcast, upcast,
 };
+#[cfg(test)]
 use super::zq::Q;
 
-/// Coefficients per full felt252 slot (two u128 halves of 9).
+/// Coefficients per full `felt252` slot (two `u128` halves of 9).
 pub const VALS_PER_FELT: u32 = 18;
-/// felt252 slots for 512 coefficients: 28 full slots + 1 slot with 8.
+/// `felt252` slots for 512 coefficients: 28 full slots + 1 slot with 8.
 pub const PACKED_SLOTS: u32 = 29;
 /// Coefficients in the last slot: 512 - 28*18.
+#[cfg(test)]
 const LAST_SLOT_VALS: u32 = 8;
 
+#[cfg(test)]
 const TWO_POW_128: felt252 = 0x100000000000000000000000000000000;
 
 type PackingZq = BoundedInt<0, 12288>;
@@ -79,9 +81,10 @@ impl PackingDivRemAcc8Impl of DivRemHelper<Acc8, PackingQ> {
     type RemT = PackingZq;
 }
 
-/// Unpack 29 packed felts into 512 coefficients in [0, Q), as felts (each is a
+/// Unpacks 29 packed felts into 512 coefficients in `[0, Q)`, as felts (each is a
 /// base-Q digit, so the range holds by construction).
 /// Returns `None` on wrong length or any non-canonical slot encoding.
+#[cfg(test)]
 pub fn unpack_512(packed: Span<felt252>) -> Option<Array<felt252>> {
     let coeffs_u16 = match unpack_512_u16(packed) {
         Some(v) => v,
@@ -95,7 +98,7 @@ pub fn unpack_512(packed: Span<felt252>) -> Option<Array<felt252>> {
     Some(coeffs)
 }
 
-/// Unpack the canonical 29-slot encoding directly into the verifier's `u16` form.
+/// Unpacks the canonical 29-slot encoding directly into the verifier's `u16` form.
 /// Returns `None` on wrong length or any non-canonical slot encoding.
 pub(crate) fn unpack_512_u16(packed: Span<felt252>) -> Option<Array<u16>> {
     if packed.len() != PACKED_SLOTS {
@@ -128,7 +131,7 @@ fn unpack_full_slot_u16(felt: felt252, ref coeffs: Array<u16>) -> bool {
     unpack_half9_u16(value.low, ref coeffs) && unpack_half9_u16(value.high, ref coeffs)
 }
 
-/// Extract nine base-Q digits from a u128 half. Values below Q^9 are canonical;
+/// Extracts nine base-Q digits from a `u128` half. Values below `Q^9` are canonical;
 /// after eight divisions the remaining quotient is the ninth digit.
 #[inline(always)]
 fn unpack_half9_u16(value: u128, ref coeffs: Array<u16>) -> bool {
@@ -156,7 +159,7 @@ fn unpack_half9_u16(value: u128, ref coeffs: Array<u16>) -> bool {
     true
 }
 
-/// Extract the final slot's eight digits after checking the value is below Q^8.
+/// Extracts the final slot's eight digits after checking the value is below `Q^8`.
 #[inline(always)]
 fn unpack_half8_u16(value: u128, ref coeffs: Array<u16>) -> bool {
     let value: Acc7 = match downcast(value) {
@@ -181,8 +184,9 @@ fn unpack_half8_u16(value: u128, ref coeffs: Array<u16>) -> bool {
     true
 }
 
-/// Pack 512 coefficients (each < Q) into 29 felts. Inverse of [`unpack_512`];
-/// used by tests and off-chain tooling mirrors. Panics on bad length or coefficient.
+/// Packs 512 coefficients into 29 felts. Inverse of [`unpack_512`]; used by tests.
+/// Panics unless `coeffs` contains exactly 512 coefficients in `[0, Q)`.
+#[cfg(test)]
 pub fn pack_512(coeffs: Span<u16>) -> Array<felt252> {
     assert(coeffs.len() == 512, 'pack: need 512 coeffs');
     let mut packed: Array<felt252> = array![];
@@ -197,7 +201,8 @@ pub fn pack_512(coeffs: Span<u16>) -> Array<felt252> {
     packed
 }
 
-/// Horner-encode up to 9 coefficients into a u128: c0 + Q*(c1 + Q*(c2 + ...)).
+/// Horner-encodes up to 9 coefficients into a `u128`: c0 + Q*(c1 + Q*(c2 + ...)).
+#[cfg(test)]
 fn pack_half(coeffs: Span<u16>) -> u128 {
     let mut acc: u128 = 0;
     let mut i = coeffs.len();

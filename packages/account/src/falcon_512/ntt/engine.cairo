@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v4.0.0-alpha.1 (account/src/falcon_512/ntt/engine.cairo)
 
-//! Iterative NTT engine with felt252 lazy reduction.
+//! Iterative NTT engine with `felt252` lazy reduction.
 //!
 //! # Algorithm
 //!
-//! This computes the recursive split/merge NTT of tprest/falcon.py, reformulated
-//! iteratively for the Falcon-512 verifier:
+//! This engine computes the recursive split/merge transform used by the Falcon-512 verifier,
+//! reformulated iteratively:
 //!
 //! - **Forward** ([`ntt`]): permute the input into recursion-leaf order (bit reversal),
 //!   then run merge levels bottom-up. The level merging blocks into size `2h` reads two
@@ -22,50 +22,42 @@
 //!
 //! Generic levels with `h >= 8` run 8-way unrolled over `multi_pop_front` chunks.
 //!
-//! # Lazy reduction (the Starknet optimization)
+//! # Lazy modular reduction
 //!
-//! Coefficients are carried as raw `felt252` integers WITHOUT per-operation modular
-//! reduction: a butterfly is one field multiplication and a few field additions
-//! (~1 step each), instead of the mul + divmod + range-check chain of eager `% q`
-//! arithmetic. Subtractions are made non-negative by adding `off = bound · q` — a
-//! multiple of q, so residues are unchanged.
+//! Coefficients remain non-negative `felt252` integer representatives between scheduled modular
+//! reduction passes. Subtractions add `off = bound · q`, a multiple of `q` that preserves each
+//! residue.
 //!
-//! Soundness of the delay: the engine tracks an exclusive upper `bound` on the
-//! coefficient integers (exactly, as a felt) and its bit size (conservatively).
-//! Per forward level `bound *= q+1`; per inverse level `bound *= 2q`. Before a level
-//! that could push values to 2^126 or beyond, and once at the end, a reduction pass
-//! maps every coefficient to `[0, q)` via u128 divmod. Since all intermediates stay
-//! below 2^126 < P/2^125, felt252 arithmetic never wraps and every reduction input
-//! fits u128. For q = 12289 this schedule costs exactly TWO passes per 512-point
-//! transform. [`ntt_lazy`] additionally exposes the transform WITHOUT its final
-//! reduction pass, returning the tracked `(bits, bound)` alongside the unreduced
-//! values, so callers whose follow-up arithmetic tolerates the bound (a divisibility
-//! check, a lazy-product INTT) can skip that pass entirely.
-//! The generated tables and forward transform are tested against the recursive
-//! reference on random and adversarial inputs.
+//! The engine tracks an exact exclusive `bound` on coefficient integers and a conservative bit
+//! bound. Per forward level `bound *= q + 1`; per inverse level `bound *= 2q`. Before a level that
+//! could push values to `2^126` or beyond, and once at the end, a reduction pass maps every
+//! coefficient to `[0, q)` via `u128` divmod. All intermediates remain below `2^126`, well below
+//! the Starknet field prime, and every reduction input fits `u128`. For the reduced and
+//! pointwise-product bounds used by Falcon-512, a 512-point transform performs one intermediate
+//! reduction pass and one final reduction pass.
 
 use core::traits::DivRem;
 
-/// Everything a parameter set provides to the engine. Spans make configs cheap to
-/// build and copy; see `falcon512::config()` for the canonical instance.
+/// Configuration for an NTT parameter set. `falcon512::config` returns the canonical Falcon-512
+/// configuration.
 #[derive(Copy, Drop)]
 pub struct NttConfig {
     /// Transform size (a power of two).
     pub n: u32,
     /// log2(n): number of merge/split levels.
     pub levels: u32,
-    /// The modulus, as a u128 divisor for reduction passes.
+    /// The modulus, as a `u128` divisor for reduction passes.
     pub q_nz: NonZero<u128>,
     /// The modulus as a felt (offset construction).
     pub q_felt: felt252,
     /// 2^-1 mod q (even branch of the inverse split).
     pub i2_felt: felt252,
-    /// Bit size of a reduced value: values in [0, q) fit `qbits` bits.
+    /// Bit size of a reduced value: values in `[0, q)` fit `qbits` bits.
     pub qbits: u32,
-    /// Per-forward-level bound growth, exact and in bits: bound *= q+1.
+    /// Per-forward-level bound growth, exact and in bits: `bound *= q + 1`.
     pub fwd_growth_felt: felt252,
     pub fwd_growth_bits: u32,
-    /// Per-inverse-level bound growth, exact and in bits: bound *= 2q.
+    /// Per-inverse-level bound growth, exact and in bits: `bound *= 2q`.
     pub inv_growth_felt: felt252,
     pub inv_growth_bits: u32,
     /// Leaf permutation (self-inverse bit reversal), entries < n.
@@ -76,12 +68,12 @@ pub struct NttConfig {
     pub split_roots_scaled: Span<Span<felt252>>,
 }
 
-/// Intermediates must stay below 2^126: felt252 arithmetic cannot wrap (2^126 ≪ P)
-/// and reduction inputs fit u128.
+/// Intermediates must stay below `2^126`, which is below the Starknet field prime, and reduction
+/// inputs must fit `u128`.
 const SAFE_BITS: u32 = 126;
 
-/// Reduce every coefficient to `[0, q)`. Inputs must be < 2^128 (guaranteed by the
-/// engine's bound schedule). 8-way unrolled.
+/// Reduces every coefficient to `[0, q)`. Inputs must be below `2^128`, as guaranteed by the
+/// engine's bound schedule. The loop is 8-way unrolled.
 fn reduce_pass(mut vals: Span<felt252>, q_nz: NonZero<u128>) -> Array<felt252> {
     let mut out: Array<felt252> = array![];
     while let Some(chunk) = vals.multi_pop_front::<8>() {
@@ -109,13 +101,6 @@ fn reduce_pass(mut vals: Span<felt252>, q_nz: NonZero<u128>) -> Array<felt252> {
         out.append(rem.into());
     }
     out
-}
-
-/// Reduce a single lazily-computed value (< 2^128) to `[0, q)`.
-pub fn reduce_felt(v: felt252, q_nz: NonZero<u128>) -> felt252 {
-    let vu: u128 = v.try_into().unwrap();
-    let (_, rem) = DivRem::div_rem(vu, q_nz);
-    rem.into()
 }
 
 /// One generic merge level: blocks of output size `2h`; `f0`/`f1` are each block's
@@ -182,25 +167,15 @@ fn merge_level(
     out
 }
 
-/// Forward NTT. `f` must hold `cfg.n` coefficients in `[0, q)`. Returns the transform
-/// in the parameter set's evaluation order, reduced to `[0, q)`.
+/// Computes the forward NTT. `f` must hold `cfg.n` coefficients in `[0, q)`. Returns the
+/// transform in the parameter set's evaluation order, reduced to `[0, q)`.
 pub fn ntt(f: Span<felt252>, cfg: @NttConfig) -> Array<felt252> {
     let (out, _, _) = ntt_core(f, cfg);
     reduce_pass(out.span(), *cfg.q_nz)
 }
 
-/// Forward NTT without the final reduction pass: the same transform as [`ntt`], with
-/// outputs returned as unreduced integers congruent to the reduced transform mod q.
-/// Returns `(values, bits, bound)` where `bound` is the exact exclusive upper bound on
-/// the output integers under the engine's reduction schedule and `bits` its
-/// conservative bit size. Callers fold the bound into their own arithmetic (e.g. a
-/// divisibility check or a lazy-product INTT) instead of paying a full reduction pass.
-pub fn ntt_lazy(f: Span<felt252>, cfg: @NttConfig) -> (Array<felt252>, u32, felt252) {
-    ntt_core(f, cfg)
-}
-
-/// The merge levels shared by [`ntt`] and [`ntt_lazy`], inlined into both so neither
-/// entry point pays an extra call boundary.
+/// Executes the forward merge levels and returns the unreduced coefficients, their bit bound, and
+/// their exclusive value bound.
 #[inline(always)]
 fn ntt_core(f: Span<felt252>, cfg: @NttConfig) -> (Array<felt252>, u32, felt252) {
     let n = *cfg.n;
@@ -309,7 +284,7 @@ fn split_level(
     out
 }
 
-/// Inverse NTT. `f` must hold `cfg.n` values below `2^input_bits` (as integers), with
+/// Computes the inverse NTT. `f` must hold `cfg.n` values below `2^input_bits` (as integers), with
 /// `input_bound` their exact exclusive bound: pass `(cfg.qbits, cfg.q_felt)` for
 /// reduced inputs, or the product bound for unreduced pointwise products (the
 /// lazy-product path: `intt(a_ntt ∘ b_ntt)` without reducing the products first).

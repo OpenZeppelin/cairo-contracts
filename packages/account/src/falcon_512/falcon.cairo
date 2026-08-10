@@ -3,22 +3,16 @@
 
 //! Falcon-512 signature verification.
 //!
-//! Hint variant: verifies `s1 * h == mul_hint` via two forward NTTs and a pointwise
-//! product check (the NTT is a bijection, so the check binds `mul_hint` to exactly
-//! `s1 * h mod (q, phi)`), then accepts iff
-//! `||msg_point - mul_hint||^2 + ||s1||^2 <= SIG_BOUND_512` over centered
-//! representatives. Since `msg_point - s1*h = s0`, this is the Falcon verification
-//! equation with the polynomial multiplication delegated to a signer-supplied hint;
-//! a bad hint yields `false`. Both transforms use the generated fixed-parameter
-//! Falcon-512 path, and the pointwise check tests `s1n*h == hn (mod q)`.
+//! The hint variant accepts a signer-supplied product and verifies
+//! `mul_hint = s1 * h` in `Z_q[x]/(x^512 + 1)` using two forward NTTs and a pointwise
+//! equality check. It then accepts when
+//! `||msg_point - mul_hint||^2 + ||s1||^2 <= SIG_BOUND_512` over centered representatives.
+//! NTT bijectivity binds the accepted hint to the product determined by `s1` and `h`.
 //!
-//! Direct variant: computes `s1 * h` on-chain as `INTT(NTT(s1) ∘ h_ntt)` — the
-//! generated forward transform's reduced pointwise products feed the generic inverse
-//! engine with their exact bound.
+//! The direct variant derives `s1 * h` on-chain as `INTT(NTT(s1) ∘ h_ntt)`.
 //!
 //! The verifier path decodes packed coefficients into canonical `u16` values and keeps
-//! that representation through the generated NTT and norm calculation. The public core
-//! functions also accept validated felt coefficients for standalone callers.
+//! that representation through the generated NTT and norm calculation.
 
 use super::ntt::engine::intt;
 #[cfg(test)]
@@ -32,10 +26,10 @@ use super::ntt::falcon512_fast::ntt_falcon512_fast_u16_unchecked;
 use super::ntt::falcon512_fast::ntt_falcon512_fast_u16_unchecked;
 use super::zq::{Q32, center_sq, centered_difference_sq};
 
-/// Maximum allowed `||s0||^2 + ||s1||^2` for FALCON-512 as submitted to NIST.
+/// Maximum squared-norm bound for the Falcon-512 submission algorithm.
 pub const SIG_BOUND_512: u64 = 34034726;
 
-/// The Falcon modulus as a u32 divisor.
+/// The Falcon modulus as a `u32` divisor.
 const Q32_NZ: NonZero<u32> = 12289;
 
 #[cfg(not(test))]
@@ -51,10 +45,10 @@ fn forward_ntt(values: Span<u16>) -> Array<u16> {
     ntt_falcon512_fast_u16_unchecked(values)
 }
 
-// The repository's coverage profile disables inlining. The universal Sierra compiler
-// cannot currently lower the generated 512-value straight-line transform in that profile,
-// so contract tests use the equivalent generic engine. The generated production path is
-// exercised in release mode with the `falcon_fast_tests` feature.
+// The workspace dev profile disables inlining, and the universal Sierra compiler cannot lower
+// the generated 512-value straight-line transform in that profile. Dev-profile tests use the
+// equivalent generic engine; release-profile tests select the generated path with
+// `falcon_fast_tests`.
 #[cfg(test)]
 #[cfg(not(feature: 'falcon_fast_tests'))]
 fn forward_ntt(mut values: Span<u16>) -> Array<u16> {
@@ -71,6 +65,7 @@ fn forward_ntt(mut values: Span<u16>) -> Array<u16> {
 }
 
 #[inline(always)]
+#[cfg(test)]
 fn felts_to_u16(mut values: Span<felt252>) -> Array<u16> {
     let mut out: Array<u16> = array![];
     while let Some(value) = values.pop_front() {
@@ -94,9 +89,9 @@ fn product_as_felt(a: u16, b: u16) -> felt252 {
     (a * b).into()
 }
 
-/// Verify with a signer-supplied product hint. All spans must have length 512 with
-/// coefficients in `[0, Q)` — guaranteed by `packing::unpack_512` and
-/// `hash_to_point::hash_to_point_512`.
+/// Verifies a signer-supplied product hint through the test-facing `felt252` wrapper. All spans
+/// must have length 512 with coefficients in `[0, Q)`.
+#[cfg(test)]
 pub fn verify_512_with_hint(
     s1: Span<felt252>, h_ntt: Span<felt252>, mul_hint: Span<felt252>, msg_point: Span<u16>,
 ) -> bool {
@@ -111,7 +106,8 @@ pub fn verify_512_with_hint(
     verify_512_with_hint_u16(s1.span(), h_ntt.span(), mul_hint.span(), msg_point)
 }
 
-/// Verify the hint equation over canonical `u16` coefficients.
+/// Verifies the hint equation over canonical `u16` coefficients. Every span must contain exactly
+/// 512 coefficients in `[0, Q)`.
 pub(crate) fn verify_512_with_hint_u16(
     s1: Span<u16>, h_ntt: Span<u16>, mul_hint: Span<u16>, msg_point: Span<u16>,
 ) -> bool {
@@ -120,8 +116,8 @@ pub(crate) fn verify_512_with_hint_u16(
     assert(mul_hint.len() == 512, 'mul_hint must be 512 coeffs');
     assert(msg_point.len() == 512, 'msg_point must be 512 coeffs');
 
-    // Both spans came from canonical base-Q unpacking (or the public wrapper's documented
-    // canonical-coefficient precondition), so the generated unchecked NTT is sound here.
+    // Production inputs come from canonical base-Q unpacking; the test wrapper documents the same
+    // coefficient precondition. The generated unchecked NTT is sound for both call paths.
     let s1_ntt = forward_ntt(s1);
     let hint_ntt = forward_ntt(mul_hint);
 
@@ -242,11 +238,10 @@ pub(crate) fn verify_512_with_hint_u16(
     norm <= SIG_BOUND_512
 }
 
-/// Verify without a hint (direct variant): compute `s1 * h` on-chain as
-/// `INTT(NTT(s1) ∘ h_ntt)` — 1 NTT + 1 INTT because the public key is already stored in
-/// the NTT domain — then accept iff `||msg_point - s1*h||^2 + ||s1||^2 <= SIG_BOUND_512`.
-/// Same trust surface as the textbook equation (no signer-supplied hint), 29 fewer
-/// signature felts than [`verify_512_with_hint`], at the cost of the INTT.
+/// Verifies the direct variant by computing `s1 * h` on-chain as
+/// `INTT(NTT(s1) ∘ h_ntt)`, then applying the Falcon squared-norm bound. Its signature omits the
+/// 29-felt product hint and performs an inverse NTT on-chain.
+#[cfg(test)]
 pub fn verify_512_direct(s1: Span<felt252>, h_ntt: Span<felt252>, msg_point: Span<u16>) -> bool {
     assert(s1.len() == 512, 's1 must be 512 coeffs');
     assert(h_ntt.len() == 512, 'h_ntt must be 512 coeffs');
@@ -257,14 +252,14 @@ pub fn verify_512_direct(s1: Span<felt252>, h_ntt: Span<felt252>, msg_point: Spa
     verify_512_direct_u16(s1.span(), h_ntt.span(), msg_point)
 }
 
-/// Verify the direct equation over canonical `u16` coefficients.
+/// Verifies the direct equation over canonical `u16` coefficients.
 pub(crate) fn verify_512_direct_u16(s1: Span<u16>, h_ntt: Span<u16>, msg_point: Span<u16>) -> bool {
     assert(s1.len() == 512, 's1 must be 512 coeffs');
     assert(h_ntt.len() == 512, 'h_ntt must be 512 coeffs');
     assert(msg_point.len() == 512, 'msg_point must be 512 coeffs');
 
     let cfg = config();
-    // `s1` is canonical by the same verifier/wrapper precondition as the hint path.
+    // `s1` is canonical under the verifier and test-wrapper preconditions.
     let s1_ntt = forward_ntt(s1);
 
     // Pointwise products of two reduced inputs are below q^2. They feed the inverse
@@ -369,7 +364,7 @@ mod tests {
         out
     }
 
-    /// Negacyclic product in Z_q[x]/(x^512 + 1) (test helper).
+    /// Negacyclic product in `Z_q[x]/(x^512 + 1)` (test helper).
     fn mul_zq(f: Span<felt252>, g: Span<felt252>) -> Array<felt252> {
         let cfg = config();
         let f_ntt = ntt(f, @cfg);
@@ -409,7 +404,7 @@ mod tests {
         f
     }
 
-    /// msg_point = s0 + prod coefficient-wise, downcast to the norm side's u16 form.
+    /// `msg_point = s0 + prod` coefficient-wise, downcast to the norm side's `u16` form.
     fn add_points(s0: Span<felt252>, prod: Span<felt252>) -> Array<u16> {
         let mut out: Array<u16> = array![];
         let mut s0_iter = to_u16(s0).span();

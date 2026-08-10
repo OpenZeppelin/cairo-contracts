@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v4.0.0-alpha.1 (interfaces/src/account/account.cairo)
+// OpenZeppelin Contracts for Cairo v4.0.0-alpha.1 (interfaces/src/account/accounts.cairo)
 
 use starknet::account::Call;
 
@@ -53,6 +53,7 @@ pub trait IDeployable<TState> {
 #[starknet::interface]
 pub trait IFeltArrayDeployable<TState> {
     /// Validates a deploy-account transaction before deployment.
+    /// This function is used by the protocol to verify `deploy_account` transactions.
     ///
     /// Returns the short string 'VALID' if valid, otherwise it reverts.
     fn __validate_deploy__(

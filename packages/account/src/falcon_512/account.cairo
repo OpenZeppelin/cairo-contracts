@@ -1,20 +1,15 @@
 // SPDX-License-Identifier: MIT
 // OpenZeppelin Contracts for Cairo v4.0.0-alpha.1 (account/src/falcon_512/account.cairo)
 
-//! Shared account component for the Falcon-512 SHAKE account contracts.
+use super::verifier::Falcon512SignatureVerifier;
 
-/// Verification surface implemented by each Falcon-512 account variant.
-pub(crate) trait Falcon512SignatureVerifier {
-    /// Returns whether `signature` authenticates `message_hash` under `public_key`.
-    fn verify(message_hash: felt252, public_key: Span<felt252>, signature: Span<felt252>) -> bool;
-
-    /// Returns whether the packed public key has the required canonical encoding.
-    fn is_valid_public_key(public_key: Span<felt252>) -> bool;
-}
-
-/// Account component for array-encoded Falcon-512 public keys.
+/// # Falcon512Account Component
+///
+/// The Falcon512Account component enables contracts to behave as accounts using canonical
+/// 29-felt NTT-domain Falcon-512 public keys. Embedding contracts select an implementation of
+/// `Falcon512SignatureVerifier`.
 #[starknet::component]
-pub(crate) mod Falcon512AccountComponent {
+pub mod Falcon512AccountComponent {
     use core::hash::{HashStateExTrait, HashStateTrait};
     use core::num::traits::Zero;
     use core::poseidon::{PoseidonTrait, poseidon_hash_span};
@@ -33,7 +28,7 @@ pub(crate) mod Falcon512AccountComponent {
 
     #[storage]
     pub struct Storage {
-        pub public_key: Vec<felt252>,
+        pub Falcon512Account_public_key: Vec<felt252>,
     }
 
     #[event]
@@ -56,12 +51,16 @@ pub(crate) mod Falcon512AccountComponent {
     }
 
     pub mod Errors {
-        pub const INVALID_CALLER: felt252 = 'Account: invalid caller';
-        pub const INVALID_PUBLIC_KEY: felt252 = 'Account: invalid public key';
-        pub const INVALID_SIGNATURE: felt252 = 'Account: invalid signature';
-        pub const INVALID_TX_VERSION: felt252 = 'Account: invalid tx version';
-        pub const UNAUTHORIZED: felt252 = 'Account: unauthorized';
+        pub const INVALID_CALLER: felt252 = 'Falcon512: invalid caller';
+        pub const INVALID_PUBLIC_KEY: felt252 = 'Falcon512: invalid public key';
+        pub const INVALID_SIGNATURE: felt252 = 'Falcon512: invalid signature';
+        pub const INVALID_TX_VERSION: felt252 = 'Falcon512: invalid tx version';
+        pub const UNAUTHORIZED: felt252 = 'Falcon512: unauthorized';
     }
+
+    //
+    // External
+    //
 
     #[embeddable_as(SRC6Impl)]
     impl SRC6<
@@ -71,7 +70,13 @@ pub(crate) mod Falcon512AccountComponent {
         +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>,
     > of interface::ISRC6<ComponentState<TContractState>> {
-        /// Executes calls forwarded by the account after protocol validation succeeds.
+        /// Executes a list of calls from the account.
+        ///
+        /// Requirements:
+        ///
+        /// - The transaction version must be greater than or equal to `MIN_TRANSACTION_VERSION`.
+        /// - If the transaction is a simulation (version >= `QUERY_OFFSET`), it must be
+        /// greater than or equal to `QUERY_OFFSET` + `MIN_TRANSACTION_VERSION`.
         fn __execute__(self: @ComponentState<TContractState>, calls: Array<Call>) {
             let sender = starknet::get_caller_address();
             assert(sender.is_zero(), Errors::INVALID_CALLER);
@@ -82,13 +87,13 @@ pub(crate) mod Falcon512AccountComponent {
             }
         }
 
-        /// Validates an invoke transaction with the current transaction signature.
+        /// Verifies the validity of the signature for the current transaction.
+        /// This function is used by the protocol to verify `invoke` transactions.
         fn __validate__(self: @ComponentState<TContractState>, calls: Array<Call>) -> felt252 {
-            let _ = calls;
             self.validate_transaction::<Verifier>()
         }
 
-        /// Verifies a signature for an arbitrary message hash.
+        /// Verifies that the given signature is valid for the given hash.
         fn is_valid_signature(
             self: @ComponentState<TContractState>, hash: felt252, signature: Array<felt252>,
         ) -> felt252 {
@@ -108,11 +113,11 @@ pub(crate) mod Falcon512AccountComponent {
         +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>,
     > of interface::IDeclarer<ComponentState<TContractState>> {
-        /// Validates a declare transaction with the current transaction signature.
+        /// Verifies the validity of the signature for the current transaction.
+        /// This function is used by the protocol to verify `declare` transactions.
         fn __validate_declare__(
             self: @ComponentState<TContractState>, class_hash: felt252,
         ) -> felt252 {
-            let _ = class_hash;
             self.validate_transaction::<Verifier>()
         }
     }
@@ -125,16 +130,14 @@ pub(crate) mod Falcon512AccountComponent {
         +SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>,
     > of interface::IFeltArrayDeployable<ComponentState<TContractState>> {
-        /// Validates a deploy-account transaction with the current transaction signature.
+        /// Verifies the validity of the signature for the current transaction.
+        /// This function is used by the protocol to verify `deploy_account` transactions.
         fn __validate_deploy__(
             self: @ComponentState<TContractState>,
             class_hash: felt252,
             contract_address_salt: felt252,
             public_key: Array<felt252>,
         ) -> felt252 {
-            let _ = class_hash;
-            let _ = contract_address_salt;
-            let _ = public_key;
             self.validate_transaction::<Verifier>()
         }
     }
@@ -228,6 +231,7 @@ pub(crate) mod Falcon512AccountComponent {
         impl SRC5: SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>,
     > of interface::FeltArrayAccountABI<ComponentState<TContractState>> {
+        // ISRC6
         fn __execute__(self: @ComponentState<TContractState>, calls: Array<Call>) {
             SRC6::__execute__(self, calls)
         }
@@ -242,18 +246,21 @@ pub(crate) mod Falcon512AccountComponent {
             SRC6::is_valid_signature(self, hash, signature)
         }
 
+        // ISRC6CamelOnly
         fn isValidSignature(
             self: @ComponentState<TContractState>, hash: felt252, signature: Array<felt252>,
         ) -> felt252 {
             SRC6CamelOnly::isValidSignature(self, hash, signature)
         }
 
+        // IDeclarer
         fn __validate_declare__(
             self: @ComponentState<TContractState>, class_hash: felt252,
         ) -> felt252 {
             Declarer::__validate_declare__(self, class_hash)
         }
 
+        // IFeltArrayDeployable
         fn __validate_deploy__(
             self: @ComponentState<TContractState>,
             class_hash: felt252,
@@ -263,6 +270,7 @@ pub(crate) mod Falcon512AccountComponent {
             Deployable::__validate_deploy__(self, class_hash, contract_address_salt, public_key)
         }
 
+        // IFeltArrayPublicKey
         fn get_public_key(self: @ComponentState<TContractState>) -> Array<felt252> {
             PublicKey::get_public_key(self)
         }
@@ -275,6 +283,7 @@ pub(crate) mod Falcon512AccountComponent {
             PublicKey::set_public_key(ref self, new_public_key, signature);
         }
 
+        // IFeltArrayPublicKeyCamel
         fn getPublicKey(self: @ComponentState<TContractState>) -> Array<felt252> {
             PublicKeyCamel::getPublicKey(self)
         }
@@ -287,6 +296,7 @@ pub(crate) mod Falcon512AccountComponent {
             PublicKeyCamel::setPublicKey(ref self, newPublicKey, signature);
         }
 
+        // ISRC5
         fn supports_interface(
             self: @ComponentState<TContractState>, interface_id: felt252,
         ) -> bool {
@@ -295,6 +305,10 @@ pub(crate) mod Falcon512AccountComponent {
         }
     }
 
+    //
+    // Internal
+    //
+
     #[generate_trait]
     pub impl InternalImpl<
         TContractState,
@@ -302,7 +316,8 @@ pub(crate) mod Falcon512AccountComponent {
         impl SRC5: SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>,
     > of InternalTrait<TContractState> {
-        /// Validates and stores the packed public key and registers SRC6 support.
+        /// Initializes the account with a canonical packed Falcon-512 public key and registers
+        /// the ISRC6 interface ID.
         ///
         /// Emits an `OwnerAdded` event.
         fn initializer<impl Verifier: Falcon512SignatureVerifier>(
@@ -323,9 +338,14 @@ pub(crate) mod Falcon512AccountComponent {
             assert(self == caller, Errors::UNAUTHORIZED);
         }
 
-        /// Validates that the new owner accepted ownership of the account.
+        /// Validates that `new_owner` accepted ownership of the account.
         ///
-        /// WARNING: This function assumes that `current_owner` is the account's current owner.
+        /// WARNING: This function assumes that `current_owner` is the account's current owner
+        /// and does not validate this assumption.
+        ///
+        /// Requirements:
+        ///
+        /// - The signature must be valid for `new_owner`.
         fn assert_valid_new_owner<impl Verifier: Falcon512SignatureVerifier>(
             self: @ComponentState<TContractState>,
             current_owner: Span<felt252>,
@@ -342,7 +362,8 @@ pub(crate) mod Falcon512AccountComponent {
             assert(Verifier::verify(message_hash, new_owner, signature), Errors::INVALID_SIGNATURE);
         }
 
-        /// Validates the transaction hash against the transaction signature.
+        /// Validates the signature for the current transaction.
+        /// Returns the short string `VALID` if valid, otherwise it reverts.
         fn validate_transaction<impl Verifier: Falcon512SignatureVerifier>(
             self: @ComponentState<TContractState>,
         ) -> felt252 {
@@ -356,25 +377,23 @@ pub(crate) mod Falcon512AccountComponent {
             starknet::VALIDATED
         }
 
-        /// Sets the public key without validating the caller or key encoding.
-        /// The usage of this method outside the initializer and `set_public_key` is discouraged.
-        ///
-        /// Emits an `OwnerAdded` event.
+        /// Stores `new_public_key` and emits an `OwnerAdded` event.
+        /// Callers are responsible for enforcing the applicable encoding and authorization checks.
         fn _set_public_key(
             ref self: ComponentState<TContractState>, new_public_key: Array<felt252>,
         ) {
             let new_owner_guid = poseidon_hash_span(new_public_key.span());
-            let stored_len = self.public_key.len();
+            let stored_len = self.Falcon512Account_public_key.len();
 
             if stored_len == 0 {
                 for felt in new_public_key {
-                    self.public_key.push(felt);
+                    self.Falcon512Account_public_key.push(felt);
                 }
             } else {
                 assert(stored_len == new_public_key.len().into(), Errors::INVALID_PUBLIC_KEY);
                 let mut index = 0;
                 for felt in new_public_key {
-                    self.public_key.at(index).write(felt);
+                    self.Falcon512Account_public_key.at(index).write(felt);
                     index += 1;
                 }
             }
@@ -385,10 +404,10 @@ pub(crate) mod Falcon512AccountComponent {
         /// Reads the stored public key into its 29-felt packed representation.
         fn read_public_key(self: @ComponentState<TContractState>) -> Array<felt252> {
             let mut public_key = array![];
-            let len = self.public_key.len();
+            let len = self.Falcon512Account_public_key.len();
             let mut index = 0;
             while index != len {
-                public_key.append(self.public_key.at(index).read());
+                public_key.append(self.Falcon512Account_public_key.at(index).read());
                 index += 1;
             }
             public_key

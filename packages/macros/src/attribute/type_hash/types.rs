@@ -1,8 +1,8 @@
 //! Types recognized by the type hash derive macro.
 //!
-//! SNIP-12 defines basic, preset, array, and user-defined types, and uses parenthesized parameter
-//! lists for enum variants. The macro also accepts tuple-typed members as an OpenZeppelin-specific
-//! extension.
+//! SNIP-12 defines basic, preset, and user-defined types. It also defines arrays and uses
+//! parenthesized parameter lists for enum variants. The macro also accepts tuple-typed members as
+//! an OpenZeppelin-specific extension.
 //!
 //! 1. Basic types: defined in the spec for a given revision. Ex: felt, ClassHash, timestamp, u128...
 //! 2. Collection types: arrays, enum parameter lists, and the tuple-member extension.

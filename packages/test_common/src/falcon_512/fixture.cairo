@@ -5,7 +5,7 @@
 //! encoding. This is not an FN-DSA (FIPS 206) conformance vector.
 //! Salt: `0x4ad23197d576f705594ac172f4fca80e3338e991b8b55e269d421aa1522cd0aa2490034127651fc2`.
 
-/// Fixed reference message hash used by this fixture.
+/// Fixed reference message felt (`'BENCH_MSG'`) used by this fixture.
 pub fn msg() -> felt252 {
     1222479111879746474823
 }

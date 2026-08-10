@@ -33,6 +33,7 @@ pub fn config() -> NttConfig {
 /// bit-reversal permutation programmatically. `levels` must equal `log2(n)`. Tests and auxiliary
 /// tooling use this function; production callers use [`config`], which reads the pinned table.
 pub fn config_for_degree(n: u32, levels: u32) -> NttConfig {
+    assert!(n >= 4 && n <= 512 && (n & (n - 1)) == 0, "config_for_degree: unsupported degree {n}");
     let mut perm: Array<u16> = array![];
     let mut i: u32 = 0;
     while i != n {

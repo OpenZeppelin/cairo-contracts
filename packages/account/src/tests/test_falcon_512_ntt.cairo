@@ -149,19 +149,39 @@ fn test_degree_four_roundtrip_exercises_reduction_tail() {
 
 #[test]
 fn test_intt_reduces_before_last_level() {
-    let values = array![0, 0, 0, 0];
-    let recovered = intt(values.span(), 111, 1, @config_for_degree(4, 2));
+    let values = array![1, 2, 3, 4];
+    let cfg = config_for_degree(4, 2);
+    let transformed = ntt(values.span(), @cfg);
+    let recovered = intt(transformed.span(), 111, 12289, @cfg);
     assert_eq!(recovered.span(), values.span());
 }
 
 #[test]
-#[should_panic]
+#[should_panic(expected: "config_for_degree: unsupported degree 2")]
+fn test_config_rejects_degree_below_range() {
+    config_for_degree(2, 1);
+}
+
+#[test]
+#[should_panic(expected: "config_for_degree: unsupported degree 6")]
+fn test_config_rejects_non_power_of_two_degree() {
+    config_for_degree(6, 3);
+}
+
+#[test]
+#[should_panic(expected: "config_for_degree: unsupported degree 1024")]
+fn test_config_rejects_degree_above_range() {
+    config_for_degree(1024, 10);
+}
+
+#[test]
+#[should_panic(expected: "no root table for degree")]
 fn test_forward_roots_reject_unsupported_degree() {
     get_even_roots_felt(3);
 }
 
 #[test]
-#[should_panic]
+#[should_panic(expected: "no root table for degree")]
 fn test_inverse_roots_reject_unsupported_degree() {
     get_scaled_inv_roots(3);
 }

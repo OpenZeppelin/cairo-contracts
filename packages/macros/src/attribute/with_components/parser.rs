@@ -690,6 +690,24 @@ fn add_per_component_warnings(
                 warnings.push(warning);
             }
 
+            let uses_erc20_flash_mint = components_info
+                .iter()
+                .any(|component| matches!(component.kind(), AllowedComponents::ERC20FlashMint));
+            let uses_erc721_consecutive = components_info
+                .iter()
+                .any(|component| matches!(component.kind(), AllowedComponents::ERC721Consecutive));
+
+            // These integrations have compatibility concerns even when the standard Votes hook is
+            // present.
+            if uses_erc20_flash_mint {
+                let warning = Diagnostic::warn(warnings::ERC20_FLASH_MINT_VOTES_INCOMPATIBILITY);
+                warnings.push(warning);
+            }
+            if uses_erc721_consecutive {
+                let warning = Diagnostic::warn(warnings::ERC721_CONSECUTIVE_VOTES_INCOMPATIBILITY);
+                warnings.push(warning);
+            }
+
             // Token integrations must forward token updates to Votes.
             let uses_token_component = components_info.iter().any(|component| {
                 matches!(

@@ -332,6 +332,7 @@ pub fn intt(
     if bits + growth_bits > SAFE_BITS {
         cur = reduce_pass(cur.span(), q_nz);
         bound = q_felt;
+        // No later growth decision reads `bits`; the final output is reduced unconditionally.
     }
     let t0 = *(*split_roots.at(0)).at(0);
     let off = bound * q_felt;

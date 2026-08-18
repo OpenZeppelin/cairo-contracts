@@ -18,6 +18,7 @@ use openzeppelin_corelib_imports::bounded_int::{
 use super::zq::Q;
 
 /// Coefficients per full `felt252` slot (two `u128` halves of 9).
+#[cfg(test)]
 pub const VALS_PER_FELT: u32 = 18;
 /// `felt252` slots for 512 coefficients: 28 full slots + 1 slot with 8.
 pub const PACKED_SLOTS: u32 = 29;
@@ -210,7 +211,7 @@ fn pack_half(coeffs: Span<u16>) -> u128 {
         i -= 1;
         let c = *coeffs.at(i);
         assert(c < Q, 'pack: coeff >= Q');
-        acc = acc * 12289 + c.into();
+        acc = acc * Q.into() + c.into();
     }
     acc
 }

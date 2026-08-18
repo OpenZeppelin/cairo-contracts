@@ -18,9 +18,9 @@ use openzeppelin_testing::constants::{
 };
 use openzeppelin_testing::{EventSpyExt, ExpectedEvent, spy_events};
 use snforge_std::{
-    CheatSpan, cheat_caller_address, start_cheat_caller_address, start_cheat_signature_global,
-    start_cheat_transaction_hash_global, start_cheat_transaction_version_global,
-    stop_cheat_caller_address,
+    CheatSpan, ContractClassTrait, cheat_caller_address, start_cheat_caller_address,
+    start_cheat_signature_global, start_cheat_transaction_hash_global,
+    start_cheat_transaction_version_global, stop_cheat_caller_address,
 };
 use starknet::ContractAddress;
 use starknet::account::Call;
@@ -93,6 +93,19 @@ fn deploy_account_at(
     public_key().serialize(ref calldata);
     utils::deploy_at(contract_class, contract_address, calldata);
     FeltArrayAccountABIDispatcher { contract_address }
+}
+
+fn assert_deploy_rejects_public_key(contract_name: ByteArray, public_key: Array<felt252>) {
+    let contract_class = utils::declare_class(contract_name);
+    let mut calldata = array![];
+    public_key.serialize(ref calldata);
+
+    match contract_class.deploy(@calldata) {
+        Result::Ok(_) => panic!("Expected invalid public key"),
+        Result::Err(panic_data) => {
+            assert_eq!(panic_data, array!['Falcon512: invalid public key']);
+        },
+    }
 }
 
 fn execute_key_rotation(
@@ -575,21 +588,17 @@ fn test_validate_deploy_rejects_invalid_signature() {
 }
 
 #[test]
-#[should_panic]
 fn test_constructor_rejects_wrong_public_key_length() {
-    let contract_class = utils::declare_class("Falcon512ShakeAccountMock");
-    let mut calldata = array![];
-    copy_prefix(public_key().span(), PUBLIC_KEY_FELTS - 1).serialize(ref calldata);
-    utils::deploy(contract_class, calldata);
+    assert_deploy_rejects_public_key(
+        "Falcon512ShakeAccountMock", copy_prefix(public_key().span(), PUBLIC_KEY_FELTS - 1),
+    );
 }
 
 #[test]
-#[should_panic]
 fn test_constructor_rejects_noncanonical_public_key() {
-    let contract_class = utils::declare_class("Falcon512ShakeDirectAccountMock");
-    let mut calldata = array![];
-    with_replaced(public_key().span(), 0, Q_POW_9).serialize(ref calldata);
-    utils::deploy(contract_class, calldata);
+    assert_deploy_rejects_public_key(
+        "Falcon512ShakeDirectAccountMock", with_replaced(public_key().span(), 0, Q_POW_9),
+    );
 }
 
 #[test]

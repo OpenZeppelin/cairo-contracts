@@ -78,6 +78,8 @@ pub mod Falcon512AccountComponent {
         /// - If the transaction is a simulation (version >= `QUERY_OFFSET`), it must be
         /// greater than or equal to `QUERY_OFFSET` + `MIN_TRANSACTION_VERSION`.
         fn __execute__(self: @ComponentState<TContractState>, calls: Array<Call>) {
+            // Avoid calls from other contracts
+            // https://github.com/OpenZeppelin/cairo-contracts/issues/344
             let sender = starknet::get_caller_address();
             assert(sender.is_zero(), Errors::INVALID_CALLER);
             assert(is_tx_version_valid(), Errors::INVALID_TX_VERSION);
@@ -378,6 +380,8 @@ pub mod Falcon512AccountComponent {
         }
 
         /// Stores `new_public_key` and emits an `OwnerAdded` event.
+        /// Once initialized, the stored key length is fixed; subsequent calls must provide a key
+        /// with the same number of felts.
         /// Callers are responsible for enforcing the applicable encoding and authorization checks.
         fn _set_public_key(
             ref self: ComponentState<TContractState>, new_public_key: Array<felt252>,

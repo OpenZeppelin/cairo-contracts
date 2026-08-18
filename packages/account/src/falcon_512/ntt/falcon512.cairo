@@ -10,8 +10,8 @@ use super::engine::NttConfig;
 use super::roots_felt::get_even_roots_felt;
 use super::roots_scaled::get_scaled_inv_roots;
 
-/// The Falcon modulus q = 12289 = 12·1024 + 1.
-pub const Q: u16 = 12289;
+/// The modulus as a non-zero `u128` divisor.
+const Q_NZ: NonZero<u128> = 12289;
 /// q as a felt.
 pub const Q_FELT: felt252 = 12289;
 /// 2^-1 mod q.
@@ -68,7 +68,7 @@ fn config_with_perm(n: u32, levels: u32, perm: Span<u16>) -> NttConfig {
     NttConfig {
         n,
         levels,
-        q_nz: 12289,
+        q_nz: Q_NZ,
         q_felt: Q_FELT,
         i2_felt: I2_FELT,
         qbits: REDUCED_BITS,

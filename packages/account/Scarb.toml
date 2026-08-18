@@ -49,6 +49,8 @@ name = "openzeppelin_account_unittest"
 build-external-contracts = [
     "openzeppelin_test_common::mocks::account::DualCaseAccountMock",
     "openzeppelin_test_common::mocks::account::DualCaseEthAccountMock",
+    "openzeppelin_test_common::mocks::multisig_account::MultisigAccountMock",
+    "openzeppelin_test_common::mocks::multisig_account::SignatureCallerMock",
     "openzeppelin_test_common::mocks::src9::SRC9AccountMock",
     "openzeppelin_test_common::mocks::simple::SimpleMock",
 ]

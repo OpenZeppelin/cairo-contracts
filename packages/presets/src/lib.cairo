@@ -5,6 +5,7 @@ pub mod erc721;
 pub mod eth_account;
 pub mod interfaces;
 pub mod meta_tx_v0;
+pub mod multisig_account;
 
 #[cfg(test)]
 mod tests;
@@ -18,5 +19,6 @@ pub use erc20::ERC20Upgradeable;
 pub use erc721::ERC721Upgradeable;
 pub use eth_account::EthAccountUpgradeable;
 pub use meta_tx_v0::MetaTransactionV0;
+pub use multisig_account::MultisigAccountUpgradeable;
 pub use universal_deployer::UniversalDeployer;
 pub use vesting::VestingWallet;

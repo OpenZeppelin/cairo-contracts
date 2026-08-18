@@ -1,8 +1,8 @@
 ## Interfaces
 
-List of standardized interfaces, ABI traits and dispatchers.
+Interfaces, ABI traits, and dispatchers used across OpenZeppelin Contracts for Cairo.
 
-### Standardized Interfaces
+### Interface Traits
 
 - [`IAccessControlDefaultAdminRules`](https://docs.openzeppelin.com/contracts-cairo/3.x/api/access#IAccessControlDefaultAdminRules)
 - [`IAccessControl`](https://docs.openzeppelin.com/contracts-cairo/3.x/api/access#IAccessControl)
@@ -16,6 +16,8 @@ List of standardized interfaces, ABI traits and dispatchers.
 - `ISRC6CamelOnly`
 - `IDeclarer`
 - `IDeployable`
+- [`IMultisigAccount`](https://docs.openzeppelin.com/contracts-cairo/3.x/api/account#IMultisigAccount)
+- [`IMultisigDeployable`](https://docs.openzeppelin.com/contracts-cairo/3.x/api/account#IMultisigDeployable)
 - `IPublicKey`
 - `IPublicKeyCamel`
 - `IEthDeployable`
@@ -73,6 +75,7 @@ List of standardized interfaces, ABI traits and dispatchers.
 - `OwnableABI`
 - `OwnableTwoStepABI`
 - `AccountABI`
+- `MultisigAccountABI`
 - `EthAccountABI`
 - `TimelockABI`
 - `VotesABI`

@@ -38,6 +38,39 @@ fn test_with_account_no_initializer() {
 }
 
 #[test]
+fn test_with_multisig_account() {
+    let attribute = quote! { (MultisigAccount) };
+    let item = quote! {
+        #[starknet::contract(account)]
+        pub mod MyContract {
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState, quorum: u32, signers: Span<felt252>) {
+                self.multisig_account.initializer(quorum, signers);
+            }
+        }
+    };
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_multisig_account_no_initializer() {
+    let attribute = quote! { (MultisigAccount) };
+    let item = quote! {
+        #[starknet::contract(account)]
+        pub mod MyContract {
+            #[storage]
+            pub struct Storage {}
+        }
+    };
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
 fn test_with_eth_account() {
     let attribute = quote! { (EthAccount) };
     let item = quote! {

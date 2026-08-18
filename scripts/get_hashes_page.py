@@ -6,6 +6,7 @@ KNOWN_ORDER = [
     "ERC721Upgradeable",
     "ERC1155Upgradeable",
     "AccountUpgradeable",
+    "MultisigAccountUpgradeable",
     "EthAccountUpgradeable",
     "UniversalDeployer"
 ]

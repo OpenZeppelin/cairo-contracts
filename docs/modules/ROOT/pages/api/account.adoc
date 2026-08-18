@@ -64,6 +64,130 @@ Returns the short string `'VALID'` if valid, otherwise it reverts.
 
 Validates whether a signature is valid or not for the given message hash.
 
+Returns the short string `'VALID'` if valid, otherwise returns `0`.
+
+[.contract]
+[[IMultisigAccount]]
+=== `++IMultisigAccount++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v4.0.0-alpha.1/packages/interfaces/src/account/accounts.cairo[{github-icon},role=heading-link]
+
+```cairo
+use openzeppelin_interfaces::accounts::IMultisigAccount;
+```
+
+Interface for reading and managing a multisig account's registered STARK-curve signers and quorum.
+Configuration changes are authorized by the account calling itself.
+
+[.contract-index]
+.Functions
+--
+* xref:#IMultisigAccount-get_quorum[`++get_quorum()++`]
+* xref:#IMultisigAccount-is_signer[`++is_signer(signer)++`]
+* xref:#IMultisigAccount-get_signers[`++get_signers()++`]
+* xref:#IMultisigAccount-add_signers[`++add_signers(new_quorum, signers_to_add)++`]
+* xref:#IMultisigAccount-remove_signers[`++remove_signers(new_quorum, signers_to_remove)++`]
+* xref:#IMultisigAccount-replace_signer[`++replace_signer(signer_to_remove, signer_to_add)++`]
+* xref:#IMultisigAccount-change_quorum[`++change_quorum(new_quorum)++`]
+--
+
+[#IMultisigAccount-Functions]
+==== Functions
+
+[.contract-item]
+[[IMultisigAccount-get_quorum]]
+==== `[.contract-item-name]#++get_quorum++#++() → u32++` [.item-kind]#external#
+
+Returns the minimum number of signer records required to authorize an operation.
+
+[.contract-item]
+[[IMultisigAccount-is_signer]]
+==== `[.contract-item-name]#++is_signer++#++(signer: felt252) → bool++` [.item-kind]#external#
+
+Returns whether `signer` is a registered signer public key.
+
+[.contract-item]
+[[IMultisigAccount-get_signers]]
+==== `[.contract-item-name]#++get_signers++#++() → Span<felt252>++` [.item-kind]#external#
+
+Returns the registered signer public keys.
+
+The function exposes registry order, which is not sorted and can change when signers are removed.
+Sort selected public keys numerically in ascending order when encoding a multisig signature.
+
+[.contract-item]
+[[IMultisigAccount-add_signers]]
+==== `[.contract-item-name]#++add_signers++#++(new_quorum: u32, signers_to_add: Span<felt252>)++` [.item-kind]#external#
+
+Registers the nonzero public keys in `signers_to_add` and sets the account quorum to
+`new_quorum`. Public keys that are already registered are left unchanged.
+
+Requirements:
+
+- The caller must be the account itself.
+- Every newly registered signer must be nonzero.
+- `new_quorum` must be nonzero and no greater than the resulting signer count.
+
+[.contract-item]
+[[IMultisigAccount-remove_signers]]
+==== `[.contract-item-name]#++remove_signers++#++(new_quorum: u32, signers_to_remove: Span<felt252>)++` [.item-kind]#external#
+
+Unregisters the public keys in `signers_to_remove` and sets the account quorum to
+`new_quorum`. Public keys that are not registered are left unchanged.
+
+Requirements:
+
+- The caller must be the account itself.
+- `new_quorum` must be nonzero and no greater than the resulting signer count.
+
+[.contract-item]
+[[IMultisigAccount-replace_signer]]
+==== `[.contract-item-name]#++replace_signer++#++(signer_to_remove: felt252, signer_to_add: felt252)++` [.item-kind]#external#
+
+Replaces `signer_to_remove` with `signer_to_add` while preserving the current quorum.
+
+Requirements:
+
+- The caller must be the account itself.
+- `signer_to_remove` must be registered.
+- `signer_to_add` must be nonzero and unregistered.
+
+[.contract-item]
+[[IMultisigAccount-change_quorum]]
+==== `[.contract-item-name]#++change_quorum++#++(new_quorum: u32)++` [.item-kind]#external#
+
+Sets the minimum number of signer records required to authorize an operation.
+
+Requirements:
+
+- The caller must be the account itself.
+- `new_quorum` must be nonzero and no greater than the registered signer count.
+
+[.contract]
+[[IMultisigDeployable]]
+=== `++IMultisigDeployable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v4.0.0-alpha.1/packages/interfaces/src/account/accounts.cairo[{github-icon},role=heading-link]
+
+```cairo
+use openzeppelin_interfaces::accounts::IMultisigDeployable;
+```
+
+Interface for validating a multisig `DeployAccount` transaction whose constructor configures a
+quorum and signer set.
+
+[.contract-index]
+.Functions
+--
+* xref:#IMultisigDeployable-\\__validate_deploy__[`++__validate_deploy__(class_hash, contract_address_salt, quorum, signers)++`]
+--
+
+[#IMultisigDeployable-Functions]
+==== Functions
+
+[.contract-item]
+[[IMultisigDeployable-__validate_deploy__]]
+==== `[.contract-item-name]#++__validate_deploy__++#++(class_hash: felt252, contract_address_salt: felt252, quorum: u32, signers: Span<felt252>) → felt252++` [.item-kind]#external#
+
+Validates a `DeployAccount` transaction using the signer quorum configured by `quorum` and
+`signers`.
+
 Returns the short string `'VALID'` if valid, otherwise it reverts.
 
 [.contract]
@@ -367,6 +491,328 @@ Emitted when a `public_key` is added.
 ==== `[.contract-item-name]#++OwnerRemoved++#++(removed_owner_guid: felt252)++` [.item-kind]#event#
 
 Emitted when a `public_key` is removed.
+
+[.contract]
+[[MultisigAccountComponent]]
+=== `++MultisigAccountComponent++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v4.0.0-alpha.1/packages/account/src/multisig_account/multisig_account.cairo[{github-icon},role=heading-link]
+
+:SignerAdded: xref:MultisigAccountComponent-SignerAdded[SignerAdded]
+:SignerRemoved: xref:MultisigAccountComponent-SignerRemoved[SignerRemoved]
+:QuorumUpdated: xref:MultisigAccountComponent-QuorumUpdated[QuorumUpdated]
+
+```cairo
+use openzeppelin_account::MultisigAccountComponent;
+```
+
+Account component implementing xref:ISRC6[`ISRC6`] with quorum-based authorization from registered
+STARK-curve signer keys.
+
+The canonical signature encoding is:
+
+```text
+[1, n, public_key_1, r_1, s_1, ..., public_key_n, r_n, s_n]
+```
+
+The first felt is the signature format version and `n` is the number of signer records. A valid
+signature satisfies all of the following conditions:
+
+- The array contains exactly two header felts followed by `n` three-felt signer records.
+- The format version is `1`, and the encoded `n` matches the number of records.
+- `n` is at least the account quorum and no greater than the registered signer count.
+- Public keys are in strictly increasing numeric order and registered with the account.
+- Every `(r, s)` pair is a valid STARK-curve signature for the same hash under its associated
+public key.
+
+`is_valid_signature` returns the short string `'VALID'` when every condition holds and `0`
+otherwise. The `invoke`, `declare`, and `deploy_account` validation entry points return `'VALID'`
+for a valid transaction signature and revert for an invalid signature.
+
+CAUTION: Signature validation verifies every supplied signer record. Its execution cost grows
+linearly with `n`, so callers can minimize validation work by supplying the smallest valid quorum.
+
+CAUTION: Configure a quorum that fits within Starknet account-validation resource limits. An
+impractically high required quorum can prevent the account from authorizing a configuration
+recovery.
+
+Signer and quorum changes are authorized through account self-calls. The current signer quorum
+therefore authorizes configuration changes as account transactions.
+
+NOTE: {src5-component-required-note}
+
+[.contract-index#MultisigAccountComponent-Embeddable-Mixin-Impl]
+.{mixin-impls}
+
+--
+.MultisigAccountMixinImpl
+
+* xref:#MultisigAccountComponent-Embeddable-Impls-SRC6Impl[`++SRC6Impl++`]
+* xref:#MultisigAccountComponent-Embeddable-Impls-DeclarerImpl[`++DeclarerImpl++`]
+* xref:#MultisigAccountComponent-Embeddable-Impls-DeployableImpl[`++DeployableImpl++`]
+* xref:#MultisigAccountComponent-Embeddable-Impls-MultisigImpl[`++MultisigImpl++`]
+* xref:#MultisigAccountComponent-Embeddable-Impls-SRC6CamelOnlyImpl[`++SRC6CamelOnlyImpl++`]
+* xref:api/introspection.adoc#SRC5Component-Embeddable-Impls[`++SRC5Impl++`]
+--
+
+[.contract-index#MultisigAccountComponent-Embeddable-Impls]
+.Embeddable Implementations
+--
+[.sub-index#MultisigAccountComponent-Embeddable-Impls-SRC6Impl]
+.SRC6Impl
+
+* xref:#MultisigAccountComponent-\\__execute__[`++__execute__(self, calls)++`]
+* xref:#MultisigAccountComponent-\\__validate__[`++__validate__(self, calls)++`]
+* xref:#MultisigAccountComponent-is_valid_signature[`++is_valid_signature(self, hash, signature)++`]
+
+[.sub-index#MultisigAccountComponent-Embeddable-Impls-DeclarerImpl]
+.DeclarerImpl
+
+* xref:#MultisigAccountComponent-\\__validate_declare__[`++__validate_declare__(self, class_hash)++`]
+
+[.sub-index#MultisigAccountComponent-Embeddable-Impls-DeployableImpl]
+.DeployableImpl
+
+* xref:#MultisigAccountComponent-\\__validate_deploy__[`++__validate_deploy__(self, class_hash, contract_address_salt, quorum, signers)++`]
+
+[.sub-index#MultisigAccountComponent-Embeddable-Impls-MultisigImpl]
+.MultisigImpl
+
+* xref:#MultisigAccountComponent-get_quorum[`++get_quorum(self)++`]
+* xref:#MultisigAccountComponent-is_signer[`++is_signer(self, signer)++`]
+* xref:#MultisigAccountComponent-get_signers[`++get_signers(self)++`]
+* xref:#MultisigAccountComponent-add_signers[`++add_signers(self, new_quorum, signers_to_add)++`]
+* xref:#MultisigAccountComponent-remove_signers[`++remove_signers(self, new_quorum, signers_to_remove)++`]
+* xref:#MultisigAccountComponent-replace_signer[`++replace_signer(self, signer_to_remove, signer_to_add)++`]
+* xref:#MultisigAccountComponent-change_quorum[`++change_quorum(self, new_quorum)++`]
+
+[.sub-index#MultisigAccountComponent-Embeddable-Impls-SRC6CamelOnlyImpl]
+.SRC6CamelOnlyImpl
+
+* xref:#MultisigAccountComponent-isValidSignature[`++isValidSignature(self, hash, signature)++`]
+
+.SRC5Impl
+* xref:api/introspection.adoc#ISRC5-supports_interface[`supports_interface(self, interface_id: felt252)`]
+--
+
+[.contract-index]
+.Internal Implementations
+--
+.InternalImpl
+
+* xref:#MultisigAccountComponent-initializer[`++initializer(self, quorum, signers)++`]
+* xref:#MultisigAccountComponent-assert_only_self[`++assert_only_self(self)++`]
+* xref:#MultisigAccountComponent-validate_transaction[`++validate_transaction(self)++`]
+* xref:#MultisigAccountComponent-_is_valid_signature[`++_is_valid_signature(self, hash, signature)++`]
+* xref:#MultisigAccountComponent-_add_signers[`++_add_signers(self, new_quorum, signers_to_add)++`]
+* xref:#MultisigAccountComponent-_remove_signers[`++_remove_signers(self, new_quorum, signers_to_remove)++`]
+* xref:#MultisigAccountComponent-_replace_signer[`++_replace_signer(self, signer_to_remove, signer_to_add)++`]
+* xref:#MultisigAccountComponent-_change_quorum[`++_change_quorum(self, new_quorum)++`]
+--
+
+[.contract-index]
+.Events
+--
+* xref:#MultisigAccountComponent-SignerAdded[`++SignerAdded(signer)++`]
+* xref:#MultisigAccountComponent-SignerRemoved[`++SignerRemoved(signer)++`]
+* xref:#MultisigAccountComponent-QuorumUpdated[`++QuorumUpdated(old_quorum, new_quorum)++`]
+--
+
+[#MultisigAccountComponent-Embeddable-Functions]
+==== Embeddable functions
+
+[.contract-item]
+[[MultisigAccountComponent-__execute__]]
+==== `[.contract-item-name]#++__execute__++#++(self: @ContractState, calls: Array<Call>)++` [.item-kind]#external#
+
+Executes `calls` as an account transaction.
+
+Requirements:
+
+- The caller must be the Starknet protocol.
+- The transaction version must be supported.
+
+[.contract-item]
+[[MultisigAccountComponent-__validate__]]
+==== `[.contract-item-name]#++__validate__++#++(self: @ContractState, calls: Array<Call>) → felt252++` [.item-kind]#external#
+
+Validates the current `invoke` transaction using its transaction hash and multisig signature.
+
+Returns the short string `'VALID'` if valid, otherwise it reverts.
+
+[.contract-item]
+[[MultisigAccountComponent-is_valid_signature]]
+==== `[.contract-item-name]#++is_valid_signature++#++(self: @ContractState, hash: felt252, signature: Array<felt252>) → felt252++` [.item-kind]#external#
+
+Validates the canonical multisig `signature` for `hash` against the current signer set and quorum.
+This function can be called by contracts that use SRC6 signature validation.
+
+Returns the short string `'VALID'` if valid, otherwise returns `0`.
+
+[.contract-item]
+[[MultisigAccountComponent-__validate_declare__]]
+==== `[.contract-item-name]#++__validate_declare__++#++(self: @ContractState, class_hash: felt252) → felt252++` [.item-kind]#external#
+
+Validates the current `Declare` transaction using its transaction hash and multisig signature.
+
+Returns the short string `'VALID'` if valid, otherwise it reverts.
+
+[.contract-item]
+[[MultisigAccountComponent-__validate_deploy__]]
+==== `[.contract-item-name]#++__validate_deploy__++#++(self: @ContractState, class_hash: felt252, contract_address_salt: felt252, quorum: u32, signers: Span<felt252>) → felt252++` [.item-kind]#external#
+
+Validates the current `DeployAccount` transaction using its transaction hash and the signer
+configuration supplied to the constructor.
+
+Returns the short string `'VALID'` if valid, otherwise it reverts.
+
+[.contract-item]
+[[MultisigAccountComponent-get_quorum]]
+==== `[.contract-item-name]#++get_quorum++#++(self: @ContractState) → u32++` [.item-kind]#external#
+
+See xref:IMultisigAccount-get_quorum[IMultisigAccount::get_quorum].
+
+[.contract-item]
+[[MultisigAccountComponent-is_signer]]
+==== `[.contract-item-name]#++is_signer++#++(self: @ContractState, signer: felt252) → bool++` [.item-kind]#external#
+
+See xref:IMultisigAccount-is_signer[IMultisigAccount::is_signer].
+
+[.contract-item]
+[[MultisigAccountComponent-get_signers]]
+==== `[.contract-item-name]#++get_signers++#++(self: @ContractState) → Span<felt252>++` [.item-kind]#external#
+
+See xref:IMultisigAccount-get_signers[IMultisigAccount::get_signers].
+
+[.contract-item]
+[[MultisigAccountComponent-add_signers]]
+==== `[.contract-item-name]#++add_signers++#++(ref self: ContractState, new_quorum: u32, signers_to_add: Span<felt252>)++` [.item-kind]#external#
+
+See xref:IMultisigAccount-add_signers[IMultisigAccount::add_signers].
+
+Emits a {SignerAdded} event for each newly registered signer and a {QuorumUpdated} event when the
+quorum changes.
+
+[.contract-item]
+[[MultisigAccountComponent-remove_signers]]
+==== `[.contract-item-name]#++remove_signers++#++(ref self: ContractState, new_quorum: u32, signers_to_remove: Span<felt252>)++` [.item-kind]#external#
+
+See xref:IMultisigAccount-remove_signers[IMultisigAccount::remove_signers].
+
+Emits a {SignerRemoved} event for each removed signer and a {QuorumUpdated} event when the
+quorum changes.
+
+[.contract-item]
+[[MultisigAccountComponent-replace_signer]]
+==== `[.contract-item-name]#++replace_signer++#++(ref self: ContractState, signer_to_remove: felt252, signer_to_add: felt252)++` [.item-kind]#external#
+
+See xref:IMultisigAccount-replace_signer[IMultisigAccount::replace_signer].
+
+Emits a {SignerRemoved} event followed by a {SignerAdded} event.
+
+[.contract-item]
+[[MultisigAccountComponent-change_quorum]]
+==== `[.contract-item-name]#++change_quorum++#++(ref self: ContractState, new_quorum: u32)++` [.item-kind]#external#
+
+See xref:IMultisigAccount-change_quorum[IMultisigAccount::change_quorum].
+
+Emits a {QuorumUpdated} event when the quorum changes.
+
+[.contract-item]
+[[MultisigAccountComponent-isValidSignature]]
+==== `[.contract-item-name]#++isValidSignature++#++(self: @ContractState, hash: felt252, signature: Array<felt252>) → felt252++` [.item-kind]#external#
+
+See xref:MultisigAccountComponent-is_valid_signature[is_valid_signature].
+
+[#MultisigAccountComponent-Internal-Functions]
+==== Internal functions
+
+[.contract-item]
+[[MultisigAccountComponent-initializer]]
+==== `[.contract-item-name]#++initializer++#++(ref self: ComponentState, quorum: u32, signers: Span<felt252>)++` [.item-kind]#internal#
+
+Registers each unique signer, sets the account quorum, and registers the `ISRC6` interface ID.
+
+Requirements:
+
+- Every signer must be nonzero.
+- `quorum` must be nonzero and no greater than the number of unique signers.
+
+Emits a {SignerAdded} event for each unique signer and a {QuorumUpdated} event when setting the
+initial quorum.
+
+[.contract-item]
+[[MultisigAccountComponent-assert_only_self]]
+==== `[.contract-item-name]#++assert_only_self++#++(self: @ComponentState)++` [.item-kind]#internal#
+
+Validates that the caller is the account itself. Otherwise it reverts.
+
+[.contract-item]
+[[MultisigAccountComponent-validate_transaction]]
+==== `[.contract-item-name]#++validate_transaction++#++(self: @ComponentState) → felt252++` [.item-kind]#internal#
+
+Validates the canonical multisig signature from the transaction context against the transaction
+hash.
+
+Returns the short string `'VALID'` if valid, otherwise it reverts.
+
+[.contract-item]
+[[MultisigAccountComponent-_is_valid_signature]]
+==== `[.contract-item-name]#++_is_valid_signature++#++(self: @ComponentState, hash: felt252, signature: Span<felt252>) → bool++` [.item-kind]#internal#
+
+Returns whether `signature` uses the canonical encoding and contains a valid signer quorum for
+`hash`.
+
+[.contract-item]
+[[MultisigAccountComponent-_add_signers]]
+==== `[.contract-item-name]#++_add_signers++#++(ref self: ComponentState, new_quorum: u32, signers_to_add: Span<felt252>)++` [.item-kind]#internal#
+
+Registers each nonzero, unregistered signer and sets the quorum to `new_quorum`.
+
+The caller embedding this internal function is responsible for enforcing authorization.
+
+[.contract-item]
+[[MultisigAccountComponent-_remove_signers]]
+==== `[.contract-item-name]#++_remove_signers++#++(ref self: ComponentState, new_quorum: u32, signers_to_remove: Span<felt252>)++` [.item-kind]#internal#
+
+Unregisters each registered signer and sets the quorum to `new_quorum`.
+
+The caller embedding this internal function is responsible for enforcing authorization.
+
+[.contract-item]
+[[MultisigAccountComponent-_replace_signer]]
+==== `[.contract-item-name]#++_replace_signer++#++(ref self: ComponentState, signer_to_remove: felt252, signer_to_add: felt252)++` [.item-kind]#internal#
+
+Replaces a registered signer with a nonzero, unregistered signer while preserving the quorum.
+
+The caller embedding this internal function is responsible for enforcing authorization.
+
+[.contract-item]
+[[MultisigAccountComponent-_change_quorum]]
+==== `[.contract-item-name]#++_change_quorum++#++(ref self: ComponentState, new_quorum: u32)++` [.item-kind]#internal#
+
+Sets the quorum to a nonzero value no greater than the registered signer count.
+
+The caller embedding this internal function is responsible for enforcing authorization.
+
+[#MultisigAccountComponent-Events]
+==== Events
+
+[.contract-item]
+[[MultisigAccountComponent-SignerAdded]]
+==== `[.contract-item-name]#++SignerAdded++#++(signer: felt252)++` [.item-kind]#event#
+
+Emitted when `signer` is registered with the account.
+
+[.contract-item]
+[[MultisigAccountComponent-SignerRemoved]]
+==== `[.contract-item-name]#++SignerRemoved++#++(signer: felt252)++` [.item-kind]#event#
+
+Emitted when `signer` is unregistered from the account.
+
+[.contract-item]
+[[MultisigAccountComponent-QuorumUpdated]]
+==== `[.contract-item-name]#++QuorumUpdated++#++(old_quorum: u32, new_quorum: u32)++` [.item-kind]#event#
+
+Emitted when the account quorum changes from `old_quorum` to `new_quorum`.
 
 [.contract]
 [[EthAccountComponent]]
@@ -757,6 +1203,82 @@ Sets the account `public_key` and registers the interfaces the contract supports
 ==== `[.contract-item-name]#++upgrade++#++(ref self: ContractState, new_class_hash: ClassHash)++` [.item-kind]#external#
 
 Upgrades the contract to a new implementation given by `new_class_hash`.
+
+Requirements:
+
+- The caller is the account contract itself.
+- `new_class_hash` cannot be zero.
+
+[.contract]
+[[MultisigAccountUpgradeable]]
+=== `++MultisigAccountUpgradeable++` link:https://github.com/OpenZeppelin/cairo-contracts/blob/release-v4.0.0-alpha.1/packages/presets/src/multisig_account.cairo[{github-icon},role=heading-link]
+
+```cairo
+use openzeppelin_presets::MultisigAccountUpgradeable;
+```
+
+Upgradeable account authorized by a quorum of registered STARK-curve signer keys. The preset can
+manage its signer set and quorum, declare and deploy contracts, execute calls, and perform outside
+execution through xref:#SRC9Component[SRC9]. Class upgrades are authorized through account
+self-calls.
+
+Signatures use the canonical
+`[1, n, public_key_1, r_1, s_1, ..., public_key_n, r_n, s_n]` encoding documented by
+xref:#MultisigAccountComponent[MultisigAccountComponent].
+
+include::../utils/_class_hashes.adoc[]
+
+[.contract-index]
+.{presets-page}
+--
+{MultisigAccountUpgradeable-class-hash}
+--
+
+[.contract-index]
+.Constructor
+--
+* xref:#MultisigAccountUpgradeable-constructor[`++constructor(self, quorum, signers)++`]
+--
+
+[.contract-index]
+.Embedded Implementations
+--
+.MultisigAccountComponent
+* xref:#MultisigAccountComponent-Embeddable-Mixin-Impl[`++MultisigAccountMixinImpl++`]
+
+.SRC9Component
+* xref:#SRC9Component-Embeddable-Impls-OutsideExecutionV2Impl[`++OutsideExecutionV2Impl++`]
+--
+
+[.contract-index]
+.External Functions
+--
+* xref:#MultisigAccountUpgradeable-upgrade[`++upgrade(self, new_class_hash)++`]
+--
+
+[#MultisigAccountUpgradeable-constructor-section]
+==== Constructor
+
+[.contract-item]
+[[MultisigAccountUpgradeable-constructor]]
+==== `[.contract-item-name]#++constructor++#++(ref self: ContractState, quorum: u32, signers: Span<felt252>)++` [.item-kind]#constructor#
+
+Registers each unique signer, sets the account quorum, and registers the `ISRC6` and `ISRC9_V2`
+interface IDs.
+
+Requirements:
+
+- Every signer must be nonzero.
+- `quorum` must be nonzero and no greater than the number of unique signers.
+
+[#MultisigAccountUpgradeable-external-functions]
+==== External functions
+
+[.contract-item]
+[[MultisigAccountUpgradeable-upgrade]]
+==== `[.contract-item-name]#++upgrade++#++(ref self: ContractState, new_class_hash: ClassHash)++` [.item-kind]#external#
+
+Upgrades the contract to the implementation identified by `new_class_hash`.
 
 Requirements:
 

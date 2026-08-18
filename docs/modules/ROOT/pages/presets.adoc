@@ -3,7 +3,6 @@
 :erc721-upgradeable: xref:/api/erc721.adoc#ERC721Upgradeable[ERC721Upgradeable]
 :erc1155-upgradeable: xref:/api/erc1155.adoc#ERC1155Upgradeable[ERC1155Upgradeable]
 :eth-account-upgradeable: xref:/api/account.adoc#EthAccountUpgradeable[EthAccountUpgradeable]
-:multisig-account-upgradeable: xref:/api/account.adoc#MultisigAccountUpgradeable[MultisigAccountUpgradeable]
 :udc: xref:/api/udc.adoc#UniversalDeployer[UniversalDeployer]
 :vesting-wallet: xref:/api/finance.adoc#VestingWallet[VestingWallet]
 :sierra-class-hashes: https://docs.starknet.io/architecture-and-concepts/smart-contracts/class-hash/[Sierra class hashes]
@@ -15,10 +14,10 @@
 
 include::utils/_class_hashes.adoc[]
 
-Presets are ready-to-deploy contracts that combine widely used components into simple,
-general-purpose configurations.
+Presets are ready-to-deploy contracts provided by the library. Since presets are intended to be very simple
+and as generic as possible, there's no support for custom or complex contracts such as `ERC20Pausable` or `ERC721Mintable`.
 
-TIP: Use {wizard}, our code-generation tool, to build custom combinations of components.
+TIP: For contract customization and combination of modules you can use {wizard}, our code-generation tool.
 
 
 == Available presets
@@ -36,9 +35,6 @@ CAUTION: Before version 4.0.0-alpha.1, class hashes were computed using the `sca
 
 | `{account-upgradeable}`
 | `{AccountUpgradeable-class-hash}`
-
-| `{multisig-account-upgradeable}`
-| `{MultisigAccountUpgradeable-class-hash}`
 
 | `{erc20-upgradeable}`
 | `{ERC20Upgradeable-class-hash}`
@@ -58,12 +54,6 @@ CAUTION: Before version 4.0.0-alpha.1, class hashes were computed using the `sca
 | `{vesting-wallet}`
 | `{VestingWallet-class-hash}`
 |===
-
-The {multisig-account-upgradeable} preset provides quorum-based STARK-curve authorization through
-SRC6, outside execution through SRC9, and self-authorized class upgrades. Its constructor accepts
-a quorum and a signer span, and account signatures use the canonical
-`[1, n, public_key_1, r_1, s_1, ..., public_key_n, r_n, s_n]` encoding documented by
-xref:/api/account.adoc#MultisigAccountComponent[MultisigAccountComponent].
 
 TIP: {starkli} class-hash command can be used to compute the class hash from a Sierra artifact.
 

@@ -7,9 +7,7 @@ KNOWN_ORDER = [
     "ERC1155Upgradeable",
     "AccountUpgradeable",
     "EthAccountUpgradeable",
-    "Falcon512ShakeAccountUpgradeable",
-    "Falcon512ShakeDirectAccountUpgradeable",
-    "UniversalDeployer",
+    "UniversalDeployer"
 ]
 
 def main():

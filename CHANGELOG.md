@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- `MultisigAccountComponent`, its signer-management interfaces, and the SRC9-enabled
+  `MultisigAccountUpgradeable` preset for quorum-based STARK-curve account authorization
 - `SafeERC20DispatcherTrait` in `openzeppelin_token::erc20::utils` with `assert_transfer`, `assert_transfer_from`, `assert_increase_allowance`, and `assert_decrease_allowance` (#1683)
 
 ### Changed (Breaking)

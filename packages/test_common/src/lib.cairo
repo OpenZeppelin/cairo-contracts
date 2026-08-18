@@ -7,6 +7,7 @@ pub mod erc721;
 pub mod eth_account;
 pub mod math;
 pub mod mocks;
+pub mod multisig_account;
 pub mod ownable;
 pub mod upgrades;
 pub mod vesting;

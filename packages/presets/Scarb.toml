@@ -52,6 +52,7 @@ build-external-contracts = [
     "openzeppelin_test_common::mocks::account::SnakeAccountMock",
     "openzeppelin_test_common::mocks::account::SnakeEthAccountMock",
     "openzeppelin_test_common::mocks::account::LegacyAccountMock",
+    "openzeppelin_test_common::mocks::multisig_account::MultisigAccountMock",
     "openzeppelin_test_common::mocks::counter::CounterMock",
     "openzeppelin_test_common::mocks::simple::SimpleMock",
     "openzeppelin_test_common::mocks::erc20::DualCaseERC20Mock",

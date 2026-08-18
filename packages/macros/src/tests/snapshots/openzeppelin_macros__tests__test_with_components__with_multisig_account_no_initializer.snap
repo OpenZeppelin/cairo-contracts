@@ -1,0 +1,44 @@
+---
+source: src/tests/test_with_components.rs
+expression: result
+---
+TokenStream:
+
+#[starknet::contract(account)]
+pub mod MyContract {
+    #[storage]
+    pub struct Storage {
+        #[substorage(v0)]
+        pub multisig_account: MultisigAccountComponent::Storage,
+    }
+    use openzeppelin_account::MultisigAccountComponent;
+
+    component!(
+        path: MultisigAccountComponent, storage: multisig_account, event: MultisigAccountEvent,
+    );
+
+    impl MultisigAccountInternalImpl = MultisigAccountComponent::InternalImpl<ContractState>;
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        MultisigAccountEvent: MultisigAccountComponent::Event,
+    }
+}
+
+
+Diagnostics:
+
+====
+Warning: It looks like the initializers for the following components are missing:
+
+MultisigAccount
+
+This may lead to unexpected behavior.
+We recommend adding the corresponding initializer calls to the constructor.
+====
+
+AuxData:
+
+None

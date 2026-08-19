@@ -1,11 +1,44 @@
-//! Types for the type hash derive macro as defined in the SNIP-12.
+//! Types recognized by the type hash derive macro.
 //!
-//! There are 4 kinds of types:
+//! SNIP-12 defines basic, preset, and user-defined types. It also defines arrays and uses
+//! parenthesized parameter lists for enum variants. The macro also accepts tuple-typed members as
+//! an OpenZeppelin-specific extension.
 //!
 //! 1. Basic types: defined in the spec for a given revision. Ex: felt, ClassHash, timestamp, u128...
-//! 4. Collection types: they are arrays or tuples of other types.
-//! 2. Preset types: they are structs defined in the spec. Ex: TokenAmount, NftId, u256. They also depend on the revision used.
-//! 3. User defined types: The ones in the "types" field of the request. They also include the domain separator (Ex. StarknetDomain)
+//! 2. Collection types: arrays, enum parameter lists, and the tuple-member extension.
+//! 3. Preset types: structs defined in the spec, such as TokenAmount, NftId, and u256.
+//! 4. User-defined types: entries in the request's `types` field, including the domain separator
+//!    (for example, StarknetDomain).
+//!
+//! ## Tuple-member encoding
+//!
+//! A tuple used as a struct member is encoded as one quoted type name. The macro normalizes each
+//! element to its SNIP-12 name, joins the names with commas without whitespace, and wraps the list
+//! in parentheses. For example:
+//!
+//! ```text
+//! pub struct Example {
+//!     pub pair: (felt252, u256),
+//! }
+//!
+//! "Example"("pair":"(felt,u256)")"u256"("low":"u128","high":"u128")
+//! ```
+//!
+//! The `felt252` element becomes `felt`, while the referenced `u256` definition is appended to the
+//! encoded type as usual. Tuple encoding is recursive: nested tuples retain their parentheses and
+//! `Array<T>` or `Span<T>` elements use SNIP-12's `T*` notation. Empty tuples encode as `()`, and a
+//! single-element Cairo tuple such as `(ContractAddress,)` encodes as `(ContractAddress)`.
+//!
+//! This OpenZeppelin extension is distinct from SNIP-12 enum parameter lists. The same element
+//! types used by an enum variant are encoded as separate quoted parameters:
+//!
+//! ```text
+//! pub enum Example {
+//!     Pair: (felt252, u256),
+//! }
+//!
+//! "Example"("Pair"("felt","u256"))"u256"("low":"u128","high":"u128")
+//! ```
 
 use cairo_lang_macro::Diagnostic;
 
@@ -13,7 +46,7 @@ use crate::attribute::common::args::split_top_level_args;
 
 use super::diagnostics::errors;
 
-/// The different types of types as defined in the SNIP-12.
+/// The different kinds of types accepted by the type hash macro.
 #[derive(Debug)]
 pub enum S12Type {
     Basic(BasicType),
@@ -36,7 +69,11 @@ pub enum BasicType {
     I128,
 }
 
-/// The different types of collections supported by the SNIP-12.
+/// Collection types accepted by the macro.
+///
+/// Arrays and enum parameter lists are defined by SNIP-12. Tuple-typed members are an
+/// OpenZeppelin-specific extension whose canonical type name is the comma-separated list of
+/// recursively normalized element names wrapped in parentheses.
 #[derive(Debug)]
 pub enum CollectionType {
     Tuple(Vec<S12Type>),
@@ -118,7 +155,7 @@ impl S12Type {
         })
     }
 
-    /// Returns the SNIP-12 type name for the S12Type.
+    /// Returns the type name used by the macro for the S12Type.
     ///
     /// Example:
     /// ```
@@ -192,7 +229,7 @@ impl BasicType {
 }
 
 impl CollectionType {
-    /// Returns the SNIP-12 type name for the CollectionType.
+    /// Returns the type name used by the macro for the collection.
     pub fn get_snip12_type_name(&self) -> Result<String, Diagnostic> {
         Ok(match self {
             CollectionType::Tuple(types) => {

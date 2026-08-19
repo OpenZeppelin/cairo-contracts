@@ -44,11 +44,24 @@ jobs:
             *.md
             !PULL_REQUEST_TEMPLATE.md
 
+      - name: Verify generated Falcon NTT sources
+        run: |
+          python3 scripts/falcon_512/generate_ntt.py --write
+          git diff --exit-code -- packages/account/src/falcon_512/ntt
+
       - name: Cairo lint
         run: scarb fmt --check --workspace
 
       - name: Run tests
         run: snforge test --workspace --features fuzzing --fuzzer-runs 200
+
+      - name: Run Falcon release-profile tests
+        run: |
+          snforge test -p openzeppelin_account --release --features falcon_fast_tests falcon_512 --max-n-steps 100000000
+          snforge test -p openzeppelin_presets --release --features falcon_presets_tests falcon_512 --max-n-steps 100000000
+
+      - name: Build release-profile presets
+        run: scarb --release build -p openzeppelin_presets
 
       - name: Run tests and generate coverage report
         run: snforge test --workspace --coverage

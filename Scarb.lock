@@ -39,6 +39,7 @@ dependencies = [
 name = "openzeppelin_account"
 version = "4.0.0-alpha.1"
 dependencies = [
+ "openzeppelin_corelib_imports",
  "openzeppelin_interfaces",
  "openzeppelin_introspection",
  "openzeppelin_test_common",
@@ -46,6 +47,10 @@ dependencies = [
  "openzeppelin_utils",
  "snforge_std",
 ]
+
+[[package]]
+name = "openzeppelin_corelib_imports"
+version = "4.0.0-alpha.1"
 
 [[package]]
 name = "openzeppelin_finance"

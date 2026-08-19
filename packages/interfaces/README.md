@@ -1,8 +1,8 @@
 ## Interfaces
 
-List of standardized interfaces, ABI traits and dispatchers.
+List of interfaces, ABI traits and dispatchers.
 
-### Standardized Interfaces
+### Interface Traits
 
 - [`IAccessControlDefaultAdminRules`](https://docs.openzeppelin.com/contracts-cairo/3.x/api/access#IAccessControlDefaultAdminRules)
 - [`IAccessControl`](https://docs.openzeppelin.com/contracts-cairo/3.x/api/access#IAccessControl)
@@ -16,6 +16,9 @@ List of standardized interfaces, ABI traits and dispatchers.
 - `ISRC6CamelOnly`
 - `IDeclarer`
 - `IDeployable`
+- `IFeltArrayDeployable`
+- `IFeltArrayPublicKey`
+- `IFeltArrayPublicKeyCamel`
 - `IPublicKey`
 - `IPublicKeyCamel`
 - `IEthDeployable`
@@ -65,7 +68,6 @@ List of standardized interfaces, ABI traits and dispatchers.
 - [`IUpgradeable`](https://docs.openzeppelin.com/contracts-cairo/3.x/api/upgrades#IUpgradeable)
 - [`IUpgradeAndCall`](https://docs.openzeppelin.com/contracts-cairo/3.x/api/upgrades#IUpgradeAndCall)
 
-
 ### ABI Traits
 
 - `AccessControlDefaultAdminRulesABI`
@@ -73,6 +75,7 @@ List of standardized interfaces, ABI traits and dispatchers.
 - `OwnableABI`
 - `OwnableTwoStepABI`
 - `AccountABI`
+- `FeltArrayAccountABI`
 - `EthAccountABI`
 - `TimelockABI`
 - `VotesABI`

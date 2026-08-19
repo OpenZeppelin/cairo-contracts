@@ -3,6 +3,7 @@ pub mod erc1155;
 pub mod erc20;
 pub mod erc721;
 pub mod eth_account;
+pub mod falcon_512_account;
 pub mod meta_tx_v0;
 pub mod vesting;
 
@@ -20,6 +21,10 @@ pub use erc721::{
 pub use eth_account::{
     EthAccountUpgradeableABI, EthAccountUpgradeableABIDispatcher,
     EthAccountUpgradeableABIDispatcherTrait,
+};
+pub use falcon_512_account::{
+    Falcon512AccountUpgradeableABI, Falcon512AccountUpgradeableABIDispatcher,
+    Falcon512AccountUpgradeableABIDispatcherTrait,
 };
 pub use meta_tx_v0::{
     MetaTransactionV0ABI, MetaTransactionV0ABIDispatcher, MetaTransactionV0ABIDispatcherTrait,

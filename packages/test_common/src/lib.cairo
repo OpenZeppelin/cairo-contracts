@@ -5,6 +5,7 @@ pub mod erc20;
 pub mod erc6909;
 pub mod erc721;
 pub mod eth_account;
+pub mod falcon_512;
 pub mod math;
 pub mod mocks;
 pub mod ownable;

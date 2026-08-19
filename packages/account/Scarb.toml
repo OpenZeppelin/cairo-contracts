@@ -24,6 +24,7 @@ scarb.workspace = true
 
 [dependencies]
 starknet.workspace = true
+openzeppelin_corelib_imports = { path = "../corelib_imports" }
 openzeppelin_introspection = { path = "../introspection" }
 openzeppelin_interfaces = { path = "../interfaces" }
 openzeppelin_utils = { path = "../utils" }
@@ -36,6 +37,8 @@ openzeppelin_test_common = { path = "../test_common" }
 
 [features]
 fuzzing = []
+# Enables tests for the generated production NTT path; requires the release compiler profile.
+falcon_fast_tests = []
 
 [lib]
 

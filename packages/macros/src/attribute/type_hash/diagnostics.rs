@@ -14,6 +14,9 @@ pub mod errors {
     /// Error when the format of the snip12 attribute is invalid.
     pub const INVALID_SNIP12_ATTRIBUTE_FORMAT: &str =
         "Invalid format for the snip12 attribute. The only valid arguments are: name, kind.\n";
+    /// Error when a member has more than one snip12 attribute.
+    pub const MULTIPLE_SNIP12_ATTRIBUTES: &str =
+        "Only one snip12 attribute can be applied to a member.\n";
     /// Error when the string argument is invalid.
     pub const INVALID_STRING_ARGUMENT: &str =
         "Invalid string argument. Expected a non-empty string between double quotes.\n";

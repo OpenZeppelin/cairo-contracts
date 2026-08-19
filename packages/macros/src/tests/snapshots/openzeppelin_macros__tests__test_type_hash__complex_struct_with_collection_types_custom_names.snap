@@ -6,13 +6,13 @@ snapshot_kind: text
 TokenStream:
 
 pub struct MyType {
-    #[snip12(name: "Member 1")]
+    #[snip12(name: "Member 1", kind: "(felt252, felt252, ClassHash, NftId)")]
     pub member1: (felt252, felt252, ClassHash, NftId),
-    #[snip12(name: "Member 2")]
+    #[snip12(name: "Member 2", kind: "Array<TokenAmount>")]
     pub member2: Array<TokenAmount>,
     #[snip12(name: "Member 3")]
     pub member3: Span<ClassHash>,
-    #[snip12(name: "Member 4")]
+    #[snip12(name: "Member 4", kind: "(ContractAddress, TokenAmount)")]
     pub member4: (ContractAddress, TokenAmount),
     #[snip12(name: "Member 5")]
     pub member5: Array<ContractAddress>,
@@ -22,13 +22,16 @@ pub struct MyType {
     pub member7: (u128, felt252),
     #[snip12(name: "Member 8")]
     pub member8: (ContractAddress,),
-    #[snip12(name: "Member 9")]
+    #[snip12(name: "Member 9", kind: "(TokenAmount, (felt252, ClassHash), NftId)")]
     pub member9: (TokenAmount, (felt252, ClassHash), NftId),
-    #[snip12(name: "Member 10")]
+    #[snip12(name: "Member 10", kind: "(Array<TokenAmount>, Array<ContractAddress>)")]
     pub member10: (Array<TokenAmount>, Array<ContractAddress>),
-    #[snip12(name: "Member 11")]
+    #[snip12(name: "Member 11", kind: "Array<(TokenAmount, ContractAddress, Array<felt252>)>")]
     pub member11: Array<(TokenAmount, ContractAddress, Array<felt252>)>,
-    #[snip12(name: "Member 12")]
+    #[snip12(
+        name: "Member 12",
+        kind: "Array<Array<(Array<TokenAmount>, Array<ContractAddress>, Array<felt252>)>>",
+    )]
     pub member12: Array<Array<(Array<TokenAmount>, Array<ContractAddress>, Array<felt252>)>>,
 }
 pub fn __MY_TYPE_encoded_type() {

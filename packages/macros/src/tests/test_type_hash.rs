@@ -77,6 +77,8 @@ fn test_multiple_snip12_attributes() {
 fn test_basic_types() {
     // Basic types list:
     // - Felt
+    // - Bool
+    // - String
     // - ShortString
     // - ClassHash
     // - ContractAddress
@@ -87,6 +89,9 @@ fn test_basic_types() {
     let item = quote! {
         pub struct MyType {
             pub name: felt252,
+            pub enabled: bool,
+            #[snip12(kind: "string")]
+            pub description: ByteArray,
             #[snip12(kind: "shortstring")]
             pub version: felt252,
             pub class_hash: ClassHash,
@@ -109,16 +114,19 @@ fn test_basic_types_enum() {
     let item = quote! {
         pub enum MyEnum {
             Variant1: felt252,
-            Variant2: ClassHash,
-            Variant3: ContractAddress,
-            Variant4: u128,
-            Variant5: i128,
+            Variant2: bool,
+            #[snip12(kind: "string")]
+            Variant3: ByteArray,
+            Variant4: ClassHash,
+            Variant5: ContractAddress,
+            Variant6: u128,
+            Variant7: i128,
             #[snip12(kind: "shortstring")]
-            Variant6: felt252,
-            #[snip12(kind: "timestamp")]
-            Variant7: u128,
-            #[snip12(kind: "selector")]
             Variant8: felt252,
+            #[snip12(kind: "timestamp")]
+            Variant9: u128,
+            #[snip12(kind: "selector")]
+            Variant10: felt252,
         }
     };
     let attr_stream = quote! { (debug: true) };

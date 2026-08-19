@@ -331,7 +331,7 @@ impl AllowedComponents {
                 storage: "erc20_flash_mint",
                 event: "ERC20FlashMintEvent",
                 has_initializer: false,
-                has_immutable_config: true,
+                has_immutable_config: false,
                 internal_impls: vec![],
             },
             AllowedComponents::ERC6909ContentURI => ComponentInfo {

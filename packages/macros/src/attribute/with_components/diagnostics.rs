@@ -136,6 +136,16 @@ pub mod warnings {
         "
     };
 
+    /// Warning when the ERC6909TokenSupply hook call is missing.
+    pub const ERC6909_TOKEN_SUPPLY_HOOKS_MISSING: &str = indoc! {
+        "The ERC6909TokenSupply component requires calling
+        `self.erc6909_token_supply.update_token_supply(...)` from an `ERC6909HooksTrait` hook,
+        and it looks like it is missing.
+
+        This may lead to incorrect total supply tracking.
+        "
+    };
+
     /// Warning when the Upgradeable component is not used.
     pub const UPGRADEABLE_NOT_USED: &str = indoc! {
         "It looks like the `self.upgradeable.upgrade(new_class_hash)` function is not used in the contract. If

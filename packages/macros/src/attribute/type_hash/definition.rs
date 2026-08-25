@@ -216,7 +216,11 @@ fn generate_code(
             pub fn __{type_name}_encoded_type() {{
                 println!("{}");
             }}"#,
-            type_hash_string.replace("\"", "\\\"")
+            type_hash_string
+                .replace('\\', "\\\\")
+                .replace('"', "\\\"")
+                .replace('{', "{{")
+                .replace('}', "}}")
         )
     } else {
         String::new()

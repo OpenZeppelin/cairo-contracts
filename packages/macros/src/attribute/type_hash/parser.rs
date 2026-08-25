@@ -102,7 +102,7 @@ impl<'db, 'a> TypeHashParser<'db, 'a> {
             .collect::<Vec<Result<(String, S12Type), Diagnostic>>>();
 
         // 2. Build the string representation
-        let mut encoded_type = format!("\"{primary_type_name}\"(");
+        let mut encoded_type = format!("{}(", encode_json_string(primary_type_name));
         let mut member_names = HashSet::new();
         for result in members_types {
             let (name, s12_type) = result?;
@@ -110,15 +110,16 @@ impl<'db, 'a> TypeHashParser<'db, 'a> {
                 return Err(Diagnostic::error(errors::DUPLICATE_SNIP12_NAME(&name)));
             }
             let type_name = s12_type.get_snip12_type_name()?;
+            let encoded_name = encode_json_string(&name);
 
             // Format the member depending on the type variant
             match self.plugin_type_info.type_variant {
                 TypeVariant::Struct => {
-                    encoded_type.push_str(&format!("\"{name}\":\"{type_name}\","))
+                    encoded_type.push_str(&format!("{encoded_name}:\"{type_name}\","))
                 }
                 TypeVariant::Enum => {
                     let tuple = maybe_tuple(&type_name)?;
-                    encoded_type.push_str(&format!("\"{}\"({}),", name, tuple))
+                    encoded_type.push_str(&format!("{encoded_name}({tuple}),"))
                 }
             };
 
@@ -318,6 +319,27 @@ fn decode_escaped_string(s: &str) -> Option<String> {
     Some(decoded)
 }
 
+/// Encodes a string as a JSON string literal, including the surrounding quotes.
+fn encode_json_string(value: &str) -> String {
+    let mut encoded = String::with_capacity(value.len() + 2);
+    encoded.push('"');
+
+    for ch in value.chars() {
+        match ch {
+            '"' => encoded.push_str("\\\""),
+            '\\' => encoded.push_str("\\\\"),
+            '\n' => encoded.push_str("\\n"),
+            '\r' => encoded.push_str("\\r"),
+            '\t' => encoded.push_str("\\t"),
+            '\u{0}'..='\u{1f}' => encoded.push_str(&format!("\\u{:04x}", ch as u32)),
+            _ => encoded.push(ch),
+        }
+    }
+
+    encoded.push('"');
+    encoded
+}
+
 /// Returns the enum compliant string representation of a tuple for the encoded type.
 ///
 /// If the input is not a tuple, it returns the input itself.
@@ -343,7 +365,7 @@ fn maybe_tuple(s: &str) -> Result<String, Diagnostic> {
 
 #[cfg(test)]
 mod tests {
-    use super::{parse_snip12_args, parse_string_arg};
+    use super::{encode_json_string, parse_snip12_args, parse_string_arg};
 
     #[test]
     fn rejects_duplicate_snip12_name_argument() {
@@ -361,6 +383,14 @@ mod tests {
 
         assert_eq!(args.name, "value");
         assert_eq!(args.kind, "felt252");
+    }
+
+    #[test]
+    fn encodes_json_string() {
+        assert_eq!(
+            encode_json_string("quote\" slash\\ newline\n nul\0 unit\u{1f}"),
+            r#""quote\" slash\\ newline\n nul\u0000 unit\u001f""#
+        );
     }
 
     #[test]

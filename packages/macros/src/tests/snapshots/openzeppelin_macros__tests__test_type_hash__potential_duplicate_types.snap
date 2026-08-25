@@ -6,7 +6,9 @@ snapshot_kind: text
 TokenStream:
 
 pub struct MyType {
+    #[snip12(kind: "TokenAmount")]
     pub token_amount: TokenAmount,
+    #[snip12(kind: "TokenAmount")]
     pub token_amount_2: TokenAmount,
     pub number: u256,
 }

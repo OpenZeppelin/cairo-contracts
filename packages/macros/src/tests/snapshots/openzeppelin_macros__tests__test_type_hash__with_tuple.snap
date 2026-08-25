@@ -6,6 +6,7 @@ snapshot_kind: text
 TokenStream:
 
 pub struct MyType {
+    #[snip12(kind: "(felt252, felt252, ClassHash, NftId)")]
     pub member: (felt252, felt252, ClassHash, NftId),
 }
 pub fn __MY_TYPE_encoded_type() {

@@ -11,7 +11,7 @@ use crate::attribute::common::args::split_top_level_args;
 
 use super::definition::TypeHashArgs;
 use super::diagnostics::errors;
-use super::types::{split_types, InnerType, S12Type};
+use super::types::{is_reserved_type_name, split_types, InnerType, S12Type};
 
 const SNIP12_TYPE_ATTRIBUTE: &str = "snip12";
 
@@ -47,6 +47,17 @@ impl<'db, 'a> TypeHashParser<'db, 'a> {
         db: &'db dyn SyntaxGroup,
         args: &TypeHashArgs,
     ) -> Result<String, Diagnostic> {
+        let primary_type_name = if args.name.is_empty() {
+            self.plugin_type_info.name
+        } else {
+            &args.name
+        };
+        if is_reserved_type_name(primary_type_name) {
+            return Err(Diagnostic::error(errors::RESERVED_SNIP12_TYPE_NAME(
+                primary_type_name,
+            )));
+        }
+
         // 1. Get the members types real values from mapping and attributes
         let members_types = self
             .plugin_type_info
@@ -69,7 +80,11 @@ impl<'db, 'a> TypeHashParser<'db, 'a> {
                 } else {
                     member.ty.to_string()
                 };
-                let s12_type = S12Type::from_str(&type_input);
+                let s12_type = if attr_type.is_empty() {
+                    S12Type::from_cairo_type(&type_input)
+                } else {
+                    S12Type::from_str(&type_input)
+                };
 
                 // If there is an attribute, use it, otherwise use the name from the member
                 let s12_name = if !attr_name.is_empty() {
@@ -87,11 +102,7 @@ impl<'db, 'a> TypeHashParser<'db, 'a> {
             .collect::<Vec<Result<(String, S12Type), Diagnostic>>>();
 
         // 2. Build the string representation
-        let mut encoded_type = if args.name.is_empty() {
-            format!("\"{}\"(", self.plugin_type_info.name)
-        } else {
-            format!("\"{}\"(", args.name)
-        };
+        let mut encoded_type = format!("\"{primary_type_name}\"(");
         for result in members_types {
             let (name, s12_type) = result?;
             let type_name = s12_type.get_snip12_type_name()?;

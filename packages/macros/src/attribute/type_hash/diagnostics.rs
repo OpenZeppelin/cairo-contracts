@@ -24,4 +24,8 @@ pub mod errors {
     pub fn INVALID_SNIP12_TYPE(ty: &str) -> String {
         format!("Invalid SNIP-12 type: {ty}.\n")
     }
+    /// Error when a user-defined primary type reuses a SNIP-12 reserved name.
+    pub fn RESERVED_SNIP12_TYPE_NAME(name: &str) -> String {
+        format!("SNIP-12 type name `{name}` is reserved and cannot be used as a primary type.\n")
+    }
 }

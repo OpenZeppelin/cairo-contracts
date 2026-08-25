@@ -7,6 +7,7 @@ TokenStream:
 
 pub struct MyType {
     pub member1: Span<felt252>,
+    #[snip12(kind: "Span<TokenAmount>")]
     pub member2: Span<TokenAmount>,
     pub member3: Span<ClassHash>,
     pub member4: Span<ContractAddress>,

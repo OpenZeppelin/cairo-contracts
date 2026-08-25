@@ -1,6 +1,5 @@
 ---
 source: src/tests/test_with_components.rs
-assertion_line: 286
 expression: result
 ---
 TokenStream:
@@ -11,6 +10,7 @@ pub mod MyToken {
     #[abi(embed_v0)]
     impl ERC20FlashMintImpl =
         ERC20FlashMintComponent::ERC20FlashMintImpl<ContractState>;
+    impl FlashMintConfigImpl of ERC20FlashMintComponent::FlashMintConfigTrait<ContractState> {}
     #[storage]
     pub struct Storage {
         #[substorage(v0)]

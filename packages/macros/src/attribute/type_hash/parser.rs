@@ -219,6 +219,8 @@ pub(crate) fn parse_snip12_args(s: &str) -> Result<Snip12Args, Diagnostic> {
         name: String::new(),
         kind: String::new(),
     };
+    let mut name_seen = false;
+    let mut kind_seen = false;
 
     // Reject empty arguments; explicit `()` uses the default args.
     let s = s.trim();
@@ -243,8 +245,20 @@ pub(crate) fn parse_snip12_args(s: &str) -> Result<Snip12Args, Diagnostic> {
         };
 
         match name.trim() {
-            "name" => args.name = parse_string_arg(value.trim())?,
-            "kind" => args.kind = parse_string_arg(value.trim())?,
+            "name" => {
+                if name_seen {
+                    return Err(Diagnostic::error(errors::INVALID_SNIP12_ATTRIBUTE_FORMAT));
+                }
+                args.name = parse_string_arg(value.trim())?;
+                name_seen = true;
+            }
+            "kind" => {
+                if kind_seen {
+                    return Err(Diagnostic::error(errors::INVALID_SNIP12_ATTRIBUTE_FORMAT));
+                }
+                args.kind = parse_string_arg(value.trim())?;
+                kind_seen = true;
+            }
             _ => return Err(Diagnostic::error(errors::INVALID_SNIP12_ATTRIBUTE_FORMAT)),
         }
     }
@@ -314,7 +328,25 @@ fn maybe_tuple(s: &str) -> Result<String, Diagnostic> {
 
 #[cfg(test)]
 mod tests {
-    use super::parse_string_arg;
+    use super::{parse_snip12_args, parse_string_arg};
+
+    #[test]
+    fn rejects_duplicate_snip12_name_argument() {
+        assert!(parse_snip12_args(r#"(name: "first", name: "second")"#).is_err());
+    }
+
+    #[test]
+    fn rejects_duplicate_snip12_kind_argument() {
+        assert!(parse_snip12_args(r#"(kind: "felt252", kind: "u128")"#).is_err());
+    }
+
+    #[test]
+    fn accepts_distinct_snip12_arguments() {
+        let args = parse_snip12_args(r#"(name: "value", kind: "felt252")"#).unwrap();
+
+        assert_eq!(args.name, "value");
+        assert_eq!(args.kind, "felt252");
+    }
 
     #[test]
     fn parses_plain_string_arg() {

@@ -47,6 +47,33 @@ fn test_snip12_attribute_empty() {
 }
 
 #[test]
+fn test_snip12_attribute_bare() {
+    let item = quote! {
+        pub struct MyType {
+            #[snip12]
+            pub name: felt252,
+        }
+    };
+    let attr_stream = quote! { (debug: true) };
+    let result = get_string_result(attr_stream, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_multiple_snip12_attributes() {
+    let item = quote! {
+        pub struct MyType {
+            #[snip12(name: "ts")]
+            #[snip12(kind: "timestamp")]
+            pub timestamp: u128,
+        }
+    };
+    let attr_stream = quote! { (debug: true) };
+    let result = get_string_result(attr_stream, item);
+    assert_snapshot!(result);
+}
+
+#[test]
 fn test_basic_types() {
     // Basic types list:
     // - Felt

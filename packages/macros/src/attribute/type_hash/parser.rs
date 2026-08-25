@@ -160,17 +160,21 @@ fn get_name_and_type_from_attributes(
     db: &dyn SyntaxGroup,
     attributes: &[Attribute],
 ) -> Result<Snip12Args, Diagnostic> {
+    let mut snip12_args = None;
     for attribute in attributes {
         let attribute_text = attribute.as_syntax_node().get_text_without_trivia(db);
         let Some(arguments) = snip12_attribute_arguments(attribute_text.long(db).as_str()) else {
             continue;
         };
-        return parse_snip12_args(arguments);
+        if snip12_args.is_some() {
+            return Err(Diagnostic::error(errors::MULTIPLE_SNIP12_ATTRIBUTES));
+        }
+        snip12_args = Some(parse_snip12_args(arguments)?);
     }
-    Ok(Snip12Args {
+    Ok(snip12_args.unwrap_or(Snip12Args {
         name: String::new(),
         kind: String::new(),
-    })
+    }))
 }
 
 /// Extracts the argument section from a `#[snip12(...)]` attribute.
@@ -216,9 +220,12 @@ pub(crate) fn parse_snip12_args(s: &str) -> Result<Snip12Args, Diagnostic> {
         kind: String::new(),
     };
 
-    // If the attribute is empty, return the default args
+    // Reject empty arguments; explicit `()` uses the default args.
     let s = s.trim();
-    if s.is_empty() || s == "()" {
+    if s.is_empty() {
+        return Err(Diagnostic::error(errors::INVALID_SNIP12_ATTRIBUTE_FORMAT));
+    }
+    if s == "()" {
         return Ok(args);
     }
 

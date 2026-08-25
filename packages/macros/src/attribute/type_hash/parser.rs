@@ -103,8 +103,12 @@ impl<'db, 'a> TypeHashParser<'db, 'a> {
 
         // 2. Build the string representation
         let mut encoded_type = format!("\"{primary_type_name}\"(");
+        let mut member_names = HashSet::new();
         for result in members_types {
             let (name, s12_type) = result?;
+            if !member_names.insert(name.clone()) {
+                return Err(Diagnostic::error(errors::DUPLICATE_SNIP12_NAME(&name)));
+            }
             let type_name = s12_type.get_snip12_type_name()?;
 
             // Format the member depending on the type variant

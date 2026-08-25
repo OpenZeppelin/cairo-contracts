@@ -485,7 +485,17 @@ fn validate_contract_module<'db>(
         if !components_with_initializer.is_empty() {
             let mut components_with_initializer_missing = vec![];
             for component in components_with_initializer.iter() {
-                if !facts.has_constructor_call(&["self", component.storage, "initializer"]) {
+                let initializer_called =
+                    facts.has_constructor_call(&["self", component.storage, "initializer"]);
+                let no_metadata_initializer_called = matches!(
+                    component.kind(),
+                    AllowedComponents::ERC721 | AllowedComponents::ERC1155
+                ) && facts.has_constructor_call(&[
+                    "self",
+                    component.storage,
+                    "initializer_no_metadata",
+                ]);
+                if !initializer_called && !no_metadata_initializer_called {
                     components_with_initializer_missing.push(component.short_name());
                 }
             }

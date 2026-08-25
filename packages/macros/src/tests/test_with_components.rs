@@ -1504,6 +1504,65 @@ fn test_with_timelock_controller_no_initializer() {
 }
 
 #[test]
+fn test_with_erc6909_token_supply() {
+    let attribute = quote! { (ERC6909, ERC6909TokenSupply, SRC5) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod MyToken {
+            use starknet::ContractAddress;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState) {
+                self.erc6909.initializer();
+                self.erc6909_token_supply.initializer();
+            }
+
+            impl ERC6909HooksImpl of ERC6909Component::ERC6909HooksTrait<ContractState> {
+                fn before_update(
+                    ref self: ERC6909Component::ComponentState<ContractState>,
+                    sender: ContractAddress,
+                    receiver: ContractAddress,
+                    id: u256,
+                    amount: u256,
+                ) {
+                    let mut contract_state = self.get_contract_mut();
+                    contract_state
+                        .erc6909_token_supply
+                        .update_token_supply(sender, receiver, id, amount);
+                }
+            }
+        }
+    };
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_erc6909_token_supply_no_hook_call() {
+    let attribute = quote! { (ERC6909, ERC6909TokenSupply, SRC5) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod MyToken {
+            use openzeppelin_token::erc6909::ERC6909HooksEmptyImpl;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState) {
+                self.erc6909.initializer();
+                self.erc6909_token_supply.initializer();
+            }
+        }
+    };
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
 fn test_with_votes() {
     let attribute = quote! { (Votes) };
     let item = quote! {

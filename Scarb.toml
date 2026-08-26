@@ -49,18 +49,18 @@ snforge_std = "0.63.0"
 
 [dependencies]
 starknet.workspace = true
-openzeppelin_access = { path = "packages/access" }
-openzeppelin_account = { path = "packages/account" }
-openzeppelin_finance = { path = "packages/finance" }
-openzeppelin_interfaces = { path = "packages/interfaces" }
-openzeppelin_governance = { path = "packages/governance" }
-openzeppelin_introspection = { path = "packages/introspection" }
-openzeppelin_merkle_tree = { path = "packages/merkle_tree" }
-openzeppelin_presets = { path = "packages/presets" }
-openzeppelin_security = { path = "packages/security" }
-openzeppelin_token = { path = "packages/token" }
-openzeppelin_upgrades = { path = "packages/upgrades" }
-openzeppelin_utils = { path = "packages/utils" }
+openzeppelin_access = { version = "4.0.1", path = "packages/access" }
+openzeppelin_account = { version = "4.0.1", path = "packages/account" }
+openzeppelin_finance = { version = "4.0.1", path = "packages/finance" }
+openzeppelin_interfaces = { version = "2.2.0", path = "packages/interfaces" }
+openzeppelin_governance = { version = "4.0.1", path = "packages/governance" }
+openzeppelin_introspection = { version = "4.0.1", path = "packages/introspection" }
+openzeppelin_merkle_tree = { version = "4.0.1", path = "packages/merkle_tree" }
+openzeppelin_presets = { version = "4.0.1", path = "packages/presets" }
+openzeppelin_security = { version = "4.0.1", path = "packages/security" }
+openzeppelin_token = { version = "4.0.1", path = "packages/token" }
+openzeppelin_upgrades = { version = "4.0.1", path = "packages/upgrades" }
+openzeppelin_utils = { version = "2.2.0", path = "packages/utils" }
 
 [dev-dependencies]
 snforge_std.workspace = true

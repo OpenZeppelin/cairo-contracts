@@ -5,7 +5,7 @@ version = "0.1.0"
 [dependencies]
 starknet = "2.8.2"
 sncast_std = "0.30.0"
-openzeppelin_presets = { path = "../" }
+openzeppelin_presets = { version = "4.0.1", path = "../" }
 openzeppelin_testing = { path = "../" }
 
 [lib]

@@ -24,16 +24,16 @@ scarb.workspace = true
 
 [dependencies]
 starknet.workspace = true
-openzeppelin_access = { path = "../access" }
-openzeppelin_interfaces = { path = "../interfaces" }
-openzeppelin_token = { path = "../token" }
+openzeppelin_access = { version = "4.0.1", path = "../access" }
+openzeppelin_interfaces = { version = "2.2.0", path = "../interfaces" }
+openzeppelin_token = { version = "4.0.1", path = "../token" }
 
 [dev-dependencies]
 assert_macros.workspace = true
 snforge_std.workspace = true
 openzeppelin_testing = { path = "../testing" }
 openzeppelin_test_common = { path = "../test_common" }
-openzeppelin_utils = { path = "../utils" }
+openzeppelin_utils = { version = "2.2.0", path = "../utils" }
 
 [lib]
 

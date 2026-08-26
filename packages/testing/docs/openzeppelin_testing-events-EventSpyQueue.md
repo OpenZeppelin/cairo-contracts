@@ -1,6 +1,6 @@
 # EventSpyQueue
 
-<a href='https://github.com/OpenZeppelin/cairo-contracts/blob/881d4090ba46959cf8dbecff414b478e8bf70542/packages/testing/src/events.cairo#L7-L11'> [source code] </a>
+<a href='https://github.com/OpenZeppelin/cairo-contracts/blob/b9f69d8302c559ed4c0e17d5e8763142ee49a865/packages/testing/src/events.cairo#L7-L11'> [source code] </a>
 
 A wrapper around the `EventSpy` structure to allow treating the events as a queue.
 

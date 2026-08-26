@@ -1,6 +1,6 @@
 # get_secp256k1_keys_from
 
-<a href='https://github.com/OpenZeppelin/cairo-contracts/blob/881d4090ba46959cf8dbecff414b478e8bf70542/packages/testing/src/signing.cairo#L18-L20'> [source code] </a>
+<a href='https://github.com/OpenZeppelin/cairo-contracts/blob/b9f69d8302c559ed4c0e17d5e8763142ee49a865/packages/testing/src/signing.cairo#L18-L20'> [source code] </a>
 
 Builds a Secp256k1 Key Pair from a private key represented by a `u256` value.
 

@@ -1,6 +1,6 @@
 # panic_data_to_byte_array
 
-<a href='https://github.com/OpenZeppelin/cairo-contracts/blob/881d4090ba46959cf8dbecff414b478e8bf70542/packages/testing/src/common.cairo#L8-L19'> [source code] </a>
+<a href='https://github.com/OpenZeppelin/cairo-contracts/blob/b9f69d8302c559ed4c0e17d5e8763142ee49a865/packages/testing/src/common.cairo#L8-L19'> [source code] </a>
 
 Converts panic data into a string (ByteArray).
 

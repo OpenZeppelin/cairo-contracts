@@ -1,6 +1,6 @@
 # Secp256r1SerializedSigning
 
-<a href='https://github.com/OpenZeppelin/cairo-contracts/blob/881d4090ba46959cf8dbecff414b478e8bf70542/packages/testing/src/signing.cairo#L46-L51'> [source code] </a>
+<a href='https://github.com/OpenZeppelin/cairo-contracts/blob/b9f69d8302c559ed4c0e17d5e8763142ee49a865/packages/testing/src/signing.cairo#L46-L51'> [source code] </a>
 
 Fully qualified path: [openzeppelin_testing](./openzeppelin_testing.md)::[signing](./openzeppelin_testing-signing.md)::[Secp256r1SerializedSigning](./openzeppelin_testing-signing-Secp256r1SerializedSigning.md)
 

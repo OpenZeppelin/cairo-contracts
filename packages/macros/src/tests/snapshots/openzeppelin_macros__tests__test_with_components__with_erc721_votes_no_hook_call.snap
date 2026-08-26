@@ -1,0 +1,77 @@
+---
+source: src/tests/test_with_components.rs
+expression: result
+---
+TokenStream:
+
+#[starknet::contract]
+pub mod MyToken {
+    use openzeppelin_token::erc721::{
+        ERC721HooksEmptyImpl, ERC721OwnerOfDefaultImpl, ERC721TokenURIDefaultImpl,
+    };
+    use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
+    #[storage]
+    pub struct Storage {
+        #[substorage(v0)]
+        pub erc721: ERC721Component::Storage,
+        #[substorage(v0)]
+        pub votes: VotesComponent::Storage,
+        #[substorage(v0)]
+        pub nonces: NoncesComponent::Storage,
+        #[substorage(v0)]
+        pub src5: SRC5Component::Storage,
+    }
+    pub impl SNIP12MetadataImpl of SNIP12Metadata {
+        fn name() -> felt252 {
+            "DAPP_NAME"
+        }
+        fn version() -> felt252 {
+            "DAPP_VERSION"
+        }
+    }
+    #[constructor]
+    fn constructor(ref self: ContractState) {
+        self.erc721.initializer("MyToken", "MTK", "");
+    }
+    use openzeppelin_governance::votes::VotesComponent;
+    use openzeppelin_introspection::src5::SRC5Component;
+    use openzeppelin_token::erc721::ERC721Component;
+    use openzeppelin_utils::nonces::NoncesComponent;
+
+    component!(path: ERC721Component, storage: erc721, event: ERC721Event);
+    component!(path: VotesComponent, storage: votes, event: VotesEvent);
+    component!(path: NoncesComponent, storage: nonces, event: NoncesEvent);
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
+
+    impl ERC721InternalImpl = ERC721Component::InternalImpl<ContractState>;
+    impl VotesInternalImpl = VotesComponent::InternalImpl<ContractState>;
+    impl NoncesInternalImpl = NoncesComponent::InternalImpl<ContractState>;
+    impl SRC5InternalImpl = SRC5Component::InternalImpl<ContractState>;
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        ERC721Event: ERC721Component::Event,
+        #[flat]
+        VotesEvent: VotesComponent::Event,
+        #[flat]
+        NoncesEvent: NoncesComponent::Event,
+        #[flat]
+        SRC5Event: SRC5Component::Event,
+    }
+}
+
+
+Diagnostics:
+
+====
+Warning: The Votes component requires calling `self.votes.transfer_voting_units(...)` from the
+token update hooks, and it looks like it is missing.
+
+This may lead to incorrect voting units and checkpoint tracking.
+====
+
+AuxData:
+
+None

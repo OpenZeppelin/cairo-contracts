@@ -1,5 +1,7 @@
 use crate::attribute::with_components::definition::with_components_avevetedp5blk as with_components;
-use cairo_lang_macro::{quote, TokenStream};
+use crate::attribute::with_components::diagnostics::warnings;
+use cairo_lang_macro::{quote, TextSpan, Token, TokenStream, TokenTree};
+use indoc::indoc;
 use insta::assert_snapshot;
 
 use super::common::format_proc_macro_result;
@@ -272,6 +274,32 @@ fn test_with_erc20_flash_mint_no_config() {
 
             #[abi(embed_v0)]
             impl ERC20FlashMintImpl = ERC20FlashMintComponent::ERC20FlashMintImpl<ContractState>;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState) {
+                self.erc20.initializer("MyToken", "MTK");
+            }
+        }
+    };
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_erc20_flash_mint_custom_config() {
+    let attribute = quote! { (ERC20, ERC20FlashMint) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod MyToken {
+            use openzeppelin_token::erc20::{ERC20HooksEmptyImpl, DefaultConfig};
+
+            #[abi(embed_v0)]
+            impl ERC20FlashMintImpl = ERC20FlashMintComponent::ERC20FlashMintImpl<ContractState>;
+
+            impl FlashMintConfigImpl of ERC20FlashMintComponent::FlashMintConfigTrait<ContractState> {}
 
             #[storage]
             pub struct Storage {}
@@ -868,6 +896,27 @@ fn test_with_erc721() {
 }
 
 #[test]
+fn test_with_erc721_no_metadata_initializer() {
+    let attribute = quote! { (ERC721) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod MyContract {
+            use openzeppelin_token::erc721::ERC721HooksEmptyImpl;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState) {
+                self.erc721.initializer_no_metadata();
+            }
+        }
+    };
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
 fn test_with_erc721_no_initializer() {
     let attribute = quote! { (ERC721) };
     let item = quote! {
@@ -961,6 +1010,27 @@ fn test_with_erc1155() {
             #[constructor]
             fn constructor(ref self: ContractState) {
                 self.erc1155.initializer("");
+            }
+        }
+    };
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_erc1155_no_metadata_initializer() {
+    let attribute = quote! { (ERC1155) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod MyContract {
+            use openzeppelin_token::erc1155::ERC1155HooksEmptyImpl;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState) {
+                self.erc1155.initializer_no_metadata();
             }
         }
     };
@@ -1460,6 +1530,65 @@ fn test_with_timelock_controller_no_initializer() {
 }
 
 #[test]
+fn test_with_erc6909_token_supply() {
+    let attribute = quote! { (ERC6909, ERC6909TokenSupply, SRC5) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod MyToken {
+            use starknet::ContractAddress;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState) {
+                self.erc6909.initializer();
+                self.erc6909_token_supply.initializer();
+            }
+
+            impl ERC6909HooksImpl of ERC6909Component::ERC6909HooksTrait<ContractState> {
+                fn before_update(
+                    ref self: ERC6909Component::ComponentState<ContractState>,
+                    sender: ContractAddress,
+                    receiver: ContractAddress,
+                    id: u256,
+                    amount: u256,
+                ) {
+                    let mut contract_state = self.get_contract_mut();
+                    contract_state
+                        .erc6909_token_supply
+                        .update_token_supply(sender, receiver, id, amount);
+                }
+            }
+        }
+    };
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_erc6909_token_supply_no_hook_call() {
+    let attribute = quote! { (ERC6909, ERC6909TokenSupply, SRC5) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod MyToken {
+            use openzeppelin_token::erc6909::ERC6909HooksEmptyImpl;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState) {
+                self.erc6909.initializer();
+                self.erc6909_token_supply.initializer();
+            }
+        }
+    };
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
 fn test_with_votes() {
     let attribute = quote! { (Votes) };
     let item = quote! {
@@ -1493,6 +1622,324 @@ fn test_with_votes_no_metadata() {
         pub mod MyContract {
             #[storage]
             pub struct Storage {}
+        }
+    };
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_erc20_votes() {
+    let attribute = quote! { (ERC20, Votes, Nonces) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod MyToken {
+            use openzeppelin_token::erc20::DefaultConfig;
+            use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
+            use starknet::ContractAddress;
+
+            #[storage]
+            pub struct Storage {}
+
+            pub impl SNIP12MetadataImpl of SNIP12Metadata {
+                fn name() -> felt252 {
+                    "DAPP_NAME"
+                }
+                fn version() -> felt252 {
+                    "DAPP_VERSION"
+                }
+            }
+
+            impl ERC20VotesHooksImpl of ERC20Component::ERC20HooksTrait<ContractState> {
+                fn after_update(
+                    ref self: ERC20Component::ComponentState<ContractState>,
+                    from: ContractAddress,
+                    recipient: ContractAddress,
+                    amount: u256,
+                ) {
+                    let mut contract_state = self.get_contract_mut();
+                    contract_state.votes.transfer_voting_units(from, recipient, amount);
+                }
+            }
+
+            #[constructor]
+            fn constructor(ref self: ContractState) {
+                self.erc20.initializer("MyToken", "MTK");
+            }
+        }
+    };
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_erc20_votes_no_hook_call() {
+    let attribute = quote! { (ERC20, Votes, Nonces) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod MyToken {
+            use openzeppelin_token::erc20::{DefaultConfig, ERC20HooksEmptyImpl};
+            use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
+
+            #[storage]
+            pub struct Storage {}
+
+            pub impl SNIP12MetadataImpl of SNIP12Metadata {
+                fn name() -> felt252 {
+                    "DAPP_NAME"
+                }
+                fn version() -> felt252 {
+                    "DAPP_VERSION"
+                }
+            }
+
+            #[constructor]
+            fn constructor(ref self: ContractState) {
+                self.erc20.initializer("MyToken", "MTK");
+            }
+        }
+    };
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_erc721_votes() {
+    let attribute = quote! { (ERC721, Votes, Nonces, SRC5) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod MyToken {
+            use openzeppelin_token::erc721::{ERC721OwnerOfDefaultImpl, ERC721TokenURIDefaultImpl};
+            use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
+            use starknet::ContractAddress;
+
+            #[storage]
+            pub struct Storage {}
+
+            pub impl SNIP12MetadataImpl of SNIP12Metadata {
+                fn name() -> felt252 {
+                    "DAPP_NAME"
+                }
+                fn version() -> felt252 {
+                    "DAPP_VERSION"
+                }
+            }
+
+            impl ERC721VotesHooksImpl of ERC721Component::ERC721HooksTrait<ContractState> {
+                fn before_update(
+                    ref self: ERC721Component::ComponentState<ContractState>,
+                    to: ContractAddress,
+                    token_id: u256,
+                    auth: ContractAddress,
+                ) {
+                    let mut contract_state = self.get_contract_mut();
+                    let previous_owner = self._owner_of(token_id);
+                    contract_state.votes.transfer_voting_units(previous_owner, to, 1);
+                }
+            }
+
+            #[constructor]
+            fn constructor(ref self: ContractState) {
+                self.erc721.initializer("MyToken", "MTK", "");
+            }
+        }
+    };
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_erc721_votes_no_hook_call() {
+    let attribute = quote! { (ERC721, Votes, Nonces, SRC5) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod MyToken {
+            use openzeppelin_token::erc721::{
+                ERC721HooksEmptyImpl, ERC721OwnerOfDefaultImpl, ERC721TokenURIDefaultImpl,
+            };
+            use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
+
+            #[storage]
+            pub struct Storage {}
+
+            pub impl SNIP12MetadataImpl of SNIP12Metadata {
+                fn name() -> felt252 {
+                    "DAPP_NAME"
+                }
+                fn version() -> felt252 {
+                    "DAPP_VERSION"
+                }
+            }
+
+            #[constructor]
+            fn constructor(ref self: ContractState) {
+                self.erc721.initializer("MyToken", "MTK", "");
+            }
+        }
+    };
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_erc20_flash_mint_votes_no_hook_call() {
+    let attribute = quote! { (ERC20FlashMint, Votes, Nonces) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod MyToken {
+            use openzeppelin_token::erc20::extensions::erc20_flash_mint::DefaultConfig;
+            use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
+
+            #[storage]
+            pub struct Storage {}
+
+            pub impl SNIP12MetadataImpl of SNIP12Metadata {
+                fn name() -> felt252 {
+                    "DAPP_NAME"
+                }
+                fn version() -> felt252 {
+                    "DAPP_VERSION"
+                }
+            }
+        }
+    };
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_erc20_flash_mint_votes() {
+    let attribute = quote! { (ERC20, ERC20FlashMint, Votes, Nonces) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod MyToken {
+            use openzeppelin_token::erc20::DefaultConfig;
+            use openzeppelin_token::erc20::extensions::erc20_flash_mint::DefaultConfig as FlashMintDefaultConfig;
+            use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
+            use starknet::ContractAddress;
+
+            #[storage]
+            pub struct Storage {}
+
+            pub impl SNIP12MetadataImpl of SNIP12Metadata {
+                fn name() -> felt252 {
+                    "DAPP_NAME"
+                }
+                fn version() -> felt252 {
+                    "DAPP_VERSION"
+                }
+            }
+
+            impl ERC20VotesHooksImpl of ERC20Component::ERC20HooksTrait<ContractState> {
+                fn after_update(
+                    ref self: ERC20Component::ComponentState<ContractState>,
+                    from: ContractAddress,
+                    recipient: ContractAddress,
+                    amount: u256,
+                ) {
+                    let mut contract_state = self.get_contract_mut();
+                    contract_state.votes.transfer_voting_units(from, recipient, amount);
+                }
+            }
+
+            #[constructor]
+            fn constructor(ref self: ContractState) {
+                self.erc20.initializer("MyToken", "MTK");
+            }
+        }
+    };
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_erc721_consecutive_votes_no_hook_call() {
+    let attribute = quote! { (ERC721Consecutive, Votes, Nonces) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod MyToken {
+            use openzeppelin_token::erc721::extensions::DefaultConfig;
+            use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
+            use starknet::ContractAddress;
+
+            #[storage]
+            pub struct Storage {}
+
+            pub impl SNIP12MetadataImpl of SNIP12Metadata {
+                fn name() -> felt252 {
+                    "DAPP_NAME"
+                }
+                fn version() -> felt252 {
+                    "DAPP_VERSION"
+                }
+            }
+
+            fn wire_consecutive_hooks(
+                ref self: ContractState,
+                to: ContractAddress,
+                token_id: u256,
+                auth: ContractAddress,
+            ) {
+                self.erc721_consecutive.before_update(to, token_id, auth);
+                self.erc721_consecutive.after_update(to, token_id, auth);
+            }
+        }
+    };
+    let result = get_string_result(attribute, item);
+    assert_snapshot!(result);
+}
+
+#[test]
+fn test_with_erc721_consecutive_votes() {
+    let attribute = quote! { (ERC721, ERC721Consecutive, Votes, Nonces, SRC5) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod MyToken {
+            use openzeppelin_token::erc721::{ERC721OwnerOfDefaultImpl, ERC721TokenURIDefaultImpl};
+            use openzeppelin_token::erc721::extensions::DefaultConfig;
+            use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
+            use starknet::ContractAddress;
+
+            #[storage]
+            pub struct Storage {}
+
+            pub impl SNIP12MetadataImpl of SNIP12Metadata {
+                fn name() -> felt252 {
+                    "DAPP_NAME"
+                }
+                fn version() -> felt252 {
+                    "DAPP_VERSION"
+                }
+            }
+
+            impl ERC721VotesHooksImpl of ERC721Component::ERC721HooksTrait<ContractState> {
+                fn before_update(
+                    ref self: ERC721Component::ComponentState<ContractState>,
+                    to: ContractAddress,
+                    token_id: u256,
+                    auth: ContractAddress,
+                ) {
+                    let mut contract_state = self.get_contract_mut();
+                    let previous_owner = self._owner_of(token_id);
+                    contract_state.votes.transfer_voting_units(previous_owner, to, 1);
+                    contract_state.erc721_consecutive.before_update(to, token_id, auth);
+                }
+
+                fn after_update(
+                    ref self: ERC721Component::ComponentState<ContractState>,
+                    to: ContractAddress,
+                    token_id: u256,
+                    auth: ContractAddress,
+                ) {
+                    let mut contract_state = self.get_contract_mut();
+                    contract_state.erc721_consecutive.after_update(to, token_id, auth);
+                }
+            }
+
+            #[constructor]
+            fn constructor(ref self: ContractState) {
+                self.erc721.initializer("MyToken", "MTK", "");
+            }
         }
     };
     let result = get_string_result(attribute, item);
@@ -2210,6 +2657,323 @@ fn test_with_header_doc() {
     assert_snapshot!(result);
 }
 
+#[test]
+fn validation_ignores_hook_names_in_comments_and_longer_identifiers() {
+    let attribute = quote! { (ERC20) };
+    let item = raw_token_stream(indoc! {r#"
+        #[starknet::contract]
+        pub mod MyToken {
+            use openzeppelin_token::erc20::DefaultConfig;
+
+            // use openzeppelin_token::erc20::ERC20HooksEmptyImpl;
+            // impl Hooks of ERC20HooksTrait<ContractState> {}
+            struct ERC20HooksEmptyImplWrapper {}
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState) {
+                self.erc20.initializer("MyToken", "MTK");
+            }
+        }
+    "#});
+
+    let diagnostics = get_diagnostics(attribute, item);
+    assert!(diagnostics
+        .iter()
+        .any(|message| message == warnings::ERC20_HOOKS_IMPL_MISSING));
+}
+
+#[test]
+fn validation_recognizes_qualified_hook_trait_path() {
+    let attribute = quote! { (ERC20) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod MyToken {
+            use openzeppelin_token::erc20::DefaultConfig;
+
+            impl Hooks of openzeppelin_token::erc20::ERC20Component::ERC20HooksTrait<ContractState> {}
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState) {
+                self.erc20.initializer("MyToken", "MTK");
+            }
+        }
+    };
+
+    let diagnostics = get_diagnostics(attribute, item);
+    assert!(!diagnostics
+        .iter()
+        .any(|message| message == warnings::ERC20_HOOKS_IMPL_MISSING));
+}
+
+#[test]
+fn validation_recognizes_aliased_default_hook_impl() {
+    let attribute = quote! { (ERC20) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod MyToken {
+            use openzeppelin_token::erc20::{
+                DefaultConfig, ERC20HooksEmptyImpl as DefaultHooks,
+            };
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState) {
+                self.erc20.initializer("MyToken", "MTK");
+            }
+        }
+    };
+
+    let diagnostics = get_diagnostics(attribute, item);
+    assert!(!diagnostics
+        .iter()
+        .any(|message| message == warnings::ERC20_HOOKS_IMPL_MISSING));
+}
+
+#[test]
+fn validation_recognizes_qualified_snip12_metadata_trait() {
+    let attribute = quote! { (Votes) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod MyContract {
+            impl Metadata of openzeppelin_utils::cryptography::snip12::SNIP12Metadata {
+                fn name() -> felt252 { "DAPP_NAME" }
+                fn version() -> felt252 { "DAPP_VERSION" }
+            }
+
+            #[storage]
+            pub struct Storage {}
+        }
+    };
+
+    let diagnostics = get_diagnostics(attribute, item);
+    assert!(!diagnostics
+        .iter()
+        .any(|message| message == warnings::SNIP12_METADATA_IMPL_MISSING));
+}
+
+#[test]
+fn validation_recognizes_aliased_snip12_metadata_trait() {
+    let attribute = quote! { (Votes) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod MyContract {
+            use openzeppelin_utils::cryptography::snip12::SNIP12Metadata as MetadataTrait;
+
+            impl Metadata of MetadataTrait {
+                fn name() -> felt252 { "DAPP_NAME" }
+                fn version() -> felt252 { "DAPP_VERSION" }
+            }
+
+            #[storage]
+            pub struct Storage {}
+        }
+    };
+
+    let diagnostics = get_diagnostics(attribute, item);
+    assert!(!diagnostics
+        .iter()
+        .any(|message| message == warnings::SNIP12_METADATA_IMPL_MISSING));
+}
+
+#[test]
+fn validation_ignores_component_calls_in_comments_and_longer_methods() {
+    let attribute = quote! { (ERC1155Supply) };
+    let item = raw_token_stream(indoc! {r#"
+        #[starknet::contract]
+        pub mod MyContract {
+            // ERC1155SupplyInternalImpl::after_update();
+            fn update_supply_later(ref self: ContractState) {
+                self.erc1155_supply.after_update_later();
+            }
+
+            #[storage]
+            pub struct Storage {}
+        }
+    "#});
+
+    let diagnostics = get_diagnostics(attribute, item);
+    assert!(diagnostics
+        .iter()
+        .any(|message| message == warnings::ERC1155_SUPPLY_HOOKS_MISSING));
+}
+
+#[test]
+fn validation_recognizes_qualified_component_call() {
+    let attribute = quote! { (ERC1155Supply) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod MyContract {
+            fn update_supply(ref self: ContractState) {
+                openzeppelin_token::erc1155::extensions::ERC1155SupplyInternalImpl::after_update(
+                    ref self.erc1155_supply,
+                );
+            }
+
+            #[storage]
+            pub struct Storage {}
+        }
+    };
+
+    let diagnostics = get_diagnostics(attribute, item);
+    assert!(!diagnostics
+        .iter()
+        .any(|message| message == warnings::ERC1155_SUPPLY_HOOKS_MISSING));
+}
+
+#[test]
+fn validation_recognizes_turbofish_component_call() {
+    let attribute = quote! { (ERC1155Supply) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod MyContract {
+            fn update_supply(ref self: ContractState) {
+                ERC1155SupplyInternalImpl::<Wrapper<Array<ContractState>>>::after_update(
+                    ref self.erc1155_supply,
+                );
+            }
+
+            #[storage]
+            pub struct Storage {}
+        }
+    };
+
+    let diagnostics = get_diagnostics(attribute, item);
+    assert!(!diagnostics
+        .iter()
+        .any(|message| message == warnings::ERC1155_SUPPLY_HOOKS_MISSING));
+}
+
+#[test]
+fn validation_recognizes_turbofish_initializer_call() {
+    let attribute = quote! { (ERC20) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod MyToken {
+            use openzeppelin_token::erc20::DefaultConfig;
+
+            #[storage]
+            pub struct Storage {}
+
+            #[constructor]
+            fn constructor(ref self: ContractState) {
+                self.erc20.initializer::<ContractState>("MyToken", "MTK");
+            }
+        }
+    };
+
+    let diagnostics = get_diagnostics(attribute, item);
+    let missing_initializer = warnings::INITIALIZERS_MISSING("ERC20");
+    assert!(!diagnostics
+        .iter()
+        .any(|message| message == &missing_initializer));
+}
+
+#[test]
+fn validation_recognizes_aliased_component_call() {
+    let attribute = quote! { (ERC1155Supply) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod MyContract {
+            use openzeppelin_token::erc1155::extensions::ERC1155SupplyInternalImpl as SupplyImpl;
+
+            fn update_supply(ref self: ContractState) {
+                SupplyImpl::after_update(ref self.erc1155_supply);
+            }
+
+            #[storage]
+            pub struct Storage {}
+        }
+    };
+
+    let diagnostics = get_diagnostics(attribute, item);
+    assert!(!diagnostics
+        .iter()
+        .any(|message| message == warnings::ERC1155_SUPPLY_HOOKS_MISSING));
+}
+
+#[test]
+fn validation_recognizes_aliased_component_immutable_config() {
+    let attribute = quote! { (ERC721Consecutive) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod MyContract {
+            use openzeppelin_token::erc721::extensions::ERC721ConsecutiveComponent as Consecutive;
+
+            pub impl Config of Consecutive::ImmutableConfig {
+                const MAX_BATCH_SIZE: u64 = 4200;
+                const FIRST_CONSECUTIVE_ID: u64 = 42;
+            }
+
+            #[storage]
+            pub struct Storage {}
+        }
+    };
+
+    let diagnostics = get_diagnostics(attribute, item);
+    let missing_config = warnings::IMMUTABLE_CONFIG_MISSING(
+        "ERC721Consecutive",
+        "openzeppelin_token::erc721::extensions::DefaultConfig",
+    );
+    assert!(!diagnostics.iter().any(|message| message == &missing_config));
+}
+
+#[test]
+fn validation_recognizes_aliased_imported_component_immutable_config() {
+    let attribute = quote! { (ERC721Consecutive) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod MyContract {
+            use openzeppelin_token::erc721::extensions::ERC721ConsecutiveComponent::ImmutableConfig as ConsecutiveConfig;
+
+            pub impl Config of ConsecutiveConfig {
+                const MAX_BATCH_SIZE: u64 = 4200;
+                const FIRST_CONSECUTIVE_ID: u64 = 42;
+            }
+
+            #[storage]
+            pub struct Storage {}
+        }
+    };
+
+    let diagnostics = get_diagnostics(attribute, item);
+    let missing_config = warnings::IMMUTABLE_CONFIG_MISSING(
+        "ERC721Consecutive",
+        "openzeppelin_token::erc721::extensions::DefaultConfig",
+    );
+    assert!(!diagnostics.iter().any(|message| message == &missing_config));
+}
+
+#[test]
+fn validation_rejects_sibling_component_immutable_config() {
+    let attribute = quote! { (ERC721Consecutive) };
+    let item = quote! {
+        #[starknet::contract]
+        pub mod MyContract {
+            use openzeppelin_token::erc721::extensions::ERC721URIStorageComponent::ImmutableConfig;
+
+            pub impl Config of ImmutableConfig {}
+
+            #[storage]
+            pub struct Storage {}
+        }
+    };
+
+    let diagnostics = get_diagnostics(attribute, item);
+    let missing_config = warnings::IMMUTABLE_CONFIG_MISSING(
+        "ERC721Consecutive",
+        "openzeppelin_token::erc721::extensions::DefaultConfig",
+    );
+    assert!(diagnostics.iter().any(|message| message == &missing_config));
+}
+
 //
 // Helpers
 //
@@ -2219,4 +2983,19 @@ fn test_with_header_doc() {
 fn get_string_result(attr_stream: TokenStream, item_stream: TokenStream) -> String {
     let raw_result = with_components(attr_stream, item_stream);
     format_proc_macro_result(raw_result)
+}
+
+fn get_diagnostics(attr_stream: TokenStream, item_stream: TokenStream) -> Vec<String> {
+    with_components(attr_stream, item_stream)
+        .diagnostics
+        .iter()
+        .map(|diagnostic| diagnostic.message().to_string())
+        .collect()
+}
+
+fn raw_token_stream(source: &str) -> TokenStream {
+    TokenStream::new(vec![TokenTree::Ident(Token::new(
+        source,
+        TextSpan::new(0, source.len() as u32),
+    ))])
 }

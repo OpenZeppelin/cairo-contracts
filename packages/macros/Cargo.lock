@@ -1398,7 +1398,6 @@ dependencies = [
  "nom",
  "proc-macro2",
  "quote",
- "regex",
 ]
 
 [[package]]

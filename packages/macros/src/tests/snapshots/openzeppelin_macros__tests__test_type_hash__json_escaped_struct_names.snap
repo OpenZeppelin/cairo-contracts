@@ -1,0 +1,26 @@
+---
+source: src/tests/test_type_hash.rs
+assertion_line: 536
+expression: result
+---
+TokenStream:
+
+pub struct MyType {
+    #[snip12(name: "member\"\\}\n\r\t\0")]
+    pub value: felt252,
+}
+pub fn __MY_TYPE_encoded_type() {
+    println!("\"type\\\"\\\\{{\\n\\r\\t\\u0000\"(\"member\\\"\\\\}}\\n\\r\\t\\u0000\":\"felt\")");
+}
+pub const MY_TYPE_TYPE_HASH: felt252 =
+    0x2c33f80e28d377d8e4a8188f359b29a57599d5747e8284e37a1d6daefd76077;
+
+
+
+Diagnostics:
+
+None
+
+AuxData:
+
+None

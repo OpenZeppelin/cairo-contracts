@@ -136,6 +136,16 @@ pub mod warnings {
         "
     };
 
+    /// Warning when the ERC6909TokenSupply hook call is missing.
+    pub const ERC6909_TOKEN_SUPPLY_HOOKS_MISSING: &str = indoc! {
+        "The ERC6909TokenSupply component requires calling
+        `self.erc6909_token_supply.update_token_supply(...)` from an `ERC6909HooksTrait` hook,
+        and it looks like it is missing.
+
+        This may lead to incorrect total supply tracking.
+        "
+    };
+
     /// Warning when the Upgradeable component is not used.
     pub const UPGRADEABLE_NOT_USED: &str = indoc! {
         "It looks like the `self.upgradeable.upgrade(new_class_hash)` function is not used in the contract. If
@@ -147,6 +157,36 @@ pub mod warnings {
     pub const SNIP12_METADATA_IMPL_MISSING: &str = indoc! {
         "The Votes component requires an implementation of the SNIP12Metadata trait in scope and
         it looks like it is missing.
+        "
+    };
+
+    /// Warning when token updates are not forwarded to the Votes component.
+    pub const VOTES_HOOKS_MISSING: &str = indoc! {
+        "The Votes component requires calling `self.votes.transfer_voting_units(...)` from the
+        token update hooks, and it looks like it is missing.
+
+        This may lead to incorrect voting units and checkpoint tracking.
+        "
+    };
+
+    /// Warning when ERC20FlashMint is used together with Votes.
+    pub const ERC20_FLASH_MINT_VOTES_INCOMPATIBILITY: &str = indoc! {
+        "The ERC20FlashMint and Votes components require additional integration care because
+        `max_flash_loan` does not account for an additional voting-supply cap. Calling
+        `transfer_voting_units` from the ERC20 hooks does not address this limitation.
+
+        Consider avoiding this combination or overriding `FlashMintConfigTrait` to enforce the
+        appropriate maximum flash loan.
+        "
+    };
+
+    /// Warning when ERC721Consecutive is used together with Votes.
+    pub const ERC721_CONSECUTIVE_VOTES_INCOMPATIBILITY: &str = indoc! {
+        "The ERC721Consecutive and Votes components require additional integration because
+        `mint_consecutive` bypasses ERC721 update hooks. A standard `transfer_voting_units` hook
+        therefore does not account for consecutively minted tokens.
+
+        Explicitly update voting units after consecutive mints or avoid this combination.
         "
     };
 

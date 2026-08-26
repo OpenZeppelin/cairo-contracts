@@ -1381,7 +1381,7 @@ checksum = "1261fe7e33c73b354eab43b1273a57c8f967d0391e80353e51f764ac02cf6775"
 
 [[package]]
 name = "openzeppelin_macros"
-version = "4.0.0-alpha.1"
+version = "4.0.0"
 dependencies = [
  "cairo-lang-defs",
  "cairo-lang-filesystem",

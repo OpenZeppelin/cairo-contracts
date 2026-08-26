@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## 4.0.1 (2026-08-26)
+
+### Fixed
+
+- Corrected the independent package metadata for `openzeppelin_interfaces` and
+  `openzeppelin_utils` by bumping their versions to `2.2.0`.
+
 ## 4.0.0 (2026-08-25)
 
 ### Added

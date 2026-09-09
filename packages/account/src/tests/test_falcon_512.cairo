@@ -24,11 +24,47 @@ use snforge_std::{
 };
 use starknet::ContractAddress;
 use starknet::account::Call;
+use crate::falcon_512::account::Falcon512AccountComponent::InternalTrait;
+use crate::falcon_512::packing::{pack_512, unpack_512};
 use crate::falcon_512::verifier_impls::{DIRECT_SIGNATURE_FELTS, PUBLIC_KEY_FELTS, SIGNATURE_FELTS};
-use crate::falcon_512::{Falcon512ShakeDirectVerifier, Falcon512ShakeVerifier};
+use crate::falcon_512::{
+    Falcon512AccountComponent, Falcon512ShakeDirectVerifier, Falcon512ShakeVerifier,
+    Falcon512SignatureVerifier,
+};
+use crate::tests::falcon_512_account_mocks::Falcon512ShakeAccountMock;
 
 const Q_POW_9: felt252 = 6392178558614694273495691177456939009;
 const TWO_POW_160: felt252 = 0x10000000000000000000000000000000000000000;
+const Q_POW_8: felt252 = 520154492522963160020806508052481;
+const TWO_POW_128: felt252 = 0x100000000000000000000000000000000;
+
+type ComponentState =
+    Falcon512AccountComponent::ComponentState<Falcon512ShakeAccountMock::ContractState>;
+
+fn COMPONENT_STATE() -> ComponentState {
+    Falcon512AccountComponent::component_state_for_testing()
+}
+
+#[test]
+fn test_uninitialized_public_key_is_empty() {
+    assert!(COMPONENT_STATE().read_public_key().is_empty());
+}
+
+#[test]
+fn test_initializer_can_replace_the_key_when_called_again() {
+    let mut state = COMPONENT_STATE();
+    state.initializer::<Falcon512ShakeVerifier>(public_key());
+    state.initializer::<Falcon512ShakeVerifier>(new_public_key());
+    assert_eq!(state.read_public_key().span(), new_public_key().span());
+}
+
+#[test]
+#[should_panic(expected: 'Falcon512: invalid public key')]
+fn test_internal_key_write_rejects_changed_storage_length() {
+    let mut state = COMPONENT_STATE();
+    state.initializer::<Falcon512ShakeVerifier>(public_key());
+    state._set_public_key(array![1]);
+}
 
 fn copy_prefix(mut values: Span<felt252>, length: u32) -> Array<felt252> {
     let mut output = array![];
@@ -75,6 +111,64 @@ fn direct_signature() -> Array<felt252> {
 
 fn direct_accept_ownership_signature() -> Array<felt252> {
     copy_prefix(accept_ownership_signature().span(), DIRECT_SIGNATURE_FELTS)
+}
+
+fn negate_packed(values: Span<felt252>) -> Array<felt252> {
+    let mut negated = array![];
+    for value in unpack_512(values).unwrap() {
+        let negated_value: felt252 = if value == 0 {
+            0
+        } else {
+            12289 - value
+        };
+        negated.append(negated_value.try_into().unwrap());
+    }
+    pack_512(negated.span())
+}
+
+fn assert_noncanonical_encodings_rejected<impl Verifier: Falcon512SignatureVerifier>(
+    valid_signature: Array<felt252>,
+) {
+    let key = public_key();
+    // Extra high digits leave all decoded coefficients unchanged if a canonicality guard is
+    // missing.
+    for (index, extra) in array![
+        (0, Q_POW_9), (0, Q_POW_9 * TWO_POW_128), (28, Q_POW_8), (28, TWO_POW_128),
+    ] {
+        let bad_key = with_replaced(key.span(), index, *key.at(index) + extra);
+        assert!(!Verifier::verify(msg(), bad_key.span(), valid_signature.span()));
+        let bad_signature = with_replaced(
+            valid_signature.span(), index, *valid_signature.at(index) + extra,
+        );
+        assert!(!Verifier::verify(msg(), key.span(), bad_signature.span()));
+    }
+    for index in 29_u32..31 {
+        let bad_salt = with_replaced(
+            valid_signature.span(), index, *valid_signature.at(index) + TWO_POW_160,
+        );
+        assert!(!Verifier::verify(msg(), key.span(), bad_salt.span()));
+        let changed_salt = with_replaced(
+            valid_signature.span(), index, *valid_signature.at(index) + 1,
+        );
+        assert!(!Verifier::verify(msg(), key.span(), changed_salt.span()));
+    }
+}
+
+#[test]
+fn test_hint_verifier_rejects_noncanonical_digits_and_both_changed_salt_limbs() {
+    let signature = signature();
+    assert_noncanonical_encodings_rejected::<Falcon512ShakeVerifier>(signature.clone());
+    for (index, extra) in array![
+        (31, Q_POW_9), (31, Q_POW_9 * TWO_POW_128), (59, Q_POW_8), (59, TWO_POW_128),
+    ] {
+        let bad_hint = with_replaced(signature.span(), index, *signature.at(index) + extra);
+        assert!(!Falcon512ShakeVerifier::verify(msg(), public_key().span(), bad_hint.span()));
+    }
+}
+
+#[test]
+fn test_direct_verifier_rejects_noncanonical_digits_and_both_changed_salt_limbs() {
+    assert_noncanonical_encodings_rejected::<Falcon512ShakeDirectVerifier>(direct_signature());
 }
 
 fn deploy_account(contract_name: ByteArray) -> (ContractAddress, felt252) {
@@ -420,10 +514,29 @@ fn test_repeated_key_rotation_keeps_exact_storage_length() {
     let first_signature = accept_ownership_signature();
     account.set_public_key(new_public_key(), first_signature.span());
 
-    // A second rotation keeps the stored key at its fixed 29-felt length.
+    // Negating h and s1 preserves their product and the signature norm.
+    let third_key = negate_packed(new_public_key().span());
+    assert_ne!(third_key.span(), public_key().span());
+    assert_ne!(third_key.span(), new_public_key().span());
     let second_signature = second_accept_ownership_signature();
-    account.set_public_key(new_public_key(), second_signature.span());
-    assert_eq!(account.get_public_key().len(), PUBLIC_KEY_FELTS);
+    let mut third_signature = negate_packed(second_signature.span().slice(0, PUBLIC_KEY_FELTS));
+    for value in second_signature
+        .span()
+        .slice(PUBLIC_KEY_FELTS, SIGNATURE_FELTS - PUBLIC_KEY_FELTS) {
+        third_signature.append(*value);
+    }
+    account.set_public_key(third_key.clone(), third_signature.span());
+    assert_eq!(account.get_public_key().span(), third_key.span());
+}
+
+#[test]
+#[should_panic(expected: 'Falcon512: invalid public key')]
+fn test_key_rotation_rejects_noncanonical_correct_length_key() {
+    let address = account_address();
+    let account = deploy_account_at("Falcon512ShakeAccountMock", address);
+    start_cheat_caller_address(address, address);
+    let key = new_public_key();
+    account.set_public_key(with_replaced(key.span(), 0, *key.at(0) + Q_POW_9), array![].span());
 }
 
 #[test]

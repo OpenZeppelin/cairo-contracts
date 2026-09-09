@@ -5,7 +5,8 @@ use openzeppelin_interfaces::accounts::{
 };
 use openzeppelin_interfaces::introspection::{ISRC5Dispatcher, ISRC5DispatcherTrait, ISRC5_ID};
 use openzeppelin_interfaces::src9::{
-    ISRC9_V2Dispatcher, ISRC9_V2DispatcherTrait, ISRC9_V2_ID, OutsideExecution,
+    ISRC9_V2Dispatcher, ISRC9_V2DispatcherTrait, ISRC9_V2SafeDispatcher,
+    ISRC9_V2SafeDispatcherTrait, ISRC9_V2_ID, OutsideExecution,
 };
 use openzeppelin_interfaces::upgrades::{IUpgradeableDispatcher, IUpgradeableDispatcherTrait};
 use openzeppelin_test_common::falcon_512::fixture::{msg, public_key, signature};
@@ -18,10 +19,75 @@ use openzeppelin_testing::constants::CLASS_HASH_ZERO;
 use openzeppelin_utils::cryptography::snip12::OffchainMessageHash;
 use snforge_std::{
     start_cheat_block_timestamp_global, start_cheat_caller_address, start_cheat_chain_id_global,
+    start_cheat_signature_global, start_cheat_transaction_hash_global,
 };
 use starknet::ContractAddress;
 
 const DIRECT_SIGNATURE_FELTS: u32 = 31;
+
+fn assert_validation_entrypoint(class_name: ByteArray, signature: Array<felt252>, entrypoint: u32) {
+    let account = deploy(class_name);
+    start_cheat_transaction_hash_global(msg());
+    start_cheat_signature_global(signature.span());
+    let result = match entrypoint {
+        0 => account.__validate__(array![]),
+        1 => account.__validate_declare__(0),
+        2 => account.__validate_deploy__(0, 0, public_key()),
+        _ => panic!("Unknown validation entrypoint"),
+    };
+    assert_eq!(result, starknet::VALIDATED);
+}
+
+// Budgets include deployment and test setup as well as one validation call.
+#[test]
+#[available_gas(l2_gas: 75000000)]
+fn test_falcon_hint_invoke_validation_budget() {
+    assert_validation_entrypoint("Falcon512ShakeAccountUpgradeable", signature(), 0);
+}
+
+#[test]
+#[available_gas(l2_gas: 75000000)]
+fn test_falcon_hint_declare_validation_budget() {
+    assert_validation_entrypoint("Falcon512ShakeAccountUpgradeable", signature(), 1);
+}
+
+#[test]
+#[available_gas(l2_gas: 75000000)]
+fn test_falcon_hint_deploy_validation_budget() {
+    assert_validation_entrypoint("Falcon512ShakeAccountUpgradeable", signature(), 2);
+}
+
+#[test]
+#[available_gas(l2_gas: 85000000)]
+fn test_falcon_direct_invoke_validation_budget() {
+    assert_validation_entrypoint("Falcon512ShakeDirectAccountUpgradeable", direct_signature(), 0);
+}
+
+#[test]
+#[available_gas(l2_gas: 85000000)]
+fn test_falcon_direct_declare_validation_budget() {
+    assert_validation_entrypoint("Falcon512ShakeDirectAccountUpgradeable", direct_signature(), 1);
+}
+
+#[test]
+#[available_gas(l2_gas: 85000000)]
+fn test_falcon_direct_deploy_validation_budget() {
+    assert_validation_entrypoint("Falcon512ShakeDirectAccountUpgradeable", direct_signature(), 2);
+}
+
+#[test]
+#[available_gas(l2_gas: 75000000)]
+fn test_falcon_hint_invalid_signature_budget() {
+    let account = deploy("Falcon512ShakeAccountUpgradeable");
+    assert_eq!(account.is_valid_signature(msg() + 1, signature()), 0);
+}
+
+#[test]
+#[available_gas(l2_gas: 85000000)]
+fn test_falcon_direct_invalid_signature_budget() {
+    let account = deploy("Falcon512ShakeDirectAccountUpgradeable");
+    assert_eq!(account.is_valid_signature(msg() + 1, direct_signature()), 0);
+}
 
 fn copy_prefix(mut values: Span<felt252>, length: u32) -> Array<felt252> {
     let mut output = array![];
@@ -88,6 +154,7 @@ fn test_falcon_presets_initialize_interfaces_and_variant_verifiers() {
     );
 }
 
+#[feature("safe_dispatcher")]
 fn assert_src9_with_real_signature(class_name: ByteArray, valid_signature: Array<felt252>) {
     let account = deploy_with_new_key_at(class_name);
     let src9 = ISRC9_V2Dispatcher { contract_address: account.contract_address };
@@ -110,6 +177,11 @@ fn assert_src9_with_real_signature(class_name: ByteArray, valid_signature: Array
     assert!(src9.is_valid_outside_execution_nonce(nonce));
     src9.execute_from_outside_v2(outside_execution, valid_signature.span());
     assert!(!src9.is_valid_outside_execution_nonce(nonce));
+    let safe_src9 = ISRC9_V2SafeDispatcher { contract_address: account.contract_address };
+    let error = safe_src9
+        .execute_from_outside_v2(outside_execution, valid_signature.span())
+        .unwrap_err();
+    assert_eq!(*error.at(0), 'SRC9: duplicated nonce');
 }
 
 #[test]

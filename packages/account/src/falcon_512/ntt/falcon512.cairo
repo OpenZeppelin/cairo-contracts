@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v4.0.0-alpha.1 (account/src/falcon_512/ntt/falcon512.cairo)
+// OpenZeppelin Contracts for Cairo v4.0.1 (account/src/falcon_512/ntt/falcon512.cairo)
 
 //! Falcon parameter set for the NTT engine: `q = 12289` and negacyclic ring `(x^n + 1)`.
 //! The generated root tables use the evaluation order expected by the accounts' packed
@@ -26,7 +26,12 @@ pub const PRODUCT_BOUND_FELT: felt252 = 151019521;
 
 /// Engine configuration for the production size n = 512 (table-driven permutation).
 pub fn config() -> NttConfig {
-    config_with_perm(512, 9, bitrev_512())
+    config_with_perm(512, 9, bitrev_512(), true)
+}
+
+/// Inverse-transform configuration without unused forward root tables.
+pub fn inverse_config() -> NttConfig {
+    config_with_perm(512, 9, bitrev_512(), false)
 }
 
 /// Engine configuration for a supported power-of-two degree from 4 through 512, computing the
@@ -48,17 +53,19 @@ pub fn config_for_degree(n: u32, levels: u32) -> NttConfig {
         perm.append(acc.try_into().unwrap());
         i += 1;
     }
-    config_with_perm(n, levels, perm.span())
+    config_with_perm(n, levels, perm.span(), true)
 }
 
-fn config_with_perm(n: u32, levels: u32, perm: Span<u16>) -> NttConfig {
+fn config_with_perm(n: u32, levels: u32, perm: Span<u16>, forward: bool) -> NttConfig {
     // Root-table spans, one per level: level ℓ merges into size 2^(ℓ+1). The tables
     // are stored as felt252 constants (generated), so no per-call conversion runs.
     let mut merge_roots: Array<Span<felt252>> = array![];
     let mut split_scaled: Array<Span<felt252>> = array![];
     let mut size: u32 = 2;
     loop {
-        merge_roots.append(get_even_roots_felt(size));
+        if forward {
+            merge_roots.append(get_even_roots_felt(size));
+        }
         split_scaled.append(get_scaled_inv_roots(size));
         if size == n {
             break;

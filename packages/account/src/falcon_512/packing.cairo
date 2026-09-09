@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v4.0.0-alpha.1 (account/src/falcon_512/packing.cairo)
+// OpenZeppelin Contracts for Cairo v4.0.1 (account/src/falcon_512/packing.cairo)
 
 //! Base-`Q` packing of 512 `Z_q` coefficients into 29 `felt252` slots.
 //!
@@ -282,20 +282,16 @@ mod tests {
     #[test]
     fn test_unpack_rejects_noncanonical_slot_in_each_unrolled_position() {
         let packed = pack_512(pseudorandom_coeffs().span());
-        let mut bad_index = 0;
-        while bad_index != 7 {
+        for bad_index in 0_u32..7 {
             let mut tampered: Array<felt252> = array![];
-            let mut index = 0;
-            while index != packed.len() {
+            for index in 0..packed.len() {
                 if index == bad_index {
                     tampered.append(Q_POW_9);
                 } else {
                     tampered.append(*packed.at(index));
                 }
-                index += 1;
             }
             assert!(unpack_512(tampered.span()).is_none());
-            bad_index += 1;
         }
     }
 

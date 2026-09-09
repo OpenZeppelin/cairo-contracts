@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v4.0.0-alpha.1 (account/src/falcon_512/falcon.cairo)
+// OpenZeppelin Contracts for Cairo v4.0.1 (account/src/falcon_512/falcon.cairo)
 
 //! Falcon-512 signature verification.
 //!
@@ -18,7 +18,10 @@ use super::ntt::engine::intt;
 #[cfg(test)]
 #[cfg(not(feature: 'falcon_fast_tests'))]
 use super::ntt::engine::ntt;
-use super::ntt::falcon512::{PRODUCT_BITS, PRODUCT_BOUND_FELT, config};
+#[cfg(test)]
+#[cfg(not(feature: 'falcon_fast_tests'))]
+use super::ntt::falcon512::config;
+use super::ntt::falcon512::{PRODUCT_BITS, PRODUCT_BOUND_FELT, inverse_config};
 #[cfg(not(test))]
 use super::ntt::falcon512_fast::ntt_falcon512_fast_u16_unchecked;
 #[cfg(test)]
@@ -133,7 +136,6 @@ pub(crate) fn verify_512_with_hint_u16(
     // Max acc = 512 * 2 * 6144^2 < 2^36, so the felt252 accumulator cannot wrap
     // and always fits u64.
     let mut acc: felt252 = 0;
-    let mut ok = true;
     while let Some(s1n_c) = s1_ntt_iter.multi_pop_front::<16>() {
         let [
             s1n0,
@@ -199,8 +201,7 @@ pub(crate) fn verify_512_with_hint_u16(
             + r13
             + r14
             + r15 != 0 {
-            ok = false;
-            break;
+            return false;
         }
         let [m0, m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13, m14, m15] = (*msg_iter
             .multi_pop_front::<16>()
@@ -231,9 +232,6 @@ pub(crate) fn verify_512_with_hint_u16(
         acc += centered_difference_sq(m14, t14) + center_sq(v14);
         acc += centered_difference_sq(m15, t15) + center_sq(v15);
     }
-    if !ok {
-        return false;
-    }
     let norm: u64 = acc.try_into().unwrap();
     norm <= SIG_BOUND_512
 }
@@ -258,7 +256,7 @@ pub(crate) fn verify_512_direct_u16(s1: Span<u16>, h_ntt: Span<u16>, msg_point: 
     assert(h_ntt.len() == 512, 'h_ntt must be 512 coeffs');
     assert(msg_point.len() == 512, 'msg_point must be 512 coeffs');
 
-    let cfg = config();
+    let cfg = inverse_config();
     // `s1` is canonical under the verifier and test-wrapper preconditions.
     let s1_ntt = forward_ntt(s1);
 

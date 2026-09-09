@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v4.0.0-alpha.1 (account/src/falcon_512/zq.cairo)
+// OpenZeppelin Contracts for Cairo v4.0.1 (account/src/falcon_512/zq.cairo)
 
 //! Arithmetic helpers for `Z_q`, where `q = 12289`.
 //!

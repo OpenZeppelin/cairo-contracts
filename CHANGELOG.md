@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Added
+
+- `Falcon512AccountComponent`, `Falcon512SignatureVerifier`, `Falcon512ShakeVerifier`, and
+  `Falcon512ShakeDirectVerifier` for Falcon-512 account validation (#1730)
+- `Falcon512ShakeAccountUpgradeable` and `Falcon512ShakeDirectAccountUpgradeable` presets with
+  SRC9 and class upgrades, and `Falcon512AccountUpgradeableABI` (#1730)
+- `IFeltArrayDeployable`, `IFeltArrayPublicKey`, `IFeltArrayPublicKeyCamel`, and
+  `FeltArrayAccountABI` interfaces (#1730)
+- `openzeppelin_corelib_imports` compatibility package for internal Cairo APIs (#1730)
+
 ## 4.0.1 (2026-08-26)
 
 ### Fixed
@@ -75,10 +85,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `Falcon512AccountComponent`, SHAKE-256 hint and direct verifier strategies,
-  `Falcon512ShakeAccountUpgradeable` and `Falcon512ShakeDirectAccountUpgradeable` presets with SRC9
-  and class upgrades, and felt-array deployment and public-key interfaces for Falcon-512 accounts
-  (#1730)
 - `SafeERC20DispatcherTrait` in `openzeppelin_token::erc20::utils` with `assert_transfer`, `assert_transfer_from`, `assert_increase_allowance`, and `assert_decrease_allowance` (#1683)
 
 ### Changed (Breaking)

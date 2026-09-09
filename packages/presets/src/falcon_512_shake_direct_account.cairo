@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v4.0.0-alpha.1
+// OpenZeppelin Contracts for Cairo v4.0.1
 // (presets/src/falcon_512_shake_direct_account.cairo)
 
 /// # Falcon512ShakeDirectAccount Preset
@@ -64,6 +64,8 @@ pub mod Falcon512ShakeDirectAccountUpgradeable {
         UpgradeableEvent: UpgradeableComponent::Event,
     }
 
+    /// Initializes the account with a canonical 29-felt, NTT-domain Falcon-512 public key.
+    /// Transform coefficient-domain keys before packing and verify key usability before deployment.
     #[constructor]
     pub fn constructor(ref self: ContractState, public_key: Array<felt252>) {
         self.account.initializer::<Falcon512ShakeDirectVerifier>(public_key);

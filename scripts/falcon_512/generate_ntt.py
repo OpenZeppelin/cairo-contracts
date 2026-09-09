@@ -460,8 +460,6 @@ def render_fast(
 ) -> str:
     input_params = [f"f{index}: felt252" for index in range(512)]
     input_names = [f"f{index}" for index in range(512)]
-    reduced_names = [f"r{index}" for index in range(512)]
-    return_type = "(" + ", ".join("Falcon512Zq" for _ in outputs) + ")"
     output = [
         generated_header(
             FAST_OUT,
@@ -476,9 +474,6 @@ def render_fast(
         "use openzeppelin_corelib_imports::bounded_int::{\n",
         "    BoundedInt, DivRemHelper, UnitInt, bounded_int_div_rem, upcast,\n",
         "};\n",
-        "use openzeppelin_corelib_imports::integer::{\n",
-        "    U128sFromFelt252Result, u128s_from_felt252,\n",
-        "};\n\n",
         "type Falcon512Zq = BoundedInt<0, 12288>;\n",
         "type Falcon512Q = UnitInt<12289>;\n",
         "type U128AsBounded = BoundedInt<0, 340282366920938463463374607431768211455>;\n\n",
@@ -489,47 +484,40 @@ def render_fast(
         "    type RemT = Falcon512Zq;\n",
         "}\n\n",
         "#[inline(always)]\n",
-        "fn felt252_as_u128(value: felt252) -> u128 {\n",
+        "pub(crate) fn felt252_as_u128(value: felt252) -> u128 {\n",
         "    // Exact generated bounds put canonical shifted outputs below 2^128.\n",
-        "    match u128s_from_felt252(value) {\n",
-        "        U128sFromFelt252Result::Narrow(low) => low,\n",
-        "        U128sFromFelt252Result::Wide((_, low)) => low,\n",
+        "    match value.try_into() {\n",
+        "        Some(value) => value,\n",
+        "        None => core::panic_with_felt252('fast NTT: output too large'),\n",
         "    }\n",
         "}\n\n",
         "#[inline(always)]\n",
         "fn ntt_falcon512_fast_inner(\n",
         wrapped(input_params),
-        f"\n) -> {return_type} {{\n",
+        "\n) -> [felt252; 512] {\n",
         "\n".join(trace.lines),
         "\n",
     ]
-    for value, name in zip(outputs, reduced_names):
-        output.extend(
-            [
-                f"    let {name}_bounded: U128AsBounded = ",
-                f"upcast(felt252_as_u128({value.name} + SHIFT));\n",
-                f"    let (_, {name}) = bounded_int_div_rem({name}_bounded, FALCON512_Q_NZ);\n",
-            ]
-        )
-    output.extend(["    (\n", wrapped(reduced_names, "        "), "\n    )\n}\n\n"])
+    output.extend([
+        "    [\n",
+        wrapped([f"{value.name} + SHIFT" for value in outputs], "        "),
+        "\n    ]\n}\n\n",
+    ])
     output.extend(
         [
             "/// Test-only felt wrapper for the generated Falcon-512 forward NTT.\n",
             "#[cfg(test)]\n",
             "pub fn ntt_falcon512_fast_unchecked(mut f: Span<felt252>) -> Array<felt252> {\n",
             "    assert(f.len() == 512, 'fast NTT: bad length');\n",
-            "    let boxed = f.multi_pop_front::<512>().unwrap();\n",
-            "    let [\n",
-            wrapped(input_names, "        "),
-            "\n    ] = boxed.unbox();\n",
-            "    let (\n",
-            wrapped(reduced_names, "        "),
-            "\n    ) = ntt_falcon512_fast_inner(\n",
-            wrapped(input_names, "        "),
-            "\n    );\n",
-            "    array![\n",
-            wrapped([f"upcast({name})" for name in reduced_names], "        "),
-            "\n    ]\n",
+            "    let mut input = array![];\n",
+            "    for value in f {\n",
+            "        input.append((*value).try_into().unwrap());\n",
+            "    }\n",
+            "    let mut output = array![];\n",
+            "    for value in ntt_falcon512_fast_u16_unchecked(input.span()) {\n",
+            "        output.append(value.into());\n",
+            "    }\n",
+            "    output\n",
             "}\n\n",
             "/// Computes the Falcon-512 forward NTT from canonical `u16` coefficients.\n",
             "///\n",
@@ -541,14 +529,21 @@ def render_fast(
             "    let [\n",
             wrapped(input_names, "        "),
             "\n    ] = boxed.unbox();\n",
-            "    let (\n",
-            wrapped(reduced_names, "        "),
-            "\n    ) = ntt_falcon512_fast_inner(\n",
+            "    let raw = ntt_falcon512_fast_inner(\n",
             wrapped([f"{name}.into()" for name in input_names], "        "),
             "\n    );\n",
-            "    array![\n",
-            wrapped([f"upcast({name})" for name in reduced_names], "        "),
-            "\n    ]\n",
+            "    let mut output = array![];\n",
+            "    let mut values = raw.span();\n",
+            "    while let Some(chunk) = values.multi_pop_front::<8>() {\n",
+            "        let [v0, v1, v2, v3, v4, v5, v6, v7] = (*chunk).unbox();\n",
+            *[
+                f"        let bounded: U128AsBounded = upcast(felt252_as_u128(v{i}));\n"
+                "        let (_, reduced) = bounded_int_div_rem(bounded, FALCON512_Q_NZ);\n"
+                "        output.append(upcast(reduced));\n"
+                for i in range(8)
+            ],
+            "    }\n",
+            "    output\n",
             "}\n",
         ]
     )

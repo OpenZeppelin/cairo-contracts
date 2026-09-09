@@ -80,6 +80,43 @@ python3 scripts/generate_class_hashes.py
 
 The script builds the `openzeppelin_presets` release artifacts and prints the `CLASS_HASH_SCARB_VERSION` and `CLASS_HASHES` constants for every current preset. Copy them into the corresponding `content/contracts-cairo/<version>/utils/constants.js` file in the documentation repository and update the preset table when its entries change. Pass `--no-build` to reuse existing release artifacts.
 
+## Falcon verification sources
+
+The Falcon root tables, bit-reversal table, and unrolled production transform are derived and
+checked by the NTT generator. Regenerate them from the repository root with the workspace's
+Scarb version:
+
+```sh
+python3 scripts/falcon_512/generate_ntt.py --write
+git diff -- packages/account/src/falcon_512/ntt
+```
+
+The generator checks all 512 basis vectors, inverse transforms, pointwise products, and integer
+bounds. Keep the exhaustive Cairo basis-vector test when changing generated arithmetic. Run the
+release-profile Falcon account and preset tests as well: development-profile account tests use
+the generic reference transform.
+
+`scripts/falcon_512/check_fixtures.py` provides reference encoders for decoded Falcon keys and
+signatures and checks all committed vectors using Python's SHAKE-256 and schoolbook polynomial
+multiplication. The vectors retain their `tprest/falcon.py` provenance. Their original signing
+seeds and secret keys are not recorded with the fixtures; this check reproduces the encoding and validates the
+signatures, not the signer's randomness.
+
+```sh
+python3 scripts/falcon_512/check_fixtures.py
+python3 -m unittest discover -s scripts/falcon_512 -p 'test_*.py'
+scarb --release build -p openzeppelin_presets
+python3 scripts/falcon_512/check_resources.py
+```
+
+The resource check requires Universal Sierra Compiler on `PATH`. CI also runs each preset's
+invoke, declare, and deploy validation with explicit gas budgets, tests both production verifier
+paths, and runs the exhaustive basis-vector test separately without generating its large trace.
+These are local regression checks; verify target-network compatibility and deployment separately.
+Foundry's source-coverage mode requires non-inlining builds, which cannot lower the generated
+production NTT with the pinned compiler. Workspace coverage exercises the generic account path;
+the release account and preset tests verify the production path separately, without source coverage.
+
 ## Integration tests
 
 Currently, Starknet's test suite has important differences with public networks. We strongly suggest testing new features against a testnet before submitting the PR, to make sure that everything works as expected in a real environment.

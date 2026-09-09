@@ -1,3 +1,4 @@
+use crate::falcon_512::COEFFICIENT_COUNT;
 use crate::falcon_512::ntt::engine::{intt, ntt};
 #[cfg(feature: 'falcon_fast_tests')]
 use crate::falcon_512::ntt::falcon512::PRODUCT_BITS;
@@ -6,7 +7,7 @@ use crate::falcon_512::ntt::falcon512::{
 };
 #[cfg(feature: 'falcon_fast_tests')]
 use crate::falcon_512::ntt::falcon512_fast::{
-    ntt_falcon512_fast_u16_unchecked, ntt_falcon512_fast_unchecked,
+    felt252_as_u128, ntt_falcon512_fast_u16_unchecked, ntt_falcon512_fast_unchecked,
 };
 use crate::falcon_512::ntt::roots_felt::get_even_roots_felt;
 use crate::falcon_512::ntt::roots_scaled::get_scaled_inv_roots;
@@ -19,9 +20,25 @@ fn as_felts(mut values: Span<u16>) -> Array<felt252> {
     output
 }
 
+#[cfg(feature: 'falcon_fast_tests')]
+#[test]
+fn test_fast_ntt_output_conversion_accepts_u128_bounds() {
+    assert_eq!(felt252_as_u128(0), 0);
+    assert_eq!(
+        felt252_as_u128(0xffffffffffffffffffffffffffffffff), 0xffffffffffffffffffffffffffffffff,
+    );
+}
+
+#[cfg(feature: 'falcon_fast_tests')]
+#[test]
+#[should_panic(expected: 'fast NTT: output too large')]
+fn test_fast_ntt_output_conversion_rejects_high_bits() {
+    felt252_as_u128(0x100000000000000000000000000000001);
+}
+
 fn zeros() -> Array<u16> {
     let mut values = array![];
-    while values.len() != 512 {
+    while values.len() != COEFFICIENT_COUNT {
         values.append(0);
     }
     values
@@ -29,7 +46,7 @@ fn zeros() -> Array<u16> {
 
 fn max_values() -> Array<u16> {
     let mut values = array![];
-    while values.len() != 512 {
+    while values.len() != COEFFICIENT_COUNT {
         values.append(12288);
     }
     values
@@ -38,7 +55,7 @@ fn max_values() -> Array<u16> {
 fn basis(index: u32) -> Array<u16> {
     let mut values = array![];
     let mut current = 0;
-    while current != 512 {
+    while current != COEFFICIENT_COUNT {
         if current == index {
             values.append(1);
         } else {
@@ -52,7 +69,7 @@ fn basis(index: u32) -> Array<u16> {
 fn pseudorandom_values(seed: u64) -> Array<u16> {
     let mut values = array![];
     let mut state = seed;
-    while values.len() != 512 {
+    while values.len() != COEFFICIENT_COUNT {
         state = (state * 1664525 + 1013904223) % 0x100000000;
         values.append((state % 12289).try_into().unwrap());
     }
@@ -83,7 +100,7 @@ fn test_fast_ntt_matches_generic_on_boundary_and_pseudorandom_inputs() {
 #[test]
 fn test_fast_ntt_matches_generic_reference_for_every_basis_vector() {
     let mut index = 0;
-    while index != 512 {
+    while index != COEFFICIENT_COUNT {
         let values = basis(index);
         let input = as_felts(values.span());
         let generic = ntt(input.span(), @config());
@@ -119,7 +136,7 @@ fn test_ntt_negacyclic_product() {
 
     let product = intt(products.span(), PRODUCT_BITS, PRODUCT_BOUND_FELT, @config());
     let mut expected = array![12288];
-    while expected.len() != 512 {
+    while expected.len() != COEFFICIENT_COUNT {
         expected.append(0);
     }
     assert_eq!(product.span(), expected.span());

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v4.0.0-alpha.1 (account/src/falcon_512/verifier_impls.cairo)
+// OpenZeppelin Contracts for Cairo v4.0.1 (account/src/falcon_512/verifier_impls.cairo)
 
 use super::hashing::hash_to_point::hash_to_point_shake_512;
 use super::verifier::Falcon512SignatureVerifier;

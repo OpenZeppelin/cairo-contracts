@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v4.0.0-alpha.1 (account/src/falcon_512/verifier.cairo)
+// OpenZeppelin Contracts for Cairo v4.0.1 (account/src/falcon_512/verifier.cairo)
 
 /// Verification strategy used by `Falcon512AccountComponent`.
 pub trait Falcon512SignatureVerifier {

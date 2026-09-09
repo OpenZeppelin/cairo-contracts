@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: MIT
+// OpenZeppelin Contracts for Cairo v4.0.1 (presets/src/interfaces/falcon_512_account.cairo)
+
 use openzeppelin_interfaces::src9::OutsideExecution;
 use starknet::ClassHash;
 use starknet::account::Call;

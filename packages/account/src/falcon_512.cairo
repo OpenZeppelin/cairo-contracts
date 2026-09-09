@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v4.0.0-alpha.1 (account/src/falcon_512.cairo)
+// OpenZeppelin Contracts for Cairo v4.0.1 (account/src/falcon_512.cairo)
 
 //! Falcon-512 SHAKE account component and verifier strategies.
 //!
@@ -11,6 +11,9 @@
 //! `Falcon512AccountComponent` provides SRC6 account behavior and owner-authorized key rotation
 //! for canonical packed Falcon-512 public keys. Ready-to-deploy compositions are provided by the
 //! `openzeppelin_presets` package.
+
+/// Number of coefficients in each Falcon-512 polynomial.
+pub(crate) const COEFFICIENT_COUNT: u32 = 512;
 
 pub mod account;
 pub(crate) mod falcon;

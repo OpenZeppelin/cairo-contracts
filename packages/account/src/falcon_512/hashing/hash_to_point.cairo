@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v4.0.0-alpha.1
+// OpenZeppelin Contracts for Cairo v4.0.1
 // (account/src/falcon_512/hashing/hash_to_point.cairo)
 
 //! SHAKE-256 hash-to-point for the Falcon-512 submission algorithm.
@@ -8,6 +8,7 @@
 //! little-endian representation. It reads the SHAKE-256 output as big-endian `u16` words
 //! and rejection-samples each word into `Z_q` until it has 512 coefficients.
 
+use crate::falcon_512::COEFFICIENT_COUNT;
 use super::shake256::keccak_f1600;
 
 /// Rejection bound: the largest multiple of q = 12289 below 2^16.
@@ -58,8 +59,11 @@ pub(crate) fn hash_to_point_shake_512(
         let mut lanes = state.span().slice(0, 17);
         while let Some(lane) = lanes.pop_front() {
             push_lane_words(*lane, two16, b256, q32, ref coeffs);
+            if coeffs.len() == COEFFICIENT_COUNT {
+                break;
+            }
         }
-        if coeffs.len() == 512 {
+        if coeffs.len() == COEFFICIENT_COUNT {
             break;
         }
         state = keccak_f1600(state);
@@ -91,7 +95,7 @@ fn push_lane_words(
 /// output is not complete.
 #[inline(always)]
 fn push_candidate(candidate: u32, q32: NonZero<u32>, ref coeffs: Array<u16>) {
-    if coeffs.len() != 512 && candidate < REJECT_BOUND {
+    if coeffs.len() != COEFFICIENT_COUNT && candidate < REJECT_BOUND {
         let (_, remainder) = DivRem::div_rem(candidate, q32);
         coeffs.append(remainder.try_into().unwrap());
     }
@@ -99,6 +103,7 @@ fn push_candidate(candidate: u32, q32: NonZero<u32>, ref coeffs: Array<u16>) {
 
 #[cfg(test)]
 mod tests {
+    use crate::falcon_512::COEFFICIENT_COUNT;
     use super::{REJECT_BOUND, TWO_POW_160, hash_to_point_shake_512, push_candidate};
 
     #[test]
@@ -106,7 +111,7 @@ mod tests {
         // Independently generated with Python hashlib.shake_256 over
         // salt_a[20 LE] || salt_b[20 LE] || message_hash[32 LE].
         let coefficients = hash_to_point_shake_512(3, 1, 2).unwrap();
-        assert_eq!(coefficients.len(), 512);
+        assert_eq!(coefficients.len(), COEFFICIENT_COUNT);
         assert_eq!(
             coefficients.span().slice(0, 8),
             [2750, 10132, 11472, 1877, 11061, 11208, 12103, 6446].span(),
@@ -145,10 +150,10 @@ mod tests {
         push_candidate(REJECT_BOUND, q32, ref coefficients);
         assert_eq!(coefficients.len(), 1);
 
-        while coefficients.len() != 512 {
+        while coefficients.len() != COEFFICIENT_COUNT {
             coefficients.append(0);
         }
         push_candidate(1, q32, ref coefficients);
-        assert_eq!(coefficients.len(), 512);
+        assert_eq!(coefficients.len(), COEFFICIENT_COUNT);
     }
 }

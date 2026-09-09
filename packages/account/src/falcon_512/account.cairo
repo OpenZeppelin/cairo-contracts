@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v4.0.0-alpha.1 (account/src/falcon_512/account.cairo)
+// OpenZeppelin Contracts for Cairo v4.0.1 (account/src/falcon_512/account.cairo)
 
 use super::verifier::Falcon512SignatureVerifier;
 
@@ -322,6 +322,8 @@ pub mod Falcon512AccountComponent {
         /// the ISRC6 interface ID.
         ///
         /// Emits an `OwnerAdded` event.
+        /// Use the same verifier as the embedded account implementations. This function has no
+        /// reinitialization guard and must only be called from the contract constructor.
         fn initializer<impl Verifier: Falcon512SignatureVerifier>(
             ref self: ComponentState<TContractState>, public_key: Array<felt252>,
         ) {

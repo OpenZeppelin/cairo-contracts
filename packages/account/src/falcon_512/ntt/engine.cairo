@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v4.0.0-alpha.1 (account/src/falcon_512/ntt/engine.cairo)
+// OpenZeppelin Contracts for Cairo v4.0.1 (account/src/falcon_512/ntt/engine.cairo)
 
 //! Iterative NTT engine with `felt252` lazy reduction.
 //!
@@ -78,14 +78,14 @@ fn reduce_pass(mut vals: Span<felt252>, q_nz: NonZero<u128>) -> Array<felt252> {
     let mut out: Array<felt252> = array![];
     while let Some(chunk) = vals.multi_pop_front::<8>() {
         let [v0, v1, v2, v3, v4, v5, v6, v7] = (*chunk).unbox();
-        let (_, r0) = DivRem::div_rem(TryInto::<felt252, u128>::try_into(v0).unwrap(), q_nz);
-        let (_, r1) = DivRem::div_rem(TryInto::<felt252, u128>::try_into(v1).unwrap(), q_nz);
-        let (_, r2) = DivRem::div_rem(TryInto::<felt252, u128>::try_into(v2).unwrap(), q_nz);
-        let (_, r3) = DivRem::div_rem(TryInto::<felt252, u128>::try_into(v3).unwrap(), q_nz);
-        let (_, r4) = DivRem::div_rem(TryInto::<felt252, u128>::try_into(v4).unwrap(), q_nz);
-        let (_, r5) = DivRem::div_rem(TryInto::<felt252, u128>::try_into(v5).unwrap(), q_nz);
-        let (_, r6) = DivRem::div_rem(TryInto::<felt252, u128>::try_into(v6).unwrap(), q_nz);
-        let (_, r7) = DivRem::div_rem(TryInto::<felt252, u128>::try_into(v7).unwrap(), q_nz);
+        let (_, r0) = DivRem::div_rem(v0.try_into().unwrap(), q_nz);
+        let (_, r1) = DivRem::div_rem(v1.try_into().unwrap(), q_nz);
+        let (_, r2) = DivRem::div_rem(v2.try_into().unwrap(), q_nz);
+        let (_, r3) = DivRem::div_rem(v3.try_into().unwrap(), q_nz);
+        let (_, r4) = DivRem::div_rem(v4.try_into().unwrap(), q_nz);
+        let (_, r5) = DivRem::div_rem(v5.try_into().unwrap(), q_nz);
+        let (_, r6) = DivRem::div_rem(v6.try_into().unwrap(), q_nz);
+        let (_, r7) = DivRem::div_rem(v7.try_into().unwrap(), q_nz);
         out.append(r0.into());
         out.append(r1.into());
         out.append(r2.into());
@@ -306,20 +306,16 @@ pub fn intt(
     // Split levels top-down (h = n/2 .. 2 generic; h = 1 specialized below).
     let mut bits: u32 = input_bits;
     let mut bound: felt252 = input_bound;
-    let mut cur: Array<felt252> = array![];
-    let mut src0 = f;
-    while let Some(v) = src0.pop_front() {
-        cur.append(*v);
-    }
+    let mut cur = f;
     let mut h: u32 = n / 2;
     let mut level: u32 = *cfg.levels - 1;
     while h != 1 {
         if bits + growth_bits > SAFE_BITS {
-            cur = reduce_pass(cur.span(), q_nz);
+            cur = reduce_pass(cur, q_nz).span();
             bits = qbits;
             bound = q_felt;
         }
-        cur = split_level(cur.span(), *split_roots.at(level), i2, n, h, bound * q_felt);
+        cur = split_level(cur, *split_roots.at(level), i2, n, h, bound * q_felt).span();
         // Both branches < 2q·bound.
         bound = bound * growth_felt;
         bits += growth_bits;
@@ -330,13 +326,13 @@ pub fn intt(
     // Last level (h = 1): every block is one adjacent pair sharing the size-2 scaled
     // root — outputs are adjacent too, so no half-block buffering.
     if bits + growth_bits > SAFE_BITS {
-        cur = reduce_pass(cur.span(), q_nz);
+        cur = reduce_pass(cur, q_nz).span();
         bound = q_felt;
         // No later growth decision reads `bits`; the final output is reduced unconditionally.
     }
     let t0 = *(*split_roots.at(0)).at(0);
     let off = bound * q_felt;
-    let src = cur.span();
+    let src = cur;
     let mut last: Array<felt252> = array![];
     let mut pairs = src;
     while let Some(pc) = pairs.multi_pop_front::<2>() {

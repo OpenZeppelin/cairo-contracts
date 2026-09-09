@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v4.0.0-alpha.1 (account/src/falcon_512/hashing/shake256.cairo)
+// OpenZeppelin Contracts for Cairo v4.0.1 (account/src/falcon_512/hashing/shake256.cairo)
 
 //! Pure-Cairo SHAKE-256 extendable-output function from FIPS 202.
 //!
@@ -18,15 +18,31 @@
 //!   maintained structurally: XOR/AND of 64-bit values is 64-bit, complements are
 //!   `MASK64 - b`, and rotations reassemble disjoint bit ranges below bit 64;
 //! - rotations use baked-in powers of two, so a left-rotate is one `felt252` multiply and one
-//!   `u128` division by `2^64` via
-//!   `div_rem`. The wrapped high bits and the shifted low bits occupy disjoint positions, so
-//!   their sum is the rotation.
+//!   bounded division by `2^64`. The wrapped high bits and the shifted low bits occupy disjoint
+//!   positions, so their sum is the rotation.
 //!
 //! `hash_to_point::hash_to_point_shake_512` uses [`keccak_f1600`] directly to consume candidates
 //! from the sponge's rate lanes. A test-only byte-oriented XOF checks the permutation and sponge
 //! construction against FIPS 202 known-answer vectors.
 
+use openzeppelin_corelib_imports::bounded_int::{
+    AddHelper, BoundedInt, DivRemHelper, UnitInt, bounded_int_add, bounded_int_div_rem, upcast,
+};
+
 const MASK64: u128 = 0xffffffffffffffff;
+type ShiftedLane = BoundedInt<0, 0xffffffffffffffffffffffffffffffff>;
+type LowBits = BoundedInt<0, 0xffffffffffffffff>;
+type HighBits = BoundedInt<0, 0xffffffffffffffff>;
+type LaneDivisor = UnitInt<0x10000000000000000>;
+
+impl LaneDivRem of DivRemHelper<ShiftedLane, LaneDivisor> {
+    type DivT = HighBits;
+    type RemT = LowBits;
+}
+
+impl LaneAdd of AddHelper<LowBits, HighBits> {
+    type Result = BoundedInt<0, 0x1fffffffffffffffe>;
+}
 #[cfg(test)]
 const RATE_LANES: u32 = 17; // 136 bytes / 8
 #[cfg(test)]
@@ -47,17 +63,18 @@ const ROUND_CONSTANTS: [u128; 24] = [
 /// bits that wrap to the bottom (`hi`); they occupy disjoint positions, so `lo + hi`
 /// is the rotation.
 #[inline(always)]
-fn rotl(x: u128, pow: felt252, two64: NonZero<u128>) -> u128 {
+fn rotl(x: u128, pow: felt252, two64: NonZero<LaneDivisor>) -> u128 {
     let wide: u128 = (x.into() * pow).try_into().unwrap();
-    let (hi, lo) = DivRem::div_rem(wide, two64);
-    lo + hi
+    let wide: ShiftedLane = upcast(wide);
+    let (hi, lo) = bounded_int_div_rem(wide, two64);
+    upcast(bounded_int_add(lo, hi))
 }
 
 /// Keccak-f[1600]: 24 rounds of θ, ρ, π, χ, ι on the 25-lane state, fully unrolled
 /// over lane locals. The ρ+π terms read `b[dst] = rotl(a[src] ^ d[src mod 5], ρ[dst])`
 /// with the π source indices and ρ offsets from FIPS 202, precomposed per destination.
 pub(crate) fn keccak_f1600(state: [u128; 25]) -> [u128; 25] {
-    let two64: NonZero<u128> = 0x10000000000000000_u128.try_into().unwrap();
+    let two64: NonZero<LaneDivisor> = 0x10000000000000000;
     let mut s = state;
     for rc in ROUND_CONSTANTS.span() {
         let rc = *rc;
@@ -158,10 +175,8 @@ pub(crate) fn shake256(input: Array<u8>, out_bytes: u32) -> Array<u8> {
     let l = padded.len();
     let pad_len = RATE_BYTES - (l % RATE_BYTES); // in [1, RATE_BYTES]
     padded.append(0x1f);
-    let mut z = 1;
-    while z != pad_len {
+    for _ in 1..pad_len {
         padded.append(0);
-        z += 1;
     }
     let last_idx = l + pad_len - 1;
     let bytes = pad_ored_msb(padded, last_idx);
@@ -169,8 +184,7 @@ pub(crate) fn shake256(input: Array<u8>, out_bytes: u32) -> Array<u8> {
     // Absorb rate-sized blocks: XOR each block's 17 lanes into the state, permute.
     let mut state = [0; 25];
     let n_blocks = (l + pad_len) / RATE_BYTES;
-    let mut blk = 0;
-    while blk != n_blocks {
+    for blk in 0..n_blocks {
         let base = blk * RATE_BYTES;
         let [
             s00,
@@ -214,7 +228,6 @@ pub(crate) fn shake256(input: Array<u8>, out_bytes: u32) -> Array<u8> {
                     s16 ^ load_lane_le(@bytes, base + 128), s17, s18, s19, s20, s21, s22, s23, s24,
                 ],
             );
-        blk += 1;
     }
 
     // Squeeze rate-sized blocks, permuting only when more output is needed.
@@ -236,11 +249,12 @@ pub(crate) fn shake256(input: Array<u8>, out_bytes: u32) -> Array<u8> {
 #[cfg(test)]
 fn emit_lane_le(v: u128, ref out: Array<u8>, out_bytes: u32) {
     let mut rem: u64 = v.try_into().unwrap();
-    let mut k = 0;
-    while k != 8 && out.len() < out_bytes {
+    for _ in 0_u32..8 {
+        if out.len() == out_bytes {
+            break;
+        }
         out.append((rem % 256).try_into().unwrap());
         rem = rem / 256;
-        k += 1;
     }
 }
 
@@ -249,14 +263,12 @@ fn emit_lane_le(v: u128, ref out: Array<u8>, out_bytes: u32) {
 fn pad_ored_msb(bytes: Array<u8>, idx: u32) -> Array<u8> {
     let mut out: Array<u8> = array![];
     let span = bytes.span();
-    let mut i = 0;
-    while i != span.len() {
+    for i in 0..span.len() {
         if i == idx {
             out.append(*span[i] + 0x80);
         } else {
             out.append(*span[i]);
         }
-        i += 1;
     }
     out
 }
@@ -276,7 +288,24 @@ fn load_lane_le(bytes: @Array<u8>, off: u32) -> u128 {
 
 #[cfg(test)]
 mod tests {
-    use super::shake256;
+    use super::{LaneDivisor, MASK64, rotl, shake256};
+
+    #[test]
+    fn test_rotation_matches_u128_reference_for_all_offsets() {
+        let divisor: NonZero<u128> = 0x10000000000000000;
+        let bounded_divisor: NonZero<LaneDivisor> = 0x10000000000000000;
+        let mut pow = 2;
+        for _ in 1_u32..64 {
+            for value in array![0, 1, MASK64, 0x8000000000000000, 0x0123456789abcdef] {
+                let wide: u128 = (value.into() * pow).try_into().unwrap();
+                let (high, low) = DivRem::div_rem(wide, divisor);
+                let rotated = rotl(value, pow, bounded_divisor);
+                assert_eq!(rotated, low + high);
+                assert!(rotated <= MASK64);
+            }
+            pow *= 2;
+        }
+    }
 
     fn to_hex(bytes: Array<u8>) -> ByteArray {
         let hexchars: ByteArray = "0123456789abcdef";
@@ -306,10 +335,8 @@ mod tests {
     #[test]
     fn test_shake256_multiblock() {
         let mut input: Array<u8> = array![];
-        let mut i = 0;
-        while i != 200 {
+        for _ in 0_u32..200 {
             input.append(0xa3);
-            i += 1;
         }
         let got = to_hex(shake256(input, 32));
         assert!(got == "cd8a920ed141aa0407a22d59288652e9d9f1a7ee0c1e7c1ca699424da84a904d");

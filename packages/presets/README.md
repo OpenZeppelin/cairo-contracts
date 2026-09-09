@@ -12,6 +12,8 @@ The Falcon-512 account presets support SRC9 outside execution, self-authorized c
 owner-authorized key rotation. Build their deployable artifacts with
 `scarb --release build -p openzeppelin_presets`; their Falcon verification paths require the
 release compiler profile.
+The Falcon presets are not included in the repository's Sepolia pre-declaration script. Declare
+the release artifact on the intended network and verify its class hash before deploying.
 
 > **WARNING:** The Falcon presets use contract-specific public-key and signature encodings for the
 > FALCON submission verification relation. They are not FN-DSA (FIPS 206) implementations.
@@ -23,6 +25,6 @@ release compiler profile.
 - [`ERC721Upgradeable`](https://docs.openzeppelin.com/contracts-cairo/3.x/api/erc721#ERC721Upgradeable)
 - [`ERC1155Upgradeable`](https://docs.openzeppelin.com/contracts-cairo/3.x/api/erc1155#ERC1155Upgradeable)
 - [`EthAccountUpgradeable`](https://docs.openzeppelin.com/contracts-cairo/3.x/api/account#EthAccountUpgradeable)
-- [`Falcon512ShakeAccountUpgradeable`](https://docs.openzeppelin.com/contracts-cairo/3.x/api/account#Falcon512ShakeAccountUpgradeable)
-- [`Falcon512ShakeDirectAccountUpgradeable`](https://docs.openzeppelin.com/contracts-cairo/3.x/api/account#Falcon512ShakeDirectAccountUpgradeable)
+- [`Falcon512ShakeAccountUpgradeable`](src/falcon_512_shake_account.cairo)
+- [`Falcon512ShakeDirectAccountUpgradeable`](src/falcon_512_shake_direct_account.cairo)
 - [`UniversalDeployer`](https://docs.openzeppelin.com/contracts-cairo/3.x/api/udc#UniversalDeployer)

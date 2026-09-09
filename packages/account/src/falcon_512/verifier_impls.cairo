@@ -21,14 +21,8 @@ pub(crate) const SIGNATURE_FELTS: u32 = DIRECT_SIGNATURE_FELTS + PUBLIC_KEY_FELT
 fn decode_common(
     public_key: Span<felt252>, signature: Span<felt252>,
 ) -> Option<(Array<u16>, Array<u16>, felt252, felt252)> {
-    let h_ntt = match packing::unpack_512_u16(public_key) {
-        Some(value) => value,
-        None => { return None; },
-    };
-    let s1 = match packing::unpack_512_u16(signature.slice(0, PUBLIC_KEY_FELTS)) {
-        Some(value) => value,
-        None => { return None; },
-    };
+    let h_ntt = packing::unpack_512_u16(public_key)?;
+    let s1 = packing::unpack_512_u16(signature.slice(0, PUBLIC_KEY_FELTS))?;
     let salt_a = *signature.at(PUBLIC_KEY_FELTS);
     let salt_b = *signature.at(PUBLIC_KEY_FELTS + 1);
     Some((h_ntt, s1, salt_a, salt_b))
@@ -40,20 +34,16 @@ pub impl Falcon512ShakeVerifier of Falcon512SignatureVerifier {
         if public_key.len() != PUBLIC_KEY_FELTS || signature.len() != SIGNATURE_FELTS {
             return false;
         }
-        let (h_ntt, s1, salt_a, salt_b) = match decode_common(public_key, signature) {
-            Some(value) => value,
-            None => { return false; },
+        let Some((h_ntt, s1, salt_a, salt_b)) = decode_common(public_key, signature) else {
+            return false;
         };
-        let mul_hint =
-            match packing::unpack_512_u16(
-                signature.slice(DIRECT_SIGNATURE_FELTS, PUBLIC_KEY_FELTS),
-            ) {
-            Some(value) => value,
-            None => { return false; },
+        let Some(mul_hint) = packing::unpack_512_u16(
+            signature.slice(DIRECT_SIGNATURE_FELTS, PUBLIC_KEY_FELTS),
+        ) else {
+            return false;
         };
-        let message_point = match hash_to_point_shake_512(message_hash, salt_a, salt_b) {
-            Some(value) => value,
-            None => { return false; },
+        let Some(message_point) = hash_to_point_shake_512(message_hash, salt_a, salt_b) else {
+            return false;
         };
         falcon::verify_512_with_hint_u16(
             s1.span(), h_ntt.span(), mul_hint.span(), message_point.span(),
@@ -64,10 +54,7 @@ pub impl Falcon512ShakeVerifier of Falcon512SignatureVerifier {
         if public_key.len() != PUBLIC_KEY_FELTS {
             return false;
         }
-        match packing::unpack_512_u16(public_key) {
-            Some(_) => true,
-            None => false,
-        }
+        packing::unpack_512_u16(public_key).is_some()
     }
 }
 
@@ -77,13 +64,11 @@ pub impl Falcon512ShakeDirectVerifier of Falcon512SignatureVerifier {
         if public_key.len() != PUBLIC_KEY_FELTS || signature.len() != DIRECT_SIGNATURE_FELTS {
             return false;
         }
-        let (h_ntt, s1, salt_a, salt_b) = match decode_common(public_key, signature) {
-            Some(value) => value,
-            None => { return false; },
+        let Some((h_ntt, s1, salt_a, salt_b)) = decode_common(public_key, signature) else {
+            return false;
         };
-        let message_point = match hash_to_point_shake_512(message_hash, salt_a, salt_b) {
-            Some(value) => value,
-            None => { return false; },
+        let Some(message_point) = hash_to_point_shake_512(message_hash, salt_a, salt_b) else {
+            return false;
         };
         falcon::verify_512_direct_u16(s1.span(), h_ntt.span(), message_point.span())
     }

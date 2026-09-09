@@ -29,10 +29,7 @@ impl Falcon512FastDivRemImpl of DivRemHelper<U128AsBounded, Falcon512Q> {
 #[inline(always)]
 pub(crate) fn felt252_as_u128(value: felt252) -> u128 {
     // Exact generated bounds put canonical shifted outputs below 2^128.
-    match value.try_into() {
-        Some(value) => value,
-        None => core::panic_with_felt252('fast NTT: output too large'),
-    }
+    value.try_into().expect('fast NTT: output too large')
 }
 
 #[inline(always)]
@@ -7554,7 +7551,7 @@ fn ntt_falcon512_fast_inner(
 
 /// Test-only felt wrapper for the generated Falcon-512 forward NTT.
 #[cfg(test)]
-pub fn ntt_falcon512_fast_unchecked(mut f: Span<felt252>) -> Array<felt252> {
+pub fn ntt_falcon512_fast_unchecked(f: Span<felt252>) -> Array<felt252> {
     assert(f.len() == 512, 'fast NTT: bad length');
     let mut input = array![];
     for value in f {

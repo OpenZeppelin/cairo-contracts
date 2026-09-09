@@ -72,9 +72,8 @@ pub fn get_even_roots_felt(degree: u32) -> Span<felt252> {
         phi256_roots_zq_felt.span()
     } else if degree == 256 {
         phi512_roots_zq_felt.span()
-    } else if degree == 512 {
-        phi1024_roots_zq_felt.span()
     } else {
-        panic!("no root table for degree")
+        assert!(degree == 512, "no root table for degree");
+        phi1024_roots_zq_felt.span()
     }
 }

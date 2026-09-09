@@ -77,9 +77,8 @@ pub fn get_scaled_inv_roots(degree: u32) -> Span<felt252> {
         phi256_roots_zq_inv_scaled.span()
     } else if degree == 256 {
         phi512_roots_zq_inv_scaled.span()
-    } else if degree == 512 {
-        phi1024_roots_zq_inv_scaled.span()
     } else {
-        panic!("no root table for degree")
+        assert!(degree == 512, "no root table for degree");
+        phi1024_roots_zq_inv_scaled.span()
     }
 }

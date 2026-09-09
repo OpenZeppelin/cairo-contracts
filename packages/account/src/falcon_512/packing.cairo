@@ -87,10 +87,7 @@ impl PackingDivRemAcc8Impl of DivRemHelper<Acc8, PackingQ> {
 /// Returns `None` on wrong length or any non-canonical slot encoding.
 #[cfg(test)]
 pub fn unpack_512(packed: Span<felt252>) -> Option<Array<felt252>> {
-    let coeffs_u16 = match unpack_512_u16(packed) {
-        Some(v) => v,
-        None => { return None; },
-    };
+    let coeffs_u16 = unpack_512_u16(packed)?;
     let mut coeffs_u16 = coeffs_u16.span();
     let mut coeffs: Array<felt252> = array![];
     while let Some(coeff) = coeffs_u16.pop_front() {
@@ -136,9 +133,8 @@ fn unpack_full_slot_u16(felt: felt252, ref coeffs: Array<u16>) -> bool {
 /// after eight divisions the remaining quotient is the ninth digit.
 #[inline(always)]
 fn unpack_half9_u16(value: u128, ref coeffs: Array<u16>) -> bool {
-    let value: Acc8 = match downcast(value) {
-        Some(v) => v,
-        None => { return false; },
+    let Some(value): Option<Acc8> = downcast(value) else {
+        return false;
     };
     let (rest, d0) = bounded_int_div_rem(value, PACKING_Q_NZ);
     let (rest, d1) = bounded_int_div_rem(rest, PACKING_Q_NZ);
@@ -163,9 +159,8 @@ fn unpack_half9_u16(value: u128, ref coeffs: Array<u16>) -> bool {
 /// Extracts the final slot's eight digits after checking the value is below `Q^8`.
 #[inline(always)]
 fn unpack_half8_u16(value: u128, ref coeffs: Array<u16>) -> bool {
-    let value: Acc7 = match downcast(value) {
-        Some(v) => v,
-        None => { return false; },
+    let Some(value): Option<Acc7> = downcast(value) else {
+        return false;
     };
     let (rest, d0) = bounded_int_div_rem(value, PACKING_Q_NZ);
     let (rest, d1) = bounded_int_div_rem(rest, PACKING_Q_NZ);

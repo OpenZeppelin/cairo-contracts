@@ -357,12 +357,13 @@ def format_table(name: str, values: list[int], value_type: str) -> str:
 
 def emit_dispatch(function_name: str, doc: str, names: dict[int, str]) -> str:
     branches = []
-    for size in SIZES:
+    for size in SIZES[:-1]:
         branches.append(f"    if degree == {size} {{\n        {names[size]}.span()\n    }}")
     return (
         f"\n{doc}pub fn {function_name}(degree: u32) -> Span<felt252> {{\n"
         + " else ".join(branches)
-        + ' else {\n        panic!("no root table for degree")\n    }\n}\n'
+        + f' else {{\n        assert!(degree == {SIZES[-1]}, "no root table for degree");\n'
+        + f"        {names[SIZES[-1]]}.span()\n    }}\n}}\n"
     )
 
 
@@ -486,10 +487,7 @@ def render_fast(
         "#[inline(always)]\n",
         "pub(crate) fn felt252_as_u128(value: felt252) -> u128 {\n",
         "    // Exact generated bounds put canonical shifted outputs below 2^128.\n",
-        "    match value.try_into() {\n",
-        "        Some(value) => value,\n",
-        "        None => core::panic_with_felt252('fast NTT: output too large'),\n",
-        "    }\n",
+        "    value.try_into().expect('fast NTT: output too large')\n",
         "}\n\n",
         "#[inline(always)]\n",
         "fn ntt_falcon512_fast_inner(\n",
@@ -507,7 +505,7 @@ def render_fast(
         [
             "/// Test-only felt wrapper for the generated Falcon-512 forward NTT.\n",
             "#[cfg(test)]\n",
-            "pub fn ntt_falcon512_fast_unchecked(mut f: Span<felt252>) -> Array<felt252> {\n",
+            "pub fn ntt_falcon512_fast_unchecked(f: Span<felt252>) -> Array<felt252> {\n",
             "    assert(f.len() == 512, 'fast NTT: bad length');\n",
             "    let mut input = array![];\n",
             "    for value in f {\n",

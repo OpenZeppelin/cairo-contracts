@@ -81,9 +81,6 @@ instance/
 # Scrapy stuff:
 .scrapy
 
-# Sphinx documentation
-docs/_build/
-
 # Jupyter Notebook
 .ipynb_checkpoints
 
@@ -143,9 +140,6 @@ dmypy.json
 
 # node
 **/node_modules/
-
-# docs
-docs/build/
 
 # vscode
 .vscode/

@@ -14,11 +14,22 @@ pub mod errors {
     /// Error when the format of the snip12 attribute is invalid.
     pub const INVALID_SNIP12_ATTRIBUTE_FORMAT: &str =
         "Invalid format for the snip12 attribute. The only valid arguments are: name, kind.\n";
+    /// Error when a member has more than one snip12 attribute.
+    pub const MULTIPLE_SNIP12_ATTRIBUTES: &str =
+        "Only one snip12 attribute can be applied to a member.\n";
     /// Error when the string argument is invalid.
     pub const INVALID_STRING_ARGUMENT: &str =
         "Invalid string argument. Expected a non-empty string between double quotes.\n";
     /// Error when a SNIP-12 type override cannot be parsed.
     pub fn INVALID_SNIP12_TYPE(ty: &str) -> String {
         format!("Invalid SNIP-12 type: {ty}.\n")
+    }
+    /// Error when a user-defined primary type reuses a SNIP-12 reserved name.
+    pub fn RESERVED_SNIP12_TYPE_NAME(name: &str) -> String {
+        format!("SNIP-12 type name `{name}` is reserved and cannot be used as a primary type.\n")
+    }
+    /// Error when multiple members or variants resolve to the same SNIP-12 name.
+    pub fn DUPLICATE_SNIP12_NAME(name: &str) -> String {
+        format!("Duplicate SNIP-12 member or variant name: {name}.\n")
     }
 }

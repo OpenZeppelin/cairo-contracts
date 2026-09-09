@@ -45,14 +45,7 @@ pub mod MyToken {
 
 Diagnostics:
 
-====
-Warning: The ERC20FlashMint component requires an ImmutableConfig implementation in scope and
-it looks like it is missing.
-
-You can use the default implementation by importing it:
-
-`use openzeppelin_token::erc20::extensions::erc20_flash_mint::DefaultConfig;`
-====
+None
 
 AuxData:
 

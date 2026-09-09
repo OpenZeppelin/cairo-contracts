@@ -3,7 +3,7 @@ version = 1
 
 [[package]]
 name = "openzeppelin_access"
-version = "4.0.0-alpha.1"
+version = "4.0.1"
 dependencies = [
  "openzeppelin_interfaces",
  "openzeppelin_introspection",
@@ -11,7 +11,7 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_account"
-version = "4.0.0-alpha.1"
+version = "4.0.1"
 dependencies = [
  "openzeppelin_interfaces",
  "openzeppelin_introspection",
@@ -20,7 +20,7 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_finance"
-version = "4.0.0-alpha.1"
+version = "4.0.1"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_interfaces",
@@ -29,18 +29,18 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_interfaces"
-version = "1.0.0"
+version = "2.2.0"
 
 [[package]]
 name = "openzeppelin_introspection"
-version = "v4.0.0-alpha.1"
+version = "4.0.1"
 dependencies = [
  "openzeppelin_interfaces",
 ]
 
 [[package]]
 name = "openzeppelin_presets"
-version = "4.0.0-alpha.1"
+version = "4.0.1"
 dependencies = [
  "openzeppelin_access",
  "openzeppelin_account",
@@ -54,17 +54,16 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_testing"
-version = "4.3.0"
+version = "6.7.0"
 dependencies = [
  "snforge_std",
 ]
 
 [[package]]
 name = "openzeppelin_token"
-version = "4.0.0-alpha.1"
+version = "4.0.1"
 dependencies = [
  "openzeppelin_access",
- "openzeppelin_account",
  "openzeppelin_interfaces",
  "openzeppelin_introspection",
  "openzeppelin_utils",
@@ -72,11 +71,11 @@ dependencies = [
 
 [[package]]
 name = "openzeppelin_upgrades"
-version = "4.0.0-alpha.1"
+version = "4.0.1"
 
 [[package]]
 name = "openzeppelin_utils"
-version = "4.0.0-alpha.1"
+version = "2.2.0"
 dependencies = [
  "openzeppelin_interfaces",
 ]
@@ -98,15 +97,15 @@ checksum = "sha256:cfd7c73a6f9984880249babfa8664b69c5f7209c737b1081156a284061ccd
 
 [[package]]
 name = "snforge_scarb_plugin"
-version = "0.46.0"
+version = "0.59.0"
 source = "registry+https://scarbs.xyz/"
-checksum = "sha256:6ffa10fe0ff525678138afd584fc2012e7b248f9c8e7b44aeae033cef3ee7826"
+checksum = "sha256:871fba677c03b66a1bf40815dac0ab1b385eb1b9be6e6c3cf2ad9788eeb2b6bb"
 
 [[package]]
 name = "snforge_std"
-version = "0.46.0"
+version = "0.59.0"
 source = "registry+https://scarbs.xyz/"
-checksum = "sha256:a4d4b4d3e8506a3907d1eabacb058c390aa13a70132f475cba5e3dcd7a60d0bb"
+checksum = "sha256:3620924fa08bd2d740b2b5b01ef86c8dab3d4b9c2206387c8dbdc8d2ec15133e"
 dependencies = [
  "snforge_scarb_plugin",
 ]

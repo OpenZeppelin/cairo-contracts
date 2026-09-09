@@ -6,13 +6,13 @@ snapshot_kind: text
 TokenStream:
 
 pub enum MyEnum {
-    #[snip12(name: "Variant 1")]
+    #[snip12(name: "Variant 1", kind: "(felt252, felt252, ClassHash, NftId)")]
     Variant1: (felt252, felt252, ClassHash, NftId),
-    #[snip12(name: "Variant 2")]
+    #[snip12(name: "Variant 2", kind: "Array<TokenAmount>")]
     Variant2: Array<TokenAmount>,
     #[snip12(name: "Variant 3")]
     Variant3: Span<ClassHash>,
-    #[snip12(name: "Variant 4")]
+    #[snip12(name: "Variant 4", kind: "(ContractAddress, TokenAmount)")]
     Variant4: (ContractAddress, TokenAmount),
     #[snip12(name: "Variant 5")]
     Variant5: Array<ContractAddress>,

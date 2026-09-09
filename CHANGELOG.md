@@ -9,6 +9,70 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+## 4.0.1 (2026-08-26)
+
+### Fixed
+
+- Corrected the independent package metadata for `openzeppelin_interfaces` and
+  `openzeppelin_utils` by bumping their versions to `2.2.0`.
+
+## 4.0.0 (2026-08-25)
+
+### Added
+
+- `SafeERC20DispatcherTrait` in `openzeppelin_token::erc20::utils` with `assert_transfer`, `assert_transfer_from`, `assert_increase_allowance`, and `assert_decrease_allowance` (#1683)
+- ERC-3156 standard interfaces and `ERC20FlashMintComponent` extension (#1608)
+- `IERC6909MetadataAdmin` and `IERC6909ContentUriAdmin` interfaces to `openzeppelin_interfaces::token::erc6909` (#1676)
+- Embeddable Ownable, AccessControl, and AccessControlDefaultAdminRules admin impls for `ERC6909MetadataComponent` and `ERC6909ContentURIComponent` (#1676)
+- `openzeppelin_utils`
+  - Added `lower_lookup` support to checkpoint utilities (#1630)
+  - Added `BitMap` struct and associated helpers to `openzeppelin_utils::structs::bitmap` (#1630)
+- `ERC721ConsecutiveComponent` extension (#1630)
+- ERC-6909 standard implementation and extensions (#1594)
+  - Introduced ERC6909Component and extension components: ERC6909ContentURIComponent, ERC6909MetadataComponent, and ERC6909TokenSupplyComponent.
+  - Added standard interfaces: IERC6909, IERC6909Metadata, IERC6909TokenSupply, and IERC6909ContentUri.
+  - Added the ERC6909ABI trait, covering the full ERC-6909 token functionality, including all supported extensions.
+- `IERC1155Supply` interface and `ERC1155SupplyComponent` extension for total supply tracking (#1632)
+- `IERC721Wrapper` interface and `ERC721WrapperComponent` for ERC-721 wrapping and unwrapping (#1625)
+- `IERC20Wrapper` interface and `ERC20WrapperComponent` for ERC-20 wrapping and unwrapping (#1617)
+- `ERC721URIStorageComponent` for customizable token URI storage (#1639)
+- `ERC1155URIStorageComponent` for customizable token URI storage (#1642)
+- `generate_spy_event_helpers` macro (#1481)
+- `with_components` support for the newly added components, including ERC-6909, ERC721Consecutive, and ERC20FlashMint (#1594, #1635, #1660, #1691)
+
+### Changed
+
+- Bump scarb to v2.18.0 (#1677)
+- Improved macro argument matching through Scarb token spans (#1681)
+
+### Changed (Breaking)
+
+- `ERC20WrapperComponent` failed-transfer error changed to `'SafeERC20: failed operation'`; removed `Errors::TRANSFER_FAILED` (#1683)
+- `ERC4626SelfAssetsManagement` failed-transfer error changed to `'SafeERC20: failed operation'`; removed `ERC4626Component::Errors::TOKEN_TRANSFER_FAILED` (#1683)
+- `VestingComponent.release` failed-transfer error changed to `'SafeERC20: failed operation'`; removed `Errors::TOKEN_TRANSFER_FAILED` (#1683)
+- Simplified `ERC6909MetadataComponent.initializer` to only register the SRC5 interface, matching the other ERC-6909 extensions (#1676)
+- Renamed `ERC6909MetadataComponent` internal setters to `_set_token_name`, `_set_token_symbol`, and `_set_token_decimals` (#1676)
+- Renamed `ERC6909ContentURIComponent` internal setters to `_set_contract_uri` and `_set_token_uri` (#1676)
+- Added `ERC721TokenOwnerTrait` hook as a dependency to `ERC721Component` implementations (#1630)
+  - Included `ERC721OwnerOfDefaultImpl` to support the default use case
+
+### Fixed
+
+- Recognize fully qualified trait paths when validating `with_components` integrations (#1731)
+- Recognize `initializer_no_metadata` as a valid ERC-721 and ERC-1155 initializer (#1732)
+- Warn when the ERC-6909 token-supply hook is not wired (#1733)
+- Warn when Votes hooks are missing or combined with integrations that require special handling (#1734)
+- Reject reserved SNIP-12 type names in the `type_hash` macro (#1736)
+- Reject multiple or bare `snip12` attributes instead of silently ignoring them (#1737)
+- Reject duplicate keys in a `snip12` attribute (#1738)
+- Support the SNIP-12 `bool` and `string` basic types (#1739)
+- Detect duplicate encoded member and enum-variant names (#1740)
+- JSON-escape user-provided names in encoded SNIP-12 types (#1741)
+- Stop emitting the immutable-config warning for `ERC20FlashMintComponent` (#1743)
+- Reject tuple members because SNIP-12 does not specify their encoding (#1744)
+
+## 4.0.0-rc.0 (2026-05-06)
+
 ### Added
 
 - `Falcon512AccountComponent`, SHAKE-256 hint and direct verifier strategies,

@@ -12,16 +12,10 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v7
 
-    - name: Extract current versions
+    - name: Extract current version
       run: |
         CURRENT_VERSION=$(grep '^version = ' Scarb.toml | sed 's/version = "\(.*\)"/\1/')
-        SCARB_VERSION=$(grep 'scarb-version = ' Scarb.toml | sed 's/scarb-version = "\(.*\)"/\1/')
-        CAIRO_VERSION=$(grep 'cairo-version = ' Scarb.toml | sed 's/cairo-version = "\(.*\)"/\1/')
-        {
-          echo "CURRENT_VERSION=$CURRENT_VERSION"
-          echo "SCARB_VERSION=$SCARB_VERSION"
-          echo "CAIRO_VERSION=$CAIRO_VERSION"
-        } >> "$GITHUB_ENV"
+        echo "CURRENT_VERSION=$CURRENT_VERSION" >> "$GITHUB_ENV"
 
     - name: Extract new version number
       run: echo "NEW_VERSION=${GITHUB_REF#refs/heads/release-v}" >> "$GITHUB_ENV"
@@ -38,21 +32,7 @@ jobs:
           -not -path './audits/*' \
           -exec sed -i "s/$ESCAPED_CURRENT_VERSION/$NEW_VERSION/g" {} +
 
-    - name: Setup scarb
-      uses: software-mansion/setup-scarb@v1
-      id: setup_scarb
-      with:
-        scarb-version: ${{ env.SCARB_VERSION }}
-
-    - name: Setup class_hash
-      uses: ericnordelo/setup-class-hash@c14dd33506c3eb8e1acfe2ade9f82585f5acf28c
-      with:
-        version: "0.2.0"
-
-    - name: Build presets artifacts
-      run: scarb --release build -p openzeppelin_presets
-
     - name: Auto-commit changes
       uses: stefanzweifel/git-auto-commit-action@4a55954c782fc1ea30b9056cd3e7a2b40ca8887d #v7.2.0
       with:
-        commit_message: Bump version to ${{ env.NEW_VERSION }} and update presets page
+        commit_message: Bump version to ${{ env.NEW_VERSION }}

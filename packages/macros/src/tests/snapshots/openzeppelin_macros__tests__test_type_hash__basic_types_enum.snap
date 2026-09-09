@@ -7,24 +7,27 @@ TokenStream:
 
 pub enum MyEnum {
     Variant1: felt252,
-    Variant2: ClassHash,
-    Variant3: ContractAddress,
-    Variant4: u128,
-    Variant5: i128,
+    Variant2: bool,
+    #[snip12(kind: "string")]
+    Variant3: ByteArray,
+    Variant4: ClassHash,
+    Variant5: ContractAddress,
+    Variant6: u128,
+    Variant7: i128,
     #[snip12(kind: "shortstring")]
-    Variant6: felt252,
-    #[snip12(kind: "timestamp")]
-    Variant7: u128,
-    #[snip12(kind: "selector")]
     Variant8: felt252,
+    #[snip12(kind: "timestamp")]
+    Variant9: u128,
+    #[snip12(kind: "selector")]
+    Variant10: felt252,
 }
 pub fn __MY_ENUM_encoded_type() {
     println!(
-        "\"MyEnum\"(\"Variant1\"(\"felt\"),\"Variant2\"(\"ClassHash\"),\"Variant3\"(\"ContractAddress\"),\"Variant4\"(\"u128\"),\"Variant5\"(\"i128\"),\"Variant6\"(\"shortstring\"),\"Variant7\"(\"timestamp\"),\"Variant8\"(\"selector\"))",
+        "\"MyEnum\"(\"Variant1\"(\"felt\"),\"Variant2\"(\"bool\"),\"Variant3\"(\"string\"),\"Variant4\"(\"ClassHash\"),\"Variant5\"(\"ContractAddress\"),\"Variant6\"(\"u128\"),\"Variant7\"(\"i128\"),\"Variant8\"(\"shortstring\"),\"Variant9\"(\"timestamp\"),\"Variant10\"(\"selector\"))",
     );
 }
 pub const MY_ENUM_TYPE_HASH: felt252 =
-    0x20bdb2f120712368f7f1f5ae994dd6eeca74408fceaad716c369245c33a8897;
+    0xffb082ec5e50d2c1dedfc7ed49002b1a280a00192ea1c27b00b21b5862796a;
 
 
 

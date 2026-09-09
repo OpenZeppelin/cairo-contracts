@@ -6,7 +6,9 @@ snapshot_kind: text
 TokenStream:
 
 pub enum MyEnum {
+    #[snip12(kind: "(felt252, felt252, ClassHash, NftId)")]
     Variant1: (felt252, felt252, ClassHash, NftId),
+    #[snip12(kind: "TokenAmount")]
     Variant2: TokenAmount,
     Variant3: (ContractAddress,),
 }

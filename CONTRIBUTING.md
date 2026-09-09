@@ -37,7 +37,7 @@ As a contributor, you are expected to fork this repository, work on your own for
     git checkout -b fix/some-bug-short-description-#123
     ```
 
-3. Make your changes, add your files, and [update the documentation](#documentation). Make sure to update the [CHANGELOG](CHANGELOG.md) (*[learn how](https://keepachangelog.com/en/1.1.0/)*).
+3. Make your changes, add your files, and [update the corresponding documentation](#documentation). Make sure to update the [CHANGELOG](CHANGELOG.md) (*[learn how](https://keepachangelog.com/en/1.1.0/)*).
 
 4. Commit and push to your fork.
 
@@ -68,27 +68,17 @@ As a contributor, you are expected to fork this repository, work on your own for
 
 ## Documentation
 
-Before submitting the PR, you must update the corresponding documentation entries in the docs folder. In the future we may use something similar to solidity-docgen to automatically generate docs, but for now we are updating .adoc entries manually.
+Documentation for Contracts for Cairo is maintained in the [OpenZeppelin Documentation repository](https://github.com/OpenZeppelin/docs/tree/main/content/contracts-cairo). When a contribution changes documented behavior, update the corresponding documentation in that repository.
 
-NOTE: When the scarb version is bumped, the *Overview* page *Installation* section must be updated accordingly.
+### Preset class hashes
 
-If you want to run the documentation UI locally:
+To generate the JavaScript constants used by the preset documentation, make sure `scarb` and `starkli` are installed and configured, then run:
 
-1. Change directory into docs inside the project and run npm install.
+```bash
+python3 scripts/generate_class_hashes.py
+```
 
-    ```bash
-    cd docs && npm i
-    ```
-
-2. Build the docs and run the local server (default to localhost:8080). This will watch for changes in the docs/module folder, and update the UI accordingly.
-
-    ```bash
-    npm run docs:watch
-    ```
-
-## Class hashes
-
-Every time there's a language bump or a change in a preset or component used by one, new class hashes should be checked and updated in the presets doc page.
+The script builds the `openzeppelin_presets` release artifacts and prints the `CLASS_HASH_SCARB_VERSION` and `CLASS_HASHES` constants for every current preset. Copy them into the corresponding `content/contracts-cairo/<version>/utils/constants.js` file in the documentation repository and update the preset table when its entries change. Pass `--no-build` to reuse existing release artifacts.
 
 ## Integration tests
 

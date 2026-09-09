@@ -1,6 +1,6 @@
 # SerializedSigning
 
-<a href='https://github.com/OpenZeppelin/cairo-contracts/blob/e595c322b51f702363311a93b1e15f172083aa65/packages/testing/src/signing.cairo#L28-L30'> [source code] </a>
+<a href='https://github.com/OpenZeppelin/cairo-contracts/blob/881d4090ba46959cf8dbecff414b478e8bf70542/packages/testing/src/signing.cairo#L28-L30'> [source code] </a>
 
 A helper trait that facilitates converting a signature into a serialized format.
 

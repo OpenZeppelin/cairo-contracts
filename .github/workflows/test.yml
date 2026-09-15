@@ -48,6 +48,7 @@ jobs:
         run: |
           python3 scripts/falcon_512/generate_ntt.py --write
           git diff --exit-code -- packages/account/src/falcon_512/ntt
+          test -z "$(git ls-files --others -- packages/account/src/falcon_512/ntt)"
 
       - name: Cairo lint
         run: |

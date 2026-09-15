@@ -99,8 +99,9 @@ the generic reference transform.
 `scripts/falcon_512/check_fixtures.py` provides reference encoders for decoded Falcon keys and
 signatures and checks all committed vectors using Python's SHAKE-256 and schoolbook polynomial
 multiplication. The vectors retain their `tprest/falcon.py` provenance. Their original signing
-seeds and secret keys are not recorded with the fixtures; this check reproduces the encoding and validates the
-signatures, not the signer's randomness.
+seeds and secret keys are not recorded with the fixtures; this check reproduces the encoding and
+validates the signatures, not the signer's randomness. It also checks the reference parameters
+against the Cairo constants.
 
 ```sh
 python3 scripts/falcon_512/check_fixtures.py
@@ -109,9 +110,14 @@ scarb --release build -p openzeppelin_presets
 python3 scripts/falcon_512/check_resources.py
 ```
 
-The resource check requires Universal Sierra Compiler on `PATH`. CI also runs each preset's
-invoke, declare, and deploy validation with explicit gas budgets, tests both production verifier
-paths, and runs the exhaustive basis-vector test separately without generating its large trace.
+The resource check requires Universal Sierra Compiler on `PATH`. It reports raw artifact bytes
+separately from serialized class bytes, using Python's JSON encoding for the ABI string. Declaration
+tools using a different ABI serialization should check the size of their submitted class.
+CI measures each preset's invoke, declare, and deploy validation separately from deployment, with
+a 20% margin below Starknet 0.14.2's Sierra-gas validation cap. These tests use Sierra-gas metering;
+the protocol's Cairo-step limit applies to Cairo-step-metered execution. Whole-test budgets also
+cover setup costs. CI tests both production verifier paths and runs the exhaustive basis-vector
+test separately without generating its large trace.
 These are local regression checks; verify target-network compatibility and deployment separately.
 Foundry's source-coverage mode requires non-inlining builds, which cannot lower the generated
 production NTT with the pinned compiler. Workspace coverage exercises the generic account path;

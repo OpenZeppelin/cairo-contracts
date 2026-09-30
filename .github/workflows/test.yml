@@ -42,6 +42,9 @@ jobs:
         with:
           globs: |
             *.md
+            audits/README.md
+            .github/copilot-instructions.md
+            .claude/skills/code-quality/SKILL.md
             !PULL_REQUEST_TEMPLATE.md
 
       - name: Verify generated Falcon NTT sources

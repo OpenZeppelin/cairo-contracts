@@ -138,7 +138,7 @@ snforge test -p openzeppelin_token test_transfer
 For Markdown changes, run the same lint scope as CI:
 
 ```sh
-npx --yes markdownlint-cli2@0.13.0 '*.md' 'audits/README.md' '.github/copilot-instructions.md' '.claude/skills/code-quality/SKILL.md' '#PULL_REQUEST_TEMPLATE.md'
+npx --yes markdownlint-cli2@0.23.1 '*.md' 'audits/README.md' '.github/copilot-instructions.md' '.claude/skills/code-quality/SKILL.md' '#PULL_REQUEST_TEMPLATE.md'
 ```
 
 For Rust macro changes, also run [the macro workflow](.github/workflows/test-macros.yml) commands:

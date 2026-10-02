@@ -13,7 +13,10 @@
 
 ### Prepare the environment
 
-Simply [install Cairo and scarb](https://docs.swmansion.com/scarb/download).
+Install [Scarb](https://docs.swmansion.com/scarb/download), which includes the Cairo compiler.
+Contracts for Cairo 4.x uses Scarb and Cairo **2.18.0**. For repository development and testing,
+use the toolchain pinned in [Scarb.toml](Scarb.toml) and follow
+[Development setup](CONTRIBUTING.md#development-setup).
 
 ### Set up your project
 
@@ -33,14 +36,15 @@ Scarb.toml src
 
 ### Install the library
 
-Edit `scarb.toml` and add:
+Edit `Scarb.toml` and add:
 
 ```toml
 [dependencies]
 openzeppelin = "4.0.1"
 ```
 
-The previous example would import the entire library. We can also add each package as a separate dependency to improve the building time by not including modules that won't be used:
+The umbrella package exposes the contract libraries. Add an individual package to compile only
+the modules your application needs:
 
 ```toml
 [dependencies]
@@ -50,18 +54,17 @@ openzeppelin_token = "4.0.1"
 Build the project to download it:
 
 ```bash
-$ scarb build
-
-Updating git repository https://github.com/OpenZeppelin/cairo-contracts
-Compiling my_project v0.1.0 (~/my_project/Scarb.toml)
-Finished release target(s) in 6 seconds
+scarb build
 ```
+
+Use [published releases](https://github.com/OpenZeppelin/cairo-contracts/releases) and the
+documentation for the version you install. The `main` branch can contain unreleased changes.
 
 ### Using the library
 
 Open `src/lib.cairo` and write your contract.
 
-For example, this is how to write an ERC20-compliant contract:
+With the `openzeppelin_token` dependency above, this is an ERC20-compliant contract:
 
 ```cairo
 #[starknet::contract]
@@ -104,11 +107,36 @@ mod MyToken {
 }
 ```
 
+## Packages
+
+The `openzeppelin` package re-exports the contract libraries. Package READMEs list their public
+modules; package manifests specify their versions. `openzeppelin_interfaces`,
+`openzeppelin_utils` and `openzeppelin_testing` have independent versions.
+
+| Package | Purpose |
+| --- | --- |
+| [`openzeppelin_access`](packages/access/README.md) | Ownership and role-based permissions |
+| [`openzeppelin_account`](packages/account/README.md) | Starknet accounts and account extensions |
+| [`openzeppelin_finance`](packages/finance/README.md) | Vesting |
+| [`openzeppelin_governance`](packages/governance/README.md) | Governor, votes, timelock and multisig |
+| [`openzeppelin_interfaces`](packages/interfaces/README.md) | Shared ABI traits and dispatchers |
+| [`openzeppelin_introspection`](packages/introspection/README.md) | SRC5 interface introspection |
+| [`openzeppelin_merkle_tree`](packages/merkle_tree/README.md) | Merkle proof verification |
+| [`openzeppelin_presets`](packages/presets/README.md) | Deployable contract presets |
+| [`openzeppelin_security`](packages/security/README.md) | Initialization, pausing and reentrancy protection |
+| [`openzeppelin_token`](packages/token/README.md) | Token standards and extensions |
+| [`openzeppelin_upgrades`](packages/upgrades/README.md) | Contract class upgrades |
+| [`openzeppelin_utils`](packages/utils/README.md) | Cryptography, deployment and data structures |
+| [`openzeppelin_macros`](packages/macros/README.md) | Procedural macros; add as a separate dependency |
+| [`openzeppelin_testing`](packages/testing/README.md) | Foundry helpers; add as a separate dev dependency |
+
 ## Learn
 
 ### Documentation
 
 Check out the [full documentation site](https://docs.openzeppelin.com/contracts-cairo)!
+AI integrators can start with [llms.txt](llms.txt) for package catalogs, examples, API references
+and audit reports.
 
 ### Cairo
 
@@ -126,28 +154,10 @@ Check out the [full documentation site](https://docs.openzeppelin.com/contracts-
 > [!NOTE]
 > You can track our roadmap and future milestones in our [Github Project](https://github.com/orgs/OpenZeppelin/projects/29/).
 
-OpenZeppelin Contracts for Cairo exists thanks to its contributors. There are many ways you can participate and help build high quality software, make sure to check out the [contribution](CONTRIBUTING.md) guide in advance.
-
-### Set up the project
-
-Clone the repository:
-
-```bash
-git clone git@github.com:OpenZeppelin/cairo-contracts.git
-```
-
-`cd` into it and build:
-
-```bash
-cd cairo-contracts
-scarb build -w
-```
-
-### Run tests
-
-```bash
-snforge test -w
-```
+See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, build, test and coverage commands, commit and
+PR conventions, and documentation updates. Read the [Code of Conduct](CODE_OF_CONDUCT.md),
+[Cairo guidelines](GUIDELINES.md), and [architecture](ARCHITECTURE.md) before contributing.
+Release maintainers should follow [RELEASING.md](RELEASING.md).
 
 ## Security
 
@@ -157,7 +167,7 @@ practices, scoping and API design, multi-layered review processes, and incident 
 
 Refer to [SECURITY.md](SECURITY.md) for more details.
 
-Past audits can be found in [`audits/`](./audits).
+The [audit index](audits/README.md) lists reports with their audited commits and scope.
 
 Smart contracts are an evolving technology and carry a high level of technical risk and uncertainty. Although OpenZeppelin is well known for its security audits, using OpenZeppelin Contracts for Cairo is not a substitute for a security audit.
 

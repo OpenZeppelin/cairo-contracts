@@ -1,0 +1,49 @@
+# OpenZeppelin Contracts for Cairo
+
+> Reusable Cairo smart contract components, interfaces, utilities and presets for Starknet.
+
+The repository links below describe `main`, which may include unreleased changes. For installed
+packages, read the README, package manifests, catalogs and examples at the matching release tag
+instead of `main` (for example `v4.0.1`). The testing package uses its own
+`openzeppelin_testing-v<version>` tags; interfaces and utilities also declare independent
+package versions. Select the matching version in the hosted documentation. Architecture and
+contributor guides describe the development branch and may not exist in older tags.
+Always use the current audit index: each report identifies the commit and scope it covers.
+
+## Start here
+
+- [README](https://raw.githubusercontent.com/OpenZeppelin/cairo-contracts/main/README.md): installation and ERC20 quickstart
+- [Workspace manifest](https://raw.githubusercontent.com/OpenZeppelin/cairo-contracts/main/Scarb.toml): toolchain, editions, packages and dependency versions
+- [Architecture](https://raw.githubusercontent.com/OpenZeppelin/cairo-contracts/main/ARCHITECTURE.md): package boundaries, composition and constraints
+- [Guidelines](https://raw.githubusercontent.com/OpenZeppelin/cairo-contracts/main/GUIDELINES.md): coding and testing conventions for contributors
+
+## Package catalogs
+
+- [openzeppelin_access](https://raw.githubusercontent.com/OpenZeppelin/cairo-contracts/main/packages/access/README.md): Ownership and role-based permissions
+- [openzeppelin_account](https://raw.githubusercontent.com/OpenZeppelin/cairo-contracts/main/packages/account/README.md): Starknet accounts and account extensions
+- [openzeppelin_finance](https://raw.githubusercontent.com/OpenZeppelin/cairo-contracts/main/packages/finance/README.md): Vesting
+- [openzeppelin_governance](https://raw.githubusercontent.com/OpenZeppelin/cairo-contracts/main/packages/governance/README.md): Governor, votes, timelock and multisig
+- [openzeppelin_interfaces](https://raw.githubusercontent.com/OpenZeppelin/cairo-contracts/main/packages/interfaces/README.md): Shared ABI traits and dispatchers
+- [openzeppelin_introspection](https://raw.githubusercontent.com/OpenZeppelin/cairo-contracts/main/packages/introspection/README.md): SRC5 interface introspection
+- [openzeppelin_merkle_tree](https://raw.githubusercontent.com/OpenZeppelin/cairo-contracts/main/packages/merkle_tree/README.md): Merkle proof verification
+- [openzeppelin_presets](https://raw.githubusercontent.com/OpenZeppelin/cairo-contracts/main/packages/presets/README.md): Deployable contract presets
+- [openzeppelin_security](https://raw.githubusercontent.com/OpenZeppelin/cairo-contracts/main/packages/security/README.md): Initialization, pausing and reentrancy protection
+- [openzeppelin_token](https://raw.githubusercontent.com/OpenZeppelin/cairo-contracts/main/packages/token/README.md): Token standards and extensions
+- [openzeppelin_upgrades](https://raw.githubusercontent.com/OpenZeppelin/cairo-contracts/main/packages/upgrades/README.md): Contract class upgrades
+- [openzeppelin_utils](https://raw.githubusercontent.com/OpenZeppelin/cairo-contracts/main/packages/utils/README.md): Cryptography, deployment and data structures
+- [openzeppelin_macros](https://raw.githubusercontent.com/OpenZeppelin/cairo-contracts/main/packages/macros/README.md): Procedural macros; add as a separate dependency
+- [openzeppelin_testing](https://raw.githubusercontent.com/OpenZeppelin/cairo-contracts/main/packages/testing/README.md): Foundry helpers; add as a separate dev dependency
+
+## Examples and API reference
+
+- [Preset contracts](https://github.com/OpenZeppelin/cairo-contracts/tree/main/packages/presets/src): deployable component compositions
+- [Test mocks](https://github.com/OpenZeppelin/cairo-contracts/tree/main/packages/test_common/src/mocks): integration and extension examples
+- [Contracts Wizard](https://wizard.openzeppelin.com/cairo): generate a contract from selected components
+- [Documentation](https://docs.openzeppelin.com/contracts-cairo): guides and versioned API reference
+- [ERC20 API reference](https://docs.openzeppelin.com/contracts-cairo/4.x/api/erc20): token interfaces, components and extension APIs
+- [Testing API reference](https://raw.githubusercontent.com/OpenZeppelin/cairo-contracts/main/packages/testing/docs/SUMMARY.md): generated reference for the testing package
+
+## Audits and security
+
+- [Audit index](https://raw.githubusercontent.com/OpenZeppelin/cairo-contracts/main/audits/README.md): report PDFs, release, commit, auditor and scope
+- [Security policy](https://raw.githubusercontent.com/OpenZeppelin/cairo-contracts/main/SECURITY.md): private vulnerability reporting

@@ -20,6 +20,9 @@ This crate provides components for building account contracts that interact with
   - `Falcon512ShakeDirectVerifier` validates a 31-felt signature and recomputes the polynomial
     product on-chain.
 
+Choose the hint strategy for lower execution cost, or the direct strategy for shorter signatures
+and signing tools that do not generate a product hint.
+
 > **WARNING:** The supplied Falcon verifiers target the verification relation and SHAKE-256
 > hash-to-point from the FALCON submission selected by NIST. Their public-key and signature
 > encodings are contract-specific, and they are not FN-DSA (FIPS 206) implementations.
@@ -36,9 +39,10 @@ reinitialization guard.
 
 Public keys contain 512 canonical residues in `[0, 12289)` in the verifier's **NTT evaluation
 order**, packed into 29 felts. A coefficient-domain Falcon public key must be transformed before
-packing. Canonical packing alone does not prove that a key is usable or that its secret key is
-known. Verify a signature with the intended key before deployment, especially when deploying
-through a constructor without deploy-account validation.
+packing. The supplied strategies reject all-zero keys at initialization and rotation. Canonical
+packing alone does not prove that a key is usable or that its secret key is known. Verify a
+signature with the intended key before deployment, especially when deploying through a
+constructor without deploy-account validation.
 
 The evaluation points are `(r, 12289 - r)` for each root `r` in the degree-512
 [forward root table](src/falcon_512/ntt/roots_felt.cairo), in table order.
@@ -68,6 +72,12 @@ Because the current key authorizes the outer transaction, rotating a lost or una
 requires an independent recovery mechanism. The upgradeable presets can adopt verifier changes at
 the same account address through a self-authorized class upgrade.
 
+> **WARNING:** Class upgrades preserve storage and do not run the target constructor. The two
+> Falcon presets share a compatible key layout; `AccountUpgradeable` and `EthAccountUpgradeable`
+> use different layouts. A plain upgrade between these account types can leave the account unable
+> to validate transactions. Use a new deployment or an explicitly designed and tested migration.
+> Upgrades without migration must preserve the key layout and its verifier's interpretation.
+
 Ownership acceptance follows the existing account protocol: the proof binds the account address
 and current-owner GUID, not a chain ID, nonce, or expiry. The current owner must still authorize
 every rotation; acceptance proofs are not one-time authorizations.
@@ -93,7 +103,11 @@ Starknet's [documented 100 million validation-gas limit](https://docs.starknet.i
 that leaves roughly 54% and 44% headroom for these vectors. These measurements are not worst-case
 bounds or public-network deployment checks. Measure the complete validation path when adding
 guardians, multisignature logic, or other account features, and recheck after compiler or network
-gas-schedule changes.
+gas-schedule changes. SHAKE rejection sampling makes verification cost input-dependent.
+
+Transactions that fail validation are rejected without charging the sender. Well-formed invalid
+signatures can still require substantial verification work; operators should account for this in
+mempool admission and rate-limiting policies.
 
 ### Interfaces
 

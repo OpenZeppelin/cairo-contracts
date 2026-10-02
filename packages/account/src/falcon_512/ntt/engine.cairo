@@ -186,6 +186,7 @@ fn ntt_core(f: Span<felt252>, cfg: @NttConfig) -> (Array<felt252>, u32, felt252)
     let growth_felt = *cfg.fwd_growth_felt;
     let growth_bits = *cfg.fwd_growth_bits;
     let merge_roots = *cfg.merge_roots;
+    assert(merge_roots.len() == *cfg.levels, 'ntt: missing forward roots');
 
     // Level h = 1, fused with the leaf permutation: block b is the single butterfly
     // (f[perm[2b]], f[perm[2b+1]]), and every block shares the size-2 table's one root.

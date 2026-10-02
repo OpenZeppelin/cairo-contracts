@@ -24,14 +24,25 @@ BUDGETS = {"sierra_felts": 60_000, "casm_felts": 50_000, "artifact_bytes": 2_000
 
 
 def validate_sizes(sizes: dict[str, int]) -> None:
+    if max(sizes["sierra_felts"], sizes["casm_felts"]) > MAX_BYTECODE_FELTS:
+        raise ValueError("bytecode exceeds declaration limit")
+    if not 0 < sizes["class_bytes"] <= MAX_CLASS_BYTES:
+        raise ValueError("class exceeds declaration limit")
     for name, budget in BUDGETS.items():
         if not 0 < sizes[name] <= budget:
             raise ValueError(f"{name}: {sizes[name]} exceeds budget {budget} or is empty")
-    if max(sizes["sierra_felts"], sizes["casm_felts"]) > MAX_BYTECODE_FELTS:
-        raise ValueError("bytecode exceeds declaration limit")
-    # Including debug info and whitespace makes this stricter than the serialized class check.
-    if sizes["artifact_bytes"] > MAX_CLASS_BYTES:
-        raise ValueError("class exceeds declaration limit")
+
+
+def serialized_class_size(artifact: dict) -> int:
+    """Size of the declared Sierra class, using Python's JSON encoding for the ABI."""
+    # The gateway serializes SierraContractClass, whose ABI is a string and has no debug field.
+    # https://github.com/starkware-libs/sequencer/blob/main/crates/starknet_api/src/state.rs
+    declared = {key: artifact[key] for key in (
+        "sierra_program", "contract_class_version", "entry_points_by_type", "abi",
+    )}
+    if not isinstance(declared["abi"], str):
+        declared["abi"] = json.dumps(declared["abi"])
+    return len(json.dumps(declared, separators=(",", ":"), ensure_ascii=False).encode())
 
 
 def main() -> None:
@@ -45,10 +56,12 @@ def main() -> None:
                  "--output-path", str(casm)],
                 check=True,
             )
+            artifact = json.loads(sierra.read_text())
             sizes = {
-                "sierra_felts": len(json.loads(sierra.read_text())["sierra_program"]),
+                "sierra_felts": len(artifact["sierra_program"]),
                 "casm_felts": len(json.loads(casm.read_text())["bytecode"]),
                 "artifact_bytes": sierra.stat().st_size,
+                "class_bytes": serialized_class_size(artifact),
             }
             validate_sizes(sizes)
             print(json.dumps({"contract": preset, **sizes}))

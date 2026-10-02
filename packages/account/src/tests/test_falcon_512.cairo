@@ -54,8 +54,58 @@ fn test_uninitialized_public_key_is_empty() {
 fn test_initializer_can_replace_the_key_when_called_again() {
     let mut state = COMPONENT_STATE();
     state.initializer::<Falcon512ShakeVerifier>(public_key());
+    let mut spy = spy_events();
     state.initializer::<Falcon512ShakeVerifier>(new_public_key());
     assert_eq!(state.read_public_key().span(), new_public_key().span());
+    spy
+        .assert_only_event(
+            snforge_std::test_address(),
+            ExpectedEvent::new().key(selector!("OwnerAdded")).key(new_owner_guid()),
+        );
+}
+
+fn zero_public_key() -> Array<felt252> {
+    let mut key = array![];
+    while key.len() != PUBLIC_KEY_FELTS {
+        key.append(0);
+    }
+    key
+}
+
+#[test]
+fn test_verifiers_reject_zero_keys_but_accept_zero_limbs() {
+    let key = zero_public_key();
+    assert!(!Falcon512ShakeVerifier::is_valid_public_key(key.span()));
+    assert!(!Falcon512ShakeDirectVerifier::is_valid_public_key(key.span()));
+    let key = with_replaced(key.span(), PUBLIC_KEY_FELTS - 1, 1);
+    assert!(Falcon512ShakeVerifier::is_valid_public_key(key.span()));
+    assert!(Falcon512ShakeDirectVerifier::is_valid_public_key(key.span()));
+}
+
+#[test]
+fn test_hint_constructor_rejects_zero_key() {
+    assert_deploy_rejects_public_key("Falcon512ShakeAccountMock", zero_public_key());
+}
+
+#[test]
+fn test_direct_constructor_rejects_zero_key() {
+    assert_deploy_rejects_public_key("Falcon512ShakeDirectAccountMock", zero_public_key());
+}
+
+#[test]
+#[should_panic(expected: 'Falcon512: invalid public key')]
+fn test_hint_rotation_rejects_zero_key_before_signature() {
+    let account = deploy_account_at("Falcon512ShakeAccountMock", account_address());
+    start_cheat_caller_address(account.contract_address, account.contract_address);
+    account.set_public_key(zero_public_key(), array![].span());
+}
+
+#[test]
+#[should_panic(expected: 'Falcon512: invalid public key')]
+fn test_direct_rotation_rejects_zero_key_before_signature() {
+    let account = deploy_account_at("Falcon512ShakeDirectAccountMock", account_address());
+    start_cheat_caller_address(account.contract_address, account.contract_address);
+    account.set_public_key(zero_public_key(), array![].span());
 }
 
 #[test]

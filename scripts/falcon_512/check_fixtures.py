@@ -19,6 +19,43 @@ N = 512
 PRIME = 2**251 + 17 * 2**192 + 1
 NORM_BOUND = 34_034_726
 FIXTURES = Path(__file__).resolve().parents[2] / "packages/test_common/src/falcon_512"
+CAIRO_ROOT = Path(__file__).resolve().parents[2] / "packages/account/src/falcon_512"
+
+
+def check_cairo_parameters(root: Path = CAIRO_ROOT) -> None:
+    """Keep the independent reference parameters aligned with the Cairo verifier."""
+    expected = {
+        "../falcon_512.cairo": {"COEFFICIENT_COUNT": N},
+        "zq.cairo": {"Q": Q, "Q32": Q},
+        "falcon.cairo": {"SIG_BOUND_512": NORM_BOUND},
+        "packing.cairo": {"PACKED_SLOTS": 29, "VALS_PER_FELT": 18, "LAST_SLOT_VALS": 8},
+        "verifier_impls.cairo": {
+            "SALT_FELTS": 2, "PUBLIC_KEY_FELTS": 29,
+            "DIRECT_SIGNATURE_FELTS": 31, "SIGNATURE_FELTS": 60,
+        },
+        "hashing/hash_to_point.cairo": {"REJECT_BOUND": 5 * Q, "TWO_POW_160": 2**160},
+    }
+    values = {}
+    for filename, constants in expected.items():
+        source = (root / filename).read_text()
+        for name, wanted in constants.items():
+            match = re.search(rf"\bconst {name}\s*:[^=]+?=\s*([^;]+);", source)
+            if match is None:
+                raise ValueError(f"{filename}: missing {name}")
+            # Layout constants use literals, aliases, or sums of earlier constants.
+            value = 0
+            for term in match[1].split("+"):
+                term = term.strip()
+                if term[0].isdigit():
+                    value += int(term, 0)
+                else:
+                    alias = term.removeprefix("packing::")
+                    if alias not in values:
+                        raise ValueError(f"{filename}: unsupported constant expression {term}")
+                    value += values[alias]
+            if value != wanted:
+                raise ValueError(f"{filename}: {name} is {value}, expected {wanted}")
+            values[name] = value
 
 
 def pack(values: list[int]) -> list[int]:
@@ -135,6 +172,7 @@ def read_function(path: Path, name: str) -> list[int]:
 
 
 def main() -> None:
+    check_cairo_parameters()
     fixture = FIXTURES / "fixture.cairo"
     rotation = FIXTURES / "rotation_fixture.cairo"
     cases = [(fixture, "public_key", "signature", "msg")]

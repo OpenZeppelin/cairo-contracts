@@ -54,7 +54,15 @@ pub impl Falcon512ShakeVerifier of Falcon512SignatureVerifier {
         if public_key.len() != PUBLIC_KEY_FELTS {
             return false;
         }
-        packing::unpack_512_u16(public_key).is_some()
+        if packing::unpack_512_u16(public_key).is_none() {
+            return false;
+        }
+        for value in public_key {
+            if *value != 0 {
+                return true;
+            }
+        }
+        false
     }
 }
 

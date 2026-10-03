@@ -4,6 +4,7 @@
 use core::hash::HashStateTrait;
 use core::pedersen::PedersenTrait;
 use core::poseidon::PoseidonTrait;
+use core::poseidon::hades_permutation;
 use core::traits::PartialOrd;
 
 /// Computes a commutative hash of a sorted pair of felt252 values.
@@ -33,14 +34,14 @@ pub impl PedersenCHasher of CommutativeHasher {
 
 /// Computes the Poseidon commutative hash of a sorted pair of felt252 values.
 pub impl PoseidonCHasher of CommutativeHasher {
-    /// Computes the Poseidon hash of the concatenation of two values, sorting the pair first.
+    /// Computes the Poseidon hash of two values, sorting the pair first.
     fn commutative_hash(a: felt252, b: felt252) -> felt252 {
-        let hash_state = PoseidonTrait::new();
-        if a < b {
-            hash_state.update(a).update(b).finalize()
+        let (result, _, _) = if a < b {
+            hades_permutation(a, b, 2)
         } else {
-            hash_state.update(b).update(a).finalize()
-        }
+            hades_permutation(b, a, 2)
+        };
+        result
     }
 }
 

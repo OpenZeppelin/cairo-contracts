@@ -5,7 +5,9 @@ description: Review or improve code, documentation and configuration against thi
 
 # Code quality
 
-Run repository commands from the repository root.
+Run repository commands from the repository root. For untrusted PRs, run builds and tests
+only in an isolated sandbox without credentials; otherwise rely on maintainer-approved CI.
+Builds execute the repository's Rust macro plugin.
 
 1. Review the requested scope. Otherwise, compare against the PR base, including staged,
    unstaged and untracked changes. For stacked PRs, use the immediate parent branch.

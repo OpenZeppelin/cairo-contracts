@@ -1,74 +1,90 @@
 # Releasing
 
-This guide is for maintainers with write access to the repository and publishing access to the
-Scarb registry. Contribution, signing and review conventions are in
-[CONTRIBUTING.md](CONTRIBUTING.md#commit-and-pr-conventions).
+This guide is for maintainers with repository write access and Scarb registry publishing access.
+Follow the [commit and review conventions](CONTRIBUTING.md#commit-and-pr-conventions).
+The examples use `upstream` for the OpenZeppelin remote.
 
 ## Release branches and versions
 
-Use `release-vX.Y.Z` branches for library releases and `vX.Y.Z` tags for final releases.
-Prerelease tags include the full version suffix, for example `v4.0.0-rc.0` and `v4.0.0-rc.1`.
-Start a release from the reviewed `main` commit; start a hotfix from the relevant release branch.
-The examples below use `upstream` for the OpenZeppelin remote and `origin` for a contributor's
-fork, as in [CONTRIBUTING.md](CONTRIBUTING.md#a-typical-workflow).
+Library releases use `release-vX.Y.Z` branches and `vX.Y.Z` final tags. Release candidates are
+GitHub prerelease tags on the same release branch, such as `v4.0.0-rc.0` and `v4.0.0-rc.1`.
+Their manifests retain the final version (`4.0.0` in this example); RCs are not published to
+scarbs.xyz.
 
-The [release preparation workflow](.github/workflows/prepare-release.yml) runs when a
-`release-v` branch is created. It derives the new version from the branch suffix and commits
-version replacements. It does **not** run on later pushes, create tags, publish packages or
-create a GitHub release. If a branch includes a prerelease suffix, that suffix is part of the
-version it writes.
+The [preparation workflow](.github/workflows/prepare-release.yml) runs when a `release-v`
+branch is created. It derives the package version from the branch suffix and commits version
+replacements. Later pushes do not rerun it. Tags, GitHub releases and registry publication are
+separate maintainer steps.
 
-Review the generated diff. Most packages inherit `workspace.package.version`, but
-`openzeppelin_interfaces`, `openzeppelin_utils` and `openzeppelin_testing` have independent
-versions. Verify their manifests and every dependent version requirement separately. The
-workflow excludes the testing package, audit reports, changelog and this guide. It performs
-text replacement, so a successful run is not a substitute for reviewing the resulting metadata.
+Most packages inherit the workspace version; `openzeppelin_interfaces`, `openzeppelin_utils`
+and `openzeppelin_testing` have independent versions. Review their manifests and dependency
+requirements separately. The workflow excludes the testing package, audits, changelog and this
+guide, and replaces only the exact workspace-version string elsewhere.
 
 ## Prepare a release
 
-1. Fetch the OpenZeppelin remote and check out the intended base. Create the release branch
-   from that commit, substituting the release number in these examples:
+1. Create the branch from the reviewed base, substituting the release numbers below.
+   For a normal release:
 
    ```sh
    git fetch upstream
    git switch -c release-vX.Y.Z upstream/main
+   ```
+
+   For a hotfix, start from the release line being fixed:
+
+   ```sh
+   git fetch upstream
+   git switch -c release-vX.Y.Z upstream/release-vA.B.C
+   ```
+
+   Push the branch to trigger preparation:
+
+   ```sh
    git push -u upstream release-vX.Y.Z
    ```
 
-2. Fetch the preparation workflow's version-bump commit and update the local branch with
-   `git pull --ff-only`. For a release candidate on an existing release branch, explicitly
-   update the manifests, internal dependency requirements, Rust macro version and source
-   headers to the candidate version; branch creation automation does not run again.
+2. Fetch the workflow's version-bump commit with `git pull --ff-only`. Review the generated
+   diff, including manifests, dependency requirements, macro versions and source headers.
 
-3. Assemble a dated release entry in [CHANGELOG.md](CHANGELOG.md) from `Unreleased`, preserving
-   change categories, breaking-change notices and PR references. Leave `Unreleased` available
-   for subsequent changes. Include changes from earlier candidates in the final release's
-   notes so stable-version users can see the full change set.
+3. Assemble a dated [changelog](CHANGELOG.md) entry from `Unreleased`, preserving change
+   categories, breaking-change notices and PR references. Leave `Unreleased` available for
+   subsequent work. The final release notes must include all changes since the previous stable
+   release, including fixes made during the RC period.
 
-4. Open a PR for the release changes against `main` (or the maintained release line for a
-   hotfix). Review the version changes, changelog, compatibility implications and audit scope.
-   Run the [verification commands](CONTRIBUTING.md#verification), including release-profile
-   checks for affected code. Merge the reviewed changes and ensure the release branch
-   contains the exact changes intended for the tag. Keep unrelated development off that branch.
+4. Open a PR against `main` or the maintained release line for a hotfix. Review compatibility
+   and audit scope, and run the [verification commands](CONTRIBUTING.md#verification).
+   Keep the release branch on the reviewed changes intended for publication.
 
-5. From a clean checkout of the reviewed release commit, create and push the corresponding tag:
+## Release candidates
 
-   ```sh
-   git tag -s vX.Y.Z -m "Release vX.Y.Z"
-   git push upstream vX.Y.Z
-   ```
+From the reviewed release branch, tag a candidate and push it:
 
-   For a candidate, use the complete candidate version in both the tag name and annotation.
-   Verify the commit before tagging; published tags and package versions must not be moved
-   or reused for different contents.
+```sh
+git tag vX.Y.Z-rc.0
+git push upstream vX.Y.Z-rc.0
+```
 
-## Publish packages
+Create a [GitHub prerelease](https://github.com/OpenZeppelin/cairo-contracts/releases/new) for
+the tag. Keep the release's manifest and dependency versions unchanged, and publish no registry packages.
+For another candidate, incorporate reviewed fixes on the same release branch and create a
+new tag such as `vX.Y.Z-rc.1`.
 
-Package publication is a separate maintainer step. The workflows in this repository prepare
-versions and test code; neither pushing a tag nor creating a GitHub release uploads packages
-to the Scarb registry.
+## Final release and package publication
 
-From the tagged, clean checkout, select a package name in place of `PACKAGE` and run:
+Review the candidate-to-final diff, finalize the changelog and rerun the relevant checks.
+Tag the reviewed final commit and push it:
+
+```sh
+git tag vX.Y.Z
+git push upstream vX.Y.Z
+```
+
+RC manifests already use the final version. Published tags and package versions must not be
+moved or reused for different contents.
+
+Registry publication is manual. From the clean final-release checkout, replace `PACKAGE`
+with a package included in the release:
 
 ```sh
 scarb package --list -p PACKAGE
@@ -76,52 +92,42 @@ scarb package -p PACKAGE
 scarb publish -p PACKAGE
 ```
 
-Use the registry account authorized for that package. Scarb verifies package contents by
-building them; keep that verification enabled.
+Use the authorized registry account and keep package verification enabled. Publish dependencies
+before their dependents, checking independently versioned packages separately. Publish only
+selected distribution packages; workspace membership alone does not require publication.
+Confirm each version is available, then build a fresh consumer using registry dependencies.
+See [Scarb's publishing guide](https://docs.swmansion.com/scarb/docs/registries/publishing.html).
 
-Publish only packages included in the release, with dependencies available in the registry
-before their dependents. Use the versioned manifests to determine the dependency order and
-which independently versioned packages need publication. Publish the umbrella `openzeppelin`
-package after its dependencies. Repository test support such as `openzeppelin_test_common`
-is not a downstream contract dependency; do not blindly publish every workspace member.
+Create the final [GitHub release](https://github.com/OpenZeppelin/cairo-contracts/releases/new)
+from the tag, with the changelog, compatibility notes and applicable audit links.
+Forward-port release fixes and the final changelog to `main` when needed.
 
-Confirm the versions are available in the registry, then build a fresh consumer project using
-the released registry dependencies. This checks the published packages rather than local
-workspace paths. See [Scarb's publishing guide](https://docs.swmansion.com/scarb/docs/registries/publishing.html)
-for registry setup and package verification.
+## Documentation checklist
 
-## Release candidates and final promotion
-
-Publish candidates as distinct prerelease versions such as `X.Y.Z-rc.0`, marking the matching
-GitHub release as a prerelease. Incorporate fixes through reviewed PRs on the release line and
-publish each subsequent candidate under a new version.
-
-For final promotion, review the candidate-to-final diff, remove the prerelease suffix from the
-release's package versions and dependency requirements, finalize the changelog and rerun the
-release checks. Create a fresh final tag and publish the final package versions from that
-commit. Changing a GitHub prerelease flag does not change package contents or versions.
-
-## GitHub release and documentation
-
-Create the [GitHub release](https://github.com/OpenZeppelin/cairo-contracts/releases/new) from
-the published tag, with a summary, user-facing changelog, compatibility notes and audit links
-where available. Select prerelease status for candidates.
-
-Update the [OpenZeppelin Documentation repository](https://github.com/OpenZeppelin/docs/tree/main/content/contracts-cairo)
-for the released version, including the preset class hashes generated with the release's
-compiler. See [CONTRIBUTING.md](CONTRIBUTING.md#preset-class-hashes) for that procedure.
-Add any published audit reports and their exact reviewed commits to [the audit index](audits/README.md).
-Forward-port release fixes and the final changelog to `main` when they landed only on the
-release branch.
+- Update the [documentation repository](https://github.com/OpenZeppelin/docs/tree/main/content/contracts-cairo)
+  for the release, including [preset class hashes](CONTRIBUTING.md#preset-class-hashes).
+- Check installation examples in `README.md` against published package versions and the
+  release's toolchain. Check versioned documentation URLs in `README.md`, `llms.txt` and
+  `ARCHITECTURE.md`; major-version URLs and toolchain numbers are not updated by version
+  replacement alone.
+- Update consumer links in `llms.txt` to the released tag and verify every target exists.
+  Testing-package links use their own release commit. Keep the audit index and contributor
+  instructions current; newly added guides may be absent from older release tags.
+- Index published audit reports with their exact reviewed commits in [audits/README.md](audits/README.md).
 
 ## Testing package releases
 
 `openzeppelin_testing` has its own version and [changelog](packages/testing/CHANGELOG.md).
 Create an `openzeppelin_testing-vX.Y.Z` branch from the intended base. The
-[testing release workflow](.github/workflows/prepare-testing-release.yml) updates the testing
-package's version and refreshes `packages/testing/docs` using `scarb doc`.
+[testing preparation workflow](.github/workflows/prepare-testing-release.yml) updates its
+version, runs `scarb doc`, and moves `target/doc/openzeppelin_testing/src` into
+`packages/testing/docs` before committing the result.
 
-Review that generated diff, update the package changelog and test with the pinned Foundry
-version. After review, tag the release as `openzeppelin_testing-vX.Y.Z` and publish only
-`openzeppelin_testing` from that tagged checkout. Create a GitHub release for the tag and
-verify its registry dependency and generated documentation links.
+Review the generated diff, update the package changelog and test with the pinned Foundry
+version. Publish `openzeppelin_testing` from the reviewed release commit and merge the release
+PR. The existing `openzeppelin_testing-vX.Y.Z` refs are branches; this process creates no
+matching tags or tagged GitHub releases.
+
+Pin testing catalog and API links in `llms.txt` to the commit containing that release's code
+and generated documentation. Verify its independently published version, documentation links
+and registry dependency.

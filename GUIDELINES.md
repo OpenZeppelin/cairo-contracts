@@ -16,6 +16,9 @@ Coding and testing conventions for OpenZeppelin Contracts for Cairo. Read
   constants, storage, events, errors, configuration and hooks, external implementations,
   compatibility implementations, mixins, and internal implementations. Use the existing
   section comments when extending one of these files.
+- Prefix component storage members with the component name, such as `ERC20_balances` and
+  `Ownable_owner`, to avoid storage-slot collisions. Preserve deployed field names and types;
+  changes require a [storage-compatibility assessment](ARCHITECTURE.md#state-and-asset-handling).
 - Keep shared ABI traits in `packages/interfaces`, deployable presets in `packages/presets`,
   and reusable test mocks in `packages/test_common`. Export public items through the relevant
   module and package entry points.

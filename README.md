@@ -14,8 +14,9 @@
 ### Prepare the environment
 
 Install [Scarb](https://docs.swmansion.com/scarb/download), which includes the Cairo compiler.
-Contracts for Cairo 4.x uses Scarb and Cairo **2.18.0**. For repository development and testing,
-use the toolchain pinned in [Scarb.toml](Scarb.toml) and follow
+Use the toolchain specified in the
+[release manifest](https://raw.githubusercontent.com/OpenZeppelin/cairo-contracts/v4.0.1/Scarb.toml)
+for the version you install. For repository development and testing, follow
 [Development setup](CONTRIBUTING.md#development-setup).
 
 ### Set up your project
@@ -36,15 +37,7 @@ Scarb.toml src
 
 ### Install the library
 
-Edit `Scarb.toml` and add:
-
-```toml
-[dependencies]
-openzeppelin = "4.0.1"
-```
-
-The umbrella package exposes the contract libraries. Add an individual package to compile only
-the modules your application needs:
+Add the individual packages your contract uses to `Scarb.toml`. For the ERC20 example below:
 
 ```toml
 [dependencies]
@@ -109,9 +102,9 @@ mod MyToken {
 
 ## Packages
 
-The `openzeppelin` package re-exports the contract libraries. Package READMEs list their public
-modules; package manifests specify their versions. `openzeppelin_interfaces`,
-`openzeppelin_utils` and `openzeppelin_testing` have independent versions.
+Package READMEs list public modules; manifests specify package versions.
+`openzeppelin_interfaces`, `openzeppelin_utils` and `openzeppelin_testing` have independent
+versions.
 
 | Package | Purpose |
 | --- | --- |

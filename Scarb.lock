@@ -14,12 +14,9 @@ dependencies = [
  "openzeppelin_merkle_tree",
  "openzeppelin_presets",
  "openzeppelin_security",
- "openzeppelin_test_common",
- "openzeppelin_testing",
  "openzeppelin_token",
  "openzeppelin_upgrades",
  "openzeppelin_utils",
- "snforge_std",
 ]
 
 [[package]]

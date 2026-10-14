@@ -1,5 +1,4 @@
 # Security
 
-Security vulnerabilities should be disclosed to the project maintainers by email to <security@openzeppelin.com>.
-
-Please do not report potential vulnerabilities in public issues or pull requests.
+Report vulnerabilities privately to <security@openzeppelin.com>. Keep vulnerability details
+private across all channels until maintainers coordinate public disclosure.

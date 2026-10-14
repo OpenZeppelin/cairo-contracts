@@ -32,10 +32,9 @@ Read [GUIDELINES.md](GUIDELINES.md) and [ARCHITECTURE.md](ARCHITECTURE.md) befor
 
 ## Commit and PR conventions
 
-- **Sign every commit.** Configure commit signing before your first contribution; unsigned
-  commits will not be merged.
+- **Sign your contribution commits.** Configure commit signing before your first contribution.
 - Use [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) for commit
-  messages and PR titles: `type(scope): summary`, e.g. `fix(vesting): reject zero-duration schedules`.
+  messages: `type(scope): summary`, e.g. `fix(vesting): reject zero-duration schedules`.
 - **Never add a `Co-Authored-By` trailer for an AI assistant.** Add one only for a human
   co-author — you are accountable for everything you submit under your own name, whatever
   tools helped produce it.
@@ -102,8 +101,9 @@ We may close low-effort AI output without further explanation.
 Install Scarb and Starknet Foundry using the versions in [Scarb.toml](Scarb.toml):
 `workspace.package.scarb-version` pins Scarb (and its bundled Cairo compiler), and
 `workspace.dependencies.snforge_std` pins the matching `snforge` version. The manifests also
-specify each package's Cairo edition. Rust and Cargo are needed for `packages/macros`; Node.js
-and npm are needed for Markdown linting; Python 3 is needed for the repository scripts.
+specify each package's Cairo edition. Rust and Cargo are required for workspace builds and
+tests because `test_common` depends on the Rust macro plugin. Node.js and npm are needed for
+Markdown linting; Python 3 is needed for the repository scripts.
 
 ```sh
 scarb --version
@@ -135,11 +135,13 @@ For a focused test run, select a package and optionally a test-name filter:
 snforge test -p openzeppelin_token test_transfer
 ```
 
-For Markdown changes, run the same lint scope as CI:
+For Markdown changes, run the same configuration as CI:
 
 ```sh
-npx --yes markdownlint-cli2@0.23.1 '*.md' 'audits/README.md' '.github/copilot-instructions.md' '.claude/skills/code-quality/SKILL.md' '#PULL_REQUEST_TEMPLATE.md'
+npx --yes markdownlint-cli2@0.23.1
 ```
+
+[.markdownlint-cli2.jsonc](.markdownlint-cli2.jsonc) defines the files to lint.
 
 For Rust macro changes, also run [the macro workflow](.github/workflows/test-macros.yml) commands:
 

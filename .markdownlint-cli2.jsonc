@@ -1,0 +1,9 @@
+{
+  "globs": [
+    "*.md",
+    "audits/README.md",
+    ".github/*.md",
+    ".claude/**/*.md",
+    "!PULL_REQUEST_TEMPLATE.md"
+  ]
+}

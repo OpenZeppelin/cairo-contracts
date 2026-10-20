@@ -3,7 +3,7 @@
 > Reusable Cairo smart contract components, interfaces, utilities and presets for Starknet.
 
 Contract links target release `v4.0.1`. Check the linked manifests for independently versioned
-packages. Testing links target published `openzeppelin_testing` version `6.10.0` at its release
+packages. Testing links target published `openzeppelin_testing` version `6.11.0` at its release
 commit. Use documentation matching the version you install.
 
 ## Start here
@@ -26,7 +26,7 @@ commit. Use documentation matching the version you install.
 - [openzeppelin_upgrades](https://raw.githubusercontent.com/OpenZeppelin/cairo-contracts/v4.0.1/packages/upgrades/README.md): Contract class upgrades
 - [openzeppelin_utils](https://raw.githubusercontent.com/OpenZeppelin/cairo-contracts/v4.0.1/packages/utils/README.md): Cryptography, deployment and data structures
 - [openzeppelin_macros](https://raw.githubusercontent.com/OpenZeppelin/cairo-contracts/v4.0.1/packages/macros/README.md): Procedural macros; add as a separate dependency
-- [openzeppelin_testing](https://raw.githubusercontent.com/OpenZeppelin/cairo-contracts/8748febc5f5dfabdea4d11ab4958dc3a5747990e/packages/testing/README.md): Foundry helpers; add as a separate dev dependency
+- [openzeppelin_testing](https://raw.githubusercontent.com/OpenZeppelin/cairo-contracts/5cf9010e653b8da506f1e9824cd74c441c4f8d87/packages/testing/README.md): Foundry helpers; add as a separate dev dependency
 
 ## Examples and API reference
 
@@ -34,7 +34,7 @@ commit. Use documentation matching the version you install.
 - [Test mocks](https://github.com/OpenZeppelin/cairo-contracts/tree/v4.0.1/packages/test_common/src/mocks): integration and extension examples
 - [Contracts Wizard](https://wizard.openzeppelin.com/cairo): generate a contract from selected components
 - [ERC20 API reference](https://docs.openzeppelin.com/contracts-cairo/4.x/api/erc20): token interfaces, components and extension APIs
-- [Testing API reference](https://raw.githubusercontent.com/OpenZeppelin/cairo-contracts/8748febc5f5dfabdea4d11ab4958dc3a5747990e/packages/testing/docs/SUMMARY.md): generated reference for the testing package
+- [Testing API reference](https://raw.githubusercontent.com/OpenZeppelin/cairo-contracts/5cf9010e653b8da506f1e9824cd74c441c4f8d87/packages/testing/docs/SUMMARY.md): generated reference for the testing package
 
 ## Contributor guidance
 

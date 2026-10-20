@@ -63,7 +63,10 @@ openzeppelin_token = { version = "4.0.1", path = "packages/token" }
 openzeppelin_upgrades = { version = "4.0.1", path = "packages/upgrades" }
 openzeppelin_utils = { version = "2.2.0", path = "packages/utils" }
 
-
+[dev-dependencies]
+snforge_std.workspace = true
+openzeppelin_test_common = { path = "packages/test_common" }
+openzeppelin_testing = { path = "packages/testing" }
 
 [lib]
 

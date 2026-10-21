@@ -11,7 +11,7 @@ use crate::attribute::common::args::split_top_level_args;
 
 use super::definition::TypeHashArgs;
 use super::diagnostics::errors;
-use super::types::{split_types, InnerType, S12Type};
+use super::types::{is_reserved_type_name, split_types, InnerType, S12Type};
 
 const SNIP12_TYPE_ATTRIBUTE: &str = "snip12";
 
@@ -47,6 +47,17 @@ impl<'db, 'a> TypeHashParser<'db, 'a> {
         db: &'db dyn SyntaxGroup,
         args: &TypeHashArgs,
     ) -> Result<String, Diagnostic> {
+        let primary_type_name = if args.name.is_empty() {
+            self.plugin_type_info.name
+        } else {
+            &args.name
+        };
+        if is_reserved_type_name(primary_type_name) {
+            return Err(Diagnostic::error(errors::RESERVED_SNIP12_TYPE_NAME(
+                primary_type_name,
+            )));
+        }
+
         // 1. Get the members types real values from mapping and attributes
         let members_types = self
             .plugin_type_info
@@ -69,7 +80,11 @@ impl<'db, 'a> TypeHashParser<'db, 'a> {
                 } else {
                     member.ty.to_string()
                 };
-                let s12_type = S12Type::from_str(&type_input);
+                let s12_type = if attr_type.is_empty() {
+                    S12Type::from_cairo_type(&type_input)
+                } else {
+                    S12Type::from_str(&type_input)
+                };
 
                 // If there is an attribute, use it, otherwise use the name from the member
                 let s12_name = if !attr_name.is_empty() {
@@ -87,23 +102,24 @@ impl<'db, 'a> TypeHashParser<'db, 'a> {
             .collect::<Vec<Result<(String, S12Type), Diagnostic>>>();
 
         // 2. Build the string representation
-        let mut encoded_type = if args.name.is_empty() {
-            format!("\"{}\"(", self.plugin_type_info.name)
-        } else {
-            format!("\"{}\"(", args.name)
-        };
+        let mut encoded_type = format!("{}(", encode_json_string(primary_type_name));
+        let mut member_names = HashSet::new();
         for result in members_types {
             let (name, s12_type) = result?;
+            if !member_names.insert(name.clone()) {
+                return Err(Diagnostic::error(errors::DUPLICATE_SNIP12_NAME(&name)));
+            }
             let type_name = s12_type.get_snip12_type_name()?;
+            let encoded_name = encode_json_string(&name);
 
             // Format the member depending on the type variant
             match self.plugin_type_info.type_variant {
                 TypeVariant::Struct => {
-                    encoded_type.push_str(&format!("\"{name}\":\"{type_name}\","))
+                    encoded_type.push_str(&format!("{encoded_name}:\"{type_name}\","))
                 }
                 TypeVariant::Enum => {
                     let tuple = maybe_tuple(&type_name)?;
-                    encoded_type.push_str(&format!("\"{}\"({}),", name, tuple))
+                    encoded_type.push_str(&format!("{encoded_name}({tuple}),"))
                 }
             };
 
@@ -160,17 +176,21 @@ fn get_name_and_type_from_attributes(
     db: &dyn SyntaxGroup,
     attributes: &[Attribute],
 ) -> Result<Snip12Args, Diagnostic> {
+    let mut snip12_args = None;
     for attribute in attributes {
         let attribute_text = attribute.as_syntax_node().get_text_without_trivia(db);
         let Some(arguments) = snip12_attribute_arguments(attribute_text.long(db).as_str()) else {
             continue;
         };
-        return parse_snip12_args(arguments);
+        if snip12_args.is_some() {
+            return Err(Diagnostic::error(errors::MULTIPLE_SNIP12_ATTRIBUTES));
+        }
+        snip12_args = Some(parse_snip12_args(arguments)?);
     }
-    Ok(Snip12Args {
+    Ok(snip12_args.unwrap_or(Snip12Args {
         name: String::new(),
         kind: String::new(),
-    })
+    }))
 }
 
 /// Extracts the argument section from a `#[snip12(...)]` attribute.
@@ -215,10 +235,15 @@ pub(crate) fn parse_snip12_args(s: &str) -> Result<Snip12Args, Diagnostic> {
         name: String::new(),
         kind: String::new(),
     };
+    let mut name_seen = false;
+    let mut kind_seen = false;
 
-    // If the attribute is empty, return the default args
+    // Reject empty arguments; explicit `()` uses the default args.
     let s = s.trim();
-    if s.is_empty() || s == "()" {
+    if s.is_empty() {
+        return Err(Diagnostic::error(errors::INVALID_SNIP12_ATTRIBUTE_FORMAT));
+    }
+    if s == "()" {
         return Ok(args);
     }
 
@@ -236,8 +261,20 @@ pub(crate) fn parse_snip12_args(s: &str) -> Result<Snip12Args, Diagnostic> {
         };
 
         match name.trim() {
-            "name" => args.name = parse_string_arg(value.trim())?,
-            "kind" => args.kind = parse_string_arg(value.trim())?,
+            "name" => {
+                if name_seen {
+                    return Err(Diagnostic::error(errors::INVALID_SNIP12_ATTRIBUTE_FORMAT));
+                }
+                args.name = parse_string_arg(value.trim())?;
+                name_seen = true;
+            }
+            "kind" => {
+                if kind_seen {
+                    return Err(Diagnostic::error(errors::INVALID_SNIP12_ATTRIBUTE_FORMAT));
+                }
+                args.kind = parse_string_arg(value.trim())?;
+                kind_seen = true;
+            }
             _ => return Err(Diagnostic::error(errors::INVALID_SNIP12_ATTRIBUTE_FORMAT)),
         }
     }
@@ -282,6 +319,27 @@ fn decode_escaped_string(s: &str) -> Option<String> {
     Some(decoded)
 }
 
+/// Encodes a string as a JSON string literal, including the surrounding quotes.
+fn encode_json_string(value: &str) -> String {
+    let mut encoded = String::with_capacity(value.len() + 2);
+    encoded.push('"');
+
+    for ch in value.chars() {
+        match ch {
+            '"' => encoded.push_str("\\\""),
+            '\\' => encoded.push_str("\\\\"),
+            '\n' => encoded.push_str("\\n"),
+            '\r' => encoded.push_str("\\r"),
+            '\t' => encoded.push_str("\\t"),
+            '\u{0}'..='\u{1f}' => encoded.push_str(&format!("\\u{:04x}", ch as u32)),
+            _ => encoded.push(ch),
+        }
+    }
+
+    encoded.push('"');
+    encoded
+}
+
 /// Returns the enum compliant string representation of a tuple for the encoded type.
 ///
 /// If the input is not a tuple, it returns the input itself.
@@ -307,7 +365,33 @@ fn maybe_tuple(s: &str) -> Result<String, Diagnostic> {
 
 #[cfg(test)]
 mod tests {
-    use super::parse_string_arg;
+    use super::{encode_json_string, parse_snip12_args, parse_string_arg};
+
+    #[test]
+    fn rejects_duplicate_snip12_name_argument() {
+        assert!(parse_snip12_args(r#"(name: "first", name: "second")"#).is_err());
+    }
+
+    #[test]
+    fn rejects_duplicate_snip12_kind_argument() {
+        assert!(parse_snip12_args(r#"(kind: "felt252", kind: "u128")"#).is_err());
+    }
+
+    #[test]
+    fn accepts_distinct_snip12_arguments() {
+        let args = parse_snip12_args(r#"(name: "value", kind: "felt252")"#).unwrap();
+
+        assert_eq!(args.name, "value");
+        assert_eq!(args.kind, "felt252");
+    }
+
+    #[test]
+    fn encodes_json_string() {
+        assert_eq!(
+            encode_json_string("quote\" slash\\ newline\n nul\0 unit\u{1f}"),
+            r#""quote\" slash\\ newline\n nul\u0000 unit\u001f""#
+        );
+    }
 
     #[test]
     fn parses_plain_string_arg() {

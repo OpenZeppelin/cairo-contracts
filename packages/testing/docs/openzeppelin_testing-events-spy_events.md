@@ -1,6 +1,6 @@
 # spy_events
 
-<a href='https://github.com/OpenZeppelin/cairo-contracts/blob/e595c322b51f702363311a93b1e15f172083aa65/packages/testing/src/events.cairo#L14-L17'> [source code] </a>
+<a href='https://github.com/OpenZeppelin/cairo-contracts/blob/f65c1184eaa3454392aadee8939167ab4cd3a097/packages/testing/src/events.cairo#L14-L17'> [source code] </a>
 
 Creates a new `EventSpyQueue` instance.
 

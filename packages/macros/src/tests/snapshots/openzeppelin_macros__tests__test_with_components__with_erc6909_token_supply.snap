@@ -1,0 +1,71 @@
+---
+source: src/tests/test_with_components.rs
+expression: result
+---
+TokenStream:
+
+#[starknet::contract]
+pub mod MyToken {
+    use starknet::ContractAddress;
+    #[storage]
+    pub struct Storage {
+        #[substorage(v0)]
+        pub erc6909: ERC6909Component::Storage,
+        #[substorage(v0)]
+        pub erc6909_token_supply: ERC6909TokenSupplyComponent::Storage,
+        #[substorage(v0)]
+        pub src5: SRC5Component::Storage,
+    }
+    #[constructor]
+    fn constructor(ref self: ContractState) {
+        self.erc6909.initializer();
+        self.erc6909_token_supply.initializer();
+    }
+    impl ERC6909HooksImpl of ERC6909Component::ERC6909HooksTrait<ContractState> {
+        fn before_update(
+            ref self: ERC6909Component::ComponentState<ContractState>,
+            sender: ContractAddress,
+            receiver: ContractAddress,
+            id: u256,
+            amount: u256,
+        ) {
+            let mut contract_state = self.get_contract_mut();
+            contract_state.erc6909_token_supply.update_token_supply(sender, receiver, id, amount);
+        }
+    }
+    use openzeppelin_introspection::src5::SRC5Component;
+    use openzeppelin_token::erc6909::ERC6909Component;
+    use openzeppelin_token::erc6909::extensions::ERC6909TokenSupplyComponent;
+
+    component!(path: ERC6909Component, storage: erc6909, event: ERC6909Event);
+    component!(
+        path: ERC6909TokenSupplyComponent,
+        storage: erc6909_token_supply,
+        event: ERC6909TokenSupplyEvent,
+    );
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
+
+    impl ERC6909InternalImpl = ERC6909Component::InternalImpl<ContractState>;
+    impl ERC6909TokenSupplyInternalImpl = ERC6909TokenSupplyComponent::InternalImpl<ContractState>;
+    impl SRC5InternalImpl = SRC5Component::InternalImpl<ContractState>;
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        ERC6909Event: ERC6909Component::Event,
+        #[flat]
+        ERC6909TokenSupplyEvent: ERC6909TokenSupplyComponent::Event,
+        #[flat]
+        SRC5Event: SRC5Component::Event,
+    }
+}
+
+
+Diagnostics:
+
+None
+
+AuxData:
+
+None

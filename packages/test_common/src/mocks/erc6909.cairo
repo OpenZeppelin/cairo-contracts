@@ -364,7 +364,6 @@ pub mod ERC6909MetadataAccessControlDefaultAdminRulesMock {
 #[starknet::contract]
 #[with_components(ERC6909, ERC6909TokenSupply, SRC5)]
 pub mod ERC6909TokenSupplyMock {
-    use openzeppelin_token::erc6909::ERC6909HooksEmptyImpl;
     use starknet::ContractAddress;
 
     #[abi(embed_v0)]
@@ -383,5 +382,18 @@ pub mod ERC6909TokenSupplyMock {
         self.erc6909.initializer();
         self.erc6909_token_supply.initializer();
         self.erc6909.mint(recipient, id, amount);
+    }
+
+    impl ERC6909HooksImpl of ERC6909Component::ERC6909HooksTrait<ContractState> {
+        fn before_update(
+            ref self: ERC6909Component::ComponentState<ContractState>,
+            from: ContractAddress,
+            recipient: ContractAddress,
+            id: u256,
+            amount: u256,
+        ) {
+            let mut contract_state = self.get_contract_mut();
+            contract_state.erc6909_token_supply.update_token_supply(from, recipient, id, amount);
+        }
     }
 }

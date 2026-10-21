@@ -1,0 +1,23 @@
+---
+source: src/tests/test_type_hash.rs
+assertion_line: 549
+expression: result
+---
+TokenStream:
+
+pub enum MyEnum {
+    Value: felt252,
+    #[snip12(name: "Value")]
+    Other: felt252,
+}
+
+
+Diagnostics:
+
+====
+Error: Duplicate SNIP-12 member or variant name: Value.
+====
+
+AuxData:
+
+None

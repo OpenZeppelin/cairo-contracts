@@ -1,6 +1,7 @@
 pub mod account;
 pub mod eth_account;
 pub mod extensions;
+pub mod falcon_512;
 pub mod multisig_account;
 
 #[cfg(test)]
@@ -9,4 +10,8 @@ pub mod utils;
 
 pub use account::AccountComponent;
 pub use eth_account::EthAccountComponent;
+pub use falcon_512::{
+    Falcon512AccountComponent, Falcon512ShakeDirectVerifier, Falcon512ShakeVerifier,
+    Falcon512SignatureVerifier,
+};
 pub use multisig_account::MultisigAccountComponent;

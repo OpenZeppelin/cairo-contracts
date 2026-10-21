@@ -3,7 +3,9 @@ use openzeppelin_interfaces::introspection::ISRC5_ID;
 use openzeppelin_introspection::src5::SRC5Component::SRC5Impl;
 use openzeppelin_test_common::mocks::erc6909::ERC6909TokenSupplyMock;
 use openzeppelin_testing::constants::{OWNER, RECIPIENT, TOKEN_ID, VALUE, ZERO};
+use snforge_std::{start_cheat_caller_address, test_address};
 use starknet::ContractAddress;
+use crate::erc6909::ERC6909Component::{ERC6909Impl, InternalImpl as ERC6909InternalImpl};
 use crate::erc6909::extensions::erc6909_token_supply::ERC6909TokenSupplyComponent;
 use crate::erc6909::extensions::erc6909_token_supply::ERC6909TokenSupplyComponent::{
     ERC6909TokenSupplyImpl, InternalImpl,
@@ -35,6 +37,43 @@ fn test_initializer_registers_interface() {
 fn test_total_supply_default_zero() {
     let state = COMPONENT_STATE();
     assert_eq!(state.total_supply(TOKEN_ID), 0);
+}
+
+#[test]
+fn test_mint_updates_total_supply() {
+    let mut state = CONTRACT_STATE();
+
+    state.erc6909.mint(OWNER, TOKEN_ID, VALUE);
+    state.erc6909.mint(RECIPIENT, TOKEN_ID, 1);
+
+    assert_eq!(state.erc6909_token_supply.total_supply(TOKEN_ID), VALUE + 1);
+    assert_eq!(state.erc6909_token_supply.total_supply(TOKEN_ID + 1), 0);
+    assert_eq!(state.erc6909.balance_of(OWNER, TOKEN_ID), VALUE);
+    assert_eq!(state.erc6909.balance_of(RECIPIENT, TOKEN_ID), 1);
+}
+
+#[test]
+fn test_burn_updates_total_supply() {
+    let mut state = CONTRACT_STATE();
+    state.erc6909.mint(OWNER, TOKEN_ID, VALUE);
+
+    state.erc6909.burn(OWNER, TOKEN_ID, 1);
+
+    assert_eq!(state.erc6909_token_supply.total_supply(TOKEN_ID), VALUE - 1);
+    assert_eq!(state.erc6909.balance_of(OWNER, TOKEN_ID), VALUE - 1);
+}
+
+#[test]
+fn test_transfer_preserves_total_supply() {
+    let mut state = CONTRACT_STATE();
+    state.erc6909.mint(OWNER, TOKEN_ID, VALUE);
+    start_cheat_caller_address(test_address(), OWNER);
+
+    assert!(state.erc6909.transfer(RECIPIENT, TOKEN_ID, 1));
+
+    assert_eq!(state.erc6909_token_supply.total_supply(TOKEN_ID), VALUE);
+    assert_eq!(state.erc6909.balance_of(OWNER, TOKEN_ID), VALUE - 1);
+    assert_eq!(state.erc6909.balance_of(RECIPIENT, TOKEN_ID), 1);
 }
 
 #[test]

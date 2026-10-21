@@ -1,0 +1,111 @@
+---
+source: src/tests/test_with_components.rs
+expression: result
+---
+TokenStream:
+
+#[starknet::contract]
+pub mod MyToken {
+    use openzeppelin_token::erc721::extensions::DefaultConfig;
+    use openzeppelin_token::erc721::{ERC721OwnerOfDefaultImpl, ERC721TokenURIDefaultImpl};
+    use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
+    use starknet::ContractAddress;
+    #[storage]
+    pub struct Storage {
+        #[substorage(v0)]
+        pub erc721: ERC721Component::Storage,
+        #[substorage(v0)]
+        pub erc721_consecutive: ERC721ConsecutiveComponent::Storage,
+        #[substorage(v0)]
+        pub votes: VotesComponent::Storage,
+        #[substorage(v0)]
+        pub nonces: NoncesComponent::Storage,
+        #[substorage(v0)]
+        pub src5: SRC5Component::Storage,
+    }
+    pub impl SNIP12MetadataImpl of SNIP12Metadata {
+        fn name() -> felt252 {
+            "DAPP_NAME"
+        }
+        fn version() -> felt252 {
+            "DAPP_VERSION"
+        }
+    }
+    impl ERC721VotesHooksImpl of ERC721Component::ERC721HooksTrait<ContractState> {
+        fn before_update(
+            ref self: ERC721Component::ComponentState<ContractState>,
+            to: ContractAddress,
+            token_id: u256,
+            auth: ContractAddress,
+        ) {
+            let mut contract_state = self.get_contract_mut();
+            let previous_owner = self._owner_of(token_id);
+            contract_state.votes.transfer_voting_units(previous_owner, to, 1);
+            contract_state.erc721_consecutive.before_update(to, token_id, auth);
+        }
+        fn after_update(
+            ref self: ERC721Component::ComponentState<ContractState>,
+            to: ContractAddress,
+            token_id: u256,
+            auth: ContractAddress,
+        ) {
+            let mut contract_state = self.get_contract_mut();
+            contract_state.erc721_consecutive.after_update(to, token_id, auth);
+        }
+    }
+    #[constructor]
+    fn constructor(ref self: ContractState) {
+        self.erc721.initializer("MyToken", "MTK", "");
+    }
+    use openzeppelin_governance::votes::VotesComponent;
+    use openzeppelin_introspection::src5::SRC5Component;
+    use openzeppelin_token::erc721::ERC721Component;
+    use openzeppelin_token::erc721::extensions::ERC721ConsecutiveComponent;
+    use openzeppelin_utils::nonces::NoncesComponent;
+
+    component!(path: ERC721Component, storage: erc721, event: ERC721Event);
+    component!(
+        path: ERC721ConsecutiveComponent,
+        storage: erc721_consecutive,
+        event: ERC721ConsecutiveEvent,
+    );
+    component!(path: VotesComponent, storage: votes, event: VotesEvent);
+    component!(path: NoncesComponent, storage: nonces, event: NoncesEvent);
+    component!(path: SRC5Component, storage: src5, event: SRC5Event);
+
+    impl ERC721InternalImpl = ERC721Component::InternalImpl<ContractState>;
+    impl ERC721ConsecutiveInternalImpl = ERC721ConsecutiveComponent::InternalImpl<ContractState>;
+    impl VotesInternalImpl = VotesComponent::InternalImpl<ContractState>;
+    impl NoncesInternalImpl = NoncesComponent::InternalImpl<ContractState>;
+    impl SRC5InternalImpl = SRC5Component::InternalImpl<ContractState>;
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        ERC721Event: ERC721Component::Event,
+        #[flat]
+        ERC721ConsecutiveEvent: ERC721ConsecutiveComponent::Event,
+        #[flat]
+        VotesEvent: VotesComponent::Event,
+        #[flat]
+        NoncesEvent: NoncesComponent::Event,
+        #[flat]
+        SRC5Event: SRC5Component::Event,
+    }
+}
+
+
+Diagnostics:
+
+====
+Warning: The ERC721Consecutive and Votes components require additional integration because
+`mint_consecutive` bypasses ERC721 update hooks. A standard `transfer_voting_units` hook
+therefore does not account for consecutively minted tokens.
+
+Explicitly update voting units after consecutive mints or avoid this combination.
+====
+
+AuxData:
+
+None

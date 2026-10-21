@@ -1,6 +1,6 @@
 # DAPP_NAME
 
-<a href='https://github.com/OpenZeppelin/cairo-contracts/blob/e595c322b51f702363311a93b1e15f172083aa65/packages/testing/src/constants.cairo#L27-L27'> [source code] </a>
+<a href='https://github.com/OpenZeppelin/cairo-contracts/blob/f65c1184eaa3454392aadee8939167ab4cd3a097/packages/testing/src/constants.cairo#L27-L27'> [source code] </a>
 
 Fully qualified path: [openzeppelin_testing](./openzeppelin_testing.md)::[constants](./openzeppelin_testing-constants.md)::[DAPP_NAME](./openzeppelin_testing-constants-DAPP_NAME.md)
 

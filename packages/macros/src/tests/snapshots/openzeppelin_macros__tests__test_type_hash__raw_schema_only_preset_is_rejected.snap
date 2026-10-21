@@ -1,0 +1,20 @@
+---
+source: src/tests/test_type_hash.rs
+expression: result
+---
+TokenStream:
+
+pub struct MyType {
+    pub nft_id: NftId,
+}
+
+
+Diagnostics:
+
+====
+Error: Inner custom types are not supported yet.
+====
+
+AuxData:
+
+None

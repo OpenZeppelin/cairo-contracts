@@ -1,0 +1,20 @@
+---
+source: src/tests/test_type_hash.rs
+expression: result
+---
+TokenStream:
+
+pub struct MyType {
+    pub value: u256,
+}
+
+
+Diagnostics:
+
+====
+Error: SNIP-12 type name `u256` is reserved and cannot be used as a primary type.
+====
+
+AuxData:
+
+None

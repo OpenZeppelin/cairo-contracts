@@ -1,0 +1,72 @@
+---
+source: src/tests/test_with_components.rs
+expression: result
+---
+TokenStream:
+
+#[starknet::contract]
+pub mod MyToken {
+    use openzeppelin_token::erc20::extensions::erc20_flash_mint::DefaultConfig;
+    use openzeppelin_utils::cryptography::snip12::SNIP12Metadata;
+    #[storage]
+    pub struct Storage {
+        #[substorage(v0)]
+        pub erc20_flash_mint: ERC20FlashMintComponent::Storage,
+        #[substorage(v0)]
+        pub votes: VotesComponent::Storage,
+        #[substorage(v0)]
+        pub nonces: NoncesComponent::Storage,
+    }
+    pub impl SNIP12MetadataImpl of SNIP12Metadata {
+        fn name() -> felt252 {
+            "DAPP_NAME"
+        }
+        fn version() -> felt252 {
+            "DAPP_VERSION"
+        }
+    }
+    use openzeppelin_governance::votes::VotesComponent;
+    use openzeppelin_token::erc20::extensions::erc20_flash_mint::ERC20FlashMintComponent;
+    use openzeppelin_utils::nonces::NoncesComponent;
+
+    component!(
+        path: ERC20FlashMintComponent, storage: erc20_flash_mint, event: ERC20FlashMintEvent,
+    );
+    component!(path: VotesComponent, storage: votes, event: VotesEvent);
+    component!(path: NoncesComponent, storage: nonces, event: NoncesEvent);
+
+    impl VotesInternalImpl = VotesComponent::InternalImpl<ContractState>;
+    impl NoncesInternalImpl = NoncesComponent::InternalImpl<ContractState>;
+
+    #[event]
+    #[derive(Drop, starknet::Event)]
+    enum Event {
+        #[flat]
+        ERC20FlashMintEvent: ERC20FlashMintComponent::Event,
+        #[flat]
+        VotesEvent: VotesComponent::Event,
+        #[flat]
+        NoncesEvent: NoncesComponent::Event,
+    }
+}
+
+
+Diagnostics:
+
+====
+Warning: The ERC20FlashMint and Votes components require additional integration care because
+`max_flash_loan` does not account for an additional voting-supply cap. Calling
+`transfer_voting_units` from the ERC20 hooks does not address this limitation.
+
+Consider avoiding this combination or overriding `FlashMintConfigTrait` to enforce the
+appropriate maximum flash loan.
+========
+Warning: The Votes component requires calling `self.votes.transfer_voting_units(...)` from the
+token update hooks, and it looks like it is missing.
+
+This may lead to incorrect voting units and checkpoint tracking.
+====
+
+AuxData:
+
+None

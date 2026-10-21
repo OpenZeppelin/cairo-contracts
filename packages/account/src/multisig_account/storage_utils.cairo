@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-// OpenZeppelin Contracts for Cairo v4.0.0-alpha.1
+// OpenZeppelin Contracts for Cairo v4.0.1
 // (account/src/multisig_account/storage_utils.cairo)
 
 use core::integer::u128_safe_divmod;

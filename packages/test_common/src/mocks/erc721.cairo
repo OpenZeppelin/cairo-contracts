@@ -441,7 +441,7 @@ pub mod ERC721URIStorageMock {
 #[with_components(ERC721, ERC721Consecutive, SRC5)]
 pub mod ERC721ConsecutiveMock {
     use openzeppelin_token::erc721::ERC721TokenURIDefaultImpl;
-    use openzeppelin_token::erc721::extensions::erc721_consecutive::DefaultConfig;
+    use openzeppelin_token::erc721::extensions::DefaultConfig;
     use starknet::ContractAddress;
     use super::{IERC721Burnable, IERC721ConsecutiveMintable};
 
@@ -507,7 +507,7 @@ pub mod ERC721ConsecutiveMock {
 #[with_components(ERC721, ERC721Consecutive, SRC5)]
 pub mod ERC721ConsecutiveMultiBatchMock {
     use openzeppelin_token::erc721::ERC721TokenURIDefaultImpl;
-    use openzeppelin_token::erc721::extensions::erc721_consecutive::DefaultConfig;
+    use openzeppelin_token::erc721::extensions::DefaultConfig;
     use starknet::ContractAddress;
     use super::IERC721Burnable;
 

@@ -25,10 +25,10 @@ scarb.workspace = true
 
 [dependencies]
 starknet.workspace = true
-openzeppelin_access = { path = "../access" }
-openzeppelin_interfaces = { path = "../interfaces" }
-openzeppelin_introspection = { path = "../introspection" }
-openzeppelin_utils = { path = "../utils" }
+openzeppelin_access = { version = "4.0.1", path = "../access" }
+openzeppelin_interfaces = { version = "2.2.0", path = "../interfaces" }
+openzeppelin_introspection = { version = "4.0.1", path = "../introspection" }
+openzeppelin_utils = { version = "2.2.0", path = "../utils" }
 
 [dev-dependencies]
 assert_macros.workspace = true

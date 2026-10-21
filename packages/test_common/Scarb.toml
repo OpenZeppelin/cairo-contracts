@@ -19,18 +19,18 @@ scarb.workspace = true
 [dependencies]
 starknet.workspace = true
 snforge_std.workspace = true
-openzeppelin_access = { path = "../access" }
-openzeppelin_account = { path = "../account" }
-openzeppelin_finance = { path = "../finance" }
-openzeppelin_governance = { path = "../governance" }
-openzeppelin_interfaces = { path = "../interfaces" }
-openzeppelin_introspection = { path = "../introspection" }
+openzeppelin_access = { version = "4.0.1", path = "../access" }
+openzeppelin_account = { version = "4.0.1", path = "../account" }
+openzeppelin_finance = { version = "4.0.1", path = "../finance" }
+openzeppelin_governance = { version = "4.0.1", path = "../governance" }
+openzeppelin_interfaces = { version = "2.2.0", path = "../interfaces" }
+openzeppelin_introspection = { version = "4.0.1", path = "../introspection" }
 openzeppelin_macros = { path = "../macros" }
-openzeppelin_security = { path = "../security" }
-openzeppelin_token = { path = "../token" }
+openzeppelin_security = { version = "4.0.1", path = "../security" }
+openzeppelin_token = { version = "4.0.1", path = "../token" }
 openzeppelin_testing = { path = "../testing" }
-openzeppelin_upgrades = { path = "../upgrades" }
-openzeppelin_utils = { path = "../utils" }
+openzeppelin_upgrades = { version = "4.0.1", path = "../upgrades" }
+openzeppelin_utils = { version = "2.2.0", path = "../utils" }
 
 [lib]
 

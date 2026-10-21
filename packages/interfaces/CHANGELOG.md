@@ -11,8 +11,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- `IMultisigAccount`, `IMultisigDeployable`, and `MultisigAccountABI` for quorum-based
-  STARK-curve accounts
+- `IMultisigAccount`, `IMultisigDeployable`, and `MultisigAccountABI` interfaces for
+  quorum-based STARK-curve accounts (#1745)
+
+## 2.2.0 (2026-08-26)
+
+### Added
+
+- `IERC20Wrapper` and `IERC20WrapperABI` interfaces (#1617)
+- `IERC721Wrapper` and `IERC721ReceiverMut` interfaces (#1625)
+- `IERC1155Supply` interface (#1632)
+- ERC-6909 interfaces, ABI trait, and interface IDs (#1594)
+- `IERC6909MetadataAdmin` and `IERC6909ContentUriAdmin` interfaces and their
+  `ERC6909ABI` methods (#1676)
+- `IERC3156FlashLender` and `IERC3156FlashBorrower` interfaces (#1608)
+
+### Changed
+
+- Updated the Cairo and Scarb requirement to 2.18.0
 
 ## 2.1.0 (2025-12-11)
 

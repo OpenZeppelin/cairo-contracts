@@ -2,17 +2,26 @@
 
 > **NOTE:** This document is better viewed at [https://docs.openzeppelin.com/contracts-cairo/presets](https://docs.openzeppelin.com/contracts-cairo/3.x/presets)
 
-Presets are ready-to-deploy contracts that combine widely used components into simple,
-general-purpose configurations.
+Presets are ready-to-deploy contracts provided by the library. Since presets are intended to be very simple and as
+generic as possible, there’s no support for custom or complex contracts such as `ERC20Pausable` or `ERC721Mintable`.
 
-Use [Wizard for Cairo](https://wizard.openzeppelin.com/cairo), our code-generation tool, to build
-custom combinations of components.
+For contract customization and combination of modules you can use
+[Wizard for Cairo](https://wizard.openzeppelin.com/cairo), our code-generation tool.
 
-`MultisigAccountUpgradeable` provides quorum-based STARK-curve authorization through SRC6,
-outside execution through SRC9, and self-authorized class upgrades. The current signer quorum
-authorizes signer, quorum, and implementation changes through account self-calls. Its signatures
-use the canonical `[1, n, public_key_1, r_1, s_1, ..., public_key_n, r_n, s_n]` encoding described
-in the [account API](https://docs.openzeppelin.com/contracts-cairo/3.x/api/account#MultisigAccountComponent).
+The Falcon-512 account presets support SRC9 outside execution, self-authorized class upgrades, and
+owner-authorized key rotation. Build their deployable artifacts with
+`scarb --release build -p openzeppelin_presets`; their Falcon verification paths require the
+release compiler profile.
+The Falcon presets are not included in the repository's Sepolia pre-declaration script. Declare
+the release artifact on the intended network and verify its class hash before deploying.
+
+> **WARNING:** The Falcon presets use contract-specific public-key and signature encodings for the
+> FALCON submission verification relation. They are not FN-DSA (FIPS 206) implementations.
+
+`MultisigAccountUpgradeable` is authorized by a quorum of STARK-curve signer keys and supports SRC9
+outside execution and self-authorized class upgrades. The current signer quorum manages the signer
+set, the quorum, and the implementation through account self-calls. The signature encoding is
+described in the [account README](../account/README.md#multisig-signatures).
 
 ### Presets
 
@@ -21,5 +30,7 @@ in the [account API](https://docs.openzeppelin.com/contracts-cairo/3.x/api/accou
 - [`ERC721Upgradeable`](https://docs.openzeppelin.com/contracts-cairo/3.x/api/erc721#ERC721Upgradeable)
 - [`ERC1155Upgradeable`](https://docs.openzeppelin.com/contracts-cairo/3.x/api/erc1155#ERC1155Upgradeable)
 - [`EthAccountUpgradeable`](https://docs.openzeppelin.com/contracts-cairo/3.x/api/account#EthAccountUpgradeable)
-- [`MultisigAccountUpgradeable`](https://docs.openzeppelin.com/contracts-cairo/3.x/api/account#MultisigAccountUpgradeable)
+- [`Falcon512ShakeAccountUpgradeable`](src/falcon_512_shake_account.cairo)
+- [`Falcon512ShakeDirectAccountUpgradeable`](src/falcon_512_shake_direct_account.cairo)
+- [`MultisigAccountUpgradeable`](src/multisig_account.cairo)
 - [`UniversalDeployer`](https://docs.openzeppelin.com/contracts-cairo/3.x/api/udc#UniversalDeployer)

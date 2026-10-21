@@ -1,0 +1,26 @@
+---
+source: src/tests/test_type_hash.rs
+assertion_line: 549
+expression: result
+---
+TokenStream:
+
+pub enum MyEnum {
+    #[snip12(name: "variant\"\\")]
+    Value: felt252,
+}
+pub fn __MY_ENUM_encoded_type() {
+    println!("\"MyEnum\"(\"variant\\\"\\\\\"(\"felt\"))");
+}
+pub const MY_ENUM_TYPE_HASH: felt252 =
+    0x2ef1a57e9a7173f9bfa51b0ff1aacc069fdb14a65b86ac5d3bbf5e52ee1f227;
+
+
+
+Diagnostics:
+
+None
+
+AuxData:
+
+None

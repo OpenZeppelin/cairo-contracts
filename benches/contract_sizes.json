@@ -142,7 +142,7 @@
       "felts": 5928
     },
     "openzeppelin_test_common_ERC6909TokenSupplyMock.compiled_contract_class.json": {
-      "felts": 6042
+      "felts": 6628
     },
     "openzeppelin_test_common_ERC721BlockNumberVotesMock.compiled_contract_class.json": {
       "felts": 18621
@@ -169,13 +169,13 @@
       "felts": 10185
     },
     "openzeppelin_test_common_GovernorMock.compiled_contract_class.json": {
-      "felts": 19969
+      "felts": 19945
     },
     "openzeppelin_test_common_GovernorQuorumFractionMock.compiled_contract_class.json": {
-      "felts": 24705
+      "felts": 24681
     },
     "openzeppelin_test_common_GovernorTimelockedMock.compiled_contract_class.json": {
-      "felts": 24086
+      "felts": 24062
     },
     "openzeppelin_test_common_InitializableMock.compiled_contract_class.json": {
       "felts": 239
@@ -220,7 +220,7 @@
       "felts": 216
     },
     "openzeppelin_test_common_SRC9AccountMock.compiled_contract_class.json": {
-      "felts": 5322
+      "felts": 5442
     },
     "openzeppelin_test_common_SimpleMock.compiled_contract_class.json": {
       "felts": 381
@@ -408,7 +408,7 @@
       "bytes": 112057
     },
     "openzeppelin_test_common_ERC6909TokenSupplyMock.contract_class.json": {
-      "bytes": 110003
+      "bytes": 119664
     },
     "openzeppelin_test_common_ERC721BlockNumberVotesMock.contract_class.json": {
       "bytes": 370349
@@ -435,13 +435,13 @@
       "bytes": 217161
     },
     "openzeppelin_test_common_GovernorMock.contract_class.json": {
-      "bytes": 476955
+      "bytes": 476299
     },
     "openzeppelin_test_common_GovernorQuorumFractionMock.contract_class.json": {
-      "bytes": 576289
+      "bytes": 575733
     },
     "openzeppelin_test_common_GovernorTimelockedMock.contract_class.json": {
-      "bytes": 574770
+      "bytes": 574247
     },
     "openzeppelin_test_common_InitializableMock.contract_class.json": {
       "bytes": 8568
@@ -486,7 +486,7 @@
       "bytes": 7972
     },
     "openzeppelin_test_common_SRC9AccountMock.contract_class.json": {
-      "bytes": 121871
+      "bytes": 126225
     },
     "openzeppelin_test_common_SimpleMock.contract_class.json": {
       "bytes": 11093

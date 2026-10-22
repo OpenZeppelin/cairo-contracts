@@ -38,11 +38,10 @@ jobs:
         run: curl -L https://raw.githubusercontent.com/software-mansion/cairo-coverage/main/scripts/install.sh | sh
 
       - name: Markdown lint
-        uses: DavidAnson/markdownlint-cli2-action@6bf21b07787794f89a243495939cd651942aeabe # v16
+        uses: DavidAnson/markdownlint-cli2-action@6bf21b07787794f89a243495939cd651942aeabe # v24.1.0
         with:
-          globs: |
-            *.md
-            !PULL_REQUEST_TEMPLATE.md
+          config: .markdownlint-cli2.jsonc
+          globs: ''
 
       - name: Verify generated Falcon NTT sources
         run: |

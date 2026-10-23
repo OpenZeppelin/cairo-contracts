@@ -30,3 +30,20 @@ pub impl SignersInfoStorePacking of StorePacking<SignersInfo, u128> {
         }
     }
 }
+
+#[cfg(test)]
+#[cfg(feature: 'fuzzing')]
+mod tests {
+    use starknet::storage_access::StorePacking;
+    use super::SignersInfo;
+
+    #[test]
+    #[fuzzer]
+    fn test_pack_unpack_signers_info(quorum: u32, signers_count: u32) {
+        let packed_value = StorePacking::pack(SignersInfo { quorum, signers_count });
+        let unpacked_info: SignersInfo = StorePacking::unpack(packed_value);
+
+        assert_eq!(unpacked_info.quorum, quorum);
+        assert_eq!(unpacked_info.signers_count, signers_count);
+    }
+}

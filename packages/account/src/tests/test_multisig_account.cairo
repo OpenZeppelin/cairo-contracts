@@ -25,7 +25,7 @@ use starknet::account::Call;
 use starknet::storage_access::StorePacking;
 use crate::MultisigAccountComponent;
 use crate::MultisigAccountComponent::{
-    InternalTrait, MultisigImpl, SIGNATURE_VERSION, SRC6CamelOnlyImpl,
+    InternalTrait, MAX_QUORUM, MultisigImpl, SIGNATURE_VERSION, SRC6CamelOnlyImpl,
 };
 use crate::multisig_account::storage_utils::{SignersInfo, SignersInfoStorePacking};
 
@@ -37,6 +37,25 @@ fn COMPONENT_STATE() -> ComponentState {
 
 fn KEY_PAIR_3() -> StarkKeyPair {
     get_stark_keys_from('PRIVATE_KEY_3')
+}
+
+fn KEY_PAIR_4() -> StarkKeyPair {
+    get_stark_keys_from('PRIVATE_KEY_4')
+}
+
+fn KEY_PAIR_5() -> StarkKeyPair {
+    get_stark_keys_from('PRIVATE_KEY_5')
+}
+
+/// Smallest felt that is not the x-coordinate of a Stark curve point.
+const OFF_CURVE_SIGNER: felt252 = 5;
+
+fn many_key_pairs(count: u32) -> Array<StarkKeyPair> {
+    let mut result = array![];
+    for index in 0..count {
+        result.append(get_stark_keys_from('MANY_SIGNERS_KEY' + index.into()));
+    }
+    result
 }
 
 fn DEFAULT_KEY_PAIRS() -> Array<StarkKeyPair> {
@@ -197,7 +216,10 @@ fn test_parser_rejects_below_quorum_and_above_registered_count() {
     assert!(state.is_valid_signature(TRANSACTION_HASH, below_quorum).is_zero());
     assert!(state.is_valid_signature(TRANSACTION_HASH, array![SIGNATURE_VERSION, 0]).is_zero());
 
-    let too_many = array![SIGNATURE_VERSION, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+    // Four well-formed records from ascending non-zero keys against three registered signers
+    // exercise the early exit on the record count rather than the ordering check.
+    let too_many_pairs = array![KEY_PAIR(), KEY_PAIR_2(), KEY_PAIR_3(), KEY_PAIR_4()];
+    let too_many = get_multisig_signature(TRANSACTION_HASH, too_many_pairs.span());
     assert!(state.is_valid_signature(TRANSACTION_HASH, too_many).is_zero());
 }
 
@@ -375,6 +397,30 @@ fn test_initializer_rejects_zero_signer() {
 }
 
 #[test]
+#[should_panic(expected: 'MultisigAccount: invalid signer')]
+fn test_initializer_rejects_off_curve_signer() {
+    let mut state = COMPONENT_STATE();
+    state.initializer(1, array![KEY_PAIR().public_key, OFF_CURVE_SIGNER].span());
+}
+
+#[test]
+#[should_panic(expected: 'MultisigAccount: quorum > max')]
+fn test_initializer_rejects_quorum_above_max() {
+    let key_pairs = many_key_pairs(MAX_QUORUM + 1);
+    let mut state = COMPONENT_STATE();
+    state.initializer(MAX_QUORUM + 1, public_keys(key_pairs.span()).span());
+}
+
+#[test]
+fn test_signer_count_can_exceed_max_quorum() {
+    let key_pairs = many_key_pairs(MAX_QUORUM + 1);
+    let state = setup_component(MAX_QUORUM, key_pairs.span());
+
+    assert_eq!(state.get_quorum(), MAX_QUORUM);
+    assert_eq!(state.get_signers().len(), MAX_QUORUM + 1);
+}
+
+#[test]
 fn test_add_signers_duplicate_empty_and_quorum_branches() {
     let initial_pairs = array![KEY_PAIR(), KEY_PAIR_2()];
     let mut state = setup_component(1, initial_pairs.span());
@@ -410,6 +456,14 @@ fn test_add_signers_rejects_zero_signer() {
     let mut state = setup_component(1, array![KEY_PAIR()].span());
     start_cheat_caller_address(test_address(), test_address());
     state.add_signers(1, array![0].span());
+}
+
+#[test]
+#[should_panic(expected: 'MultisigAccount: invalid signer')]
+fn test_add_signers_rejects_off_curve_signer() {
+    let mut state = setup_component(1, array![KEY_PAIR()].span());
+    start_cheat_caller_address(test_address(), test_address());
+    state.add_signers(1, array![OFF_CURVE_SIGNER].span());
 }
 
 #[test]
@@ -509,6 +563,14 @@ fn test_replace_signer_rejects_zero_new_signer() {
 }
 
 #[test]
+#[should_panic(expected: 'MultisigAccount: invalid signer')]
+fn test_replace_signer_rejects_off_curve_signer() {
+    let mut state = setup_component(1, array![KEY_PAIR()].span());
+    start_cheat_caller_address(test_address(), test_address());
+    state.replace_signer(KEY_PAIR().public_key, OFF_CURVE_SIGNER);
+}
+
+#[test]
 #[should_panic(expected: 'MultisigAccount: already signer')]
 fn test_replace_signer_rejects_registered_new_signer() {
     let key_pairs = array![KEY_PAIR(), KEY_PAIR_2()];
@@ -573,11 +635,20 @@ fn test_change_quorum_rejects_value_above_signer_count() {
 }
 
 #[test]
+#[should_panic(expected: 'MultisigAccount: quorum > max')]
+fn test_change_quorum_rejects_value_above_max() {
+    let key_pairs = many_key_pairs(MAX_QUORUM + 1);
+    let mut state = setup_component(MAX_QUORUM, key_pairs.span());
+    start_cheat_caller_address(test_address(), test_address());
+    state.change_quorum(MAX_QUORUM + 1);
+}
+
+#[test]
 fn test_mixin_dispatches_all_signer_management_methods() {
     let (account_address, account, _) = deploy_default_account();
     let original_signers = account.get_signers();
-    let added_signer = 'ADDED_SIGNER';
-    let replacement_signer = 'REPLACEMENT_SIGNER';
+    let added_signer = KEY_PAIR_4().public_key;
+    let replacement_signer = KEY_PAIR_5().public_key;
     start_cheat_caller_address(account_address, account_address);
 
     account.add_signers(3, array![added_signer].span());
@@ -595,6 +666,98 @@ fn test_mixin_dispatches_all_signer_management_methods() {
     account.change_quorum(1);
     assert_eq!(account.get_quorum(), 1);
     assert!(account.supports_interface(ISRC6_ID));
+}
+
+#[test]
+fn test_remove_signers_multiple_including_swapped_slot() {
+    let key_pairs = array![KEY_PAIR(), KEY_PAIR_2(), KEY_PAIR_3(), KEY_PAIR_4()];
+    let signers = public_keys(key_pairs.span());
+    let mut state = setup_component(1, key_pairs.span());
+    start_cheat_caller_address(test_address(), test_address());
+    let mut spy = spy_events();
+
+    // Removing the second signer moves the last signer into its slot, and the second removal
+    // then targets the slot that was just rewritten.
+    state.remove_signers(1, array![*signers.at(1), *signers.at(3)].span());
+
+    assert_signers(@state, array![*signers.at(0), *signers.at(2)].span());
+    assert!(!state.is_signer(*signers.at(1)));
+    assert!(!state.is_signer(*signers.at(3)));
+    spy.assert_event_signer_removed(test_address(), *signers.at(1));
+    spy.assert_event_signer_removed(test_address(), *signers.at(3));
+    spy.assert_no_events_left_from(test_address());
+
+    // The registry keeps a consistent index map after the double swap.
+    let new_signer = KEY_PAIR_5().public_key;
+    state.add_signers(1, array![new_signer].span());
+    assert_signers(@state, array![*signers.at(0), *signers.at(2), new_signer].span());
+    state.remove_signers(1, array![*signers.at(2)].span());
+    assert_signers(@state, array![*signers.at(0), new_signer].span());
+}
+
+#[test]
+fn test_remove_signer_at_index_zero() {
+    let key_pairs = DEFAULT_KEY_PAIRS();
+    let signers = public_keys(key_pairs.span());
+    let mut state = setup_component(1, key_pairs.span());
+    start_cheat_caller_address(test_address(), test_address());
+
+    state.remove_signers(1, array![*signers.at(0)].span());
+    assert_signers(@state, array![*signers.at(2), *signers.at(1)].span());
+    assert!(!state.is_signer(*signers.at(0)));
+
+    state.remove_signers(1, array![*signers.at(2)].span());
+    assert_signers(@state, array![*signers.at(1)].span());
+    assert!(!state.is_signer(*signers.at(2)));
+}
+
+#[test]
+fn test_replace_signer_then_remove_replacement() {
+    let key_pairs = array![KEY_PAIR(), KEY_PAIR_2()];
+    let mut state = setup_component(1, key_pairs.span());
+    start_cheat_caller_address(test_address(), test_address());
+    let old_signer = KEY_PAIR().public_key;
+    let kept_signer = KEY_PAIR_2().public_key;
+    let replacement = KEY_PAIR_3().public_key;
+
+    state.replace_signer(old_signer, replacement);
+    assert_signers(@state, array![replacement, kept_signer].span());
+
+    state.remove_signers(1, array![replacement].span());
+    assert_signers(@state, array![kept_signer].span());
+    assert!(!state.is_signer(replacement));
+    assert!(!state.is_signer(old_signer));
+
+    state.add_signers(1, array![replacement].span());
+    state.replace_signer(kept_signer, old_signer);
+    assert_signers(@state, array![old_signer, replacement].span());
+}
+
+#[test]
+fn test_readd_removed_signer() {
+    let key_pairs = DEFAULT_KEY_PAIRS();
+    let signers = public_keys(key_pairs.span());
+    let mut state = setup_component(1, key_pairs.span());
+    start_cheat_caller_address(test_address(), test_address());
+    let removed_pair = array![*key_pairs.at(1)];
+    let removed_signer = *signers.at(1);
+
+    state.remove_signers(1, array![removed_signer].span());
+    assert_signers(@state, array![*signers.at(0), *signers.at(2)].span());
+    let signature = get_multisig_signature(TRANSACTION_HASH, removed_pair.span());
+    assert!(state.is_valid_signature(TRANSACTION_HASH, signature).is_zero());
+
+    // Re-adding appends the key to the registry with a fresh index.
+    state.add_signers(1, array![removed_signer].span());
+    assert_signers(@state, array![*signers.at(0), *signers.at(2), removed_signer].span());
+    let signature = get_multisig_signature(TRANSACTION_HASH, removed_pair.span());
+    assert_eq!(state.is_valid_signature(TRANSACTION_HASH, signature), starknet::VALIDATED);
+
+    // The zero index left behind by the removal must not confuse later swaps.
+    state.remove_signers(1, array![*signers.at(0)].span());
+    assert_signers(@state, array![removed_signer, *signers.at(2)].span());
+    state.remove_signers(1, array![removed_signer].span());
+    assert_signers(@state, array![*signers.at(2)].span());
 }
 
 //
@@ -639,6 +802,86 @@ fn test_validate_deploy_rejects_invalid_signature() {
     let key_pairs = DEFAULT_KEY_PAIRS();
     let signers = public_keys(key_pairs.span());
     account.__validate_deploy__(class_hash, SALT, 2, signers.span());
+}
+
+#[test]
+fn test_validate_after_quorum_raise_and_signer_removal() {
+    let (account_address, account, _) = deploy_default_account();
+    let key_pairs = DEFAULT_KEY_PAIRS();
+    start_cheat_caller_address(account_address, account_address);
+    start_cheat_transaction_hash_global(TRANSACTION_HASH);
+
+    account.change_quorum(3);
+    let full_signature = get_multisig_signature(TRANSACTION_HASH, key_pairs.span());
+    start_cheat_signature_global(full_signature.span());
+    assert_eq!(account.__validate__(array![]), starknet::VALIDATED);
+
+    account.remove_signers(2, array![KEY_PAIR_3().public_key].span());
+    let remaining_pairs = array![*key_pairs.at(0), *key_pairs.at(1)];
+    let signature = get_multisig_signature(TRANSACTION_HASH, remaining_pairs.span());
+    start_cheat_signature_global(signature.span());
+    assert_eq!(account.__validate__(array![]), starknet::VALIDATED);
+}
+
+#[test]
+#[should_panic(expected: 'MultisigAccount: invalid sig')]
+fn test_validate_rejects_old_quorum_after_quorum_raise() {
+    let (account_address, account, _) = deploy_default_account();
+    start_cheat_caller_address(account_address, account_address);
+    account.change_quorum(3);
+
+    // Two records satisfied the original quorum of two but not the raised one.
+    start_valid_transaction_context(account_address);
+    account.__validate__(array![]);
+}
+
+#[test]
+#[should_panic(expected: 'MultisigAccount: invalid sig')]
+fn test_validate_rejects_removed_signer_after_removal() {
+    let (account_address, account, _) = deploy_default_account();
+    start_cheat_caller_address(account_address, account_address);
+    account.remove_signers(2, array![KEY_PAIR_2().public_key].span());
+
+    // The default context signs with the first two keys, one of which is now removed.
+    start_valid_transaction_context(account_address);
+    account.__validate__(array![]);
+}
+
+fn deploy_max_quorum_account() -> (
+    ContractAddress, MultisigAccountABIDispatcher, Array<StarkKeyPair>,
+) {
+    let key_pairs = many_key_pairs(MAX_QUORUM);
+    let signers = public_keys(key_pairs.span());
+    let contract_class = utils::declare_class("MultisigAccountMock");
+    let calldata = constructor_calldata(MAX_QUORUM, signers.span());
+    let account_address = utils::deploy(contract_class, calldata);
+    let dispatcher = MultisigAccountABIDispatcher { contract_address: account_address };
+    (account_address, dispatcher, key_pairs)
+}
+
+#[test]
+fn test_max_quorum_account_deploys() {
+    // Baseline for the validation measurement below: deployment, setup, and building the bundle,
+    // without validating it.
+    let (_, account, key_pairs) = deploy_max_quorum_account();
+    let signature = get_multisig_signature(TRANSACTION_HASH, key_pairs.span());
+
+    assert_eq!(account.get_quorum(), MAX_QUORUM);
+    assert_eq!(account.get_signers().len(), MAX_QUORUM);
+    assert_eq!(signature.len(), 2 + 3 * MAX_QUORUM);
+}
+
+#[test]
+fn test_max_quorum_signature_validates() {
+    // A full `MAX_QUORUM` bundle must validate well inside the account validation resource
+    // limits. The reported gas of this test minus the deployment baseline above measures it.
+    let (account_address, account, key_pairs) = deploy_max_quorum_account();
+    let signature = get_multisig_signature(TRANSACTION_HASH, key_pairs.span());
+    start_cheat_signature_global(signature.span());
+    start_cheat_transaction_hash_global(TRANSACTION_HASH);
+    start_cheat_caller_address(account_address, ZERO);
+
+    assert_eq!(account.__validate__(array![]), starknet::VALIDATED);
 }
 
 fn execute_increase_with_version(version: felt252) {

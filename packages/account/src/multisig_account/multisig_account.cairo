@@ -7,12 +7,16 @@
 /// The MultisigAccount component enables contracts to behave as accounts authorized by a quorum
 /// of Stark-curve signer keys. Each account signature contains a format version, a signer count,
 /// and a strictly increasing numeric sequence of `[signer_public_key, r, s]` records. Every
-/// `(r, s)` pair signs the same message hash.
+/// `(r, s)` pair signs the same message hash. The encoding matches the Serde layout of a
+/// version felt followed by an array of signer records, so clients can build it with standard
+/// calldata serialization.
 ///
 /// Signer and quorum updates are authorized through account self-calls, allowing the current
 /// signer quorum to manage the account configuration.
 #[starknet::component]
 pub mod MultisigAccountComponent {
+    use core::ec::EcPointTrait;
+    use core::ecdsa::check_ecdsa_signature;
     use core::num::traits::Zero;
     use openzeppelin_interfaces::accounts as interface;
     use openzeppelin_introspection::src5::SRC5Component;
@@ -26,14 +30,21 @@ pub mod MultisigAccountComponent {
         StoragePointerWriteAccess,
     };
     use crate::multisig_account::storage_utils::{SignersInfo, SignersInfoStorePacking};
-    use crate::utils::{is_tx_version_valid, is_valid_stark_signature};
+    use crate::utils::is_tx_version_valid;
 
     /// Identifies the supported multisig signature encoding.
     pub const SIGNATURE_VERSION: felt252 = 1;
 
+    /// Upper bound for the quorum, keeping a full signer quorum verifiable within the account
+    /// validation resource limits.
+    pub const MAX_QUORUM: u32 = 32;
+
     const SIGNATURE_HEADER_LENGTH: u32 = 2;
     const SIGNATURE_RECORD_LENGTH: u32 = 3;
 
+    /// The signer registry mirrors the layout of the governance `MultisigComponent`, with
+    /// `felt252` public keys instead of contract addresses. The layout is frozen once released,
+    /// since accounts upgrade in place.
     #[storage]
     pub struct Storage {
         pub MultisigAccount_signers_info: SignersInfo,
@@ -79,8 +90,10 @@ pub mod MultisigAccountComponent {
         pub const NOT_A_SIGNER: felt252 = 'MultisigAccount: not signer';
         pub const ALREADY_A_SIGNER: felt252 = 'MultisigAccount: already signer';
         pub const ZERO_SIGNER: felt252 = 'MultisigAccount: zero signer';
+        pub const INVALID_SIGNER: felt252 = 'MultisigAccount: invalid signer';
         pub const ZERO_QUORUM: felt252 = 'MultisigAccount: zero quorum';
         pub const QUORUM_TOO_HIGH: felt252 = 'MultisigAccount: high quorum';
+        pub const QUORUM_ABOVE_MAX: felt252 = 'MultisigAccount: quorum > max';
     }
 
     //
@@ -196,7 +209,7 @@ pub mod MultisigAccountComponent {
         /// Requirements:
         ///
         /// - The caller must be the account itself.
-        /// - Every added signer must be non-zero.
+        /// - Every added signer must be a non-zero Stark-curve public key.
         /// - `new_quorum` must be valid for the resulting signer set.
         ///
         /// Emits a `SignerAdded` event for each newly registered signer and a `QuorumUpdated` event
@@ -235,7 +248,7 @@ pub mod MultisigAccountComponent {
         ///
         /// - The caller must be the account itself.
         /// - `signer_to_remove` must be registered.
-        /// - `signer_to_add` must be non-zero and unregistered.
+        /// - `signer_to_add` must be an unregistered non-zero Stark-curve public key.
         ///
         /// Emits a `SignerRemoved` event followed by a `SignerAdded` event.
         fn replace_signer(
@@ -252,7 +265,7 @@ pub mod MultisigAccountComponent {
         /// Requirements:
         ///
         /// - The caller must be the account itself.
-        /// - `new_quorum` must be non-zero and no greater than the signer count.
+        /// - `new_quorum` must be non-zero and no greater than the signer count or `MAX_QUORUM`.
         ///
         /// Emits a `QuorumUpdated` event if the quorum changes.
         fn change_quorum(ref self: ComponentState<TContractState>, new_quorum: u32) {
@@ -390,8 +403,9 @@ pub mod MultisigAccountComponent {
         ///
         /// Requirements:
         ///
-        /// - Every signer must be non-zero.
-        /// - `quorum` must be non-zero and no greater than the number of unique signers.
+        /// - Every signer must be a non-zero Stark-curve public key.
+        /// - `quorum` must be non-zero and no greater than the number of unique signers or
+        ///   `MAX_QUORUM`.
         ///
         /// Emits a `SignerAdded` event for each unique signer and a `QuorumUpdated` event when
         /// setting the initial quorum.
@@ -451,6 +465,8 @@ pub mod MultisigAccountComponent {
             if quorum.is_zero() {
                 return false;
             }
+            // Strict ordering and registry membership already bound the record count by the
+            // signer count, so the upper check is only an early exit.
             if provided_signer_count < quorum || provided_signer_count > signers_count {
                 return false;
             }
@@ -468,10 +484,9 @@ pub mod MultisigAccountComponent {
                     return false;
                 }
 
-                let signer_signature = array![
-                    *signature.at(record_offset + 1), *signature.at(record_offset + 2),
-                ];
-                if !is_valid_stark_signature(hash, signer, signer_signature.span()) {
+                let r = *signature.at(record_offset + 1);
+                let s = *signature.at(record_offset + 2);
+                if !check_ecdsa_signature(hash, signer, r, s) {
                     return false;
                 }
 
@@ -497,7 +512,7 @@ pub mod MultisigAccountComponent {
                 } = self.MultisigAccount_signers_info.read();
                 for signer in signers_to_add {
                     let signer_to_add = *signer;
-                    assert(signer_to_add.is_non_zero(), Errors::ZERO_SIGNER);
+                    assert_valid_signer(signer_to_add);
                     if Multisig::is_signer(@self, signer_to_add) {
                         continue;
                     }
@@ -566,7 +581,7 @@ pub mod MultisigAccountComponent {
             signer_to_remove: felt252,
             signer_to_add: felt252,
         ) {
-            assert(signer_to_add.is_non_zero(), Errors::ZERO_SIGNER);
+            assert_valid_signer(signer_to_add);
             assert(!Multisig::is_signer(@self, signer_to_add), Errors::ALREADY_A_SIGNER);
             assert(Multisig::is_signer(@self, signer_to_remove), Errors::NOT_A_SIGNER);
 
@@ -589,6 +604,7 @@ pub mod MultisigAccountComponent {
             } = self.MultisigAccount_signers_info.read();
             assert(new_quorum.is_non_zero(), Errors::ZERO_QUORUM);
             assert(new_quorum <= signers_count, Errors::QUORUM_TOO_HIGH);
+            assert(new_quorum <= MAX_QUORUM, Errors::QUORUM_ABOVE_MAX);
             if new_quorum != old_quorum {
                 self
                     .MultisigAccount_signers_info
@@ -596,5 +612,14 @@ pub mod MultisigAccountComponent {
                 self.emit(QuorumUpdated { old_quorum, new_quorum });
             }
         }
+    }
+
+    /// Asserts that `signer` is a non-zero x-coordinate on the Stark curve.
+    ///
+    /// The check rejects values that can never produce a valid signature. It does not prove that
+    /// the matching private key is known.
+    fn assert_valid_signer(signer: felt252) {
+        assert(signer.is_non_zero(), Errors::ZERO_SIGNER);
+        assert(EcPointTrait::new_from_x(signer).is_some(), Errors::INVALID_SIGNER);
     }
 }

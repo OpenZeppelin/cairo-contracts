@@ -21,7 +21,9 @@ the release artifact on the intended network and verify its class hash before de
 `MultisigAccountUpgradeable` is authorized by a quorum of STARK-curve signer keys and supports SRC9
 outside execution and self-authorized class upgrades. The current signer quorum manages the signer
 set, the quorum, and the implementation through account self-calls. The signature encoding is
-described in the [account README](../account/README.md#multisig-signatures).
+described in the [account README](../account/README.md#multisig-signatures). Upgrading an existing
+account to this class must combine the upgrade with an `add_signers` call in one multicall,
+because the constructor does not run; see the preset's migration note.
 
 ### Presets
 

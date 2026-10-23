@@ -6,6 +6,15 @@
 /// Upgradeable account authorized by a quorum of Stark-curve signer keys. The account can manage
 /// its signer set, declare and deploy contracts, execute calls, and perform outside execution
 /// through SRC9.
+///
+/// # Migration
+///
+/// Upgrading a deployed account to this class does not run the constructor, so the quorum stays
+/// at zero and every validation fails with no way to authorize a fix. Migrate in one multicall:
+/// `upgrade(new_class_hash)` followed by `add_signers(quorum, signers)`, which already executes on
+/// the new class. SRC5 interface registrations carry over from the previous class and are not
+/// updated by the upgrade. Upgrading away from this class leaves the multisig storage in place,
+/// and a later upgrade back to it restores the old signer set.
 #[starknet::contract(account)]
 pub mod MultisigAccountUpgradeable {
     use openzeppelin_account::MultisigAccountComponent;

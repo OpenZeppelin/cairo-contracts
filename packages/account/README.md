@@ -39,7 +39,8 @@ reinitialization guard.
 
 Public keys contain 512 canonical residues in `[0, 12289)` in the verifier's **NTT evaluation
 order**, packed into 29 felts. A coefficient-domain Falcon public key must be transformed before
-packing. The supplied strategies reject all-zero keys at initialization and rotation. Canonical
+packing. The supplied strategies reject the all-zero key at initialization and rotation as an
+uninitialized-key guard, not a weak-key check: any other canonical encoding passes. Canonical
 packing alone does not prove that a key is usable or that its secret key is known. Verify a
 signature with the intended key before deployment, especially when deploying through a
 constructor without deploy-account validation.

@@ -41,7 +41,7 @@ def serialized_class_size(artifact: dict) -> int:
         "sierra_program", "contract_class_version", "entry_points_by_type", "abi",
     )}
     if not isinstance(declared["abi"], str):
-        declared["abi"] = json.dumps(declared["abi"])
+        declared["abi"] = json.dumps(declared["abi"], separators=(",", ":"), ensure_ascii=False)
     return len(json.dumps(declared, separators=(",", ":"), ensure_ascii=False).encode())
 
 

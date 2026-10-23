@@ -9,13 +9,13 @@ use super::{falcon, packing};
 const SALT_FELTS: u32 = 2;
 
 /// Number of felts in a packed Falcon-512 public key.
-pub(crate) const PUBLIC_KEY_FELTS: u32 = packing::PACKED_SLOTS;
+pub const PUBLIC_KEY_FELTS: u32 = packing::PACKED_SLOTS;
 
 /// Number of felts in a direct Falcon-512 signature.
-pub(crate) const DIRECT_SIGNATURE_FELTS: u32 = PUBLIC_KEY_FELTS + SALT_FELTS;
+pub const DIRECT_SIGNATURE_FELTS: u32 = PUBLIC_KEY_FELTS + SALT_FELTS;
 
 /// Number of felts in a Falcon-512 signature carrying a product hint.
-pub(crate) const SIGNATURE_FELTS: u32 = DIRECT_SIGNATURE_FELTS + PUBLIC_KEY_FELTS;
+pub const SIGNATURE_FELTS: u32 = DIRECT_SIGNATURE_FELTS + PUBLIC_KEY_FELTS;
 
 /// Decodes the public key, signature polynomial, and salt shared by both layouts.
 fn decode_common(
@@ -54,12 +54,9 @@ pub impl Falcon512ShakeVerifier of Falcon512SignatureVerifier {
         if public_key.len() != PUBLIC_KEY_FELTS {
             return false;
         }
-        if packing::unpack_512_u16(public_key).is_none() {
-            return false;
-        }
         for value in public_key {
             if *value != 0 {
-                return true;
+                return packing::unpack_512_u16(public_key).is_some();
             }
         }
         false

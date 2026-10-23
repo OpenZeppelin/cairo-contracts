@@ -18,19 +18,23 @@ class EncodingTests(unittest.TestCase):
 
     def test_parameter_mismatch_is_rejected(self):
         read_text = Path.read_text
-        for filename, old, new in (
-            ("zq.cairo", "Q: u16 = 12289", "Q: u16 = 12287"),
-            ("falcon.cairo", "34034726", "34034727"),
-            ("packing.cairo", "PACKED_SLOTS: u32 = 29", "PACKED_SLOTS: u32 = 30"),
-            ("verifier_impls.cairo", "SALT_FELTS: u32 = 2", "SALT_FELTS: u32 = 3"),
+        for filename, old, new, message in (
+            ("zq.cairo", "Q: u16 = 12289", "Q: u16 = 12287", "expected"),
+            ("falcon.cairo", "34034726", "34034727", "expected"),
+            ("packing.cairo", "PACKED_SLOTS: u32 = 29", "PACKED_SLOTS: u32 = 30", "expected"),
+            ("packing.cairo", "Acc8 = BoundedInt<0, 6392178558614694273495691177456939008>",
+             "Acc8 = BoundedInt<0, 6392178558614694273495691177456939009>", "expected"),
+            ("verifier_impls.cairo", "SALT_FELTS: u32 = 2", "SALT_FELTS: u32 = 3", "expected"),
+            ("hash_to_point.cairo", "REJECT_BOUND: u32 = 61445", "REJECT_BOUND: u32 = 5 * Q32",
+             "unsupported constant expression"),
         ):
-            with self.subTest(filename=filename):
+            with self.subTest(filename=filename, old=old):
                 def changed_source(path, *args, **kwargs):
                     source = read_text(path, *args, **kwargs)
                     return source.replace(old, new) if path.name == filename else source
 
                 with patch.object(Path, "read_text", changed_source):
-                    with self.assertRaisesRegex(ValueError, "expected"):
+                    with self.assertRaisesRegex(ValueError, message):
                         check_cairo_parameters()
 
     def test_packing_round_trip_at_bounds(self):
@@ -109,12 +113,12 @@ class ResourceTests(unittest.TestCase):
         artifact = {
             "sierra_program": ["0x1"], "contract_class_version": "0.1.0",
             "entry_points_by_type": {"EXTERNAL": [], "L1_HANDLER": [], "CONSTRUCTOR": []},
-            "abi": [{"type": "function", "name": "validate"}],
+            "abi": [{"type": "function", "name": "validé"}],
             "sierra_program_debug_info": {"type_names": []},
         }
         declared = {k: v for k, v in artifact.items() if k != "sierra_program_debug_info"}
-        declared["abi"] = json.dumps(artifact["abi"])
-        expected = len(json.dumps(declared, separators=(",", ":")).encode())
+        declared["abi"] = json.dumps(artifact["abi"], separators=(",", ":"), ensure_ascii=False)
+        expected = len(json.dumps(declared, separators=(",", ":"), ensure_ascii=False).encode())
         self.assertEqual(serialized_class_size(artifact), expected)
         self.assertEqual(serialized_class_size(declared), expected)
 

@@ -23,7 +23,11 @@ CAIRO_ROOT = Path(__file__).resolve().parents[2] / "packages/account/src/falcon_
 
 
 def check_cairo_parameters(root: Path = CAIRO_ROOT) -> None:
-    """Keep the independent reference parameters aligned with the Cairo verifier."""
+    """Keep the independent reference parameters aligned with the Cairo verifier.
+
+    `VALS_PER_FELT` and `LAST_SLOT_VALS` exist only as test aliases in Cairo; the
+    production packing layout is pinned through the bounded-integer types checked below.
+    """
     expected = {
         "../falcon_512.cairo": {"COEFFICIENT_COUNT": N},
         "zq.cairo": {"Q": Q, "Q32": Q},
@@ -47,7 +51,12 @@ def check_cairo_parameters(root: Path = CAIRO_ROOT) -> None:
             for term in match[1].split("+"):
                 term = term.strip()
                 if term[0].isdigit():
-                    value += int(term, 0)
+                    try:
+                        value += int(term, 0)
+                    except ValueError:
+                        raise ValueError(
+                            f"{filename}: unsupported constant expression {term}"
+                        ) from None
                 else:
                     alias = term.removeprefix("packing::")
                     if alias not in values:
@@ -56,6 +65,22 @@ def check_cairo_parameters(root: Path = CAIRO_ROOT) -> None:
             if value != wanted:
                 raise ValueError(f"{filename}: {name} is {value}, expected {wanted}")
             values[name] = value
+    # The production unpacker encodes its layout in bounded-integer types rather than named
+    # constants: canonical full halves hold nine base-Q digits (below Q^9, `Acc8`) and the
+    # last half eight (below Q^8, `Acc7`).
+    source = (root / "packing.cairo").read_text()
+    expected_types = {
+        "PackingZq": f"BoundedInt<0, {Q - 1}>",
+        "PackingQ": f"UnitInt<{Q}>",
+        "Acc7": f"BoundedInt<0, {Q**8 - 1}>",
+        "Acc8": f"BoundedInt<0, {Q**9 - 1}>",
+    }
+    for name, wanted in expected_types.items():
+        match = re.search(rf"\btype {name} = ([^;]+);", source)
+        if match is None:
+            raise ValueError(f"packing.cairo: missing {name}")
+        if match[1] != wanted:
+            raise ValueError(f"packing.cairo: {name} is {match[1]}, expected {wanted}")
 
 
 def pack(values: list[int]) -> list[int]:

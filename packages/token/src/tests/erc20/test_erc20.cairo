@@ -275,7 +275,7 @@ fn test_transfer_from() {
 }
 
 #[test]
-fn test_transfer_from_doesnt_consume_infinite_allowance() {
+fn test_transfer_from_does_not_consume_infinite_allowance() {
     let mut state = setup();
     start_cheat_caller_address(test_address(), OWNER);
     state.approve(SPENDER, Bounded::MAX);
@@ -341,7 +341,7 @@ fn test_transferFrom() {
 }
 
 #[test]
-fn test_transferFrom_doesnt_consume_infinite_allowance() {
+fn test_transferFrom_does_not_consume_infinite_allowance() {
     let mut state = setup();
     start_cheat_caller_address(test_address(), OWNER);
     state.approve(SPENDER, Bounded::MAX);

@@ -15,6 +15,7 @@ pub mod falcon_512_shake_direct_account;
 pub mod falcon_512_shake_direct_account;
 pub mod interfaces;
 pub mod meta_tx_v0;
+pub mod multisig_account;
 
 #[cfg(test)]
 mod tests;
@@ -38,5 +39,6 @@ pub use falcon_512_shake_direct_account::Falcon512ShakeDirectAccountUpgradeable;
 #[cfg(feature: 'falcon_presets_tests')]
 pub use falcon_512_shake_direct_account::Falcon512ShakeDirectAccountUpgradeable;
 pub use meta_tx_v0::MetaTransactionV0;
+pub use multisig_account::MultisigAccountUpgradeable;
 pub use universal_deployer::UniversalDeployer;
 pub use vesting::VestingWallet;

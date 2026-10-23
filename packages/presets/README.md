@@ -18,6 +18,13 @@ the release artifact on the intended network and verify its class hash before de
 > **WARNING:** The Falcon presets use contract-specific public-key and signature encodings for the
 > FALCON submission verification relation. They are not FN-DSA (FIPS 206) implementations.
 
+`MultisigAccountUpgradeable` is authorized by a quorum of STARK-curve signer keys and supports SRC9
+outside execution and self-authorized class upgrades. The current signer quorum manages the signer
+set, the quorum, and the implementation through account self-calls. The signature encoding is
+described in the [account README](../account/README.md#multisig-signatures). Upgrading an existing
+account to this class must combine the upgrade with an `add_signers` call in one multicall,
+because the constructor does not run; see the preset's migration note.
+
 ### Presets
 
 - [`AccountUpgradeable`](https://docs.openzeppelin.com/contracts-cairo/3.x/api/account#AccountUpgradeable)
@@ -27,4 +34,5 @@ the release artifact on the intended network and verify its class hash before de
 - [`EthAccountUpgradeable`](https://docs.openzeppelin.com/contracts-cairo/3.x/api/account#EthAccountUpgradeable)
 - [`Falcon512ShakeAccountUpgradeable`](src/falcon_512_shake_account.cairo)
 - [`Falcon512ShakeDirectAccountUpgradeable`](src/falcon_512_shake_direct_account.cairo)
+- [`MultisigAccountUpgradeable`](src/multisig_account.cairo)
 - [`UniversalDeployer`](https://docs.openzeppelin.com/contracts-cairo/3.x/api/udc#UniversalDeployer)

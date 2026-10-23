@@ -10,6 +10,9 @@ This crate provides components for building account contracts that interact with
 - `EthAccountComponent` validates transactions from signatures over the
   [Secp256k1 curve](https://en.bitcoin.it/wiki/Secp256k1).
 
+- `MultisigAccountComponent` validates transactions when a configured quorum of registered
+  STARK-curve signers authorizes the same hash.
+
 - `Falcon512AccountComponent` provides felt-array public-key management and account behavior for
   canonical Falcon-512 public keys. It is generic over `Falcon512SignatureVerifier` and supports
   two supplied SHAKE-256 strategies:
@@ -95,12 +98,61 @@ bounds or public-network deployment checks. Measure the complete validation path
 guardians, multisignature logic, or other account features, and recheck after compiler or network
 gas-schedule changes.
 
+### Multisig signatures
+
+`MultisigAccountComponent` accepts the canonical felt-array encoding
+`[1, n, public_key_1, r_1, s_1, ..., public_key_n, r_n, s_n]`. The first felt is the signature
+format version, and `n` is the number of signer records that follow. Signer public keys must be
+strictly increasing, which makes every signer distinct, and every `(r, s)` pair must be a valid
+STARK-curve signature for the same hash from its associated registered signer. The encoding is
+the Serde layout of a version felt followed by an array of `[public_key, r, s]` records, so
+standard calldata serialization produces it.
+
+A signature is valid when its header matches the encoded records, `n` is at least the account
+quorum and no greater than the registered signer count, and every supplied record is valid.
+`is_valid_signature` returns `starknet::VALIDATED` for a valid signature and `0` otherwise. The
+`invoke`, `declare`, and `deploy_account` validation entry points return `starknet::VALIDATED` for
+a valid signature and revert when validation fails.
+
+Signature validation verifies every supplied signer record, so its execution cost grows linearly
+with `n`. Callers can minimize validation work by supplying the smallest valid signer quorum.
+The quorum is capped at `MAX_QUORUM` (32) so that a full quorum stays verifiable within Starknet's
+account-validation resource limits; a larger quorum could never be lowered again, since lowering
+it needs a valid transaction. With Scarb 2.18.0 and Starknet Foundry 0.62.1, validating a full
+32-record bundle costs roughly 3.9 million L2 gas, about four percent of the documented 100
+million validation budget. The signer set itself is not capped.
+
+Signer additions, removals, replacements, and quorum changes accept calls only from the account
+itself. The current quorum can therefore manage the account configuration through an authorized
+account transaction. The governance multisig coordinates proposals and confirmations, while
+`MultisigAccountComponent` authenticates account transactions during SRC6 validation.
+
+Added keys are checked only for being non-zero and on the STARK curve; the component does not
+verify that a private key exists for them. Keep the quorum reachable when rotating keys: add the
+new key first, confirm that it can sign, for example through `is_valid_signature`, and remove the
+old key afterwards. On an account whose quorum equals its signer count, replacing a key with an
+unusable one cannot be undone.
+
+### Multisig security considerations
+
+- A valid bundle is not unique. `(r, -s)` verifies like `(r, s)`, and a relayer can drop surplus
+  records while keeping `n` at or above the quorum. Do not use signature bytes as an identifier.
+- One invalid record rejects the whole bundle, so verify partial signatures off-chain before
+  aggregating them.
+- `is_valid_signature` checks a raw hash. A signature over a plain hash is valid for every account
+  that shares the signing keys, so off-chain messages should be SNIP-12 hashes bound to the
+  account address.
+- A signed outside execution cannot be cancelled before its `execute_before` time other than by
+  changing the signer set or the quorum so that the bundle no longer satisfies it.
+
 ### Interfaces
 
 - [`ISRC6`](https://docs.openzeppelin.com/contracts-cairo/3.x/api/account#ISRC6)
 - [`IFeltArrayDeployable`](../interfaces/src/account/accounts.cairo)
 - [`IFeltArrayPublicKey`](../interfaces/src/account/accounts.cairo)
 - [`IFeltArrayPublicKeyCamel`](../interfaces/src/account/accounts.cairo)
+- [`IMultisigAccount`](../interfaces/src/account/accounts.cairo)
+- [`IMultisigDeployable`](../interfaces/src/account/accounts.cairo)
 - [`ISRC9_V2`](https://docs.openzeppelin.com/contracts-cairo/3.x/api/account#ISRC9_V2)
 
 ### Components
@@ -108,4 +160,5 @@ gas-schedule changes.
 - [`AccountComponent`](https://docs.openzeppelin.com/contracts-cairo/3.x/api/account#AccountComponent)
 - [`EthAccountComponent`](https://docs.openzeppelin.com/contracts-cairo/3.x/api/account#EthAccountComponent)
 - [`Falcon512AccountComponent`](src/falcon_512/account.cairo)
+- [`MultisigAccountComponent`](src/multisig_account/multisig_account.cairo)
 - [`SRC9Component`](https://docs.openzeppelin.com/contracts-cairo/3.x/api/account#SRC9Component)

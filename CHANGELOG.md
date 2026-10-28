@@ -19,6 +19,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `FeltArrayAccountABI` interfaces (#1730)
 - `openzeppelin_corelib_imports` compatibility package for internal Cairo APIs (#1730)
 
+### Fixed
+
+- `TimelockControllerComponent::getRoleAdmin` delegates to `get_role_admin` instead of calling
+  itself recursively.
+
 ## 4.0.1 (2026-08-26)
 
 ### Fixed

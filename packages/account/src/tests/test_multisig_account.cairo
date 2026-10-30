@@ -1,6 +1,8 @@
+use core::ec::stark_curve::ORDER;
 use core::num::traits::{Bounded, Zero};
 use openzeppelin_interfaces::accounts::{
     ISRC6, ISRC6_ID, MultisigAccountABIDispatcher, MultisigAccountABIDispatcherTrait,
+    MultisigAccountABISafeDispatcher, MultisigAccountABISafeDispatcherTrait,
 };
 use openzeppelin_interfaces::introspection::ISRC5_ID;
 use openzeppelin_test_common::mocks::multisig_account::{
@@ -148,6 +150,21 @@ fn test_signature_exact_quorum_and_all_signers() {
 }
 
 #[test]
+fn test_signature_encoding_matches_serde() {
+    let signature = get_multisig_signature(
+        TRANSACTION_HASH, array![KEY_PAIR(), KEY_PAIR_2()].span(),
+    );
+    let records = array![
+        (*signature.at(2), *signature.at(3), *signature.at(4)),
+        (*signature.at(5), *signature.at(6), *signature.at(7)),
+    ];
+    let mut serialized = array![];
+    (SIGNATURE_VERSION, records).serialize(ref serialized);
+
+    assert_eq!(signature, serialized);
+}
+
+#[test]
 fn test_signature_camel_case() {
     let key_pairs = DEFAULT_KEY_PAIRS();
     let state = setup_component(2, key_pairs.span());
@@ -272,6 +289,22 @@ fn test_parser_rejects_wrong_hash_and_invalid_signature_parts() {
 }
 
 #[test]
+fn test_signature_scalar_reflection_and_felt_negation() {
+    let key_pairs = array![KEY_PAIR()];
+    let state = setup_component(1, key_pairs.span());
+    let signature = get_multisig_signature(TRANSACTION_HASH, key_pairs.span());
+    assert_eq!(state.is_valid_signature(TRANSACTION_HASH, signature.clone()), starknet::VALIDATED);
+
+    let s = *signature.at(4);
+    let reflected = replace_at(signature.span(), 4, ORDER - s);
+    assert_eq!(state.is_valid_signature(TRANSACTION_HASH, reflected), starknet::VALIDATED);
+
+    // Felt negation uses the field prime, not the curve's subgroup order.
+    let felt_negated = replace_at(signature.span(), 4, -s);
+    assert!(state.is_valid_signature(TRANSACTION_HASH, felt_negated).is_zero());
+}
+
+#[test]
 fn test_parser_checks_invalid_extra_signature_after_quorum() {
     let key_pairs = array![KEY_PAIR(), KEY_PAIR_2()];
     let state = setup_component(1, key_pairs.span());
@@ -378,33 +411,33 @@ fn test_initializer_skips_duplicate_signers() {
 }
 
 #[test]
-#[should_panic(expected: 'MultisigAccount: zero quorum')]
+#[should_panic(expected: 'MultisigAcc: zero quorum')]
 fn test_initializer_rejects_zero_quorum() {
     setup_component(0, array![KEY_PAIR()].span());
 }
 
 #[test]
-#[should_panic(expected: 'MultisigAccount: high quorum')]
+#[should_panic(expected: 'MultisigAcc: quorum > signers')]
 fn test_initializer_rejects_quorum_above_unique_signer_count() {
     setup_component(2, array![KEY_PAIR()].span());
 }
 
 #[test]
-#[should_panic(expected: 'MultisigAccount: zero signer')]
+#[should_panic(expected: 'MultisigAcc: zero signer')]
 fn test_initializer_rejects_zero_signer() {
     let mut state = COMPONENT_STATE();
     state.initializer(1, array![KEY_PAIR().public_key, 0].span());
 }
 
 #[test]
-#[should_panic(expected: 'MultisigAccount: invalid signer')]
+#[should_panic(expected: 'MultisigAcc: invalid signer')]
 fn test_initializer_rejects_off_curve_signer() {
     let mut state = COMPONENT_STATE();
     state.initializer(1, array![KEY_PAIR().public_key, OFF_CURVE_SIGNER].span());
 }
 
 #[test]
-#[should_panic(expected: 'MultisigAccount: quorum > max')]
+#[should_panic(expected: 'MultisigAcc: quorum > max')]
 fn test_initializer_rejects_quorum_above_max() {
     let key_pairs = many_key_pairs(MAX_QUORUM + 1);
     let mut state = COMPONENT_STATE();
@@ -418,6 +451,17 @@ fn test_signer_count_can_exceed_max_quorum() {
 
     assert_eq!(state.get_quorum(), MAX_QUORUM);
     assert_eq!(state.get_signers().len(), MAX_QUORUM + 1);
+
+    let at_cap = get_multisig_signature(TRANSACTION_HASH, key_pairs.span().slice(0, MAX_QUORUM));
+    assert_eq!(state.is_valid_signature(TRANSACTION_HASH, at_cap), starknet::VALIDATED);
+
+    let below_quorum = get_multisig_signature(
+        TRANSACTION_HASH, key_pairs.span().slice(0, MAX_QUORUM - 1),
+    );
+    assert!(state.is_valid_signature(TRANSACTION_HASH, below_quorum).is_zero());
+
+    let above_cap = get_multisig_signature(TRANSACTION_HASH, key_pairs.span());
+    assert!(state.is_valid_signature(TRANSACTION_HASH, above_cap).is_zero());
 }
 
 #[test]
@@ -443,7 +487,7 @@ fn test_add_signers_duplicate_empty_and_quorum_branches() {
 }
 
 #[test]
-#[should_panic(expected: 'MultisigAccount: unauthorized')]
+#[should_panic(expected: 'MultisigAcc: unauthorized')]
 fn test_add_signers_rejects_non_self_caller() {
     let mut state = setup_component(1, array![KEY_PAIR()].span());
     start_cheat_caller_address(test_address(), OTHER);
@@ -451,7 +495,7 @@ fn test_add_signers_rejects_non_self_caller() {
 }
 
 #[test]
-#[should_panic(expected: 'MultisigAccount: zero signer')]
+#[should_panic(expected: 'MultisigAcc: zero signer')]
 fn test_add_signers_rejects_zero_signer() {
     let mut state = setup_component(1, array![KEY_PAIR()].span());
     start_cheat_caller_address(test_address(), test_address());
@@ -459,7 +503,7 @@ fn test_add_signers_rejects_zero_signer() {
 }
 
 #[test]
-#[should_panic(expected: 'MultisigAccount: invalid signer')]
+#[should_panic(expected: 'MultisigAcc: invalid signer')]
 fn test_add_signers_rejects_off_curve_signer() {
     let mut state = setup_component(1, array![KEY_PAIR()].span());
     start_cheat_caller_address(test_address(), test_address());
@@ -467,7 +511,7 @@ fn test_add_signers_rejects_off_curve_signer() {
 }
 
 #[test]
-#[should_panic(expected: 'MultisigAccount: high quorum')]
+#[should_panic(expected: 'MultisigAcc: quorum > signers')]
 fn test_add_signers_rejects_high_resulting_quorum() {
     let mut state = setup_component(1, array![KEY_PAIR()].span());
     start_cheat_caller_address(test_address(), test_address());
@@ -511,7 +555,7 @@ fn test_empty_remove_can_change_quorum() {
 }
 
 #[test]
-#[should_panic(expected: 'MultisigAccount: unauthorized')]
+#[should_panic(expected: 'MultisigAcc: unauthorized')]
 fn test_remove_signers_rejects_non_self_caller() {
     let mut state = setup_component(1, array![KEY_PAIR()].span());
     start_cheat_caller_address(test_address(), OTHER);
@@ -519,7 +563,7 @@ fn test_remove_signers_rejects_non_self_caller() {
 }
 
 #[test]
-#[should_panic(expected: 'MultisigAccount: high quorum')]
+#[should_panic(expected: 'MultisigAcc: quorum > signers')]
 fn test_remove_signers_rejects_high_resulting_quorum() {
     let key_pairs = array![KEY_PAIR(), KEY_PAIR_2()];
     let mut state = setup_component(2, key_pairs.span());
@@ -528,7 +572,7 @@ fn test_remove_signers_rejects_high_resulting_quorum() {
 }
 
 #[test]
-#[should_panic(expected: 'MultisigAccount: zero quorum')]
+#[should_panic(expected: 'MultisigAcc: zero quorum')]
 fn test_remove_signers_rejects_zero_quorum() {
     let key_pairs = array![KEY_PAIR(), KEY_PAIR_2()];
     let mut state = setup_component(1, key_pairs.span());
@@ -555,7 +599,7 @@ fn test_replace_signer_updates_index_membership_and_events() {
 }
 
 #[test]
-#[should_panic(expected: 'MultisigAccount: zero signer')]
+#[should_panic(expected: 'MultisigAcc: zero signer')]
 fn test_replace_signer_rejects_zero_new_signer() {
     let mut state = setup_component(1, array![KEY_PAIR()].span());
     start_cheat_caller_address(test_address(), test_address());
@@ -563,7 +607,7 @@ fn test_replace_signer_rejects_zero_new_signer() {
 }
 
 #[test]
-#[should_panic(expected: 'MultisigAccount: invalid signer')]
+#[should_panic(expected: 'MultisigAcc: invalid signer')]
 fn test_replace_signer_rejects_off_curve_signer() {
     let mut state = setup_component(1, array![KEY_PAIR()].span());
     start_cheat_caller_address(test_address(), test_address());
@@ -571,7 +615,7 @@ fn test_replace_signer_rejects_off_curve_signer() {
 }
 
 #[test]
-#[should_panic(expected: 'MultisigAccount: already signer')]
+#[should_panic(expected: 'MultisigAcc: already signer')]
 fn test_replace_signer_rejects_registered_new_signer() {
     let key_pairs = array![KEY_PAIR(), KEY_PAIR_2()];
     let mut state = setup_component(1, key_pairs.span());
@@ -580,7 +624,7 @@ fn test_replace_signer_rejects_registered_new_signer() {
 }
 
 #[test]
-#[should_panic(expected: 'MultisigAccount: not signer')]
+#[should_panic(expected: 'MultisigAcc: not signer')]
 fn test_replace_signer_rejects_unregistered_old_signer() {
     let mut state = setup_component(1, array![KEY_PAIR()].span());
     start_cheat_caller_address(test_address(), test_address());
@@ -588,7 +632,7 @@ fn test_replace_signer_rejects_unregistered_old_signer() {
 }
 
 #[test]
-#[should_panic(expected: 'MultisigAccount: unauthorized')]
+#[should_panic(expected: 'MultisigAcc: unauthorized')]
 fn test_replace_signer_rejects_non_self_caller() {
     let mut state = setup_component(1, array![KEY_PAIR()].span());
     start_cheat_caller_address(test_address(), CALLER);
@@ -611,7 +655,7 @@ fn test_change_quorum_and_same_value_event_branch() {
 }
 
 #[test]
-#[should_panic(expected: 'MultisigAccount: unauthorized')]
+#[should_panic(expected: 'MultisigAcc: unauthorized')]
 fn test_change_quorum_rejects_non_self_caller() {
     let mut state = setup_component(1, array![KEY_PAIR()].span());
     start_cheat_caller_address(test_address(), OTHER);
@@ -619,7 +663,7 @@ fn test_change_quorum_rejects_non_self_caller() {
 }
 
 #[test]
-#[should_panic(expected: 'MultisigAccount: zero quorum')]
+#[should_panic(expected: 'MultisigAcc: zero quorum')]
 fn test_change_quorum_rejects_zero() {
     let mut state = setup_component(1, array![KEY_PAIR()].span());
     start_cheat_caller_address(test_address(), test_address());
@@ -627,7 +671,7 @@ fn test_change_quorum_rejects_zero() {
 }
 
 #[test]
-#[should_panic(expected: 'MultisigAccount: high quorum')]
+#[should_panic(expected: 'MultisigAcc: quorum > signers')]
 fn test_change_quorum_rejects_value_above_signer_count() {
     let mut state = setup_component(1, array![KEY_PAIR()].span());
     start_cheat_caller_address(test_address(), test_address());
@@ -635,7 +679,7 @@ fn test_change_quorum_rejects_value_above_signer_count() {
 }
 
 #[test]
-#[should_panic(expected: 'MultisigAccount: quorum > max')]
+#[should_panic(expected: 'MultisigAcc: quorum > max')]
 fn test_change_quorum_rejects_value_above_max() {
     let key_pairs = many_key_pairs(MAX_QUORUM + 1);
     let mut state = setup_component(MAX_QUORUM, key_pairs.span());
@@ -779,7 +823,7 @@ fn test_validate_invoke_declare_and_deploy() {
 }
 
 #[test]
-#[should_panic(expected: 'MultisigAccount: invalid sig')]
+#[should_panic(expected: 'MultisigAcc: invalid sig')]
 fn test_validate_invoke_rejects_invalid_signature() {
     let (account_address, account, _) = deploy_default_account();
     start_invalid_transaction_context(account_address);
@@ -787,7 +831,7 @@ fn test_validate_invoke_rejects_invalid_signature() {
 }
 
 #[test]
-#[should_panic(expected: 'MultisigAccount: invalid sig')]
+#[should_panic(expected: 'MultisigAcc: invalid sig')]
 fn test_validate_declare_rejects_invalid_signature() {
     let (account_address, account, class_hash) = deploy_default_account();
     start_invalid_transaction_context(account_address);
@@ -795,7 +839,7 @@ fn test_validate_declare_rejects_invalid_signature() {
 }
 
 #[test]
-#[should_panic(expected: 'MultisigAccount: invalid sig')]
+#[should_panic(expected: 'MultisigAcc: invalid sig')]
 fn test_validate_deploy_rejects_invalid_signature() {
     let (account_address, account, class_hash) = deploy_default_account();
     start_invalid_transaction_context(account_address);
@@ -824,7 +868,7 @@ fn test_validate_after_quorum_raise_and_signer_removal() {
 }
 
 #[test]
-#[should_panic(expected: 'MultisigAccount: invalid sig')]
+#[should_panic(expected: 'MultisigAcc: invalid sig')]
 fn test_validate_rejects_old_quorum_after_quorum_raise() {
     let (account_address, account, _) = deploy_default_account();
     start_cheat_caller_address(account_address, account_address);
@@ -836,7 +880,7 @@ fn test_validate_rejects_old_quorum_after_quorum_raise() {
 }
 
 #[test]
-#[should_panic(expected: 'MultisigAccount: invalid sig')]
+#[should_panic(expected: 'MultisigAcc: invalid sig')]
 fn test_validate_rejects_removed_signer_after_removal() {
     let (account_address, account, _) = deploy_default_account();
     start_cheat_caller_address(account_address, account_address);
@@ -847,10 +891,10 @@ fn test_validate_rejects_removed_signer_after_removal() {
     account.__validate__(array![]);
 }
 
-fn deploy_max_quorum_account() -> (
-    ContractAddress, MultisigAccountABIDispatcher, Array<StarkKeyPair>,
-) {
-    let key_pairs = many_key_pairs(MAX_QUORUM);
+fn deploy_max_quorum_account(
+    signer_count: u32,
+) -> (ContractAddress, MultisigAccountABIDispatcher, Array<StarkKeyPair>) {
+    let key_pairs = many_key_pairs(signer_count);
     let signers = public_keys(key_pairs.span());
     let contract_class = utils::declare_class("MultisigAccountMock");
     let calldata = constructor_calldata(MAX_QUORUM, signers.span());
@@ -861,9 +905,7 @@ fn deploy_max_quorum_account() -> (
 
 #[test]
 fn test_max_quorum_account_deploys() {
-    // Baseline for the validation measurement below: deployment, setup, and building the bundle,
-    // without validating it.
-    let (_, account, key_pairs) = deploy_max_quorum_account();
+    let (_, account, key_pairs) = deploy_max_quorum_account(MAX_QUORUM);
     let signature = get_multisig_signature(TRANSACTION_HASH, key_pairs.span());
 
     assert_eq!(account.get_quorum(), MAX_QUORUM);
@@ -872,16 +914,68 @@ fn test_max_quorum_account_deploys() {
 }
 
 #[test]
-fn test_max_quorum_signature_validates() {
-    // A full `MAX_QUORUM` bundle must validate well inside the account validation resource
-    // limits. The reported gas of this test minus the deployment baseline above measures it.
-    let (account_address, account, key_pairs) = deploy_max_quorum_account();
-    let signature = get_multisig_signature(TRANSACTION_HASH, key_pairs.span());
+#[feature("safe_dispatcher")]
+fn test_quorum_errors_are_distinct_through_dispatcher() {
+    let (account_address, _, _) = deploy_max_quorum_account(MAX_QUORUM + 1);
+    let account = MultisigAccountABISafeDispatcher { contract_address: account_address };
+    start_cheat_caller_address(account_address, account_address);
+
+    let signers_error = account.change_quorum(MAX_QUORUM + 2).unwrap_err();
+    let max_error = account.change_quorum(MAX_QUORUM + 1).unwrap_err();
+    assert_eq!(*signers_error.at(0), 'MultisigAcc: quorum > signers');
+    assert_eq!(*max_error.at(0), 'MultisigAcc: quorum > max');
+}
+
+fn setup_max_quorum_transaction(
+    signer_count: u32, record_count: u32,
+) -> MultisigAccountABIDispatcher {
+    let (account_address, account, key_pairs) = deploy_max_quorum_account(signer_count);
+    let signature = get_multisig_signature(
+        TRANSACTION_HASH, key_pairs.span().slice(0, record_count),
+    );
     start_cheat_signature_global(signature.span());
     start_cheat_transaction_hash_global(TRANSACTION_HASH);
     start_cheat_caller_address(account_address, ZERO);
+    account
+}
+
+#[test]
+fn test_max_quorum_validation_baseline() {
+    // Match the validating test's deployment, signature, and transaction context without
+    // making any contract calls after deployment.
+    let _account = setup_max_quorum_transaction(MAX_QUORUM, MAX_QUORUM);
+}
+
+#[test]
+fn test_max_quorum_signature_validates() {
+    // Subtract the matching baseline's reported gas to estimate this validation's cost.
+    // This measures one signature vector, not a worst-case bound.
+    let account = setup_max_quorum_transaction(MAX_QUORUM, MAX_QUORUM);
 
     assert_eq!(account.__validate__(array![]), starknet::VALIDATED);
+}
+
+#[test]
+fn test_validate_with_signer_count_above_max_quorum() {
+    let account = setup_max_quorum_transaction(MAX_QUORUM + 1, MAX_QUORUM);
+
+    assert_eq!(account.__validate__(array![]), starknet::VALIDATED);
+}
+
+#[test]
+#[should_panic(expected: 'MultisigAcc: invalid sig')]
+fn test_validate_rejects_signature_above_max_quorum() {
+    let account = setup_max_quorum_transaction(MAX_QUORUM + 1, MAX_QUORUM + 1);
+
+    account.__validate__(array![]);
+}
+
+#[test]
+#[should_panic(expected: 'MultisigAcc: invalid sig')]
+fn test_validate_rejects_sub_quorum_signature_with_large_signer_set() {
+    let account = setup_max_quorum_transaction(MAX_QUORUM + 1, MAX_QUORUM - 1);
+
+    account.__validate__(array![]);
 }
 
 fn execute_increase_with_version(version: felt252) {
@@ -926,19 +1020,19 @@ fn test_execute_multicall() {
 }
 
 #[test]
-#[should_panic(expected: 'MultisigAccount: bad tx version')]
+#[should_panic(expected: 'MultisigAcc: bad tx version')]
 fn test_execute_rejects_version_zero() {
     execute_increase_with_version(MIN_TRANSACTION_VERSION - 1);
 }
 
 #[test]
-#[should_panic(expected: 'MultisigAccount: bad tx version')]
+#[should_panic(expected: 'MultisigAcc: bad tx version')]
 fn test_execute_rejects_bare_query_offset() {
     execute_increase_with_version(QUERY_OFFSET);
 }
 
 #[test]
-#[should_panic(expected: 'MultisigAccount: invalid caller')]
+#[should_panic(expected: 'MultisigAcc: invalid caller')]
 fn test_execute_rejects_nonzero_caller() {
     let (account_address, account, _) = deploy_default_account();
     start_cheat_caller_address(account_address, CALLER);

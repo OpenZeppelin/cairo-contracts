@@ -35,8 +35,7 @@ pub mod MultisigAccountComponent {
     /// Identifies the supported multisig signature encoding.
     pub const SIGNATURE_VERSION: felt252 = 1;
 
-    /// Upper bound for the quorum, keeping a full signer quorum verifiable within the account
-    /// validation resource limits.
+    /// Upper bound for the quorum and signature record count, limiting validation work.
     pub const MAX_QUORUM: u32 = 32;
 
     const SIGNATURE_HEADER_LENGTH: u32 = 2;
@@ -83,17 +82,17 @@ pub mod MultisigAccountComponent {
     }
 
     pub mod Errors {
-        pub const INVALID_CALLER: felt252 = 'MultisigAccount: invalid caller';
-        pub const INVALID_SIGNATURE: felt252 = 'MultisigAccount: invalid sig';
-        pub const INVALID_TX_VERSION: felt252 = 'MultisigAccount: bad tx version';
-        pub const UNAUTHORIZED: felt252 = 'MultisigAccount: unauthorized';
-        pub const NOT_A_SIGNER: felt252 = 'MultisigAccount: not signer';
-        pub const ALREADY_A_SIGNER: felt252 = 'MultisigAccount: already signer';
-        pub const ZERO_SIGNER: felt252 = 'MultisigAccount: zero signer';
-        pub const INVALID_SIGNER: felt252 = 'MultisigAccount: invalid signer';
-        pub const ZERO_QUORUM: felt252 = 'MultisigAccount: zero quorum';
-        pub const QUORUM_TOO_HIGH: felt252 = 'MultisigAccount: high quorum';
-        pub const QUORUM_ABOVE_MAX: felt252 = 'MultisigAccount: quorum > max';
+        pub const INVALID_CALLER: felt252 = 'MultisigAcc: invalid caller';
+        pub const INVALID_SIGNATURE: felt252 = 'MultisigAcc: invalid sig';
+        pub const INVALID_TX_VERSION: felt252 = 'MultisigAcc: bad tx version';
+        pub const UNAUTHORIZED: felt252 = 'MultisigAcc: unauthorized';
+        pub const NOT_A_SIGNER: felt252 = 'MultisigAcc: not signer';
+        pub const ALREADY_A_SIGNER: felt252 = 'MultisigAcc: already signer';
+        pub const ZERO_SIGNER: felt252 = 'MultisigAcc: zero signer';
+        pub const INVALID_SIGNER: felt252 = 'MultisigAcc: invalid signer';
+        pub const ZERO_QUORUM: felt252 = 'MultisigAcc: zero quorum';
+        pub const QUORUM_TOO_HIGH: felt252 = 'MultisigAcc: quorum > signers';
+        pub const QUORUM_ABOVE_MAX: felt252 = 'MultisigAcc: quorum > max';
     }
 
     //
@@ -439,7 +438,8 @@ pub mod MultisigAccountComponent {
         /// The signature is encoded as
         /// `[version, signer_count, signer_public_key, r, s, ...]`. Signer records must be ordered
         /// by strictly increasing numeric public key. Every supplied record must belong to a
-        /// registered signer and contain a valid Stark-curve signature for `hash`.
+        /// registered signer and contain a valid Stark-curve signature for `hash`. The record
+        /// count must be at least the quorum and no greater than `MAX_QUORUM`.
         ///
         /// A zero stored quorum is invalid, so uninitialized component storage fails closed.
         fn _is_valid_signature(
@@ -466,8 +466,11 @@ pub mod MultisigAccountComponent {
                 return false;
             }
             // Strict ordering and registry membership already bound the record count by the
-            // signer count, so the upper check is only an early exit.
-            if provided_signer_count < quorum || provided_signer_count > signers_count {
+            // signer count, so that check is only an early exit. MAX_QUORUM also bounds
+            // validation work when the registry contains more signers.
+            if provided_signer_count < quorum
+                || provided_signer_count > signers_count
+                || provided_signer_count > MAX_QUORUM {
                 return false;
             }
 

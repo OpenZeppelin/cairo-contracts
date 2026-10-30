@@ -8,23 +8,6 @@ generic as possible, there’s no support for custom or complex contracts such a
 For contract customization and combination of modules you can use
 [Wizard for Cairo](https://wizard.openzeppelin.com/cairo), our code-generation tool.
 
-The Falcon-512 account presets support SRC9 outside execution, self-authorized class upgrades, and
-owner-authorized key rotation. Build their deployable artifacts with
-`scarb --release build -p openzeppelin_presets`; their Falcon verification paths require the
-release compiler profile.
-The Falcon presets are not included in the repository's Sepolia pre-declaration script. Declare
-the release artifact on the intended network and verify its class hash before deploying.
-
-> **WARNING:** The Falcon presets use contract-specific public-key and signature encodings for the
-> FALCON submission verification relation. They are not FN-DSA (FIPS 206) implementations.
-
-`MultisigAccountUpgradeable` is authorized by a quorum of STARK-curve signer keys and supports SRC9
-outside execution and self-authorized class upgrades. The current signer quorum manages the signer
-set, the quorum, and the implementation through account self-calls. The signature encoding is
-described in the [account README](../account/README.md#multisig-signatures). Upgrading an existing
-account to this class must combine the upgrade with an `add_signers` call in one multicall,
-because the constructor does not run; see the preset's migration note.
-
 ### Presets
 
 - [`AccountUpgradeable`](https://docs.openzeppelin.com/contracts-cairo/3.x/api/account#AccountUpgradeable)

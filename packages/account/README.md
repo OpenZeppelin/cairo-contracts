@@ -108,42 +108,50 @@ STARK-curve signature for the same hash from its associated registered signer. T
 the Serde layout of a version felt followed by an array of `[public_key, r, s]` records, so
 standard calldata serialization produces it.
 
-A signature is valid when its header matches the encoded records, `n` is at least the account
-quorum and no greater than the registered signer count, and every supplied record is valid.
+A signature is valid when its header matches the encoded records and every supplied record is
+valid. The record count `n` must be at least the quorum and no greater than either the registered
+signer count or `MAX_QUORUM` (32).
 `is_valid_signature` returns `starknet::VALIDATED` for a valid signature and `0` otherwise. The
 `invoke`, `declare`, and `deploy_account` validation entry points return `starknet::VALIDATED` for
 a valid signature and revert when validation fails.
 
 Signature validation verifies every supplied signer record, so its execution cost grows linearly
 with `n`. Callers can minimize validation work by supplying the smallest valid signer quorum.
-The quorum is capped at `MAX_QUORUM` (32) so that a full quorum stays verifiable within Starknet's
-account-validation resource limits; a larger quorum could never be lowered again, since lowering
-it needs a valid transaction. With Scarb 2.18.0 and Starknet Foundry 0.62.1, validating a full
-32-record bundle costs roughly 3.9 million L2 gas, about four percent of the documented 100
-million validation budget. The signer set itself is not capped.
+Both the quorum and the signature record count are capped at `MAX_QUORUM` to limit validation
+work. The signer set itself is not capped.
+
+With Scarb 2.18.0 and Starknet Foundry 0.64.0, the 32-record reference-vector transaction
+validation uses approximately 4.7 million L2 gas, compared with the
+[100 million validation-gas limit](https://docs.starknet.io/learn/cheatsheets/chain-info).
+This measurement uses a matching deployment and signature-setup baseline; it is not a worst-case
+bound or a public-network deployment check. Recheck the complete validation path after adding
+account features or changing the compiler or network gas schedule.
 
 Signer additions, removals, replacements, and quorum changes accept calls only from the account
 itself. The current quorum can therefore manage the account configuration through an authorized
 account transaction. The governance multisig coordinates proposals and confirmations, while
 `MultisigAccountComponent` authenticates account transactions during SRC6 validation.
 
-Added keys are checked only for being non-zero and on the STARK curve; the component does not
-verify that a private key exists for them. Keep the quorum reachable when rotating keys: add the
+Added keys are checked for being non-zero and on the STARK curve, without requiring proof of
+private-key possession. Keep the quorum reachable when rotating keys: add the
 new key first, confirm that it can sign, for example through `is_valid_signature`, and remove the
 old key afterwards. On an account whose quorum equals its signer count, replacing a key with an
 unusable one cannot be undone.
 
 ### Multisig security considerations
 
-- A valid bundle is not unique. `(r, -s)` verifies like `(r, s)`, and a relayer can drop surplus
-  records while keeping `n` at or above the quorum. Do not use signature bytes as an identifier.
+- A valid bundle is not unique. For `0 < s < ORDER`, `(r, ORDER - s)` also verifies, where `ORDER`
+  is the STARK-curve subgroup order. A relayer can also drop surplus records while keeping `n`
+  at or above the quorum. Do not use signature bytes as an identifier.
 - One invalid record rejects the whole bundle, so verify partial signatures off-chain before
   aggregating them.
-- `is_valid_signature` checks a raw hash. A signature over a plain hash is valid for every account
-  that shares the signing keys, so off-chain messages should be SNIP-12 hashes bound to the
-  account address.
-- A signed outside execution cannot be cancelled before its `execute_before` time other than by
-  changing the signer set or the quorum so that the bundle no longer satisfies it.
+- `is_valid_signature` checks a raw hash. Another account can accept the same bundle if its
+  signer set and quorum accept those records. Use SNIP-12 message hashes bound to the account
+  address for off-chain authorizations.
+- To cancel a pending SRC9 outside execution, the quorum can sign and submit an empty outside
+  execution with the same nonce and a valid caller and time window. The cancellation must
+  execute first: it consumes the nonce, so the pending execution fails with `duplicated nonce`.
+  An invalid cancellation signature reverts without consuming the nonce.
 
 ### Interfaces
 

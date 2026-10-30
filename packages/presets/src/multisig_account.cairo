@@ -15,6 +15,10 @@
 /// the new class. SRC5 interface registrations carry over from the previous class and are not
 /// updated by the upgrade. Upgrading away from this class leaves the multisig storage in place,
 /// and a later upgrade back to it restores the old signer set.
+///
+/// Migrating from `AccountUpgradeable` also leaves its `Account_public_key` in storage. A later
+/// quorum-authorized upgrade back restores that key's sole control without another acceptance
+/// signature. Review the stored key before authorizing that upgrade.
 #[starknet::contract(account)]
 pub mod MultisigAccountUpgradeable {
     use openzeppelin_account::MultisigAccountComponent;

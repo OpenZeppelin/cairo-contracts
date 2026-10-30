@@ -2,7 +2,9 @@ use openzeppelin_account::extensions::SRC9Component::SNIP12MetadataImpl;
 use openzeppelin_account::extensions::src9::snip12_utils::OutsideExecutionStructHash;
 use openzeppelin_interfaces::accounts::ISRC6_ID;
 use openzeppelin_interfaces::introspection::ISRC5_ID;
-use openzeppelin_interfaces::src9::{ISRC9_V2_ID, OutsideExecution};
+use openzeppelin_interfaces::src9::{
+    ISRC9_V2SafeDispatcher, ISRC9_V2SafeDispatcherTrait, ISRC9_V2_ID, OutsideExecution,
+};
 use openzeppelin_test_common::multisig_account::get_multisig_signature;
 use openzeppelin_test_common::upgrades::UpgradeableSpyHelpers;
 use openzeppelin_testing as utils;
@@ -10,7 +12,7 @@ use openzeppelin_testing::constants::stark::{KEY_PAIR, KEY_PAIR_2};
 use openzeppelin_testing::constants::{
     CLASS_HASH_ZERO, FELT_VALUE, MIN_TRANSACTION_VERSION, SALT, TRANSACTION_HASH, ZERO,
 };
-use openzeppelin_testing::signing::get_stark_keys_from;
+use openzeppelin_testing::signing::{SerializedSigning, get_stark_keys_from};
 use openzeppelin_testing::spy_events;
 use openzeppelin_utils::cryptography::snip12::OffchainMessageHash;
 use snforge_std::{
@@ -119,7 +121,7 @@ fn test_validate_declare_and_deploy_through_preset() {
 }
 
 #[test]
-#[should_panic(expected: 'MultisigAccount: unauthorized')]
+#[should_panic(expected: 'MultisigAcc: unauthorized')]
 fn test_change_quorum_rejects_foreign_caller() {
     let (_, dispatcher) = setup_dispatcher();
     dispatcher.change_quorum(1);
@@ -130,7 +132,7 @@ fn test_change_quorum_rejects_foreign_caller() {
 //
 
 #[test]
-#[should_panic(expected: 'MultisigAccount: unauthorized')]
+#[should_panic(expected: 'MultisigAcc: unauthorized')]
 fn test_upgrade_access_control() {
     let (_, dispatcher) = setup_dispatcher();
     dispatcher.upgrade(CLASS_HASH_ZERO);
@@ -233,6 +235,51 @@ fn test_execute_from_outside_v2_rejects_bundle_for_other_hash() {
 }
 
 #[test]
+#[feature("safe_dispatcher")]
+fn test_execute_from_outside_v2_cancels_pending_execution_with_same_nonce() {
+    let (account_address, dispatcher) = setup_dispatcher();
+    let safe_src9 = ISRC9_V2SafeDispatcher { contract_address: account_address };
+    let simple_mock = setup_simple_mock();
+    let pending = outside_execution_with(set_balance_call(simple_mock), 5);
+    let pending_signature = multisig_signature(pending.get_message_hash(account_address));
+    let cancellation = OutsideExecution { calls: array![].span(), ..pending };
+    let cancellation_signature = multisig_signature(cancellation.get_message_hash(account_address));
+    start_cheat_block_timestamp_global(15);
+
+    let result = dispatcher.execute_from_outside_v2(cancellation, cancellation_signature.span());
+    assert!(result.is_empty());
+    assert!(!dispatcher.is_valid_outside_execution_nonce(pending.nonce));
+
+    let error = safe_src9.execute_from_outside_v2(pending, pending_signature.span()).unwrap_err();
+    assert_eq!(*error.at(0), 'SRC9: duplicated nonce');
+    assert_eq!(*load(simple_mock, selector!("balance"), 1).at(0), 0);
+}
+
+#[test]
+#[feature("safe_dispatcher")]
+fn test_execute_from_outside_v2_invalid_cancellation_preserves_nonce() {
+    let (account_address, dispatcher) = setup_dispatcher();
+    let safe_src9 = ISRC9_V2SafeDispatcher { contract_address: account_address };
+    let simple_mock = setup_simple_mock();
+    let pending = outside_execution_with(set_balance_call(simple_mock), 5);
+    let pending_signature = multisig_signature(pending.get_message_hash(account_address));
+    let cancellation = OutsideExecution { calls: array![].span(), ..pending };
+    start_cheat_block_timestamp_global(15);
+
+    // Authorizing the pending calls does not authorize an empty replacement. Failed
+    // verification must roll back the nonce write so the pending execution can still run.
+    let error = safe_src9
+        .execute_from_outside_v2(cancellation, pending_signature.span())
+        .unwrap_err();
+    assert_eq!(*error.at(0), 'SRC9: invalid signature');
+    assert!(dispatcher.is_valid_outside_execution_nonce(pending.nonce));
+
+    dispatcher.execute_from_outside_v2(pending, pending_signature.span());
+    assert!(!dispatcher.is_valid_outside_execution_nonce(pending.nonce));
+    assert_eq!(*load(simple_mock, selector!("balance"), 1).at(0), FELT_VALUE);
+}
+
+#[test]
 fn test_execute_from_outside_v2_self_call_updates_configuration() {
     let (account_address, dispatcher) = setup_dispatcher();
     let new_signer = get_stark_keys_from('PRIVATE_KEY_3').public_key;
@@ -257,9 +304,8 @@ fn test_execute_from_outside_v2_self_call_updates_configuration() {
 // migration from AccountUpgradeable
 //
 
-#[test]
-fn test_migration_from_account_upgradeable_in_one_multicall() {
-    let owner = KEY_PAIR();
+fn migrate_from_account_upgradeable() -> ContractAddress {
+    let owner = get_stark_keys_from('LEGACY_OWNER');
     let account_address = utils::declare_and_deploy("AccountUpgradeable", array![owner.public_key]);
     let legacy = AccountUpgradeableABIDispatcher { contract_address: account_address };
     let multisig_class = utils::declare_class("MultisigAccountUpgradeable").class_hash;
@@ -278,10 +324,19 @@ fn test_migration_from_account_upgradeable_in_one_multicall() {
         selector: selector!("add_signers"),
         calldata: array![2, 2, *signers.at(0), *signers.at(1)].span(),
     };
+    start_cheat_signature_global(owner.serialized_sign(TRANSACTION_HASH).span());
+    start_cheat_transaction_hash_global(TRANSACTION_HASH);
+    assert_eq!(legacy.__validate__(array![upgrade_call, setup_call]), starknet::VALIDATED);
     start_cheat_transaction_version_global(MIN_TRANSACTION_VERSION);
     cheat_caller_address(account_address, ZERO, CheatSpan::TargetCalls(1));
     legacy.__execute__(array![upgrade_call, setup_call]);
+    account_address
+}
 
+#[test]
+fn test_migration_from_account_upgradeable_in_one_multicall() {
+    let account_address = migrate_from_account_upgradeable();
+    let signers = signer_public_keys();
     let migrated = MultisigAccountUpgradeableABIDispatcher { contract_address: account_address };
     assert_eq!(migrated.get_quorum(), 2);
     assert_eq!(migrated.get_signers(), signers.span());
@@ -290,4 +345,35 @@ fn test_migration_from_account_upgradeable_in_one_multicall() {
     // Interface registrations carry over from the previous class; the new constructor never runs.
     assert!(migrated.supports_interface(ISRC6_ID));
     assert!(migrated.supports_interface(ISRC9_V2_ID));
+}
+
+#[test]
+fn test_quorum_authorized_upgrade_back_restores_legacy_owner() {
+    let account_address = migrate_from_account_upgradeable();
+    let migrated = MultisigAccountUpgradeableABIDispatcher { contract_address: account_address };
+    let owner = get_stark_keys_from('LEGACY_OWNER');
+    let hash = 'RESTORED_OWNER_HASH';
+    let owner_signature = owner.serialized_sign(hash);
+    assert!(!migrated.is_signer(owner.public_key));
+    assert_eq!(migrated.is_valid_signature(hash, owner_signature.clone()), 0);
+
+    let legacy_class = utils::declare_class("AccountUpgradeable").class_hash;
+    let upgrade_call = Call {
+        to: account_address,
+        selector: selector!("upgrade"),
+        calldata: array![legacy_class.into()].span(),
+    };
+    let outside_execution = outside_execution_with(upgrade_call, 7);
+    let upgrade_hash = outside_execution.get_message_hash(account_address);
+    start_cheat_block_timestamp_global(15);
+    migrated.execute_from_outside_v2(outside_execution, multisig_signature(upgrade_hash).span());
+
+    // The quorum authorized only the class upgrade; the retired owner provided no new
+    // acceptance signature. Its stored public key becomes authoritative again.
+    let restored = AccountUpgradeableABIDispatcher { contract_address: account_address };
+    assert_eq!(restored.get_public_key(), owner.public_key);
+    assert_eq!(restored.is_valid_signature(hash, owner_signature.clone()), starknet::VALIDATED);
+    start_cheat_signature_global(owner_signature.span());
+    start_cheat_transaction_hash_global(hash);
+    assert_eq!(restored.__validate__(array![]), starknet::VALIDATED);
 }

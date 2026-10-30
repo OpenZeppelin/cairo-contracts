@@ -8,6 +8,10 @@
 /// polynomial-product recomputation. Supports outside execution by implementing SRC9.
 /// Its public-key and signature formats are contract-specific encodings for the FALCON submission
 /// verification relation, rather than FN-DSA (FIPS 206) encodings.
+///
+/// WARNING: Upgrades must preserve the Falcon key layout and encoding. The hint Falcon preset
+/// shares this layout; Standard and Eth account presets require an explicit storage migration.
+/// Class replacement alone can leave the account unable to validate transactions.
 #[starknet::contract(account)]
 pub mod Falcon512ShakeDirectAccountUpgradeable {
     use openzeppelin_account::extensions::SRC9Component;
@@ -64,7 +68,7 @@ pub mod Falcon512ShakeDirectAccountUpgradeable {
         UpgradeableEvent: UpgradeableComponent::Event,
     }
 
-    /// Initializes the account with a canonical 29-felt, NTT-domain Falcon-512 public key.
+    /// Initializes the account with a nonzero, canonical 29-felt NTT-domain Falcon-512 public key.
     /// Transform coefficient-domain keys before packing and verify key usability before deployment.
     #[constructor]
     pub fn constructor(ref self: ContractState, public_key: Array<felt252>) {

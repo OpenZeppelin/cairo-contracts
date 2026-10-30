@@ -7,5 +7,6 @@ pub trait Falcon512SignatureVerifier {
     fn verify(message_hash: felt252, public_key: Span<felt252>, signature: Span<felt252>) -> bool;
 
     /// Returns whether the packed public key has the required canonical encoding.
+    /// Supplied strategies also reject the all-zero key; this check does not prove key ownership.
     fn is_valid_public_key(public_key: Span<felt252>) -> bool;
 }

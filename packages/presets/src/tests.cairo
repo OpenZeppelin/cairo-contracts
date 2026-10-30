@@ -5,6 +5,8 @@ mod test_erc721;
 mod test_eth_account;
 #[cfg(feature: 'falcon_presets_tests')]
 mod test_falcon_512_accounts;
+#[cfg(feature: 'falcon_presets_tests')]
+mod test_falcon_512_migration;
 mod test_meta_tx_v0;
 mod test_universal_deployer;
 mod test_vesting;

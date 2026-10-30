@@ -121,6 +121,7 @@ Run commands from the repository root. These commands mirror
 
 ```sh
 scarb fmt --check --workspace
+scarb lint --workspace --test --deny-warnings
 snforge test --workspace --features fuzzing --fuzzer-runs 200 --skip falcon_512
 snforge test --workspace --coverage
 ```
@@ -191,8 +192,9 @@ Follow the [Falcon testing conventions](GUIDELINES.md#testing) when changing gen
 `scripts/falcon_512/check_fixtures.py` provides reference encoders for decoded Falcon keys and
 signatures and checks all committed vectors using Python's SHAKE-256 and schoolbook polynomial
 multiplication. The vectors retain their `tprest/falcon.py` provenance. Their original signing
-seeds and secret keys are not recorded with the fixtures; this check reproduces the encoding and validates the
-signatures, not the signer's randomness.
+seeds and secret keys are not recorded for the verification and rotation vectors; the migration
+fixture records its test seeds. The checker reproduces the encoding and validates the signatures,
+not the signer's randomness. It also checks the reference parameters against the Cairo constants.
 
 ```sh
 python3 scripts/falcon_512/check_fixtures.py
@@ -201,13 +203,25 @@ scarb --release build -p openzeppelin_presets
 python3 scripts/falcon_512/check_resources.py
 ```
 
-Run the production verifier, preset and exhaustive basis-vector tests:
+The resource checker reports raw artifact bytes separately from serialized class bytes, using
+compact JSON for both the ABI string and the containing class. Declaration tools using a different
+ABI serialization should check the size of their submitted class.
+
+Run lint with the Falcon test features, then the production verifier, preset and exhaustive
+basis-vector tests:
 
 ```sh
+scarb --release lint -p openzeppelin_account --features falcon_fast_tests --test --deny-warnings
+scarb --release lint -p openzeppelin_presets --features falcon_presets_tests --test --deny-warnings
 snforge test -p openzeppelin_account --release --features falcon_fast_tests falcon_512 --skip every_basis_vector --max-n-steps 5000000
 snforge test -p openzeppelin_presets --release --features falcon_presets_tests falcon_512 --max-n-steps 5000000
 snforge test -p openzeppelin_account --release --features falcon_fast_tests every_basis_vector --max-n-steps 100000000
 ```
+
+CI measures each preset's invoke, declare, and deploy validation separately from deployment, with
+a 20% margin below Starknet 0.14.2's Sierra-gas validation cap. These tests use Sierra-gas metering;
+the protocol's Cairo-step limit applies to Cairo-step-metered execution. Whole-test budgets also
+cover setup costs.
 
 The generator checks all 512 basis vectors, inverse transforms, pointwise products and integer
 bounds. The fixture checker validates committed signatures and their encodings; it does not

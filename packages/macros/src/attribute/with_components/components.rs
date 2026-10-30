@@ -4,6 +4,7 @@ use cairo_lang_macro::Diagnostic;
 /// The list of allowed components for the `with_components` attribute.
 pub enum AllowedComponents {
     Account,
+    MultisigAccount,
     EthAccount,
     SRC9,
     AccessControl,
@@ -51,6 +52,7 @@ impl AllowedComponents {
     pub fn from_str(s: &str) -> Result<Self, Diagnostic> {
         match s {
             "Account" => Ok(AllowedComponents::Account),
+            "MultisigAccount" => Ok(AllowedComponents::MultisigAccount),
             "EthAccount" => Ok(AllowedComponents::EthAccount),
             "SRC9" => Ok(AllowedComponents::SRC9),
             "AccessControl" => Ok(AllowedComponents::AccessControl),
@@ -105,6 +107,15 @@ impl AllowedComponents {
                 path: "openzeppelin_account::AccountComponent",
                 storage: "account",
                 event: "AccountEvent",
+                has_initializer: true,
+                has_immutable_config: false,
+                internal_impls: vec!["InternalImpl"],
+            },
+            AllowedComponents::MultisigAccount => ComponentInfo {
+                name: "MultisigAccountComponent",
+                path: "openzeppelin_account::MultisigAccountComponent",
+                storage: "multisig_account",
+                event: "MultisigAccountEvent",
                 has_initializer: true,
                 has_immutable_config: false,
                 internal_impls: vec!["InternalImpl"],

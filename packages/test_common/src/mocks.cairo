@@ -11,6 +11,7 @@ pub mod erc6909;
 pub mod erc721;
 pub mod governor;
 pub mod multisig;
+pub mod multisig_account;
 pub mod non_implementing;
 pub mod nonces;
 pub mod observer;

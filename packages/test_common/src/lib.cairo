@@ -8,6 +8,7 @@ pub mod eth_account;
 pub mod falcon_512;
 pub mod math;
 pub mod mocks;
+pub mod multisig_account;
 pub mod ownable;
 pub mod upgrades;
 pub mod vesting;

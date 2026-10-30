@@ -19,6 +19,7 @@ PRESET_ORDER = [
     "ERC1155Upgradeable",
     "EthAccountUpgradeable",
     "MetaTransactionV0",
+    "MultisigAccountUpgradeable",
     "UniversalDeployer",
     "VestingWallet",
 ]

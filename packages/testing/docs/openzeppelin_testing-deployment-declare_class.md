@@ -1,6 +1,6 @@
 # declare_class
 
-<a href='https://github.com/OpenZeppelin/cairo-contracts/blob/881d4090ba46959cf8dbecff414b478e8bf70542/packages/testing/src/deployment.cairo#L9-L14'> [source code] </a>
+<a href='https://github.com/OpenZeppelin/cairo-contracts/blob/f65c1184eaa3454392aadee8939167ab4cd3a097/packages/testing/src/deployment.cairo#L9-L14'> [source code] </a>
 
 Declares a contract with a `snforge_std::declare` call and unwraps the result.
 This function will skip declaration and just return the `ContractClass` if the contract is

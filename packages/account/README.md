@@ -76,8 +76,21 @@ the same account address through a self-authorized class upgrade.
 > **WARNING:** Class upgrades preserve storage and do not run the target constructor. The two
 > Falcon presets share a compatible key layout; `AccountUpgradeable` and `EthAccountUpgradeable`
 > use different layouts. A plain upgrade between these account types can leave the account unable
-> to validate transactions. Use a new deployment or an explicitly designed and tested migration.
+> to validate transactions. Migrate to Falcon with the atomic sequence below; other migration paths
+> require separate verification.
 > Upgrades without migration must preserve the key layout and its verifier's interpretation.
+
+To migrate `AccountUpgradeable` or `EthAccountUpgradeable` to either Falcon preset, submit both
+self-calls in one transaction. Call `upgrade` with the declared Falcon class, then `set_public_key`
+with the Falcon key and its ownership-acceptance signature. The existing key authorizes the outer
+transaction; the second call runs the Falcon implementation and checks acceptance by the new key.
+If acceptance fails, the class replacement is reverted as well.
+
+Use the Falcon setter's calldata encoding and the target variant's signature layout. On a first
+migration, the acceptance message uses `poseidon_hash_span([])` as the current-owner GUID because
+Falcon key storage is empty, rather than the Standard or Eth owner GUID. If the account previously
+used Falcon, derive that GUID from its stored Falcon key. Keep both calls in the same transaction
+so the account can validate subsequent transactions with the new key.
 
 Ownership acceptance follows the existing account protocol: the proof binds the account address
 and current-owner GUID, not a chain ID, nonce, or expiry. The current owner must still authorize

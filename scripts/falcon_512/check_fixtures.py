@@ -3,8 +3,8 @@
 
 The encoder accepts decoded coefficient-domain keys and signature polynomials;
 it does not implement key generation, sampling, or a production signer. Existing
-vectors came from tprest/falcon.py; their original secret keys/seeds are not recorded
-with the fixtures.
+vectors came from tprest/falcon.py. The original verification and rotation vectors
+do not record their secret keys/seeds; the migration fixture records its test seeds.
 Checking them does not reproduce the signer's randomness or certify FN-DSA compliance.
 """
 
@@ -31,7 +31,7 @@ def check_cairo_parameters(root: Path = CAIRO_ROOT) -> None:
     expected = {
         "../falcon_512.cairo": {"COEFFICIENT_COUNT": N},
         "zq.cairo": {"Q": Q, "Q32": Q},
-        "falcon.cairo": {"SIG_BOUND_512": NORM_BOUND},
+        "falcon.cairo": {"SIG_BOUND_512": NORM_BOUND, "Q32_NZ": Q},
         "packing.cairo": {"PACKED_SLOTS": 29, "VALS_PER_FELT": 18, "LAST_SLOT_VALS": 8},
         "verifier_impls.cairo": {
             "SALT_FELTS": 2, "PUBLIC_KEY_FELTS": 29,
@@ -200,9 +200,12 @@ def main() -> None:
     check_cairo_parameters()
     fixture = FIXTURES / "fixture.cairo"
     rotation = FIXTURES / "rotation_fixture.cairo"
+    migration = FIXTURES / "migration_fixture.cairo"
     cases = [(fixture, "public_key", "signature", "msg")]
     cases += [(rotation, "new_public_key", name + "_signature", name + "_hash")
               for name in ("accept_ownership", "second_accept_ownership", "outside_execution")]
+    cases += [(migration, "public_key", name + "_signature", name + "_hash")
+              for name in ("accept_ownership", "transaction")]
     for path, key_name, signature_name, message_name in cases:
         key = read_function(path, key_name)
         signature = read_function(path, signature_name)

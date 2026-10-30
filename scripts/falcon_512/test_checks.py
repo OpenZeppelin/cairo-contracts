@@ -20,7 +20,10 @@ class EncodingTests(unittest.TestCase):
         read_text = Path.read_text
         for filename, old, new, message in (
             ("zq.cairo", "Q: u16 = 12289", "Q: u16 = 12287", "expected"),
+            ("zq.cairo", "Q32: u32 = 12289", "Q32: u32 = 12287", "expected"),
             ("falcon.cairo", "34034726", "34034727", "expected"),
+            ("falcon.cairo", "Q32_NZ: NonZero<u32> = 12289",
+             "Q32_NZ: NonZero<u32> = 12287", "expected"),
             ("packing.cairo", "PACKED_SLOTS: u32 = 29", "PACKED_SLOTS: u32 = 30", "expected"),
             ("packing.cairo", "Acc8 = BoundedInt<0, 6392178558614694273495691177456939008>",
              "Acc8 = BoundedInt<0, 6392178558614694273495691177456939009>", "expected"),

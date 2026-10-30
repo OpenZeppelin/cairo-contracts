@@ -1,6 +1,6 @@
 # OTHER_ROLE
 
-<a href='https://github.com/OpenZeppelin/cairo-contracts/blob/881d4090ba46959cf8dbecff414b478e8bf70542/packages/testing/src/constants.cairo#L19-L19'> [source code] </a>
+<a href='https://github.com/OpenZeppelin/cairo-contracts/blob/f65c1184eaa3454392aadee8939167ab4cd3a097/packages/testing/src/constants.cairo#L19-L19'> [source code] </a>
 
 Fully qualified path: [openzeppelin_testing](./openzeppelin_testing.md)::[constants](./openzeppelin_testing-constants.md)::[OTHER_ROLE](./openzeppelin_testing-constants-OTHER_ROLE.md)
 

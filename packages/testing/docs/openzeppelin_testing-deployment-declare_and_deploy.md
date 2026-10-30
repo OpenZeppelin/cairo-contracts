@@ -1,6 +1,6 @@
 # declare_and_deploy
 
-<a href='https://github.com/OpenZeppelin/cairo-contracts/blob/881d4090ba46959cf8dbecff414b478e8bf70542/packages/testing/src/deployment.cairo#L47-L50'> [source code] </a>
+<a href='https://github.com/OpenZeppelin/cairo-contracts/blob/f65c1184eaa3454392aadee8939167ab4cd3a097/packages/testing/src/deployment.cairo#L47-L50'> [source code] </a>
 
 Combines the declaration of a class and the deployment of a contract into one function call.
 This function will skip declaration if the contract is

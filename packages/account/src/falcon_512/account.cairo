@@ -157,12 +157,13 @@ pub mod Falcon512AccountComponent {
             self.read_public_key()
         }
 
-        /// Sets the public key to a canonical packed Falcon-512 public key.
+        /// Sets the public key using the selected verifier's public-key checks.
         ///
         /// Requirements:
         ///
         /// - The caller must be the contract itself.
-        /// - The new public key must use the canonical 29-felt encoding.
+        /// - The new public key must pass `Verifier::is_valid_public_key`. The supplied SHAKE
+        /// strategies require the canonical 29-felt encoding and reject the all-zero key.
         /// - The signature must prove acceptance by the new owner.
         ///
         /// Emits both an `OwnerRemoved` and an `OwnerAdded` event.
@@ -318,8 +319,9 @@ pub mod Falcon512AccountComponent {
         impl SRC5: SRC5Component::HasComponent<TContractState>,
         +Drop<TContractState>,
     > of InternalTrait<TContractState> {
-        /// Initializes the account with a canonical packed Falcon-512 public key and registers
-        /// the ISRC6 interface ID.
+        /// Initializes the account with a key accepted by `Verifier::is_valid_public_key` and
+        /// registers the ISRC6 interface ID. The supplied SHAKE strategies require the canonical
+        /// 29-felt encoding and reject the all-zero key.
         ///
         /// Emits an `OwnerAdded` event.
         /// Use the same verifier as the embedded account implementations. This function has no

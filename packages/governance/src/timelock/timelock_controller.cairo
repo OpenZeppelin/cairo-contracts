@@ -508,7 +508,7 @@ pub mod TimelockControllerComponent {
         }
 
         fn getRoleAdmin(self: @ComponentState<TContractState>, role: felt252) -> felt252 {
-            Self::getRoleAdmin(self, role)
+            Self::get_role_admin(self, role)
         }
 
         fn grantRole(

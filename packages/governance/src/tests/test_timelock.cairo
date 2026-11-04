@@ -148,6 +148,39 @@ fn deploy_attacker() -> ITimelockAttackerDispatcher {
 }
 
 //
+// get_role_admin
+//
+
+#[test]
+fn test_get_role_admin_camel_case_matches_snake_case() {
+    let timelock = deploy_timelock();
+    for role in array![
+        DEFAULT_ADMIN_ROLE, PROPOSER_ROLE, EXECUTOR_ROLE, CANCELLER_ROLE, 'UNKNOWN',
+    ] {
+        assert_eq!(timelock.get_role_admin(role), DEFAULT_ADMIN_ROLE);
+        assert_eq!(timelock.getRoleAdmin(role), timelock.get_role_admin(role));
+    }
+}
+
+#[test]
+fn test_get_role_admin_camel_case_custom_admin() {
+    let mut state = TimelockControllerMock::contract_state_for_testing();
+    let role = 'CUSTOM_ROLE';
+    let admin = 'CUSTOM_ADMIN';
+    state.access_control.set_role_admin(role, admin);
+    assert_eq!(
+        crate::timelock::TimelockControllerComponent::TimelockMixinImpl::get_role_admin(
+            @state, role,
+        ),
+        admin,
+    );
+    assert_eq!(
+        crate::timelock::TimelockControllerComponent::TimelockMixinImpl::getRoleAdmin(@state, role),
+        admin,
+    );
+}
+
+//
 // hash_operation
 //
 

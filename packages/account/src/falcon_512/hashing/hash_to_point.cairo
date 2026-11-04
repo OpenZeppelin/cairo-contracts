@@ -9,6 +9,7 @@
 //! and rejection-samples each word into `Z_q` until it has 512 coefficients.
 
 use crate::falcon_512::COEFFICIENT_COUNT;
+use crate::falcon_512::zq::Q32;
 use super::shake256::keccak_f1600;
 
 /// Rejection bound: the largest multiple of q = 12289 below 2^16.
@@ -51,7 +52,7 @@ pub(crate) fn hash_to_point_shake_512(
         ],
     );
 
-    let q32: NonZero<u32> = 12289_u32.try_into().unwrap();
+    let q32: NonZero<u32> = Q32.try_into().unwrap();
     let two16: NonZero<u64> = 0x10000_u64.try_into().unwrap();
     let b256: NonZero<u64> = 0x100_u64.try_into().unwrap();
     let mut coeffs: Array<u16> = array![];

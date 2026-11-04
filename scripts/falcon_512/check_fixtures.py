@@ -3,8 +3,8 @@
 
 The encoder accepts decoded coefficient-domain keys and signature polynomials;
 it does not implement key generation, sampling, or a production signer. Existing
-vectors came from tprest/falcon.py; their original secret keys/seeds are not recorded
-with the fixtures.
+vectors came from tprest/falcon.py. The original verification and rotation vectors
+do not record their secret keys/seeds; the migration fixture records its test seeds.
 Checking them does not reproduce the signer's randomness or certify FN-DSA compliance.
 """
 
@@ -19,6 +19,68 @@ N = 512
 PRIME = 2**251 + 17 * 2**192 + 1
 NORM_BOUND = 34_034_726
 FIXTURES = Path(__file__).resolve().parents[2] / "packages/test_common/src/falcon_512"
+CAIRO_ROOT = Path(__file__).resolve().parents[2] / "packages/account/src/falcon_512"
+
+
+def check_cairo_parameters(root: Path = CAIRO_ROOT) -> None:
+    """Keep the independent reference parameters aligned with the Cairo verifier.
+
+    `VALS_PER_FELT` and `LAST_SLOT_VALS` exist only as test aliases in Cairo; the
+    production packing layout is pinned through the bounded-integer types checked below.
+    """
+    expected = {
+        "../falcon_512.cairo": {"COEFFICIENT_COUNT": N},
+        "zq.cairo": {"Q": Q, "Q32": Q},
+        "falcon.cairo": {"SIG_BOUND_512": NORM_BOUND, "Q32_NZ": Q},
+        "packing.cairo": {"PACKED_SLOTS": 29, "VALS_PER_FELT": 18, "LAST_SLOT_VALS": 8},
+        "verifier_impls.cairo": {
+            "SALT_FELTS": 2, "PUBLIC_KEY_FELTS": 29,
+            "DIRECT_SIGNATURE_FELTS": 31, "SIGNATURE_FELTS": 60,
+        },
+        "hashing/hash_to_point.cairo": {"REJECT_BOUND": 5 * Q, "TWO_POW_160": 2**160},
+    }
+    values = {}
+    for filename, constants in expected.items():
+        source = (root / filename).read_text()
+        for name, wanted in constants.items():
+            match = re.search(rf"\bconst {name}\s*:[^=]+?=\s*([^;]+);", source)
+            if match is None:
+                raise ValueError(f"{filename}: missing {name}")
+            # Layout constants use literals, aliases, or sums of earlier constants.
+            value = 0
+            for term in match[1].split("+"):
+                term = term.strip()
+                if term[0].isdigit():
+                    try:
+                        value += int(term, 0)
+                    except ValueError:
+                        raise ValueError(
+                            f"{filename}: unsupported constant expression {term}"
+                        ) from None
+                else:
+                    alias = term.removeprefix("packing::")
+                    if alias not in values:
+                        raise ValueError(f"{filename}: unsupported constant expression {term}")
+                    value += values[alias]
+            if value != wanted:
+                raise ValueError(f"{filename}: {name} is {value}, expected {wanted}")
+            values[name] = value
+    # The production unpacker encodes its layout in bounded-integer types rather than named
+    # constants: canonical full halves hold nine base-Q digits (below Q^9, `Acc8`) and the
+    # last half eight (below Q^8, `Acc7`).
+    source = (root / "packing.cairo").read_text()
+    expected_types = {
+        "PackingZq": f"BoundedInt<0, {Q - 1}>",
+        "PackingQ": f"UnitInt<{Q}>",
+        "Acc7": f"BoundedInt<0, {Q**8 - 1}>",
+        "Acc8": f"BoundedInt<0, {Q**9 - 1}>",
+    }
+    for name, wanted in expected_types.items():
+        match = re.search(rf"\btype {name} = ([^;]+);", source)
+        if match is None:
+            raise ValueError(f"packing.cairo: missing {name}")
+        if match[1] != wanted:
+            raise ValueError(f"packing.cairo: {name} is {match[1]}, expected {wanted}")
 
 
 def pack(values: list[int]) -> list[int]:
@@ -135,11 +197,15 @@ def read_function(path: Path, name: str) -> list[int]:
 
 
 def main() -> None:
+    check_cairo_parameters()
     fixture = FIXTURES / "fixture.cairo"
     rotation = FIXTURES / "rotation_fixture.cairo"
+    migration = FIXTURES / "migration_fixture.cairo"
     cases = [(fixture, "public_key", "signature", "msg")]
     cases += [(rotation, "new_public_key", name + "_signature", name + "_hash")
               for name in ("accept_ownership", "second_accept_ownership", "outside_execution")]
+    cases += [(migration, "public_key", name + "_signature", name + "_hash")
+              for name in ("accept_ownership", "transaction")]
     for path, key_name, signature_name, message_name in cases:
         key = read_function(path, key_name)
         signature = read_function(path, signature_name)

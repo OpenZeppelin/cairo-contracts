@@ -1,5 +1,7 @@
+use core::testing::get_unspent_gas;
 use openzeppelin_account::extensions::SRC9Component::SNIP12MetadataImpl;
 use openzeppelin_account::extensions::src9::snip12_utils::OutsideExecutionStructHash;
+use openzeppelin_account::falcon_512::verifier_impls::DIRECT_SIGNATURE_FELTS;
 use openzeppelin_interfaces::accounts::{
     FeltArrayAccountABIDispatcher, FeltArrayAccountABIDispatcherTrait, ISRC6_ID,
 };
@@ -14,8 +16,10 @@ use openzeppelin_test_common::falcon_512::rotation_fixture::{
     accept_ownership_hash, accept_ownership_signature, account_address, new_public_key,
     outside_execution_hash, outside_execution_signature,
 };
+use openzeppelin_test_common::upgrades::UpgradeableSpyHelpers;
 use openzeppelin_testing as utils;
-use openzeppelin_testing::constants::CLASS_HASH_ZERO;
+use openzeppelin_testing::constants::{CLASS_HASH_ZERO, secp256k1, stark};
+use openzeppelin_testing::spy_events;
 use openzeppelin_utils::cryptography::snip12::OffchainMessageHash;
 use snforge_std::{
     start_cheat_block_timestamp_global, start_cheat_caller_address, start_cheat_chain_id_global,
@@ -23,58 +27,67 @@ use snforge_std::{
 };
 use starknet::ContractAddress;
 
-const DIRECT_SIGNATURE_FELTS: u32 = 31;
+// Starknet 0.14.2 validate_max_sierra_gas; recheck when upgrading the network gas schedule.
+// https://docs.starknet.io/learn/cheatsheets/chain-info
+const VALIDATE_MAX_SIERRA_GAS: u128 = 100000000;
+const VALIDATION_GAS_BUDGET: u128 = VALIDATE_MAX_SIERRA_GAS * 80 / 100;
 
 fn assert_validation_entrypoint(class_name: ByteArray, signature: Array<felt252>, entrypoint: u32) {
     let account = deploy(class_name);
     start_cheat_transaction_hash_global(msg());
     start_cheat_signature_global(signature.span());
+    let gas_before = get_unspent_gas();
     let result = match entrypoint {
         0 => account.__validate__(array![]),
         1 => account.__validate_declare__(0),
         2 => account.__validate_deploy__(0, 0, public_key()),
         _ => panic!("Unknown validation entrypoint"),
     };
+    let gas_used = gas_before - get_unspent_gas();
     assert_eq!(result, starknet::VALIDATED);
+    // Includes dispatcher overhead, excludes deployment, and reserves 20% of the protocol cap.
+    assert!(gas_used <= VALIDATION_GAS_BUDGET, "Validation gas: {gas_used}");
 }
 
-// Budgets include deployment and test setup as well as one validation call.
+// Test caps exceed `VALIDATION_GAS_BUDGET` plus deployment and setup, so the per-call
+// assertion in `assert_validation_entrypoint` is the binding check.
 #[test]
-#[available_gas(l2_gas: 75000000)]
+#[available_gas(l2_gas: 110000000)]
 fn test_falcon_hint_invoke_validation_budget() {
     assert_validation_entrypoint("Falcon512ShakeAccountUpgradeable", signature(), 0);
 }
 
 #[test]
-#[available_gas(l2_gas: 75000000)]
+#[available_gas(l2_gas: 110000000)]
 fn test_falcon_hint_declare_validation_budget() {
     assert_validation_entrypoint("Falcon512ShakeAccountUpgradeable", signature(), 1);
 }
 
 #[test]
-#[available_gas(l2_gas: 75000000)]
+#[available_gas(l2_gas: 110000000)]
 fn test_falcon_hint_deploy_validation_budget() {
     assert_validation_entrypoint("Falcon512ShakeAccountUpgradeable", signature(), 2);
 }
 
 #[test]
-#[available_gas(l2_gas: 85000000)]
+#[available_gas(l2_gas: 110000000)]
 fn test_falcon_direct_invoke_validation_budget() {
     assert_validation_entrypoint("Falcon512ShakeDirectAccountUpgradeable", direct_signature(), 0);
 }
 
 #[test]
-#[available_gas(l2_gas: 85000000)]
+#[available_gas(l2_gas: 110000000)]
 fn test_falcon_direct_declare_validation_budget() {
     assert_validation_entrypoint("Falcon512ShakeDirectAccountUpgradeable", direct_signature(), 1);
 }
 
 #[test]
-#[available_gas(l2_gas: 85000000)]
+#[available_gas(l2_gas: 110000000)]
 fn test_falcon_direct_deploy_validation_budget() {
     assert_validation_entrypoint("Falcon512ShakeDirectAccountUpgradeable", direct_signature(), 2);
 }
 
+// Budgets include deployment and test setup as well as one rejected validation.
 #[test]
 #[available_gas(l2_gas: 75000000)]
 fn test_falcon_hint_invalid_signature_budget() {
@@ -243,6 +256,48 @@ fn test_falcon_shake_direct_preset_rejects_unauthorized_upgrade() {
     reject_unauthorized_upgrade("Falcon512ShakeDirectAccountUpgradeable");
 }
 
+fn upgrade_with_class_hash_zero(class_name: ByteArray) {
+    let account = deploy(class_name);
+    start_cheat_caller_address(account.contract_address, account.contract_address);
+    IUpgradeableDispatcher { contract_address: account.contract_address }.upgrade(CLASS_HASH_ZERO);
+}
+
+#[test]
+#[should_panic(expected: 'Class hash cannot be zero')]
+fn test_falcon_shake_preset_rejects_class_hash_zero_upgrade() {
+    upgrade_with_class_hash_zero("Falcon512ShakeAccountUpgradeable");
+}
+
+#[test]
+#[should_panic(expected: 'Class hash cannot be zero')]
+fn test_falcon_shake_direct_preset_rejects_class_hash_zero_upgrade() {
+    upgrade_with_class_hash_zero("Falcon512ShakeDirectAccountUpgradeable");
+}
+
+fn assert_upgrade_emits_event(source_class_name: ByteArray, target_class_name: ByteArray) {
+    let account = deploy(source_class_name);
+    let target_class_hash = utils::declare_class(target_class_name).class_hash;
+    let mut spy = spy_events();
+    start_cheat_caller_address(account.contract_address, account.contract_address);
+    IUpgradeableDispatcher { contract_address: account.contract_address }
+        .upgrade(target_class_hash);
+    spy.assert_only_event_upgraded(account.contract_address, target_class_hash);
+}
+
+#[test]
+fn test_falcon_shake_preset_emits_upgraded_event() {
+    assert_upgrade_emits_event(
+        "Falcon512ShakeAccountUpgradeable", "Falcon512ShakeDirectAccountUpgradeable",
+    );
+}
+
+#[test]
+fn test_falcon_shake_direct_preset_emits_upgraded_event() {
+    assert_upgrade_emits_event(
+        "Falcon512ShakeDirectAccountUpgradeable", "Falcon512ShakeAccountUpgradeable",
+    );
+}
+
 fn assert_rotation_survives_cross_variant_upgrade(
     source_class_name: ByteArray,
     target_class_name: ByteArray,
@@ -282,4 +337,40 @@ fn test_falcon_shake_direct_preset_storage_survives_upgrade_to_hint_variant() {
         direct_accept_ownership_signature(),
         accept_ownership_signature(),
     );
+}
+
+fn assert_plain_upgrade_leaves_falcon_key_empty(
+    source_class: ByteArray, calldata: Array<felt252>, target_class: ByteArray,
+) {
+    let address = utils::declare_and_deploy(source_class, calldata);
+    let class_hash = utils::declare_class(target_class).class_hash;
+    start_cheat_caller_address(address, address);
+    IUpgradeableDispatcher { contract_address: address }.upgrade(class_hash);
+
+    let account = FeltArrayAccountABIDispatcher { contract_address: address };
+    assert!(account.get_public_key().is_empty());
+    assert_eq!(account.is_valid_signature(msg(), signature()), 0);
+    assert_eq!(account.is_valid_signature(msg(), direct_signature()), 0);
+}
+
+#[test]
+fn test_standard_upgrade_does_not_initialize_falcon_key() {
+    for target in array![
+        "Falcon512ShakeAccountUpgradeable", "Falcon512ShakeDirectAccountUpgradeable",
+    ] {
+        assert_plain_upgrade_leaves_falcon_key_empty(
+            "AccountUpgradeable", array![stark::KEY_PAIR().public_key], target,
+        );
+    }
+}
+
+#[test]
+fn test_eth_upgrade_does_not_initialize_falcon_key() {
+    for target in array![
+        "Falcon512ShakeAccountUpgradeable", "Falcon512ShakeDirectAccountUpgradeable",
+    ] {
+        let mut calldata = array![];
+        secp256k1::KEY_PAIR().public_key.serialize(ref calldata);
+        assert_plain_upgrade_leaves_falcon_key_empty("EthAccountUpgradeable", calldata, target);
+    }
 }

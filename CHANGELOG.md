@@ -12,7 +12,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - `Falcon512AccountComponent`, `Falcon512SignatureVerifier`, `Falcon512ShakeVerifier`, and
-  `Falcon512ShakeDirectVerifier` for Falcon-512 account validation (#1730)
+  `Falcon512ShakeDirectVerifier` for Falcon-512 account validation, with `PUBLIC_KEY_FELTS`,
+  `DIRECT_SIGNATURE_FELTS`, and `SIGNATURE_FELTS` layout constants (#1730, #1759)
 - `Falcon512ShakeAccountUpgradeable` and `Falcon512ShakeDirectAccountUpgradeable` presets with
   SRC9 and class upgrades, and `Falcon512AccountUpgradeableABI` (#1730)
 - `IFeltArrayDeployable`, `IFeltArrayPublicKey`, `IFeltArrayPublicKeyCamel`, and

@@ -3,7 +3,7 @@ use crate::falcon_512::ntt::engine::{intt, ntt};
 #[cfg(feature: 'falcon_fast_tests')]
 use crate::falcon_512::ntt::falcon512::PRODUCT_BITS;
 use crate::falcon_512::ntt::falcon512::{
-    PRODUCT_BOUND_FELT, REDUCED_BITS, config, config_for_degree,
+    PRODUCT_BOUND_FELT, REDUCED_BITS, config, config_for_degree, inverse_config,
 };
 #[cfg(feature: 'falcon_fast_tests')]
 use crate::falcon_512::ntt::falcon512_fast::{
@@ -42,6 +42,12 @@ fn zeros() -> Array<u16> {
         values.append(0);
     }
     values
+}
+
+#[test]
+#[should_panic(expected: 'ntt: missing forward roots')]
+fn test_ntt_rejects_inverse_only_config() {
+    ntt(as_felts(zeros().span()).span(), @inverse_config());
 }
 
 fn max_values() -> Array<u16> {

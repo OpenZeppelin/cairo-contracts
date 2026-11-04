@@ -198,6 +198,9 @@
     "openzeppelin_test_common_MockTrace.compiled_contract_class.json": {
       "felts": 5229
     },
+    "openzeppelin_test_common_MultisigAccountMock.compiled_contract_class.json": {
+      "felts": 8057
+    },
     "openzeppelin_test_common_MultisigTargetMock.compiled_contract_class.json": {
       "felts": 271
     },
@@ -221,6 +224,9 @@
     },
     "openzeppelin_test_common_SRC9AccountMock.compiled_contract_class.json": {
       "felts": 5442
+    },
+    "openzeppelin_test_common_SignatureCallerMock.compiled_contract_class.json": {
+      "felts": 401
     },
     "openzeppelin_test_common_SimpleMock.compiled_contract_class.json": {
       "felts": 381
@@ -464,6 +470,9 @@
     "openzeppelin_test_common_MockTrace.contract_class.json": {
       "bytes": 98458
     },
+    "openzeppelin_test_common_MultisigAccountMock.contract_class.json": {
+      "bytes": 176742
+    },
     "openzeppelin_test_common_MultisigTargetMock.contract_class.json": {
       "bytes": 8289
     },
@@ -487,6 +496,9 @@
     },
     "openzeppelin_test_common_SRC9AccountMock.contract_class.json": {
       "bytes": 126225
+    },
+    "openzeppelin_test_common_SignatureCallerMock.contract_class.json": {
+      "bytes": 11441
     },
     "openzeppelin_test_common_SimpleMock.contract_class.json": {
       "bytes": 11093

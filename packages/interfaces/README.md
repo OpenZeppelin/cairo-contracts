@@ -21,6 +21,8 @@ List of interfaces, ABI traits and dispatchers.
 - `IFeltArrayPublicKeyCamel`
 - `IPublicKey`
 - `IPublicKeyCamel`
+- `IMultisigAccount`
+- `IMultisigDeployable`
 - `IEthDeployable`
 - `IEthPublicKey`
 - `IEthPublicKeyCamel`
@@ -87,6 +89,7 @@ List of interfaces, ABI traits and dispatchers.
 - `OwnableTwoStepABI`
 - `AccountABI`
 - `FeltArrayAccountABI`
+- `MultisigAccountABI`
 - `EthAccountABI`
 - `TimelockABI`
 - `VotesABI`

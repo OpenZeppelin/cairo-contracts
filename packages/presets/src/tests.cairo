@@ -6,5 +6,6 @@ mod test_eth_account;
 #[cfg(feature: 'falcon_presets_tests')]
 mod test_falcon_512_accounts;
 mod test_meta_tx_v0;
+mod test_multisig_account;
 mod test_universal_deployer;
 mod test_vesting;

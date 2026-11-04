@@ -18,6 +18,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `IFeltArrayDeployable`, `IFeltArrayPublicKey`, `IFeltArrayPublicKeyCamel`, and
   `FeltArrayAccountABI` interfaces (#1730)
 - `openzeppelin_corelib_imports` compatibility package for internal Cairo APIs (#1730)
+- `MultisigAccountComponent` for quorum-based STARK-curve account validation (#1745)
+- `MultisigAccountUpgradeable` preset with SRC9 and class upgrades, and
+  `MultisigAccountUpgradeableABI` (#1745)
+- `IMultisigAccount`, `IMultisigDeployable`, and `MultisigAccountABI` interfaces (#1745)
+- `MultisigAccount` support in the `with_components` macro (#1745)
 
 ## 4.0.1 (2026-08-26)
 

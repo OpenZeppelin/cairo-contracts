@@ -302,7 +302,7 @@ pub mod AccountComponent {
         ///
         /// Requirements:
         ///
-        /// - `public_key` is the x-coordinate of a point on the STARK curve.
+        /// - `public_key` must be the x-coordinate of a point on the STARK curve.
         ///
         /// Emits an `OwnerAdded` event.
         fn initializer(ref self: ComponentState<TContractState>, public_key: felt252) {

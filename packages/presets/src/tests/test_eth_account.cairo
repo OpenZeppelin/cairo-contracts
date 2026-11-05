@@ -227,8 +227,8 @@ fn test_supports_interface() {
     let supports_isrc6 = dispatcher.supports_interface(ISRC6_ID);
     assert!(supports_isrc6);
 
-    let doesnt_support_dummy_id = !dispatcher.supports_interface('DUMMY_INTERFACE_ID');
-    assert!(doesnt_support_dummy_id);
+    let does_not_support_dummy_id = !dispatcher.supports_interface('DUMMY_INTERFACE_ID');
+    assert!(does_not_support_dummy_id);
 }
 
 //

@@ -28,7 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed (Breaking)
 
 - `AccountComponent::initializer` reverts with `Account: invalid public key` when `public_key` is
-  not the x-coordinate of a point on the STARK curve (#1781)
+  not the x-coordinate of a point on the STARK curve (#1782)
 
 ### Fixed
 

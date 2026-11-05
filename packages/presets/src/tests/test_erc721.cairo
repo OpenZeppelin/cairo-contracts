@@ -10,8 +10,8 @@ use openzeppelin_test_common::upgrades::UpgradeableSpyHelpers;
 use openzeppelin_testing as utils;
 use openzeppelin_testing::common::IntoBase16String;
 use openzeppelin_testing::constants::{
-    BASE_URI, CLASS_HASH_ZERO, DATA, NAME, OPERATOR, OTHER, OWNER, PUBKEY, RECIPIENT, SPENDER,
-    SYMBOL, ZERO,
+    BASE_URI, CLASS_HASH_ZERO, DATA, NAME, OPERATOR, OTHER, OWNER, RECIPIENT, SPENDER, SYMBOL, ZERO,
+    stark,
 };
 use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, spy_events};
 use openzeppelin_token::erc721::ERC721Component::ERC721Impl;
@@ -67,7 +67,7 @@ fn setup_receiver() -> ContractAddress {
 }
 
 fn setup_account() -> ContractAddress {
-    let mut calldata = array![PUBKEY];
+    let mut calldata = array![stark::KEY_PAIR().public_key];
     utils::declare_and_deploy("DualCaseAccountMock", calldata)
 }
 

@@ -6,6 +6,7 @@
 /// The Account component enables contracts to behave as accounts.
 #[starknet::component]
 pub mod AccountComponent {
+    use core::ec::EcPointTrait;
     use core::hash::{HashStateExTrait, HashStateTrait};
     use core::num::traits::Zero;
     use core::poseidon::PoseidonTrait;
@@ -45,6 +46,7 @@ pub mod AccountComponent {
 
     pub mod Errors {
         pub const INVALID_CALLER: felt252 = 'Account: invalid caller';
+        pub const INVALID_PUBLIC_KEY: felt252 = 'Account: invalid public key';
         pub const INVALID_SIGNATURE: felt252 = 'Account: invalid signature';
         pub const INVALID_TX_VERSION: felt252 = 'Account: invalid tx version';
         pub const UNAUTHORIZED: felt252 = 'Account: unauthorized';
@@ -298,8 +300,13 @@ pub mod AccountComponent {
     > of InternalTrait<TContractState> {
         /// Initializes the account with the given public key, and registers the ISRC6 interface ID.
         ///
+        /// Requirements:
+        ///
+        /// - `public_key` is the x-coordinate of a point on the STARK curve.
+        ///
         /// Emits an `OwnerAdded` event.
         fn initializer(ref self: ComponentState<TContractState>, public_key: felt252) {
+            assert(EcPointTrait::new_nz_from_x(public_key).is_some(), Errors::INVALID_PUBLIC_KEY);
             let mut src5_component = get_dep_component_mut!(ref self, SRC5);
             src5_component.register_interface(interface::ISRC6_ID);
             self._set_public_key(public_key);

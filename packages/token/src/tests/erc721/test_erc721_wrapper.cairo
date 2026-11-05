@@ -13,7 +13,7 @@ use openzeppelin_test_common::mocks::erc721::{
 };
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{
-    AsAddressTrait, BASE_URI, EMPTY_DATA, NAME, OTHER, PUBKEY, SYMBOL, TOKEN_ID, TOKEN_ID_2, ZERO,
+    AsAddressTrait, BASE_URI, EMPTY_DATA, NAME, OTHER, SYMBOL, TOKEN_ID, TOKEN_ID_2, ZERO, stark,
 };
 use openzeppelin_testing::spy_events;
 use openzeppelin_utils::serde::SerializedAppend;
@@ -73,7 +73,7 @@ fn recover_dispatcher(address: ContractAddress) -> IERC721WrapperRecovererDispat
 }
 
 fn setup_account() -> ContractAddress {
-    let calldata = array![PUBKEY];
+    let calldata = array![stark::KEY_PAIR().public_key];
     utils::declare_and_deploy("DualCaseAccountMock", calldata)
 }
 

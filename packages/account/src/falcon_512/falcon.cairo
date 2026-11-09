@@ -14,6 +14,10 @@
 //! The verifier path decodes packed coefficients into canonical `u16` values and keeps
 //! that representation through the generated NTT and norm calculation.
 
+#[cfg(test)]
+use openzeppelin_corelib_imports::bounded_int::downcast;
+use openzeppelin_corelib_imports::bounded_int::upcast;
+use super::hashing::hash_to_point::MsgWord;
 use super::ntt::engine::intt;
 #[cfg(test)]
 #[cfg(not(feature: 'falcon_fast_tests'))]
@@ -27,7 +31,7 @@ use super::ntt::falcon512_fast::ntt_falcon512_fast_u16_unchecked;
 #[cfg(test)]
 #[cfg(feature: 'falcon_fast_tests')]
 use super::ntt::falcon512_fast::ntt_falcon512_fast_u16_unchecked;
-use super::zq::{Q32, center_sq, centered_difference_sq};
+use super::zq::{Q32, center_sq, centered_difference_sq_raw};
 
 /// Maximum squared-norm bound for the Falcon-512 submission algorithm.
 pub const SIG_BOUND_512: u64 = 34034726;
@@ -77,6 +81,18 @@ fn felts_to_u16(mut values: Span<felt252>) -> Array<u16> {
     out
 }
 
+/// Lifts canonical test coefficients into the unreduced message-word form the
+/// production verifiers consume (any value below `5q` is a valid raw word).
+#[inline(always)]
+#[cfg(test)]
+fn u16_to_msg_words(mut values: Span<u16>) -> Array<MsgWord> {
+    let mut out: Array<MsgWord> = array![];
+    while let Some(value) = values.pop_front() {
+        out.append(downcast(*value).unwrap());
+    }
+    out
+}
+
 #[inline(always)]
 fn product_difference(a: u16, b: u16, c: u16) -> u32 {
     let a: u32 = a.into();
@@ -106,13 +122,15 @@ pub fn verify_512_with_hint(
     let s1 = felts_to_u16(s1);
     let h_ntt = felts_to_u16(h_ntt);
     let mul_hint = felts_to_u16(mul_hint);
-    verify_512_with_hint_u16(s1.span(), h_ntt.span(), mul_hint.span(), msg_point)
+    let msg_point = u16_to_msg_words(msg_point);
+    verify_512_with_hint_u16(s1.span(), h_ntt.span(), mul_hint.span(), msg_point.span())
 }
 
 /// Verifies the hint equation over canonical `u16` coefficients. Every span must contain exactly
-/// 512 coefficients in `[0, Q)`.
+/// 512 entries; `msg_point` holds the hash-to-point's unreduced accepted words (see
+/// `hash_to_point::MsgWord`), whose reduction is folded into the norm pass.
 pub(crate) fn verify_512_with_hint_u16(
-    s1: Span<u16>, h_ntt: Span<u16>, mul_hint: Span<u16>, msg_point: Span<u16>,
+    s1: Span<u16>, h_ntt: Span<u16>, mul_hint: Span<u16>, msg_point: Span<MsgWord>,
 ) -> bool {
     assert(s1.len() == 512, 's1 must be 512 coeffs');
     assert(h_ntt.len() == 512, 'h_ntt must be 512 coeffs');
@@ -215,22 +233,22 @@ pub(crate) fn verify_512_with_hint_u16(
             .multi_pop_front::<16>()
             .unwrap())
             .unbox();
-        acc += centered_difference_sq(m0, t0) + center_sq(v0);
-        acc += centered_difference_sq(m1, t1) + center_sq(v1);
-        acc += centered_difference_sq(m2, t2) + center_sq(v2);
-        acc += centered_difference_sq(m3, t3) + center_sq(v3);
-        acc += centered_difference_sq(m4, t4) + center_sq(v4);
-        acc += centered_difference_sq(m5, t5) + center_sq(v5);
-        acc += centered_difference_sq(m6, t6) + center_sq(v6);
-        acc += centered_difference_sq(m7, t7) + center_sq(v7);
-        acc += centered_difference_sq(m8, t8) + center_sq(v8);
-        acc += centered_difference_sq(m9, t9) + center_sq(v9);
-        acc += centered_difference_sq(m10, t10) + center_sq(v10);
-        acc += centered_difference_sq(m11, t11) + center_sq(v11);
-        acc += centered_difference_sq(m12, t12) + center_sq(v12);
-        acc += centered_difference_sq(m13, t13) + center_sq(v13);
-        acc += centered_difference_sq(m14, t14) + center_sq(v14);
-        acc += centered_difference_sq(m15, t15) + center_sq(v15);
+        acc += centered_difference_sq_raw(upcast(m0), t0) + center_sq(v0);
+        acc += centered_difference_sq_raw(upcast(m1), t1) + center_sq(v1);
+        acc += centered_difference_sq_raw(upcast(m2), t2) + center_sq(v2);
+        acc += centered_difference_sq_raw(upcast(m3), t3) + center_sq(v3);
+        acc += centered_difference_sq_raw(upcast(m4), t4) + center_sq(v4);
+        acc += centered_difference_sq_raw(upcast(m5), t5) + center_sq(v5);
+        acc += centered_difference_sq_raw(upcast(m6), t6) + center_sq(v6);
+        acc += centered_difference_sq_raw(upcast(m7), t7) + center_sq(v7);
+        acc += centered_difference_sq_raw(upcast(m8), t8) + center_sq(v8);
+        acc += centered_difference_sq_raw(upcast(m9), t9) + center_sq(v9);
+        acc += centered_difference_sq_raw(upcast(m10), t10) + center_sq(v10);
+        acc += centered_difference_sq_raw(upcast(m11), t11) + center_sq(v11);
+        acc += centered_difference_sq_raw(upcast(m12), t12) + center_sq(v12);
+        acc += centered_difference_sq_raw(upcast(m13), t13) + center_sq(v13);
+        acc += centered_difference_sq_raw(upcast(m14), t14) + center_sq(v14);
+        acc += centered_difference_sq_raw(upcast(m15), t15) + center_sq(v15);
     }
     let norm: u64 = acc.try_into().unwrap();
     norm <= SIG_BOUND_512
@@ -247,11 +265,15 @@ pub fn verify_512_direct(s1: Span<felt252>, h_ntt: Span<felt252>, msg_point: Spa
 
     let s1 = felts_to_u16(s1);
     let h_ntt = felts_to_u16(h_ntt);
-    verify_512_direct_u16(s1.span(), h_ntt.span(), msg_point)
+    let msg_point = u16_to_msg_words(msg_point);
+    verify_512_direct_u16(s1.span(), h_ntt.span(), msg_point.span())
 }
 
-/// Verifies the direct equation over canonical `u16` coefficients.
-pub(crate) fn verify_512_direct_u16(s1: Span<u16>, h_ntt: Span<u16>, msg_point: Span<u16>) -> bool {
+/// Verifies the direct equation over canonical `u16` coefficients; `msg_point` holds the
+/// hash-to-point's unreduced accepted words (see `hash_to_point::MsgWord`).
+pub(crate) fn verify_512_direct_u16(
+    s1: Span<u16>, h_ntt: Span<u16>, msg_point: Span<MsgWord>,
+) -> bool {
     assert(s1.len() == 512, 's1 must be 512 coeffs');
     assert(h_ntt.len() == 512, 'h_ntt must be 512 coeffs');
     assert(msg_point.len() == 512, 'msg_point must be 512 coeffs');
@@ -326,22 +348,22 @@ pub(crate) fn verify_512_direct_u16(s1: Span<u16>, h_ntt: Span<u16>, msg_point: 
             .unwrap())
             .unbox();
         // INTT outputs are reduced, so their u16 downcasts cannot fail.
-        acc += centered_difference_sq(m0, p0.try_into().unwrap()) + center_sq(v0);
-        acc += centered_difference_sq(m1, p1.try_into().unwrap()) + center_sq(v1);
-        acc += centered_difference_sq(m2, p2.try_into().unwrap()) + center_sq(v2);
-        acc += centered_difference_sq(m3, p3.try_into().unwrap()) + center_sq(v3);
-        acc += centered_difference_sq(m4, p4.try_into().unwrap()) + center_sq(v4);
-        acc += centered_difference_sq(m5, p5.try_into().unwrap()) + center_sq(v5);
-        acc += centered_difference_sq(m6, p6.try_into().unwrap()) + center_sq(v6);
-        acc += centered_difference_sq(m7, p7.try_into().unwrap()) + center_sq(v7);
-        acc += centered_difference_sq(m8, p8.try_into().unwrap()) + center_sq(v8);
-        acc += centered_difference_sq(m9, p9.try_into().unwrap()) + center_sq(v9);
-        acc += centered_difference_sq(m10, p10.try_into().unwrap()) + center_sq(v10);
-        acc += centered_difference_sq(m11, p11.try_into().unwrap()) + center_sq(v11);
-        acc += centered_difference_sq(m12, p12.try_into().unwrap()) + center_sq(v12);
-        acc += centered_difference_sq(m13, p13.try_into().unwrap()) + center_sq(v13);
-        acc += centered_difference_sq(m14, p14.try_into().unwrap()) + center_sq(v14);
-        acc += centered_difference_sq(m15, p15.try_into().unwrap()) + center_sq(v15);
+        acc += centered_difference_sq_raw(upcast(m0), p0.try_into().unwrap()) + center_sq(v0);
+        acc += centered_difference_sq_raw(upcast(m1), p1.try_into().unwrap()) + center_sq(v1);
+        acc += centered_difference_sq_raw(upcast(m2), p2.try_into().unwrap()) + center_sq(v2);
+        acc += centered_difference_sq_raw(upcast(m3), p3.try_into().unwrap()) + center_sq(v3);
+        acc += centered_difference_sq_raw(upcast(m4), p4.try_into().unwrap()) + center_sq(v4);
+        acc += centered_difference_sq_raw(upcast(m5), p5.try_into().unwrap()) + center_sq(v5);
+        acc += centered_difference_sq_raw(upcast(m6), p6.try_into().unwrap()) + center_sq(v6);
+        acc += centered_difference_sq_raw(upcast(m7), p7.try_into().unwrap()) + center_sq(v7);
+        acc += centered_difference_sq_raw(upcast(m8), p8.try_into().unwrap()) + center_sq(v8);
+        acc += centered_difference_sq_raw(upcast(m9), p9.try_into().unwrap()) + center_sq(v9);
+        acc += centered_difference_sq_raw(upcast(m10), p10.try_into().unwrap()) + center_sq(v10);
+        acc += centered_difference_sq_raw(upcast(m11), p11.try_into().unwrap()) + center_sq(v11);
+        acc += centered_difference_sq_raw(upcast(m12), p12.try_into().unwrap()) + center_sq(v12);
+        acc += centered_difference_sq_raw(upcast(m13), p13.try_into().unwrap()) + center_sq(v13);
+        acc += centered_difference_sq_raw(upcast(m14), p14.try_into().unwrap()) + center_sq(v14);
+        acc += centered_difference_sq_raw(upcast(m15), p15.try_into().unwrap()) + center_sq(v15);
     }
     let norm: u64 = acc.try_into().unwrap();
     norm <= SIG_BOUND_512

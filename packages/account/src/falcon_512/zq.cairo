@@ -65,6 +65,21 @@ pub fn center_sq(coeff: u16) -> felt252 {
     }
 }
 
+/// Squared centered representative of `a - b`, where `a` is an **unreduced**
+/// hash-to-point word in `[0, 5q)` and `b` a canonical coefficient.
+///
+/// Folding `a`'s reduction into the difference costs the same single division the
+/// hash-to-point squeezer would otherwise spend reducing the word, so accepting raw
+/// words here makes the deferred reduction free: `a + q - b` is in `[1, 5q + q)`, its
+/// residue equals `(a - b) mod q`, and the centered square follows as usual.
+#[inline(always)]
+pub(crate) fn centered_difference_sq_raw(a: u32, b: u16) -> felt252 {
+    let q32_nz: NonZero<u32> = 12289;
+    let d = a + Q32 - b.into();
+    let (_, r) = DivRem::div_rem(d, q32_nz);
+    center_sq(r.try_into().unwrap())
+}
+
 /// Squared centered representative of `a - b` for canonical coefficients.
 #[inline(always)]
 pub(crate) fn centered_difference_sq(a: u16, b: u16) -> felt252 {

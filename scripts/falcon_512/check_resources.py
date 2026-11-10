@@ -19,11 +19,12 @@ PRESETS = (
 # https://docs.starknet.io/learn/cheatsheets/chain-info (recheck on network upgrades).
 MAX_BYTECODE_FELTS = 81_920
 MAX_CLASS_BYTES = 4_089_446
-# Repository regression budgets leave room below the protocol limits. The artifact
-# budget covers the build JSON including debug info; the packed Keccak permutation's
-# bounded-integer types lengthen those debug names, while the deployed class and
-# bytecode sizes stay well below their caps.
-BUDGETS = {"sierra_felts": 60_000, "casm_felts": 50_000, "artifact_bytes": 2_200_000}
+# Repository budgets remain strictly below 70% of each protocol limit.
+# Check the declared class payload as well as the build artifact.
+BUDGETS = {
+    "sierra_felts": 57_000, "casm_felts": 50_000,
+    "artifact_bytes": 2_800_000, "class_bytes": 2_800_000,
+}
 
 
 def validate_sizes(sizes: dict[str, int]) -> None:

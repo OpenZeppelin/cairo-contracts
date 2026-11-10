@@ -17,7 +17,7 @@ pub const DIRECT_SIGNATURE_FELTS: u32 = PUBLIC_KEY_FELTS + SALT_FELTS;
 /// Number of felts in a Falcon-512 signature carrying a product hint.
 pub const SIGNATURE_FELTS: u32 = DIRECT_SIGNATURE_FELTS + PUBLIC_KEY_FELTS;
 
-/// Decodes the public key, signature polynomial, and salt shared by both layouts.
+/// Decodes the public key, signature polynomial, and salt for the direct layout.
 fn decode_common(
     public_key: Span<felt252>, signature: Span<felt252>,
 ) -> Option<(Array<u16>, Array<u16>, felt252, felt252)> {
@@ -34,10 +34,15 @@ pub impl Falcon512ShakeVerifier of Falcon512SignatureVerifier {
         if public_key.len() != PUBLIC_KEY_FELTS || signature.len() != SIGNATURE_FELTS {
             return false;
         }
-        let Some((h_ntt, s1, salt_a, salt_b)) = decode_common(public_key, signature) else {
+        let Some(h_ntt) = packing::unpack_512_u16(public_key) else {
             return false;
         };
-        let Some(mul_hint) = packing::unpack_512_u16(
+        let Some(s1) = packing::unpack_512_zq(signature.slice(0, PUBLIC_KEY_FELTS)) else {
+            return false;
+        };
+        let salt_a = *signature.at(PUBLIC_KEY_FELTS);
+        let salt_b = *signature.at(PUBLIC_KEY_FELTS + 1);
+        let Some(mul_hint) = packing::unpack_512_zq(
             signature.slice(DIRECT_SIGNATURE_FELTS, PUBLIC_KEY_FELTS),
         ) else {
             return false;
@@ -45,7 +50,7 @@ pub impl Falcon512ShakeVerifier of Falcon512SignatureVerifier {
         let Some(message_point) = hash_to_point_shake_512(message_hash, salt_a, salt_b) else {
             return false;
         };
-        falcon::verify_512_with_hint_u16(
+        falcon::verify_512_with_hint_canonical(
             s1.span(), h_ntt.span(), mul_hint.span(), message_point.span(),
         )
     }

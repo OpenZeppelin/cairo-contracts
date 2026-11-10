@@ -8,6 +8,9 @@ target/
 
 # Starknet Foundry
 .snfoundry_cache/
+snfoundry_trace/
+coverage/
+coverage.lcov
 *-sepolia_state.json
 snfoundry.toml
 

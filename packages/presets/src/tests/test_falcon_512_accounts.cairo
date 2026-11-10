@@ -31,8 +31,15 @@ use starknet::ContractAddress;
 // https://docs.starknet.io/learn/cheatsheets/chain-info
 const VALIDATE_MAX_SIERRA_GAS: u128 = 100000000;
 const VALIDATION_GAS_BUDGET: u128 = VALIDATE_MAX_SIERRA_GAS * 80 / 100;
+// Protect the packed transform's measured savings on this fixture.
+const HINT_VALIDATION_GAS_BUDGET: u128 = 34000000;
 
 fn assert_validation_entrypoint(class_name: ByteArray, signature: Array<felt252>, entrypoint: u32) {
+    let regression_budget = if class_name == "Falcon512ShakeAccountUpgradeable" {
+        HINT_VALIDATION_GAS_BUDGET
+    } else {
+        VALIDATION_GAS_BUDGET
+    };
     let account = deploy(class_name);
     start_cheat_transaction_hash_global(msg());
     start_cheat_signature_global(signature.span());
@@ -47,6 +54,7 @@ fn assert_validation_entrypoint(class_name: ByteArray, signature: Array<felt252>
     assert_eq!(result, starknet::VALIDATED);
     // Includes dispatcher overhead, excludes deployment, and reserves 20% of the protocol cap.
     assert!(gas_used <= VALIDATION_GAS_BUDGET, "Validation gas: {gas_used}");
+    assert!(gas_used <= regression_budget, "Validation gas regression: {gas_used}");
 }
 
 // Test caps exceed `VALIDATION_GAS_BUDGET` plus deployment and setup, so the per-call

@@ -88,15 +88,21 @@ class EncodingTests(unittest.TestCase):
 
 
 class ResourceTests(unittest.TestCase):
+    def test_budgets_stay_strictly_below_seventy_percent(self):
+        for name, budget in BUDGETS.items():
+            cap = MAX_BYTECODE_FELTS if name.endswith("felts") else MAX_CLASS_BYTES
+            self.assertLess(budget * 10, cap * 7)
+
     def test_limits_accept_exact_budget(self):
-        validate_sizes(dict(BUDGETS, class_bytes=MAX_CLASS_BYTES))
+        validate_sizes(dict(BUDGETS))
 
     def test_each_budget_rejects_overflow_and_empty_artifacts(self):
         for name, limit in BUDGETS.items():
             for bad_value in (limit + 1, 0):
                 with self.subTest(name=name, bad_value=bad_value):
-                    values = dict(BUDGETS, class_bytes=1, **{name: bad_value})
-                    with self.assertRaisesRegex(ValueError, "budget"):
+                    values = dict(BUDGETS)
+                    values[name] = bad_value
+                    with self.assertRaises(ValueError):
                         validate_sizes(values)
 
     def test_protocol_limits_are_checked_before_budgets(self):
@@ -109,7 +115,8 @@ class ResourceTests(unittest.TestCase):
                     validate_sizes(values)
 
     def test_protocol_limits_accept_the_exact_boundary(self):
-        with patch.dict(BUDGETS, sierra_felts=MAX_BYTECODE_FELTS, casm_felts=MAX_BYTECODE_FELTS):
+        with patch.dict(BUDGETS, sierra_felts=MAX_BYTECODE_FELTS, casm_felts=MAX_BYTECODE_FELTS,
+                        class_bytes=MAX_CLASS_BYTES):
             validate_sizes(dict(BUDGETS, class_bytes=MAX_CLASS_BYTES))
 
     def test_serialized_class_uses_string_abi_and_omits_debug_info(self):

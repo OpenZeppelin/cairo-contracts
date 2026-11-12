@@ -18,7 +18,7 @@ pub const DIRECT_SIGNATURE_FELTS: u32 = PUBLIC_KEY_FELTS + SALT_FELTS;
 pub const SIGNATURE_FELTS: u32 = DIRECT_SIGNATURE_FELTS + PUBLIC_KEY_FELTS;
 
 /// Decodes the public key, signature polynomial, and salt for the direct layout.
-fn decode_common(
+fn decode_direct(
     public_key: Span<felt252>, signature: Span<felt252>,
 ) -> Option<(Array<u16>, Array<u16>, felt252, felt252)> {
     let h_ntt = packing::unpack_512_u16(public_key)?;
@@ -34,7 +34,9 @@ pub impl Falcon512ShakeVerifier of Falcon512SignatureVerifier {
         if public_key.len() != PUBLIC_KEY_FELTS || signature.len() != SIGNATURE_FELTS {
             return false;
         }
-        let Some(h_ntt) = packing::unpack_512_u16(public_key) else {
+        // Decoding every polynomial through the canonical decoder keeps one generic
+        // instantiation in the hint class; `product_remainder` upcasts the key coefficients.
+        let Some(h_ntt) = packing::unpack_512_zq(public_key) else {
             return false;
         };
         let Some(s1) = packing::unpack_512_zq(signature.slice(0, PUBLIC_KEY_FELTS)) else {
@@ -61,7 +63,7 @@ pub impl Falcon512ShakeVerifier of Falcon512SignatureVerifier {
         }
         for value in public_key {
             if *value != 0 {
-                return packing::unpack_512_u16(public_key).is_some();
+                return packing::unpack_512_zq(public_key).is_some();
             }
         }
         false
@@ -74,7 +76,7 @@ pub impl Falcon512ShakeDirectVerifier of Falcon512SignatureVerifier {
         if public_key.len() != PUBLIC_KEY_FELTS || signature.len() != DIRECT_SIGNATURE_FELTS {
             return false;
         }
-        let Some((h_ntt, s1, salt_a, salt_b)) = decode_common(public_key, signature) else {
+        let Some((h_ntt, s1, salt_a, salt_b)) = decode_direct(public_key, signature) else {
             return false;
         };
         let Some(message_point) = hash_to_point_shake_512(message_hash, salt_a, salt_b) else {
@@ -83,7 +85,17 @@ pub impl Falcon512ShakeDirectVerifier of Falcon512SignatureVerifier {
         falcon::verify_512_direct_u16(s1.span(), h_ntt.span(), message_point.span())
     }
 
+    // The direct class decodes `u16` polynomials, so key validation reuses that
+    // instantiation instead of delegating to the hint verifier's canonical decoder.
     fn is_valid_public_key(public_key: Span<felt252>) -> bool {
-        Falcon512ShakeVerifier::is_valid_public_key(public_key)
+        if public_key.len() != PUBLIC_KEY_FELTS {
+            return false;
+        }
+        for value in public_key {
+            if *value != 0 {
+                return packing::unpack_512_u16(public_key).is_some();
+            }
+        }
+        false
     }
 }

@@ -207,7 +207,7 @@ python3 scripts/falcon_512/check_resources.py
 The resource checker reports raw artifact bytes separately from serialized class bytes, using
 compact JSON for both the ABI string and the containing class. Declaration tools using a different
 ABI serialization should check the size of their submitted class. Repository budgets are
-57,000 Sierra felts, 50,000 CASM felts, and 2,800,000 bytes for both the artifact and
+50,000 Sierra felts, 41,000 CASM felts, and 2,200,000 bytes for both the artifact and
 serialized class. Each stays strictly below 70% of the corresponding protocol limit.
 
 Run lint with the Falcon test features, then the production verifier, preset and exhaustive
@@ -224,8 +224,8 @@ snforge test -p openzeppelin_account --release --features falcon_fast_tests ever
 CI measures each preset's invoke, declare, and deploy validation separately from deployment, with
 a 20% margin below Starknet 0.14.2's Sierra-gas validation cap. These tests use Sierra-gas metering;
 the protocol's Cairo-step limit applies to Cairo-step-metered execution. Whole-test budgets also
-cover setup costs. The hint fixture also has a tighter 34-million-gas regression budget
-to protect the paired transform's savings.
+cover setup costs. Tighter per-preset regression budgets (34 million gas for the hint
+fixture, 47 million for direct) protect the measured savings.
 
 The generator checks all 512 basis vectors, inverse transforms, pointwise products and integer
 bounds, including packed channel separation, signed intermediate intervals, all output extrema

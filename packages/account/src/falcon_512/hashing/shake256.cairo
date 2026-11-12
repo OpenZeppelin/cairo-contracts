@@ -29,16 +29,16 @@
 //! - Rotate-by-one for theta's `D` terms runs on packed pairs directly, splitting each
 //!   lane's top bit with `constrain` and wrapping it around arithmetically.
 //!
-//! The packing is an internal optimization only: [`keccak_f1600`] preserves the plain
-//! 25-lane interface, and the permutation known-answer vectors plus the FIPS 202 XOF
-//! known-answer tests below pin both entry points to the standard.
+//! The packing is an internal optimization only: the test-only [`keccak_f1600`] preserves
+//! the plain 25-lane interface, and the permutation known-answer vectors plus the FIPS 202
+//! XOF known-answer tests below pin both entry points to the standard.
 //!
 //! `hash_to_point::hash_to_point_shake_512` drives [`keccak_f1600_packed`] directly to
 //! keep the state packed across squeezed blocks.
 
 use openzeppelin_corelib_imports::bounded_int::{
-    AddHelper, BoundedInt, ConstrainHelper, DivRemHelper, MulHelper, SubHelper, UnitInt,
-    bounded_int, constrain, upcast,
+    AddHelper, BoundedInt, ConstrainHelper, DivRemHelper, MulHelper, SubHelper, UnitInt, add,
+    constrain, div_rem, mul, sub, upcast,
 };
 
 #[cfg(test)]
@@ -68,12 +68,12 @@ pub(crate) type Lane = BoundedInt<0, 0xffffffffffffffff>;
 const TWO_POW_64_NZ: NonZero<TwoPow64> = 0x10000000000000000;
 type Mask128 = UnitInt<0xffffffffffffffffffffffffffffffff>;
 const MASK_128: Mask128 = 0xffffffffffffffffffffffffffffffff;
-impl jg of SubHelper<Mask128, u128> {
+impl Not128 of SubHelper<Mask128, u128> {
     type Result = BoundedInt<0, 0xffffffffffffffffffffffffffffffff>;
 }
 #[inline(always)]
 fn split_lanes(w: u128) -> (u128, u128) {
-    let (high, low) = bounded_int::div_rem(w, TWO_POW_64_NZ);
+    let (high, low) = div_rem(w, TWO_POW_64_NZ);
     (upcast(high), upcast(low))
 }
 
@@ -82,32 +82,32 @@ pub(crate) fn pack_lanes(lo: u128, hi: u128) -> u128 {
     let packed: felt252 = lo.into() + hi.into() * 0x10000000000000000;
     packed.try_into().unwrap()
 }
-impl gR of DivRemHelper<u128, TwoPow64> {
+impl SplitPair of DivRemHelper<u128, TwoPow64> {
     type DivT = Lane;
     type RemT = Lane;
 }
 type TwoPow64Mul = UnitInt<0x10000000000000000>;
 type HighHalf = BoundedInt<0, 0xffffffffffffffff0000000000000000>;
-impl jc of MulHelper<Lane, TwoPow64Mul> {
+impl ShiftToHigh of MulHelper<Lane, TwoPow64Mul> {
     type Result = HighHalf;
 }
-impl he of AddHelper<Lane, HighHalf> {
+impl MergePair of AddHelper<Lane, HighHalf> {
     type Result = BoundedInt<0, 0xffffffffffffffffffffffffffffffff>;
 }
 /// Packs two lanes into one `u128` pair: `lo + hi * 2^64`.
 #[inline(always)]
 pub(crate) fn pair(lo: Lane, hi: Lane) -> u128 {
     let two64: TwoPow64Mul = 0x10000000000000000;
-    upcast(bounded_int::add(lo, bounded_int::mul(hi, two64)))
+    upcast(add(lo, mul(hi, two64)))
 }
 /// Places a lane in a pair's high half (`lane * 2^64`).
 #[inline(always)]
 fn high_lane(hi: Lane) -> HighHalf {
     let two64: TwoPow64Mul = 0x10000000000000000;
-    bounded_int::mul(hi, two64)
+    mul(hi, two64)
 }
 type DuplicateMul = UnitInt<0x10000000000000001>;
-impl fv of MulHelper<Lane, DuplicateMul> {
+impl DuplicateLane of MulHelper<Lane, DuplicateMul> {
     type Result = BoundedInt<0, 0xffffffffffffffffffffffffffffffff>;
 }
 /// Duplicates a lane into both halves (`lane * (2^64 + 1)`), so one XOR
@@ -115,214 +115,214 @@ impl fv of MulHelper<Lane, DuplicateMul> {
 #[inline(always)]
 fn duplicate_lane(x: Lane) -> u128 {
     let m: DuplicateMul = 0x10000000000000001;
-    upcast(bounded_int::mul(x, m))
+    upcast(mul(x, m))
 }
 /// Packs a lane with an already-shifted high half.
 #[inline(always)]
 fn pair_high(lo: Lane, hi: HighHalf) -> u128 {
-    upcast(bounded_int::add(lo, hi))
+    upcast(add(lo, hi))
 }
 type LaneLow = BoundedInt<0, 0x7fffffffffffffff>;
 type LaneEven = BoundedInt<0, 0xfffffffffffffffe>;
-type hw = BoundedInt<0, 63>;
-type hB = BoundedInt<0, 0x3ffffffffffffff>;
-type hr = BoundedInt<0, 0xffffffffffffffc0>;
-impl jx of DivRemHelper<Lane, UnitInt<0x400000000000000>> {
-    type DivT = hw;
-    type RemT = hB;
+type Rot6Top = BoundedInt<0, 63>;
+type Rot6Rest = BoundedInt<0, 0x3ffffffffffffff>;
+type Rot6Shifted = BoundedInt<0, 0xffffffffffffffc0>;
+impl SplitRot6 of DivRemHelper<Lane, UnitInt<0x400000000000000>> {
+    type DivT = Rot6Top;
+    type RemT = Rot6Rest;
 }
-impl nF of MulHelper<hB, UnitInt<64>> {
-    type Result = hr;
+impl ShiftRot6 of MulHelper<Rot6Rest, UnitInt<64>> {
+    type Result = Rot6Shifted;
 }
-impl ns of AddHelper<hr, hw> {
+impl MergeRot6 of AddHelper<Rot6Shifted, Rot6Top> {
     type Result = Lane;
 }
-type hx = BoundedInt<0, 255>;
-type hC = BoundedInt<0, 0xffffffffffffff>;
-type hs = BoundedInt<0, 0xffffffffffffff00>;
-impl jy of DivRemHelper<Lane, UnitInt<72057594037927936>> {
-    type DivT = hx;
-    type RemT = hC;
+type Rot8Top = BoundedInt<0, 255>;
+type Rot8Rest = BoundedInt<0, 0xffffffffffffff>;
+type Rot8Shifted = BoundedInt<0, 0xffffffffffffff00>;
+impl SplitRot8 of DivRemHelper<Lane, UnitInt<72057594037927936>> {
+    type DivT = Rot8Top;
+    type RemT = Rot8Rest;
 }
-impl nG of MulHelper<hC, UnitInt<256>> {
-    type Result = hs;
+impl ShiftRot8 of MulHelper<Rot8Rest, UnitInt<256>> {
+    type Result = Rot8Shifted;
 }
-impl nt of AddHelper<hs, hx> {
+impl MergeRot8 of AddHelper<Rot8Shifted, Rot8Top> {
     type Result = Lane;
 }
-type fV = BoundedInt<0, 1048575>;
-type gv = BoundedInt<0, 0xfffffffffff>;
-type fC = BoundedInt<0, 0xfffffffffff00000>;
-impl iT of DivRemHelper<Lane, UnitInt<17592186044416>> {
-    type DivT = fV;
-    type RemT = gv;
+type Rot20Top = BoundedInt<0, 1048575>;
+type Rot20Rest = BoundedInt<0, 0xfffffffffff>;
+type Rot20Shifted = BoundedInt<0, 0xfffffffffff00000>;
+impl SplitRot20 of DivRemHelper<Lane, UnitInt<17592186044416>> {
+    type DivT = Rot20Top;
+    type RemT = Rot20Rest;
 }
-impl mY of MulHelper<gv, UnitInt<1048576>> {
-    type Result = fC;
+impl ShiftRot20 of MulHelper<Rot20Rest, UnitInt<1048576>> {
+    type Result = Rot20Shifted;
 }
-impl mE of AddHelper<fC, fV> {
+impl MergeRot20 of AddHelper<Rot20Shifted, Rot20Top> {
     type Result = Lane;
 }
-type fW = BoundedInt<0, 2097151>;
-type gw = BoundedInt<0, 8796093022207>;
-type fD = BoundedInt<0, 0xffffffffffe00000>;
-impl iU of DivRemHelper<Lane, UnitInt<8796093022208>> {
-    type DivT = fW;
-    type RemT = gw;
+type Rot21Top = BoundedInt<0, 2097151>;
+type Rot21Rest = BoundedInt<0, 8796093022207>;
+type Rot21Shifted = BoundedInt<0, 0xffffffffffe00000>;
+impl SplitRot21 of DivRemHelper<Lane, UnitInt<8796093022208>> {
+    type DivT = Rot21Top;
+    type RemT = Rot21Rest;
 }
-impl mZ of MulHelper<gw, UnitInt<2097152>> {
-    type Result = fD;
+impl ShiftRot21 of MulHelper<Rot21Rest, UnitInt<2097152>> {
+    type Result = Rot21Shifted;
 }
-impl mF of AddHelper<fD, fW> {
+impl MergeRot21 of AddHelper<Rot21Shifted, Rot21Top> {
     type Result = Lane;
 }
-type fX = BoundedInt<0, 33554431>;
-type gx = BoundedInt<0, 549755813887>;
-type fE = BoundedInt<0, 0xfffffffffe000000>;
-impl iV of DivRemHelper<Lane, UnitInt<549755813888>> {
-    type DivT = fX;
-    type RemT = gx;
+type Rot25Top = BoundedInt<0, 33554431>;
+type Rot25Rest = BoundedInt<0, 549755813887>;
+type Rot25Shifted = BoundedInt<0, 0xfffffffffe000000>;
+impl SplitRot25 of DivRemHelper<Lane, UnitInt<549755813888>> {
+    type DivT = Rot25Top;
+    type RemT = Rot25Rest;
 }
-impl na of MulHelper<gx, UnitInt<33554432>> {
-    type Result = fE;
+impl ShiftRot25 of MulHelper<Rot25Rest, UnitInt<33554432>> {
+    type Result = Rot25Shifted;
 }
-impl mG of AddHelper<fE, fX> {
+impl MergeRot25 of AddHelper<Rot25Shifted, Rot25Top> {
     type Result = Lane;
 }
-type fZ = BoundedInt<0, 268435455>;
-type gz = BoundedInt<0, 68719476735>;
-type fG = BoundedInt<0, 0xfffffffff0000000>;
-impl iX of DivRemHelper<Lane, UnitInt<68719476736>> {
-    type DivT = fZ;
-    type RemT = gz;
+type Rot28Top = BoundedInt<0, 268435455>;
+type Rot28Rest = BoundedInt<0, 68719476735>;
+type Rot28Shifted = BoundedInt<0, 0xfffffffff0000000>;
+impl SplitRot28 of DivRemHelper<Lane, UnitInt<68719476736>> {
+    type DivT = Rot28Top;
+    type RemT = Rot28Rest;
 }
-impl nd of MulHelper<gz, UnitInt<268435456>> {
-    type Result = fG;
+impl ShiftRot28 of MulHelper<Rot28Rest, UnitInt<268435456>> {
+    type Result = Rot28Shifted;
 }
-impl mI of AddHelper<fG, fZ> {
+impl MergeRot28 of AddHelper<Rot28Shifted, Rot28Top> {
     type Result = Lane;
 }
-type gd = BoundedInt<0, 549755813887>;
-type gB = BoundedInt<0, 33554431>;
-type fI = BoundedInt<0, 0xffffff8000000000>;
-impl iZ of DivRemHelper<Lane, UnitInt<33554432>> {
-    type DivT = gd;
-    type RemT = gB;
+type Rot39Top = BoundedInt<0, 549755813887>;
+type Rot39Rest = BoundedInt<0, 33554431>;
+type Rot39Shifted = BoundedInt<0, 0xffffff8000000000>;
+impl SplitRot39 of DivRemHelper<Lane, UnitInt<33554432>> {
+    type DivT = Rot39Top;
+    type RemT = Rot39Rest;
 }
-impl ng of MulHelper<gB, UnitInt<549755813888>> {
-    type Result = fI;
+impl ShiftRot39 of MulHelper<Rot39Rest, UnitInt<549755813888>> {
+    type Result = Rot39Shifted;
 }
-impl mK of AddHelper<fI, gd> {
+impl MergeRot39 of AddHelper<Rot39Shifted, Rot39Top> {
     type Result = Lane;
 }
-type gf = BoundedInt<0, 2199023255551>;
-type gC = BoundedInt<0, 8388607>;
-type fJ = BoundedInt<0, 0xfffffe0000000000>;
-impl i0 of DivRemHelper<Lane, UnitInt<8388608>> {
-    type DivT = gf;
-    type RemT = gC;
+type Rot41Top = BoundedInt<0, 2199023255551>;
+type Rot41Rest = BoundedInt<0, 8388607>;
+type Rot41Shifted = BoundedInt<0, 0xfffffe0000000000>;
+impl SplitRot41 of DivRemHelper<Lane, UnitInt<8388608>> {
+    type DivT = Rot41Top;
+    type RemT = Rot41Rest;
 }
-impl nh of MulHelper<gC, UnitInt<2199023255552>> {
-    type Result = fJ;
+impl ShiftRot41 of MulHelper<Rot41Rest, UnitInt<2199023255552>> {
+    type Result = Rot41Shifted;
 }
-impl mL of AddHelper<fJ, gf> {
+impl MergeRot41 of AddHelper<Rot41Shifted, Rot41Top> {
     type Result = Lane;
 }
-type gg = BoundedInt<0, 8796093022207>;
-type gD = BoundedInt<0, 2097151>;
-type fK = BoundedInt<0, 0xfffff80000000000>;
-impl i1 of DivRemHelper<Lane, UnitInt<2097152>> {
-    type DivT = gg;
-    type RemT = gD;
+type Rot43Top = BoundedInt<0, 8796093022207>;
+type Rot43Rest = BoundedInt<0, 2097151>;
+type Rot43Shifted = BoundedInt<0, 0xfffff80000000000>;
+impl SplitRot43 of DivRemHelper<Lane, UnitInt<2097152>> {
+    type DivT = Rot43Top;
+    type RemT = Rot43Rest;
 }
-impl ni of MulHelper<gD, UnitInt<8796093022208>> {
-    type Result = fK;
+impl ShiftRot43 of MulHelper<Rot43Rest, UnitInt<8796093022208>> {
+    type Result = Rot43Shifted;
 }
-impl mM of AddHelper<fK, gg> {
+impl MergeRot43 of AddHelper<Rot43Shifted, Rot43Top> {
     type Result = Lane;
 }
-type gk = BoundedInt<0, 35184372088831>;
-type gF = BoundedInt<0, 524287>;
-type fM = BoundedInt<0, 0xffffe00000000000>;
-impl i4 of DivRemHelper<Lane, UnitInt<524288>> {
-    type DivT = gk;
-    type RemT = gF;
+type Rot45Top = BoundedInt<0, 35184372088831>;
+type Rot45Rest = BoundedInt<0, 524287>;
+type Rot45Shifted = BoundedInt<0, 0xffffe00000000000>;
+impl SplitRot45 of DivRemHelper<Lane, UnitInt<524288>> {
+    type DivT = Rot45Top;
+    type RemT = Rot45Rest;
 }
-impl nk of MulHelper<gF, UnitInt<35184372088832>> {
-    type Result = fM;
+impl ShiftRot45 of MulHelper<Rot45Rest, UnitInt<35184372088832>> {
+    type Result = Rot45Shifted;
 }
-impl mO of AddHelper<fM, gk> {
+impl MergeRot45 of AddHelper<Rot45Shifted, Rot45Top> {
     type Result = Lane;
 }
-type gp = BoundedInt<0, 0x3fffffffffffffff>;
-type gJ = BoundedInt<0, 3>;
-type fQ = BoundedInt<0, 0xc000000000000000>;
-impl i9 of DivRemHelper<Lane, UnitInt<4>> {
-    type DivT = gp;
-    type RemT = gJ;
+type Rot62Top = BoundedInt<0, 0x3fffffffffffffff>;
+type Rot62Rest = BoundedInt<0, 3>;
+type Rot62Shifted = BoundedInt<0, 0xc000000000000000>;
+impl SplitRot62 of DivRemHelper<Lane, UnitInt<4>> {
+    type DivT = Rot62Top;
+    type RemT = Rot62Rest;
 }
-impl no of MulHelper<gJ, UnitInt<0x4000000000000000>> {
-    type Result = fQ;
+impl ShiftRot62 of MulHelper<Rot62Rest, UnitInt<0x4000000000000000>> {
+    type Result = Rot62Shifted;
 }
-impl mS of AddHelper<fQ, gp> {
+impl MergeRot62 of AddHelper<Rot62Shifted, Rot62Top> {
     type Result = Lane;
 }
-type fU = BoundedInt<0, 262143>;
-type gu = BoundedInt<0, 70368744177663>;
-type fB = BoundedInt<0, 0xfffffffffffc0000>;
-impl iS of DivRemHelper<Lane, UnitInt<70368744177664>> {
-    type DivT = fU;
-    type RemT = gu;
+type Rot18Top = BoundedInt<0, 262143>;
+type Rot18Rest = BoundedInt<0, 70368744177663>;
+type Rot18Shifted = BoundedInt<0, 0xfffffffffffc0000>;
+impl SplitRot18 of DivRemHelper<Lane, UnitInt<70368744177664>> {
+    type DivT = Rot18Top;
+    type RemT = Rot18Rest;
 }
-impl mX of MulHelper<gu, UnitInt<262144>> {
-    type Result = fB;
+impl ShiftRot18 of MulHelper<Rot18Rest, UnitInt<262144>> {
+    type Result = Rot18Shifted;
 }
-impl mD of AddHelper<fB, fU> {
+impl MergeRot18 of AddHelper<Rot18Shifted, Rot18Top> {
     type Result = Lane;
 }
 #[inline(always)]
 fn rot18(x: Lane, d: NonZero<UnitInt<70368744177664>>) -> Lane {
     let m: UnitInt<262144> = 262144;
-    let (aH, rest) = bounded_int::div_rem(x, d);
-    bounded_int::add(bounded_int::mul(rest, m), aH)
+    let (aH, rest) = div_rem(x, d);
+    add(mul(rest, m), aH)
 }
-type gn = BoundedInt<0, 0xffffffffffffff>;
-type gH = BoundedInt<0, 255>;
-type fO = BoundedInt<0, 0xff00000000000000>;
-impl i6 of DivRemHelper<Lane, UnitInt<256>> {
-    type DivT = gn;
-    type RemT = gH;
+type Rot56Top = BoundedInt<0, 0xffffffffffffff>;
+type Rot56Rest = BoundedInt<0, 255>;
+type Rot56Shifted = BoundedInt<0, 0xff00000000000000>;
+impl SplitRot56 of DivRemHelper<Lane, UnitInt<256>> {
+    type DivT = Rot56Top;
+    type RemT = Rot56Rest;
 }
-impl nm of MulHelper<gH, UnitInt<72057594037927936>> {
-    type Result = fO;
+impl ShiftRot56 of MulHelper<Rot56Rest, UnitInt<72057594037927936>> {
+    type Result = Rot56Shifted;
 }
-impl mQ of AddHelper<fO, gn> {
+impl MergeRot56 of AddHelper<Rot56Shifted, Rot56Top> {
     type Result = Lane;
 }
 #[inline(always)]
 fn rot56(x: Lane, d: NonZero<UnitInt<256>>) -> Lane {
     let m: UnitInt<72057594037927936> = 72057594037927936;
-    let (aH, rest) = bounded_int::div_rem(x, d);
-    bounded_int::add(bounded_int::mul(rest, m), aH)
+    let (aH, rest) = div_rem(x, d);
+    add(mul(rest, m), aH)
 }
-type go = BoundedInt<0, 0x1fffffffffffffff>;
-type gI = BoundedInt<0, 7>;
-type fP = BoundedInt<0, 0xe000000000000000>;
-impl i7 of DivRemHelper<Lane, UnitInt<8>> {
-    type DivT = go;
-    type RemT = gI;
+type Rot61Top = BoundedInt<0, 0x1fffffffffffffff>;
+type Rot61Rest = BoundedInt<0, 7>;
+type Rot61Shifted = BoundedInt<0, 0xe000000000000000>;
+impl SplitRot61 of DivRemHelper<Lane, UnitInt<8>> {
+    type DivT = Rot61Top;
+    type RemT = Rot61Rest;
 }
-impl nn of MulHelper<gI, UnitInt<0x2000000000000000>> {
-    type Result = fP;
+impl ShiftRot61 of MulHelper<Rot61Rest, UnitInt<0x2000000000000000>> {
+    type Result = Rot61Shifted;
 }
-impl mR of AddHelper<fP, go> {
+impl MergeRot61 of AddHelper<Rot61Shifted, Rot61Top> {
     type Result = Lane;
 }
 #[inline(always)]
 fn rot61(x: Lane, d: NonZero<UnitInt<8>>) -> Lane {
     let m: UnitInt<0x2000000000000000> = 0x2000000000000000;
-    let (aH, rest) = bounded_int::div_rem(x, d);
-    bounded_int::add(bounded_int::mul(rest, m), aH)
+    let (aH, rest) = div_rem(x, d);
+    add(mul(rest, m), aH)
 }
 /// Division-free left-rotation by `n` over one lane, generic over the
 /// `(2^(64 - n) divisor, 2^n multiplier)` pair: the wrapped high bits and the
@@ -336,188 +336,188 @@ fn rot_generic<
 >(
     x: Lane, d: NonZero<D>, m: M,
 ) -> A::Result {
-    let (t, r) = bounded_int::div_rem(x, d);
-    bounded_int::add(bounded_int::mul(r, m), t)
+    let (t, r) = div_rem(x, d);
+    add(mul(r, m), t)
 }
-impl ve of DivRemHelper<Lane, UnitInt<9007199254740992>> {
+impl SplitRot11 of DivRemHelper<Lane, UnitInt<9007199254740992>> {
     type DivT = BoundedInt<0, 2047>;
     type RemT = BoundedInt<0, 9007199254740991>;
 }
-impl vA of MulHelper<BoundedInt<0, 9007199254740991>, UnitInt<2048>> {
+impl ShiftRot11 of MulHelper<BoundedInt<0, 9007199254740991>, UnitInt<2048>> {
     type Result = BoundedInt<0, 0xfffffffffffff800>;
 }
-impl uN of AddHelper<BoundedInt<0, 0xfffffffffffff800>, BoundedInt<0, 2047>> {
+impl MergeRot11 of AddHelper<BoundedInt<0, 0xfffffffffffff800>, BoundedInt<0, 2047>> {
     type Result = Lane;
 }
 const M11: UnitInt<2048> = 2048;
-impl vf of DivRemHelper<Lane, UnitInt<4503599627370496>> {
+impl SplitRot12 of DivRemHelper<Lane, UnitInt<4503599627370496>> {
     type DivT = BoundedInt<0, 4095>;
     type RemT = BoundedInt<0, 0xfffffffffffff>;
 }
-impl vB of MulHelper<BoundedInt<0, 0xfffffffffffff>, UnitInt<4096>> {
+impl ShiftRot12 of MulHelper<BoundedInt<0, 0xfffffffffffff>, UnitInt<4096>> {
     type Result = BoundedInt<0, 0xfffffffffffff000>;
 }
-impl uO of AddHelper<BoundedInt<0, 0xfffffffffffff000>, BoundedInt<0, 4095>> {
+impl MergeRot12 of AddHelper<BoundedInt<0, 0xfffffffffffff000>, BoundedInt<0, 4095>> {
     type Result = Lane;
 }
 const M12: UnitInt<4096> = 4096;
-impl vh of DivRemHelper<Lane, UnitInt<0x800000000000>> {
+impl SplitRot17 of DivRemHelper<Lane, UnitInt<0x800000000000>> {
     type DivT = BoundedInt<0, 131071>;
     type RemT = BoundedInt<0, 0x7fffffffffff>;
 }
-impl vD of MulHelper<BoundedInt<0, 0x7fffffffffff>, UnitInt<131072>> {
+impl ShiftRot17 of MulHelper<BoundedInt<0, 0x7fffffffffff>, UnitInt<131072>> {
     type Result = BoundedInt<0, 0xfffffffffffe0000>;
 }
-impl uQ of AddHelper<BoundedInt<0, 0xfffffffffffe0000>, BoundedInt<0, 131071>> {
+impl MergeRot17 of AddHelper<BoundedInt<0, 0xfffffffffffe0000>, BoundedInt<0, 131071>> {
     type Result = Lane;
 }
 const M17: UnitInt<131072> = 131072;
-impl vi of DivRemHelper<Lane, UnitInt<4398046511104>> {
+impl SplitRot22 of DivRemHelper<Lane, UnitInt<4398046511104>> {
     type DivT = BoundedInt<0, 4194303>;
     type RemT = BoundedInt<0, 4398046511103>;
 }
-impl vE of MulHelper<BoundedInt<0, 4398046511103>, UnitInt<4194304>> {
+impl ShiftRot22 of MulHelper<BoundedInt<0, 4398046511103>, UnitInt<4194304>> {
     type Result = BoundedInt<0, 0xffffffffffc00000>;
 }
-impl uR of AddHelper<BoundedInt<0, 0xffffffffffc00000>, BoundedInt<0, 4194303>> {
+impl MergeRot22 of AddHelper<BoundedInt<0, 0xffffffffffc00000>, BoundedInt<0, 4194303>> {
     type Result = Lane;
 }
 const M22: UnitInt<4194304> = 4194304;
-impl vj of DivRemHelper<Lane, UnitInt<2199023255552>> {
+impl SplitRot23 of DivRemHelper<Lane, UnitInt<2199023255552>> {
     type DivT = BoundedInt<0, 8388607>;
     type RemT = BoundedInt<0, 2199023255551>;
 }
-impl vF of MulHelper<BoundedInt<0, 2199023255551>, UnitInt<8388608>> {
+impl ShiftRot23 of MulHelper<BoundedInt<0, 2199023255551>, UnitInt<8388608>> {
     type Result = BoundedInt<0, 0xffffffffff800000>;
 }
-impl uS of AddHelper<BoundedInt<0, 0xffffffffff800000>, BoundedInt<0, 8388607>> {
+impl MergeRot23 of AddHelper<BoundedInt<0, 0xffffffffff800000>, BoundedInt<0, 8388607>> {
     type Result = Lane;
 }
 const M23: UnitInt<8388608> = 8388608;
-impl vk of DivRemHelper<Lane, UnitInt<274877906944>> {
+impl SplitRot26 of DivRemHelper<Lane, UnitInt<274877906944>> {
     type DivT = BoundedInt<0, 67108863>;
     type RemT = BoundedInt<0, 274877906943>;
 }
-impl vG of MulHelper<BoundedInt<0, 274877906943>, UnitInt<67108864>> {
+impl ShiftRot26 of MulHelper<BoundedInt<0, 274877906943>, UnitInt<67108864>> {
     type Result = BoundedInt<0, 0xfffffffffc000000>;
 }
-impl uT of AddHelper<BoundedInt<0, 0xfffffffffc000000>, BoundedInt<0, 67108863>> {
+impl MergeRot26 of AddHelper<BoundedInt<0, 0xfffffffffc000000>, BoundedInt<0, 67108863>> {
     type Result = Lane;
 }
 const M26: UnitInt<67108864> = 67108864;
-impl vm of DivRemHelper<Lane, UnitInt<17179869184>> {
+impl SplitRot30 of DivRemHelper<Lane, UnitInt<17179869184>> {
     type DivT = BoundedInt<0, 1073741823>;
     type RemT = BoundedInt<0, 17179869183>;
 }
-impl vI of MulHelper<BoundedInt<0, 17179869183>, UnitInt<1073741824>> {
+impl ShiftRot30 of MulHelper<BoundedInt<0, 17179869183>, UnitInt<1073741824>> {
     type Result = BoundedInt<0, 0xffffffffc0000000>;
 }
-impl uV of AddHelper<BoundedInt<0, 0xffffffffc0000000>, BoundedInt<0, 1073741823>> {
+impl MergeRot30 of AddHelper<BoundedInt<0, 0xffffffffc0000000>, BoundedInt<0, 1073741823>> {
     type Result = Lane;
 }
 const M30: UnitInt<1073741824> = 1073741824;
-impl vo of DivRemHelper<Lane, UnitInt<1073741824>> {
+impl SplitRot34 of DivRemHelper<Lane, UnitInt<1073741824>> {
     type DivT = BoundedInt<0, 17179869183>;
     type RemT = BoundedInt<0, 1073741823>;
 }
-impl vK of MulHelper<BoundedInt<0, 1073741823>, UnitInt<17179869184>> {
+impl ShiftRot34 of MulHelper<BoundedInt<0, 1073741823>, UnitInt<17179869184>> {
     type Result = BoundedInt<0, 0xfffffffc00000000>;
 }
-impl uX of AddHelper<BoundedInt<0, 0xfffffffc00000000>, BoundedInt<0, 17179869183>> {
+impl MergeRot34 of AddHelper<BoundedInt<0, 0xfffffffc00000000>, BoundedInt<0, 17179869183>> {
     type Result = Lane;
 }
 const M34: UnitInt<17179869184> = 17179869184;
-impl vp of DivRemHelper<Lane, UnitInt<536870912>> {
+impl SplitRot35 of DivRemHelper<Lane, UnitInt<536870912>> {
     type DivT = BoundedInt<0, 34359738367>;
     type RemT = BoundedInt<0, 536870911>;
 }
-impl vL of MulHelper<BoundedInt<0, 536870911>, UnitInt<34359738368>> {
+impl ShiftRot35 of MulHelper<BoundedInt<0, 536870911>, UnitInt<34359738368>> {
     type Result = BoundedInt<0, 0xfffffff800000000>;
 }
-impl uY of AddHelper<BoundedInt<0, 0xfffffff800000000>, BoundedInt<0, 34359738367>> {
+impl MergeRot35 of AddHelper<BoundedInt<0, 0xfffffff800000000>, BoundedInt<0, 34359738367>> {
     type Result = Lane;
 }
 const M35: UnitInt<34359738368> = 34359738368;
-impl vq of DivRemHelper<Lane, UnitInt<67108864>> {
+impl SplitRot38 of DivRemHelper<Lane, UnitInt<67108864>> {
     type DivT = BoundedInt<0, 274877906943>;
     type RemT = BoundedInt<0, 67108863>;
 }
-impl vM of MulHelper<BoundedInt<0, 67108863>, UnitInt<274877906944>> {
+impl ShiftRot38 of MulHelper<BoundedInt<0, 67108863>, UnitInt<274877906944>> {
     type Result = BoundedInt<0, 0xffffffc000000000>;
 }
-impl uZ of AddHelper<BoundedInt<0, 0xffffffc000000000>, BoundedInt<0, 274877906943>> {
+impl MergeRot38 of AddHelper<BoundedInt<0, 0xffffffc000000000>, BoundedInt<0, 274877906943>> {
     type Result = Lane;
 }
 const M38: UnitInt<274877906944> = 274877906944;
-impl vr of DivRemHelper<Lane, UnitInt<16777216>> {
+impl SplitRot40 of DivRemHelper<Lane, UnitInt<16777216>> {
     type DivT = BoundedInt<0, 0xffffffffff>;
     type RemT = BoundedInt<0, 16777215>;
 }
-impl vN of MulHelper<BoundedInt<0, 16777215>, UnitInt<1099511627776>> {
+impl ShiftRot40 of MulHelper<BoundedInt<0, 16777215>, UnitInt<1099511627776>> {
     type Result = BoundedInt<0, 0xffffff0000000000>;
 }
-impl u5 of AddHelper<BoundedInt<0, 0xffffff0000000000>, BoundedInt<0, 0xffffffffff>> {
+impl MergeRot40 of AddHelper<BoundedInt<0, 0xffffff0000000000>, BoundedInt<0, 0xffffffffff>> {
     type Result = Lane;
 }
 const M40: UnitInt<1099511627776> = 1099511627776;
-impl vs of DivRemHelper<Lane, UnitInt<131072>> {
+impl SplitRot47 of DivRemHelper<Lane, UnitInt<131072>> {
     type DivT = BoundedInt<0, 0x7fffffffffff>;
     type RemT = BoundedInt<0, 131071>;
 }
-impl vO of MulHelper<BoundedInt<0, 131071>, UnitInt<0x800000000000>> {
+impl ShiftRot47 of MulHelper<BoundedInt<0, 131071>, UnitInt<0x800000000000>> {
     type Result = BoundedInt<0, 0xffff800000000000>;
 }
-impl u6 of AddHelper<BoundedInt<0, 0xffff800000000000>, BoundedInt<0, 0x7fffffffffff>> {
+impl MergeRot47 of AddHelper<BoundedInt<0, 0xffff800000000000>, BoundedInt<0, 0x7fffffffffff>> {
     type Result = Lane;
 }
 const M47: UnitInt<0x800000000000> = 0x800000000000;
-impl vt of DivRemHelper<Lane, UnitInt<65536>> {
+impl SplitRot48 of DivRemHelper<Lane, UnitInt<65536>> {
     type DivT = BoundedInt<0, 0xffffffffffff>;
     type RemT = BoundedInt<0, 65535>;
 }
-impl vP of MulHelper<BoundedInt<0, 65535>, UnitInt<281474976710656>> {
+impl ShiftRot48 of MulHelper<BoundedInt<0, 65535>, UnitInt<281474976710656>> {
     type Result = BoundedInt<0, 0xffff000000000000>;
 }
-impl u7 of AddHelper<BoundedInt<0, 0xffff000000000000>, BoundedInt<0, 0xffffffffffff>> {
+impl MergeRot48 of AddHelper<BoundedInt<0, 0xffff000000000000>, BoundedInt<0, 0xffffffffffff>> {
     type Result = Lane;
 }
 const M48: UnitInt<281474976710656> = 281474976710656;
-impl vz of DivRemHelper<Lane, UnitInt<32>> {
+impl SplitRot59 of DivRemHelper<Lane, UnitInt<32>> {
     type DivT = BoundedInt<0, 0x7ffffffffffffff>;
     type RemT = BoundedInt<0, 31>;
 }
-impl vU of MulHelper<BoundedInt<0, 31>, UnitInt<0x800000000000000>> {
+impl ShiftRot59 of MulHelper<BoundedInt<0, 31>, UnitInt<0x800000000000000>> {
     type Result = BoundedInt<0, 0xf800000000000000>;
 }
-impl vd of AddHelper<BoundedInt<0, 0xf800000000000000>, BoundedInt<0, 0x7ffffffffffffff>> {
+impl MergeRot59 of AddHelper<BoundedInt<0, 0xf800000000000000>, BoundedInt<0, 0x7ffffffffffffff>> {
     type Result = Lane;
 }
 const M59: UnitInt<0x800000000000000> = 0x800000000000000;
-impl vg of DivRemHelper<Lane, UnitInt<281474976710656>> {
+impl SplitRot16 of DivRemHelper<Lane, UnitInt<281474976710656>> {
     type DivT = BoundedInt<0, 65535>;
     type RemT = BoundedInt<0, 0xffffffffffff>;
 }
-impl vC of MulHelper<BoundedInt<0, 0xffffffffffff>, UnitInt<65536>> {
+impl ShiftRot16 of MulHelper<BoundedInt<0, 0xffffffffffff>, UnitInt<65536>> {
     type Result = BoundedInt<0, 0xffffffffffff0000>;
 }
-impl uP of AddHelper<BoundedInt<0, 0xffffffffffff0000>, BoundedInt<0, 65535>> {
+impl MergeRot16 of AddHelper<BoundedInt<0, 0xffffffffffff0000>, BoundedInt<0, 65535>> {
     type Result = Lane;
 }
 const M16: UnitInt<65536> = 65536;
-impl vy of DivRemHelper<Lane, UnitInt<2048>> {
+impl SplitRot53 of DivRemHelper<Lane, UnitInt<2048>> {
     type DivT = BoundedInt<0, 9007199254740991>;
     type RemT = BoundedInt<0, 2047>;
 }
-impl vT of MulHelper<BoundedInt<0, 2047>, UnitInt<9007199254740992>> {
+impl ShiftRot53 of MulHelper<BoundedInt<0, 2047>, UnitInt<9007199254740992>> {
     type Result = BoundedInt<0, 0xffe0000000000000>;
 }
-impl vc of AddHelper<BoundedInt<0, 0xffe0000000000000>, BoundedInt<0, 9007199254740991>> {
+impl MergeRot53 of AddHelper<BoundedInt<0, 0xffe0000000000000>, BoundedInt<0, 9007199254740991>> {
     type Result = Lane;
 }
 const M53: UnitInt<9007199254740992> = 9007199254740992;
 type TwoPow65 = UnitInt<0x20000000000000000>;
 type LaneCarry = BoundedInt<0, 0x1ffffffffffffffff>;
-impl gS of DivRemHelper<u128, TwoPow65> {
+impl SplitPair65 of DivRemHelper<u128, TwoPow65> {
     type DivT = BoundedInt<0, 0x7fffffffffffffff>;
     type RemT = LaneCarry;
 }
@@ -525,30 +525,30 @@ impl LaneCarrySplit of ConstrainHelper<LaneCarry, 0x10000000000000000> {
     type LowT = Lane;
     type HighT = BoundedInt<0x10000000000000000, 0x1ffffffffffffffff>;
 }
-impl iJ of SubHelper<
+impl DropPairCarry of SubHelper<
     BoundedInt<0x10000000000000000, 0x1ffffffffffffffff>, UnitInt<0x10000000000000000>,
 > {
     type Result = Lane;
 }
-impl iD of AddHelper<BoundedInt<0, 0x7fffffffffffffff>, UnitInt<0x8000000000000000>> {
+impl FoldCarryTop of AddHelper<BoundedInt<0, 0x7fffffffffffffff>, UnitInt<0x8000000000000000>> {
     type Result = BoundedInt<0x8000000000000000, 0xffffffffffffffff>;
 }
 /// Splits a value one bit wider than a pair (below `2^65`), folding the low
 /// half's carry bit into the high lane.
 #[inline(always)]
 fn split_pair_carry(w: u128, two65: NonZero<TwoPow65>) -> (Lane, Lane) {
-    let (q, rem) = bounded_int::div_rem(w, two65);
+    let (q, rem) = div_rem(w, two65);
     match constrain::<LaneCarry, 0x10000000000000000>(rem) {
         Ok(lo) => (lo, upcast(q)),
         Err(hi) => {
             let t: UnitInt<0x10000000000000000> = 0x10000000000000000;
             let p: UnitInt<0x8000000000000000> = 0x8000000000000000;
-            (bounded_int::sub(hi, t), upcast(bounded_int::add(q, p)))
+            (sub(hi, t), upcast(add(q, p)))
         },
     }
 }
 type Mask64 = UnitInt<0xffffffffffffffff>;
-impl iI of SubHelper<Mask64, Lane> {
+impl Not64 of SubHelper<Mask64, Lane> {
     type Result = Lane;
 }
 /// XOR of two 64-bit lanes.
@@ -561,7 +561,7 @@ fn xor64(a: Lane, b: Lane) -> Lane {
 /// `(NOT b) AND c` over single lanes: the chi selection.
 #[inline(always)]
 fn andn64(b: Lane, c: Lane, mask128: Mask64) -> Lane {
-    let nb: u64 = upcast(bounded_int::sub(mask128, b));
+    let nb: u64 = upcast(sub(mask128, b));
     let c: u64 = upcast(c);
     upcast(nb & c)
 }
@@ -662,18 +662,18 @@ fn rot_constants() -> RotConstants {
 /// Bitwise NOT of a packed pair: `(2^128 - 1) - x` (both halves stay 64-bit).
 #[inline(always)]
 fn not128(x: u128, mask128: Mask128) -> u128 {
-    upcast(bounded_int::sub(mask128, x))
+    upcast(sub(mask128, x))
 }
 /// Splits a pair into `(high, low)` lanes.
 #[inline(always)]
 fn split_pair(w: u128, two64: NonZero<TwoPow64>) -> (Lane, Lane) {
-    bounded_int::div_rem(w, two64)
+    div_rem(w, two64)
 }
-impl gP of ConstrainHelper<Lane, 0x8000000000000000> {
+impl SplitTopBit of ConstrainHelper<Lane, 0x8000000000000000> {
     type LowT = BoundedInt<0, 0x7fffffffffffffff>;
     type HighT = BoundedInt<0x8000000000000000, 0xffffffffffffffff>;
 }
-impl jh of SubHelper<
+impl Rotl1WrapLaneHigh of SubHelper<
     BoundedInt<0x10000000000000000, 0x1fffffffffffffffe>, UnitInt<0xffffffffffffffff>,
 > {
     type Result = BoundedInt<1, 0xffffffffffffffff>;
@@ -681,143 +681,143 @@ impl jh of SubHelper<
 #[inline(always)]
 fn rot6(x: Lane, d: NonZero<UnitInt<0x400000000000000>>) -> Lane {
     let m: UnitInt<64> = 64;
-    let (aH, rest) = bounded_int::div_rem(x, d);
-    bounded_int::add(bounded_int::mul(rest, m), aH)
+    let (aH, rest) = div_rem(x, d);
+    add(mul(rest, m), aH)
 }
 #[inline(always)]
 fn rot8(x: Lane, d: NonZero<UnitInt<72057594037927936>>) -> Lane {
     let m: UnitInt<256> = 256;
-    let (aH, rest) = bounded_int::div_rem(x, d);
-    bounded_int::add(bounded_int::mul(rest, m), aH)
+    let (aH, rest) = div_rem(x, d);
+    add(mul(rest, m), aH)
 }
 #[inline(always)]
 fn rot20(x: Lane, d: NonZero<UnitInt<17592186044416>>) -> Lane {
     let m: UnitInt<1048576> = 1048576;
-    let (aH, rest) = bounded_int::div_rem(x, d);
-    bounded_int::add(bounded_int::mul(rest, m), aH)
+    let (aH, rest) = div_rem(x, d);
+    add(mul(rest, m), aH)
 }
 #[inline(always)]
 fn rot21(x: Lane, d: NonZero<UnitInt<8796093022208>>) -> Lane {
     let m: UnitInt<2097152> = 2097152;
-    let (aH, rest) = bounded_int::div_rem(x, d);
-    bounded_int::add(bounded_int::mul(rest, m), aH)
+    let (aH, rest) = div_rem(x, d);
+    add(mul(rest, m), aH)
 }
 #[inline(always)]
 fn rot25(x: Lane, d: NonZero<UnitInt<549755813888>>) -> Lane {
     let m: UnitInt<33554432> = 33554432;
-    let (aH, rest) = bounded_int::div_rem(x, d);
-    bounded_int::add(bounded_int::mul(rest, m), aH)
+    let (aH, rest) = div_rem(x, d);
+    add(mul(rest, m), aH)
 }
 #[inline(always)]
 fn rot28(x: Lane, d: NonZero<UnitInt<68719476736>>) -> Lane {
     let m: UnitInt<268435456> = 268435456;
-    let (aH, rest) = bounded_int::div_rem(x, d);
-    bounded_int::add(bounded_int::mul(rest, m), aH)
+    let (aH, rest) = div_rem(x, d);
+    add(mul(rest, m), aH)
 }
 #[inline(always)]
 fn rot39(x: Lane, d: NonZero<UnitInt<33554432>>) -> Lane {
     let m: UnitInt<549755813888> = 549755813888;
-    let (aH, rest) = bounded_int::div_rem(x, d);
-    bounded_int::add(bounded_int::mul(rest, m), aH)
+    let (aH, rest) = div_rem(x, d);
+    add(mul(rest, m), aH)
 }
 #[inline(always)]
 fn rot41(x: Lane, d: NonZero<UnitInt<8388608>>) -> Lane {
     let m: UnitInt<2199023255552> = 2199023255552;
-    let (aH, rest) = bounded_int::div_rem(x, d);
-    bounded_int::add(bounded_int::mul(rest, m), aH)
+    let (aH, rest) = div_rem(x, d);
+    add(mul(rest, m), aH)
 }
 #[inline(always)]
 fn rot43(x: Lane, d: NonZero<UnitInt<2097152>>) -> Lane {
     let m: UnitInt<8796093022208> = 8796093022208;
-    let (aH, rest) = bounded_int::div_rem(x, d);
-    bounded_int::add(bounded_int::mul(rest, m), aH)
+    let (aH, rest) = div_rem(x, d);
+    add(mul(rest, m), aH)
 }
 #[inline(always)]
 fn rot45(x: Lane, d: NonZero<UnitInt<524288>>) -> Lane {
     let m: UnitInt<35184372088832> = 35184372088832;
-    let (aH, rest) = bounded_int::div_rem(x, d);
-    bounded_int::add(bounded_int::mul(rest, m), aH)
+    let (aH, rest) = div_rem(x, d);
+    add(mul(rest, m), aH)
 }
 #[inline(always)]
 fn rot62(x: Lane, d: NonZero<UnitInt<4>>) -> Lane {
     let m: UnitInt<0x4000000000000000> = 0x4000000000000000;
-    let (aH, rest) = bounded_int::div_rem(x, d);
-    bounded_int::add(bounded_int::mul(rest, m), aH)
+    let (aH, rest) = div_rem(x, d);
+    add(mul(rest, m), aH)
 }
 /// Bitwise NOT of a single lane: `(2^64 - 1) - x`.
 #[inline(always)]
 fn not64(x: Lane, mask128: Mask64) -> Lane {
-    bounded_int::sub(mask128, x)
+    sub(mask128, x)
 }
-impl pO of MulHelper<BoundedInt<0, 0x7fffffffffffffff>, UnitInt<0x20000000000000000>> {
+impl Rotl1ShiftLow of MulHelper<BoundedInt<0, 0x7fffffffffffffff>, UnitInt<0x20000000000000000>> {
     type Result = BoundedInt<0, 0xfffffffffffffffe0000000000000000>;
 }
-impl pP of AddHelper<
+impl Rotl1AddLl of AddHelper<
     BoundedInt<0, 0xfffffffffffffffe0000000000000000>, BoundedInt<0, 0x7fffffffffffffff>,
 > {
     type Result = BoundedInt<0, 0xfffffffffffffffe7fffffffffffffff>;
 }
-impl nH of AddHelper<
+impl Rotl1AddHh of AddHelper<
     BoundedInt<0x100000000000000000000000000000000, 0x1fffffffffffffffe0000000000000000>,
     BoundedInt<0x8000000000000000, 0xffffffffffffffff>,
 > {
     type Result =
         BoundedInt<0x100000000000000008000000000000000, 0x1fffffffffffffffeffffffffffffffff>;
 }
-impl nI of SubHelper<
+impl Rotl1WrapHh of SubHelper<
     BoundedInt<0x100000000000000008000000000000000, 0x1fffffffffffffffeffffffffffffffff>,
     UnitInt<0xffffffffffffffffffffffffffffffff>,
 > {
     type Result = BoundedInt<0x8000000000000001, 0xffffffffffffffff0000000000000000>;
 }
-impl nJ of AddHelper<
+impl Rotl1CloseHh of AddHelper<
     BoundedInt<0x8000000000000001, 0xffffffffffffffff0000000000000000>,
     BoundedInt<0x8000000000000000, 0xffffffffffffffff>,
 > {
     type Result = BoundedInt<0x10000000000000001, 0xffffffffffffffffffffffffffffffff>;
 }
-impl pQ of AddHelper<
+impl Rotl1CloseLl of AddHelper<
     BoundedInt<0, 0xfffffffffffffffe7fffffffffffffff>, BoundedInt<0, 0x7fffffffffffffff>,
 > {
     type Result = BoundedInt<0, 0xfffffffffffffffefffffffffffffffe>;
 }
-impl pR of MulHelper<
+impl Rotl1ShiftHigh of MulHelper<
     BoundedInt<0x8000000000000000, 0xffffffffffffffff>, UnitInt<0x20000000000000000>,
 > {
     type Result =
         BoundedInt<0x100000000000000000000000000000000, 0x1fffffffffffffffe0000000000000000>;
 }
-impl pS of AddHelper<
+impl Rotl1AddLh of AddHelper<
     BoundedInt<0x100000000000000000000000000000000, 0x1fffffffffffffffe0000000000000000>,
     BoundedInt<0, 0x7fffffffffffffff>,
 > {
     type Result =
         BoundedInt<0x100000000000000000000000000000000, 0x1fffffffffffffffe7fffffffffffffff>;
 }
-impl pT of SubHelper<
+impl Rotl1WrapLh of SubHelper<
     BoundedInt<0x100000000000000000000000000000000, 0x1fffffffffffffffe7fffffffffffffff>,
     UnitInt<0xffffffffffffffff0000000000000000>,
 > {
     type Result = BoundedInt<0x10000000000000000, 0xffffffffffffffff7fffffffffffffff>;
 }
-impl pU of AddHelper<
+impl Rotl1CloseLh of AddHelper<
     BoundedInt<0x10000000000000000, 0xffffffffffffffff7fffffffffffffff>,
     BoundedInt<0, 0x7fffffffffffffff>,
 > {
     type Result = BoundedInt<0x10000000000000000, 0xfffffffffffffffffffffffffffffffe>;
 }
-impl pV of AddHelper<
+impl Rotl1AddHl of AddHelper<
     BoundedInt<0, 0xfffffffffffffffe0000000000000000>,
     BoundedInt<0x8000000000000000, 0xffffffffffffffff>,
 > {
     type Result = BoundedInt<0x8000000000000000, 0xfffffffffffffffeffffffffffffffff>;
 }
-impl pW of SubHelper<
+impl Rotl1WrapHl of SubHelper<
     BoundedInt<0x8000000000000000, 0xfffffffffffffffeffffffffffffffff>, UnitInt<0xffffffffffffffff>,
 > {
     type Result = BoundedInt<-0x7fffffffffffffff, 0xfffffffffffffffe0000000000000000>;
 }
-impl pX of AddHelper<
+impl Rotl1CloseHl of AddHelper<
     BoundedInt<-0x7fffffffffffffff, 0xfffffffffffffffe0000000000000000>,
     BoundedInt<0x8000000000000000, 0xffffffffffffffff>,
 > {
@@ -855,18 +855,14 @@ pub(crate) type FirstRound = ([u128; 10], u128, Lane, Lane, Lane);
 
 /// First-round theta terms from the precomputed column parities.
 #[inline(always)]
-fn first_round_theta(u0: u128, parities: ColumnParities) -> (u128, Lane, Lane, Lane, u128) {
-    first_round_theta_with(u0, parities, TWO_POW_64_NZ, MASK_64, MASK_128)
+fn first_round_theta(parities: ColumnParities) -> (u128, Lane, Lane, Lane, u128) {
+    first_round_theta_with(parities, TWO_POW_64_NZ, MASK_64, MASK_128)
 }
 
 /// First-round theta core, explicit over the threaded constants.
 #[inline(always)]
 fn first_round_theta_with(
-    u0: u128,
-    parities: ColumnParities,
-    two64: NonZero<TwoPow64>,
-    m64: Mask64,
-    mask128_full: Mask128,
+    parities: ColumnParities, two64: NonZero<TwoPow64>, m64: Mask64, mask128_full: Mask128,
 ) -> (u128, Lane, Lane, Lane, u128) {
     let (nP, nQ, c4) = parities;
     let (c1, c0) = split_pair(nP, two64);
@@ -881,7 +877,7 @@ fn first_round_theta_with(
 #[inline(always)]
 pub(crate) fn absorb_round(st: [u128; 12], g4: Lane, parities: ColumnParities) -> FirstRound {
     let [u0, u1, u2, u3, u4, v0, v1, v2, v3, v4, bk, bL] = st;
-    let (di, c3, c4, r0, p12) = first_round_theta(u0, parities);
+    let (di, c3, c4, r0, p12) = first_round_theta(parities);
     let dM = not128(di, MASK_128);
     let (cK, cJ) = split_pair(u2 ^ dM, TWO_POW_64_NZ);
     let (cJ, tH) = rotl1_lane_and_pair(cJ, c3, c4, TWO_POW_65_NZ, MASK_64, MASK_128);
@@ -1018,8 +1014,8 @@ fn theta_stage2(
     let (cO, cq) = split_pair(o3 ^ dk, k.two64);
     let ee = pair(c4, c1) ^ kL;
     let jH = not128(ee, k.mask128);
-    let (TWO_POW_63_UNIT, zm) = bounded_int::div_rem(e2 ^ jH, k.two65);
-    let (r0, cq, cJ, cL) = rotl1_pair_split(c0, cq, TWO_POW_63_UNIT, zm, k.mask64);
+    let (top63, zm) = div_rem(e2 ^ jH, k.two65);
+    let (r0, cq, cJ, cL) = rotl1_pair_split(c0, cq, top63, zm, k.mask64);
     let (dq, bx) = split_pair(o0 ^ dk, k.two64);
     let d4 = xor64(c3, r0);
     let dj = duplicate_lane(d4);
@@ -1379,7 +1375,7 @@ fn chi_stage2(
     let jQ = pair(b11, b13);
     let jR = pair(b12, b14);
     let pm = pair(b13, b10);
-    let pn = pair(b15, b17);
+    let pz = pair(b15, b17);
     let jS = pair(b16, b18);
     let jT = pair(b17, b19);
     let po = pair(b18, b15);
@@ -1395,7 +1391,7 @@ fn chi_stage2(
     let kI = pair(b11, b21);
     (
         [
-            pg ^ (jM | jN) ^ rc, pi ^ (jO | jP), pl ^ (jQ | jR), pn ^ (jS | jT), pp ^ (jU | jV),
+            pg ^ (jM | jN) ^ rc, pi ^ (jO | jP), pl ^ (jQ | jR), pz ^ (jS | jT), pp ^ (jU | jV),
             jM ^ (jN & ph), jO ^ (jP & pj), jQ ^ (jR & pm), jS ^ (jT & po), jU ^ (jV & pq),
             kF ^ (not128(kJ, k.mask128) & kG), qV ^ (sM | not128(kI, k.mask128)),
         ],
@@ -1511,6 +1507,7 @@ pub(crate) fn run_rounds(p: FirstRound) -> ([u128; 10], Row4) {
         (b20, b21, b22, b23, b24),
     )
 }
+#[cfg(test)]
 pub(crate) fn keccak_f1600(state: [u128; 25]) -> [u128; 25] {
     let [
         s00,
@@ -1689,287 +1686,102 @@ fn load_lane_le(bytes: @Array<u8>, off: u32) -> u128 {
     acc
 }
 
-#[cfg(test)]
-mod tests {
-    use super::shake256;
 
-    fn to_hex(bytes: Array<u8>) -> ByteArray {
-        let hexchars: ByteArray = "0123456789abcdef";
-        let mut s: ByteArray = "";
-        let mut span = bytes.span();
-        while let Some(b) = span.pop_front() {
-            s.append_byte(hexchars.at((*b / 16).into()).unwrap());
-            s.append_byte(hexchars.at((*b % 16).into()).unwrap());
-        }
-        s
-    }
-
-    // KAT vectors from Python `hashlib.shake_256` (FIPS 202).
-    #[test]
-    fn test_shake256_empty() {
-        let got = to_hex(shake256(array![], 32));
-        assert!(got == "46b9dd2b0ba88d13233b3feb743eeb243fcd52ea62b81b82b50c27646ed5762f");
-    }
-
-    #[test]
-    fn test_shake256_abc() {
-        let got = to_hex(shake256(array![0x61, 0x62, 0x63], 32));
-        assert!(got == "483366601360a8771c6863080cc4114d8db44530f8f1e1ee4f94ea37e78b5739");
-    }
-
-    // 200 bytes of 0xA3: a 2-block absorb (input > 136-byte rate). NIST SHAKE-256 vector.
-    #[test]
-    fn test_shake256_multiblock() {
-        let mut input: Array<u8> = array![];
-        let mut i = 0;
-        while i != 200_u32 {
-            input.append(0xa3);
-            i += 1;
-        }
-        let got = to_hex(shake256(input, 32));
-        assert!(got == "cd8a920ed141aa0407a22d59288652e9d9f1a7ee0c1e7c1ca699424da84a904d");
-    }
-
-    // Squeeze past one rate block (137 bytes > 136): exercises the squeeze-side
-    // permutation. Tail bytes from Python `hashlib.shake_256(b"abc").hexdigest(137)`.
-    #[test]
-    fn test_shake256_multiblock_squeeze() {
-        let out = shake256(array![0x61, 0x62, 0x63], 137);
-        assert_eq!(out.len(), 137);
-        // First bytes match the 32-byte KAT above.
-        assert_eq!(*out.at(0), 0x48);
-        assert_eq!(*out.at(1), 0x33);
-        // Bytes 128.. of the stream: e8 a2 d7 ec 71 a7 cc 29 cf (last is out[136]).
-        let tail: [u8; 9] = [0xe8, 0xa2, 0xd7, 0xec, 0x71, 0xa7, 0xcc, 0x29, 0xcf];
-        let mut i: u32 = 128;
-        for expected in tail.span() {
-            assert_eq!(*out.at(i), *expected);
-            i += 1;
-        }
-    }
+type Rot4Rest = BoundedInt<0, 0xfffffffffffffff>;
+type Rot4Top = BoundedInt<0, 0xf>;
+type Rot4Shifted = BoundedInt<0, 0xfffffffffffffff0>;
+impl SplitRot4 of DivRemHelper<Lane, UnitInt<0x1000000000000000>> {
+    type DivT = Rot4Top;
+    type RemT = Rot4Rest;
 }
-#[cfg(test)]
-mod keccak_f_vectors {
-    use super::keccak_f1600;
-    #[test]
-    fn test_keccak_f_vector_0_falcon_512_shake() {
-        let out = keccak_f1600(
-            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-        );
-        assert!(
-            out
-                .span() == [
-                    0xf1258f7940e1dde7, 0x84d5ccf933c0478a, 0xd598261ea65aa9ee, 0xbd1547306f80494d,
-                    0x8b284e056253d057, 0xff97a42d7f8e6fd4, 0x90fee5a0a44647c4, 0x8c5bda0cd6192e76,
-                    0xad30a6f71b19059c, 0x30935ab7d08ffc64, 0xeb5aa93f2317d635, 0xa9a6e6260d712103,
-                    0x81a57c16dbcf555f, 0x43b831cd0347c826, 0x1f22f1a11a5569f, 0x5e5635a21d9ae61,
-                    0x64befef28cc970f2, 0x613670957bc46611, 0xb87c5a554fd00ecb, 0x8c3ee88a1ccf32c8,
-                    0x940c7922ae3a2614, 0x1841f924a2c509e4, 0x16f53526e70465c2, 0x75f644e97f30a13b,
-                    0xeaf1ff7b5ceca249,
-                ]
-                .span(),
-        );
-    }
-    #[test]
-    fn test_keccak_f_vector_1_falcon_512_shake() {
-        let out = keccak_f1600(
-            [
-                0xf1258f7940e1dde7, 0x84d5ccf933c0478a, 0xd598261ea65aa9ee, 0xbd1547306f80494d,
-                0x8b284e056253d057, 0xff97a42d7f8e6fd4, 0x90fee5a0a44647c4, 0x8c5bda0cd6192e76,
-                0xad30a6f71b19059c, 0x30935ab7d08ffc64, 0xeb5aa93f2317d635, 0xa9a6e6260d712103,
-                0x81a57c16dbcf555f, 0x43b831cd0347c826, 0x1f22f1a11a5569f, 0x5e5635a21d9ae61,
-                0x64befef28cc970f2, 0x613670957bc46611, 0xb87c5a554fd00ecb, 0x8c3ee88a1ccf32c8,
-                0x940c7922ae3a2614, 0x1841f924a2c509e4, 0x16f53526e70465c2, 0x75f644e97f30a13b,
-                0xeaf1ff7b5ceca249,
-            ],
-        );
-        assert!(
-            out
-                .span() == [
-                    0x2d5c954df96ecb3c, 0x6a332cd07057b56d, 0x93d8d1270d76b6c, 0x8a20d9b25569d094,
-                    0x4f9c4f99e5e7f156, 0xf957b9a2da65fb38, 0x85773dae1275af0d, 0xfaf4f247c3d810f7,
-                    0x1f1b9ee6f79a8759, 0xe4fecc0fee98b425, 0x68ce61b6b9ce68a1, 0xdeea66c4ba8f974f,
-                    0x33c43d836eafb1f5, 0xe00654042719dbd9, 0x7cf8a9f009831265, 0xfd5449a6bf174743,
-                    0x97ddad33d8994b40, 0x48ead5fc5d0be774, 0xe3b8c8ee55b7b03c, 0x91a0226e649e42e9,
-                    0x900e3129e7badd7b, 0x202a9ec5faa3cce8, 0x5b3402464e1c3db6, 0x609f4e62a44c1059,
-                    0x20d06cd26a8fbf5c,
-                ]
-                .span(),
-        );
-    }
-    #[test]
-    fn test_keccak_f_vector_2_falcon_512_shake() {
-        let out = keccak_f1600(
-            [
-                0xc93a7b79aeda89b, 0x19274f6f35db5136, 0x25baf726d0c8f9d1, 0x324e9ede6bb6a26c,
-                0x3ee2469606a44b07, 0x4b75ee4da191f3a2, 0x580996053c7f9c3d, 0x649d3dbcd76d44d8,
-                0x7130e574725aed73, 0x7dc48d2c0d48960e, 0x8a5834e3a8363ea9, 0x96ebdc9b4323e744,
-                0xa37f8452de118fdf, 0xb0132c0a78ff387a, 0xbca6d3c213ece115, 0xc93a7b79aeda89b0,
-                0xd5ce233149c8324b, 0xe261cae8e4b5dae6, 0xeef572a07fa38381, 0xfb891a581a912c1c,
-                0x81cc20fb57ed4b7, 0x14b069c7506c7d52, 0x2144117eeb5a25ed, 0x2dd7b9368647ce88,
-                0x3a6b60ee21357723,
-            ],
-        );
-        assert!(
-            out
-                .span() == [
-                    0x9a55f58818107b8b, 0x9c237535940baf72, 0xbd0c324152d6220d, 0x9da8569ccdb5dd3a,
-                    0xf0d46ce0f516f6ef, 0x53e71ddc3d52f807, 0xf4607b43da76737, 0x335f9806c8093c30,
-                    0xb7fe91f3443df64, 0xa8daf764a67c5b2d, 0xc4d14662ca484e1d, 0xce05173999243243,
-                    0xce0794b41ae88376, 0x58bc49864db0750d, 0x95e1762981b2c986, 0xe589329e740f147,
-                    0x43a283a94c4c4392, 0x48b1b58973e61ee2, 0x32d7ccb6f0dd477b, 0x7d5ca23bf2b6a73,
-                    0x69dd5a92ff95434d, 0x8d7da9e66673bf7a, 0x28df10e4105aab86, 0xae75fe0245d5b0de,
-                    0xf6e32cdf7679c422,
-                ]
-                .span(),
-        );
-    }
-    #[test]
-    fn test_keccak_f_vector_3_falcon_512_shake() {
-        let out = keccak_f1600(
-            [
-                0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff,
-                0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff,
-                0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff,
-                0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff,
-                0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff,
-                0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff,
-                0xffffffffffffffff,
-            ],
-        );
-        assert!(
-            out
-                .span() == [
-                    0x9f00f21bba6817c4, 0xcdf5aa0d21af5e78, 0xd6539abf24095b97, 0x8bb6f30a010f8228,
-                    0xf0f711ba0547331d, 0x4f44330558eb182f, 0x2213b79d9055207c, 0xeb5e5b55ca4fb490,
-                    0xbfaeb81a299b5d4, 0x9e5d924f1a65ed48, 0x4650c533b7bfb3, 0xddad454b84d7ab05,
-                    0xf03ce56503e82921, 0xce442e92c6728660, 0x1a9ce5e4b37ddcd3, 0xf63b60e27cea6f0e,
-                    0xcc4cc7fca665bfad, 0x40cf4eba54a2285d, 0x2725f1f142304213, 0x554d327de6fbad9b,
-                    0x19866a26cbc8bdc2, 0xe8c3c28faf02c7f5, 0xc6bc1f3512a665ae, 0xcaa831f1a5dc86ce,
-                    0x3f82afe91ca4b9b0,
-                ]
-                .span(),
-        );
-    }
-    #[test]
-    fn test_keccak_f_iterated_falcon_512_shake() {
-        let mut s: [u128; 25] = [0; 25];
-        let mut i: u32 = 0;
-        while i < 5 {
-            s = keccak_f1600(s);
-            i += 1;
-        }
-        assert!(
-            s
-                .span() == [
-                    0xc9f309ff271c6631, 0x9281c8b3825841b4, 0x2219cb1928ca14c4, 0xf50d1d2ae140281a,
-                    0xf0a33a68985b6934, 0xd8a79767500429f6, 0xbe55a8fff0767faf, 0xbc2a9530cca9d7a8,
-                    0x7e7947debc81b851, 0x772429b40aa052a8, 0x58f891e79ce86365, 0x3110152cadf8860f,
-                    0x7f6f0628bda22d08, 0xa89fb4db4293cc0a, 0x390bca6688ab09be, 0xfadcbb8bbbedce4b,
-                    0x2d78a388460c4a73, 0xe692f192c06ea9ae, 0x909de0d99f0083f0, 0x76773fcdc7e9d261,
-                    0x344d00ae9d02c853, 0x9d85cb92ef2a6155, 0xa1a8ecf6537e0b3, 0xa6da3fb1f1688e95,
-                    0xcfe9307b7db8bed0,
-                ]
-                .span(),
-        );
-    }
+impl ShiftRot4 of MulHelper<Rot4Rest, UnitInt<16>> {
+    type Result = Rot4Shifted;
 }
-
-type QR4 = BoundedInt<0, 0xfffffffffffffff>;
-type QT4 = BoundedInt<0, 0xf>;
-type QP4 = BoundedInt<0, 0xfffffffffffffff0>;
-impl QDR4 of DivRemHelper<Lane, UnitInt<0x1000000000000000>> {
-    type DivT = QT4;
-    type RemT = QR4;
-}
-impl QMR4 of MulHelper<QR4, UnitInt<16>> {
-    type Result = QP4;
-}
-impl QAR4 of AddHelper<QP4, QT4> {
+impl MergeRot4 of AddHelper<Rot4Shifted, Rot4Top> {
     type Result = Lane;
 }
 const M4: UnitInt<16> = 16;
-type QR13 = BoundedInt<0, 0x7ffffffffffff>;
-type QT13 = BoundedInt<0, 0x1fff>;
-type QP13 = BoundedInt<0, 0xffffffffffffe000>;
-impl QDR13 of DivRemHelper<Lane, UnitInt<0x8000000000000>> {
-    type DivT = QT13;
-    type RemT = QR13;
+type Rot13Rest = BoundedInt<0, 0x7ffffffffffff>;
+type Rot13Top = BoundedInt<0, 0x1fff>;
+type Rot13Shifted = BoundedInt<0, 0xffffffffffffe000>;
+impl SplitRot13 of DivRemHelper<Lane, UnitInt<0x8000000000000>> {
+    type DivT = Rot13Top;
+    type RemT = Rot13Rest;
 }
-impl QMR13 of MulHelper<QR13, UnitInt<8192>> {
-    type Result = QP13;
+impl ShiftRot13 of MulHelper<Rot13Rest, UnitInt<8192>> {
+    type Result = Rot13Shifted;
 }
-impl QAR13 of AddHelper<QP13, QT13> {
+impl MergeRot13 of AddHelper<Rot13Shifted, Rot13Top> {
     type Result = Lane;
 }
 const M13: UnitInt<8192> = 8192;
-type QR19 = BoundedInt<0, 0x1fffffffffff>;
-type QT19 = BoundedInt<0, 0x7ffff>;
-type QP19 = BoundedInt<0, 0xfffffffffff80000>;
-impl QDR19 of DivRemHelper<Lane, UnitInt<0x200000000000>> {
-    type DivT = QT19;
-    type RemT = QR19;
+type Rot19Rest = BoundedInt<0, 0x1fffffffffff>;
+type Rot19Top = BoundedInt<0, 0x7ffff>;
+type Rot19Shifted = BoundedInt<0, 0xfffffffffff80000>;
+impl SplitRot19 of DivRemHelper<Lane, UnitInt<0x200000000000>> {
+    type DivT = Rot19Top;
+    type RemT = Rot19Rest;
 }
-impl QMR19 of MulHelper<QR19, UnitInt<524288>> {
-    type Result = QP19;
+impl ShiftRot19 of MulHelper<Rot19Rest, UnitInt<524288>> {
+    type Result = Rot19Shifted;
 }
-impl QAR19 of AddHelper<QP19, QT19> {
+impl MergeRot19 of AddHelper<Rot19Shifted, Rot19Top> {
     type Result = Lane;
 }
 const M19: UnitInt<524288> = 524288;
-type QR37 = BoundedInt<0, 0x7ffffff>;
-type QT37 = BoundedInt<0, 0x1fffffffff>;
-type QP37 = BoundedInt<0, 0xffffffe000000000>;
-impl QDR37 of DivRemHelper<Lane, UnitInt<0x8000000>> {
-    type DivT = QT37;
-    type RemT = QR37;
+type Rot37Rest = BoundedInt<0, 0x7ffffff>;
+type Rot37Top = BoundedInt<0, 0x1fffffffff>;
+type Rot37Shifted = BoundedInt<0, 0xffffffe000000000>;
+impl SplitRot37 of DivRemHelper<Lane, UnitInt<0x8000000>> {
+    type DivT = Rot37Top;
+    type RemT = Rot37Rest;
 }
-impl QMR37 of MulHelper<QR37, UnitInt<137438953472>> {
-    type Result = QP37;
+impl ShiftRot37 of MulHelper<Rot37Rest, UnitInt<137438953472>> {
+    type Result = Rot37Shifted;
 }
-impl QAR37 of AddHelper<QP37, QT37> {
+impl MergeRot37 of AddHelper<Rot37Shifted, Rot37Top> {
     type Result = Lane;
 }
 const M37: UnitInt<137438953472> = 137438953472;
-type QR42 = BoundedInt<0, 0x3fffff>;
-type QT42 = BoundedInt<0, 0x3ffffffffff>;
-type QP42 = BoundedInt<0, 0xfffffc0000000000>;
-impl QDR42 of DivRemHelper<Lane, UnitInt<0x400000>> {
-    type DivT = QT42;
-    type RemT = QR42;
+type Rot42Rest = BoundedInt<0, 0x3fffff>;
+type Rot42Top = BoundedInt<0, 0x3ffffffffff>;
+type Rot42Shifted = BoundedInt<0, 0xfffffc0000000000>;
+impl SplitRot42 of DivRemHelper<Lane, UnitInt<0x400000>> {
+    type DivT = Rot42Top;
+    type RemT = Rot42Rest;
 }
-impl QMR42 of MulHelper<QR42, UnitInt<4398046511104>> {
-    type Result = QP42;
+impl ShiftRot42 of MulHelper<Rot42Rest, UnitInt<4398046511104>> {
+    type Result = Rot42Shifted;
 }
-impl QAR42 of AddHelper<QP42, QT42> {
+impl MergeRot42 of AddHelper<Rot42Shifted, Rot42Top> {
     type Result = Lane;
 }
 const M42: UnitInt<4398046511104> = 4398046511104;
-type QR54 = BoundedInt<0, 0x3ff>;
-type QT54 = BoundedInt<0, 0x3fffffffffffff>;
-type QP54 = BoundedInt<0, 0xffc0000000000000>;
-impl QDR54 of DivRemHelper<Lane, UnitInt<0x400>> {
-    type DivT = QT54;
-    type RemT = QR54;
+type Rot54Rest = BoundedInt<0, 0x3ff>;
+type Rot54Top = BoundedInt<0, 0x3fffffffffffff>;
+type Rot54Shifted = BoundedInt<0, 0xffc0000000000000>;
+impl SplitRot54 of DivRemHelper<Lane, UnitInt<0x400>> {
+    type DivT = Rot54Top;
+    type RemT = Rot54Rest;
 }
-impl QMR54 of MulHelper<QR54, UnitInt<18014398509481984>> {
-    type Result = QP54;
+impl ShiftRot54 of MulHelper<Rot54Rest, UnitInt<18014398509481984>> {
+    type Result = Rot54Shifted;
 }
-impl QAR54 of AddHelper<QP54, QT54> {
+impl MergeRot54 of AddHelper<Rot54Shifted, Rot54Top> {
     type Result = Lane;
 }
 const M54: UnitInt<18014398509481984> = 18014398509481984;
-type QR60 = BoundedInt<0, 0xf>;
-type QT60 = BoundedInt<0, 0xfffffffffffffff>;
-type QP60 = BoundedInt<0, 0xf000000000000000>;
-impl QDR60 of DivRemHelper<Lane, UnitInt<0x10>> {
-    type DivT = QT60;
-    type RemT = QR60;
+type Rot60Rest = BoundedInt<0, 0xf>;
+type Rot60Top = BoundedInt<0, 0xfffffffffffffff>;
+type Rot60Shifted = BoundedInt<0, 0xf000000000000000>;
+impl SplitRot60 of DivRemHelper<Lane, UnitInt<0x10>> {
+    type DivT = Rot60Top;
+    type RemT = Rot60Rest;
 }
-impl QMR60 of MulHelper<QR60, UnitInt<1152921504606846976>> {
-    type Result = QP60;
+impl ShiftRot60 of MulHelper<Rot60Rest, UnitInt<1152921504606846976>> {
+    type Result = Rot60Shifted;
 }
-impl QAR60 of AddHelper<QP60, QT60> {
+impl MergeRot60 of AddHelper<Rot60Shifted, Rot60Top> {
     type Result = Lane;
 }
 const M60: UnitInt<1152921504606846976> = 1152921504606846976;
@@ -2137,7 +1949,7 @@ fn theta_stage1(
     let d31 = x20 ^ rd42;
     let n31 = not128(d31, k.mask128);
     let (a10, a12) = split_pair(e2 ^ n20, k.two64);
-    let (cq, crem) = bounded_int::div_rem(o0 ^ n31, k.two65);
+    let (cq, crem) = div_rem(o0 ^ n31, k.two65);
     let (r0, a10, a03, a01) = rotl1_pair_split(c0, a10, cq, crem, k.mask64);
     let d4 = xor64(c3, r0);
     let dd4 = duplicate_lane(d4);
@@ -2323,8 +2135,8 @@ fn theta_last(
     let dk = not128(eD ^ kM, k.mask128);
     let (cO, cq) = split_pair(o3 ^ dk, k.two64);
     let ee = pair(c4, c1) ^ kL;
-    let (TWO_POW_63_UNIT, zm) = bounded_int::div_rem(e2 ^ ee, k.two65);
-    let (r0, cq, cJ, cL) = rotl1_pair_split(c0, cq, TWO_POW_63_UNIT, zm, k.mask64);
+    let (top63, zm) = div_rem(e2 ^ ee, k.two65);
+    let (r0, cq, cJ, cL) = rotl1_pair_split(c0, cq, top63, zm, k.mask64);
     let d4 = xor64(c3, r0);
     let dj = duplicate_lane(d4);
     let oO = not128(dj, k.mask128);
@@ -2369,10 +2181,10 @@ fn theta_last(
 }
 type LaneHigh = BoundedInt<0x8000000000000000, 0xffffffffffffffff>;
 const TWO_POW_65_NZ: UnitInt<0x20000000000000000> = 0x20000000000000000;
-impl QA1 of AddHelper<LaneLow, LaneLow> {
+impl DoubleLaneLow of AddHelper<LaneLow, LaneLow> {
     type Result = LaneEven;
 }
-impl QA2 of AddHelper<LaneHigh, LaneHigh> {
+impl DoubleLaneHigh of AddHelper<LaneHigh, LaneHigh> {
     type Result = BoundedInt<0x10000000000000000, 0x1fffffffffffffffe>;
 }
 const MASK_64: UnitInt<0xffffffffffffffff> = 0xffffffffffffffff;
@@ -2386,48 +2198,44 @@ fn split_top_bit(x: Lane) -> Result<LaneLow, LaneHigh> {
 }
 #[inline(always)]
 fn rotl1_pair_plain(a: LaneLow, b: LaneLow, bo: TwoPow65) -> u128 {
-    upcast(bounded_int::add(bounded_int::add(bounded_int::mul(b, bo), a), a))
+    upcast(add(add(mul(b, bo), a), a))
 }
 #[inline(always)]
 fn rotl1_pair_ll(a: LaneLow, b: LaneLow, bo: TwoPow65) -> u128 {
     let k: UnitInt<0> = 0;
-    upcast(bounded_int::add(bounded_int::sub(bounded_int::add(bounded_int::mul(b, bo), a), k), a))
+    upcast(add(sub(add(mul(b, bo), a), k), a))
 }
-impl Z0S of SubHelper<BoundedInt<0, 0xfffffffffffffffe7fffffffffffffff>, UnitInt<0>> {
+impl Rotl1WrapLl of SubHelper<BoundedInt<0, 0xfffffffffffffffe7fffffffffffffff>, UnitInt<0>> {
     type Result = BoundedInt<0, 0xfffffffffffffffe7fffffffffffffff>;
 }
 #[inline(always)]
 fn rotl1_pair_lh(a: LaneLow, b: LaneHigh, bo: TwoPow65) -> u128 {
     let k: UnitInt<0xffffffffffffffff0000000000000000> = 0xffffffffffffffff0000000000000000;
-    upcast(bounded_int::add(bounded_int::sub(bounded_int::add(bounded_int::mul(b, bo), a), k), a))
+    upcast(add(sub(add(mul(b, bo), a), k), a))
 }
 #[inline(always)]
 fn rotl1_pair_hl(a: LaneHigh, b: LaneLow, bo: TwoPow65, m64: Mask64) -> u128 {
-    upcast(bounded_int::add(bounded_int::sub(bounded_int::add(bounded_int::mul(b, bo), a), m64), a))
+    upcast(add(sub(add(mul(b, bo), a), m64), a))
 }
 #[inline(always)]
 fn rotl1_pair_hh(a: LaneHigh, b: LaneHigh, bo: TwoPow65, mask128_full: Mask128) -> u128 {
-    upcast(
-        bounded_int::add(
-            bounded_int::sub(bounded_int::add(bounded_int::mul(b, bo), a), mask128_full), a,
-        ),
-    )
+    upcast(add(sub(add(mul(b, bo), a), mask128_full), a))
 }
 #[inline(always)]
 fn rotl1_plain(x: LaneLow) -> Lane {
-    upcast(bounded_int::add(x, x))
+    upcast(add(x, x))
 }
 #[inline(always)]
 fn rotl1_low(x: LaneLow) -> Lane {
     let k: UnitInt<0> = 0;
-    upcast(bounded_int::sub(bounded_int::add(x, x), k))
+    upcast(sub(add(x, x), k))
 }
-impl ZR0S of SubHelper<LaneEven, UnitInt<0>> {
+impl Rotl1WrapLaneLow of SubHelper<LaneEven, UnitInt<0>> {
     type Result = LaneEven;
 }
 #[inline(always)]
 fn rotl1_high(x: LaneHigh, m64: Mask64) -> Lane {
-    upcast(bounded_int::sub(bounded_int::add(x, x), m64))
+    upcast(sub(add(x, x), m64))
 }
 /// Rotates four lanes (two pairs) left by one arithmetically: doubling shifts
 /// every bit up and each constrained top bit wraps to bit zero; the match arms
@@ -2504,10 +2312,7 @@ fn rotl1_pair_split(
                     (rotl1_low(ya), rotl1_low(yb), o3, o1)
                 },
                 Err(lo) => {
-                    let (o3, o1) = (
-                        bounded_int::sub(lo, TWO_POW_64_UNIT),
-                        upcast(bounded_int::add(cq, TWO_POW_63_UNIT)),
-                    );
+                    let (o3, o1) = (sub(lo, TWO_POW_64_UNIT), upcast(add(cq, TWO_POW_63_UNIT)));
                     (rotl1_low(ya), rotl1_low(yb), o3, o1)
                 },
             },
@@ -2517,10 +2322,7 @@ fn rotl1_pair_split(
                     (rotl1_low(ya), rotl1_high(yb, m64), o3, o1)
                 },
                 Err(lo) => {
-                    let (o3, o1) = (
-                        bounded_int::sub(lo, TWO_POW_64_UNIT),
-                        upcast(bounded_int::add(cq, TWO_POW_63_UNIT)),
-                    );
+                    let (o3, o1) = (sub(lo, TWO_POW_64_UNIT), upcast(add(cq, TWO_POW_63_UNIT)));
                     (rotl1_low(ya), rotl1_high(yb, m64), o3, o1)
                 },
             },
@@ -2532,10 +2334,7 @@ fn rotl1_pair_split(
                     (rotl1_high(ya, m64), rotl1_low(yb), o3, o1)
                 },
                 Err(lo) => {
-                    let (o3, o1) = (
-                        bounded_int::sub(lo, TWO_POW_64_UNIT),
-                        upcast(bounded_int::add(cq, TWO_POW_63_UNIT)),
-                    );
+                    let (o3, o1) = (sub(lo, TWO_POW_64_UNIT), upcast(add(cq, TWO_POW_63_UNIT)));
                     (rotl1_high(ya, m64), rotl1_low(yb), o3, o1)
                 },
             },
@@ -2545,13 +2344,352 @@ fn rotl1_pair_split(
                     (rotl1_high(ya, m64), rotl1_high(yb, m64), o3, o1)
                 },
                 Err(lo) => {
-                    let (o3, o1) = (
-                        bounded_int::sub(lo, TWO_POW_64_UNIT),
-                        upcast(bounded_int::add(cq, TWO_POW_63_UNIT)),
-                    );
+                    let (o3, o1) = (sub(lo, TWO_POW_64_UNIT), upcast(add(cq, TWO_POW_63_UNIT)));
                     (rotl1_high(ya, m64), rotl1_high(yb, m64), o3, o1)
                 },
             },
         },
+    }
+}
+
+
+/// Instantiates every `rot_generic` offset with the production divisor table. The
+/// call sites live in this module so impl resolution matches the round functions'.
+#[cfg(test)]
+fn generic_rotations(x: Lane, k: RotConstants) -> Array<(u32, Lane)> {
+    let m4: UnitInt<16> = 16;
+    let m11: UnitInt<2048> = 2048;
+    let m12: UnitInt<4096> = 4096;
+    let m13: UnitInt<8192> = 8192;
+    let m16: UnitInt<65536> = 65536;
+    let m17: UnitInt<131072> = 131072;
+    let m19: UnitInt<524288> = 524288;
+    let m22: UnitInt<4194304> = 4194304;
+    let m23: UnitInt<8388608> = 8388608;
+    let m26: UnitInt<67108864> = 67108864;
+    let m30: UnitInt<1073741824> = 1073741824;
+    let m34: UnitInt<17179869184> = 17179869184;
+    let m35: UnitInt<34359738368> = 34359738368;
+    let m37: UnitInt<137438953472> = 137438953472;
+    let m38: UnitInt<274877906944> = 274877906944;
+    let m40: UnitInt<1099511627776> = 1099511627776;
+    let m42: UnitInt<4398046511104> = 4398046511104;
+    let m47: UnitInt<140737488355328> = 140737488355328;
+    let m48: UnitInt<281474976710656> = 281474976710656;
+    let m53: UnitInt<9007199254740992> = 9007199254740992;
+    let m54: UnitInt<18014398509481984> = 18014398509481984;
+    let m59: UnitInt<576460752303423488> = 576460752303423488;
+    let m60: UnitInt<1152921504606846976> = 1152921504606846976;
+    array![
+        (4, rot_generic(x, k.rd4, m4)), (11, rot_generic(x, k.rd11, m11)),
+        (12, rot_generic(x, k.rd12, m12)), (13, rot_generic(x, k.rd13, m13)),
+        (16, rot_generic(x, k.rd16, m16)), (17, rot_generic(x, k.rd17, m17)),
+        (19, rot_generic(x, k.rd19, m19)), (22, rot_generic(x, k.rd22, m22)),
+        (23, rot_generic(x, k.rd23, m23)), (26, rot_generic(x, k.rd26, m26)),
+        (30, rot_generic(x, k.rd30, m30)), (34, rot_generic(x, k.rd34, m34)),
+        (35, rot_generic(x, k.rd35, m35)), (37, rot_generic(x, k.rd37, m37)),
+        (38, rot_generic(x, k.rd38, m38)), (40, rot_generic(x, k.rd40, m40)),
+        (42, rot_generic(x, k.rd42, m42)), (47, rot_generic(x, k.rd47, m47)),
+        (48, rot_generic(x, k.rd48, m48)), (53, rot_generic(x, k.rd53, m53)),
+        (54, rot_generic(x, k.rd54, m54)), (59, rot_generic(x, k.rd59, m59)),
+        (60, rot_generic(x, k.rd60, m60)),
+    ]
+}
+
+#[cfg(test)]
+mod tests {
+    use openzeppelin_corelib_imports::bounded_int::{downcast, upcast};
+    use super::{
+        Lane, MASK_128, MASK_64, TWO_POW_65_NZ, generic_rotations, rot18, rot20, rot21, rot25,
+        rot28, rot39, rot41, rot43, rot45, rot56, rot6, rot61, rot62, rot8, rot_constants,
+        rotl1_lane_and_pair, rotl1_two_pairs, shake256,
+    };
+
+    fn lane_of(x: u128) -> Lane {
+        downcast(x).unwrap()
+    }
+
+    fn pow2(n: u32) -> u256 {
+        let mut r: u256 = 1;
+        let mut i = 0;
+        while i != n {
+            r = r * 2;
+            i += 1;
+        }
+        r
+    }
+
+    /// Left-rotation reference over plain integers.
+    fn rot_ref(x: u128, n: u32) -> u128 {
+        let w: u256 = x.into();
+        ((w * pow2(n)) % pow2(64) + w / pow2(64 - n)).try_into().unwrap()
+    }
+
+    fn rot1_pair_ref(a: u128, b: u128) -> u128 {
+        let paired = rot_ref(a, 1).into() + rot_ref(b, 1).into() * 0x10000000000000000_u256;
+        paired.try_into().unwrap()
+    }
+
+    // 0, 1, both split_top_bit halves at their extremes, and asymmetric patterns.
+    const ROT_INPUTS: [u128; 6] = [
+        0, 1, 0x8000000000000000, 0xffffffffffffffff, 0x0123456789abcdef, 0xfedcba9876543210,
+    ];
+
+    #[test]
+    fn test_rotations_match_u128_reference_for_all_offsets() {
+        let k = rot_constants();
+        for value in ROT_INPUTS.span() {
+            let x = *value;
+            let r: u128 = upcast(rot6(lane_of(x), k.rd6));
+            assert_eq!(r, rot_ref(x, 6));
+            let r: u128 = upcast(rot8(lane_of(x), k.rd8));
+            assert_eq!(r, rot_ref(x, 8));
+            let r: u128 = upcast(rot18(lane_of(x), k.rd18));
+            assert_eq!(r, rot_ref(x, 18));
+            let r: u128 = upcast(rot20(lane_of(x), k.rd20));
+            assert_eq!(r, rot_ref(x, 20));
+            let r: u128 = upcast(rot21(lane_of(x), k.rd21));
+            assert_eq!(r, rot_ref(x, 21));
+            let r: u128 = upcast(rot25(lane_of(x), k.rd25));
+            assert_eq!(r, rot_ref(x, 25));
+            let r: u128 = upcast(rot28(lane_of(x), k.rd28));
+            assert_eq!(r, rot_ref(x, 28));
+            let r: u128 = upcast(rot39(lane_of(x), k.rd39));
+            assert_eq!(r, rot_ref(x, 39));
+            let r: u128 = upcast(rot41(lane_of(x), k.rd41));
+            assert_eq!(r, rot_ref(x, 41));
+            let r: u128 = upcast(rot43(lane_of(x), k.rd43));
+            assert_eq!(r, rot_ref(x, 43));
+            let r: u128 = upcast(rot45(lane_of(x), k.rd45));
+            assert_eq!(r, rot_ref(x, 45));
+            let r: u128 = upcast(rot56(lane_of(x), k.rd56));
+            assert_eq!(r, rot_ref(x, 56));
+            let r: u128 = upcast(rot61(lane_of(x), k.rd61));
+            assert_eq!(r, rot_ref(x, 61));
+            let r: u128 = upcast(rot62(lane_of(x), k.rd62));
+            assert_eq!(r, rot_ref(x, 62));
+            for entry in generic_rotations(lane_of(x), k).span() {
+                let (n, rotated) = *entry;
+                let rotated: u128 = upcast(rotated);
+                assert_eq!(rotated, rot_ref(x, n));
+            }
+        }
+    }
+
+    #[test]
+    fn test_rotl1_covers_every_top_bit_combination() {
+        let options: [u128; 2] = [0x0123456789abcdef, 0x89abcdef01234567];
+        for c0 in options.span() {
+            for ca in options.span() {
+                for cb in options.span() {
+                    let (r, pair) = rotl1_lane_and_pair(
+                        lane_of(*c0), lane_of(*ca), lane_of(*cb), TWO_POW_65_NZ, MASK_64, MASK_128,
+                    );
+                    let r: u128 = upcast(r);
+                    assert_eq!(r, rot_ref(*c0, 1));
+                    assert_eq!(pair, rot1_pair_ref(*ca, *cb));
+                }
+            }
+        }
+        for ca in options.span() {
+            for cb in options.span() {
+                for cc in options.span() {
+                    for cd in options.span() {
+                        let (p0, p1) = rotl1_two_pairs(
+                            lane_of(*ca),
+                            lane_of(*cb),
+                            lane_of(*cc),
+                            lane_of(*cd),
+                            TWO_POW_65_NZ,
+                            MASK_64,
+                            MASK_128,
+                        );
+                        assert_eq!(p0, rot1_pair_ref(*ca, *cb));
+                        assert_eq!(p1, rot1_pair_ref(*cc, *cd));
+                    }
+                }
+            }
+        }
+    }
+
+    fn to_hex(bytes: Array<u8>) -> ByteArray {
+        let hexchars: ByteArray = "0123456789abcdef";
+        let mut s: ByteArray = "";
+        let mut span = bytes.span();
+        while let Some(b) = span.pop_front() {
+            s.append_byte(hexchars.at((*b / 16).into()).unwrap());
+            s.append_byte(hexchars.at((*b % 16).into()).unwrap());
+        }
+        s
+    }
+
+    // KAT vectors from Python `hashlib.shake_256` (FIPS 202).
+    #[test]
+    fn test_shake256_empty() {
+        let got = to_hex(shake256(array![], 32));
+        assert!(got == "46b9dd2b0ba88d13233b3feb743eeb243fcd52ea62b81b82b50c27646ed5762f");
+    }
+
+    #[test]
+    fn test_shake256_abc() {
+        let got = to_hex(shake256(array![0x61, 0x62, 0x63], 32));
+        assert!(got == "483366601360a8771c6863080cc4114d8db44530f8f1e1ee4f94ea37e78b5739");
+    }
+
+    // 200 bytes of 0xA3: a 2-block absorb (input > 136-byte rate). NIST SHAKE-256 vector.
+    #[test]
+    fn test_shake256_multiblock() {
+        let mut input: Array<u8> = array![];
+        let mut i = 0;
+        while i != 200_u32 {
+            input.append(0xa3);
+            i += 1;
+        }
+        let got = to_hex(shake256(input, 32));
+        assert!(got == "cd8a920ed141aa0407a22d59288652e9d9f1a7ee0c1e7c1ca699424da84a904d");
+    }
+
+    // Squeeze past one rate block (137 bytes > 136): exercises the squeeze-side
+    // permutation. Tail bytes from Python `hashlib.shake_256(b"abc").hexdigest(137)`.
+    #[test]
+    fn test_shake256_multiblock_squeeze() {
+        let out = shake256(array![0x61, 0x62, 0x63], 137);
+        assert_eq!(out.len(), 137);
+        // First bytes match the 32-byte KAT above.
+        assert_eq!(*out.at(0), 0x48);
+        assert_eq!(*out.at(1), 0x33);
+        // Bytes 128.. of the stream: e8 a2 d7 ec 71 a7 cc 29 cf (last is out[136]).
+        let tail: [u8; 9] = [0xe8, 0xa2, 0xd7, 0xec, 0x71, 0xa7, 0xcc, 0x29, 0xcf];
+        let mut i: u32 = 128;
+        for expected in tail.span() {
+            assert_eq!(*out.at(i), *expected);
+            i += 1;
+        }
+    }
+}
+#[cfg(test)]
+mod keccak_f_vectors {
+    use super::keccak_f1600;
+    #[test]
+    fn test_keccak_f_vector_0_falcon_512_shake() {
+        let out = keccak_f1600(
+            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+        );
+        assert!(
+            out
+                .span() == [
+                    0xf1258f7940e1dde7, 0x84d5ccf933c0478a, 0xd598261ea65aa9ee, 0xbd1547306f80494d,
+                    0x8b284e056253d057, 0xff97a42d7f8e6fd4, 0x90fee5a0a44647c4, 0x8c5bda0cd6192e76,
+                    0xad30a6f71b19059c, 0x30935ab7d08ffc64, 0xeb5aa93f2317d635, 0xa9a6e6260d712103,
+                    0x81a57c16dbcf555f, 0x43b831cd0347c826, 0x1f22f1a11a5569f, 0x5e5635a21d9ae61,
+                    0x64befef28cc970f2, 0x613670957bc46611, 0xb87c5a554fd00ecb, 0x8c3ee88a1ccf32c8,
+                    0x940c7922ae3a2614, 0x1841f924a2c509e4, 0x16f53526e70465c2, 0x75f644e97f30a13b,
+                    0xeaf1ff7b5ceca249,
+                ]
+                .span(),
+        );
+    }
+    #[test]
+    fn test_keccak_f_vector_1_falcon_512_shake() {
+        let out = keccak_f1600(
+            [
+                0xf1258f7940e1dde7, 0x84d5ccf933c0478a, 0xd598261ea65aa9ee, 0xbd1547306f80494d,
+                0x8b284e056253d057, 0xff97a42d7f8e6fd4, 0x90fee5a0a44647c4, 0x8c5bda0cd6192e76,
+                0xad30a6f71b19059c, 0x30935ab7d08ffc64, 0xeb5aa93f2317d635, 0xa9a6e6260d712103,
+                0x81a57c16dbcf555f, 0x43b831cd0347c826, 0x1f22f1a11a5569f, 0x5e5635a21d9ae61,
+                0x64befef28cc970f2, 0x613670957bc46611, 0xb87c5a554fd00ecb, 0x8c3ee88a1ccf32c8,
+                0x940c7922ae3a2614, 0x1841f924a2c509e4, 0x16f53526e70465c2, 0x75f644e97f30a13b,
+                0xeaf1ff7b5ceca249,
+            ],
+        );
+        assert!(
+            out
+                .span() == [
+                    0x2d5c954df96ecb3c, 0x6a332cd07057b56d, 0x93d8d1270d76b6c, 0x8a20d9b25569d094,
+                    0x4f9c4f99e5e7f156, 0xf957b9a2da65fb38, 0x85773dae1275af0d, 0xfaf4f247c3d810f7,
+                    0x1f1b9ee6f79a8759, 0xe4fecc0fee98b425, 0x68ce61b6b9ce68a1, 0xdeea66c4ba8f974f,
+                    0x33c43d836eafb1f5, 0xe00654042719dbd9, 0x7cf8a9f009831265, 0xfd5449a6bf174743,
+                    0x97ddad33d8994b40, 0x48ead5fc5d0be774, 0xe3b8c8ee55b7b03c, 0x91a0226e649e42e9,
+                    0x900e3129e7badd7b, 0x202a9ec5faa3cce8, 0x5b3402464e1c3db6, 0x609f4e62a44c1059,
+                    0x20d06cd26a8fbf5c,
+                ]
+                .span(),
+        );
+    }
+    #[test]
+    fn test_keccak_f_vector_2_falcon_512_shake() {
+        let out = keccak_f1600(
+            [
+                0xc93a7b79aeda89b, 0x19274f6f35db5136, 0x25baf726d0c8f9d1, 0x324e9ede6bb6a26c,
+                0x3ee2469606a44b07, 0x4b75ee4da191f3a2, 0x580996053c7f9c3d, 0x649d3dbcd76d44d8,
+                0x7130e574725aed73, 0x7dc48d2c0d48960e, 0x8a5834e3a8363ea9, 0x96ebdc9b4323e744,
+                0xa37f8452de118fdf, 0xb0132c0a78ff387a, 0xbca6d3c213ece115, 0xc93a7b79aeda89b0,
+                0xd5ce233149c8324b, 0xe261cae8e4b5dae6, 0xeef572a07fa38381, 0xfb891a581a912c1c,
+                0x81cc20fb57ed4b7, 0x14b069c7506c7d52, 0x2144117eeb5a25ed, 0x2dd7b9368647ce88,
+                0x3a6b60ee21357723,
+            ],
+        );
+        assert!(
+            out
+                .span() == [
+                    0x9a55f58818107b8b, 0x9c237535940baf72, 0xbd0c324152d6220d, 0x9da8569ccdb5dd3a,
+                    0xf0d46ce0f516f6ef, 0x53e71ddc3d52f807, 0xf4607b43da76737, 0x335f9806c8093c30,
+                    0xb7fe91f3443df64, 0xa8daf764a67c5b2d, 0xc4d14662ca484e1d, 0xce05173999243243,
+                    0xce0794b41ae88376, 0x58bc49864db0750d, 0x95e1762981b2c986, 0xe589329e740f147,
+                    0x43a283a94c4c4392, 0x48b1b58973e61ee2, 0x32d7ccb6f0dd477b, 0x7d5ca23bf2b6a73,
+                    0x69dd5a92ff95434d, 0x8d7da9e66673bf7a, 0x28df10e4105aab86, 0xae75fe0245d5b0de,
+                    0xf6e32cdf7679c422,
+                ]
+                .span(),
+        );
+    }
+    #[test]
+    fn test_keccak_f_vector_3_falcon_512_shake() {
+        let out = keccak_f1600(
+            [
+                0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff,
+                0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff,
+                0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff,
+                0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff,
+                0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff,
+                0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff, 0xffffffffffffffff,
+                0xffffffffffffffff,
+            ],
+        );
+        assert!(
+            out
+                .span() == [
+                    0x9f00f21bba6817c4, 0xcdf5aa0d21af5e78, 0xd6539abf24095b97, 0x8bb6f30a010f8228,
+                    0xf0f711ba0547331d, 0x4f44330558eb182f, 0x2213b79d9055207c, 0xeb5e5b55ca4fb490,
+                    0xbfaeb81a299b5d4, 0x9e5d924f1a65ed48, 0x4650c533b7bfb3, 0xddad454b84d7ab05,
+                    0xf03ce56503e82921, 0xce442e92c6728660, 0x1a9ce5e4b37ddcd3, 0xf63b60e27cea6f0e,
+                    0xcc4cc7fca665bfad, 0x40cf4eba54a2285d, 0x2725f1f142304213, 0x554d327de6fbad9b,
+                    0x19866a26cbc8bdc2, 0xe8c3c28faf02c7f5, 0xc6bc1f3512a665ae, 0xcaa831f1a5dc86ce,
+                    0x3f82afe91ca4b9b0,
+                ]
+                .span(),
+        );
+    }
+    #[test]
+    fn test_keccak_f_iterated_falcon_512_shake() {
+        let mut s: [u128; 25] = [0; 25];
+        let mut i: u32 = 0;
+        while i < 5 {
+            s = keccak_f1600(s);
+            i += 1;
+        }
+        assert!(
+            s
+                .span() == [
+                    0xc9f309ff271c6631, 0x9281c8b3825841b4, 0x2219cb1928ca14c4, 0xf50d1d2ae140281a,
+                    0xf0a33a68985b6934, 0xd8a79767500429f6, 0xbe55a8fff0767faf, 0xbc2a9530cca9d7a8,
+                    0x7e7947debc81b851, 0x772429b40aa052a8, 0x58f891e79ce86365, 0x3110152cadf8860f,
+                    0x7f6f0628bda22d08, 0xa89fb4db4293cc0a, 0x390bca6688ab09be, 0xfadcbb8bbbedce4b,
+                    0x2d78a388460c4a73, 0xe692f192c06ea9ae, 0x909de0d99f0083f0, 0x76773fcdc7e9d261,
+                    0x344d00ae9d02c853, 0x9d85cb92ef2a6155, 0xa1a8ecf6537e0b3, 0xa6da3fb1f1688e95,
+                    0xcfe9307b7db8bed0,
+                ]
+                .span(),
+        );
     }
 }

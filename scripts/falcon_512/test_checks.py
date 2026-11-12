@@ -98,12 +98,16 @@ class ResourceTests(unittest.TestCase):
 
     def test_each_budget_rejects_overflow_and_empty_artifacts(self):
         for name, limit in BUDGETS.items():
-            for bad_value in (limit + 1, 0):
-                with self.subTest(name=name, bad_value=bad_value):
-                    values = dict(BUDGETS)
-                    values[name] = bad_value
-                    with self.assertRaises(ValueError):
-                        validate_sizes(values)
+            with self.subTest(name=name, bad_value=limit + 1):
+                values = dict(BUDGETS)
+                values[name] = limit + 1
+                with self.assertRaisesRegex(ValueError, "budget"):
+                    validate_sizes(values)
+            with self.subTest(name=name, bad_value=0):
+                values = dict(BUDGETS)
+                values[name] = 0
+                with self.assertRaisesRegex(ValueError, "empty"):
+                    validate_sizes(values)
 
     def test_protocol_limits_are_checked_before_budgets(self):
         for name, cap in (("sierra_felts", MAX_BYTECODE_FELTS),

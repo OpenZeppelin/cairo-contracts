@@ -585,7 +585,7 @@ class BoundedCairoOps:
         name = f"v{len(self.lines)}"
         # Explicit implementations keep Cairo's trait solver linear in the graph size.
         self.lines.append(
-            f"    let {name} = bounded_int::{operation}::<{key[1]}, {key[2]}, "
+            f"    let {name} = {operation}::<{key[1]}, {key[2]}, "
             f"{self.helpers[key][0]}>({left.name}, {right.name});"
         )
         return CairoValue(name, low, high)
@@ -618,7 +618,7 @@ def packed_bounds(outputs, shift, radix=PACKED_RADIX):
 
 def render_packed(tables, outputs, shift):
     radix = PACKED_RADIX
-    maximum, offset, difference_low, difference_high = packed_bounds(outputs, shift)
+    maximum, offset, difference_low, difference_high = packed_bounds(outputs, shift, radix)
     ops = BoundedCairoOps()
     input_max = (Q - 1) * (radix + 1)
     input_type = ops.type_for(0, input_max)
@@ -646,7 +646,7 @@ def render_packed(tables, outputs, shift):
     ])
     text += '''
 use openzeppelin_corelib_imports::bounded_int::{
-    BoundedInt, AddHelper, SubHelper, MulHelper, DivRemHelper, bounded_int, upcast,
+    AddHelper, BoundedInt, DivRemHelper, MulHelper, SubHelper, add, div_rem, mul, sub, upcast,
 };
 use crate::falcon_512::packing::PackingZq;
 '''
@@ -721,12 +721,12 @@ impl CheckDiv of DivRemHelper<CheckDifference, CheckDivisor> {{
 #[inline(always)]
 pub(crate) fn product_remainder(value: PackedOutput, key: u16) -> felt252 {{
     let divisor: NonZero<{radix_type}> = {radix};
-    let (b, a) = bounded_int::div_rem::<{output_type}, {radix_type}, Split>(value, divisor);
-    let product = bounded_int::mul::<{low_type}, u16, CheckMul>(a, key);
-    let shifted = bounded_int::add::<CheckProduct, CheckOffset, CheckAdd>(product, {offset});
-    let difference = bounded_int::sub::<CheckShifted, {high_type}, CheckSub>(shifted, b);
+    let (b, a) = div_rem::<{output_type}, {radix_type}, Split>(value, divisor);
+    let product = mul::<{low_type}, u16, CheckMul>(a, key);
+    let shifted = add::<CheckProduct, CheckOffset, CheckAdd>(product, {offset});
+    let difference = sub::<CheckShifted, {high_type}, CheckSub>(shifted, b);
     let q: NonZero<CheckDivisor> = {Q};
-    let (_, remainder) = bounded_int::div_rem::<CheckDifference, CheckDivisor, CheckDiv>(difference, q);
+    let (_, remainder) = div_rem::<CheckDifference, CheckDivisor, CheckDiv>(difference, q);
     upcast(remainder)
 }}
 '''

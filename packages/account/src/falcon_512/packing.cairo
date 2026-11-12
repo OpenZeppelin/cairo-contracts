@@ -99,15 +99,13 @@ pub fn unpack_512(packed: Span<felt252>) -> Option<Array<felt252>> {
 
 /// Unpacks the canonical 29-slot encoding directly into the verifier's `u16` form.
 /// Returns `None` on wrong length or any non-canonical slot encoding.
-#[inline(always)]
 pub(crate) fn unpack_512_u16(packed: Span<felt252>) -> Option<Array<u16>> {
-    PackingDecoder::unpack_512_as(packed)
+    unpack_512_as(packed)
 }
 
 /// Unpacks canonical coefficients while retaining the decoder's range proofs.
-#[inline(always)]
 pub(crate) fn unpack_512_zq(packed: Span<felt252>) -> Option<Array<PackingZq>> {
-    PackingDecoder::unpack_512_as(packed)
+    unpack_512_as(packed)
 }
 
 trait PackingConversion<T> {
@@ -128,96 +126,85 @@ impl PackingCanonical of PackingConversion<PackingZq> {
     }
 }
 
-trait PackingDecoder<T> {
-    fn unpack_512_as(packed: Span<felt252>) -> Option<Array<T>>;
-    fn unpack_full_slot_as(felt: felt252, ref coeffs: Array<T>) -> bool;
-    fn unpack_half9_as(value: u128, ref coeffs: Array<T>) -> bool;
-    fn unpack_half8_as(value: u128, ref coeffs: Array<T>) -> bool;
+fn unpack_512_as<T, +Drop<T>, +PackingConversion<T>>(packed: Span<felt252>) -> Option<Array<T>> {
+    if packed.len() != PACKED_SLOTS {
+        return None;
+    }
+    let mut coeffs: Array<T> = array![];
+    let mut full_slots = packed.slice(0, PACKED_SLOTS - 1);
+    while let Some(chunk) = full_slots.multi_pop_front::<7>() {
+        let [f0, f1, f2, f3, f4, f5, f6] = (*chunk).unbox();
+        if !unpack_full_slot_as(f0, ref coeffs)
+            || !unpack_full_slot_as(f1, ref coeffs)
+            || !unpack_full_slot_as(f2, ref coeffs)
+            || !unpack_full_slot_as(f3, ref coeffs)
+            || !unpack_full_slot_as(f4, ref coeffs)
+            || !unpack_full_slot_as(f5, ref coeffs)
+            || !unpack_full_slot_as(f6, ref coeffs) {
+            return None;
+        }
+    }
+    let last: u256 = (*packed.at(PACKED_SLOTS - 1)).into();
+    if last.high != 0 || !unpack_half8_as(last.low, ref coeffs) {
+        return None;
+    }
+    Some(coeffs)
 }
 
-impl PackingDecoderImpl<T, +Drop<T>, +PackingConversion<T>> of PackingDecoder<T> {
-    fn unpack_512_as(packed: Span<felt252>) -> Option<Array<T>> {
-        if packed.len() != PACKED_SLOTS {
-            return None;
-        }
-        let mut coeffs: Array<T> = array![];
-        let mut full_slots = packed.slice(0, PACKED_SLOTS - 1);
-        while let Some(chunk) = full_slots.multi_pop_front::<7>() {
-            let [f0, f1, f2, f3, f4, f5, f6] = (*chunk).unbox();
-            if !PackingDecoder::unpack_full_slot_as(f0, ref coeffs)
-                || !PackingDecoder::unpack_full_slot_as(f1, ref coeffs)
-                || !PackingDecoder::unpack_full_slot_as(f2, ref coeffs)
-                || !PackingDecoder::unpack_full_slot_as(f3, ref coeffs)
-                || !PackingDecoder::unpack_full_slot_as(f4, ref coeffs)
-                || !PackingDecoder::unpack_full_slot_as(f5, ref coeffs)
-                || !PackingDecoder::unpack_full_slot_as(f6, ref coeffs) {
-                return None;
-            }
-        }
-        let last: u256 = (*packed.at(PACKED_SLOTS - 1)).into();
-        if last.high != 0 || !PackingDecoder::unpack_half8_as(last.low, ref coeffs) {
-            return None;
-        }
-        Some(coeffs)
-    }
+fn unpack_full_slot_as<T, +Drop<T>, +PackingConversion<T>>(
+    felt: felt252, ref coeffs: Array<T>,
+) -> bool {
+    let value: u256 = felt.into();
+    unpack_half9_as(value.low, ref coeffs) && unpack_half9_as(value.high, ref coeffs)
+}
 
-    #[inline(always)]
-    fn unpack_full_slot_as(felt: felt252, ref coeffs: Array<T>) -> bool {
-        let value: u256 = felt.into();
-        PackingDecoder::unpack_half9_as(value.low, ref coeffs)
-            && PackingDecoder::unpack_half9_as(value.high, ref coeffs)
-    }
+/// Extracts nine base-Q digits from a `u128` half. Values below `Q^9` are canonical;
+/// after eight divisions the remaining quotient is the ninth digit.
+fn unpack_half9_as<T, +Drop<T>, +PackingConversion<T>>(value: u128, ref coeffs: Array<T>) -> bool {
+    let Some(value): Option<Acc8> = downcast(value) else {
+        return false;
+    };
+    let (rest, d0) = bounded_int_div_rem(value, PACKING_Q_NZ);
+    let (rest, d1) = bounded_int_div_rem(rest, PACKING_Q_NZ);
+    let (rest, d2) = bounded_int_div_rem(rest, PACKING_Q_NZ);
+    let (rest, d3) = bounded_int_div_rem(rest, PACKING_Q_NZ);
+    let (rest, d4) = bounded_int_div_rem(rest, PACKING_Q_NZ);
+    let (rest, d5) = bounded_int_div_rem(rest, PACKING_Q_NZ);
+    let (rest, d6) = bounded_int_div_rem(rest, PACKING_Q_NZ);
+    let (rest, d7) = bounded_int_div_rem(rest, PACKING_Q_NZ);
+    coeffs.append(PackingConversion::convert(d0));
+    coeffs.append(PackingConversion::convert(d1));
+    coeffs.append(PackingConversion::convert(d2));
+    coeffs.append(PackingConversion::convert(d3));
+    coeffs.append(PackingConversion::convert(d4));
+    coeffs.append(PackingConversion::convert(d5));
+    coeffs.append(PackingConversion::convert(d6));
+    coeffs.append(PackingConversion::convert(d7));
+    coeffs.append(PackingConversion::convert(rest));
+    true
+}
 
-    /// Extracts nine base-Q digits from a `u128` half. Values below `Q^9` are canonical;
-    /// after eight divisions the remaining quotient is the ninth digit.
-    #[inline(always)]
-    fn unpack_half9_as(value: u128, ref coeffs: Array<T>) -> bool {
-        let Some(value): Option<Acc8> = downcast(value) else {
-            return false;
-        };
-        let (rest, d0) = bounded_int_div_rem(value, PACKING_Q_NZ);
-        let (rest, d1) = bounded_int_div_rem(rest, PACKING_Q_NZ);
-        let (rest, d2) = bounded_int_div_rem(rest, PACKING_Q_NZ);
-        let (rest, d3) = bounded_int_div_rem(rest, PACKING_Q_NZ);
-        let (rest, d4) = bounded_int_div_rem(rest, PACKING_Q_NZ);
-        let (rest, d5) = bounded_int_div_rem(rest, PACKING_Q_NZ);
-        let (rest, d6) = bounded_int_div_rem(rest, PACKING_Q_NZ);
-        let (rest, d7) = bounded_int_div_rem(rest, PACKING_Q_NZ);
-        coeffs.append(PackingConversion::convert(d0));
-        coeffs.append(PackingConversion::convert(d1));
-        coeffs.append(PackingConversion::convert(d2));
-        coeffs.append(PackingConversion::convert(d3));
-        coeffs.append(PackingConversion::convert(d4));
-        coeffs.append(PackingConversion::convert(d5));
-        coeffs.append(PackingConversion::convert(d6));
-        coeffs.append(PackingConversion::convert(d7));
-        coeffs.append(PackingConversion::convert(rest));
-        true
-    }
-
-    /// Extracts the final slot's eight digits after checking the value is below `Q^8`.
-    #[inline(always)]
-    fn unpack_half8_as(value: u128, ref coeffs: Array<T>) -> bool {
-        let Some(value): Option<Acc7> = downcast(value) else {
-            return false;
-        };
-        let (rest, d0) = bounded_int_div_rem(value, PACKING_Q_NZ);
-        let (rest, d1) = bounded_int_div_rem(rest, PACKING_Q_NZ);
-        let (rest, d2) = bounded_int_div_rem(rest, PACKING_Q_NZ);
-        let (rest, d3) = bounded_int_div_rem(rest, PACKING_Q_NZ);
-        let (rest, d4) = bounded_int_div_rem(rest, PACKING_Q_NZ);
-        let (rest, d5) = bounded_int_div_rem(rest, PACKING_Q_NZ);
-        let (rest, d6) = bounded_int_div_rem(rest, PACKING_Q_NZ);
-        coeffs.append(PackingConversion::convert(d0));
-        coeffs.append(PackingConversion::convert(d1));
-        coeffs.append(PackingConversion::convert(d2));
-        coeffs.append(PackingConversion::convert(d3));
-        coeffs.append(PackingConversion::convert(d4));
-        coeffs.append(PackingConversion::convert(d5));
-        coeffs.append(PackingConversion::convert(d6));
-        coeffs.append(PackingConversion::convert(rest));
-        true
-    }
+/// Extracts the final slot's eight digits after checking the value is below `Q^8`.
+fn unpack_half8_as<T, +Drop<T>, +PackingConversion<T>>(value: u128, ref coeffs: Array<T>) -> bool {
+    let Some(value): Option<Acc7> = downcast(value) else {
+        return false;
+    };
+    let (rest, d0) = bounded_int_div_rem(value, PACKING_Q_NZ);
+    let (rest, d1) = bounded_int_div_rem(rest, PACKING_Q_NZ);
+    let (rest, d2) = bounded_int_div_rem(rest, PACKING_Q_NZ);
+    let (rest, d3) = bounded_int_div_rem(rest, PACKING_Q_NZ);
+    let (rest, d4) = bounded_int_div_rem(rest, PACKING_Q_NZ);
+    let (rest, d5) = bounded_int_div_rem(rest, PACKING_Q_NZ);
+    let (rest, d6) = bounded_int_div_rem(rest, PACKING_Q_NZ);
+    coeffs.append(PackingConversion::convert(d0));
+    coeffs.append(PackingConversion::convert(d1));
+    coeffs.append(PackingConversion::convert(d2));
+    coeffs.append(PackingConversion::convert(d3));
+    coeffs.append(PackingConversion::convert(d4));
+    coeffs.append(PackingConversion::convert(d5));
+    coeffs.append(PackingConversion::convert(d6));
+    coeffs.append(PackingConversion::convert(rest));
+    true
 }
 
 /// Packs 512 coefficients into 29 felts. Inverse of [`unpack_512`]; used by tests.
@@ -253,7 +240,8 @@ fn pack_half(coeffs: Span<u16>) -> u128 {
 
 #[cfg(test)]
 mod tests {
-    use super::{PACKED_SLOTS, pack_512, unpack_512, unpack_512_u16};
+    use openzeppelin_corelib_imports::bounded_int::upcast;
+    use super::{PACKED_SLOTS, pack_512, unpack_512, unpack_512_u16, unpack_512_zq};
 
     /// Q^9: the smallest non-canonical low-half value (all 9 digits zero, residue 1).
     const Q_POW_9: felt252 = 6392178558614694273495691177456939009;
@@ -368,5 +356,62 @@ mod tests {
         }
         tampered2.append(Q_POW_8);
         assert!(unpack_512(tampered2.span()).is_none());
+    }
+
+    fn constant_coeffs(value: u16) -> Array<u16> {
+        let mut out = array![];
+        while out.len() < 512 {
+            out.append(value);
+        }
+        out
+    }
+
+    fn replaced(values: Span<felt252>, index: u32, value: felt252) -> Array<felt252> {
+        let mut out = array![];
+        let mut i = 0;
+        for original in values {
+            out.append(if i == index {
+                value
+            } else {
+                *original
+            });
+            i += 1;
+        }
+        out
+    }
+
+    #[test]
+    fn test_unpack_zq_matches_u16_decoder() {
+        for values in array![constant_coeffs(0), constant_coeffs(12288), pseudorandom_coeffs()] {
+            let encoded = pack_512(values.span());
+            let a = unpack_512_zq(encoded.span()).unwrap();
+            let b = unpack_512_u16(encoded.span()).unwrap();
+            let mut i = 0;
+            for value in a.span() {
+                let x: u16 = upcast(*value);
+                assert_eq!(x, *b.at(i));
+                i += 1;
+            }
+            assert_eq!(i, 512);
+        }
+    }
+
+    #[test]
+    fn test_unpack_zq_rejects_every_noncanonical_limb() {
+        let encoded = pack_512(constant_coeffs(0).span());
+        let mut i = 0;
+        while i < 28 {
+            assert!(unpack_512_zq(replaced(encoded.span(), i, Q_POW_9).span()).is_none());
+            assert!(
+                unpack_512_zq(replaced(encoded.span(), i, Q_POW_9 * TWO_POW_128).span()).is_none(),
+            );
+            i += 1;
+        }
+        assert!(unpack_512_zq(replaced(encoded.span(), 28, Q_POW_8).span()).is_none());
+        assert!(unpack_512_zq(replaced(encoded.span(), 28, TWO_POW_128).span()).is_none());
+        assert!(unpack_512_zq(encoded.span().slice(0, 28)).is_none());
+        let mut long = encoded;
+        long.append(0);
+        assert!(unpack_512_zq(long.span()).is_none());
     }
 }

@@ -26,7 +26,7 @@
 //! `256^(-1) mod P` aligns all eight stream words to their 16-bit chunk positions.
 
 use openzeppelin_corelib_imports::bounded_int::{
-    BoundedInt, ConstrainHelper, DivRemHelper, UnitInt, bounded_int, constrain,
+    BoundedInt, ConstrainHelper, DivRemHelper, UnitInt, constrain, div_rem,
 };
 use crate::falcon_512::COEFFICIENT_COUNT;
 use super::shake256::{keccak_f1600_packed, pack_lanes};
@@ -131,38 +131,24 @@ fn swap_words(w: u128) -> u128 {
 /// Extracts the eight stream words of a swapped lane pair, in stream order.
 #[inline(always)]
 fn words8(swapped: u128) -> (Word16, Word16, Word16, Word16, Word16, Word16, Word16, Word16) {
-    let (rest, w0) = bounded_int::div_rem(swapped, BASE16_NZ);
-    let (rest, w1) = bounded_int::div_rem(rest, BASE16_NZ);
-    let (rest, w2) = bounded_int::div_rem(rest, BASE16_NZ);
-    let (rest, w3) = bounded_int::div_rem(rest, BASE16_NZ);
-    let (rest, w4) = bounded_int::div_rem(rest, BASE16_NZ);
-    let (rest, w5) = bounded_int::div_rem(rest, BASE16_NZ);
-    let (w7, w6) = bounded_int::div_rem(rest, BASE16_NZ);
+    let (rest, w0) = div_rem(swapped, BASE16_NZ);
+    let (rest, w1) = div_rem(rest, BASE16_NZ);
+    let (rest, w2) = div_rem(rest, BASE16_NZ);
+    let (rest, w3) = div_rem(rest, BASE16_NZ);
+    let (rest, w4) = div_rem(rest, BASE16_NZ);
+    let (rest, w5) = div_rem(rest, BASE16_NZ);
+    let (w7, w6) = div_rem(rest, BASE16_NZ);
     (w0, w1, w2, w3, w4, w5, w6, w7)
 }
 
 /// Extracts the four stream words of a swapped pair's low lane, in stream order.
 #[inline(always)]
 fn words4(swapped: u128) -> (Word16, Word16, Word16, Word16) {
-    let (rest, w0) = bounded_int::div_rem(swapped, BASE16_NZ);
-    let (rest, w1) = bounded_int::div_rem(rest, BASE16_NZ);
-    let (rest, w2) = bounded_int::div_rem(rest, BASE16_NZ);
-    let (_, w3) = bounded_int::div_rem(rest, BASE16_NZ);
+    let (rest, w0) = div_rem(swapped, BASE16_NZ);
+    let (rest, w1) = div_rem(rest, BASE16_NZ);
+    let (rest, w2) = div_rem(rest, BASE16_NZ);
+    let (_, w3) = div_rem(rest, BASE16_NZ);
     (w0, w1, w2, w3)
-}
-
-/// Pushes a packed lane pair's eight candidate words without length checks.
-#[inline(always)]
-fn read_pair(w: u128, ref out: Array<MsgWord>) {
-    let (w0, w1, w2, w3, w4, w5, w6, w7) = words8(swap_words(w));
-    push_word(w0, ref out);
-    push_word(w1, ref out);
-    push_word(w2, ref out);
-    push_word(w3, ref out);
-    push_word(w4, ref out);
-    push_word(w5, ref out);
-    push_word(w6, ref out);
-    push_word(w7, ref out);
 }
 
 /// Pushes a packed lane pair's eight candidate words, stopping at 512 outputs.
@@ -185,54 +171,31 @@ fn read_pair_checked(w: u128, ref out: Array<MsgWord>) {
 /// Packed layout (see `shake256`): positions 0..3 are the row pairs
 /// `(lane[5y], lane[5y + 1])`, positions 5..7 the row pairs
 /// `(lane[5y + 2], lane[5y + 3])`, position 10 is `(lane4, lane9)`, and position 11
-/// holds rate lane 14 in its low half. When at least 68 outputs of room remain the
-/// per-word completion checks are skipped: a block accepts at most 68 words.
+/// holds rate lane 14 in its low half. Every word is pushed through the completion
+/// check: an unchecked full-block path measures no cheaper and costs bytecode.
 fn read_block(state: @[u128; 13], ref out: Array<MsgWord>) {
     let [u0, u1, u2, u3, _, v0, v1, v2, _, _, col4, col14, _] = *state;
     let (g0, g1, g2, g3, g4, g5, g6, g7) = words8(swap_words(col4));
-    if out.len() + 68 <= COEFFICIENT_COUNT {
-        read_pair(u0, ref out);
-        read_pair(v0, ref out);
-        push_word(g0, ref out);
-        push_word(g1, ref out);
-        push_word(g2, ref out);
-        push_word(g3, ref out);
-        read_pair(u1, ref out);
-        read_pair(v1, ref out);
-        push_word(g4, ref out);
-        push_word(g5, ref out);
-        push_word(g6, ref out);
-        push_word(g7, ref out);
-        read_pair(u2, ref out);
-        read_pair(v2, ref out);
-        let (h0, h1, h2, h3) = words4(swap_words(col14));
-        push_word(h0, ref out);
-        push_word(h1, ref out);
-        push_word(h2, ref out);
-        push_word(h3, ref out);
-        read_pair(u3, ref out);
-    } else {
-        read_pair_checked(u0, ref out);
-        read_pair_checked(v0, ref out);
-        push_word_checked(g0, ref out);
-        push_word_checked(g1, ref out);
-        push_word_checked(g2, ref out);
-        push_word_checked(g3, ref out);
-        read_pair_checked(u1, ref out);
-        read_pair_checked(v1, ref out);
-        push_word_checked(g4, ref out);
-        push_word_checked(g5, ref out);
-        push_word_checked(g6, ref out);
-        push_word_checked(g7, ref out);
-        read_pair_checked(u2, ref out);
-        read_pair_checked(v2, ref out);
-        let (h0, h1, h2, h3) = words4(swap_words(col14));
-        push_word_checked(h0, ref out);
-        push_word_checked(h1, ref out);
-        push_word_checked(h2, ref out);
-        push_word_checked(h3, ref out);
-        read_pair_checked(u3, ref out);
-    }
+    read_pair_checked(u0, ref out);
+    read_pair_checked(v0, ref out);
+    push_word_checked(g0, ref out);
+    push_word_checked(g1, ref out);
+    push_word_checked(g2, ref out);
+    push_word_checked(g3, ref out);
+    read_pair_checked(u1, ref out);
+    read_pair_checked(v1, ref out);
+    push_word_checked(g4, ref out);
+    push_word_checked(g5, ref out);
+    push_word_checked(g6, ref out);
+    push_word_checked(g7, ref out);
+    read_pair_checked(u2, ref out);
+    read_pair_checked(v2, ref out);
+    let (h0, h1, h2, h3) = words4(swap_words(col14));
+    push_word_checked(h0, ref out);
+    push_word_checked(h1, ref out);
+    push_word_checked(h2, ref out);
+    push_word_checked(h3, ref out);
+    read_pair_checked(u3, ref out);
 }
 
 /// Hashes the 40-byte salt encoded by `(salt_a, salt_b)` and `message_hash` to
@@ -362,7 +325,9 @@ mod tests {
 
     /// Full raw-word differential vector generated with Python hashlib.shake_256: the
     /// stream needs more than eight squeezed blocks, contains the largest accepted word
-    /// (61444), and rejects words at the boundary, pinning the unreduced output exactly.
+    /// (61444), and rejects words (the smallest rejected is 61454; the exact bound 61445 is
+    /// pinned by `test_push_word_accept_reject_and_complete_branches`), fixing the unreduced
+    /// output exactly.
     #[test]
     fn test_hash_to_point_raw_multiblock_boundary_vector() {
         let message_hash: felt252 =

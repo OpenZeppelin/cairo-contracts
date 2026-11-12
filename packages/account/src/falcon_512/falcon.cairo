@@ -4,16 +4,18 @@
 //! Falcon-512 signature verification.
 //!
 //! The hint variant accepts a signer-supplied product and verifies
-//! `mul_hint = s1 * h` in `Z_q[x]/(x^512 + 1)` using two forward NTTs and a pointwise
+//! `mul_hint = s1 * h` in `Z_q[x]/(x^512 + 1)` using one two-channel NTT and a pointwise
 //! equality check. It then accepts when
 //! `||msg_point - mul_hint||^2 + ||s1||^2 <= SIG_BOUND_512` over centered representatives.
 //! NTT bijectivity binds the accepted hint to the product determined by `s1` and `h`.
 //!
 //! The direct variant derives `s1 * h` on-chain as `INTT(NTT(s1) ∘ h_ntt)`.
 //!
-//! The verifier path decodes packed coefficients into canonical `u16` values and keeps
-//! that representation through the generated NTT and norm calculation.
+//! The hint verifier retains canonical bounded coefficients from decoding through the
+//! packed transform. The direct verifier uses canonical `u16` coefficients.
 
+use openzeppelin_corelib_imports::bounded_int::{downcast, upcast};
+use super::hashing::hash_to_point::MsgWord;
 use super::ntt::engine::intt;
 #[cfg(test)]
 #[cfg(not(feature: 'falcon_fast_tests'))]
@@ -27,12 +29,23 @@ use super::ntt::falcon512_fast::ntt_falcon512_fast_u16_unchecked;
 #[cfg(test)]
 #[cfg(feature: 'falcon_fast_tests')]
 use super::ntt::falcon512_fast::ntt_falcon512_fast_u16_unchecked;
-use super::zq::{Q32, center_sq, centered_difference_sq};
+#[cfg(not(test))]
+use super::ntt::falcon512_packed::{ntt_falcon512_packed as forward_ntt_pair, product_remainder};
+#[cfg(test)]
+#[cfg(feature: 'falcon_fast_tests')]
+use super::ntt::falcon512_packed::{ntt_falcon512_packed as forward_ntt_pair, product_remainder};
+use super::packing::PackingZq;
+#[cfg(test)]
+#[cfg(not(feature: 'falcon_fast_tests'))]
+use super::zq::Q32;
+use super::zq::{center_sq, center_sq_zq, centered_difference_sq_raw};
 
 /// Maximum squared-norm bound for the Falcon-512 submission algorithm.
 pub const SIG_BOUND_512: u64 = 34034726;
 
 /// The Falcon modulus as a `u32` divisor.
+#[cfg(test)]
+#[cfg(not(feature: 'falcon_fast_tests'))]
 const Q32_NZ: NonZero<u32> = 12289;
 
 #[cfg(not(test))]
@@ -77,6 +90,20 @@ fn felts_to_u16(mut values: Span<felt252>) -> Array<u16> {
     out
 }
 
+/// Lifts canonical test coefficients into the unreduced message-word form the
+/// production verifiers consume (any value below `5q` is a valid raw word).
+#[inline(always)]
+#[cfg(test)]
+fn u16_to_msg_words(mut values: Span<u16>) -> Array<MsgWord> {
+    let mut out: Array<MsgWord> = array![];
+    while let Some(value) = values.pop_front() {
+        out.append(downcast(*value).unwrap());
+    }
+    out
+}
+
+#[cfg(test)]
+#[cfg(not(feature: 'falcon_fast_tests'))]
 #[inline(always)]
 fn product_difference(a: u16, b: u16, c: u16) -> u32 {
     let a: u32 = a.into();
@@ -84,6 +111,56 @@ fn product_difference(a: u16, b: u16, c: u16) -> u32 {
     let c: u32 = c.into();
     a * b + Q32 - c
 }
+
+
+#[cfg(test)]
+pub(crate) fn verify_512_with_hint_u16(
+    s1: Span<u16>, h_ntt: Span<u16>, mul_hint: Span<u16>, msg_point: Span<MsgWord>,
+) -> bool {
+    let mut a: Array<PackingZq> = array![];
+    for x in s1 {
+        a.append(downcast(*x).unwrap());
+    }
+    let mut b: Array<PackingZq> = array![];
+    for x in mul_hint {
+        b.append(downcast(*x).unwrap());
+    }
+    let mut h: Array<PackingZq> = array![];
+    for x in h_ntt {
+        h.append(downcast(*x).unwrap());
+    }
+    verify_512_with_hint_canonical(a.span(), h.span(), b.span(), msg_point)
+}
+
+// Dev tests use the generic engine because the dev profile disables graph inlining.
+#[cfg(test)]
+#[cfg(not(feature: 'falcon_fast_tests'))]
+fn forward_ntt_pair(a: Span<PackingZq>, b: Span<PackingZq>) -> Array<(u16, u16)> {
+    let mut a_u16 = array![];
+    let mut b_u16 = array![];
+    for value in a {
+        a_u16.append(upcast(*value));
+    }
+    for value in b {
+        b_u16.append(upcast(*value));
+    }
+    let a_ntt = forward_ntt(a_u16.span());
+    let mut b_ntt = forward_ntt(b_u16.span()).span();
+    let mut output = array![];
+    for value in a_ntt {
+        output.append((value, *b_ntt.pop_front().unwrap()));
+    }
+    output
+}
+
+#[cfg(test)]
+#[cfg(not(feature: 'falcon_fast_tests'))]
+fn product_remainder(value: (u16, u16), key: u16) -> felt252 {
+    let (a, b) = value;
+    let (_, remainder) = DivRem::div_rem(product_difference(a, key, b), Q32_NZ);
+    remainder.into()
+}
+
 
 #[inline(always)]
 fn product_as_felt(a: u16, b: u16) -> felt252 {
@@ -106,26 +183,27 @@ pub fn verify_512_with_hint(
     let s1 = felts_to_u16(s1);
     let h_ntt = felts_to_u16(h_ntt);
     let mul_hint = felts_to_u16(mul_hint);
-    verify_512_with_hint_u16(s1.span(), h_ntt.span(), mul_hint.span(), msg_point)
+    let msg_point = u16_to_msg_words(msg_point);
+    verify_512_with_hint_u16(s1.span(), h_ntt.span(), mul_hint.span(), msg_point.span())
 }
 
-/// Verifies the hint equation over canonical `u16` coefficients. Every span must contain exactly
-/// 512 coefficients in `[0, Q)`.
-pub(crate) fn verify_512_with_hint_u16(
-    s1: Span<u16>, h_ntt: Span<u16>, mul_hint: Span<u16>, msg_point: Span<u16>,
+/// Verifies the hint equation over canonical bounded coefficients. Every span must contain exactly
+/// 512 entries; `msg_point` holds the hash-to-point's unreduced accepted words (see
+/// `hash_to_point::MsgWord`), whose reduction is folded into the norm pass.
+pub(crate) fn verify_512_with_hint_canonical(
+    s1: Span<PackingZq>,
+    h_ntt: Span<PackingZq>,
+    mul_hint: Span<PackingZq>,
+    msg_point: Span<MsgWord>,
 ) -> bool {
     assert(s1.len() == 512, 's1 must be 512 coeffs');
     assert(h_ntt.len() == 512, 'h_ntt must be 512 coeffs');
     assert(mul_hint.len() == 512, 'mul_hint must be 512 coeffs');
     assert(msg_point.len() == 512, 'msg_point must be 512 coeffs');
 
-    // Production inputs come from canonical base-Q unpacking; the test wrapper documents the same
-    // coefficient precondition. The generated unchecked NTT is sound for both call paths.
-    let s1_ntt = forward_ntt(s1);
-    let hint_ntt = forward_ntt(mul_hint);
-
-    let mut s1_ntt_iter = s1_ntt.span();
-    let mut hint_ntt_iter = hint_ntt.span();
+    // PackingZq retains the decoder-established bounds needed for channel separation.
+    let transformed = forward_ntt_pair(s1, mul_hint);
+    let mut packed_iter = transformed.span();
     let mut h_iter = h_ntt;
     let mut msg_iter = msg_point;
     let mut hint_iter = mul_hint;
@@ -136,55 +214,31 @@ pub(crate) fn verify_512_with_hint_u16(
     // Max acc = 512 * 2 * 6144^2 < 2^36, so the felt252 accumulator cannot wrap
     // and always fits u64.
     let mut acc: felt252 = 0;
-    while let Some(s1n_c) = s1_ntt_iter.multi_pop_front::<16>() {
-        let [
-            s1n0,
-            s1n1,
-            s1n2,
-            s1n3,
-            s1n4,
-            s1n5,
-            s1n6,
-            s1n7,
-            s1n8,
-            s1n9,
-            s1n10,
-            s1n11,
-            s1n12,
-            s1n13,
-            s1n14,
-            s1n15,
-        ] =
-            (*s1n_c)
-            .unbox();
-        let [hn0, hn1, hn2, hn3, hn4, hn5, hn6, hn7, hn8, hn9, hn10, hn11, hn12, hn13, hn14, hn15] =
-            (*hint_ntt_iter
-            .multi_pop_front::<16>()
-            .unwrap())
+    while let Some(packed_chunk) = packed_iter.multi_pop_front::<16>() {
+        let [p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15] = (*packed_chunk)
             .unbox();
         let [h0, h1, h2, h3, h4, h5, h6, h7, h8, h9, h10, h11, h12, h13, h14, h15] = (*h_iter
             .multi_pop_front::<16>()
             .unwrap())
             .unbox();
-        // s1n*h + q - hn has zero remainder iff the two NTT coordinates agree mod q,
-        // which by bijectivity binds mul_hint to s1*h.
-        let (_, r0) = DivRem::div_rem(product_difference(s1n0, h0, hn0), Q32_NZ);
-        let (_, r1) = DivRem::div_rem(product_difference(s1n1, h1, hn1), Q32_NZ);
-        let (_, r2) = DivRem::div_rem(product_difference(s1n2, h2, hn2), Q32_NZ);
-        let (_, r3) = DivRem::div_rem(product_difference(s1n3, h3, hn3), Q32_NZ);
-        let (_, r4) = DivRem::div_rem(product_difference(s1n4, h4, hn4), Q32_NZ);
-        let (_, r5) = DivRem::div_rem(product_difference(s1n5, h5, hn5), Q32_NZ);
-        let (_, r6) = DivRem::div_rem(product_difference(s1n6, h6, hn6), Q32_NZ);
-        let (_, r7) = DivRem::div_rem(product_difference(s1n7, h7, hn7), Q32_NZ);
-        let (_, r8) = DivRem::div_rem(product_difference(s1n8, h8, hn8), Q32_NZ);
-        let (_, r9) = DivRem::div_rem(product_difference(s1n9, h9, hn9), Q32_NZ);
-        let (_, r10) = DivRem::div_rem(product_difference(s1n10, h10, hn10), Q32_NZ);
-        let (_, r11) = DivRem::div_rem(product_difference(s1n11, h11, hn11), Q32_NZ);
-        let (_, r12) = DivRem::div_rem(product_difference(s1n12, h12, hn12), Q32_NZ);
-        let (_, r13) = DivRem::div_rem(product_difference(s1n13, h13, hn13), Q32_NZ);
-        let (_, r14) = DivRem::div_rem(product_difference(s1n14, h14, hn14), Q32_NZ);
-        let (_, r15) = DivRem::div_rem(product_difference(s1n15, h15, hn15), Q32_NZ);
-        // Remainders are non-negative, so the sum is zero iff all sixteen are.
+        let r0 = product_remainder(p0, upcast(h0));
+        let r1 = product_remainder(p1, upcast(h1));
+        let r2 = product_remainder(p2, upcast(h2));
+        let r3 = product_remainder(p3, upcast(h3));
+        let r4 = product_remainder(p4, upcast(h4));
+        let r5 = product_remainder(p5, upcast(h5));
+        let r6 = product_remainder(p6, upcast(h6));
+        let r7 = product_remainder(p7, upcast(h7));
+        let r8 = product_remainder(p8, upcast(h8));
+        let r9 = product_remainder(p9, upcast(h9));
+        let r10 = product_remainder(p10, upcast(h10));
+        let r11 = product_remainder(p11, upcast(h11));
+        let r12 = product_remainder(p12, upcast(h12));
+        let r13 = product_remainder(p13, upcast(h13));
+        let r14 = product_remainder(p14, upcast(h14));
+        let r15 = product_remainder(p15, upcast(h15));
+        // Each remainder is in [0, q), and 16*(q-1) < P, so the sum cannot wrap
+        // and is zero iff every coordinate satisfies the hint equation.
         if r0
             + r1
             + r2
@@ -215,22 +269,22 @@ pub(crate) fn verify_512_with_hint_u16(
             .multi_pop_front::<16>()
             .unwrap())
             .unbox();
-        acc += centered_difference_sq(m0, t0) + center_sq(v0);
-        acc += centered_difference_sq(m1, t1) + center_sq(v1);
-        acc += centered_difference_sq(m2, t2) + center_sq(v2);
-        acc += centered_difference_sq(m3, t3) + center_sq(v3);
-        acc += centered_difference_sq(m4, t4) + center_sq(v4);
-        acc += centered_difference_sq(m5, t5) + center_sq(v5);
-        acc += centered_difference_sq(m6, t6) + center_sq(v6);
-        acc += centered_difference_sq(m7, t7) + center_sq(v7);
-        acc += centered_difference_sq(m8, t8) + center_sq(v8);
-        acc += centered_difference_sq(m9, t9) + center_sq(v9);
-        acc += centered_difference_sq(m10, t10) + center_sq(v10);
-        acc += centered_difference_sq(m11, t11) + center_sq(v11);
-        acc += centered_difference_sq(m12, t12) + center_sq(v12);
-        acc += centered_difference_sq(m13, t13) + center_sq(v13);
-        acc += centered_difference_sq(m14, t14) + center_sq(v14);
-        acc += centered_difference_sq(m15, t15) + center_sq(v15);
+        acc += centered_difference_sq_raw(m0, t0) + center_sq_zq(v0);
+        acc += centered_difference_sq_raw(m1, t1) + center_sq_zq(v1);
+        acc += centered_difference_sq_raw(m2, t2) + center_sq_zq(v2);
+        acc += centered_difference_sq_raw(m3, t3) + center_sq_zq(v3);
+        acc += centered_difference_sq_raw(m4, t4) + center_sq_zq(v4);
+        acc += centered_difference_sq_raw(m5, t5) + center_sq_zq(v5);
+        acc += centered_difference_sq_raw(m6, t6) + center_sq_zq(v6);
+        acc += centered_difference_sq_raw(m7, t7) + center_sq_zq(v7);
+        acc += centered_difference_sq_raw(m8, t8) + center_sq_zq(v8);
+        acc += centered_difference_sq_raw(m9, t9) + center_sq_zq(v9);
+        acc += centered_difference_sq_raw(m10, t10) + center_sq_zq(v10);
+        acc += centered_difference_sq_raw(m11, t11) + center_sq_zq(v11);
+        acc += centered_difference_sq_raw(m12, t12) + center_sq_zq(v12);
+        acc += centered_difference_sq_raw(m13, t13) + center_sq_zq(v13);
+        acc += centered_difference_sq_raw(m14, t14) + center_sq_zq(v14);
+        acc += centered_difference_sq_raw(m15, t15) + center_sq_zq(v15);
     }
     let norm: u64 = acc.try_into().unwrap();
     norm <= SIG_BOUND_512
@@ -247,11 +301,15 @@ pub fn verify_512_direct(s1: Span<felt252>, h_ntt: Span<felt252>, msg_point: Spa
 
     let s1 = felts_to_u16(s1);
     let h_ntt = felts_to_u16(h_ntt);
-    verify_512_direct_u16(s1.span(), h_ntt.span(), msg_point)
+    let msg_point = u16_to_msg_words(msg_point);
+    verify_512_direct_u16(s1.span(), h_ntt.span(), msg_point.span())
 }
 
-/// Verifies the direct equation over canonical `u16` coefficients.
-pub(crate) fn verify_512_direct_u16(s1: Span<u16>, h_ntt: Span<u16>, msg_point: Span<u16>) -> bool {
+/// Verifies the direct equation over canonical `u16` coefficients; `msg_point` holds the
+/// hash-to-point's unreduced accepted words (see `hash_to_point::MsgWord`).
+pub(crate) fn verify_512_direct_u16(
+    s1: Span<u16>, h_ntt: Span<u16>, msg_point: Span<MsgWord>,
+) -> bool {
     assert(s1.len() == 512, 's1 must be 512 coeffs');
     assert(h_ntt.len() == 512, 'h_ntt must be 512 coeffs');
     assert(msg_point.len() == 512, 'msg_point must be 512 coeffs');
@@ -313,7 +371,7 @@ pub(crate) fn verify_512_direct_u16(s1: Span<u16>, h_ntt: Span<u16>, msg_point: 
     let mut msg_iter = msg_point;
     let mut s1_iter = s1;
     // Norm pass, 16-way unrolled (512 = 16 * 32, no remainder).
-    // Same accumulator bound argument as in `verify_512_with_hint`.
+    // Same accumulator bound argument as in `verify_512_with_hint_canonical`.
     let mut acc: felt252 = 0;
     while let Some(pc) = s1h_iter.multi_pop_front::<16>() {
         let [p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15] = (*pc).unbox();
@@ -325,23 +383,23 @@ pub(crate) fn verify_512_direct_u16(s1: Span<u16>, h_ntt: Span<u16>, msg_point: 
             .multi_pop_front::<16>()
             .unwrap())
             .unbox();
-        // INTT outputs are reduced, so their u16 downcasts cannot fail.
-        acc += centered_difference_sq(m0, p0.try_into().unwrap()) + center_sq(v0);
-        acc += centered_difference_sq(m1, p1.try_into().unwrap()) + center_sq(v1);
-        acc += centered_difference_sq(m2, p2.try_into().unwrap()) + center_sq(v2);
-        acc += centered_difference_sq(m3, p3.try_into().unwrap()) + center_sq(v3);
-        acc += centered_difference_sq(m4, p4.try_into().unwrap()) + center_sq(v4);
-        acc += centered_difference_sq(m5, p5.try_into().unwrap()) + center_sq(v5);
-        acc += centered_difference_sq(m6, p6.try_into().unwrap()) + center_sq(v6);
-        acc += centered_difference_sq(m7, p7.try_into().unwrap()) + center_sq(v7);
-        acc += centered_difference_sq(m8, p8.try_into().unwrap()) + center_sq(v8);
-        acc += centered_difference_sq(m9, p9.try_into().unwrap()) + center_sq(v9);
-        acc += centered_difference_sq(m10, p10.try_into().unwrap()) + center_sq(v10);
-        acc += centered_difference_sq(m11, p11.try_into().unwrap()) + center_sq(v11);
-        acc += centered_difference_sq(m12, p12.try_into().unwrap()) + center_sq(v12);
-        acc += centered_difference_sq(m13, p13.try_into().unwrap()) + center_sq(v13);
-        acc += centered_difference_sq(m14, p14.try_into().unwrap()) + center_sq(v14);
-        acc += centered_difference_sq(m15, p15.try_into().unwrap()) + center_sq(v15);
+        // INTT outputs are reduced, so their canonical downcasts cannot fail.
+        acc += centered_difference_sq_raw(m0, downcast(p0).unwrap()) + center_sq(v0);
+        acc += centered_difference_sq_raw(m1, downcast(p1).unwrap()) + center_sq(v1);
+        acc += centered_difference_sq_raw(m2, downcast(p2).unwrap()) + center_sq(v2);
+        acc += centered_difference_sq_raw(m3, downcast(p3).unwrap()) + center_sq(v3);
+        acc += centered_difference_sq_raw(m4, downcast(p4).unwrap()) + center_sq(v4);
+        acc += centered_difference_sq_raw(m5, downcast(p5).unwrap()) + center_sq(v5);
+        acc += centered_difference_sq_raw(m6, downcast(p6).unwrap()) + center_sq(v6);
+        acc += centered_difference_sq_raw(m7, downcast(p7).unwrap()) + center_sq(v7);
+        acc += centered_difference_sq_raw(m8, downcast(p8).unwrap()) + center_sq(v8);
+        acc += centered_difference_sq_raw(m9, downcast(p9).unwrap()) + center_sq(v9);
+        acc += centered_difference_sq_raw(m10, downcast(p10).unwrap()) + center_sq(v10);
+        acc += centered_difference_sq_raw(m11, downcast(p11).unwrap()) + center_sq(v11);
+        acc += centered_difference_sq_raw(m12, downcast(p12).unwrap()) + center_sq(v12);
+        acc += centered_difference_sq_raw(m13, downcast(p13).unwrap()) + center_sq(v13);
+        acc += centered_difference_sq_raw(m14, downcast(p14).unwrap()) + center_sq(v14);
+        acc += centered_difference_sq_raw(m15, downcast(p15).unwrap()) + center_sq(v15);
     }
     let norm: u64 = acc.try_into().unwrap();
     norm <= SIG_BOUND_512

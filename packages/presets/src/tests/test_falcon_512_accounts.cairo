@@ -31,8 +31,14 @@ use starknet::ContractAddress;
 // https://docs.starknet.io/learn/cheatsheets/chain-info
 const VALIDATE_MAX_SIERRA_GAS: u128 = 100000000;
 const VALIDATION_GAS_BUDGET: u128 = VALIDATE_MAX_SIERRA_GAS * 80 / 100;
+// Per-preset regression budgets protect the measured savings on these fixtures,
+// with headroom for toolchain gas-accounting drift.
+const HINT_VALIDATION_GAS_BUDGET: u128 = 34000000;
+const DIRECT_VALIDATION_GAS_BUDGET: u128 = 47000000;
 
-fn assert_validation_entrypoint(class_name: ByteArray, signature: Array<felt252>, entrypoint: u32) {
+fn assert_validation_entrypoint(
+    class_name: ByteArray, signature: Array<felt252>, entrypoint: u32, regression_budget: u128,
+) {
     let account = deploy(class_name);
     start_cheat_transaction_hash_global(msg());
     start_cheat_signature_global(signature.span());
@@ -47,6 +53,7 @@ fn assert_validation_entrypoint(class_name: ByteArray, signature: Array<felt252>
     assert_eq!(result, starknet::VALIDATED);
     // Includes dispatcher overhead, excludes deployment, and reserves 20% of the protocol cap.
     assert!(gas_used <= VALIDATION_GAS_BUDGET, "Validation gas: {gas_used}");
+    assert!(gas_used <= regression_budget, "Validation gas regression: {gas_used}");
 }
 
 // Test caps exceed `VALIDATION_GAS_BUDGET` plus deployment and setup, so the per-call
@@ -54,37 +61,58 @@ fn assert_validation_entrypoint(class_name: ByteArray, signature: Array<felt252>
 #[test]
 #[available_gas(l2_gas: 110000000)]
 fn test_falcon_hint_invoke_validation_budget() {
-    assert_validation_entrypoint("Falcon512ShakeAccountUpgradeable", signature(), 0);
+    assert_validation_entrypoint(
+        "Falcon512ShakeAccountUpgradeable", signature(), 0, HINT_VALIDATION_GAS_BUDGET,
+    );
 }
 
 #[test]
 #[available_gas(l2_gas: 110000000)]
 fn test_falcon_hint_declare_validation_budget() {
-    assert_validation_entrypoint("Falcon512ShakeAccountUpgradeable", signature(), 1);
+    assert_validation_entrypoint(
+        "Falcon512ShakeAccountUpgradeable", signature(), 1, HINT_VALIDATION_GAS_BUDGET,
+    );
 }
 
 #[test]
 #[available_gas(l2_gas: 110000000)]
 fn test_falcon_hint_deploy_validation_budget() {
-    assert_validation_entrypoint("Falcon512ShakeAccountUpgradeable", signature(), 2);
+    assert_validation_entrypoint(
+        "Falcon512ShakeAccountUpgradeable", signature(), 2, HINT_VALIDATION_GAS_BUDGET,
+    );
 }
 
 #[test]
 #[available_gas(l2_gas: 110000000)]
 fn test_falcon_direct_invoke_validation_budget() {
-    assert_validation_entrypoint("Falcon512ShakeDirectAccountUpgradeable", direct_signature(), 0);
+    assert_validation_entrypoint(
+        "Falcon512ShakeDirectAccountUpgradeable",
+        direct_signature(),
+        0,
+        DIRECT_VALIDATION_GAS_BUDGET,
+    );
 }
 
 #[test]
 #[available_gas(l2_gas: 110000000)]
 fn test_falcon_direct_declare_validation_budget() {
-    assert_validation_entrypoint("Falcon512ShakeDirectAccountUpgradeable", direct_signature(), 1);
+    assert_validation_entrypoint(
+        "Falcon512ShakeDirectAccountUpgradeable",
+        direct_signature(),
+        1,
+        DIRECT_VALIDATION_GAS_BUDGET,
+    );
 }
 
 #[test]
 #[available_gas(l2_gas: 110000000)]
 fn test_falcon_direct_deploy_validation_budget() {
-    assert_validation_entrypoint("Falcon512ShakeDirectAccountUpgradeable", direct_signature(), 2);
+    assert_validation_entrypoint(
+        "Falcon512ShakeDirectAccountUpgradeable",
+        direct_signature(),
+        2,
+        DIRECT_VALIDATION_GAS_BUDGET,
+    );
 }
 
 // Budgets include deployment and test setup as well as one rejected validation.

@@ -114,10 +114,10 @@ Sierra version or permitted libfuncs.
 
 ### Validation resources
 
-With Scarb 2.18.0 and Starknet Foundry 0.63.0, the reference-vector transaction validations use
-approximately 45.6 million Sierra gas for the hint strategy and 55.5 million for direct. Against
+With Scarb 2.18.0 and Starknet Foundry 0.64.0, the reference-vector transaction validations use
+approximately 32 million Sierra gas for the hint strategy and 44 million for direct. Against
 Starknet's [documented 100 million validation-gas limit](https://docs.starknet.io/learn/cheatsheets/chain-info),
-that leaves roughly 54% and 44% headroom for these vectors. These measurements are not worst-case
+that leaves roughly 68% and 56% headroom for these vectors. These measurements are not worst-case
 bounds or public-network deployment checks. Measure the complete validation path when adding
 guardians, multisignature logic, or other account features, and recheck after compiler or network
 gas-schedule changes. SHAKE rejection sampling makes verification cost input-dependent.

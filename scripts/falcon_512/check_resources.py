@@ -19,18 +19,25 @@ PRESETS = (
 # https://docs.starknet.io/learn/cheatsheets/chain-info (recheck on network upgrades).
 MAX_BYTECODE_FELTS = 81_920
 MAX_CLASS_BYTES = 4_089_446
-# Repository regression budgets leave room below the protocol limits.
-BUDGETS = {"sierra_felts": 60_000, "casm_felts": 50_000, "artifact_bytes": 2_000_000}
+# Repository budgets remain strictly below 70% of each protocol limit.
+# Check the declared class payload as well as the build artifact.
+BUDGETS = {
+    "sierra_felts": 50_000, "casm_felts": 41_000,
+    "artifact_bytes": 2_200_000, "class_bytes": 2_200_000,
+}
 
 
 def validate_sizes(sizes: dict[str, int]) -> None:
+    for name, value in sizes.items():
+        if value <= 0:
+            raise ValueError(f"{name}: empty measurement")
     if max(sizes["sierra_felts"], sizes["casm_felts"]) > MAX_BYTECODE_FELTS:
         raise ValueError("bytecode exceeds declaration limit")
-    if not 0 < sizes["class_bytes"] <= MAX_CLASS_BYTES:
+    if sizes["class_bytes"] > MAX_CLASS_BYTES:
         raise ValueError("class exceeds declaration limit")
     for name, budget in BUDGETS.items():
-        if not 0 < sizes[name] <= budget:
-            raise ValueError(f"{name}: {sizes[name]} exceeds budget {budget} or is empty")
+        if sizes[name] > budget:
+            raise ValueError(f"{name}: {sizes[name]} exceeds budget {budget}")
 
 
 def serialized_class_size(artifact: dict) -> int:

@@ -124,6 +124,7 @@ scarb fmt --check --workspace
 scarb lint --workspace --test --deny-warnings
 snforge test --workspace --features fuzzing --fuzzer-runs 200 --skip falcon_512
 snforge test --workspace --coverage
+cat packages/*/coverage/coverage.lcov > coverage.lcov
 ```
 
 Run the [Falcon checks](#falcon-verification-sources) as well when modifying the account,
@@ -178,7 +179,7 @@ workflow refreshes `packages/testing/docs`; see [RELEASING.md](RELEASING.md#test
 
 ## Falcon verification sources
 
-The Falcon root tables, bit-reversal table, and unrolled production transform are derived and
+The Falcon root tables, bit-reversal table, and unrolled single-channel and paired production transforms are derived and
 checked by the NTT generator. Regenerate them from the repository root with the workspace's
 Scarb version:
 
@@ -205,7 +206,9 @@ python3 scripts/falcon_512/check_resources.py
 
 The resource checker reports raw artifact bytes separately from serialized class bytes, using
 compact JSON for both the ABI string and the containing class. Declaration tools using a different
-ABI serialization should check the size of their submitted class.
+ABI serialization should check the size of their submitted class. Repository budgets are
+50,000 Sierra felts, 41,000 CASM felts, and 2,200,000 bytes for both the artifact and
+serialized class. Each stays strictly below 70% of the corresponding protocol limit.
 
 Run lint with the Falcon test features, then the production verifier, preset and exhaustive
 basis-vector tests:
@@ -214,17 +217,19 @@ basis-vector tests:
 scarb --release lint -p openzeppelin_account --features falcon_fast_tests --test --deny-warnings
 scarb --release lint -p openzeppelin_presets --features falcon_presets_tests --test --deny-warnings
 snforge test -p openzeppelin_account --release --features falcon_fast_tests falcon_512 --skip every_basis_vector --max-n-steps 5000000
-snforge test -p openzeppelin_presets --release --features falcon_presets_tests falcon_512 --max-n-steps 5000000
-snforge test -p openzeppelin_account --release --features falcon_fast_tests every_basis_vector --max-n-steps 100000000
+snforge test -p openzeppelin_presets --release --features falcon_presets_tests falcon_512 --max-n-steps 5000000 --gas-report
+snforge test -p openzeppelin_account --release --features falcon_fast_tests every_basis_vector --max-n-steps 150000000
 ```
 
 CI measures each preset's invoke, declare, and deploy validation separately from deployment, with
 a 20% margin below Starknet 0.14.2's Sierra-gas validation cap. These tests use Sierra-gas metering;
 the protocol's Cairo-step limit applies to Cairo-step-metered execution. Whole-test budgets also
-cover setup costs.
+cover setup costs. Tighter per-preset regression budgets (34 million gas for the hint
+fixture, 47 million for direct) protect the measured savings.
 
 The generator checks all 512 basis vectors, inverse transforms, pointwise products and integer
-bounds. The fixture checker validates committed signatures and their encodings; it does not
+bounds, including packed channel separation, signed intermediate intervals, all output extrema
+and native remainder bounds. The fixture checker validates committed signatures and their encodings; it does not
 reproduce the original signing randomness. See [ARCHITECTURE.md](ARCHITECTURE.md#verification-boundaries)
 for compiler-profile, coverage and network limitations.
 

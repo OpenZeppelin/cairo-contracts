@@ -67,10 +67,10 @@ jobs:
       - name: Run Falcon release-profile tests
         run: |
           snforge test -p openzeppelin_account --release --features falcon_fast_tests falcon_512 --skip every_basis_vector --max-n-steps 5000000
-          snforge test -p openzeppelin_presets --release --features falcon_presets_tests falcon_512 --max-n-steps 5000000
+          snforge test -p openzeppelin_presets --release --features falcon_presets_tests falcon_512 --max-n-steps 5000000 --gas-report
 
-      - name: Verify every Falcon NTT basis vector
-        run: snforge test -p openzeppelin_account --release --features falcon_fast_tests every_basis_vector --max-n-steps 100000000
+      - name: Verify every single-channel and packed Falcon NTT basis vector
+        run: snforge test -p openzeppelin_account --release --features falcon_fast_tests every_basis_vector --max-n-steps 150000000
 
       - name: Build release-profile presets
         run: |
@@ -78,7 +78,10 @@ jobs:
           python3 scripts/falcon_512/check_resources.py
 
       - name: Run tests and generate coverage report
-        run: snforge test --workspace --coverage
+        run: |
+          snforge test --workspace --coverage
+          cat packages/*/coverage/coverage.lcov > coverage.lcov
+          test -s coverage.lcov
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@fb8b3582c8e4def4969c97caa2f19720cb33a72f # v6

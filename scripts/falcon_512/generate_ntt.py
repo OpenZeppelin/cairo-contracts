@@ -9,11 +9,12 @@ by the recursive Falcon transform.
 The executable checks cover the root construction, the iterative Cairo engine, inverse
 and pointwise-product paths, and the fully unrolled production transform. The generated
 operation graph is interval-checked to ensure that felt arithmetic does not wrap and that
-every shifted output fits the u128 reduction path.
+each single-channel shifted output fits u128. The paired transform preserves signed
+intervals, separates both shifted channels below 2^123, and uses native bounded remainders.
 
 Run without arguments to execute the checks. Pass ``--write`` to regenerate and format:
 
-    packages/account/src/falcon_512/ntt/{bitrev,roots_felt,roots_scaled,falcon512_fast}.cairo
+    packages/account/src/falcon_512/ntt/{bitrev,roots_felt,roots_scaled,falcon512_fast,falcon512_packed}.cairo
 """
 
 import argparse
@@ -548,12 +549,257 @@ def render_fast(
     return "".join(output)
 
 
+PACKED_RADIX = 2**123
+PACKED_OUT = NTT_DIR / "falcon512_packed.cairo"
+
+
+class BoundedCairoOps:
+    """Emit typed arithmetic; each signed interval must have a unique field encoding."""
+
+    def __init__(self):
+        self.types = {(0, Q - 1): "PackingZq"}
+        self.helpers = {}
+        self.lines = []
+
+    def type_for(self, low, high):
+        key = (low, high)
+        if key not in self.types:
+            self.types[key] = f"Bound{len(self.types)}"
+        return self.types[key]
+
+    def record(self, operation, left, right):
+        if operation == "add":
+            low, high = left.low + right.low, left.high + right.high
+        elif operation == "sub":
+            low, high = left.low - right.high, left.high - right.low
+        else:
+            products = [a * b for a in (left.low, left.high)
+                        for b in (right.low, right.high)]
+            low, high = min(products), max(products)
+        assert -(STARK_PRIME // 2) < low <= high < STARK_PRIME // 2
+        assert high - low < STARK_PRIME
+        key = (operation, self.type_for(left.low, left.high),
+               self.type_for(right.low, right.high))
+        if key not in self.helpers:
+            self.helpers[key] = (f"Arithmetic{len(self.helpers)}", self.type_for(low, high))
+        name = f"v{len(self.lines)}"
+        # Explicit implementations keep Cairo's trait solver linear in the graph size.
+        self.lines.append(
+            f"    let {name} = {operation}::<{key[1]}, {key[2]}, "
+            f"{self.helpers[key][0]}>({left.name}, {right.name});"
+        )
+        return CairoValue(name, low, high)
+
+    def mul_const(self, value, constant):
+        return self.record("mul", value, CairoValue(str(constant), constant, constant))
+
+    def add(self, left, right):
+        return self.record("add", left, right)
+
+    def sub(self, left, right):
+        return self.record("sub", left, right)
+
+
+def packed_bounds(outputs, shift, radix=PACKED_RADIX):
+    """Prove channel separation, canonical packing, and native division's quotient bound."""
+    maximum = max(value.high + shift for value in outputs)
+    assert shift % Q == 0
+    assert min(value.low + shift for value in outputs) >= 0
+    assert maximum < radix
+    assert maximum * (radix + 1) < STARK_PRIME
+    offset = ((maximum + Q - 1) // Q) * Q
+    difference_low = offset - maximum
+    difference_high = (radix - 1) * (2**16 - 1) + offset
+    assert offset % Q == 0
+    assert 0 <= difference_low <= difference_high < STARK_PRIME
+    assert difference_high // Q < 2**128
+    return maximum, offset, difference_low, difference_high
+
+
+def render_packed(tables, outputs, shift):
+    radix = PACKED_RADIX
+    maximum, offset, difference_low, difference_high = packed_bounds(outputs, shift, radix)
+    ops = BoundedCairoOps()
+    input_max = (Q - 1) * (radix + 1)
+    input_type = ops.type_for(0, input_max)
+    inputs = [CairoValue(f"f{i}", 0, input_max) for i in range(512)]
+    raw = ntt_unrolled(inputs, tables, ops)
+    packed_shift = shift * (radix + 1)
+    raw = [ops.add(value, CairoValue(str(packed_shift), packed_shift, packed_shift))
+           for value in raw]
+    body = "\n".join(ops.lines)
+    ops.lines = []
+    packed = ops.add(CairoValue("a", 0, Q - 1),
+                     ops.mul_const(CairoValue("b", 0, Q - 1), radix))
+    pack_body = "\n".join(ops.lines)
+    output_type = ops.type_for(0, maximum * (radix + 1))
+    radix_type = ops.type_for(radix, radix)
+    high_type = ops.type_for(0, maximum)
+    low_type = ops.type_for(0, radix - 1)
+    text = generated_header(PACKED_OUT, [
+        "Two-channel Falcon-512 forward NTT with exact signed interval bounds.",
+        f"For R = 2^123 and S = {shift},",
+        "linearity gives T(a + R*b) + S*(1+R) = (T(a)+S) + R*(T(b)+S).",
+        f"Each shifted channel lies in [0, {maximum}] < R;",
+        "the packed output is below the Stark prime. Signed intermediates are allowed.",
+        "The generator and Sierra bounded-integer helpers verify every arithmetic interval.",
+    ])
+    text += '''
+use openzeppelin_corelib_imports::bounded_int::{
+    AddHelper, BoundedInt, DivRemHelper, MulHelper, SubHelper, add, div_rem, mul, sub, upcast,
+};
+use crate::falcon_512::packing::PackingZq;
+'''
+    for (low, high), name in ops.types.items():
+        if name != "PackingZq":
+            text += f"type {name} = BoundedInt<{low}, {high}>;\n"
+    text += f"pub(crate) type PackedOutput = {output_type};\n"
+    for (operation, left, right), (name, result) in ops.helpers.items():
+        text += (f"impl {name} of {operation.title()}Helper<{left}, {right}> "
+                 f"{{ type Result = {result}; }}\n")
+    text += f'''
+impl Split of DivRemHelper<{output_type}, {radix_type}> {{
+    type DivT = {high_type};
+    type RemT = {low_type};
+}}
+#[inline(always)]
+fn pack(a: PackingZq, b: PackingZq) -> {input_type} {{
+{pack_body}
+    {packed.name}
+}}
+#[inline(always)]
+fn inner({', '.join(f'f{i}: {input_type}' for i in range(512))}) -> [PackedOutput; 512] {{
+{body}
+    [{', '.join(f'upcast({value.name})' for value in raw)}]
+}}
+'''
+    width = 32
+    a_names, b_names, out_names = ([f"{prefix}{i}" for i in range(width)]
+                                  for prefix in ("a", "b", "o"))
+    append = "\n".join(f"        packed.append(pack({a}, {b}));"
+                       for a, b in zip(a_names, b_names))
+    copy = "\n".join(f"        output.append({value});" for value in out_names)
+    text += f'''
+/// Transforms two canonical 512-coefficient polynomials in one bounded arithmetic graph.
+/// Outputs retain the channel shifts; `product_remainder` removes them modulo q.
+pub(crate) fn ntt_falcon512_packed(
+    mut a: Span<PackingZq>, mut b: Span<PackingZq>,
+) -> Array<PackedOutput> {{
+    assert(a.len() == 512 && b.len() == 512, 'packed NTT: bad length');
+    let mut packed = array![];
+    while let Some(chunk) = a.multi_pop_front::<{width}>() {{
+        let [{', '.join(a_names)}] = (*chunk).unbox();
+        let [{', '.join(b_names)}] = (*b.multi_pop_front::<{width}>().unwrap()).unbox();
+{append}
+    }}
+    let mut packed = packed.span();
+    let [{', '.join(f'f{i}' for i in range(512))}] = packed.multi_pop_front::<512>().unwrap().unbox();
+    let raw = inner({', '.join(f'f{i}' for i in range(512))});
+    let mut values = raw.span();
+    let mut output = array![];
+    while let Some(chunk) = values.multi_pop_front::<{width}>() {{
+        let [{', '.join(out_names)}] = (*chunk).unbox();
+{copy}
+    }}
+    output
+}}
+type CheckProduct = BoundedInt<0, {(radix - 1) * (2**16 - 1)}>;
+type CheckOffset = BoundedInt<{offset}, {offset}>;
+type CheckShifted = BoundedInt<{offset}, {difference_high}>;
+type CheckDifference = BoundedInt<{difference_low}, {difference_high}>;
+type CheckDivisor = BoundedInt<{Q}, {Q}>;
+impl CheckMul of MulHelper<{low_type}, u16> {{ type Result = CheckProduct; }}
+impl CheckAdd of AddHelper<CheckProduct, CheckOffset> {{ type Result = CheckShifted; }}
+impl CheckSub of SubHelper<CheckShifted, {high_type}> {{ type Result = CheckDifference; }}
+impl CheckDiv of DivRemHelper<CheckDifference, CheckDivisor> {{
+    type DivT = BoundedInt<{difference_low // Q}, {difference_high // Q}>;
+    type RemT = PackingZq;
+}}
+/// Returns `(NTT(a)[i] * key - NTT(b)[i]) mod q` in `[0, q)`.
+/// The offset is a multiple of q and makes the difference nonnegative. Although
+/// the dividend exceeds u128, its quotient fits u128, enabling native bounded division.
+#[inline(always)]
+pub(crate) fn product_remainder(value: PackedOutput, key: u16) -> felt252 {{
+    let divisor: NonZero<{radix_type}> = {radix};
+    let (b, a) = div_rem::<{output_type}, {radix_type}, Split>(value, divisor);
+    let product = mul::<{low_type}, u16, CheckMul>(a, key);
+    let shifted = add::<CheckProduct, CheckOffset, CheckAdd>(product, {offset});
+    let difference = sub::<CheckShifted, {high_type}, CheckSub>(shifted, b);
+    let q: NonZero<CheckDivisor> = {Q};
+    let (_, remainder) = div_rem::<CheckDifference, CheckDivisor, CheckDiv>(difference, q);
+    upcast(remainder)
+}}
+'''
+    # Exercise the largest output interval in Cairo as well as in the integer model.
+    index = max(range(512), key=lambda i: outputs[i].high)
+    coefficients = []
+    for i in range(512):
+        basis = [0] * 512
+        basis[i] = 1
+        coefficients.append(ntt_unrolled(basis, tables, ConcreteOps())[index])
+    for label, sign in (("HIGH", 1), ("LOW", -1)):
+        values = [Q - 1 if c * sign > 0 else 0 for c in coefficients]
+        text += ("#[cfg(test)]\n"
+                 f"pub(crate) const EXTREME_{label}: [u16; 512] = [{', '.join(map(str, values))}];\n")
+    return text
+
+
+def verify_packed(tables, outputs, shift):
+    """Check field execution against independent transforms and every output extremum."""
+    packed_bounds(outputs, shift)
+    # Rendering traverses and verifies every typed intermediate, even without --write.
+    render_packed(tables, outputs, shift)
+
+    class FieldOps:
+        @staticmethod
+        def add(a, b): return (a + b) % STARK_PRIME
+        @staticmethod
+        def sub(a, b): return (a - b) % STARK_PRIME
+        @staticmethod
+        def mul_const(a, b): return a * b % STARK_PRIME
+
+    def check(a, b):
+        raw = ntt_unrolled([x + PACKED_RADIX * y for x, y in zip(a, b)], tables, FieldOps())
+        split = [divmod((value + shift * (1 + PACKED_RADIX)) % STARK_PRIME, PACKED_RADIX)
+                 for value in raw]
+        exact_a = [value + shift for value in ntt_unrolled(a, tables, ConcreteOps())]
+        exact_b = [value + shift for value in ntt_unrolled(b, tables, ConcreteOps())]
+        assert split == list(zip(exact_b, exact_a))
+        assert [a % Q for _, a in split] == ntt_recursive(a, tables)
+        assert [b % Q for b, _ in split] == ntt_recursive(b, tables)
+
+    zero, top = [0] * 512, [Q - 1] * 512
+    for a, b in ((zero, zero), (top, top), (zero, top), (top, zero)):
+        check(a, b)
+    rng = random.Random(20261110)
+    for _ in range(32):
+        check([rng.randrange(Q) for _ in zero], [rng.randrange(Q) for _ in zero])
+    columns = []
+    for i in range(512):
+        basis = zero.copy()
+        basis[i] = 1
+        columns.append(ntt_unrolled(basis, tables, ConcreteOps()))
+        basis[i] = Q - 1
+        check(basis, zero)
+        check(zero, basis)
+    for i in range(512):
+        coefficients = [column[i] for column in columns]
+        high = [Q - 1 if c > 0 else 0 for c in coefficients]
+        low = [Q - 1 if c < 0 else 0 for c in coefficients]
+        assert sum(c * v for c, v in zip(coefficients, high)) == outputs[i].high
+        assert sum(c * v for c, v in zip(coefficients, low)) == outputs[i].low
+        check(high, low)
+    print("verified packed signed intervals, both channel bases, all output extrema and native division bounds")
+
+
+
 def write_generated(tables: dict[int, list[int]], trace, outputs, shift: int) -> None:
     rendered = {
         BITREV_OUT: render_bitrev(),
         ROOTS_FELT_OUT: render_roots_felt(tables),
         ROOTS_SCALED_OUT: render_roots_scaled(tables),
         FAST_OUT: render_fast(trace, outputs, shift),
+        PACKED_OUT: render_packed(tables, outputs, shift),
     }
     for path, source in rendered.items():
         path.write_text(source)
@@ -568,6 +814,7 @@ def main() -> None:
 
     tables = derive_forward_roots()
     trace, outputs, shift = verify(tables)
+    verify_packed(tables, outputs, shift)
     if args.write:
         write_generated(tables, trace, outputs, shift)
 

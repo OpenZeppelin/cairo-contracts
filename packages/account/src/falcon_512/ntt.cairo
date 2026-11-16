@@ -7,5 +7,7 @@ pub(crate) mod bitrev;
 pub(crate) mod engine;
 pub(crate) mod falcon512;
 pub(crate) mod falcon512_fast;
+
+pub(crate) mod falcon512_packed;
 pub(crate) mod roots_felt;
 pub(crate) mod roots_scaled;

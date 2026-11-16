@@ -10,4 +10,4 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Check for typos
-        uses: crate-ci/typos@d43b6c087ac471e2ea7b8af622ff15f05c0c365b
+        uses: crate-ci/typos@276087d9a4f06398b3e04825487805e2d7375888

@@ -283,8 +283,8 @@ impl MergeRot18 of AddHelper<Rot18Shifted, Rot18Top> {
 #[inline(always)]
 fn rot18(x: Lane, d: NonZero<UnitInt<70368744177664>>) -> Lane {
     let m: UnitInt<262144> = 262144;
-    let (aH, rest) = div_rem(x, d);
-    add(mul(rest, m), aH)
+    let (top, rest) = div_rem(x, d);
+    add(mul(rest, m), top)
 }
 type Rot56Top = BoundedInt<0, 0xffffffffffffff>;
 type Rot56Rest = BoundedInt<0, 255>;
@@ -302,8 +302,8 @@ impl MergeRot56 of AddHelper<Rot56Shifted, Rot56Top> {
 #[inline(always)]
 fn rot56(x: Lane, d: NonZero<UnitInt<256>>) -> Lane {
     let m: UnitInt<72057594037927936> = 72057594037927936;
-    let (aH, rest) = div_rem(x, d);
-    add(mul(rest, m), aH)
+    let (top, rest) = div_rem(x, d);
+    add(mul(rest, m), top)
 }
 type Rot61Top = BoundedInt<0, 0x1fffffffffffffff>;
 type Rot61Rest = BoundedInt<0, 7>;
@@ -321,8 +321,8 @@ impl MergeRot61 of AddHelper<Rot61Shifted, Rot61Top> {
 #[inline(always)]
 fn rot61(x: Lane, d: NonZero<UnitInt<8>>) -> Lane {
     let m: UnitInt<0x2000000000000000> = 0x2000000000000000;
-    let (aH, rest) = div_rem(x, d);
-    add(mul(rest, m), aH)
+    let (top, rest) = div_rem(x, d);
+    add(mul(rest, m), top)
 }
 /// Division-free left-rotation by `n` over one lane, generic over the
 /// `(2^(64 - n) divisor, 2^n multiplier)` pair: the wrapped high bits and the
@@ -681,68 +681,68 @@ impl Rotl1WrapLaneHigh of SubHelper<
 #[inline(always)]
 fn rot6(x: Lane, d: NonZero<UnitInt<0x400000000000000>>) -> Lane {
     let m: UnitInt<64> = 64;
-    let (aH, rest) = div_rem(x, d);
-    add(mul(rest, m), aH)
+    let (top, rest) = div_rem(x, d);
+    add(mul(rest, m), top)
 }
 #[inline(always)]
 fn rot8(x: Lane, d: NonZero<UnitInt<72057594037927936>>) -> Lane {
     let m: UnitInt<256> = 256;
-    let (aH, rest) = div_rem(x, d);
-    add(mul(rest, m), aH)
+    let (top, rest) = div_rem(x, d);
+    add(mul(rest, m), top)
 }
 #[inline(always)]
 fn rot20(x: Lane, d: NonZero<UnitInt<17592186044416>>) -> Lane {
     let m: UnitInt<1048576> = 1048576;
-    let (aH, rest) = div_rem(x, d);
-    add(mul(rest, m), aH)
+    let (top, rest) = div_rem(x, d);
+    add(mul(rest, m), top)
 }
 #[inline(always)]
 fn rot21(x: Lane, d: NonZero<UnitInt<8796093022208>>) -> Lane {
     let m: UnitInt<2097152> = 2097152;
-    let (aH, rest) = div_rem(x, d);
-    add(mul(rest, m), aH)
+    let (top, rest) = div_rem(x, d);
+    add(mul(rest, m), top)
 }
 #[inline(always)]
 fn rot25(x: Lane, d: NonZero<UnitInt<549755813888>>) -> Lane {
     let m: UnitInt<33554432> = 33554432;
-    let (aH, rest) = div_rem(x, d);
-    add(mul(rest, m), aH)
+    let (top, rest) = div_rem(x, d);
+    add(mul(rest, m), top)
 }
 #[inline(always)]
 fn rot28(x: Lane, d: NonZero<UnitInt<68719476736>>) -> Lane {
     let m: UnitInt<268435456> = 268435456;
-    let (aH, rest) = div_rem(x, d);
-    add(mul(rest, m), aH)
+    let (top, rest) = div_rem(x, d);
+    add(mul(rest, m), top)
 }
 #[inline(always)]
 fn rot39(x: Lane, d: NonZero<UnitInt<33554432>>) -> Lane {
     let m: UnitInt<549755813888> = 549755813888;
-    let (aH, rest) = div_rem(x, d);
-    add(mul(rest, m), aH)
+    let (top, rest) = div_rem(x, d);
+    add(mul(rest, m), top)
 }
 #[inline(always)]
 fn rot41(x: Lane, d: NonZero<UnitInt<8388608>>) -> Lane {
     let m: UnitInt<2199023255552> = 2199023255552;
-    let (aH, rest) = div_rem(x, d);
-    add(mul(rest, m), aH)
+    let (top, rest) = div_rem(x, d);
+    add(mul(rest, m), top)
 }
 #[inline(always)]
 fn rot43(x: Lane, d: NonZero<UnitInt<2097152>>) -> Lane {
     let m: UnitInt<8796093022208> = 8796093022208;
-    let (aH, rest) = div_rem(x, d);
-    add(mul(rest, m), aH)
+    let (top, rest) = div_rem(x, d);
+    add(mul(rest, m), top)
 }
 #[inline(always)]
 fn rot45(x: Lane, d: NonZero<UnitInt<524288>>) -> Lane {
     let m: UnitInt<35184372088832> = 35184372088832;
-    let (aH, rest) = div_rem(x, d);
-    add(mul(rest, m), aH)
+    let (top, rest) = div_rem(x, d);
+    add(mul(rest, m), top)
 }
 #[inline(always)]
 fn rot62(x: Lane, d: NonZero<UnitInt<4>>) -> Lane {
     let m: UnitInt<0x4000000000000000> = 0x4000000000000000;
-    let (aH, rest) = div_rem(x, d);
-    add(mul(rest, m), aH)
+    let (top, rest) = div_rem(x, d);
+    add(mul(rest, m), top)
 }
 /// Bitwise NOT of a single lane: `(2^64 - 1) - x`.
 #[inline(always)]
@@ -864,35 +864,35 @@ fn first_round_theta(parities: ColumnParities) -> (u128, Lane, Lane, Lane, u128)
 fn first_round_theta_with(
     parities: ColumnParities, two64: NonZero<TwoPow64>, m64: Mask64, mask128_full: Mask128,
 ) -> (u128, Lane, Lane, Lane, u128) {
-    let (nP, nQ, c4) = parities;
-    let (c1, c0) = split_pair(nP, two64);
-    let (c3, c2) = split_pair(nQ, two64);
-    let (r0, tG) = rotl1_lane_and_pair(c0, c1, c2, TWO_POW_65_NZ, m64, mask128_full);
+    let (par01, par23, c4) = parities;
+    let (c1, c0) = split_pair(par01, two64);
+    let (c3, c2) = split_pair(par23, two64);
+    let (r0, rot1_12) = rotl1_lane_and_pair(c0, c1, c2, TWO_POW_65_NZ, m64, mask128_full);
     let p12 = pair(c1, c2);
-    let di = pair(c4, c0) ^ tG;
+    let di = pair(c4, c0) ^ rot1_12;
     (di, c3, c4, r0, p12)
 }
 /// Applies the first round's theta to a full packed state, producing the
 /// partially expanded [`FirstRound`] intermediate.
 #[inline(always)]
 pub(crate) fn absorb_round(st: [u128; 12], g4: Lane, parities: ColumnParities) -> FirstRound {
-    let [u0, u1, u2, u3, u4, v0, v1, v2, v3, v4, bk, bL] = st;
+    let [u0, u1, u2, u3, u4, v0, v1, v2, v3, v4, bk, col14] = st;
     let (di, c3, c4, r0, p12) = first_round_theta(parities);
-    let dM = not128(di, MASK_128);
-    let (cK, cJ) = split_pair(u2 ^ dM, TWO_POW_64_NZ);
-    let (cJ, tH) = rotl1_lane_and_pair(cJ, c3, c4, TWO_POW_65_NZ, MASK_64, MASK_128);
-    let rd23 = p12 ^ tH;
+    let not_di = not128(di, MASK_128);
+    let (u2_hi, u2_lo) = split_pair(u2 ^ not_di, TWO_POW_64_NZ);
+    let (u2_lo, rot1_34) = rotl1_lane_and_pair(u2_lo, c3, c4, TWO_POW_65_NZ, MASK_64, MASK_128);
+    let rd23 = p12 ^ rot1_34;
     let d4 = xor64(c3, r0);
-    let dN = not128(rd23, MASK_128);
+    let not_d23 = not128(rd23, MASK_128);
     let dj = duplicate_lane(d4);
     (
         [
-            v0 ^ rd23, u1 ^ di, v1 ^ rd23, v2 ^ dN, u3 ^ di, v3 ^ rd23, u4 ^ dM, v4 ^ dN, bk ^ dj,
-            bL ^ dj,
+            v0 ^ rd23, u1 ^ di, v1 ^ rd23, v2 ^ not_d23, u3 ^ di, v3 ^ rd23, u4 ^ not_di,
+            v4 ^ not_d23, bk ^ dj, col14 ^ dj,
         ],
         u0 ^ di,
-        cJ,
-        cK,
+        u2_lo,
+        u2_hi,
         not64(xor64(g4, d4), 0xffffffffffffffff),
     )
 }
@@ -928,45 +928,45 @@ fn expand_first_round(
     Lane,
     Lane,
 ) {
-    let ([w0, w1, w2, w4, w5, w6, w7, w8, w9, uC], wu, cJ, cK, cT) = p;
-    let (bK, bx) = split_pair_carry(wu, k.two65);
-    let (dq, cH) = split_pair(w0, k.two64);
+    let ([w0, w1, w2, w4, w5, w6, w7, w8, w9, w10], wu, u2_lo, u2_hi, not_g4) = p;
+    let (u0_lo, bx) = split_pair_carry(wu, k.two65);
+    let (dq, w0_lo) = split_pair(w0, k.two64);
     let (dt, ds) = split_pair(w1, k.two64);
-    let (cI, du) = split_pair(w2, k.two64);
-    let (cM, cL) = split_pair(w4, k.two64);
+    let (w2_hi, du) = split_pair(w2, k.two64);
+    let (w4_hi, w4_lo) = split_pair(w4, k.two64);
     let (cq, cp) = split_pair(w5, k.two64);
-    let (cO, cN) = split_pair(w6, k.two64);
-    let (cr, cQ) = split_pair(w7, k.two64);
-    let (cS, cR) = split_pair(w8, k.two64);
+    let (w6_hi, w6_lo) = split_pair(w6, k.two64);
+    let (cr, w7_lo) = split_pair(w7, k.two64);
+    let (w8_hi, w8_lo) = split_pair(w8, k.two64);
     let (dv, dr) = split_pair(w9, k.two64);
-    let (cP, cc) = split_pair(uC, k.two64);
+    let (w10_hi, cc) = split_pair(w10, k.two64);
     let cc = not64(cc, k.mask64);
     (
-        bK,
+        u0_lo,
         bx,
-        cH,
+        w0_lo,
         dq,
         dr,
         ds,
         dt,
         du,
-        cI,
+        w2_hi,
         dv,
-        cJ,
-        cK,
-        cL,
-        cM,
+        u2_lo,
+        u2_hi,
+        w4_lo,
+        w4_hi,
         cc,
         cp,
         cq,
-        cN,
-        cO,
-        cP,
-        cQ,
+        w6_lo,
+        w6_hi,
+        w10_hi,
+        w7_lo,
         cr,
-        cR,
-        cS,
-        cT,
+        w8_lo,
+        w8_hi,
+        not_g4,
     )
 }
 /// Theta and lane expansion for the stage-2 orientation (rounds 16..=22).
@@ -1001,60 +1001,60 @@ fn theta_stage2(
     Lane,
 ) {
     let (st, g3) = st;
-    let [e0, e1, e2, e3, e4, o0, o1, o2, o3, o4, bk, hI] = st;
-    let eD = e0 ^ e1 ^ e2 ^ e3 ^ e4;
-    let hG = o0 ^ o1 ^ o2 ^ o3 ^ o4;
-    let (gh, gl) = split_pair(bk ^ hI, k.two64);
+    let [e0, e1, e2, e3, e4, o0, o1, o2, o3, o4, bk, col14] = st;
+    let par_e = e0 ^ e1 ^ e2 ^ e3 ^ e4;
+    let par_o = o0 ^ o1 ^ o2 ^ o3 ^ o4;
+    let (gh, gl) = split_pair(bk ^ col14, k.two64);
     let c4 = xor64(xor64(gh, gl), g3);
-    let (c2, c0) = split_pair(eD, k.two64);
-    let (c3, c1) = split_pair(hG, k.two64);
-    let (kL, kM) = rotl1_two_pairs(c1, c3, c2, c4, k.two65.into(), k.mask64, k.mask128);
-    let kp = eD ^ kM;
+    let (c2, c0) = split_pair(par_e, k.two64);
+    let (c3, c1) = split_pair(par_o, k.two64);
+    let (rot1_13, rot1_24) = rotl1_two_pairs(c1, c3, c2, c4, k.two65.into(), k.mask64, k.mask128);
+    let kp = par_e ^ rot1_24;
     let dk = not128(kp, k.mask128);
-    let (cO, cq) = split_pair(o3 ^ dk, k.two64);
-    let ee = pair(c4, c1) ^ kL;
-    let jH = not128(ee, k.mask128);
-    let (top63, zm) = div_rem(e2 ^ jH, k.two65);
-    let (r0, cq, cJ, cL) = rotl1_pair_split(c0, cq, top63, zm, k.mask64);
+    let (o3_hi, cq) = split_pair(o3 ^ dk, k.two64);
+    let ee = pair(c4, c1) ^ rot1_13;
+    let not_ee = not128(ee, k.mask128);
+    let (top63, zm) = div_rem(e2 ^ not_ee, k.two65);
+    let (r0, cq, e2_lo, e2_hi) = rotl1_pair_split(c0, cq, top63, zm, k.mask64);
     let (dq, bx) = split_pair(o0 ^ dk, k.two64);
     let d4 = xor64(c3, r0);
     let dj = duplicate_lane(d4);
-    let (cH, bK) = split_pair(e0 ^ ee, k.two64);
+    let (e0_hi, e0_lo) = split_pair(e0 ^ ee, k.two64);
     let (du, ds) = split_pair(e1 ^ ee, k.two64);
-    let (cI, dt) = split_pair(o1 ^ dk, k.two64);
-    let (cM, cK) = split_pair(o2 ^ kp, k.two64);
-    let (cN, cp) = split_pair(e3 ^ ee, k.two64);
-    let (cR, cQ) = split_pair(e4 ^ jH, k.two64);
-    let (cS, cr) = split_pair(o4 ^ kp, k.two64);
+    let (o1_hi, dt) = split_pair(o1 ^ dk, k.two64);
+    let (o2_hi, o2_lo) = split_pair(o2 ^ kp, k.two64);
+    let (e3_hi, cp) = split_pair(e3 ^ ee, k.two64);
+    let (e4_hi, e4_lo) = split_pair(e4 ^ not_ee, k.two64);
+    let (o4_hi, cr) = split_pair(o4 ^ kp, k.two64);
     let (dv, dr) = split_pair(bk ^ dj, k.two64);
-    let (cT, cc) = split_pair(hI ^ dj, k.two64);
-    let cP = xor64(g3, d4);
+    let (col14_hi, cc) = split_pair(col14 ^ dj, k.two64);
+    let g3d = xor64(g3, d4);
     (
-        bK,
+        e0_lo,
         bx,
-        cH,
+        e0_hi,
         dq,
         dr,
         ds,
         dt,
         du,
-        cI,
+        o1_hi,
         dv,
-        cJ,
-        cK,
-        cL,
-        cM,
+        e2_lo,
+        o2_lo,
+        e2_hi,
+        o2_hi,
         cc,
         cp,
         cq,
-        cN,
-        cO,
-        cP,
-        cQ,
+        e3_hi,
+        o3_hi,
+        g3d,
+        e4_lo,
         cr,
-        cR,
-        cS,
-        cT,
+        e4_hi,
+        o4_hi,
+        col14_hi,
     )
 }
 /// Rho rotations with pi precomposed for the stage-2 orientation.
@@ -1116,56 +1116,56 @@ fn rho_pi(
     Lane,
 ) {
     let (
-        bK,
+        e0_lo,
         bx,
-        cH,
+        e0_hi,
         dq,
         dr,
         ds,
         dt,
         du,
-        cI,
+        o1_hi,
         dv,
-        cJ,
-        cK,
-        cL,
-        cM,
+        e2_lo,
+        o2_lo,
+        e2_hi,
+        o2_hi,
         cc,
         cp,
         cq,
-        cN,
-        cO,
-        cP,
-        cQ,
+        e3_hi,
+        o3_hi,
+        g3d,
+        e4_lo,
         cr,
-        cR,
-        cS,
-        cT,
+        e4_hi,
+        o4_hi,
+        col14_hi,
     ) =
         a;
     (
-        rot20(bK, k.rd20),
+        rot20(e0_lo, k.rd20),
         dt,
-        cL,
-        rot41(cO, k.rd41),
-        rot_generic(cT, k.rd34, M34),
+        e2_hi,
+        rot41(o3_hi, k.rd41),
+        rot_generic(col14_hi, k.rd34, M34),
         rot_generic(dq, k.rd48, M48),
         rot_generic(dv, k.rd40, M40),
-        rot_generic(cJ, k.rd23, M23),
+        rot_generic(e2_lo, k.rd23, M23),
         cq,
-        rot_generic(cR, k.rd17, M17),
+        rot_generic(e4_hi, k.rd17, M17),
         rot21(bx, k.rd21),
         rot_generic(du, k.rd26, M26),
-        rot45(cM, k.rd45),
-        rot28(cP, k.rd28),
-        rot_generic(cQ, k.rd38, M38),
+        rot45(o2_hi, k.rd45),
+        rot28(g3d, k.rd28),
+        rot_generic(e4_lo, k.rd38, M38),
         rot_generic(dr, k.rd47, M47),
         rot56(ds, k.rd56),
-        rot_generic(cK, k.rd30, M30),
-        rot_generic(cN, k.rd35, M35),
-        rot_generic(cS, k.rd12, M12),
-        rot18(cH, k.rd18),
-        rot_generic(cI, k.rd11, M11),
+        rot_generic(o2_lo, k.rd30, M30),
+        rot_generic(e3_hi, k.rd35, M35),
+        rot_generic(o4_hi, k.rd12, M12),
+        rot18(e0_hi, k.rd18),
+        rot_generic(o1_hi, k.rd11, M11),
         rot_generic(cc, k.rd59, M59),
         rot61(cp, k.rd61),
         rot_generic(cr, k.rd22, M22),
@@ -1176,27 +1176,27 @@ pub(crate) type Row4 = (Lane, Lane, Lane, Lane, Lane);
 #[inline(always)]
 pub(crate) fn chi_row4(r: Row4) -> (u128, u128, Lane) {
     let (b20, b21, b22, b23, b24) = r;
-    let eG = pair(b22, b23);
+    let p22_23 = pair(b22, b23);
     (
-        pair(b20, b21) ^ (not128(pair(b21, b22), MASK_128) & eG),
-        eG ^ (not128(pair(b23, b24), MASK_128) & pair(b24, b20)),
+        pair(b20, b21) ^ (not128(pair(b21, b22), MASK_128) & p22_23),
+        p22_23 ^ (not128(pair(b23, b24), MASK_128) & pair(b24, b20)),
         xor64(b24, andn64(b20, b21, 0xffffffffffffffff)),
     )
 }
 /// Completes chi on row 4 and repacks the full 13-word state.
 #[inline(always)]
 pub(crate) fn append_row4(s: ([u128; 10], Row4)) -> ([u128; 12], Lane) {
-    let ([u0, u1, u2, u3, v0, v1, v2, v3, bk, bL], r) = s;
+    let ([u0, u1, u2, u3, v0, v1, v2, v3, bk, col14], r) = s;
     let (u4, v4, g4) = chi_row4(r);
-    ([u0, u1, u2, u3, u4, v0, v1, v2, v3, v4, bk, bL], g4)
+    ([u0, u1, u2, u3, u4, v0, v1, v2, v3, v4, bk, col14], g4)
 }
 pub(crate) type ColumnParities = (u128, u128, Lane);
 /// Theta column parities over the packed representation: two parities per XOR
 /// on the row pairs, with the x = 4 column folded from its pairs and `lane24`.
 #[inline(always)]
 pub(crate) fn column_parities(st: @[u128; 12], g4: Lane) -> ColumnParities {
-    let [u0, u1, u2, u3, u4, v0, v1, v2, v3, v4, bk, bL] = *st;
-    let (gh, gl) = split_pair(bk ^ bL, TWO_POW_64_NZ);
+    let [u0, u1, u2, u3, u4, v0, v1, v2, v3, v4, bk, col14] = *st;
+    let (gh, gl) = split_pair(bk ^ col14, TWO_POW_64_NZ);
     (u0 ^ u1 ^ u2 ^ u3 ^ u4, v0 ^ v1 ^ v2 ^ v3 ^ v4, xor64(xor64(gh, gl), g4))
 }
 /// Runs theta for the first round and all remaining rounds.
@@ -1263,38 +1263,39 @@ fn chi_final(
     let s16 = high_lane(b16);
     let s19 = high_lane(b19);
     let s09 = high_lane(b09);
-    let oU = pair(b00, b01);
-    let oV = pair(b01, b02);
-    let jI = pair(b02, b03);
-    let oW = pair(b03, b04);
-    let oX = pair(b04, b00);
-    let oY = pair_high(b05, s06);
-    let oZ = pair(b06, b07);
-    let jJ = pair(b07, b08);
+    let p00_01 = pair(b00, b01);
+    let p01_02 = pair(b01, b02);
+    let p02_03 = pair(b02, b03);
+    let p03_04 = pair(b03, b04);
+    let p04_00 = pair(b04, b00);
+    let p05_06 = pair_high(b05, s06);
+    let p06_07 = pair(b06, b07);
+    let p07_08 = pair(b07, b08);
     let o5 = pair_high(b08, s09);
     let o6 = pair_high(b09, s05);
     let o7 = pair(b10, b11);
     let o8 = pair(b11, b12);
-    let jK = pair(b12, b13);
+    let p12_13 = pair(b12, b13);
     let o9 = pair(b13, b14);
     let pa = pair(b14, b10);
     let pb = pair_high(b15, s16);
     let pd = pair(b16, b17);
-    let jL = pair(b17, b18);
+    let p17_18 = pair(b17, b18);
     let pe = pair_high(b18, s19);
     let pf = pair_high(b19, s15);
-    let kF = pair_high(b04, s09);
-    let kJ = pair_high(b00, s05);
-    let kG = pair_high(b01, s06);
-    let qU = pair_high(b14, s19);
-    let sL = pair_high(b10, s15);
-    let kH = pair_high(b11, s16);
+    let p04_09 = pair_high(b04, s09);
+    let p00_05 = pair_high(b00, s05);
+    let p01_06 = pair_high(b01, s06);
+    let p14_19 = pair_high(b14, s19);
+    let p10_15 = pair_high(b10, s15);
+    let p11_16 = pair_high(b11, s16);
     [
-        oU ^ (not128(oV, k.mask128) & jI) ^ rc, oY ^ (not128(oZ, k.mask128) & jJ),
-        o7 ^ (not128(o8, k.mask128) & jK), pb ^ (not128(pd, k.mask128) & jL),
-        jI ^ (not128(oW, k.mask128) & oX), jJ ^ (not128(o5, k.mask128) & o6),
-        jK ^ (not128(o9, k.mask128) & pa), jL ^ (not128(pe, k.mask128) & pf),
-        kF ^ (not128(kJ, k.mask128) & kG), qU ^ (not128(sL, k.mask128) & kH),
+        p00_01 ^ (not128(p01_02, k.mask128) & p02_03) ^ rc,
+        p05_06 ^ (not128(p06_07, k.mask128) & p07_08), o7 ^ (not128(o8, k.mask128) & p12_13),
+        pb ^ (not128(pd, k.mask128) & p17_18), p02_03 ^ (not128(p03_04, k.mask128) & p04_00),
+        p07_08 ^ (not128(o5, k.mask128) & o6), p12_13 ^ (not128(o9, k.mask128) & pa),
+        p17_18 ^ (not128(pe, k.mask128) & pf), p04_09 ^ (not128(p00_05, k.mask128) & p01_06),
+        p14_19 ^ (not128(p10_15, k.mask128) & p11_16),
     ]
 }
 /// Chi and iota over repacked pairs for the stage-2 orientation (or-form on
@@ -1364,36 +1365,38 @@ fn chi_stage2(
     let s20 = high_lane(b20);
     let s24 = high_lane(b24);
     let pg = pair(b00, b02);
-    let jM = pair(b01, b03);
-    let jN = pair(b02, b04);
+    let p01_03 = pair(b01, b03);
+    let p02_04 = pair(b02, b04);
     let ph = pair(b03, b00);
     let pi = pair(b05, b07);
-    let jO = pair(b06, b08);
-    let jP = pair_high(b07, s09);
+    let p06_08 = pair(b06, b08);
+    let p07_09 = pair_high(b07, s09);
     let pj = pair_high(b08, s05);
     let pl = pair(b10, b12);
-    let jQ = pair(b11, b13);
-    let jR = pair(b12, b14);
+    let p11_13 = pair(b11, b13);
+    let p12_14 = pair(b12, b14);
     let pm = pair(b13, b10);
     let pz = pair(b15, b17);
-    let jS = pair(b16, b18);
-    let jT = pair(b17, b19);
+    let p16_18 = pair(b16, b18);
+    let p17_19 = pair(b17, b19);
     let po = pair(b18, b15);
     let pp = pair(b20, b22);
-    let jU = pair(b21, b23);
-    let jV = pair_high(b22, s24);
+    let p21_23 = pair(b21, b23);
+    let p22_24 = pair_high(b22, s24);
     let pq = pair_high(b23, s20);
-    let kF = pair_high(b04, s09);
-    let kJ = pair_high(b00, s05);
-    let kG = pair(b01, b06);
-    let qV = pair_high(b14, s24);
-    let sM = pair_high(b10, s20);
-    let kI = pair(b11, b21);
+    let p04_09 = pair_high(b04, s09);
+    let p00_05 = pair_high(b00, s05);
+    let p01_06 = pair(b01, b06);
+    let p14_24 = pair_high(b14, s24);
+    let p10_20 = pair_high(b10, s20);
+    let p11_21 = pair(b11, b21);
     (
         [
-            pg ^ (jM | jN) ^ rc, pi ^ (jO | jP), pl ^ (jQ | jR), pz ^ (jS | jT), pp ^ (jU | jV),
-            jM ^ (jN & ph), jO ^ (jP & pj), jQ ^ (jR & pm), jS ^ (jT & po), jU ^ (jV & pq),
-            kF ^ (not128(kJ, k.mask128) & kG), qV ^ (sM | not128(kI, k.mask128)),
+            pg ^ (p01_03 | p02_04) ^ rc, pi ^ (p06_08 | p07_09), pl ^ (p11_13 | p12_14),
+            pz ^ (p16_18 | p17_19), pp ^ (p21_23 | p22_24), p01_03 ^ (p02_04 & ph),
+            p06_08 ^ (p07_09 & pj), p11_13 ^ (p12_14 & pm), p16_18 ^ (p17_19 & po),
+            p21_23 ^ (p22_24 & pq), p04_09 ^ (not128(p00_05, k.mask128) & p01_06),
+            p14_24 ^ (p10_20 | not128(p11_21, k.mask128)),
         ],
         xor64(b19, andn64(b15, b16, k.mask64)),
     )
@@ -1402,12 +1405,12 @@ fn chi_stage2(
 /// Pinned to FIPS 202 by the known-answer tests below.
 #[inline(always)]
 pub(crate) fn keccak_f1600_packed(st: [u128; 13]) -> [u128; 13] {
-    let [u0, u1, u2, u3, u4, v0, v1, v2, v3, v4, bk, bL, g4] = st;
+    let [u0, u1, u2, u3, u4, v0, v1, v2, v3, v4, bk, col14, g4] = st;
     let g4: u64 = g4.try_into().unwrap();
-    let ([u0, u1, u2, u3, u4, v0, v1, v2, v3, v4, bk, bL], g4) = permute_packed(
-        [u0, u1, u2, u3, u4, v0, v1, v2, v3, v4, bk, bL], upcast(g4),
+    let ([u0, u1, u2, u3, u4, v0, v1, v2, v3, v4, bk, col14], g4) = permute_packed(
+        [u0, u1, u2, u3, u4, v0, v1, v2, v3, v4, bk, col14], upcast(g4),
     );
-    [u0, u1, u2, u3, u4, v0, v1, v2, v3, v4, bk, bL, upcast(g4)]
+    [u0, u1, u2, u3, u4, v0, v1, v2, v3, v4, bk, col14, upcast(g4)]
 }
 /// One Keccak-f[1600] permutation over the packed 12-word state plus `lane24`.
 #[inline(always)]
@@ -1543,22 +1546,22 @@ pub(crate) fn keccak_f1600(state: [u128; 25]) -> [u128; 25] {
         pack_lanes(s17, s18), pack_lanes(s22, s23), pack_lanes(s04, s09), pack_lanes(s14, s19), s24,
     ];
     let st = keccak_f1600_packed(st);
-    let [u0, u1, u2, u3, u4, v0, v1, v2, v3, v4, bk, bL, g4] = st;
-    let (sO, sN) = split_lanes(u0);
-    let (sT, sS) = split_lanes(u1);
-    let (sY, sX) = split_lanes(u2);
+    let [u0, u1, u2, u3, u4, v0, v1, v2, v3, v4, bk, col14, g4] = st;
+    let (l01, l00) = split_lanes(u0);
+    let (l06, l05) = split_lanes(u1);
+    let (l11, l10) = split_lanes(u2);
     let (tg, tf) = split_lanes(u3);
     let (tl, tk) = split_lanes(u4);
-    let (sQ, sP) = split_lanes(v0);
-    let (sV, sU) = split_lanes(v1);
-    let (td, sZ) = split_lanes(v2);
+    let (l03, l02) = split_lanes(v0);
+    let (l08, l07) = split_lanes(v1);
+    let (td, l12) = split_lanes(v2);
     let (ti, th) = split_lanes(v3);
     let (tn, tm) = split_lanes(v4);
-    let (sW, sR) = split_lanes(bk);
-    let (tj, te) = split_lanes(bL);
+    let (l09, l04) = split_lanes(bk);
+    let (tj, te) = split_lanes(col14);
     [
-        sN, sO, sP, sQ, sR, sS, sT, sU, sV, sW, sX, sY, sZ, td, te, tf, tg, th, ti, tj, tk, tl, tm,
-        tn, g4,
+        l00, l01, l02, l03, l04, l05, l06, l07, l08, l09, l10, l11, l12, td, te, tf, tg, th, ti, tj,
+        tk, tl, tm, tn, g4,
     ]
 }
 /// SHAKE-256: absorb `input`, squeeze `out_bytes` bytes. Test-only generic XOF used
@@ -2124,59 +2127,59 @@ fn theta_last(
     Lane,
 ) {
     let (st, g3) = st;
-    let [e0, e1, e2, e3, e4, o0, o1, o2, o3, o4, bk, hI] = st;
-    let eD = e0 ^ e1 ^ e2 ^ e3 ^ e4;
-    let hG = o0 ^ o1 ^ o2 ^ o3 ^ o4;
-    let (gh, gl) = split_pair(bk ^ hI, k.two64);
+    let [e0, e1, e2, e3, e4, o0, o1, o2, o3, o4, bk, col14] = st;
+    let par_e = e0 ^ e1 ^ e2 ^ e3 ^ e4;
+    let par_o = o0 ^ o1 ^ o2 ^ o3 ^ o4;
+    let (gh, gl) = split_pair(bk ^ col14, k.two64);
     let c4 = xor64(xor64(gh, gl), g3);
-    let (c2, c0) = split_pair(eD, k.two64);
-    let (c3, c1) = split_pair(hG, k.two64);
-    let (kL, kM) = rotl1_two_pairs(c1, c3, c2, c4, k.two65.into(), k.mask64, k.mask128);
-    let dk = not128(eD ^ kM, k.mask128);
-    let (cO, cq) = split_pair(o3 ^ dk, k.two64);
-    let ee = pair(c4, c1) ^ kL;
+    let (c2, c0) = split_pair(par_e, k.two64);
+    let (c3, c1) = split_pair(par_o, k.two64);
+    let (rot1_13, rot1_24) = rotl1_two_pairs(c1, c3, c2, c4, k.two65.into(), k.mask64, k.mask128);
+    let dk = not128(par_e ^ rot1_24, k.mask128);
+    let (o3_hi, cq) = split_pair(o3 ^ dk, k.two64);
+    let ee = pair(c4, c1) ^ rot1_13;
     let (top63, zm) = div_rem(e2 ^ ee, k.two65);
-    let (r0, cq, cJ, cL) = rotl1_pair_split(c0, cq, top63, zm, k.mask64);
+    let (r0, cq, e2_lo, e2_hi) = rotl1_pair_split(c0, cq, top63, zm, k.mask64);
     let d4 = xor64(c3, r0);
     let dj = duplicate_lane(d4);
-    let oO = not128(dj, k.mask128);
-    let (cH, bK) = split_pair(e0 ^ ee, k.two64);
+    let not_dj = not128(dj, k.mask128);
+    let (e0_hi, e0_lo) = split_pair(e0 ^ ee, k.two64);
     let (du, ds) = split_pair(e1 ^ ee, k.two64);
-    let (cI, dt) = split_pair(o1 ^ dk, k.two64);
-    let (cM, cK) = split_pair(o2 ^ dk, k.two64);
-    let (cN, cp) = split_pair(e3 ^ ee, k.two64);
+    let (o1_hi, dt) = split_pair(o1 ^ dk, k.two64);
+    let (o2_hi, o2_lo) = split_pair(o2 ^ dk, k.two64);
+    let (e3_hi, cp) = split_pair(e3 ^ ee, k.two64);
     let (dq, bx) = split_pair(o0 ^ dk, k.two64);
-    let (cR, cQ) = split_pair(e4 ^ ee, k.two64);
-    let (cS, cr) = split_pair(o4 ^ dk, k.two64);
+    let (e4_hi, e4_lo) = split_pair(e4 ^ ee, k.two64);
+    let (o4_hi, cr) = split_pair(o4 ^ dk, k.two64);
     let (dv, dr) = split_pair(bk ^ dj, k.two64);
-    let (cT, cc) = split_pair(hI ^ oO, k.two64);
-    let cP = xor64(g3, d4);
+    let (col14_hi, cc) = split_pair(col14 ^ not_dj, k.two64);
+    let g3d = xor64(g3, d4);
     (
-        bK,
+        e0_lo,
         bx,
-        cH,
+        e0_hi,
         dq,
         dr,
         ds,
         dt,
         du,
-        cI,
+        o1_hi,
         dv,
-        cJ,
-        cK,
-        cL,
-        cM,
+        e2_lo,
+        o2_lo,
+        e2_hi,
+        o2_hi,
         cc,
         cp,
         cq,
-        cN,
-        cO,
-        cP,
-        cQ,
+        e3_hi,
+        o3_hi,
+        g3d,
+        e4_lo,
         cr,
-        cR,
-        cS,
-        cT,
+        e4_hi,
+        o4_hi,
+        col14_hi,
     )
 }
 type LaneHigh = BoundedInt<0x8000000000000000, 0xffffffffffffffff>;
@@ -2195,10 +2198,6 @@ const TWO_POW_63_UNIT: UnitInt<0x8000000000000000> = 0x8000000000000000;
 #[inline(always)]
 fn split_top_bit(x: Lane) -> Result<LaneLow, LaneHigh> {
     constrain::<Lane, 0x8000000000000000>(x)
-}
-#[inline(always)]
-fn rotl1_pair_plain(a: LaneLow, b: LaneLow, bo: TwoPow65) -> u128 {
-    upcast(add(add(mul(b, bo), a), a))
 }
 #[inline(always)]
 fn rotl1_pair_ll(a: LaneLow, b: LaneLow, bo: TwoPow65) -> u128 {
@@ -2220,10 +2219,6 @@ fn rotl1_pair_hl(a: LaneHigh, b: LaneLow, bo: TwoPow65, m64: Mask64) -> u128 {
 #[inline(always)]
 fn rotl1_pair_hh(a: LaneHigh, b: LaneHigh, bo: TwoPow65, mask128_full: Mask128) -> u128 {
     upcast(add(sub(add(mul(b, bo), a), mask128_full), a))
-}
-#[inline(always)]
-fn rotl1_plain(x: LaneLow) -> Lane {
-    upcast(add(x, x))
 }
 #[inline(always)]
 fn rotl1_low(x: LaneLow) -> Lane {

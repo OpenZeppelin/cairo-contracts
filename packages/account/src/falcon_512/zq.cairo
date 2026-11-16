@@ -4,9 +4,10 @@
 //! Arithmetic helpers for `Z_q`, where `q = 12289`.
 //!
 //! Modular operands are canonical `u16` values in `[0, Q)`. The modular helpers return canonical
-//! residues, while the norm helpers return squared centered representatives. The production norm
-//! helpers are branch-free over bounded integers: one native division centers each operand, and
-//! every intermediate fits its declared interval.
+//! residues, while the norm helpers return squared centered representatives. The hint verifier's
+//! norm helpers are branch-free over bounded integers: one native division centers each operand,
+//! and every intermediate fits its declared interval. The direct verifier still centers its `s1`
+//! coefficients through the comparison-based [`center_sq`].
 
 use openzeppelin_corelib_imports::bounded_int::{
     AddHelper, BoundedInt, DivRemHelper, SubHelper, UnitInt, add, div_rem, sub, upcast,

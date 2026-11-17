@@ -33,6 +33,10 @@ fn CONTRACT_STATE() -> DualCaseAccountMock::ContractState {
     DualCaseAccountMock::contract_state_for_testing()
 }
 
+// Not the x-coordinate of any point on the STARK curve.
+const OFF_CURVE_PUBLIC_KEY: felt252 =
+    0x7ab0de4b5c1fa8c3e2d9f1a6b4c8e0d2f3a5b7c9d1e3f5a7b9c1d3e5f7a9b1d;
+
 fn COMPONENT_STATE() -> ComponentState {
     AccountComponent::component_state_for_testing()
 }
@@ -420,6 +424,27 @@ fn test_initializer() {
 
     let supports_isrc6 = mock_state.supports_interface(ISRC6_ID);
     assert!(supports_isrc6);
+}
+
+#[test]
+#[should_panic(expected: 'Account: invalid public key')]
+fn test_initializer_zero_public_key() {
+    let mut state = COMPONENT_STATE();
+    state.initializer(0);
+}
+
+#[test]
+#[should_panic(expected: 'Account: invalid public key')]
+fn test_initializer_off_curve_public_key() {
+    let mut state = COMPONENT_STATE();
+    state.initializer(5);
+}
+
+#[test]
+#[should_panic(expected: 'Account: invalid public key')]
+fn test_initializer_off_curve_large_public_key() {
+    let mut state = COMPONENT_STATE();
+    state.initializer(OFF_CURVE_PUBLIC_KEY);
 }
 
 #[test]

@@ -196,7 +196,7 @@ fn test_transfer_from() {
 }
 
 #[test]
-fn test_transfer_from_doesnt_consume_infinite_allowance() {
+fn test_transfer_from_does_not_consume_infinite_allowance() {
     let (_, mut dispatcher) = setup_dispatcher();
 
     start_cheat_caller_address(dispatcher.contract_address, OWNER);
@@ -260,7 +260,7 @@ fn test_transferFrom() {
 }
 
 #[test]
-fn test_transferFrom_doesnt_consume_infinite_allowance() {
+fn test_transferFrom_does_not_consume_infinite_allowance() {
     let (_, mut dispatcher) = setup_dispatcher();
     start_cheat_caller_address(dispatcher.contract_address, OWNER);
     dispatcher.approve(SPENDER, Bounded::MAX);

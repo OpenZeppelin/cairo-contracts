@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `Falcon512AccountComponent`, `Falcon512SignatureVerifier`, `Falcon512ShakeVerifier`, and
   `Falcon512ShakeDirectVerifier` for Falcon-512 account validation (#1730, #1759, #1784)
+  - The validation-gas optimizations in #1784 build on ideas from
+    [@Nadai2010](https://github.com/Nadai2010) (packed Keccak permutation, unreduced message
+    point, and single-division hint check) and [@odinfree](https://github.com/odinfree)
+    (column-4 lane packing).
 - `Falcon512ShakeAccountUpgradeable` and `Falcon512ShakeDirectAccountUpgradeable` presets with
   SRC9 and class upgrades, and `Falcon512AccountUpgradeableABI` (#1730)
 - `IFeltArrayDeployable`, `IFeltArrayPublicKey`, `IFeltArrayPublicKeyCamel`, and

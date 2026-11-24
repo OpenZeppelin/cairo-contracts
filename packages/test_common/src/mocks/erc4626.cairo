@@ -13,7 +13,8 @@ pub mod ERC4626Mock {
     impl ERC4626ComponentImpl = ERC4626Component::ERC4626Impl<ContractState>;
     // ERC4626MetadataImpl is a custom impl of IERC20Metadata
     #[abi(embed_v0)]
-    impl ERC4626MetadataImpl = ERC4626Component::ERC4626MetadataImpl<ContractState>;
+    impl ERC4626MetadataImpl =
+        ERC4626Component::ERC4626MetadataImpl<ContractState>;
 
     // ERC20
     #[abi(embed_v0)]
@@ -56,7 +57,8 @@ pub mod ERC4626ExternalVaultMock {
     impl ERC4626ComponentImpl = ERC4626Component::ERC4626Impl<ContractState>;
     // ERC4626MetadataImpl is a custom impl of IERC20Metadata
     #[abi(embed_v0)]
-    impl ERC4626MetadataImpl = ERC4626Component::ERC4626MetadataImpl<ContractState>;
+    impl ERC4626MetadataImpl =
+        ERC4626Component::ERC4626MetadataImpl<ContractState>;
 
     // ERC20
     #[abi(embed_v0)]
@@ -134,7 +136,8 @@ pub mod ERC4626OffsetMock {
     impl ERC4626ComponentImpl = ERC4626Component::ERC4626Impl<ContractState>;
     // ERC4626MetadataImpl is a custom impl of IERC20Metadata
     #[abi(embed_v0)]
-    impl ERC4626MetadataImpl = ERC4626Component::ERC4626MetadataImpl<ContractState>;
+    impl ERC4626MetadataImpl =
+        ERC4626Component::ERC4626MetadataImpl<ContractState>;
 
     // ERC20
     #[abi(embed_v0)]
@@ -179,7 +182,8 @@ pub mod ERC4626LimitsMock {
     impl ERC4626ComponentImpl = ERC4626Component::ERC4626Impl<ContractState>;
     // ERC4626MetadataImpl is a custom impl of IERC20Metadata
     #[abi(embed_v0)]
-    impl ERC4626MetadataImpl = ERC4626Component::ERC4626MetadataImpl<ContractState>;
+    impl ERC4626MetadataImpl =
+        ERC4626Component::ERC4626MetadataImpl<ContractState>;
 
     // ERC20
     #[abi(embed_v0)]
@@ -261,7 +265,8 @@ pub mod ERC4626AssetsFeesMock {
     impl ERC4626ComponentImpl = ERC4626Component::ERC4626Impl<ContractState>;
     // ERC4626MetadataImpl is a custom impl of IERC20Metadata
     #[abi(embed_v0)]
-    impl ERC4626MetadataImpl = ERC4626Component::ERC4626MetadataImpl<ContractState>;
+    impl ERC4626MetadataImpl =
+        ERC4626Component::ERC4626MetadataImpl<ContractState>;
 
     // ERC20
     #[abi(embed_v0)]
@@ -479,7 +484,8 @@ pub mod ERC4626SharesFeesMock {
     impl ERC4626ComponentImpl = ERC4626Component::ERC4626Impl<ContractState>;
     // ERC4626MetadataImpl is a custom impl of IERC20Metadata
     #[abi(embed_v0)]
-    impl ERC4626MetadataImpl = ERC4626Component::ERC4626MetadataImpl<ContractState>;
+    impl ERC4626MetadataImpl =
+        ERC4626Component::ERC4626MetadataImpl<ContractState>;
 
     // ERC20
     #[abi(embed_v0)]
@@ -688,7 +694,8 @@ pub mod ERC4626MockWithHooks {
     impl ERC4626ComponentImpl = ERC4626Component::ERC4626Impl<ContractState>;
     // ERC4626MetadataImpl is a custom impl of IERC20Metadata
     #[abi(embed_v0)]
-    impl ERC4626MetadataImpl = ERC4626Component::ERC4626MetadataImpl<ContractState>;
+    impl ERC4626MetadataImpl =
+        ERC4626Component::ERC4626MetadataImpl<ContractState>;
 
     // ERC20
     #[abi(embed_v0)]

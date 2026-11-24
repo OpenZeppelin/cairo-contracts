@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Unreleased
 
+### Changed
+
+- Updated the Cairo and Scarb requirement to 2.21.0.
+
 ## 2.2.0 (2026-08-26)
 
 ### Added

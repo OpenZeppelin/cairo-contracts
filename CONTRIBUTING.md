@@ -99,7 +99,7 @@ We may close low-effort AI output without further explanation.
 ## Development setup
 
 Install Scarb and Starknet Foundry using the versions in [Scarb.toml](Scarb.toml):
-`workspace.package.scarb-version` pins Scarb (and its bundled Cairo compiler), and
+`workspace.tool.openzeppelin.scarb-version` pins Scarb (and its bundled Cairo compiler), and
 `workspace.dependencies.snforge_std` pins the matching `snforge` version. The manifests also
 specify each package's Cairo edition. Rust and Cargo are required for workspace builds and
 tests because `test_common` depends on the Rust macro plugin. Node.js and npm are needed for

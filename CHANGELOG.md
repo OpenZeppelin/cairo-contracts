@@ -24,6 +24,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `IMultisigAccount`, `IMultisigDeployable`, and `MultisigAccountABI` interfaces (#1745)
 - `MultisigAccount` support in the `with_components` macro (#1745)
 
+### Changed
+
+- Bump Cairo and Scarb to 2.21.0.
+
 ### Fixed
 
 - `TimelockControllerComponent::getRoleAdmin` delegates to `get_role_admin` instead of calling

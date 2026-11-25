@@ -85,4 +85,3 @@ fn test_set_token_uri_unauthorized() {
     start_cheat_caller_address(test_address(), OTHER);
     state.set_token_uri(SAMPLE_ID, TOKEN_URI());
 }
-

@@ -11,7 +11,6 @@ keywords = [
 version.workspace = true
 edition.workspace = true
 cairo-version.workspace = true
-scarb-version.workspace = true
 authors.workspace = true
 description.workspace = true
 documentation.workspace = true
@@ -42,7 +41,6 @@ fuzzing = []
 [lib]
 
 [[target.starknet-contract]]
-allowed-libfuncs-list.name = "experimental"
 sierra = true
 casm = false
 

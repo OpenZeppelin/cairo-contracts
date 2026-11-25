@@ -8,8 +8,9 @@ pub mod meta_tx_v0;
 pub mod multisig_account;
 pub mod vesting;
 
-pub use account::AccountUpgradeableABI;
-pub use account::{AccountUpgradeableABIDispatcher, AccountUpgradeableABIDispatcherTrait};
+pub use account::{
+    AccountUpgradeableABI, AccountUpgradeableABIDispatcher, AccountUpgradeableABIDispatcherTrait,
+};
 pub use erc1155::{
     ERC1155UpgradeableABI, ERC1155UpgradeableABIDispatcher, ERC1155UpgradeableABIDispatcherTrait,
 };

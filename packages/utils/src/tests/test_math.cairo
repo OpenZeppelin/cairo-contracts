@@ -119,7 +119,9 @@ fn test_mul_div_result_gt_u256() {
 fn test_mul_div_round_down_small_values() {
     let round_down = array![Rounding::Floor, Rounding::Trunc];
     let args_list = array![ // (x, y, denominator, expected result)
-    (3, 4, 5, 2), (3, 5, 5, 3)]
+        (3, 4, 5, 2),
+        (3, 5, 5, 3)
+    ]
         .span();
 
     for rounding in round_down {
@@ -136,9 +138,11 @@ fn test_mul_div_round_down_large_values() {
     let u256_max: u256 = Bounded::MAX;
     let args_list = array![
         // (x, y, denominator, expected result)
-        (42, u256_max - 1, u256_max, 41), (17, u256_max, u256_max, 17),
+        (42, u256_max - 1, u256_max, 41),
+        (17, u256_max, u256_max, 17),
         (u256_max - 1, u256_max - 1, u256_max, u256_max - 2),
-        (u256_max, u256_max - 1, u256_max, u256_max - 1), (u256_max, u256_max, u256_max, u256_max),
+        (u256_max, u256_max - 1, u256_max, u256_max - 1),
+        (u256_max, u256_max, u256_max, u256_max),
     ]
         .span();
 
@@ -154,7 +158,9 @@ fn test_mul_div_round_down_large_values() {
 fn test_mul_div_round_up_small_values() {
     let round_up = array![Rounding::Ceil, Rounding::Expand];
     let args_list = array![ // (x, y, denominator, expected result)
-    (3, 4, 5, 3), (3, 5, 5, 3)]
+        (3, 4, 5, 3),
+        (3, 5, 5, 3)
+    ]
         .span();
 
     for rounding in round_up {
@@ -171,9 +177,11 @@ fn test_mul_div_round_up_large_values() {
     let u256_max: u256 = Bounded::MAX;
     let args_list = array![
         // (x, y, denominator, expected result)
-        (42, u256_max - 1, u256_max, 42), (17, u256_max, u256_max, 17),
+        (42, u256_max - 1, u256_max, 42),
+        (17, u256_max, u256_max, 17),
         (u256_max - 1, u256_max - 1, u256_max, u256_max - 1),
-        (u256_max, u256_max - 1, u256_max, u256_max - 1), (u256_max, u256_max, u256_max, u256_max),
+        (u256_max, u256_max - 1, u256_max, u256_max - 1),
+        (u256_max, u256_max, u256_max, u256_max),
     ]
         .span();
 

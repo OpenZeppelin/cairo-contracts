@@ -28,8 +28,7 @@ edition.workspace = true
 [workspace.package]
 version = "4.0.1"
 edition = "2024_07"
-cairo-version = "2.18.0"
-scarb-version = "2.18.0"
+cairo-version = "2.21.0"
 authors = ["OpenZeppelin Community <maintainers@openzeppelin.org>"]
 description = "OpenZeppelin Contracts written in Cairo for Starknet, a decentralized ZK Rollup"
 documentation = "https://docs.openzeppelin.com/contracts-cairo"
@@ -44,8 +43,8 @@ keywords = [
 ]
 
 [workspace.dependencies]
-assert_macros = "2.18.0"
-starknet = "2.18.0"
+assert_macros = "2.21.0"
+starknet = "2.21.0"
 snforge_std = "0.64.0"
 
 [dependencies]
@@ -71,9 +70,11 @@ openzeppelin_testing = { path = "packages/testing" }
 [lib]
 
 [[target.starknet-contract]]
-allowed-libfuncs-list.name = "experimental"
 sierra = true
 casm = false
+
+[workspace.tool.openzeppelin]
+scarb-version = "2.21.0"
 
 [workspace.tool.fmt]
 sort-module-level-items = true

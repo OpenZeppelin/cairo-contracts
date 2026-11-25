@@ -1104,7 +1104,10 @@ fn test_price_change_during_reentrancy_doesnt_affect_withdraw() {
     vault.withdraw(value, HOLDER, HOLDER);
 
     // Check main event to ensure price is as previewed
-    spy.assert_event_withdraw(vault.contract_address, HOLDER, HOLDER, HOLDER, value, shares_before);
+    spy
+        .assert_event_withdraw(
+            vault.contract_address, HOLDER, HOLDER, HOLDER, value, shares_before,
+        );
 
     // Check that price is modified after reentrant tx
     let shares_after = vault.preview_withdraw(value);

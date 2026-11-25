@@ -126,4 +126,3 @@ fn test_different_token_ids_have_different_uris() {
     assert_eq!(state.token_uri(1), uri_1);
     assert_eq!(state.token_uri(2), uri_2);
 }
-

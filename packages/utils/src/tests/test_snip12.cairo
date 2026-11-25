@@ -82,4 +82,3 @@ fn test_OffchainMessageHashImpl() {
     );
     assert_eq!(message.get_message_hash(OWNER), expected);
 }
-

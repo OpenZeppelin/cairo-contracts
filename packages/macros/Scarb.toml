@@ -9,7 +9,6 @@ keywords = [
 version.workspace = true
 edition.workspace = true
 cairo-version.workspace = true
-scarb-version.workspace = true
 authors.workspace = true
 description.workspace = true
 documentation.workspace = true

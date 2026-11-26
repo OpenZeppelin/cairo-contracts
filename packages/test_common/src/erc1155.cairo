@@ -1,5 +1,5 @@
 use openzeppelin_testing as utils;
-use openzeppelin_testing::constants::{PUBKEY, TOKEN_ID, TOKEN_ID_2, TOKEN_VALUE, TOKEN_VALUE_2};
+use openzeppelin_testing::constants::{TOKEN_ID, TOKEN_ID_2, TOKEN_VALUE, TOKEN_VALUE_2, stark};
 use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, ExpectedEvent};
 use starknet::ContractAddress;
 
@@ -8,12 +8,12 @@ pub fn setup_receiver() -> ContractAddress {
 }
 
 pub fn setup_account() -> ContractAddress {
-    let calldata = array![PUBKEY];
+    let calldata = array![stark::KEY_PAIR().public_key];
     utils::declare_and_deploy("DualCaseAccountMock", calldata)
 }
 
 pub fn deploy_another_account_at(existing: ContractAddress, target_address: ContractAddress) {
-    let calldata = array![PUBKEY];
+    let calldata = array![stark::KEY_PAIR().public_key];
     utils::deploy_another_at(existing, target_address, calldata);
 }
 

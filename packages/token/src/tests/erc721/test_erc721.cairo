@@ -5,8 +5,8 @@ use openzeppelin_test_common::erc721::ERC721SpyHelpers;
 use openzeppelin_test_common::mocks::erc721::{DualCaseERC721Mock, SnakeERC721MockWithHooks};
 use openzeppelin_testing as utils;
 use openzeppelin_testing::constants::{
-    BASE_URI, BASE_URI_2, CALLER, DATA, NAME, OPERATOR, OTHER, OWNER, PUBKEY, RECIPIENT, SPENDER,
-    SYMBOL, TOKEN_ID, TOKEN_ID_2, ZERO,
+    BASE_URI, BASE_URI_2, CALLER, DATA, NAME, OPERATOR, OTHER, OWNER, RECIPIENT, SPENDER, SYMBOL,
+    TOKEN_ID, TOKEN_ID_2, ZERO, stark,
 };
 use openzeppelin_testing::{EventSpyExt, EventSpyQueue as EventSpy, ExpectedEvent, spy_events};
 use snforge_std::{start_cheat_caller_address, test_address};
@@ -54,7 +54,7 @@ fn setup_receiver() -> ContractAddress {
 }
 
 fn setup_account() -> ContractAddress {
-    let calldata = array![PUBKEY];
+    let calldata = array![stark::KEY_PAIR().public_key];
     utils::declare_and_deploy("DualCaseAccountMock", calldata)
 }
 

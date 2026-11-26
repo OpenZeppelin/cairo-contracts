@@ -1045,7 +1045,7 @@ fn test_share_price_with_reentrancy_after_withdraw() {
 }
 
 #[test]
-fn test_price_change_during_reentrancy_doesnt_affect_deposit() {
+fn test_price_change_during_reentrancy_does_not_affect_deposit() {
     let (asset, vault) = setup_reentrancy();
 
     let value: u256 = 1_000_000_000_000_000_000;
@@ -1076,7 +1076,7 @@ fn test_price_change_during_reentrancy_doesnt_affect_deposit() {
 }
 
 #[test]
-fn test_price_change_during_reentrancy_doesnt_affect_withdraw() {
+fn test_price_change_during_reentrancy_does_not_affect_withdraw() {
     let (asset, vault) = setup_reentrancy();
 
     let value: u256 = 1_000_000_000_000_000_000;
